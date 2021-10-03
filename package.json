@@ -7,6 +7,9 @@
   "author": "WoW Arena Logs",
   "homepage": ".",
   "main": "packages/next-desktop/build/electron/main.js",
+  "engines": {
+    "node": ">=14"
+  },
   "workspaces": [
     "packages/*"
   ],
