@@ -2,7 +2,7 @@ name: Publish Parser to NPM
 on:
   push:
     branches:
-      - publish-parser-to-npm
+      - release/parser
 jobs:
   publish:
     runs-on: ubuntu-latest

@@ -20,7 +20,7 @@
     "prepare": "yarn build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "publish:no-bump": "git checkout publish-parser-to-npm && git pull && git merge --no-edit --no-ff main && git push && git checkout main",
+    "publish:no-bump": "git checkout release/parser && git pull && git merge --no-edit --no-ff main && git push && git checkout main",
     "publish:patch": "git checkout main && bump patch -t \"v%s\" -p && yarn publish:no-bump",
     "publish:minor": "git checkout main && bump minor -t \"v%s\" -p && yarn publish:no-bump",
     "publish:major": "git checkout main && bump major -t \"v%s\" -p && yarn publish:no-bump",
