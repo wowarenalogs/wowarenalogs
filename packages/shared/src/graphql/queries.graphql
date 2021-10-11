@@ -1,0 +1,168 @@
+fragment endInfos on ArenaMatchEndInfo {
+  timestamp
+  winningTeamId
+  matchDurationInSeconds
+  team0MMR
+  team1MMR
+}
+fragment startInfos on ArenaMatchStartInfo {
+  timestamp
+  zoneId
+  item1
+  bracket
+  isRanked
+}
+fragment itemInfos on EquippedItem {
+  bonuses
+  enchants
+  gems
+  id
+  ilvl
+}
+fragment covInfos on CovenantInfo {
+  covenantId
+  souldbindId
+  conduitIdsJSON
+  item2
+  item3JSON
+}
+fragment combatantInfos on CombatantInfo {
+  teamId
+  strength
+  agility
+  stamina
+  intelligence
+  dodge
+  parry
+  block
+  critMelee
+  critRanged
+  critSpell
+  speed
+  lifesteal
+  hasteMelee
+  hasteRanged
+  hasteSpell
+  avoidance
+  mastery
+  versatilityDamgeDone
+  versatilityHealingDone
+  versatilityDamageTaken
+  armor
+  specId
+  talents
+  pvpTalents
+  covenantInfo {
+    ...covInfos
+  }
+  equipment {
+    ...itemInfos
+  }
+  interestingAurasJSON
+  item29
+  item30
+  personalRating
+  highestPvpTier
+}
+fragment unitInfos on CombatUnitStub {
+  id
+  name
+  info {
+    ...combatantInfos
+  }
+  type
+  spec
+  class
+  reaction
+}
+
+fragment combatInfos on CombatDataStub {
+  id
+  wowVersion
+  ownerId
+  units {
+    ...unitInfos
+  }
+  result
+  logObjectUrl
+  startInfo {
+    ...startInfos
+  }
+  endInfo {
+    ...endInfos
+  }
+  startTime
+  endTime
+  playerTeamId
+  playerTeamRating
+  hasAdvancedLogging
+  utcCorrected
+}
+
+query GetPublicMatches(
+  $wowVersion: String!
+  $bracket: String
+  $minRating: Float
+  $compQueryString: String
+  $lhsShouldBeWinner: Boolean
+  $offset: Int = 0
+  $count: Int = 50
+) {
+  latestMatches(
+    wowVersion: $wowVersion
+    bracket: $bracket
+    minRating: $minRating
+    compQueryString: $compQueryString
+    lhsShouldBeWinner: $lhsShouldBeWinner
+    offset: $offset
+    count: $count
+  ) {
+    combats {
+      ...combatInfos
+    }
+    queryLimitReached
+  }
+}
+
+query GetMyMatches($anonymousUserId: String = null, $offset: Int = 0, $count: Int = 50) {
+  myMatches(anonymousUserId: $anonymousUserId, offset: $offset, count: $count) {
+    combats {
+      ...combatInfos
+    }
+    queryLimitReached
+  }
+}
+
+query GetUserMatches($userId: String!, $offset: Int = 0, $count: Int = 50) {
+  userMatches(userId: $userId, offset: $offset, count: $count) {
+    combats {
+      ...combatInfos
+    }
+    queryLimitReached
+  }
+}
+
+query GetMatchesWithCombatant($playerName: String!) {
+  matchesWithCombatant(playerName: $playerName) {
+    ...combatInfos
+  }
+}
+
+query GetProfile {
+  me {
+    id
+    battletag
+    referrer
+    subscriptionTier
+    tags
+  }
+}
+
+mutation SetUserReferrer($referrer: String) {
+  setUserReferrer(referrer: $referrer) {
+    id
+    battletag
+    referrer
+    subscriptionTier
+  }
+}

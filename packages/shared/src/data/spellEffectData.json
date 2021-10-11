@@ -1,0 +1,1227 @@
+{
+  "66": {
+    "spellId": "66",
+    "name": "Invisibility",
+    "cooldownSeconds": 300,
+    "charges": {},
+    "durationSeconds": 3
+  },
+  "498": {
+    "spellId": "498",
+    "name": "Divine Protection",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "205191": {
+    "spellId": "205191",
+    "name": "Eye for an Eye",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "642": {
+    "spellId": "642",
+    "name": "Divine Shield",
+    "cooldownSeconds": 300,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "323639": {
+    "spellId": "323639",
+    "name": "The Hunt",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 30
+  },
+  "853": {
+    "spellId": "853",
+    "name": "Hammer of Justice",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 6
+  },
+  "1022": {
+    "spellId": "1022",
+    "name": "Blessing of Protection",
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 300
+    },
+    "durationSeconds": 10
+  },
+  "1122": {
+    "spellId": "1122",
+    "name": "Summon Infernal",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 0
+  },
+  "1766": {
+    "spellId": "1766",
+    "name": "Kick",
+    "cooldownSeconds": 15,
+    "charges": {},
+    "durationSeconds": 5
+  },
+  "1856": {
+    "spellId": "1856",
+    "name": "Vanish",
+    "cooldownSeconds": 120,
+    "charges": {}
+  },
+  "1966": {
+    "spellId": "1966",
+    "name": "Feint",
+    "cooldownSeconds": 15,
+    "charges": {},
+    "durationSeconds": 5
+  },
+  "2094": {
+    "spellId": "2094",
+    "name": "Blind",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 60
+  },
+  "2139": {
+    "spellId": "2139",
+    "name": "Counterspell",
+    "cooldownSeconds": 24,
+    "charges": {},
+    "durationSeconds": 6
+  },
+  "5211": {
+    "spellId": "5211",
+    "name": "Mighty Bash",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "5246": {
+    "spellId": "5246",
+    "name": "Intimidating Shout",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "5277": {
+    "spellId": "5277",
+    "name": "Evasion",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "5394": {
+    "spellId": "5394",
+    "name": "Healing Stream Totem",
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 30
+    },
+    "durationSeconds": 15
+  },
+  "6552": {
+    "spellId": "6552",
+    "name": "Pummel",
+    "cooldownSeconds": 15,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "8122": {
+    "spellId": "8122",
+    "name": "Psychic Scream",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "8143": {
+    "spellId": "8143",
+    "name": "Tremor Totem",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "6789": {
+    "spellId": "6789",
+    "name": "Mortal Coil",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 3
+  },
+  "198144": {
+    "spellId": "198144",
+    "name": "Ice Form",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 12
+  },
+  "10060": {
+    "spellId": "10060",
+    "name": "Power Infusion",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "11327": {
+    "spellId": "11327",
+    "name": "Vanish",
+    "charges": {},
+    "cooldownSeconds": 120,
+    "durationSeconds": 3
+  },
+  "12042": {
+    "spellId": "12042",
+    "name": "Arcane Power",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "12051": {
+    "spellId": "12051",
+    "name": "Evocation",
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 180
+    },
+    "durationSeconds": 6
+  },
+  "12472": {
+    "spellId": "12472",
+    "name": "Icy Veins",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "13750": {
+    "spellId": "13750",
+    "name": "Adrenaline Rush",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "15487": {
+    "spellId": "15487",
+    "name": "Silence",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "16191": {
+    "spellId": "16191",
+    "name": "Mana Tide Totem",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "19236": {
+    "spellId": "19236",
+    "name": "Desperate Prayer",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "19574": {
+    "spellId": "19574",
+    "name": "Bestial Wrath",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "19577": {
+    "spellId": "19577",
+    "name": "Intimidation",
+    "cooldownSeconds": 60,
+    "charges": {}
+  },
+  "22812": {
+    "spellId": "22812",
+    "name": "Barkskin",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "22842": {
+    "spellId": "22842",
+    "name": "Frenzied Regeneration",
+    "cooldownSeconds": 1,
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 36
+    },
+    "durationSeconds": 3
+  },
+  "29166": {
+    "spellId": "29166",
+    "name": "Innervate",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "15286": {
+    "spellId": "15286",
+    "name": "Vampiric Embrace",
+    "durationSeconds": 15,
+    "cooldownSeconds": 120,
+    "charges": {}
+  },
+  "30283": {
+    "spellId": "30283",
+    "name": "Shadowfury",
+    "durationSeconds": 3,
+    "cooldownSeconds": 60,
+    "charges": {}
+  },
+  "31224": {
+    "spellId": "31224",
+    "name": "Cloak of Shadows",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 5
+  },
+  "31821": {
+    "spellId": "31821",
+    "name": "Aura Mastery",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "31884": {
+    "spellId": "31884",
+    "name": "Avenging Wrath",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "33206": {
+    "spellId": "33206",
+    "name": "Pain Suppression",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "33891": {
+    "spellId": "33891",
+    "name": "Incarnation: Tree of Life",
+    "cooldownSeconds": 180,
+    "charges": {}
+  },
+  "34433": {
+    "spellId": "34433",
+    "name": "Shadowfiend",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "42650": {
+    "spellId": "42650",
+    "name": "Army of the Dead",
+    "cooldownSeconds": 480,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "45438": {
+    "spellId": "45438",
+    "name": "Ice Block",
+    "cooldownSeconds": 240,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "47528": {
+    "spellId": "47528",
+    "name": "Mind Freeze",
+    "cooldownSeconds": 15,
+    "charges": {},
+    "durationSeconds": 3
+  },
+  "47568": {
+    "spellId": "47568",
+    "name": "Empower Rune Weapon",
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 120
+    },
+    "durationSeconds": 20
+  },
+  "47585": {
+    "spellId": "47585",
+    "name": "Dispersion",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 6
+  },
+  "47788": {
+    "spellId": "47788",
+    "name": "Guardian Spirit",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "48020": {
+    "spellId": "48020",
+    "charges": {},
+    "name": "Demonic Circle: Teleport",
+    "cooldownSeconds": 30
+  },
+  "48707": {
+    "spellId": "48707",
+    "name": "Anti-Magic Shell",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 5
+  },
+  "48743": {
+    "spellId": "48743",
+    "name": "Death Pact",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "48792": {
+    "spellId": "48792",
+    "name": "Icebound Fortitude",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "49039": {
+    "spellId": "49039",
+    "name": "Lichborne",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "49206": {
+    "spellId": "49206",
+    "name": "Summon Gargoyle",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 35
+  },
+  "51052": {
+    "spellId": "51052",
+    "name": "Anti-Magic Zone",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "51271": {
+    "spellId": "51271",
+    "name": "Pillar of Frost",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 12
+  },
+  "51533": {
+    "spellId": "51533",
+    "name": "Feral Spirit",
+    "cooldownSeconds": 120,
+    "charges": {}
+  },
+  "53480": {
+    "spellId": "53480",
+    "name": "Roar of Sacrifice",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 12
+  },
+  "55342": {
+    "spellId": "55342",
+    "name": "Mirror Image",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 40
+  },
+  "58875": {
+    "spellId": "58875",
+    "name": "Spirit Walk",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "61336": {
+    "spellId": "61336",
+    "name": "Survival Instincts",
+    "cooldownSeconds": 6,
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 180
+    },
+    "durationSeconds": 6
+  },
+  "63560": {
+    "spellId": "63560",
+    "name": "Dark Transformation",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "64044": {
+    "spellId": "64044",
+    "name": "Psychic Horror",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "64843": {
+    "spellId": "64843",
+    "name": "Divine Hymn",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "64901": {
+    "spellId": "64901",
+    "name": "Symbol of Hope",
+    "cooldownSeconds": 300,
+    "charges": {},
+    "durationSeconds": 5
+  },
+  "73325": {
+    "spellId": "73325",
+    "name": "Leap of Faith",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 1
+  },
+  "78675": {
+    "spellId": "78675",
+    "name": "Solar Beam",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "79140": {
+    "spellId": "79140",
+    "name": "Vendetta",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "79206": {
+    "spellId": "79206",
+    "name": "Spiritwalker's Grace",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "86949": {
+    "spellId": "86949",
+    "name": "Cauterize",
+    "cooldownSeconds": 300,
+    "durationSeconds": 6,
+    "charges": {}
+  },
+  "96231": {
+    "spellId": "96231",
+    "name": "Rebuke",
+    "cooldownSeconds": 15,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "97463": {
+    "spellId": "97463",
+    "name": "Rallying Cry",
+    "charges": {},
+    "cooldownSeconds": 180,
+    "durationSeconds": 10
+  },
+  "98008": {
+    "spellId": "98008",
+    "name": "Spirit Link Totem",
+    "cooldownSeconds": 180,
+    "durationSeconds": 6
+  },
+  "102342": {
+    "spellId": "102342",
+    "name": "Ironbark",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 12
+  },
+  "102543": {
+    "spellId": "102543",
+    "name": "Incarnation: King of the Jungle",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 30
+  },
+  "102560": {
+    "spellId": "102560",
+    "name": "Incarnation: Chosen of Elune",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 30
+  },
+  "102793": {
+    "spellId": "102793",
+    "name": "Ursol's Vortex",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "104773": {
+    "spellId": "104773",
+    "name": "Unending Resolve",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "152262": {
+    "spellId": "152262",
+    "name": "Seraphim",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "106951": {
+    "spellId": "106951",
+    "name": "Berserk",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "107574": {
+    "spellId": "107574",
+    "name": "Avatar",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "108238": {
+    "spellId": "108238",
+    "name": "Renewal",
+    "cooldownSeconds": 90,
+    "charges": {}
+  },
+  "108271": {
+    "spellId": "108271",
+    "name": "Astral Shift",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "108280": {
+    "spellId": "108280",
+    "name": "Healing Tide Totem",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "109248": {
+    "spellId": "109248",
+    "name": "Binding Shot",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "109304": {
+    "spellId": "109304",
+    "name": "Exhilaration",
+    "cooldownSeconds": 120,
+    "charges": {}
+  },
+  "109964": {
+    "spellId": "109964",
+    "name": "Spirit Shell",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "111898": {
+    "spellId": "111898",
+    "name": "Grimoire: Felguard",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 17
+  },
+  "113858": {
+    "spellId": "113858",
+    "name": "Dark Soul: Instability",
+    "cooldownSeconds": 120,
+    "charges": {
+      "charges": 0,
+      "chargeCooldownSeconds": 120
+    },
+    "durationSeconds": 20
+  },
+  "113860": {
+    "spellId": "113860",
+    "name": "Dark Soul: Misery",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "114051": {
+    "spellId": "114051",
+    "name": "Ascendance",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "114052": {
+    "spellId": "114052",
+    "name": "Ascendance",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "356567": {
+    "spellId": "356567",
+    "name": "Shackles of Malediction",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "324631": {
+    "spellId": "324631",
+    "name": "Fleshcraft",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 120
+  },
+  "310143": {
+    "spellId": "310143",
+    "name": "Soulshape",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 12
+  },
+  "323436": {
+    "spellId": "323436",
+    "name": "Purify Soul",
+    "cooldownSeconds": 180,
+    "charges": {}
+  },
+  "115078": {
+    "spellId": "115078",
+    "name": "Paralysis",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 60
+  },
+  "115310": {
+    "spellId": "115310",
+    "name": "Revival",
+    "cooldownSeconds": 180,
+    "charges": {}
+  },
+  "116011": {
+    "spellId": "116011",
+    "name": "Rune of Power",
+    "cooldownSeconds": 10,
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 45
+    },
+    "durationSeconds": 12
+  },
+  "116705": {
+    "spellId": "116705",
+    "name": "Spear Hand Strike",
+    "cooldownSeconds": 15,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "116841": {
+    "spellId": "116841",
+    "name": "Tiger's Lust",
+    "cooldownSeconds": 30,
+    "charges": {},
+    "durationSeconds": 6
+  },
+  "116849": {
+    "spellId": "116849",
+    "name": "Life Cocoon",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 12
+  },
+  "118038": {
+    "spellId": "118038",
+    "name": "Die by the Sword",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "119381": {
+    "spellId": "119381",
+    "name": "Leg Sweep",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 3
+  },
+  "119910": {
+    "spellId": "119910",
+    "name": "Spell Lock",
+    "cooldownSeconds": 24,
+    "charges": {}
+  },
+  "121471": {
+    "spellId": "121471",
+    "name": "Shadow Blades",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "122470": {
+    "spellId": "122470",
+    "name": "Touch of Karma",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "122783": {
+    "spellId": "122783",
+    "name": "Diffuse Magic",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 6
+  },
+  "123904": {
+    "spellId": "123904",
+    "name": "Invoke Xuen, the White Tiger",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 24
+  },
+  "131894": {
+    "spellId": "131894",
+    "name": "A Murder of Crows",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "210256": {
+    "spellId": "210256",
+    "name": "Blessing of Sanctuary",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 5
+  },
+  "132158": {
+    "spellId": "132158",
+    "name": "Nature's Swiftness",
+    "cooldownSeconds": 60,
+    "charges": {}
+  },
+  "132409": {
+    "spellId": "132409",
+    "name": "Spell Lock",
+    "cooldownSeconds": 24,
+    "charges": {}
+  },
+  "137639": {
+    "spellId": "137639",
+    "name": "Storm, Earth, and Fire",
+    "cooldownSeconds": 16,
+    "charges": {
+      "charges": 2,
+      "chargeCooldownSeconds": 90
+    },
+    "durationSeconds": 15
+  },
+  "145629": {
+    "spellId": "145629",
+    "name": "Anti-Magic Zone",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "147362": {
+    "spellId": "147362",
+    "name": "Counter Shot",
+    "cooldownSeconds": 24,
+    "charges": {},
+    "durationSeconds": 3
+  },
+  "152279": {
+    "spellId": "152279",
+    "name": "Breath of Sindragosa",
+    "cooldownSeconds": 120,
+    "charges": {}
+  },
+  "186265": {
+    "spellId": "186265",
+    "name": "Aspect of the Turtle",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "187650": {
+    "spellId": "187650",
+    "name": "Freezing Trap",
+    "cooldownSeconds": 30,
+    "charges": {}
+  },
+  "190319": {
+    "spellId": "190319",
+    "name": "Combustion",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "191427": {
+    "spellId": "191427",
+    "name": "Metamorphosis",
+    "cooldownSeconds": 300,
+    "charges": {}
+  },
+  "191634": {
+    "spellId": "191634",
+    "name": "Stormkeeper",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "193530": {
+    "spellId": "193530",
+    "name": "Aspect of the Wild",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "194223": {
+    "spellId": "194223",
+    "name": "Celestial Alignment",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "196555": {
+    "spellId": "196555",
+    "name": "Netherwalk",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 5
+  },
+  "196718": {
+    "spellId": "196718",
+    "name": "Darkness",
+    "cooldownSeconds": 300,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "197721": {
+    "spellId": "197721",
+    "name": "Flourish",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "197871": {
+    "spellId": "197871",
+    "name": "Dark Archangel",
+    "cooldownSeconds": 60,
+    "durationSeconds": 8,
+    "charges": {}
+  },
+  "198067": {
+    "spellId": "198067",
+    "name": "Fire Elemental",
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 150
+    }
+  },
+  "198103": {
+    "spellId": "198103",
+    "name": "Earth Elemental",
+    "cooldownSeconds": 300,
+    "charges": {}
+  },
+  "198589": {
+    "spellId": "198589",
+    "name": "Blur",
+    "cooldownSeconds": 60,
+    "charges": {}
+  },
+  "198817": {
+    "spellId": "198817",
+    "name": "Sharpen Blade",
+    "cooldownSeconds": 25,
+    "charges": {}
+  },
+  "198838": {
+    "spellId": "198838",
+    "name": "Earthen Wall Totem",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "199448": {
+    "spellId": "199448",
+    "name": "Blessing of Sacrifice",
+    "cooldownSeconds": 120,
+    "durationSeconds": 6,
+    "charges": {}
+  },
+  "6940": {
+    "spellId": "6940",
+    "name": "Blessing of Sacrifice",
+    "cooldownSeconds": 120,
+    "durationSeconds": 12,
+    "charges": {}
+  },
+  "201430": {
+    "spellId": "201430",
+    "name": "Stampede",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 12
+  },
+  "202770": {
+    "spellId": "202770",
+    "name": "Fury of Elune",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "203651": {
+    "spellId": "203651",
+    "name": "Overgrowth",
+    "cooldownSeconds": 60,
+    "charges": {}
+  },
+  "57994": {
+    "spellId": "57994",
+    "name": "Wind Shear",
+    "cooldownSeconds": 12,
+    "durationSeconds": 3,
+    "charges": {}
+  },
+  "204336": {
+    "spellId": "204336",
+    "name": "Grounding Totem",
+    "cooldownSeconds": 30,
+    "durationSeconds": 3,
+    "charges": {}
+  },
+  "204330": {
+    "spellId": "204330",
+    "name": "Skyfury Totem",
+    "cooldownSeconds": 40,
+    "durationSeconds": 15,
+    "charges": {}
+  },
+  "204331": {
+    "spellId": "204331",
+    "name": "Counterstrike Totem",
+    "cooldownSeconds": 45,
+    "durationSeconds": 15,
+    "charges": {}
+  },
+  "205180": {
+    "spellId": "205180",
+    "name": "Summon Darkglare",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "205604": {
+    "spellId": "205604",
+    "name": "Reverse Magic",
+    "cooldownSeconds": 60,
+    "charges": {}
+  },
+  "205691": {
+    "spellId": "205691",
+    "name": "Dire Beast: Basilisk",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 30
+  },
+  "206803": {
+    "spellId": "206803",
+    "name": "Rain from Above",
+    "cooldownSeconds": 60,
+    "durationSeconds": 1,
+    "charges": {}
+  },
+  "207167": {
+    "spellId": "207167",
+    "name": "Blinding Sleet",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 5
+  },
+  "207736": {
+    "spellId": "207736",
+    "name": "Shadowy Duel",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 6
+  },
+  "212182": {
+    "spellId": "212182",
+    "name": "Smoke Bomb",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 5
+  },
+  "212295": {
+    "spellId": "212295",
+    "name": "Nether Ward",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 3
+  },
+  "212552": {
+    "spellId": "212552",
+    "name": "Wraith Walk",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "213602": {
+    "spellId": "213602",
+    "name": "Greater Fade",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "235219": {
+    "spellId": "235219",
+    "name": "Cold Snap",
+    "cooldownSeconds": 300,
+    "charges": {}
+  },
+  "198149": {
+    "spellId": "198149",
+    "name": "Frozen Orb",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "157982": {
+    "spellId": "157982",
+    "name": "Tranquility",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 8
+  },
+  "243435": {
+    "spellId": "243435",
+    "name": "Fortifying Brew",
+    "cooldownSeconds": 420,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "260402": {
+    "spellId": "260402",
+    "name": "Double Tap",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "262161": {
+    "spellId": "262161",
+    "name": "Warbreaker",
+    "cooldownSeconds": 45,
+    "charges": {}
+  },
+  "265187": {
+    "spellId": "265187",
+    "name": "Summon Demonic Tyrant",
+    "cooldownSeconds": 90,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "266779": {
+    "spellId": "266779",
+    "name": "Coordinated Assault",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "200183": {
+    "spellId": "200183",
+    "name": "Apotheosis",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 20
+  },
+  "2050": {
+    "spellId": "2050",
+    "name": "Holy Word: Serenity",
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 60
+    }
+  },
+  "272682": {
+    "spellId": "272682",
+    "name": "Master's Call",
+    "cooldownSeconds": 45,
+    "charges": {}
+  },
+  "275699": {
+    "spellId": "275699",
+    "name": "Apocalypse",
+    "cooldownSeconds": 90,
+    "charges": {}
+  },
+  "279302": {
+    "spellId": "279302",
+    "name": "Frostwyrm's Fury",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "288613": {
+    "spellId": "288613",
+    "name": "Trueshot",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "305497": {
+    "spellId": "305497",
+    "name": "Thorns",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 12
+  },
+  "322118": {
+    "spellId": "322118",
+    "name": "Invoke Yu'lon, the Jade Serpent",
+    "cooldownSeconds": 180,
+    "charges": {},
+    "durationSeconds": 25
+  },
+  "323764": {
+    "spellId": "323764",
+    "name": "Convoke the Spirits",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 4
+  },
+  "255937": {
+    "spellId": "255937",
+    "name": "Wake of Ashes",
+    "cooldownSeconds": 45,
+    "charges": {},
+    "durationSeconds": 5
+  },
+  "5217": {
+    "spellId": "5217",
+    "name": "Tiger's Fury",
+    "cooldownSeconds": 30,
+    "charges": {},
+    "durationSeconds": 10
+  },
+  "184662": {
+    "spellId": "184662",
+    "name": "Shield of Vengeance",
+    "cooldownSeconds": 120,
+    "charges": {},
+    "durationSeconds": 15
+  },
+  "343721": {
+    "spellId": "343721",
+    "name": "Final Reckoning",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 8
+  }
+}

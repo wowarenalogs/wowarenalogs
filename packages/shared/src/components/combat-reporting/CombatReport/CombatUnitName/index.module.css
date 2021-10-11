@@ -1,0 +1,27 @@
+.unit-name {
+  font-weight: bold;
+  flex: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.unit-name-title {
+  font-weight: bold;
+  flex: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 24px;
+}
+.unit-name-spec-icon {
+  height: 20px;
+  width: 20px;
+  border-radius: 4px;
+  background-size: contain;
+}
+.unit-name-spec-icon-large {
+  height: 36px;
+  width: 36px;
+  border-radius: 4px;
+  background-size: contain;
+}

@@ -1,0 +1,12 @@
+.button-no-padding {
+  padding: 0;
+  height: auto;
+}
+
+.reports {
+  width: 100%;
+}
+
+.reportSummary {
+  width: 100%;
+}
