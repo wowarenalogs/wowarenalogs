@@ -1,0 +1,14 @@
+{
+  "name": "@wowarenalogs/desktop",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start:desktop:react": "next start",
+    "build:desktop:react": "next build",
+    "release:desktop": "git checkout release/desktop && git pull && git merge --no-edit --no-ff master && git push && git checkout master",
+    "release:desktop:react": "git checkout release/desktop-react && git pull && git merge --no-edit --no-ff master && git push && git checkout master"
+  },
+  "dependencies": {
+    "@wowarenalogs/shared": "^1.0.0"
+  }
+}

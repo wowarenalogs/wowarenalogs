@@ -6,7 +6,7 @@
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
-  "main": "packages/next-desktop/build/electron/main.js",
+  "main": "packages/desktop/build/electron/main.js",
   "engines": {
     "node": ">=14"
   },
