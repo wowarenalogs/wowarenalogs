@@ -7,7 +7,7 @@
     "dev:web": "cross-env NODE_ENV=development next dev",
     "build:web": "next build",
     "local:web": "yarn build:web && yarn start:web",
-    "release:web": "git checkout release/web && git pull && git merge --no-edit --no-ff master && git push && git checkout master"
+    "release:web": "git checkout release/web && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "dependencies": {
     "@wowarenalogs/shared": "^1.0.0"
