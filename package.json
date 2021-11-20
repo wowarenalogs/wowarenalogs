@@ -21,6 +21,7 @@
     "dev:web": "lerna run dev:web --stream",
     "local:web": "lerna run local:web --stream",
     "dev:desktop": "cross-env NODE_ENV=development BROWSER=none concurrently -k \"cd packages/desktop && next dev\" \"wait-on -d 3000 -i 5000 http://localhost:3000 && tsc -p packages/desktop/electron && electron .\"",
+    "build:parser": "lerna run build:parser --stream",
     "build:web": "lerna run build:web --stream",
     "build:desktop:windows": "shx rm -rf dist && shx rm -rf packages/desktop/build && tsc -p packages/desktop/electron && electron-builder --win --publish=never",
     "build:desktop:mac": "shx rm -rf dist && shx rm -rf packages/desktop/build && tsc -p packages/desktop/electron && electron-builder --mac --publish=never",

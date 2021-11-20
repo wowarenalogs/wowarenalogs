@@ -1,4 +1,4 @@
-import { CombatReport } from '@wowarenalogs/next-shared';
+import { CombatReport } from '@wowarenalogs/shared';
 import { GetServerSideProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';

@@ -1,4 +1,4 @@
-import { AnalysisReport } from '@wowarenalogs/next-shared';
+import { AnalysisReport } from '@wowarenalogs/shared';
 import { GetServerSideProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
