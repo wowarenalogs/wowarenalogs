@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 RUN mkdir packages
 RUN mkdir packages/shared
 RUN mkdir packages/desktop
+RUN mkdir packages/wow-combat-log-parser
 
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 ENV NEXTAUTH_URL="https://desktop-client.wowarenalogs.com"
