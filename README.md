@@ -31,8 +31,8 @@ Our repository contains several npm modules that depend on each other. This is c
 
 To run this project locally you must provide credentials to access the Blizzard api
 
-These must be provided in .env.local -- see packages/next-web/.env.example for the format and required fields
+These must be provided in .env.local -- see packages/web/.env.example for the format and required fields
 
-There is a copy of this file in both /packages/next-web and /packages/next-desktop
+There is a copy of this file in both /packages/web and /packages/desktop
 
 See https://develop.battle.net/access/clients for more information on getting these variables for your own local testing.

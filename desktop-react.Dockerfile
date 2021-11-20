@@ -23,11 +23,14 @@ COPY yarn.lock ./
 COPY tsconfig.json ./
 COPY packages/shared/package.json ./packages/shared
 COPY packages/desktop/package.json ./packages/desktop
+COPY packages/wow-combat-log-parser/package.json ./packages/wow-combat-log-parser
 RUN yarn install --frozeon-lockfile
 COPY ./packages/shared ./packages/shared
 COPY ./packages/desktop ./packages/desktop
+COPY ./packages/wow-combat-log-parser ./packages/wow-combat-log-parser
 
 # Build 
+RUN yarn build:parser
 RUN yarn build:desktop:react
 
 CMD yarn start:desktop:react

@@ -1,4 +1,4 @@
-import { UserMatchesPage } from '@wowarenalogs/next-shared';
+import { UserMatchesPage } from '@wowarenalogs/shared';
 import { GetServerSideProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 

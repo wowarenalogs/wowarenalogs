@@ -15,6 +15,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
+    "build:parser": "tsdx build",
     "test": "tsdx test",
     "lint": "eslint . --ext .ts,.tsx",
     "prepare": "yarn build",

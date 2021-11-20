@@ -23,11 +23,14 @@ COPY yarn.lock ./
 COPY tsconfig.json ./
 COPY packages/shared/package.json ./packages/shared
 COPY packages/web/package.json ./packages/web
+COPY packages/wow-combat-log-parser/package.json ./packages/wow-combat-log-parser
 RUN yarn install --frozeon-lockfile
 COPY ./packages/shared ./packages/shared
 COPY ./packages/web ./packages/web
+COPY ./packages/wow-combat-log-parser ./packages/wow-combat-log-parser
 
 # Build web
+RUN yarn build:parser
 RUN yarn build:web
 
 CMD yarn start:web
