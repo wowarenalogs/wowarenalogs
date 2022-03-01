@@ -16,6 +16,8 @@ ARG bliz_cid
 ENV BLIZZARD_CLIENT_ID=$bliz_cid
 ARG bliz_csecret
 ENV BLIZZARD_CLIENT_SECRET=$bliz_csecret
+ARG jwt_secret
+ENV JWT_SECRET=$jwt_secret
 
 # Install dependencies
 COPY package.json ./

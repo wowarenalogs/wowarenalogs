@@ -96,7 +96,7 @@ export default NextAuth({
     maxAge: 90 * 24 * 60 * 60, // 90 days
   },
   jwt: {
-    secret: '@wowarenalogs/next-web/secret',
+    secret: process.env.JWT_SECRET,
   },
   callbacks: {
     jwt: async (token, user, account, profile, isNewUser) => {
