@@ -392,6 +392,7 @@ export const UnitFrame = (props: IProps) => {
     return spellUses.filter((evt) => trinketSpellIds.includes(evt.spellId));
   }, [spellUses, trinketSpellIds]);
 
+  // Auras that will show over the unit frame class icon (cc typically)
   const highlightAura = (() => {
     return _.first(
       _.sortBy(
