@@ -180,7 +180,7 @@ export function CombatReplay(props: IProps) {
               setSimpleRenderMode(e.target.checked);
             }}
           >
-            {t('simple-render-mode')}
+            {t('combat-replay-simpler-render-mode')}
           </Checkbox>
         </Box>
         <Box mr={2}>
