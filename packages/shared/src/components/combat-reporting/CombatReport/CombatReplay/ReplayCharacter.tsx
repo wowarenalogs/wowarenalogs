@@ -1,7 +1,7 @@
 import { Container, Sprite } from '@inlet/react-pixi';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { ICombatUnit, LogEvent, ICombatData, CombatUnitSpec } from 'wow-combat-log-parser';
+import { ICombatUnit, LogEvent, ICombatData, CombatUnitSpec, CombatUnitReaction } from 'wow-combat-log-parser';
 
 import { spellIdToPriority } from '../../../../data/spellTags';
 import { Utils } from '../../../../utils';
@@ -14,6 +14,7 @@ interface IProps {
   combat: ICombatData;
   unit: ICombatUnit;
   currentTimeOffset: number;
+  simpleRenderMode: boolean;
   gamePositionToRenderPosition: (gameX: number, gameY: number) => { x: number; y: number };
 }
 
@@ -180,6 +181,30 @@ export function ReplayCharacter(props: IProps) {
     );
   })();
 
+  if (props.simpleRenderMode) {
+    return (
+      <Container key={props.unit.id} x={pos.x} y={pos.y}>
+        <Sprite
+          image="https://images.wowarenalogs.com/common/white.png"
+          anchor={{ x: 0.5, y: 0.5 }}
+          width={PLAYER_UNIT_SIZE + 1}
+          height={PLAYER_UNIT_SIZE + 1}
+          tint={props.unit.reaction === CombatUnitReaction.Friendly ? 0x49aa19 : 0xa61d24}
+        />
+        <Sprite
+          image={
+            props.unit.spec === CombatUnitSpec.None
+              ? Utils.getClassIcon(props.unit.class)
+              : Utils.getSpecIcon(props.unit.spec) || ''
+          }
+          width={PLAYER_UNIT_SIZE}
+          height={PLAYER_UNIT_SIZE}
+          anchor={{ x: 0.5, y: 0.5 }}
+        />
+        <ReplayCastBar combat={props.combat} unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
+      </Container>
+    );
+  }
   return (
     <Container key={props.unit.id} x={pos.x} y={pos.y}>
       {!highlightAura ? (

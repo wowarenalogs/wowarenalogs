@@ -1,6 +1,6 @@
 import { CaretRightFilled, PauseOutlined } from '@ant-design/icons';
 import { Sprite, Stage } from '@inlet/react-pixi';
-import { Button, Tooltip, Slider } from 'antd';
+import { Button, Checkbox, Tooltip, Slider } from 'antd';
 import Text from 'antd/lib/typography/Text';
 import _ from 'lodash';
 import moment from 'moment';
@@ -49,6 +49,7 @@ export function CombatReplay(props: IProps) {
     setReplayContainerRef(el);
   }, []);
 
+  const [simpleRenderMode, setSimpleRenderMode] = useState(false);
   const [paused, setPaused] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [currentTimeOffset, setCurrentTimeOffset] = useState(0);
@@ -172,6 +173,16 @@ export function CombatReplay(props: IProps) {
         <Box mr={2}>
           <ReplaySpeedDropdown speed={speed} setSpeed={setSpeed} />
         </Box>
+        <Box ml={2} mr={2}>
+          <Checkbox
+            checked={simpleRenderMode}
+            onChange={(e) => {
+              setSimpleRenderMode(e.target.checked);
+            }}
+          >
+            {t('simple-render-mode')}
+          </Checkbox>
+        </Box>
         <Box mr={2}>
           <Button
             disabled={deaths.length === 0}
@@ -260,6 +271,7 @@ export function CombatReplay(props: IProps) {
                 {players.map((p) => {
                   return (
                     <ReplayCharacter
+                      simpleRenderMode={simpleRenderMode}
                       key={p.id}
                       combat={props.combat}
                       unit={p}
