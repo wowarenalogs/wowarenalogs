@@ -30,7 +30,6 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
   const adaptationTrinkets = ['181816', '184054', '186871', '185306', '185311', '186968']; // Spell: 195756
   const echoingResolveTrinkets = ['188691']; // Spell: 363121
   const fastidiousResolveTrinkets = ['188524']; // Spell: 363117
-  console.log(echoingResolveTrinkets, fastidiousResolveTrinkets);
 
   if (props.unit.info?.equipment.some((e) => relentlessTrinkets.includes(e.id))) {
     return (
