@@ -364,6 +364,16 @@ const Priest = {
       name: 'Holy Word: Chastise',
       tags: [SpellTag.Control],
     },
+    {
+      spellId: '200196',
+      name: 'Holy Word: Chastise',
+      tags: [SpellTag.Control],
+    },
+    {
+      spellId: '88625',
+      name: 'Holy Word: Chastise',
+      tags: [SpellTag.Control],
+    },
     // -- Shadow
     { spellId: '15286', name: 'Vampiric Embrace', tags: [] },
     { spellId: '15487', name: 'Silence', tags: [] },

@@ -6,6 +6,13 @@
     "charges": {},
     "durationSeconds": 3
   },
+  "88625": {
+    "spellId": "88625",
+    "name": "Holy Word: Chastise",
+    "cooldownSeconds": 60,
+    "charges": {},
+    "durationSeconds": 4
+  },
   "498": {
     "spellId": "498",
     "name": "Divine Protection",
