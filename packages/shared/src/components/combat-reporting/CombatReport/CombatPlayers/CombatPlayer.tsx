@@ -53,8 +53,12 @@ export function CombatPlayer(props: IProps) {
   const combatReportContext = useCombatReportContext();
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).$WowheadPower.refreshLinks();
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).$WowheadPower.refreshLinks();
+    } catch (e) {
+      // oh well
+    }
   }, [props.player]);
 
   const compileDataBySpell = useCallback(
