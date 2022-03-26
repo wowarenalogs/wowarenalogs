@@ -1,7 +1,7 @@
 import { UserSubscriptionTier } from '../graphql-server/types';
 import { IUser } from '../graphql/__generated__/graphql';
 
-type UserFeature = 'combat-log-raw-view' | 'combat-log-something-else';
+type UserFeature = 'combat-log-raw-view' | 'combat-log-something-else' | 'check-pvp-link';
 
 type UserFeatureResolver = (user: IUser) => boolean;
 
@@ -10,6 +10,7 @@ const hasTagTest = (tag: string) => (user: IUser) => user.tags?.includes('tester
 
 const registeredFeatures: Record<UserFeature, UserFeatureResolver> = {
   'combat-log-raw-view': hasTagTest('tester'),
+  'check-pvp-link': hasTagTest('tester'),
   'combat-log-something-else': rareFeatureTest,
 };
 

@@ -1,15 +1,19 @@
+import { getApolloContext } from '@apollo/client';
 import { Divider } from 'antd';
 import Title from 'antd/lib/typography/Title';
 import _ from 'lodash';
 import { useTranslation } from 'next-i18next';
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { CombatHpUpdateAction, CombatUnitClass, getClassColor, ICombatUnit } from 'wow-combat-log-parser';
 
+import { useGetProfileQuery } from '../../../../graphql/__generated__/graphql';
 import { Utils } from '../../../../utils';
+import { canUseFeature } from '../../../../utils/features';
 import { Box } from '../../../common/Box';
 import { AchievementBadge } from '../AchievementBadge';
 import { ArmoryLink } from '../ArmoryLink';
+import { CheckPvPLink } from '../CheckPvPLink';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatStatistic } from '../CombatStatistic';
 import { CombatUnitName } from '../CombatUnitName';
@@ -51,6 +55,10 @@ const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14
 export function CombatPlayer(props: IProps) {
   const { t, i18n } = useTranslation();
   const combatReportContext = useCombatReportContext();
+  const context = useContext(getApolloContext());
+  const { data } = useGetProfileQuery({
+    client: context.client,
+  });
 
   useEffect(() => {
     try {
@@ -132,6 +140,9 @@ export function CombatPlayer(props: IProps) {
             <Box ml={1}></Box>
           ) : null}
           {i18n.language !== 'zh-CN' && <ArmoryLink player={props.player} />}
+          {canUseFeature(data?.me, 'check-pvp-link') && i18n.language !== 'zh-CN' && (
+            <CheckPvPLink player={props.player} />
+          )}
         </Box>
         <Box display="flex" flexDirection="row" alignItems="center" mt={1}>
           {<AchievementBadge player={props.player} />}
