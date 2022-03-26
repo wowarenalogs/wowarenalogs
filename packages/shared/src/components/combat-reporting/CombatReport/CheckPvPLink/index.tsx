@@ -31,7 +31,6 @@ export function CheckPvPLink({ player }: IProps) {
   if (slashsplit) {
     serverName = serverName.slice(0, slashsplit) + '-' + serverName.slice(slashsplit);
   }
-  serverName = serverName.replace("'", '');
 
   return (
     <img
