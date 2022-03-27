@@ -1,4 +1,4 @@
-import { logAnalyticsEvent, Box, IAppConfig } from '@wowarenalogs/shared';
+import { logAnalyticsEvent, Box, IAppConfig, useClientContext } from '@wowarenalogs/shared';
 import { Steps, Button, Checkbox, Radio } from 'antd';
 import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
@@ -22,6 +22,7 @@ interface IProps {
 }
 
 function FirstTimeSetup(props: IProps) {
+  const clientContext = useClientContext();
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const [launchAtStartup, setLaunchAtStartup] = useState(true);
@@ -48,7 +49,7 @@ function FirstTimeSetup(props: IProps) {
         if (!data.canceled && data.filePaths.length > 0) {
           const wowExePath = data.filePaths[0];
           const wowDirectory = dirname(wowExePath);
-          const wowInstallations = DesktopUtils.getAllWoWInstallations(wowDirectory);
+          const wowInstallations = DesktopUtils.getAllWoWInstallations(wowDirectory, clientContext.platform);
           if (wowInstallations.size > 0) {
             props.updateAppConfig((prev) => {
               return {
@@ -68,7 +69,8 @@ function FirstTimeSetup(props: IProps) {
       });
   };
 
-  const hasValidWoWDirectory = props.wowDirectory && DesktopUtils.getAllWoWInstallations(props.wowDirectory);
+  const hasValidWoWDirectory =
+    props.wowDirectory && DesktopUtils.getAllWoWInstallations(props.wowDirectory, clientContext.platform);
 
   const activeStep = hasValidWoWDirectory ? 1 : 0;
 

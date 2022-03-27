@@ -9,7 +9,7 @@ import {
   IAppConfig,
   LoadingScreen,
 } from '@wowarenalogs/shared';
-import { remote, shell } from 'electron';
+import { ipcRenderer, remote, shell } from 'electron';
 import { useTranslation } from 'next-i18next';
 import { DefaultSeo } from 'next-seo';
 import { AppProps } from 'next/dist/next-server/lib/router/router';
@@ -18,6 +18,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import 'antd/dist/antd.dark.css';
 
+import { IPC_GET_APP_IS_PACKAGED_SYNC, IPC_GET_PLATFORM_SYNC } from '../../../ipcEventNames';
 import FirstTimeSetup from '../../components/FirstTimeSetup';
 import TitleBar from '../../components/TitleBar';
 import { LocalCombatsContextProvider } from '../../hooks/LocalCombatLogsContext';
@@ -54,6 +55,9 @@ const APP_CONFIG_STORAGE_KEY = '@wowarenalogs/appConfig';
 
 export function Main({ Component, pageProps }: AppProps) {
   const { t } = useTranslation();
+
+  const platform = ipcRenderer.sendSync(IPC_GET_PLATFORM_SYNC);
+  const appIsPackaged = ipcRenderer.sendSync(IPC_GET_APP_IS_PACKAGED_SYNC);
 
   const [loading, setLoading] = useState(true);
   const [appConfig, setAppConfig] = useState<IAppConfig>({});
@@ -107,7 +111,7 @@ export function Main({ Component, pageProps }: AppProps) {
     const appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
     if (appConfigJson) {
       const storedConfig = JSON.parse(appConfigJson) as IAppConfig;
-      const wowInstallations = DesktopUtils.getAllWoWInstallations(storedConfig.wowDirectory || '');
+      const wowInstallations = DesktopUtils.getAllWoWInstallations(storedConfig.wowDirectory || '', platform);
       const [windowX, windowY] = remote.getCurrentWindow().getPosition();
       const [windowWidth, windowHeight] = remote.getCurrentWindow().getSize();
 
@@ -133,11 +137,11 @@ export function Main({ Component, pageProps }: AppProps) {
       }
     }
     setLoading(false);
-  }, []);
+  }, [platform]);
 
   const wowInstallations = useMemo(() => {
-    return DesktopUtils.getAllWoWInstallations(appConfig.wowDirectory || '');
-  }, [appConfig]);
+    return DesktopUtils.getAllWoWInstallations(appConfig.wowDirectory || '', platform);
+  }, [appConfig, platform]);
 
   useEffect(() => {
     initAnalyticsAsync('650475e4b06ebfb536489356d27b60f8', 'G-Z6E8QS4ENW').then(() => {
@@ -240,6 +244,8 @@ export function Main({ Component, pageProps }: AppProps) {
         updateAppConfig={updateAppConfig}
         launchAtStartup={appConfig.launchAtStartup || false}
         setLaunchAtStartup={updateLaunchAtStartup}
+        platform={platform}
+        appIsPackaged={appIsPackaged}
       >
         <AuthProvider>
           <LocalCombatsContextProvider>

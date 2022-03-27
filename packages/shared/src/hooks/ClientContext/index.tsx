@@ -13,6 +13,8 @@ export interface IAppConfig {
 
 interface IClientContextData {
   isDesktop: boolean;
+  platform: string;
+  appIsPackaged: boolean;
   openExternalURL: (url: string) => void;
   showLoginModalInSeparateWindow: (authUrl: string, callback: () => void) => void;
   wowInstallations: Map<WowVersion, string>;
@@ -23,6 +25,8 @@ interface IClientContextData {
 
 const ClientContext = React.createContext<IClientContextData>({
   isDesktop: false,
+  appIsPackaged: false,
+  platform: '',
   openExternalURL: () => null,
   showLoginModalInSeparateWindow: (authUrl: string, callback: () => void) => {
     callback();
@@ -52,6 +56,8 @@ export const ClientContextProvider = (props: IProps) => {
   return (
     <ClientContext.Provider
       value={{
+        appIsPackaged: false,
+        platform: '',
         openExternalURL: props.openExternalURL,
         isDesktop: props.isDesktop,
         showLoginModalInSeparateWindow: props.showLoginModalInSeparateWindow,

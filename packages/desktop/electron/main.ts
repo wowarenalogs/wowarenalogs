@@ -1,8 +1,10 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import * as isDev from 'electron-is-dev';
 import * as moment from 'moment';
 import * as path from 'path';
+
+import { IPC_GET_APP_IS_PACKAGED_SYNC, IPC_GET_PLATFORM_SYNC } from '../ipcEventNames';
 
 let win: BrowserWindow | null = null;
 
@@ -68,4 +70,12 @@ app.on('activate', () => {
   if (win === null) {
     createWindow();
   }
+});
+
+ipcMain.on(IPC_GET_PLATFORM_SYNC, (event) => {
+  event.returnValue = process.platform;
+});
+
+ipcMain.on(IPC_GET_APP_IS_PACKAGED_SYNC, (event) => {
+  event.returnValue = app.isPackaged;
 });

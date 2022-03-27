@@ -1,5 +1,4 @@
 import chokidar from 'chokidar';
-import { remote } from 'electron';
 import fs from 'fs';
 import { join } from 'path';
 
@@ -60,7 +59,7 @@ class MacLogWatcher extends LogWatcher {
   }
 }
 
-export const createLogWatcher = (wowDirectory: string) => {
-  const isMac = remote.process.platform === 'darwin';
+export const createLogWatcher = (wowDirectory: string, platform: string) => {
+  const isMac = platform === 'darwin';
   return isMac ? new MacLogWatcher(wowDirectory) : new WindowsLogWatcher(wowDirectory);
 };

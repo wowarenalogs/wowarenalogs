@@ -18,6 +18,8 @@ export function combatMonitorEffect(
   userId: string,
   onNewCombatEnded: (combat: ICombatData) => void,
   onClearCombats: () => void,
+  platform: string,
+  appIsPackaged: boolean,
 ) {
   const logParser = new WoWCombatLogParser(wowVersion);
 
@@ -30,10 +32,10 @@ export function combatMonitorEffect(
     mkdirSync(wowLogsDirectoryFullPath);
   }
 
-  const watcher = createLogWatcher(wowDirectory);
+  const watcher = createLogWatcher(wowDirectory, platform);
 
   logParser.on('arena_match_ended', (data) => {
-    if (remote.app.isPackaged) {
+    if (appIsPackaged) {
       logAnalyticsEvent('event_NewMatchProcessed', {
         wowVersion: (data as ICombatData).wowVersion,
       });
