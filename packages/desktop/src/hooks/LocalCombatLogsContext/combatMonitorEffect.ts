@@ -1,5 +1,4 @@
 import { logAnalyticsEvent, Utils as SharedUtils } from '@wowarenalogs/shared';
-import { remote } from 'electron';
 import { statSync, readdirSync, Stats, existsSync, mkdirSync } from 'fs-extra';
 import { join } from 'path';
 import { ICombatData, WoWCombatLogParser, WowVersion } from 'wow-combat-log-parser';

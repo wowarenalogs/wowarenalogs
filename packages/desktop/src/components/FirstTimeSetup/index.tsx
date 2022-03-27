@@ -27,6 +27,8 @@ function FirstTimeSetup(props: IProps) {
   const router = useRouter();
   const [launchAtStartup, setLaunchAtStartup] = useState(true);
 
+  const platform = clientContext.platform;
+
   useEffect(() => {
     logAnalyticsEvent('view_FirstTimeSetup');
   }, []);
@@ -34,14 +36,13 @@ function FirstTimeSetup(props: IProps) {
   const selectDirectory = () => {
     remote.dialog
       .showOpenDialog({
-        title:
-          remote.process.platform === 'darwin' ? t('setup-page-locate-wow-mac') : t('setup-page-locate-wow-windows'),
+        title: platform === 'darwin' ? t('setup-page-locate-wow-mac') : t('setup-page-locate-wow-windows'),
         buttonLabel: t('confirm'),
         properties: ['openFile'],
         filters: [
           {
-            name: remote.process.platform === 'darwin' ? 'World of Warcraft.app' : 'Wow.exe, WowClassic.exe',
-            extensions: [remote.process.platform === 'darwin' ? 'app' : 'exe'],
+            name: platform === 'darwin' ? 'World of Warcraft.app' : 'Wow.exe, WowClassic.exe',
+            extensions: [platform === 'darwin' ? 'app' : 'exe'],
           },
         ],
       })
@@ -49,7 +50,7 @@ function FirstTimeSetup(props: IProps) {
         if (!data.canceled && data.filePaths.length > 0) {
           const wowExePath = data.filePaths[0];
           const wowDirectory = dirname(wowExePath);
-          const wowInstallations = DesktopUtils.getAllWoWInstallations(wowDirectory, clientContext.platform);
+          const wowInstallations = DesktopUtils.getAllWoWInstallations(wowDirectory, platform);
           if (wowInstallations.size > 0) {
             props.updateAppConfig((prev) => {
               return {
@@ -69,8 +70,7 @@ function FirstTimeSetup(props: IProps) {
       });
   };
 
-  const hasValidWoWDirectory =
-    props.wowDirectory && DesktopUtils.getAllWoWInstallations(props.wowDirectory, clientContext.platform);
+  const hasValidWoWDirectory = props.wowDirectory && DesktopUtils.getAllWoWInstallations(props.wowDirectory, platform);
 
   const activeStep = hasValidWoWDirectory ? 1 : 0;
 

@@ -15,6 +15,7 @@ export function LatestMatchMonitor() {
   const { t } = useTranslation();
   const auth = useAuth();
   const localCombatsContext = useLocalCombatsContext();
+  const appIsPackaged = clientContext.appIsPackaged;
 
   const latestLocalCombat = localCombatsContext.localCombats.length
     ? localCombatsContext.localCombats[localCombatsContext.localCombats.length - 1]
@@ -27,7 +28,7 @@ export function LatestMatchMonitor() {
       const logParser = new WoWCombatLogParser();
 
       logParser.on('arena_match_ended', (data) => {
-        if (remote.app.isPackaged) {
+        if (appIsPackaged) {
           logAnalyticsEvent('event_ExistingMatchProcessed');
         }
         const combat = data as ICombatData;
@@ -37,7 +38,7 @@ export function LatestMatchMonitor() {
 
       DesktopUtils.parseLogFileChunk(logParser, logFile, 0, logStat.size);
     },
-    [auth.userId, localCombatsContext],
+    [auth.userId, localCombatsContext, appIsPackaged],
   );
 
   const content = latestLocalCombat ? (
