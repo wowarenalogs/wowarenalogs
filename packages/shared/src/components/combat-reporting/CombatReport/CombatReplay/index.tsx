@@ -17,6 +17,7 @@ import { Box } from '../../../common/Box';
 import { ReplayCharacter } from './ReplayCharacter';
 import { ReplayDampeningTracker } from './ReplayDampeningTracker';
 import { ReplayEvents } from './ReplayEvents';
+import { ReplayNPC } from './ReplayNPC';
 import { ReplaySpeedDropdown } from './ReplaySpeedDropdown';
 import { ReplayUnitFrames } from './ReplayUnitFrames';
 import { ReplayViewport } from './ReplayViewport';
@@ -66,6 +67,8 @@ export function CombatReplay(props: IProps) {
     setPaused(false);
     setCurrentTimeOffset(0);
   }, [props.combat]);
+
+  console.log(props.combat);
 
   useEffect(() => {
     if (pixiApp) {
@@ -140,6 +143,10 @@ export function CombatReplay(props: IProps) {
 
   const players = useMemo(() => {
     return _.values(props.combat.units).filter((u) => u.type === CombatUnitType.Player);
+  }, [props.combat]);
+
+  const npcUnits = useMemo(() => {
+    return _.values(props.combat.units).filter((u) => u.type !== CombatUnitType.Player);
   }, [props.combat]);
 
   const deaths = _.flatten(players.map((p) => p.deathRecords)).sort((a, b) => a.timestamp - b.timestamp);
@@ -260,6 +267,20 @@ export function CombatReplay(props: IProps) {
                 {players.map((p) => {
                   return (
                     <ReplayCharacter
+                      key={p.id}
+                      combat={props.combat}
+                      unit={p}
+                      currentTimeOffset={currentTimeOffset}
+                      gamePositionToRenderPosition={(gameX, gameY) => ({
+                        x: -gameX - worldMinX + VIEWPORT_PADDING + VIEWPORT_X_OFFSET,
+                        y: gameY - worldMinY + VIEWPORT_PADDING,
+                      })}
+                    />
+                  );
+                })}
+                {npcUnits.map((p) => {
+                  return (
+                    <ReplayNPC
                       key={p.id}
                       combat={props.combat}
                       unit={p}

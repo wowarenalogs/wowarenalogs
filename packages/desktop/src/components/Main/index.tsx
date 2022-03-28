@@ -9,7 +9,7 @@ import {
   IAppConfig,
   LoadingScreen,
 } from '@wowarenalogs/shared';
-import { ipcRenderer, remote, shell } from 'electron';
+// import { ipcRenderer, remote, shell } from 'electron';
 import { useTranslation } from 'next-i18next';
 import { DefaultSeo } from 'next-seo';
 import { AppProps } from 'next/dist/next-server/lib/router/router';
@@ -54,18 +54,21 @@ const client = new ApolloClient({
 const APP_CONFIG_STORAGE_KEY = '@wowarenalogs/appConfig';
 
 export function Main({ Component, pageProps }: AppProps) {
+  console.log('raw', window);
+  console.log('XXx', (window as unknown as any).wowarenalogs.getPlatform());
+
   const { t } = useTranslation();
 
-  const platform = ipcRenderer.sendSync(IPC_GET_PLATFORM_SYNC);
-  const appIsPackaged = ipcRenderer.sendSync(IPC_GET_APP_IS_PACKAGED_SYNC);
+  const platform = 'win32'; //ipcRenderer.sendSync(IPC_GET_PLATFORM_SYNC);
+  const appIsPackaged = false; //ipcRenderer.sendSync(IPC_GET_APP_IS_PACKAGED_SYNC);
 
   const [loading, setLoading] = useState(true);
   const [appConfig, setAppConfig] = useState<IAppConfig>({});
 
   const updateLaunchAtStartup = useCallback((launch: boolean) => {
-    remote.app.setLoginItemSettings({
-      openAtLogin: launch,
-    });
+    // remote.app.setLoginItemSettings({
+    //   openAtLogin: launch,
+    // });
   }, []);
 
   const updateAppConfig = useCallback(
@@ -81,30 +84,29 @@ export function Main({ Component, pageProps }: AppProps) {
   );
 
   useEffect(() => {
-    remote.getCurrentWindow().setTitle(t('app-name'));
-    remote.getCurrentWindow().setSize(1440, 1000);
-    remote.getCurrentWindow().setMinimumSize(1200, 1000);
-
-    remote.getCurrentWindow().on('moved', () => {
-      const [x, y] = remote.getCurrentWindow().getPosition();
-      updateAppConfig((prev) => {
-        return {
-          ...prev,
-          lastWindowX: x,
-          lastWindowY: y,
-        };
-      });
-    });
-    remote.getCurrentWindow().on('resized', () => {
-      const [w, h] = remote.getCurrentWindow().getSize();
-      updateAppConfig((prev) => {
-        return {
-          ...prev,
-          lastWindowWidth: w,
-          lastWindowHeight: h,
-        };
-      });
-    });
+    // remote.getCurrentWindow().setTitle(t('app-name'));
+    // remote.getCurrentWindow().setSize(1440, 1000);
+    // remote.getCurrentWindow().setMinimumSize(1200, 1000);
+    // remote.getCurrentWindow().on('moved', () => {
+    //   const [x, y] = remote.getCurrentWindow().getPosition();
+    //   updateAppConfig((prev) => {
+    //     return {
+    //       ...prev,
+    //       lastWindowX: x,
+    //       lastWindowY: y,
+    //     };
+    //   });
+    // });
+    // remote.getCurrentWindow().on('resized', () => {
+    //   const [w, h] = remote.getCurrentWindow().getSize();
+    //   updateAppConfig((prev) => {
+    //     return {
+    //       ...prev,
+    //       lastWindowWidth: w,
+    //       lastWindowHeight: h,
+    //     };
+    //   });
+    // });
   }, [updateAppConfig, t]);
 
   useEffect(() => {
@@ -112,8 +114,8 @@ export function Main({ Component, pageProps }: AppProps) {
     if (appConfigJson) {
       const storedConfig = JSON.parse(appConfigJson) as IAppConfig;
       const wowInstallations = DesktopUtils.getAllWoWInstallations(storedConfig.wowDirectory || '', platform);
-      const [windowX, windowY] = remote.getCurrentWindow().getPosition();
-      const [windowWidth, windowHeight] = remote.getCurrentWindow().getSize();
+      const [windowX, windowY] = [100, 100]; //remote.getCurrentWindow().getPosition();
+      const [windowWidth, windowHeight] = [800, 600]; //remote.getCurrentWindow().getSize();
 
       const newState = {
         wowDirectory: wowInstallations.size > 0 ? storedConfig.wowDirectory : undefined,
@@ -127,8 +129,8 @@ export function Main({ Component, pageProps }: AppProps) {
       };
       setAppConfig(newState);
 
-      remote.getCurrentWindow().setPosition(newState.lastWindowX, newState.lastWindowY, false);
-      remote.getCurrentWindow().setSize(newState.lastWindowWidth, newState.lastWindowHeight, false);
+      // remote.getCurrentWindow().setPosition(newState.lastWindowX, newState.lastWindowY, false);
+      // remote.getCurrentWindow().setSize(newState.lastWindowWidth, newState.lastWindowHeight, false);
 
       if (wowInstallations.size > 0) {
         DesktopUtils.installAddonAsync(wowInstallations).catch(); // do not await. just let this run in background
@@ -204,41 +206,40 @@ export function Main({ Component, pageProps }: AppProps) {
       />
       <ClientContextProvider
         isDesktop={true}
-        openExternalURL={(url: string) => shell.openExternal(url)}
+        openExternalURL={() => undefined}
+        // openExternalURL={(url: string) => shell.openExternal(url)}
         showLoginModalInSeparateWindow={(authUrl: string, callback: () => void) => {
-          const loginModalWindow = new remote.BrowserWindow({
-            backgroundColor: '#000000',
-            title: t('login'),
-            x: remote.getCurrentWindow().getPosition()[0] + 200,
-            y: remote.getCurrentWindow().getPosition()[1] + 100,
-            width: 800,
-            height: 800,
-            maximizable: false,
-            minimizable: false,
-            parent: remote.getCurrentWindow(),
-            modal: true,
-            webPreferences: {
-              nodeIntegration: false,
-              enableRemoteModule: false,
-            },
-          });
-          loginModalWindow.setMenuBarVisibility(false);
-
-          loginModalWindow.on('closed', callback);
-          loginModalWindow.webContents.on('did-navigate', (event, url) => {
-            const urlObj = new URL(url);
-            if (
-              (urlObj.hostname === 'localhost' ||
-                urlObj.hostname === 'wowarenalogs.com' ||
-                urlObj.hostname.endsWith('.wowarenalogs.com')) &&
-              urlObj.pathname === '/'
-            ) {
-              loginModalWindow.close();
-            }
-          });
-
-          const absoluteAuthUrl = getAbsoluteAuthUrl(authUrl);
-          loginModalWindow.loadURL(absoluteAuthUrl);
+          // const loginModalWindow = new remote.BrowserWindow({
+          //   backgroundColor: '#000000',
+          //   title: t('login'),
+          //   x: remote.getCurrentWindow().getPosition()[0] + 200,
+          //   y: remote.getCurrentWindow().getPosition()[1] + 100,
+          //   width: 800,
+          //   height: 800,
+          //   maximizable: false,
+          //   minimizable: false,
+          //   parent: remote.getCurrentWindow(),
+          //   modal: true,
+          //   webPreferences: {
+          //     nodeIntegration: false,
+          //     enableRemoteModule: false,
+          //   },
+          // });
+          // loginModalWindow.setMenuBarVisibility(false);
+          // loginModalWindow.on('closed', callback);
+          // loginModalWindow.webContents.on('did-navigate', (event, url) => {
+          //   const urlObj = new URL(url);
+          //   if (
+          //     (urlObj.hostname === 'localhost' ||
+          //       urlObj.hostname === 'wowarenalogs.com' ||
+          //       urlObj.hostname.endsWith('.wowarenalogs.com')) &&
+          //     urlObj.pathname === '/'
+          //   ) {
+          //     loginModalWindow.close();
+          //   }
+          // });
+          // const absoluteAuthUrl = getAbsoluteAuthUrl(authUrl);
+          // loginModalWindow.loadURL(absoluteAuthUrl);
         }}
         wowInstallations={wowInstallations}
         updateAppConfig={updateAppConfig}

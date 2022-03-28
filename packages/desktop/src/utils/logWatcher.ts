@@ -1,6 +1,7 @@
-import chokidar from 'chokidar';
-import fs from 'fs';
-import { join } from 'path';
+// import chokidar from 'chokidar';
+
+// import fs from 'fs';
+// import { join } from 'path';
 
 abstract class LogWatcher {
   constructor(protected wowDirectory: string) {}
@@ -9,16 +10,16 @@ abstract class LogWatcher {
 }
 
 class WindowsLogWatcher extends LogWatcher {
-  private watcher: fs.FSWatcher;
+  private watcher: any; //fs.FSWatcher;
 
   constructor(wowDirectory: string) {
     super(wowDirectory);
-    const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
-    this.watcher = fs.watch(wowLogsDirectoryFullPath);
+    const wowLogsDirectoryFullPath = ''; //join(wowDirectory, 'Logs');
+    // this.watcher = fs.watch(wowLogsDirectoryFullPath);
   }
 
   onChange(handler: (fileName: string) => void): void {
-    this.watcher.on('change', (eventType, fileName) => {
+    this.watcher.on('change', (eventType: any, fileName: any) => {
       if (typeof fileName !== 'string' || fileName.indexOf('WoWCombatLog') < 0) {
         return;
       }
@@ -32,21 +33,21 @@ class WindowsLogWatcher extends LogWatcher {
 }
 
 class MacLogWatcher extends LogWatcher {
-  private watcher: chokidar.FSWatcher;
+  private watcher: any; //chokidar.FSWatcher;
 
   constructor(wowDirectory: string) {
     super(wowDirectory);
-    const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
-    this.watcher = chokidar.watch('WoWCombatLog*.txt', {
-      cwd: wowLogsDirectoryFullPath,
-      disableGlobbing: false,
-      useFsEvents: false,
-      awaitWriteFinish: true,
-    });
+    const wowLogsDirectoryFullPath = ''; //join(wowDirectory, 'Logs');
+    // this.watcher = chokidar.watch('WoWCombatLog*.txt', {
+    //   cwd: wowLogsDirectoryFullPath,
+    //   disableGlobbing: false,
+    //   useFsEvents: false,
+    //   awaitWriteFinish: true,
+    // });
   }
 
   onChange(handler: (fileName: string) => void): void {
-    this.watcher.on('change', (fileName) => {
+    this.watcher.on('change', (fileName: any) => {
       if (fileName.indexOf('WoWCombatLog') < 0) {
         return;
       }

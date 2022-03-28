@@ -28,7 +28,13 @@ function App(props: AppProps) {
     return <props.Component {...props.pageProps} />;
   }
 
-  return <Main {...props} />;
+  return (
+    <>
+      <script>var global = globalThis</script>
+      <script>console.log(globalThis)</script>
+      <Main {...props} />
+    </>
+  );
 }
 
 export default appWithTranslation(App);
