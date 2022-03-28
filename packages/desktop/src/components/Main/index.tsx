@@ -18,7 +18,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import 'antd/dist/antd.dark.css';
 
-import { IPC_GET_APP_IS_PACKAGED_SYNC, IPC_GET_PLATFORM_SYNC } from '../../../ipcEventNames';
 import FirstTimeSetup from '../../components/FirstTimeSetup';
 import TitleBar from '../../components/TitleBar';
 import { LocalCombatsContextProvider } from '../../hooks/LocalCombatLogsContext';
@@ -54,12 +53,12 @@ const client = new ApolloClient({
 const APP_CONFIG_STORAGE_KEY = '@wowarenalogs/appConfig';
 
 export function Main({ Component, pageProps }: AppProps) {
-  console.log('raw', window);
-  console.log('XXx', (window as unknown as any).wowarenalogs.getPlatform());
+  console.log('bridge', window.wowarenalogs);
 
   const { t } = useTranslation();
 
-  const platform = 'win32'; //ipcRenderer.sendSync(IPC_GET_PLATFORM_SYNC);
+  const platform = window.wowarenalogs.getPlatform();
+  console.log('clientside.platform', platform);
   const appIsPackaged = false; //ipcRenderer.sendSync(IPC_GET_APP_IS_PACKAGED_SYNC);
 
   const [loading, setLoading] = useState(true);

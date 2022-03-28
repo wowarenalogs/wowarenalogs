@@ -30,8 +30,6 @@ function App(props: AppProps) {
 
   return (
     <>
-      <script>var global = globalThis</script>
-      <script>console.log(globalThis)</script>
       <Main {...props} />
     </>
   );

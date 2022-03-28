@@ -3,8 +3,9 @@ import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-insta
 import * as isDev from 'electron-is-dev';
 import * as moment from 'moment';
 import * as path from 'path';
+import { join } from 'path';
 
-import { IPC_GET_APP_IS_PACKAGED_SYNC, IPC_GET_PLATFORM_SYNC } from '../ipcEventNames';
+import * as eventNames from '../ipcEventNames';
 
 let win: BrowserWindow | null = null;
 
@@ -74,10 +75,18 @@ app.on('activate', () => {
   }
 });
 
-ipcMain.on(IPC_GET_PLATFORM_SYNC, (event) => {
-  event.returnValue = process.platform;
+ipcMain.handle(eventNames.IPC_GET_PLATFORM_SYNC, async (_event, paths) => {
+  return process.platform;
 });
 
-ipcMain.on(IPC_GET_APP_IS_PACKAGED_SYNC, (event) => {
-  event.returnValue = app.isPackaged;
+ipcMain.handle(eventNames.IPC_GET_APP_IS_PACKAGED_SYNC, async (_event, paths) => {
+  return app.isPackaged;
+});
+
+ipcMain.handle(eventNames.IPC_CALL_PATH_JOIN, async (_event, paths) => {
+  return join(...paths);
+});
+
+ipcMain.handle(eventNames.IPC_SET_WINDOW_TITLE, async (_event, title) => {
+  win?.getParentWindow().setTitle(title);
 });
