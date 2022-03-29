@@ -17,6 +17,7 @@ function createWindow() {
     height: 640,
     webPreferences: {
       contextIsolation: true,
+      sandbox: true,
       preload: path.join(__dirname, 'preload.js'),
     },
   });
@@ -73,18 +74,6 @@ app.on('activate', () => {
   }
 });
 
-ipcMain.handle(eventNames.IPC_GET_PLATFORM_SYNC, async (_event, paths) => {
-  return process.platform;
-});
-
-ipcMain.handle(eventNames.IPC_GET_APP_IS_PACKAGED_SYNC, async (_event, paths) => {
-  return app.isPackaged;
-});
-
-ipcMain.handle(eventNames.IPC_CALL_PATH_JOIN, async (_event, paths) => {
-  return join(...paths);
-});
-
-ipcMain.handle(eventNames.IPC_SET_WINDOW_TITLE, async (_event, title) => {
-  win?.getParentWindow().setTitle(title);
+ipcMain.on('get-platform-sync', (event) => {
+  event.returnValue = process.platform;
 });

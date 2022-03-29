@@ -2,7 +2,7 @@
 
 export interface WALWindowAPI {
   getPlatform: () => string;
-  // joinTest: (paths: string[]) => string;
+  joinTest: (paths: string[]) => string;
 }
 
 declare global {
