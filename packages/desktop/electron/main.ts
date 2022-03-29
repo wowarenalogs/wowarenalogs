@@ -16,10 +16,8 @@ function createWindow() {
     width: 1000,
     height: 640,
     webPreferences: {
-      nodeIntegration: true,
       contextIsolation: true,
-      enableRemoteModule: true,
-      // preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
