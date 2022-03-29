@@ -57,8 +57,9 @@ export function Main({ Component, pageProps }: AppProps) {
 
   const { t } = useTranslation();
 
-  const platform = window.wowarenalogs.getPlatform();
+  const platform = 'win32'; //window.wowarenalogs.getPlatform();
   console.log('clientside.platform', platform);
+  // console.log('clientside.exists', window.wowarenalogs.joinTest('nil'));
   const appIsPackaged = false; //ipcRenderer.sendSync(IPC_GET_APP_IS_PACKAGED_SYNC);
 
   const [loading, setLoading] = useState(true);
