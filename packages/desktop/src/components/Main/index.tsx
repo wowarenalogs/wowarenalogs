@@ -61,7 +61,7 @@ export function Main({ Component, pageProps }: AppProps) {
   const platform = window.wowarenalogs.getPlatform();
   console.log('postcall');
   console.log('clientside.platform', platform);
-  // console.log('clientside.exists', window.wowarenalogs.joinTest(['C', 'Windows', 'explorer.exe']));
+  console.log('clientside.exists', window.wowarenalogs.joinTest(['C', 'Windows', 'explorer.exe']));
   const appIsPackaged = false; //ipcRenderer.sendSync(IPC_GET_APP_IS_PACKAGED_SYNC);
 
   const [loading, setLoading] = useState(true);
