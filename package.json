@@ -14,9 +14,9 @@
   "scripts": {
     "start:desktop:react": "yarn workspace @wowarenalogs/desktop start:desktop:react",
     "build:desktop:react": "yarn workspace @wowarenalogs/desktop build:desktop:react",
-    "release:desktop:react": "lerna run release:desktop:react --stream",
-    "lint": "yarn workspaces run lint --stream",
-    "test": "lerna run test --stream",
+    "release:desktop:react": "yarn workspace @wowarenalogs/desktop release:desktop:react",
+    "lint": "yarn workspaces run lint",
+    "test": "yarn workspaces run test",
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
   "packageManager": "yarn@3.2.0",

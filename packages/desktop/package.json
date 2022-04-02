@@ -5,7 +5,6 @@
   "scripts": {
     "start:desktop:react": "next start",
     "build:desktop:react": "next build",
-    "release:desktop": "git checkout release/desktop && git pull && git merge --no-edit --no-ff main && git push && git checkout main",
     "release:desktop:react": "git checkout release/desktop-react && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "dependencies": {
