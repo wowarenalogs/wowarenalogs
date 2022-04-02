@@ -20,6 +20,11 @@
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
   "packageManager": "yarn@3.2.0",
+  "dependencies": {
+    "next": "^12.1.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
@@ -39,6 +44,7 @@
     "husky": "^7.0.4",
     "prettier": "^2.6.1",
     "shx": "^0.3.4",
+    "typescript": "^4.6.3",
     "version-bump-prompt": "^6.1.0",
     "wait-on": "^6.0.1"
   },
