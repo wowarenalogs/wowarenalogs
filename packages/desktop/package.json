@@ -1,0 +1,26 @@
+{
+  "name": "@wowarenalogs/desktop",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start:desktop:react": "next start",
+    "build:desktop:react": "next build",
+    "release:desktop": "git checkout release/desktop && git pull && git merge --no-edit --no-ff main && git push && git checkout main",
+    "release:desktop:react": "git checkout release/desktop-react && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
+  },
+  "dependencies": {
+    "next": "^12.1.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "17.0.23",
+    "@types/react": "17.0.43",
+    "@types/react-dom": "17.0.14",
+    "autoprefixer": "^10.4.4",
+    "eslint": "8.12.0",
+    "postcss": "^8.4.12",
+    "tailwindcss": "^3.0.23",
+    "typescript": "^4.6.3"
+  }
+}
