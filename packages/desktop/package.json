@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "start": "next start",
-    "build": "next build",
-    "release": "git checkout release/desktop-react && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
+    "dev:desktop": "next dev",
+    "start:desktop": "next start",
+    "build:desktop": "next build",
+    "lint": "next lint",
+    "test": "next test",
+    "release:desktop": "git checkout release/desktop && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "dependencies": {
     "next": "^12.1.1",

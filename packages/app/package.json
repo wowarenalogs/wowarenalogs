@@ -2,6 +2,9 @@
   "name": "@wowarenalogs/app",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "release:app": "git checkout release/app && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
+  },
   "devDependencies": {
     "@types/node": "^17.0.23"
   },

@@ -25,9 +25,12 @@
     "add": "lerna add",
     "add:app": "lerna add --scope=@wowarenalogs/app",
     "add:desktop": "lerna add --scope=@wowarenalogs/desktop",
-    "dev:app": "cross-env NODE_ENV=development BROWSER=none concurrently -k \"cd packages/desktop && npm run dev\" \"wait-on -d 3000 -i 5000 http://localhost:3000 && tsc -p packages/app && electron .\"",
+    "dev:app": "cross-env NODE_ENV=development BROWSER=none concurrently -k \"npm run dev:desktop\" \"wait-on -d 3000 -i 5000 http://localhost:3000 && tsc -p packages/app && electron .\"",
     "build:app:windows": "shx rm -rf dist && shx rm -rf packages/app/dist && tsc -p packages/app && electron-builder --win --publish=never",
     "build:app:mac": "shx rm -rf dist && shx rm -rf packages/app/dist && tsc -p packages/app && electron-builder --mac --publish=never",
+    "release:app": "lerna run release:app --stream",
+    "dev:desktop": "lerna run dev:desktop --stream",
+    "release:desktop": "lerna run release:desktop --stream",
     "lint": "lerna run lint --stream",
     "test": "lerna run test --stream",
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps || lerna bootstrap"
@@ -52,7 +55,6 @@
     "lerna": "^4.0.0",
     "prettier": "^2.6.1",
     "shx": "^0.3.4",
-    "version-bump-prompt": "^6.1.0",
     "wait-on": "^6.0.1"
   },
   "resolutions": {
