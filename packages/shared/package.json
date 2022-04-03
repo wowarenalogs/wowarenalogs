@@ -1,0 +1,13 @@
+{
+  "name": "@wowarenalogs/shared",
+  "version": "1.0.0",
+  "author": "WoW Arena Logs",
+  "private": true,
+  "main": "src/",
+  "engines": {
+    "node": ">=16"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.43"
+  }
+}

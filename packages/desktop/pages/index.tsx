@@ -1,7 +1,8 @@
 import type { NextPage } from 'next';
+import { Test } from '@wowarenalogs/shared';
 
 const Home: NextPage = () => {
-  return <div></div>;
+  return <Test />;
 };
 
 export default Home;
