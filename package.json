@@ -5,26 +5,34 @@
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
+  "main": "packages/app/dist/main.js",
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
-  "workspaces": [
-    "packages/*"
-  ],
+  "build": {
+    "appId": "com.wowarenalogs.client",
+    "productName": "WoW Arena Logs",
+    "extends": null,
+    "files": [
+      "packages/app/dist/**/*"
+    ],
+    "directories": {
+      "buildResources": "packages/app/assets"
+    }
+  },
   "scripts": {
-    "start:desktop:react": "yarn workspace @wowarenalogs/desktop start:desktop:react",
-    "build:desktop:react": "yarn workspace @wowarenalogs/desktop build:desktop:react",
-    "release:desktop:react": "yarn workspace @wowarenalogs/desktop release:desktop:react",
-    "lint": "yarn workspaces run lint",
-    "test": "yarn workspaces run test",
+    "bootstrap": "lerna bootstrap",
+    "add": "lerna add",
+    "add:app": "lerna add --scope=@wowarenalogs/app",
+    "add:desktop": "lerna add --scope=@wowarenalogs/desktop",
+    "dev:app": "cross-env NODE_ENV=development BROWSER=none concurrently -k \"cd packages/desktop && npm run dev\" \"wait-on -d 3000 -i 5000 http://localhost:3000 && tsc -p packages/app && electron .\"",
+    "build:app:windows": "shx rm -rf dist && shx rm -rf packages/app/dist && tsc -p packages/app && electron-builder --win --publish=never",
+    "build:app:mac": "shx rm -rf dist && shx rm -rf packages/app/dist && tsc -p packages/app && electron-builder --mac --publish=never",
+    "lint": "lerna run lint --stream",
+    "test": "lerna run test --stream",
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
-  "packageManager": "yarn@3.2.0",
-  "dependencies": {
-    "next": "^12.1.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
@@ -42,11 +50,15 @@
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.3.0",
     "husky": "^7.0.4",
+    "lerna": "^4.0.0",
     "prettier": "^2.6.1",
     "shx": "^0.3.4",
-    "typescript": "^4.6.3",
     "version-bump-prompt": "^6.1.0",
     "wait-on": "^6.0.1"
+  },
+  "resolutions": {
+    "**/@typescript-eslint/eslint-plugin": "^5.16.0",
+    "**/@typescript-eslint/parser": "^5.16.0"
   },
   "eslintConfig": {
     "env": {

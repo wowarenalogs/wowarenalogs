@@ -1,0 +1,13 @@
+{
+  "name": "@wowarenalogs/app",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "@types/node": "^17.0.23"
+  },
+  "dependencies": {
+    "electron": "^18.0.1",
+    "electron-devtools-installer": "^3.2.0",
+    "moment": "^2.29.1"
+  }
+}
