@@ -1,14 +1,14 @@
 {
-  "name": "@wowarenalogs/desktop",
+  "name": "@wowarenalogs/web",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev:desktop": "cross-env NODE_ENV=development next dev",
-    "start:desktop": "next start",
-    "build:desktop": "next build",
+    "dev:web": "cross-env NODE_ENV=development next dev",
+    "start:web": "next start",
+    "build:web": "next build",
     "lint": "next lint",
     "test": "next test",
-    "release:desktop": "git checkout release/desktop && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
+    "release:web": "git checkout release/web && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "dependencies": {
     "next": "^12.1.1",
