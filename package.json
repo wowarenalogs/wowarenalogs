@@ -30,7 +30,7 @@
     "build:app:mac": "shx rm -rf dist && shx rm -rf packages/app/dist && tsc -p packages/app && electron-builder --mac --publish=never",
     "lint": "lerna run lint --stream",
     "test": "lerna run test --stream",
-    "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
+    "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps || lerna bootstrap"
   },
   "dependencies": {},
   "devDependencies": {
