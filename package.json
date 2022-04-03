@@ -32,13 +32,12 @@
     "test": "lerna run test --stream",
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps || lerna bootstrap"
   },
-  "dependencies": {},
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
     "concurrently": "^7.0.0",
     "cross-env": "^7.0.3",
-    "electron": "^17.2.0",
+    "electron": "17.1.0",
     "electron-builder": "^22.14.13",
     "eslint": "^8.12.0",
     "eslint-config-airbnb-typescript": "^16.1.4",
