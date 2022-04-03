@@ -9,6 +9,9 @@
   "engines": {
     "node": ">=16"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "build": {
     "appId": "com.wowarenalogs.client",
     "productName": "WoW Arena Logs",
@@ -21,23 +24,21 @@
     }
   },
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "add": "lerna add",
-    "add:app": "lerna add --scope=@wowarenalogs/app",
-    "add:desktop": "lerna add --scope=@wowarenalogs/desktop",
-    "add:web": "lerna add --scope=@wowarenalogs/web",
-    "add:shared": "lerna add --scope=@wowarenalogs/shared",
+    "add:app": "npm install -w @wowarenalogs/app",
+    "add:desktop": "npm install -w @wowarenalogs/desktop",
+    "add:web": "npm install -w @wowarenalogs/web",
+    "add:shared": "npm install -w @wowarenalogs/shared",
     "dev:app": "cross-env NODE_ENV=development BROWSER=none concurrently -k \"cd packages/desktop && npm run dev:desktop\" \"wait-on -d 3000 -i 5000 http://localhost:3000 && tsc -p packages/app && electron .\"",
     "build:app:windows": "shx rm -rf dist && shx rm -rf packages/app/dist && tsc -p packages/app && electron-builder --win --publish=never",
     "build:app:mac": "shx rm -rf dist && shx rm -rf packages/app/dist && tsc -p packages/app && electron-builder --mac --publish=never",
-    "release:app": "lerna run release:app --stream",
-    "dev:desktop": "lerna run dev:desktop --stream",
-    "release:desktop": "lerna run release:desktop --stream",
-    "dev:web": "lerna run dev:web --stream",
-    "release:web": "lerna run release:web --stream",
-    "lint": "lerna run lint --stream",
-    "test": "lerna run test --stream",
-    "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps || lerna bootstrap"
+    "release:app": "npm run release:app --workspaces --if-present",
+    "dev:desktop": "npm run dev:desktop --workspaces --if-present",
+    "release:desktop": "npm run release:desktop --workspaces --if-present",
+    "dev:web": "npm run dev:web --workspaces --if-present",
+    "release:web": "npm run release:web --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.16.0",
@@ -56,7 +57,6 @@
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.3.0",
     "husky": "^7.0.4",
-    "lerna": "^4.0.0",
     "prettier": "^2.6.1",
     "shx": "^0.3.4",
     "wait-on": "^6.0.1"
