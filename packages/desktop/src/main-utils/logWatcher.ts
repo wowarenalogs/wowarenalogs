@@ -1,5 +1,5 @@
 import chokidar from 'chokidar';
-import fs from 'fs';
+import { watch, FSWatcher } from 'fs';
 import { join } from 'path';
 
 abstract class LogWatcher {
@@ -9,16 +9,16 @@ abstract class LogWatcher {
 }
 
 class WindowsLogWatcher extends LogWatcher {
-  private watcher: fs.FSWatcher;
+  private watcher: FSWatcher;
 
   constructor(wowDirectory: string) {
     super(wowDirectory);
     const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
-    this.watcher = fs.watch(wowLogsDirectoryFullPath);
+    this.watcher = watch(wowLogsDirectoryFullPath);
   }
 
   onChange(handler: (fileName: string) => void): void {
-    this.watcher.on('change', (_eventType, fileName) => {
+    this.watcher.on('change', (_eventType: string, fileName: string) => {
       if (typeof fileName !== 'string' || fileName.indexOf('WoWCombatLog') < 0) {
         return;
       }

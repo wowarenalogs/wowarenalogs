@@ -4,6 +4,7 @@ import * as isDev from 'electron-is-dev';
 import * as moment from 'moment';
 import * as path from 'path';
 
+import { ExternalUrlsBridge } from '../src/main-utils/externalUrlsBridge';
 import { FolderSelectBridge } from '../src/main-utils/folderSelectBridge';
 import { LoggerBridge } from '../src/main-utils/loggerBridge';
 
@@ -61,6 +62,7 @@ function createWindow() {
 
   LoggerBridge.mainBindings(win);
   FolderSelectBridge.mainBindings(win);
+  ExternalUrlsBridge.mainBindings(win);
 }
 
 app.on('ready', createWindow);

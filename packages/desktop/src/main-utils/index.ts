@@ -1,5 +1,5 @@
-import { closeSync, ensureDir, existsSync, openSync, readSync, writeFile } from 'fs-extra';
-import _ from 'lodash';
+import { closeSync, existsSync, openSync, readSync, writeFile } from 'fs';
+import { trim, replace } from 'lodash';
 import { join } from 'path';
 import { WoWCombatLogParser, WowVersion } from 'wow-combat-log-parser';
 
@@ -46,19 +46,19 @@ export class DesktopUtils {
       const remoteAddonLUA = await remoteAddonLUAResponse.text();
 
       const addonDestPath = join(dir, 'Interface/AddOns/WoWArenaLogs');
-      await ensureDir(addonDestPath);
+      // await ensureDir(addonDestPath); // TODO: REPLACE SHIM
 
-      await writeFile(join(addonDestPath, 'WoWArenaLogs.toc'), DesktopUtils.normalizeAddonContent(remoteAddonTOC), {
-        encoding: 'utf-8',
-      });
-      await writeFile(join(addonDestPath, 'WoWArenaLogs.lua'), DesktopUtils.normalizeAddonContent(remoteAddonLUA), {
-        encoding: 'utf-8',
-      });
+      // await writeFile(join(addonDestPath, 'WoWArenaLogs.toc'), DesktopUtils.normalizeAddonContent(remoteAddonTOC), {
+      //   encoding: 'utf-8',
+      // });
+      // await writeFile(join(addonDestPath, 'WoWArenaLogs.lua'), DesktopUtils.normalizeAddonContent(remoteAddonLUA), {
+      //   encoding: 'utf-8',
+      // });
     }
   }
 
   private static normalizeAddonContent(content: string): string {
-    return _.trim(_.replace(content, /\r+/g, ''));
+    return trim(replace(content, /\r+/g, ''));
   }
 
   public static parseLogFileChunk(parser: WoWCombatLogParser, path: string, start: number, size: number): void {

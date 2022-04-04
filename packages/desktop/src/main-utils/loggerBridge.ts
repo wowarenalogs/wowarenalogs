@@ -1,6 +1,6 @@
 import { BrowserWindow, contextBridge, ipcMain, ipcRenderer, IpcRendererEvent } from 'electron';
 import { IpcMainInvokeEvent } from 'electron/main';
-import { existsSync, mkdirSync, readdirSync, statSync, Stats } from 'fs-extra';
+import { existsSync, mkdirSync, readdirSync, statSync, Stats } from 'fs';
 import { join } from 'path';
 import { ICombatData, WoWCombatLogParser, WowVersion } from 'wow-combat-log-parser';
 

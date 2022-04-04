@@ -14,13 +14,13 @@ import { DefaultSeo } from 'next-seo';
 import { AppProps } from 'next/dist/next-server/lib/router/router';
 import Head from 'next/head';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { WowVersion } from 'wow-combat-log-parser';
 
 import 'antd/dist/antd.dark.css';
 
 import FirstTimeSetup from '../../components/FirstTimeSetup';
 import TitleBar from '../../components/TitleBar';
 import { LocalCombatsContextProvider } from '../../hooks/LocalCombatLogsContext';
-import { DesktopUtils } from '../../renderer-utils';
 
 function getAbsoluteAuthUrl(authUrl: string): string {
   if (!authUrl.startsWith('/')) {
@@ -52,15 +52,12 @@ const client = new ApolloClient({
 const APP_CONFIG_STORAGE_KEY = '@wowarenalogs/appConfig';
 
 export function Main({ Component, pageProps }: AppProps) {
-  console.log('bridge', window);
+  console.log(window);
+  console.log('bridge_isPackaged', window.wowarenalogs.environment.getPlatform());
+  console.log(process);
+  window.wowarenalogs.urls.openArmoryLink('test');
 
   const { t } = useTranslation();
-
-  console.log('precall');
-  const platform = window.wowarenalogs.getPlatform();
-  console.log('postcall');
-  console.log('clientside.platform', platform);
-  console.log('clientside.exists', window.wowarenalogs.joinTest(['C', 'Windows', 'explorer.exe']));
   const appIsPackaged = false; //ipcRenderer.sendSync(IPC_GET_APP_IS_PACKAGED_SYNC);
 
   const [loading, setLoading] = useState(true);
@@ -110,41 +107,41 @@ export function Main({ Component, pageProps }: AppProps) {
     // });
   }, [updateAppConfig, t]);
 
-  useEffect(() => {
-    const appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
-    if (appConfigJson) {
-      const storedConfig = JSON.parse(appConfigJson) as IAppConfig;
-      const wowInstallations = DesktopUtils.getAllWoWInstallations(storedConfig.wowDirectory || '', platform);
-      const [windowX, windowY] = [100, 100]; //remote.getCurrentWindow().getPosition();
-      const [windowWidth, windowHeight] = [800, 600]; //remote.getCurrentWindow().getSize();
+  // useEffect(() => {
+  //   const appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
+  //   if (appConfigJson) {
+  //     const storedConfig = JSON.parse(appConfigJson) as IAppConfig;
+  //     const wowInstallations = DesktopUtils.getAllWoWInstallations(storedConfig.wowDirectory || '', platform);
+  //     const [windowX, windowY] = [100, 100]; //remote.getCurrentWindow().getPosition();
+  //     const [windowWidth, windowHeight] = [800, 600]; //remote.getCurrentWindow().getSize();
 
-      const newState = {
-        wowDirectory: wowInstallations.size > 0 ? storedConfig.wowDirectory : undefined,
-        tosAccepted: storedConfig.tosAccepted || false,
-        lastWindowX: storedConfig.lastWindowX === undefined ? windowX : storedConfig.lastWindowX || 0,
-        lastWindowY: storedConfig.lastWindowY === undefined ? windowY : storedConfig.lastWindowY || 0,
-        lastWindowWidth: storedConfig.lastWindowWidth === undefined ? windowWidth : storedConfig.lastWindowWidth || 0,
-        lastWindowHeight:
-          storedConfig.lastWindowHeight === undefined ? windowHeight : storedConfig.lastWindowHeight || 0,
-        launchAtStartup: storedConfig.launchAtStartup || false,
-      };
-      setAppConfig(newState);
+  //     const newState = {
+  //       wowDirectory: wowInstallations.size > 0 ? storedConfig.wowDirectory : undefined,
+  //       tosAccepted: storedConfig.tosAccepted || false,
+  //       lastWindowX: storedConfig.lastWindowX === undefined ? windowX : storedConfig.lastWindowX || 0,
+  //       lastWindowY: storedConfig.lastWindowY === undefined ? windowY : storedConfig.lastWindowY || 0,
+  //       lastWindowWidth: storedConfig.lastWindowWidth === undefined ? windowWidth : storedConfig.lastWindowWidth || 0,
+  //       lastWindowHeight:
+  //         storedConfig.lastWindowHeight === undefined ? windowHeight : storedConfig.lastWindowHeight || 0,
+  //       launchAtStartup: storedConfig.launchAtStartup || false,
+  //     };
+  //     setAppConfig(newState);
 
-      // remote.getCurrentWindow().setPosition(newState.lastWindowX, newState.lastWindowY, false);
-      // remote.getCurrentWindow().setSize(newState.lastWindowWidth, newState.lastWindowHeight, false);
+  //     // remote.getCurrentWindow().setPosition(newState.lastWindowX, newState.lastWindowY, false);
+  //     // remote.getCurrentWindow().setSize(newState.lastWindowWidth, newState.lastWindowHeight, false);
 
-      if (wowInstallations.size > 0) {
-        DesktopUtils.installAddonAsync(wowInstallations).catch(); // do not await. just let this run in background
-        setLoading(false);
-        return;
-      }
-    }
-    setLoading(false);
-  }, [platform]);
+  //     if (wowInstallations.size > 0) {
+  //       DesktopUtils.installAddonAsync(wowInstallations).catch(); // do not await. just let this run in background
+  //       setLoading(false);
+  //       return;
+  //     }
+  //   }
+  //   setLoading(false);
+  // }, [platform]);
 
-  const wowInstallations = useMemo(() => {
-    return DesktopUtils.getAllWoWInstallations(appConfig.wowDirectory || '', platform);
-  }, [appConfig, platform]);
+  // const wowInstallations = useMemo(() => {
+  //   return DesktopUtils.getAllWoWInstallations(appConfig.wowDirectory || '', platform);
+  // }, [appConfig, platform]);
 
   useEffect(() => {
     initAnalyticsAsync('650475e4b06ebfb536489356d27b60f8', 'G-Z6E8QS4ENW').then(() => {
@@ -242,7 +239,7 @@ export function Main({ Component, pageProps }: AppProps) {
           // const absoluteAuthUrl = getAbsoluteAuthUrl(authUrl);
           // loginModalWindow.loadURL(absoluteAuthUrl);
         }}
-        wowInstallations={wowInstallations}
+        wowInstallations={new Map<WowVersion, string>()}
         updateAppConfig={updateAppConfig}
         launchAtStartup={appConfig.launchAtStartup || false}
         setLaunchAtStartup={updateLaunchAtStartup}

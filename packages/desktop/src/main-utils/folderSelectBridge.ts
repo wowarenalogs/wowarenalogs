@@ -39,7 +39,7 @@ const foldersAPI = {
 export class FolderSelectBridge {
   // Should be integrated in preload.ts
   public static preloadBindings = () => {
-    contextBridge.exposeInMainWorld('walLoggerBridge', foldersAPI);
+    contextBridge.exposeInMainWorld('folderSelectBridge', foldersAPI);
   };
 
   // Should be called in main.ts

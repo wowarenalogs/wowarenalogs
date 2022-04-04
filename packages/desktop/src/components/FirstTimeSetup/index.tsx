@@ -11,8 +11,6 @@ import { useEffect, useState } from 'react';
 
 import styles from './index.module.css';
 
-import { DesktopUtils } from '../../renderer-utils';
-
 const { Step } = Steps;
 
 interface IProps {
@@ -44,7 +42,7 @@ function FirstTimeSetup(props: IProps) {
     // });
   };
 
-  const hasValidWoWDirectory = props.wowDirectory && DesktopUtils.getAllWoWInstallations(props.wowDirectory, platform);
+  const hasValidWoWDirectory = true; //props.wowDirectory && DesktopUtils.getAllWoWInstallations(props.wowDirectory, platform);
 
   const activeStep = hasValidWoWDirectory ? 1 : 0;
 
