@@ -3,9 +3,8 @@ import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-insta
 import * as isDev from 'electron-is-dev';
 import * as moment from 'moment';
 import * as path from 'path';
-import { join } from 'path';
 
-import * as eventNames from '../ipcEventNames';
+import { LoggerBridge } from '../src/main-utils/loggerBridge';
 
 let win: BrowserWindow | null = null;
 
@@ -58,6 +57,8 @@ function createWindow() {
       win.webContents.openDevTools({ mode: 'detach' });
     }
   });
+
+  LoggerBridge.mainBindings(win);
 }
 
 app.on('ready', createWindow);

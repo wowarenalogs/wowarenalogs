@@ -24,7 +24,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
   const [combats, setCombats] = useState<ICombatData[]>([]);
   const auth = useAuth();
   const clientContext = useClientContext();
-  const platform = clientContext.platform;
   const appIsPackaged = clientContext.appIsPackaged;
 
   const stringifiedInstallations = JSON.stringify(Array.from(clientContext.wowInstallations.entries()).sort());
@@ -46,7 +45,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
           () => {
             setCombats([]);
           },
-          platform,
           appIsPackaged,
         );
       });
@@ -56,7 +54,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         });
       };
     }
-  }, [stringifiedInstallations, auth.isLoadingAuthData, auth.userId, platform, appIsPackaged]);
+  }, [stringifiedInstallations, auth.isLoadingAuthData, auth.userId, appIsPackaged]);
 
   return (
     <LocalCombatsContext.Provider

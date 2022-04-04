@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-export interface WALWindowAPI {
-  getPlatform: () => string;
-  joinTest: (paths: string[]) => string;
-}
+import { LoggerBridgeWindowAPI } from './src/main-utils/loggerBridge';
 
 declare global {
   interface Window {
-    wowarenalogs: WALWindowAPI;
+    walLoggerBridge: LoggerBridgeWindowAPI;
   }
 }
