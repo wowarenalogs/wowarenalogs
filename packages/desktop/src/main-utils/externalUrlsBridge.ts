@@ -14,6 +14,8 @@ const externalUrlsAPI = {
   openArmoryLink: (player: string) => ipcRenderer.invoke(Events.armoryLinkOpenedEvent, player),
 };
 
+export type ExternalUrlsBridgeAPI = typeof externalUrlsAPI;
+
 export class ExternalUrlsBridge {
   // Should be integrated in preload.ts
   public static preloadBindings = () => {
