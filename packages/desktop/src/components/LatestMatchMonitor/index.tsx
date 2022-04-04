@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { ICombatData, WoWCombatLogParser } from 'wow-combat-log-parser';
 
 import { useLocalCombatsContext } from '../../hooks/LocalCombatLogsContext';
-import { DesktopUtils } from '../../utils';
+import { DesktopUtils } from '../../main-utils';
 import { Waiting } from './Waiting';
 
 export function LatestMatchMonitor() {

@@ -1,4 +1,4 @@
-import { BrowserWindow, ContextBridge, ipcMain, ipcRenderer } from 'electron';
+import { BrowserWindow, contextBridge, ipcMain, ipcRenderer, IpcRendererEvent } from 'electron';
 import { IpcMainInvokeEvent } from 'electron/main';
 import { existsSync, mkdirSync, readdirSync, statSync, Stats } from 'fs-extra';
 import { join } from 'path';
@@ -24,7 +24,8 @@ const Events = {
 };
 
 const bridgeAPI = {
-  handleNewCombat: (callback) => ipcRenderer.on(Events.newCombatEvent, callback),
+  handleNewCombat: (callback: (event: IpcRendererEvent, c: ICombatData) => void) =>
+    ipcRenderer.on(Events.newCombatEvent, callback),
   startLogWatcher: (wowDirectory: string, wowVersion: WowVersion) =>
     ipcRenderer.invoke(Events.startLogWatcher, wowDirectory, wowVersion),
   stopLogWatcher: () => ipcRenderer.invoke(Events.stopLogWatcher),
@@ -32,7 +33,7 @@ const bridgeAPI = {
 
 export class LoggerBridge {
   // Should be integrated in preload.ts
-  public static preloadBindings = (contextBridge: ContextBridge) => {
+  public static preloadBindings = () => {
     contextBridge.exposeInMainWorld('walLoggerBridge', bridgeAPI);
   };
 

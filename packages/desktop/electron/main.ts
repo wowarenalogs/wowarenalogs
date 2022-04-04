@@ -4,6 +4,7 @@ import * as isDev from 'electron-is-dev';
 import * as moment from 'moment';
 import * as path from 'path';
 
+import { FolderSelectBridge } from '../src/main-utils/folderSelectBridge';
 import { LoggerBridge } from '../src/main-utils/loggerBridge';
 
 let win: BrowserWindow | null = null;
@@ -16,7 +17,7 @@ function createWindow() {
     height: 640,
     webPreferences: {
       contextIsolation: true,
-      sandbox: false,
+      sandbox: true,
       preload: path.join(__dirname, 'preload.js'),
     },
   });
@@ -59,6 +60,7 @@ function createWindow() {
   });
 
   LoggerBridge.mainBindings(win);
+  FolderSelectBridge.mainBindings(win);
 }
 
 app.on('ready', createWindow);

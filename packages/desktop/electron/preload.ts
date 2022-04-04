@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { contextBridge } from 'electron';
-
+import { FolderSelectBridge } from '../src/main-utils/folderSelectBridge';
 import { LoggerBridge } from '../src/main-utils/loggerBridge';
 
-LoggerBridge.preloadBindings(contextBridge);
+LoggerBridge.preloadBindings();
+FolderSelectBridge.preloadBindings();

@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 
 import styles from './index.module.css';
 
-import { DesktopUtils } from '../../utils';
+import { DesktopUtils } from '../../renderer-utils';
 
 const { Step } = Steps;
 
@@ -34,40 +34,14 @@ function FirstTimeSetup(props: IProps) {
   }, []);
 
   const selectDirectory = () => {
-    // remote.dialog
-    //   .showOpenDialog({
-    //     title: platform === 'darwin' ? t('setup-page-locate-wow-mac') : t('setup-page-locate-wow-windows'),
-    //     buttonLabel: t('confirm'),
-    //     properties: ['openFile'],
-    //     filters: [
-    //       {
-    //         name: platform === 'darwin' ? 'World of Warcraft.app' : 'Wow.exe, WowClassic.exe',
-    //         extensions: [platform === 'darwin' ? 'app' : 'exe'],
-    //       },
-    //     ],
-    //   })
-    //   .then((data) => {
-    //     if (!data.canceled && data.filePaths.length > 0) {
-    //       const wowExePath = data.filePaths[0];
-    //       const wowDirectory = dirname(wowExePath);
-    //       const wowInstallations = DesktopUtils.getAllWoWInstallations(wowDirectory, platform);
-    //       if (wowInstallations.size > 0) {
-    //         props.updateAppConfig((prev) => {
-    //           return {
-    //             ...prev,
-    //             wowDirectory,
-    //           };
-    //         });
-    //         DesktopUtils.installAddonAsync(wowInstallations);
-    //       } else {
-    //         remote.dialog.showMessageBox({
-    //           title: t('setup-page-invalid-location'),
-    //           message: t('setup-page-invalid-location-message'),
-    //           type: 'error',
-    //         });
-    //       }
-    //     }
-    //   });
+    // window.showdialog
+    // handle
+    //props.updateAppConfig((prev) => {
+    //   return {
+    //     ...prev,
+    //     wowDirectory,
+    //   };
+    // });
   };
 
   const hasValidWoWDirectory = props.wowDirectory && DesktopUtils.getAllWoWInstallations(props.wowDirectory, platform);

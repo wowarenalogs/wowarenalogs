@@ -9,7 +9,6 @@ import {
   IAppConfig,
   LoadingScreen,
 } from '@wowarenalogs/shared';
-// import { ipcRenderer, remote, shell } from 'electron';
 import { useTranslation } from 'next-i18next';
 import { DefaultSeo } from 'next-seo';
 import { AppProps } from 'next/dist/next-server/lib/router/router';
@@ -21,7 +20,7 @@ import 'antd/dist/antd.dark.css';
 import FirstTimeSetup from '../../components/FirstTimeSetup';
 import TitleBar from '../../components/TitleBar';
 import { LocalCombatsContextProvider } from '../../hooks/LocalCombatLogsContext';
-import { DesktopUtils } from '../../utils';
+import { DesktopUtils } from '../../renderer-utils';
 
 function getAbsoluteAuthUrl(authUrl: string): string {
   if (!authUrl.startsWith('/')) {
@@ -53,7 +52,7 @@ const client = new ApolloClient({
 const APP_CONFIG_STORAGE_KEY = '@wowarenalogs/appConfig';
 
 export function Main({ Component, pageProps }: AppProps) {
-  console.log('bridge', window.wowarenalogs);
+  console.log('bridge', window);
 
   const { t } = useTranslation();
 
@@ -247,7 +246,6 @@ export function Main({ Component, pageProps }: AppProps) {
         updateAppConfig={updateAppConfig}
         launchAtStartup={appConfig.launchAtStartup || false}
         setLaunchAtStartup={updateLaunchAtStartup}
-        platform={platform}
         appIsPackaged={appIsPackaged}
       >
         <AuthProvider>
