@@ -46,6 +46,13 @@ function createWindow() {
   });
 }
 
+if (app.isPackaged) {
+  require('update-electron-app')({
+    repo: 'wowarenalogs/wowarenalogs',
+    notifyUser: false,
+  });
+}
+
 app.on('ready', createWindow);
 
 app.on('window-all-closed', () => {
