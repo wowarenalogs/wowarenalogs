@@ -33,7 +33,8 @@ const Events = {
 const foldersAPI = {
   handleFolderSelected: (callback: (event: IpcRendererEvent, d: string) => void) =>
     ipcRenderer.on(Events.newFolderSelectedEvent, callback),
-  startLogWatcher: () => ipcRenderer.invoke(Events.showFolderSelectDialogEvent),
+  selectFolder: () =>
+    ipcRenderer.invoke(Events.showFolderSelectDialogEvent) as Promise<ReturnType<typeof onShowDialog>>,
 };
 
 export class FolderSelectBridge {
@@ -50,7 +51,7 @@ export class FolderSelectBridge {
 }
 
 function onShowDialog(_event: IpcMainInvokeEvent, codex: Codex) {
-  dialog
+  return dialog
     .showOpenDialog({
       title:
         process.platform === 'darwin' ? codex['setup-page-locate-wow-mac'] : codex['setup-page-locate-wow-windows'],
@@ -67,7 +68,7 @@ function onShowDialog(_event: IpcMainInvokeEvent, codex: Codex) {
       if (!data.canceled && data.filePaths.length > 0) {
         const wowExePath = data.filePaths[0];
         const wowDirectory = dirname(wowExePath);
-        const wowInstallations = DesktopUtils.getAllWoWInstallations(wowDirectory, process.platform);
+        const wowInstallations = DesktopUtils.getWowInstallsFromPath(wowDirectory);
         if (wowInstallations.size > 0) {
           bridgeState.mainWindow?.webContents.send(Events.newFolderSelectedEvent, wowDirectory);
           DesktopUtils.installAddon(wowInstallations);
@@ -79,6 +80,7 @@ function onShowDialog(_event: IpcMainInvokeEvent, codex: Codex) {
           });
         }
       }
+      return data;
     });
 }
 

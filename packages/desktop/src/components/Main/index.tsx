@@ -22,17 +22,6 @@ import FirstTimeSetup from '../../components/FirstTimeSetup';
 import TitleBar from '../../components/TitleBar';
 import { LocalCombatsContextProvider } from '../../hooks/LocalCombatLogsContext';
 
-function getAbsoluteAuthUrl(authUrl: string): string {
-  if (!authUrl.startsWith('/')) {
-    return authUrl;
-  }
-
-  if (window.location.hostname === 'localhost') {
-    return `http://localhost:3000${authUrl}`;
-  }
-  return `${window.location.protocol}//${window.location.hostname}:${window.location.port}${authUrl}`;
-}
-
 const link = createHttpLink({
   uri: '/api/graphql',
   credentials: env.stage === 'development' ? 'include' : 'same-origin',
@@ -52,11 +41,7 @@ const client = new ApolloClient({
 const APP_CONFIG_STORAGE_KEY = '@wowarenalogs/appConfig';
 
 export function Main({ Component, pageProps }: AppProps) {
-  console.log(window);
-  console.log('bridge_isPackaged', window.wowarenalogs.environment.getPlatform());
-  console.log(process);
-  window.wowarenalogs.urls.openArmoryLink('test');
-
+  console.log('Bridged', window.wowarenalogs);
   const { t } = useTranslation();
   const appIsPackaged = false; //ipcRenderer.sendSync(IPC_GET_APP_IS_PACKAGED_SYNC);
 
@@ -139,9 +124,15 @@ export function Main({ Component, pageProps }: AppProps) {
   //   setLoading(false);
   // }, [platform]);
 
-  // const wowInstallations = useMemo(() => {
-  //   return DesktopUtils.getAllWoWInstallations(appConfig.wowDirectory || '', platform);
-  // }, [appConfig, platform]);
+  const [wowInstallations, setWowInstallations] = useState(new Map<WowVersion, string>());
+
+  const wowDir = appConfig.wowDirectory;
+
+  useEffect(() => {
+    if (wowDir) {
+      window.wowarenalogs.wowFolder.getInstallationsInFolder(wowDir).then((c) => setWowInstallations(c));
+    }
+  }, [wowDir]);
 
   useEffect(() => {
     initAnalyticsAsync('650475e4b06ebfb536489356d27b60f8', 'G-Z6E8QS4ENW').then(() => {
@@ -205,41 +196,14 @@ export function Main({ Component, pageProps }: AppProps) {
       <ClientContextProvider
         isDesktop={true}
         openExternalURL={() => undefined}
-        // openExternalURL={(url: string) => shell.openExternal(url)}
+        openArmoryLink={(playerName: string, serverName: string, region: string, locale: string) =>
+          window.wowarenalogs.urls.openArmoryLink(playerName, serverName, region, locale)
+        }
         showLoginModalInSeparateWindow={(authUrl: string, callback: () => void) => {
-          // const loginModalWindow = new remote.BrowserWindow({
-          //   backgroundColor: '#000000',
-          //   title: t('login'),
-          //   x: remote.getCurrentWindow().getPosition()[0] + 200,
-          //   y: remote.getCurrentWindow().getPosition()[1] + 100,
-          //   width: 800,
-          //   height: 800,
-          //   maximizable: false,
-          //   minimizable: false,
-          //   parent: remote.getCurrentWindow(),
-          //   modal: true,
-          //   webPreferences: {
-          //     nodeIntegration: false,
-          //     enableRemoteModule: false,
-          //   },
-          // });
-          // loginModalWindow.setMenuBarVisibility(false);
-          // loginModalWindow.on('closed', callback);
-          // loginModalWindow.webContents.on('did-navigate', (event, url) => {
-          //   const urlObj = new URL(url);
-          //   if (
-          //     (urlObj.hostname === 'localhost' ||
-          //       urlObj.hostname === 'wowarenalogs.com' ||
-          //       urlObj.hostname.endsWith('.wowarenalogs.com')) &&
-          //     urlObj.pathname === '/'
-          //   ) {
-          //     loginModalWindow.close();
-          //   }
-          // });
-          // const absoluteAuthUrl = getAbsoluteAuthUrl(authUrl);
-          // loginModalWindow.loadURL(absoluteAuthUrl);
+          window.wowarenalogs.bnet.onLoginFinished(callback);
+          window.wowarenalogs.bnet.showLoginModalInSeparateWindow(authUrl, t('login'));
         }}
-        wowInstallations={new Map<WowVersion, string>()}
+        wowInstallations={wowInstallations}
         updateAppConfig={updateAppConfig}
         launchAtStartup={appConfig.launchAtStartup || false}
         setLaunchAtStartup={updateLaunchAtStartup}

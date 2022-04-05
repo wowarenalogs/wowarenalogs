@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 // PRELOAD SHIM UNTIL WEBPACKING IS READY
+// THESE BLOCKS COPIED FROM THEIR SOURCE IN MAIN-UTILS
 // FolderSelectBridge.preloadBindings();
 const Events = {
   newFolderSelectedEvent: 'wal-new-folder-selected',
@@ -13,6 +14,7 @@ const foldersAPI = {
 };
 
 // PRELOAD SHIM UNTIL WEBPACKING IS READY
+// THESE BLOCKS COPIED FROM THEIR SOURCE IN MAIN-UTILS
 // LoggerBridge.preloadBindings();
 const loggerEvents = {
   newCombatEvent: 'wal-new-combat',
@@ -28,6 +30,7 @@ const bridgeAPI = {
 };
 
 // PRELOAD SHIM UNTIL WEBPACKING IS READY
+// THESE BLOCKS COPIED FROM THEIR SOURCE IN MAIN-UTILS
 // ExternalUrls
 const externalUrlsEvents = {
   armoryLinkOpenedEvent: 'wal-open-armory-link',
@@ -36,10 +39,22 @@ const externalUrlsAPI = {
   openArmoryLink: (player: string) => ipcRenderer.invoke(externalUrlsEvents.armoryLinkOpenedEvent, player),
 };
 
+// PRELOAD SHIM UNTIL WEBPACKING IS READY
+// THESE BLOCKS COPIED FROM THEIR SOURCE IN MAIN-UTILS
+// FOLDERS API
+const folderEvents = {
+  getInstallationsInFolder: 'wal-get-all-installs',
+};
+
+const wowFolderApi = {
+  getInstallationsInFolder: (path: string) => ipcRenderer.invoke(folderEvents.getInstallationsInFolder, path),
+};
+
 contextBridge.exposeInMainWorld('wowarenalogs', {
   urls: externalUrlsAPI,
   folders: foldersAPI,
   logger: bridgeAPI,
+  wowFolder: wowFolderApi,
   environment: {
     getPlatform: () => process.platform,
   },

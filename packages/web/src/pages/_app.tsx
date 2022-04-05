@@ -88,6 +88,9 @@ function App({ Component, pageProps }: AppProps) {
         openExternalURL={(url: string) => {
           window.open(url, '_blank');
         }}
+        openArmoryLink={(playerName: string, serverName: string, region: string, locale: string) =>
+          window.open(`https://worldofwarcraft.com/${locale}/character/${region}/${serverName}/${playerName}`, '_blank')
+        }
         wowInstallations={new Map<WowVersion, string>()}
         launchAtStartup={false}
         updateAppConfig={() => {
@@ -132,8 +135,6 @@ function App({ Component, pageProps }: AppProps) {
           </CookieConsent>
         </AuthProvider>
       </ClientContextProvider>
-    </ApolloProvider>
-  );
-}
+    </}
 
 export default appWithTranslation(App);

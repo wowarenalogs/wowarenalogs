@@ -7,6 +7,7 @@ import * as path from 'path';
 import { ExternalUrlsBridge } from '../src/main-utils/externalUrlsBridge';
 import { FolderSelectBridge } from '../src/main-utils/folderSelectBridge';
 import { LoggerBridge } from '../src/main-utils/loggerBridge';
+import { WowFolderBridge } from '../src/main-utils/wowFolderBridge';
 
 let win: BrowserWindow | null = null;
 
@@ -63,6 +64,7 @@ function createWindow() {
   LoggerBridge.mainBindings(win);
   FolderSelectBridge.mainBindings(win);
   ExternalUrlsBridge.mainBindings(win);
+  WowFolderBridge.mainBindings(win);
 }
 
 app.on('ready', createWindow);

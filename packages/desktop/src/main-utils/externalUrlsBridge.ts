@@ -11,7 +11,10 @@ const Events = {
 };
 
 const externalUrlsAPI = {
-  openArmoryLink: (player: string) => ipcRenderer.invoke(Events.armoryLinkOpenedEvent, player),
+  openArmoryLink: (playerName: string, serverName: string, region: string, locale: string) =>
+    ipcRenderer.invoke(Events.armoryLinkOpenedEvent, playerName, serverName, region, locale) as Promise<
+      ReturnType<typeof onArmoryLinkOpened>
+    >,
 };
 
 export type ExternalUrlsBridgeAPI = typeof externalUrlsAPI;
@@ -29,6 +32,12 @@ export class ExternalUrlsBridge {
   };
 }
 
-function onArmoryLinkOpened(_event: IpcMainInvokeEvent, player: string) {
-  shell.openExternal(`https://armory/${player}`);
+function onArmoryLinkOpened(
+  _event: IpcMainInvokeEvent,
+  playerName: string,
+  serverName: string,
+  region: string,
+  locale: string,
+) {
+  return shell.openExternal(`https://worldofwarcraft.com/${locale}/character/${region}/${serverName}/${playerName}`);
 }

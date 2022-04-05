@@ -27,8 +27,10 @@ const bridgeAPI = {
   handleNewCombat: (callback: (event: IpcRendererEvent, c: ICombatData) => void) =>
     ipcRenderer.on(Events.newCombatEvent, callback),
   startLogWatcher: (wowDirectory: string, wowVersion: WowVersion) =>
-    ipcRenderer.invoke(Events.startLogWatcher, wowDirectory, wowVersion),
-  stopLogWatcher: () => ipcRenderer.invoke(Events.stopLogWatcher),
+    ipcRenderer.invoke(Events.startLogWatcher, wowDirectory, wowVersion) as Promise<
+      ReturnType<typeof onStartLogWatcher>
+    >,
+  stopLogWatcher: () => ipcRenderer.invoke(Events.stopLogWatcher) as Promise<ReturnType<typeof onStopLogWatcher>>,
 };
 
 export class LoggerBridge {

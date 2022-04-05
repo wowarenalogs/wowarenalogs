@@ -6,8 +6,9 @@ import { WoWCombatLogParser, WowVersion } from 'wow-combat-log-parser';
 const chunkParitialsBuffer: Record<string, string> = {};
 
 export class DesktopUtils {
-  public static getAllWoWInstallations(path: string, platform: string): Map<WowVersion, string> {
+  public static getWowInstallsFromPath(path: string) {
     const results = new Map<WowVersion, string>();
+    const platform = process.platform;
 
     const METADATA = [
       {
@@ -33,7 +34,6 @@ export class DesktopUtils {
         results.set(metadata.version as WowVersion, join(path, '..', metadata.dir));
       }
     });
-
     return results;
   }
 
