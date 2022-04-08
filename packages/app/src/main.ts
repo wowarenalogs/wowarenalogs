@@ -3,10 +3,14 @@ import * as moment from 'moment';
 import { BrowserWindow, app } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
-let win: BrowserWindow | null = null;
+import { nativeBridgeRegistry } from './nativeBridge/registry';
+
+import path = require('path');
 
 function createWindow() {
-  win = new BrowserWindow({
+  const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
+
+  const win = new BrowserWindow({
     frame: false,
     backgroundColor: '#000000',
     width: 800,
@@ -15,6 +19,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
+      preload: preloadScriptPath,
     },
   });
 
@@ -27,8 +32,6 @@ function createWindow() {
       extraHeaders: 'pragma: no-cache\n',
     });
   }
-
-  win.on('closed', () => (win = null));
 
   win.webContents.on('new-window', function (e, u) {
     e.preventDefault();
@@ -44,6 +47,8 @@ function createWindow() {
       win.webContents.openDevTools({ mode: 'detach' });
     }
   });
+
+  nativeBridgeRegistry.startListeners(win);
 }
 
 if (app.isPackaged) {
@@ -53,7 +58,9 @@ if (app.isPackaged) {
   });
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   app.quit();

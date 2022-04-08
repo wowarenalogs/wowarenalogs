@@ -3,12 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "build:app": "shx rm -rf dist && tsc -p . && webpack --config webpack.preload.config.js",
     "release:app": "git checkout release/app && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "devDependencies": {
-    "@types/node": "^17.0.23"
+    "@types/node": "^17.0.23",
+    "shx": "^0.3.4",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
   },
   "dependencies": {
+    "@wowarenalogs/shared": "^1.0.0",
     "electron": "17.1.0",
     "electron-devtools-installer": "^3.2.0",
     "moment": "^2.29.1",

@@ -1,8 +1,16 @@
 import type { NextPage } from 'next';
-import { Test } from '@wowarenalogs/shared';
+import dynamic from 'next/dynamic';
+
+const DesktopLayout = dynamic(
+  () => {
+    const promise = import('../components/DesktopLayout').then((mod) => mod.DesktopLayout);
+    return promise;
+  },
+  { ssr: false },
+);
 
 const Home: NextPage = () => {
-  return <Test />;
+  return <DesktopLayout />;
 };
 
 export default Home;
