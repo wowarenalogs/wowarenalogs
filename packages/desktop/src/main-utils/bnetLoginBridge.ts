@@ -51,7 +51,7 @@ function showLoginModalInSeparateWindow(_event: IpcMainInvokeEvent, authUrl: str
 
   const loginModalWindow = new BrowserWindow({
     backgroundColor: '#000000',
-    title: windowTitle, //t('login'),
+    title: windowTitle,
     x: mainWindowPosition ? mainWindowPosition[0] + 200 : 200,
     y: mainWindowPosition ? mainWindowPosition[1] + 100 : 200,
     width: 800,
@@ -63,6 +63,7 @@ function showLoginModalInSeparateWindow(_event: IpcMainInvokeEvent, authUrl: str
     webPreferences: {
       nodeIntegration: false,
       enableRemoteModule: false,
+      sandbox: true,
     },
   });
   loginModalWindow.setMenuBarVisibility(false);

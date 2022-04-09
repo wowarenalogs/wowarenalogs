@@ -1,5 +1,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
+// DO NOT EDIT WITHOUT READING src/main-utils/README.md
+
 // PRELOAD SHIM UNTIL WEBPACKING IS READY
 // THESE BLOCKS COPIED FROM THEIR SOURCE IN MAIN-UTILS
 // FolderSelectBridge.preloadBindings();
