@@ -1,8 +1,7 @@
-import { CogIcon, MinusIcon, TrendingDownIcon, TrendingUpIcon, XIcon } from '@heroicons/react/outline';
+import { FiMaximize2, FiMinimize2, FiMinus, FiX } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@wowarenalogs/shared';
-import Link from 'next/link';
 import styles from './index.module.css';
 
 function TitleBar() {
@@ -22,15 +21,12 @@ function TitleBar() {
       <div className={styles['title-bar-logo']} />
       <div className="flex-1" />
       <div className={`flex flex-row text-white ${styles['title-bar-buttons']}`}>
-        <Button>
-          <CogIcon className="w-4 h-4" />
-        </Button>
         <Button
           onClick={() => {
             window.wowarenalogs.minimizeMainWindow && window.wowarenalogs.minimizeMainWindow();
           }}
         >
-          <MinusIcon className="w-4 h-4" />
+          <FiMinus size="16" />
         </Button>
         <Button
           onClick={() => {
@@ -43,14 +39,14 @@ function TitleBar() {
             }
           }}
         >
-          {isMaximized ? <TrendingDownIcon className="w-4 h-4" /> : <TrendingUpIcon className="w-4 h-4" />}
+          {isMaximized ? <FiMinimize2 size="16" /> : <FiMaximize2 size="16" />}
         </Button>
         <Button
           onClick={() => {
             window.wowarenalogs.quit && window.wowarenalogs.quit();
           }}
         >
-          <XIcon className="w-4 h-4" />
+          <FiX size="16" />
         </Button>
       </div>
     </div>
