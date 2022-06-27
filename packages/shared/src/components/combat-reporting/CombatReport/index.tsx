@@ -216,7 +216,7 @@ export function CombatReport({ id, combat, anon, search }: IProps) {
           <Tabs.TabPane tab={t('combat-report-replay')} key="replay" className={styles['combat-report-tab-content']}>
             {combat.hasAdvancedLogging ? <CombatReplay key={combat.id} combat={combat} /> : <ReplayUnavailable />}
           </Tabs.TabPane>
-          {canUseFeature(data?.me, 'combat-log-raw-view') && (
+          {canUseFeature(data?.me, 'experimental-features') && (
             <Tabs.TabPane
               tab={t('combat-report-log-view')}
               key="logview"

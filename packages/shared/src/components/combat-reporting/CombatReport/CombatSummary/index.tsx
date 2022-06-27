@@ -1,3 +1,4 @@
+import { getApolloContext } from '@apollo/client';
 import { Card, Divider, Tag } from 'antd';
 import Title from 'antd/lib/typography/Title';
 import _ from 'lodash';
@@ -6,16 +7,24 @@ import { useTranslation } from 'next-i18next';
 import { useContext } from 'react';
 import { CombatResult } from 'wow-combat-log-parser';
 
+import { useGetProfileQuery } from '../../../../graphql/__generated__/graphql';
 import { Utils } from '../../../../utils';
+import { canUseFeature } from '../../../../utils/features';
 import { Box } from '../../../common/Box';
 import { CombatReportContext } from '../CombatReportContext';
 import { CombatStatistic } from '../CombatStatistic';
 import { DeathRecap } from './DeathRecap';
+import { FreezingTraps } from './FreezingTraps';
 import { Meters } from './Meters';
 import { PlayerRow } from './PlayerRow';
 
 export function CombatSummary() {
   const { t } = useTranslation();
+  const context = useContext(getApolloContext());
+  const { data } = useGetProfileQuery({
+    client: context.client,
+  });
+
   const { combat, isAnonymized, enemies, friends, players } = useContext(CombatReportContext);
   if (!combat) {
     return null;
@@ -121,6 +130,7 @@ export function CombatSummary() {
             <DeathRecap unit={deadPlayers[0]} wowVersion={combat.wowVersion} />
           </Box>
         )}
+        {canUseFeature(data?.me, 'experimental-features') && <FreezingTraps combat={combat} />}
       </Box>
     </Box>
   );
