@@ -17,4 +17,8 @@ export class MaximizeMainWindowModule extends NativeBridgeModule {
       mainWindow.unmaximize();
     }
   }
+
+  public getInvokables() {
+    return [];
+  }
 }

@@ -9,4 +9,8 @@ export class IsMainWindowMinimizedModule extends NativeBridgeModule {
   public async handleMessageAsync(mainWindow: BrowserWindow): Promise<boolean> {
     return mainWindow.isMinimized();
   }
+
+  public getInvokables() {
+    return [];
+  }
 }

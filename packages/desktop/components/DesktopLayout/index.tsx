@@ -6,9 +6,11 @@ export const DesktopLayout = () => {
       <TitleBar />
       <button
         onClick={() => {
-          if (window.wowarenalogs.openArmoryLink) {
-            window.wowarenalogs.openArmoryLink('us', 'us', 'stormrage', 'armsperson');
-          }
+          console.log(window);
+          console.log(window.wowarenalogs);
+          // window.wowarenalogs.armoryLinks.openArmoryLink('us', 'us', 'stormrage', 'armsperson');
+          window.wowarenalogs.folderSelect.handleFolderSelected((e, b) => console.log('selected', e, b, c));
+          window.wowarenalogs.folderSelect.selectFolder();
         }}
       >
         TEST ARMORY LINK

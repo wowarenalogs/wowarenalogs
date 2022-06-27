@@ -3,10 +3,19 @@ import { NativeBridgeModule } from '../module';
 
 export class IsMainWindowMaximizedModule extends NativeBridgeModule {
   constructor() {
-    super('isMainWindowMaximized');
+    super('isWinMax');
   }
 
-  public async handleMessageAsync(mainWindow: BrowserWindow): Promise<boolean> {
+  public async getWindowMaximized(mainWindow: BrowserWindow): Promise<boolean> {
     return mainWindow.isMaximized();
+  }
+
+  public getInvokables() {
+    return [
+      {
+        name: 'isMainWindowMaximized',
+        invocation: this.getWindowMaximized,
+      },
+    ];
   }
 }

@@ -9,4 +9,8 @@ export class QuitModule extends NativeBridgeModule {
   public async handleMessageAsync(mainWindow: Electron.BrowserWindow): Promise<void> {
     app.quit();
   }
+
+  public getInvokables() {
+    return [];
+  }
 }
