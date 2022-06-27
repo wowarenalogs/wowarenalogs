@@ -1,5 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron';
 
+import { ArmoryLinksModule } from './modules/armoryLinksModule';
 import { IsMainWindowMaximizedModule } from './modules/isMainWindowMaximizedModule';
 import { IsMainWindowMinimizedModule } from './modules/isMainWindowMinimizedModule';
 import { MaximizeMainWindowModule } from './modules/maximizeMainWindowModule';
@@ -29,6 +30,7 @@ export class NativeBridgeRegistry {
 
 export const nativeBridgeRegistry = new NativeBridgeRegistry();
 
+nativeBridgeRegistry.registerModule(new ArmoryLinksModule());
 nativeBridgeRegistry.registerModule(new MinimizeMainWindowModule());
 nativeBridgeRegistry.registerModule(new MaximizeMainWindowModule());
 nativeBridgeRegistry.registerModule(new IsMainWindowMinimizedModule());
