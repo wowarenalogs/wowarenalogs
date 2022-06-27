@@ -14,7 +14,9 @@ interface IProps {
  * [playerUnitId] casts [spellId] successfully
  */
 function getSpellCasts(combat: ICombatData, playerUnitId: string, spellId: string) {
-  return combat.units[playerUnitId].spellCastEvents.filter((e) => e.spellId === spellId);
+  return combat.units[playerUnitId].spellCastEvents.filter(
+    (e) => e.logLine.event === 'SPELL_CAST_SUCCESS' && e.spellId === spellId,
+  );
 }
 
 /**
@@ -73,7 +75,9 @@ export const FreezingTraps = (props: IProps) => {
     ...td,
   }));
 
-  const trapBreaks = players.map((p) => getAuraBreaks(props.combat, p.id, '3355')).flat();
+  const trapBreaks = _.values(props.combat.units)
+    .map((p) => getAuraBreaks(props.combat, p.id, '3355'))
+    .flat();
 
   return (
     <Card>
