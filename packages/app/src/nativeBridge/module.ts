@@ -8,8 +8,16 @@ type InvokableFunction = {
 export abstract class NativeBridgeModule {
   constructor(public readonly moduleName: string) {}
 
-  public getMessageKey(): string {
+  public getModuleKey(): string {
     return `wowarenalogs:${this.moduleName}`;
+  }
+
+  public getInvocationKey(functionName: string) {
+    return `${this.getModuleKey()}:${functionName}`;
+  }
+
+  public getEventKey(eventName: string): string {
+    return `${this.getModuleKey()}:${eventName}`;
   }
 
   public generateAPIObject(): Object {
@@ -17,12 +25,14 @@ export abstract class NativeBridgeModule {
 
     this.getInvokables().forEach((func) => {
       moduleApi[func.name] = (...args: any[]) => {
-        return ipcRenderer.invoke(`${this.getMessageKey()}:${func.name}`, ...args);
+        return ipcRenderer.invoke(this.getInvocationKey(func.name), ...args);
       };
     });
 
-    this.getListeners().forEach((h) => {
-      moduleApi[h] = (callback: (event: IpcRendererEvent, ...args: any[]) => void) => ipcRenderer.on(h, callback);
+    this.getListeners().forEach((listenerName) => {
+      console.log('Registering for .on:', this.getEventKey(listenerName));
+      moduleApi[listenerName] = (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+        ipcRenderer.on(this.getEventKey(listenerName), callback);
     });
 
     return {

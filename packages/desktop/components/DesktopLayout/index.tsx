@@ -15,6 +15,16 @@ export const DesktopLayout = () => {
       >
         TEST ARMORY LINK
       </button>
+
+      <button
+        onClick={() => {
+          console.log(window.wowarenalogs);
+          window.wowarenalogs.bnet.onLoggedIn((e) => console.log('loggedIn', e));
+          window.wowarenalogs.bnet.login('https://google.com', 'Some title');
+        }}
+      >
+        TEST BNET LOGIN
+      </button>
     </div>
   );
 };

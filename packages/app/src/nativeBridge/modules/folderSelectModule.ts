@@ -2,7 +2,7 @@ import { BrowserWindow, dialog } from 'electron';
 // import { dirname } from 'path';
 import { NativeBridgeModule } from '../module';
 
-const folderSelectedEvent = 'handleFolderSelected';
+const folderSelected = 'handleFolderSelected';
 
 export class FolderSelectModule extends NativeBridgeModule {
   constructor() {
@@ -10,6 +10,7 @@ export class FolderSelectModule extends NativeBridgeModule {
   }
 
   public selectFolder(mainWindow: BrowserWindow) {
+    // TODO: Fix codex (inject from renderer)
     const codex = {
       'setup-page-locate-wow-mac': 'test',
       'setup-page-locate-wow-windows': 'test',
@@ -18,6 +19,8 @@ export class FolderSelectModule extends NativeBridgeModule {
       'setup-page-invalid-location-message': 'test',
     };
 
+    const module = this;
+    console.log('Creating dialog', module);
     return dialog
       .showOpenDialog({
         title:
@@ -36,8 +39,10 @@ export class FolderSelectModule extends NativeBridgeModule {
           const wowExePath = data.filePaths[0];
           const wowDirectory = 'C:\\'; //dirname(wowExePath);
           const wowInstallations = []; //DesktopUtils.getWowInstallsFromPath(wowDirectory);
+          console.log('int', this);
           if (wowInstallations.length > 0) {
-            mainWindow.webContents.send(folderSelectedEvent, wowDirectory);
+            // TODO: see note in bnetModule about .send
+            mainWindow.webContents.send('wowarenalogs:fs:handleFolderSelected', wowDirectory);
             // DesktopUtils.installAddon(wowInstallations);
           } else {
             dialog.showMessageBox({
@@ -46,7 +51,8 @@ export class FolderSelectModule extends NativeBridgeModule {
               type: 'error',
             });
           }
-          mainWindow.webContents.send(folderSelectedEvent, wowDirectory);
+          // TODO: see note in bnetModule about .send
+          mainWindow.webContents.send('wowarenalogs:fs:handleFolderSelected', wowDirectory);
         }
         return data;
       });
@@ -62,7 +68,7 @@ export class FolderSelectModule extends NativeBridgeModule {
   }
 
   public override getListeners() {
-    return ['handleFolderSelected'];
+    return [folderSelected];
   }
 
   public async onRegistered(mainWindow: BrowserWindow) {

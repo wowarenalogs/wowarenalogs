@@ -19,4 +19,8 @@ export type INativeBridge = {
     handleFolderSelected: (callback: (event: ElectronOpaqueEvent, folder: string) => void) => void;
     selectFolder: () => Promise<void>;
   };
+  bnet: {
+    login: (authUrl: string, windowTitle: string) => Promise<void>;
+    onLoggedIn: (callback: (event: ElectronOpaqueEvent) => void) => void;
+  };
 };
