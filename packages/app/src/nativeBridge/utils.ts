@@ -1,7 +1,7 @@
 import { closeSync, existsSync, openSync, readSync } from 'fs';
 import { trim, replace } from 'lodash';
 import { join } from 'path';
-import { WoWCombatLogParser, WowVersion } from 'wow-combat-log-parser';
+import { WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
 
 const chunkParitialsBuffer: Record<string, string> = {};
 

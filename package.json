@@ -43,8 +43,11 @@
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
   "devDependencies": {
+    "@types/line-reader": "^0.0.34",
+    "@types/md5": "^2.3.2",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
+    "@wowarenalogs/parser": "^4.6.4",
     "concurrently": "^7.0.0",
     "cross-env": "^7.0.3",
     "electron": "17.1.0",
@@ -61,6 +64,7 @@
     "husky": "^7.0.4",
     "prettier": "^2.6.1",
     "shx": "^0.3.4",
+    "tsdx": "^0.14.1",
     "wait-on": "^6.0.1"
   },
   "resolutions": {
