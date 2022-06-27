@@ -1,17 +1,15 @@
-import { logAnalyticsEvent, Box, IAppConfig } from '@wowarenalogs/shared';
+import { logAnalyticsEvent, Box, IAppConfig, useClientContext } from '@wowarenalogs/shared';
 import { Steps, Button, Checkbox, Radio } from 'antd';
 import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
-import { remote } from 'electron';
+// import { remote } from 'electron';
 import { useTranslation, Trans } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { setCookie } from 'nookies';
-import { dirname } from 'path';
+// import { dirname } from 'path';
 import { useEffect, useState } from 'react';
 
 import styles from './index.module.css';
-
-import { DesktopUtils } from '../../utils';
 
 const { Step } = Steps;
 
@@ -22,53 +20,29 @@ interface IProps {
 }
 
 function FirstTimeSetup(props: IProps) {
+  const clientContext = useClientContext();
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const [launchAtStartup, setLaunchAtStartup] = useState(true);
+
+  const platform = clientContext.platform;
 
   useEffect(() => {
     logAnalyticsEvent('view_FirstTimeSetup');
   }, []);
 
   const selectDirectory = () => {
-    remote.dialog
-      .showOpenDialog({
-        title:
-          remote.process.platform === 'darwin' ? t('setup-page-locate-wow-mac') : t('setup-page-locate-wow-windows'),
-        buttonLabel: t('confirm'),
-        properties: ['openFile'],
-        filters: [
-          {
-            name: remote.process.platform === 'darwin' ? 'World of Warcraft.app' : 'Wow.exe, WowClassic.exe',
-            extensions: [remote.process.platform === 'darwin' ? 'app' : 'exe'],
-          },
-        ],
-      })
-      .then((data) => {
-        if (!data.canceled && data.filePaths.length > 0) {
-          const wowExePath = data.filePaths[0];
-          const wowDirectory = dirname(wowExePath);
-          const wowInstallations = DesktopUtils.getAllWoWInstallations(wowDirectory);
-          if (wowInstallations.size > 0) {
-            props.updateAppConfig((prev) => {
-              return {
-                ...prev,
-                wowDirectory,
-              };
-            });
-            DesktopUtils.installAddonAsync(wowInstallations);
-          } else {
-            remote.dialog.showMessageBox({
-              title: t('setup-page-invalid-location'),
-              message: t('setup-page-invalid-location-message'),
-              type: 'error',
-            });
-          }
-        }
-      });
+    // window.showdialog
+    // handle
+    //props.updateAppConfig((prev) => {
+    //   return {
+    //     ...prev,
+    //     wowDirectory,
+    //   };
+    // });
   };
 
-  const hasValidWoWDirectory = props.wowDirectory && DesktopUtils.getAllWoWInstallations(props.wowDirectory);
+  const hasValidWoWDirectory = true; //props.wowDirectory && DesktopUtils.getAllWoWInstallations(props.wowDirectory, platform);
 
   const activeStep = hasValidWoWDirectory ? 1 : 0;
 
@@ -125,7 +99,7 @@ function FirstTimeSetup(props: IProps) {
                     <Button
                       type="link"
                       onClick={() => {
-                        remote.shell.openExternal('https://wowarenalogs.com/privacy.html');
+                        // remote.shell.openExternal('https://wowarenalogs.com/privacy.html');
                       }}
                       style={{
                         padding: 0,

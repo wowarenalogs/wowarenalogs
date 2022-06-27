@@ -1,8 +1,13 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import * as isDev from 'electron-is-dev';
 import * as moment from 'moment';
 import * as path from 'path';
+
+import { ExternalUrlsBridge } from '../src/main-utils/externalUrlsBridge';
+import { FolderSelectBridge } from '../src/main-utils/folderSelectBridge';
+import { LoggerBridge } from '../src/main-utils/loggerBridge';
+import { WowFolderBridge } from '../src/main-utils/wowFolderBridge';
 
 let win: BrowserWindow | null = null;
 
@@ -13,8 +18,9 @@ function createWindow() {
     width: 1000,
     height: 640,
     webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true,
+      contextIsolation: true,
+      sandbox: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
@@ -54,6 +60,11 @@ function createWindow() {
       win.webContents.openDevTools({ mode: 'detach' });
     }
   });
+
+  LoggerBridge.mainBindings(win);
+  FolderSelectBridge.mainBindings(win);
+  ExternalUrlsBridge.mainBindings(win);
+  WowFolderBridge.mainBindings(win);
 }
 
 app.on('ready', createWindow);
@@ -68,4 +79,8 @@ app.on('activate', () => {
   if (win === null) {
     createWindow();
   }
+});
+
+ipcMain.on('get-platform-sync', (event) => {
+  event.returnValue = process.platform;
 });

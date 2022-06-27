@@ -5,7 +5,7 @@ module.exports = withTM({
   i18n,
   webpack: (config, { isServer, webpack }) => {
     if (!isServer) {
-      config.target = 'electron-renderer';
+      config.target = 'web';
       config.plugins.push(
         new webpack.DefinePlugin({
           'process.env': {},

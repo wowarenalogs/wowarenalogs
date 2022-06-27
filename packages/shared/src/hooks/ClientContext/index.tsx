@@ -13,6 +13,9 @@ export interface IAppConfig {
 
 interface IClientContextData {
   isDesktop: boolean;
+  platform: string;
+  appIsPackaged: boolean;
+  openArmoryLink: (playerName: string, serverName: string, region: string, locale: string) => void;
   openExternalURL: (url: string) => void;
   showLoginModalInSeparateWindow: (authUrl: string, callback: () => void) => void;
   wowInstallations: Map<WowVersion, string>;
@@ -23,7 +26,10 @@ interface IClientContextData {
 
 const ClientContext = React.createContext<IClientContextData>({
   isDesktop: false,
+  appIsPackaged: false,
+  platform: '',
   openExternalURL: () => null,
+  openArmoryLink: () => null,
   showLoginModalInSeparateWindow: (authUrl: string, callback: () => void) => {
     callback();
   },
@@ -40,6 +46,7 @@ const ClientContext = React.createContext<IClientContextData>({
 interface IProps {
   isDesktop: boolean;
   openExternalURL: (url: string) => void;
+  openArmoryLink: (playerName: string, serverName: string, region: string, locale: string) => void;
   showLoginModalInSeparateWindow: (authUrl: string, callback: () => void) => void;
   wowInstallations: Map<WowVersion, string>;
   updateAppConfig: (updater: (prevAppConfig: IAppConfig) => IAppConfig) => void;
@@ -52,7 +59,10 @@ export const ClientContextProvider = (props: IProps) => {
   return (
     <ClientContext.Provider
       value={{
+        appIsPackaged: false,
+        platform: '',
         openExternalURL: props.openExternalURL,
+        openArmoryLink: props.openArmoryLink,
         isDesktop: props.isDesktop,
         showLoginModalInSeparateWindow: props.showLoginModalInSeparateWindow,
         wowInstallations: props.wowInstallations,

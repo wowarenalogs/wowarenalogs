@@ -28,7 +28,11 @@ function App(props: AppProps) {
     return <props.Component {...props.pageProps} />;
   }
 
-  return <Main {...props} />;
+  return (
+    <>
+      <Main {...props} />
+    </>
+  );
 }
 
 export default appWithTranslation(App);

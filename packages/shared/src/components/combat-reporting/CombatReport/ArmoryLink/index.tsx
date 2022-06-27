@@ -34,6 +34,8 @@ export function ArmoryLink({ player }: IProps) {
   serverName = serverName.replace("'", '');
 
   const locale = bnetLocales.includes(window.navigator.language.toLowerCase()) ? window.navigator.language : 'en-us';
+  const region = realmIdToRegion(realmId);
+
   return (
     <img
       className={styles['armory-link']}
@@ -41,9 +43,7 @@ export function ArmoryLink({ player }: IProps) {
       title="WoW Armory Link"
       src={'https://images.wowarenalogs.com/common/wow-logo-transparency-3dd2.png'}
       onClick={() => {
-        clientContext.openExternalURL(
-          `https://worldofwarcraft.com/${locale}/character/${realmIdToRegion(realmId)}/${serverName}/${playerName}`,
-        );
+        clientContext.openArmoryLink(playerName, serverName, region, locale);
       }}
     />
   );

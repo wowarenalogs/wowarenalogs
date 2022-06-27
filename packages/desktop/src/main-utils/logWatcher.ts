@@ -1,6 +1,5 @@
 import chokidar from 'chokidar';
-import { remote } from 'electron';
-import fs from 'fs';
+import { watch, FSWatcher } from 'fs';
 import { join } from 'path';
 
 abstract class LogWatcher {
@@ -10,16 +9,16 @@ abstract class LogWatcher {
 }
 
 class WindowsLogWatcher extends LogWatcher {
-  private watcher: fs.FSWatcher;
+  private watcher: FSWatcher;
 
   constructor(wowDirectory: string) {
     super(wowDirectory);
     const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
-    this.watcher = fs.watch(wowLogsDirectoryFullPath);
+    this.watcher = watch(wowLogsDirectoryFullPath);
   }
 
   onChange(handler: (fileName: string) => void): void {
-    this.watcher.on('change', (eventType, fileName) => {
+    this.watcher.on('change', (_eventType: string, fileName: string) => {
       if (typeof fileName !== 'string' || fileName.indexOf('WoWCombatLog') < 0) {
         return;
       }
@@ -60,7 +59,7 @@ class MacLogWatcher extends LogWatcher {
   }
 }
 
-export const createLogWatcher = (wowDirectory: string) => {
-  const isMac = remote.process.platform === 'darwin';
+export const createLogWatcher = (wowDirectory: string, platform: string) => {
+  const isMac = platform === 'darwin';
   return isMac ? new MacLogWatcher(wowDirectory) : new WindowsLogWatcher(wowDirectory);
 };

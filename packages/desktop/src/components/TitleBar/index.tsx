@@ -1,14 +1,14 @@
 import { CloseOutlined, CompressOutlined, ExpandOutlined, MinusOutlined, SettingOutlined } from '@ant-design/icons';
 import { Box } from '@wowarenalogs/shared';
 import { Button } from 'antd';
-import { remote } from 'electron';
+// import { remote } from 'electron';
 import Link from 'next/link';
 import { useState } from 'react';
 
 import styles from './index.module.css';
 
 function TitleBar() {
-  const [isMaximized, setIsMaximized] = useState(remote.getCurrentWindow().isMaximized());
+  const [isMaximized, setIsMaximized] = useState(false); ///useState(remote.getCurrentWindow().isMaximized());
 
   return (
     <Box className={styles['title-bar']} display="flex" flexDirection="row" alignItems="center">
@@ -23,7 +23,7 @@ function TitleBar() {
           type="text"
           icon={<MinusOutlined />}
           onClick={() => {
-            remote.getCurrentWindow().minimize();
+            // remote.getCurrentWindow().minimize();
           }}
         />
         <Button
@@ -31,10 +31,10 @@ function TitleBar() {
           icon={isMaximized ? <CompressOutlined /> : <ExpandOutlined />}
           onClick={() => {
             if (isMaximized) {
-              remote.getCurrentWindow().unmaximize();
+              // remote.getCurrentWindow().unmaximize();
               setIsMaximized(false);
             } else {
-              remote.getCurrentWindow().maximize();
+              // remote.getCurrentWindow().maximize();
               setIsMaximized(true);
             }
           }}
@@ -43,7 +43,7 @@ function TitleBar() {
           type="text"
           icon={<CloseOutlined />}
           onClick={() => {
-            remote.app.exit(0);
+            // remote.app.exit(0);
           }}
         />
       </Box>
