@@ -6,7 +6,7 @@ const folderSelectedEvent = 'handleFolderSelected';
 
 export class FolderSelectModule extends NativeBridgeModule {
   constructor() {
-    super('selectFolderXXX');
+    super('fs');
   }
 
   public selectFolder(mainWindow: BrowserWindow) {
@@ -66,6 +66,7 @@ export class FolderSelectModule extends NativeBridgeModule {
   }
 
   public async onRegistered(mainWindow: BrowserWindow) {
+    // TODO: remove example
     mainWindow.on('resize', () => {
       mainWindow.webContents.send('test-resize');
     });

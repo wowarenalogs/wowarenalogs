@@ -9,8 +9,8 @@ export const DesktopLayout = () => {
           console.log(window);
           console.log(window.wowarenalogs);
           // window.wowarenalogs.armoryLinks.openArmoryLink('us', 'us', 'stormrage', 'armsperson');
-          window.wowarenalogs.folderSelect.handleFolderSelected((e, b) => console.log('selected', e, b, c));
-          window.wowarenalogs.folderSelect.selectFolder();
+          window.wowarenalogs.fs.handleFolderSelected((_event, folder) => console.log('selected', folder));
+          window.wowarenalogs.fs.selectFolder();
         }}
       >
         TEST ARMORY LINK

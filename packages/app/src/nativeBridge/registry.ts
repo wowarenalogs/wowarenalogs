@@ -1,13 +1,10 @@
 import { BrowserWindow, ipcMain } from 'electron';
 
-import { ArmoryLinksModule } from './modules/armoryLinksModule';
-import { IsMainWindowMaximizedModule } from './modules/isMainWindowMaximizedModule';
-import { IsMainWindowMinimizedModule } from './modules/isMainWindowMinimizedModule';
-import { MaximizeMainWindowModule } from './modules/maximizeMainWindowModule';
-import { MinimizeMainWindowModule } from './modules/minimizeMainWindowModule';
+import { ExternalLinksModule } from './modules/externalLinksModule';
 import { NativeBridgeModule } from './module';
-import { QuitModule } from './modules/quitModule';
+import { ApplicationModule } from './modules/applicationModule';
 import { FolderSelectModule } from './modules/folderSelectModule';
+import { MainWindowModule } from './modules/mainWindowModule';
 
 export class NativeBridgeRegistry {
   private modules: Map<string, NativeBridgeModule> = new Map<string, NativeBridgeModule>();
@@ -24,7 +21,6 @@ export class NativeBridgeRegistry {
     Array.from(this.modules.values()).forEach((module) => {
       const invokableFuncs = module.getInvokables();
       invokableFuncs.forEach((func) => {
-        console.log('invokable.ipcMain.handle', func.name);
         ipcMain.handle(`${module.getMessageKey()}:${func.name}`, async (_event, ...args) => {
           return await func.invocation(mainWindow, ...args);
         });
@@ -37,9 +33,6 @@ export class NativeBridgeRegistry {
 export const nativeBridgeRegistry = new NativeBridgeRegistry();
 
 nativeBridgeRegistry.registerModule(new FolderSelectModule());
-nativeBridgeRegistry.registerModule(new ArmoryLinksModule());
-nativeBridgeRegistry.registerModule(new MinimizeMainWindowModule());
-nativeBridgeRegistry.registerModule(new MaximizeMainWindowModule());
-nativeBridgeRegistry.registerModule(new IsMainWindowMinimizedModule());
-nativeBridgeRegistry.registerModule(new IsMainWindowMaximizedModule());
-nativeBridgeRegistry.registerModule(new QuitModule());
+nativeBridgeRegistry.registerModule(new ExternalLinksModule());
+nativeBridgeRegistry.registerModule(new MainWindowModule());
+nativeBridgeRegistry.registerModule(new ApplicationModule());
