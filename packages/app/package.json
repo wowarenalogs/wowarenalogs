@@ -7,6 +7,7 @@
     "release:app": "git checkout release/app && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.182",
     "@types/node": "^17.0.23",
     "shx": "^0.3.4",
     "webpack": "^5.72.0",
@@ -16,6 +17,7 @@
     "@wowarenalogs/shared": "^1.0.0",
     "electron": "17.1.0",
     "electron-devtools-installer": "^3.2.0",
+    "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "update-electron-app": "^2.0.1"
   }

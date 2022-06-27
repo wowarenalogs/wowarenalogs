@@ -1,10 +1,11 @@
 import { BrowserWindow, dialog } from 'electron';
-// import { dirname } from 'path';
+import { join } from 'path';
 import { NativeBridgeModule } from '../module';
+import { DesktopUtils } from '../utils';
 
 const folderSelected = 'handleFolderSelected';
 
-export class FolderSelectModule extends NativeBridgeModule {
+export class FilesModule extends NativeBridgeModule {
   constructor() {
     super('fs');
   }
@@ -58,13 +59,51 @@ export class FolderSelectModule extends NativeBridgeModule {
       });
   }
 
+  public getInstallationsFolder(mainWindow: BrowserWindow, path: string) {
+    return DesktopUtils.getWowInstallsFromPath(path);
+  }
+
+  public async installAddon(mainWindow: BrowserWindow, path: string) {
+    const wowInstallations = await DesktopUtils.getWowInstallsFromPath(path);
+    for (const [ver, dir] of Array.from(wowInstallations.entries())) {
+      const remoteAddonTOCResponse = await fetch(`/addon/${ver}/WoWArenaLogs.toc`);
+      const remoteAddonTOC = await remoteAddonTOCResponse.text();
+
+      const remoteAddonLUAResponse = await fetch(`/addon/${ver}/WoWArenaLogs.lua`);
+      const remoteAddonLUA = await remoteAddonLUAResponse.text();
+
+      const addonDestPath = join(dir, 'Interface/AddOns/WoWArenaLogs');
+      // await ensureDir(addonDestPath); // TODO: REPLACE SHIM
+
+      // await writeFile(join(addonDestPath, 'WoWArenaLogs.toc'), DesktopUtils.normalizeAddonContent(remoteAddonTOC), {
+      //   encoding: 'utf-8',
+      // });
+      // await writeFile(join(addonDestPath, 'WoWArenaLogs.lua'), DesktopUtils.normalizeAddonContent(remoteAddonLUA), {
+      //   encoding: 'utf-8',
+      // });
+    }
+  }
+
   public getInvokables() {
     return [
       {
         name: 'selectFolder',
         invocation: this.selectFolder,
       },
+      {
+        name: 'getInstallationsFolder',
+        invocation: this.getInstallationsFolder,
+      },
+      {
+        name: 'installAddon',
+        invocation: this.installAddon,
+      },
     ];
+
+    //   getInstallationsInFolder: (path: string) =>
+    //   ipcRenderer.invoke(Events.getInstallationsInFolder, path) as Promise<ReturnType<typeof onGetInstalls>>,
+    // installAddon: (path: string) =>
+    //   ipcRenderer.invoke(Events.installAddon, path) as Promise<ReturnType<typeof onInstallAddon>>,
   }
 
   public override getListeners() {

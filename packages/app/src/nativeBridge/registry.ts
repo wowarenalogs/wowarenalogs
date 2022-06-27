@@ -3,7 +3,7 @@ import { BrowserWindow, ipcMain } from 'electron';
 import { ExternalLinksModule } from './modules/externalLinksModule';
 import { NativeBridgeModule } from './module';
 import { ApplicationModule } from './modules/applicationModule';
-import { FolderSelectModule } from './modules/folderSelectModule';
+import { FilesModule } from './modules/filesModule';
 import { MainWindowModule } from './modules/mainWindowModule';
 import { BnetModule } from './modules/bnetModule';
 
@@ -34,7 +34,7 @@ export class NativeBridgeRegistry {
 export const nativeBridgeRegistry = new NativeBridgeRegistry();
 
 nativeBridgeRegistry.registerModule(new BnetModule());
-nativeBridgeRegistry.registerModule(new FolderSelectModule());
+nativeBridgeRegistry.registerModule(new FilesModule());
 nativeBridgeRegistry.registerModule(new ExternalLinksModule());
 nativeBridgeRegistry.registerModule(new MainWindowModule());
 nativeBridgeRegistry.registerModule(new ApplicationModule());
