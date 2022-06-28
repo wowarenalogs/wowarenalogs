@@ -8,22 +8,20 @@ import { DesktopUtils } from '../utils';
 
 const folderSelected = 'handleFolderSelected';
 
+type Codex = {
+  ['setup-page-locate-wow-mac']: string;
+  ['setup-page-locate-wow-windows']: string;
+  ['setup-page-invalid-location']: string;
+  ['setup-page-invalid-location-message']: string;
+  ['confirm']: string;
+};
+
 export class FilesModule extends NativeBridgeModule {
   constructor() {
     super('fs');
   }
 
-  public async selectFolder(mainWindow: BrowserWindow) {
-    // TODO: Fix codex (inject from renderer)
-    const codex = {
-      'setup-page-locate-wow-mac': 'test',
-      'setup-page-locate-wow-windows': 'test',
-      confirm: 'confirm',
-      'setup-page-invalid-location': 'test',
-      'setup-page-invalid-location-message': 'test',
-    };
-
-    const module = this;
+  public async selectFolder(mainWindow: BrowserWindow, codex: Codex) {
     return dialog
       .showOpenDialog({
         title:

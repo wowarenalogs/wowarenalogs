@@ -2,6 +2,14 @@ type ElectronOpaqueEvent = {
   senderId: number;
 };
 
+type FSCodex = {
+  ['setup-page-locate-wow-mac']: string;
+  ['setup-page-locate-wow-windows']: string;
+  ['setup-page-invalid-location']: string;
+  ['setup-page-invalid-location-message']: string;
+  ['confirm']: string;
+};
+
 export type INativeBridge = {
   win: {
     minimize?: () => Promise<void>;
@@ -17,7 +25,7 @@ export type INativeBridge = {
   };
   fs: {
     handleFolderSelected: (callback: (event: ElectronOpaqueEvent, folder: string) => void) => void;
-    selectFolder: () => Promise<void>;
+    selectFolder: (codex: FSCodex) => Promise<void>;
   };
   bnet: {
     login: (authUrl: string, windowTitle: string) => Promise<void>;
