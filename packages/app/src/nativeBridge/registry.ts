@@ -14,10 +14,6 @@ export class NativeBridgeRegistry {
     this.modules.set(module.moduleName, module);
   }
 
-  public generateAPIObject(): Object {
-    return Object.assign({}, ...Array.from(this.modules.values()).map((module) => module.generateAPIObject()));
-  }
-
   public startListeners(mainWindow: BrowserWindow): void {
     Array.from(this.modules.values()).forEach((module) => {
       const invokableFuncs = module.getInvokables();

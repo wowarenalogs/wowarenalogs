@@ -1,11 +1,11 @@
-import { closeSync, existsSync, openSync, readSync } from 'fs';
-import { join } from 'path';
 import { WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
+import { join } from 'path';
+import { close, existsSync, open, read } from 'fs-extra';
 
 const chunkParitialsBuffer: Record<string, string> = {};
 
 export class DesktopUtils {
-  public static getWowInstallsFromPath(path: string) {
+  public static async getWowInstallsFromPath(path: string) {
     const results = new Map<WowVersion, string>();
     const platform = process.platform;
 
@@ -24,7 +24,7 @@ export class DesktopUtils {
       },
     ];
 
-    Object.values(METADATA).forEach((metadata) => {
+    Object.values(METADATA).forEach(async (metadata) => {
       if (
         ((platform === 'darwin' && existsSync(join(path, '..', metadata.dir, metadata.macAppFile))) ||
           (platform === 'win32' && existsSync(join(path, '..', metadata.dir, metadata.winAppFile)))) &&
@@ -36,14 +36,14 @@ export class DesktopUtils {
     return Promise.resolve(results);
   }
 
-  public static parseLogFileChunk(parser: WoWCombatLogParser, path: string, start: number, size: number): void {
+  public static async parseLogFileChunk(parser: WoWCombatLogParser, path: string, start: number, size: number) {
     if (size <= 0) {
       return;
     }
-    const fd = openSync(path, 'r');
+    const fd = await open(path, 'r');
     const buffer = Buffer.alloc(size);
-    readSync(fd, buffer, 0, size, start);
-    closeSync(fd);
+    await read(fd, buffer, 0, size, start);
+    await close(fd);
     let bufferString = buffer.toString('utf-8');
     // Was there a partial line left over from a previous call?
     if (chunkParitialsBuffer[path]) {

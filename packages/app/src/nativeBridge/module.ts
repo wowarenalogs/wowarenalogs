@@ -20,34 +20,6 @@ export abstract class NativeBridgeModule {
     return `${this.getModuleKey()}:${eventName}`;
   }
 
-  public generateAPIObject(): Object {
-    const moduleApi: Record<string, Object> = {};
-
-    this.getInvokables().forEach((func) => {
-      moduleApi[func.name] = (...args: any[]) => {
-        return ipcRenderer.invoke(this.getInvocationKey(func.name), ...args);
-      };
-    });
-
-    this.getListeners().forEach((listenerName) => {
-      console.log('Registering for .on:', this.getEventKey(listenerName));
-      moduleApi[listenerName] = (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
-        ipcRenderer.on(this.getEventKey(listenerName), callback);
-    });
-
-    return {
-      [this.moduleName]: moduleApi,
-    };
-  }
-
-  /**
-   * List of names that will call ipcRenderer.on([name], ...) for your module
-   * These will expose callback setters to the renderer api to handle events of name [name]
-   */
-  public getListeners(): string[] {
-    return [];
-  }
-
   /**
    * Callback after module is registered in case any bespoke action is needed
    * Useful for mapping events on the mainWindow into module domain events

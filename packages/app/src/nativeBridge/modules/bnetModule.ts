@@ -1,8 +1,6 @@
 import { NativeBridgeModule } from '../module';
 import { BrowserWindow } from 'electron';
 
-const onLoggedIn = 'onLoggedIn';
-
 function getAbsoluteAuthUrl(authUrl: string): string {
   if (!authUrl.startsWith('/')) {
     return authUrl;
@@ -67,9 +65,5 @@ export class BnetModule extends NativeBridgeModule {
         invocation: this.login,
       },
     ];
-  }
-
-  public override getListeners() {
-    return [onLoggedIn];
   }
 }

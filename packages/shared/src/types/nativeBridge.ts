@@ -12,6 +12,10 @@ type FSCodex = {
 
 export type INativeBridge = {
   win: {
+    onWindowResized: (callback: (event: ElectronOpaqueEvent) => void) => void;
+    onWindowMoved: (callback: (event: ElectronOpaqueEvent) => void) => void;
+    setWindowSize: (width: number, height: number) => Promise<void>;
+    setWindowPosition: (x: number, y: number) => Promise<void>;
     minimize?: () => Promise<void>;
     maximize?: (maximize?: boolean) => Promise<void>;
     isMinimized?: () => Promise<boolean>;
@@ -24,7 +28,7 @@ export type INativeBridge = {
     openArmoryLink?: (locale: string, region: string, serverName: string, playerName: string) => Promise<void>;
   };
   fs: {
-    handleFolderSelected: (callback: (event: ElectronOpaqueEvent, folder: string) => void) => void;
+    folderSelected: (callback: (event: ElectronOpaqueEvent, folder: string) => void) => void;
     selectFolder: (codex: FSCodex) => Promise<void>;
   };
   bnet: {

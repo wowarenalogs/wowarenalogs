@@ -1,5 +1,8 @@
-import { BrowserWindow, shell } from 'electron';
+import { BrowserWindow } from 'electron';
 import { NativeBridgeModule } from '../module';
+
+const onWindowResized = 'onWindowResized';
+const onWindowMoved = 'onWindowMoved';
 
 export class MainWindowModule extends NativeBridgeModule {
   constructor() {
@@ -30,8 +33,33 @@ export class MainWindowModule extends NativeBridgeModule {
     }
   }
 
+  public async setWindowSize(mainWindow: BrowserWindow, width: number, height: number) {
+    mainWindow.setSize(width, height);
+  }
+
+  public async setWindowPosition(mainWindow: BrowserWindow, x: number, y: number) {
+    mainWindow.setPosition(x, y);
+  }
+
+  public onRegistered(mainWindow: BrowserWindow): void {
+    mainWindow.on('resize', () => {
+      mainWindow.webContents.send(this.getEventKey(onWindowResized));
+    });
+    mainWindow.on('move', () => {
+      mainWindow.webContents.send(this.getEventKey(onWindowMoved));
+    });
+  }
+
   public getInvokables() {
     return [
+      {
+        name: 'setWindowPosition',
+        invocation: this.setWindowPosition,
+      },
+      {
+        name: 'setWindowSize',
+        invocation: this.setWindowSize,
+      },
       {
         name: 'isMaximized',
         invocation: this.isMaximized,
