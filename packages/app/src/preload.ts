@@ -3,6 +3,7 @@ import { appApi } from './nativeBridge/modules/applicationModule.api';
 import { bnetApi } from './nativeBridge/modules/bnetModule.api';
 import { linksApi } from './nativeBridge/modules/externalLinksModule.api';
 import { fsApi } from './nativeBridge/modules/filesModule.api';
+import { logsApi } from './nativeBridge/modules/logWatcherModule.api';
 import { winApi } from './nativeBridge/modules/mainWindowModule.api';
 import { ModuleApi } from './nativeBridge/types';
 
@@ -42,6 +43,7 @@ function registerApi(api: ModuleApi) {
   });
 }
 
+registerApi(logsApi);
 registerApi(fsApi);
 registerApi(appApi);
 registerApi(bnetApi);

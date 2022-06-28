@@ -1,3 +1,5 @@
+import { ICombatData, WowVersion } from '@wowarenalogs/parser';
+
 type ElectronOpaqueEvent = {
   senderId: number;
 };
@@ -34,5 +36,10 @@ export type INativeBridge = {
   bnet: {
     login: (authUrl: string, windowTitle: string) => Promise<void>;
     onLoggedIn: (callback: (event: ElectronOpaqueEvent) => void) => void;
+  };
+  logs: {
+    handleNewCombat: (callback: (event: ElectronOpaqueEvent, c: ICombatData) => void) => void;
+    startLogWatcher: (wowDirectory: string, wowVersion: WowVersion) => Promise<void>;
+    stopLogWatcher: () => Promise<void>;
   };
 };

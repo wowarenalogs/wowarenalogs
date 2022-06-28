@@ -43,6 +43,32 @@ export const DesktopLayout = () => {
         >
           Test Select Folder (Installs Addon)
         </button>
+        <button
+          onClick={() => {
+            console.log(window.wowarenalogs);
+            window.wowarenalogs.logs.startLogWatcher(
+              'C:\\Program Files (x86)\\World of Warcraft\\_retail_',
+              'shadowlands',
+            );
+            window.wowarenalogs.logs.handleNewCombat((_event, combat) => {
+              console.log('New Combat', combat);
+            });
+          }}
+        >
+          Start Log Watcher
+        </button>
+        <button
+          onClick={() => {
+            console.log(window.wowarenalogs);
+            window.wowarenalogs.logs.startLogWatcher(
+              'C:\\Program Files (x86)\\World of Warcraft\\_retail_',
+              'shadowlands',
+            );
+            window.wowarenalogs.logs.stopLogWatcher();
+          }}
+        >
+          Stop Log Watcher
+        </button>
       </div>
     </div>
   );
