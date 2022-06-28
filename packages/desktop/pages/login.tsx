@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { signIn } from 'next-auth/react';
+import { signIn } from 'next-auth/client';
 
 export default () => {
   const router = useRouter();
@@ -11,5 +11,6 @@ export default () => {
     }
   }, [router]);
 
-  return <div />;
+  // TODO: something here to make it look like progress is happening
+  return <div className="text-white">Logging in...</div>;
 };

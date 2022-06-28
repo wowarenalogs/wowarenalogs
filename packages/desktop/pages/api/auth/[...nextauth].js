@@ -2,9 +2,18 @@ import { Firestore } from '@google-cloud/firestore';
 import { FirebaseAdapter } from '@next-auth/firebase-adapter';
 import NextAuth from 'next-auth';
 
+// Almost on V4
+// See https://github.com/nextauthjs/next-auth/pull/3873
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
 });
+
+// type BattleNetIssuer =
+//   | 'https://www.battlenet.com.cn/oauth'
+//   | 'https://us.battle.net/oauth'
+//   | 'https://eu.battle.net/oauth'
+//   | 'https://kr.battle.net/oauth'
+//   | 'https://tw.battle.net/oauth';
 
 export default NextAuth({
   providers: [

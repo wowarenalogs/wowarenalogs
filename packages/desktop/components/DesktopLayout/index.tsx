@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { ICombatData } from '@wowarenalogs/parser';
 import TitleBar from '../TitleBar';
 import { LoginButton } from '../Login/LoginButton';
+import { useSession } from 'next-auth/client';
+import { LogoutButton } from '../Login/LogoutButton';
 
 export const DesktopLayout = () => {
   const [platform, setPlatform] = useState('');
   const [logWatcherRunning, setLogWatcherRunning] = useState(false);
   const [logs, setLogs] = useState<ICombatData[]>([]);
+  const [session, loading] = useSession();
 
   useEffect(() => {
     if (window.wowarenalogs.app.getPlatform) window.wowarenalogs.app.getPlatform().then((p) => setPlatform(p));
@@ -17,7 +20,11 @@ export const DesktopLayout = () => {
       <TitleBar />
       <div className="flex flex-col">
         <div>Platform: {platform}</div>
+        <div>
+          Session: {(session?.user as any)?.battletag} {loading ? 'loading' : null}
+        </div>
         <LoginButton />
+        <LogoutButton />
         <button
           onClick={() => {
             console.log(window);
