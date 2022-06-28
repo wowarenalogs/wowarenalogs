@@ -1,5 +1,8 @@
+import { WowVersion } from '@wowarenalogs/parser';
+import { ensureDir, writeFile } from 'fs-extra';
 import { BrowserWindow, dialog } from 'electron';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { trim, replace } from 'lodash';
 import { NativeBridgeModule } from '../module';
 import { DesktopUtils } from '../utils';
 
@@ -10,7 +13,7 @@ export class FilesModule extends NativeBridgeModule {
     super('fs');
   }
 
-  public selectFolder(mainWindow: BrowserWindow) {
+  public async selectFolder(mainWindow: BrowserWindow) {
     // TODO: Fix codex (inject from renderer)
     const codex = {
       'setup-page-locate-wow-mac': 'test',
@@ -21,7 +24,6 @@ export class FilesModule extends NativeBridgeModule {
     };
 
     const module = this;
-    console.log('Creating dialog', module);
     return dialog
       .showOpenDialog({
         title:
@@ -35,16 +37,18 @@ export class FilesModule extends NativeBridgeModule {
           },
         ],
       })
-      .then((data) => {
+      .then(async (data) => {
         if (!data.canceled && data.filePaths.length > 0) {
           const wowExePath = data.filePaths[0];
-          const wowDirectory = 'C:\\'; //dirname(wowExePath);
-          const wowInstallations = []; //DesktopUtils.getWowInstallsFromPath(wowDirectory);
-          console.log('int', this);
-          if (wowInstallations.length > 0) {
+          const wowDirectory = dirname(wowExePath);
+          const wowInstallations = await DesktopUtils.getWowInstallsFromPath(wowDirectory);
+
+          if (wowInstallations.size > 0) {
             // TODO: see note in bnetModule about .send
             mainWindow.webContents.send('wowarenalogs:fs:handleFolderSelected', wowDirectory);
-            // DesktopUtils.installAddon(wowInstallations);
+            for (const [ver, dir] of Array.from(wowInstallations.entries())) {
+              this.installAddonToPath(dir, ver);
+            }
           } else {
             dialog.showMessageBox({
               title: codex['setup-page-invalid-location'],
@@ -66,22 +70,30 @@ export class FilesModule extends NativeBridgeModule {
   public async installAddon(mainWindow: BrowserWindow, path: string) {
     const wowInstallations = await DesktopUtils.getWowInstallsFromPath(path);
     for (const [ver, dir] of Array.from(wowInstallations.entries())) {
-      const remoteAddonTOCResponse = await fetch(`/addon/${ver}/WoWArenaLogs.toc`);
-      const remoteAddonTOC = await remoteAddonTOCResponse.text();
-
-      const remoteAddonLUAResponse = await fetch(`/addon/${ver}/WoWArenaLogs.lua`);
-      const remoteAddonLUA = await remoteAddonLUAResponse.text();
-
-      const addonDestPath = join(dir, 'Interface/AddOns/WoWArenaLogs');
-      // await ensureDir(addonDestPath); // TODO: REPLACE SHIM
-
-      // await writeFile(join(addonDestPath, 'WoWArenaLogs.toc'), DesktopUtils.normalizeAddonContent(remoteAddonTOC), {
-      //   encoding: 'utf-8',
-      // });
-      // await writeFile(join(addonDestPath, 'WoWArenaLogs.lua'), DesktopUtils.normalizeAddonContent(remoteAddonLUA), {
-      //   encoding: 'utf-8',
-      // });
+      this.installAddonToPath(dir, ver);
     }
+  }
+
+  private normalizeAddonContent(content: string): string {
+    return trim(replace(content, /\r+/g, ''));
+  }
+
+  private async installAddonToPath(path: string, version: WowVersion) {
+    const remoteAddonTOCResponse = await fetch(`/addon/${version}/WoWArenaLogs.toc`);
+    const remoteAddonTOC = await remoteAddonTOCResponse.text();
+
+    const remoteAddonLUAResponse = await fetch(`/addon/${version}/WoWArenaLogs.lua`);
+    const remoteAddonLUA = await remoteAddonLUAResponse.text();
+
+    const addonDestPath = join(path, 'Interface/AddOns/WoWArenaLogs');
+    await ensureDir(addonDestPath);
+
+    await writeFile(join(addonDestPath, 'WoWArenaLogs.toc'), this.normalizeAddonContent(remoteAddonTOC), {
+      encoding: 'utf-8',
+    });
+    await writeFile(join(addonDestPath, 'WoWArenaLogs.lua'), this.normalizeAddonContent(remoteAddonLUA), {
+      encoding: 'utf-8',
+    });
   }
 
   public getInvokables() {
@@ -99,11 +111,6 @@ export class FilesModule extends NativeBridgeModule {
         invocation: this.installAddon,
       },
     ];
-
-    //   getInstallationsInFolder: (path: string) =>
-    //   ipcRenderer.invoke(Events.getInstallationsInFolder, path) as Promise<ReturnType<typeof onGetInstalls>>,
-    // installAddon: (path: string) =>
-    //   ipcRenderer.invoke(Events.installAddon, path) as Promise<ReturnType<typeof onInstallAddon>>,
   }
 
   public override getListeners() {

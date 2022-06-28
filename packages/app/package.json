@@ -18,6 +18,7 @@
     "@wowarenalogs/shared": "^1.0.0",
     "electron": "17.1.0",
     "electron-devtools-installer": "^3.2.0",
+    "fs-extra": "^10.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "update-electron-app": "^2.0.1"

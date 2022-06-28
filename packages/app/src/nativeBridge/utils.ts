@@ -1,5 +1,4 @@
 import { closeSync, existsSync, openSync, readSync } from 'fs';
-import { trim, replace } from 'lodash';
 import { join } from 'path';
 import { WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
 
@@ -35,10 +34,6 @@ export class DesktopUtils {
       }
     });
     return Promise.resolve(results);
-  }
-
-  private static normalizeAddonContent(content: string): string {
-    return trim(replace(content, /\r+/g, ''));
   }
 
   public static parseLogFileChunk(parser: WoWCombatLogParser, path: string, start: number, size: number): void {
