@@ -30,7 +30,7 @@ export class BnetModule extends NativeBridgeModule {
       maximizable: false,
       minimizable: false,
       parent: mainWindow,
-      modal: true,
+      // modal: true, // TODO: convert back to modal
       webPreferences: {
         nodeIntegration: false,
         sandbox: true,

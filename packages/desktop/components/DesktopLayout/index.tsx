@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ICombatData } from '@wowarenalogs/parser';
 import TitleBar from '../TitleBar';
+import { LoginButton } from '../Login/LoginButton';
 
 export const DesktopLayout = () => {
   const [platform, setPlatform] = useState('');
@@ -16,6 +17,7 @@ export const DesktopLayout = () => {
       <TitleBar />
       <div className="flex flex-col">
         <div>Platform: {platform}</div>
+        <LoginButton />
         <button
           onClick={() => {
             console.log(window);
