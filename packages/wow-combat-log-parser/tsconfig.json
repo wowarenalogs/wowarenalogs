@@ -3,6 +3,8 @@
   "extends": "../../tsconfig.json",
   "include": ["src", "test", "types"],
   "compilerOptions": {
-    "jsx": "preserve"
+    "noEmit": false,
+    "jsx": "preserve",
+    "composite": true
   }
 }
