@@ -25,6 +25,9 @@ export type INativeBridge = {
   };
   app: {
     quit?: () => Promise<void>;
+    getPlatform?: () => Promise<
+      'aix' | 'android' | 'darwin' | 'freebsd' | 'haiku' | 'linux' | 'openbsd' | 'sunos' | 'win32' | 'cygwin' | 'netbsd'
+    >;
   };
   links: {
     openArmoryLink?: (locale: string, region: string, serverName: string, playerName: string) => Promise<void>;
