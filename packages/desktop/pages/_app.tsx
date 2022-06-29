@@ -20,7 +20,7 @@ function App(props: AppProps) {
     return <div>HTML INDEX?</div>;
   }
 
-  if (router.pathname.startsWith('/login')) {
+  if (router.pathname.indexOf('/login') > -1) {
     // bypass main layout when rendering the desktop login page
     return <props.Component {...props.pageProps} />;
   }

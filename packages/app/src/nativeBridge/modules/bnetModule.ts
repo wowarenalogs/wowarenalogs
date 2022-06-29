@@ -1,23 +1,12 @@
 import { NativeBridgeModule } from '../module';
 import { BrowserWindow } from 'electron';
 
-function getAbsoluteAuthUrl(authUrl: string): string {
-  if (!authUrl.startsWith('/')) {
-    return authUrl;
-  }
-
-  if (window.location.hostname === 'localhost') {
-    return `http://localhost:3000${authUrl}`;
-  }
-  return `${window.location.protocol}//${window.location.hostname}:${window.location.port}${authUrl}`;
-}
-
 export class BnetModule extends NativeBridgeModule {
   constructor() {
     super('bnet');
   }
 
-  public login(mainWindow: Electron.BrowserWindow, authUrl: string, windowTitle: string): Promise<void> {
+  public login(mainWindow: Electron.BrowserWindow, absoluteAuthUrl: string, windowTitle: string): Promise<void> {
     const mainWindowPosition = mainWindow.getPosition();
 
     const loginModalWindow = new BrowserWindow({
@@ -54,7 +43,6 @@ export class BnetModule extends NativeBridgeModule {
         loginModalWindow.close();
       }
     });
-    const absoluteAuthUrl = getAbsoluteAuthUrl(authUrl);
     return loginModalWindow.loadURL(absoluteAuthUrl);
   }
 

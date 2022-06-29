@@ -9,6 +9,17 @@ import TitleBar from '../TitleBar';
 
 const APP_CONFIG_STORAGE_KEY = '@wowarenalogs/appConfig';
 
+function getAbsoluteAuthUrl(authUrl: string): string {
+  if (!authUrl.startsWith('/')) {
+    return authUrl;
+  }
+
+  if (window.location.hostname === 'localhost') {
+    return `http://localhost:3000${authUrl}`;
+  }
+  return `${window.location.protocol}//${window.location.hostname}:${window.location.port}${authUrl}`;
+}
+
 export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
   const [loading, setLoading] = useState(true);
   const [appConfig, setAppConfig] = useState<IAppConfig>({});
@@ -99,7 +110,7 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
       }}
       showLoginModalInSeparateWindow={(authUrl, callback) => {
         window.wowarenalogs.bnet?.onLoggedIn(callback);
-        window.wowarenalogs.bnet?.login(authUrl, 'window title'); // TODO: window title
+        window.wowarenalogs.bnet?.login(getAbsoluteAuthUrl(authUrl), 'window title'); // TODO: window title
       }}
       setLaunchAtStartup={(openAtLogin: boolean) => {
         window.wowarenalogs.app?.setOpenAtLogin(openAtLogin);

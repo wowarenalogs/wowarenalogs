@@ -1,6 +1,6 @@
 import { Session, User } from 'next-auth';
 import { useSession } from 'next-auth/client';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 
 interface WALUser extends User {
   battletag: string;
@@ -15,17 +15,11 @@ interface WALSession extends Session {
 interface IAuthContextData {
   session: WALSession | null | undefined;
   loading: boolean;
-  loginModalShown: boolean;
-  setLoginModalShown: (value: boolean) => void;
 }
 
 const AuthContext = React.createContext<IAuthContextData>({
   session: null,
   loading: true,
-  loginModalShown: false,
-  setLoginModalShown: (value: boolean) => {
-    return;
-  },
 });
 
 interface IProps {
@@ -34,8 +28,6 @@ interface IProps {
 
 export const AuthProvider = (props: IProps) => {
   const [session, loading] = useSession();
-  const [loginModalShown, setLoginModalShown] = useState(false);
-  const [loginModalClosed, setLoginModalClosed] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -52,31 +44,15 @@ export const AuthProvider = (props: IProps) => {
       value={{
         session: session as WALSession,
         loading,
-        loginModalShown,
-        setLoginModalShown,
       }}
     >
       {props.children}
-      {/* TODO: Fix loginModal */}
-      {/* <LoginModal
-        show={loginModalShown && !loginModalClosed}
-        onClose={() => {
-          setLoginModalShown(false);
-          setLoginModalClosed(true);
-        }}
-      /> */}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
   const contextData = useContext(AuthContext);
-
-  const maybeShowLoginModal = useCallback(() => {
-    if (!contextData.session?.user && !contextData.loading && !contextData.loginModalShown) {
-      contextData.setLoginModalShown(true);
-    }
-  }, [contextData]);
 
   let userId = null;
   let battleTag = null;
@@ -96,7 +72,6 @@ export const useAuth = () => {
     isAuthenticated: contextData.session?.user != null,
     userId,
     battleTag,
-    maybeShowLoginModal,
     region,
   };
 };

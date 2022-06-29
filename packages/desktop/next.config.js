@@ -5,6 +5,9 @@ const withTM = require('next-transpile-modules')(['@wowarenalogs/shared']);
 const nextConfig = {
   i18n,
   reactStrictMode: true,
+  images: {
+    domains: ['images.wowarenalogs.com'],
+  },
 };
 
 module.exports = withTM(nextConfig);
