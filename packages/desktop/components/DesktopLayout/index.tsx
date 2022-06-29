@@ -52,7 +52,6 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
         lastWindowHeight: 768,
         launchAtStartup: storedConfig.launchAtStartup || false,
       };
-      console.log('LOADING', storedConfig);
       setAppConfig(newState);
 
       if (storedConfig.lastWindowX !== undefined && storedConfig.lastWindowY !== undefined) {
@@ -108,7 +107,6 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
       saveWindowPosition={async () => {
         const pos = await window.wowarenalogs.win?.getWindowPosition();
         const size = await window.wowarenalogs.win?.getWindowSize();
-        console.log('Saving sz/pos', size, pos);
         if (pos && size) {
           updateAppConfig((prev) => ({
             ...prev,
