@@ -1,5 +1,5 @@
 import { ICombatData, WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, ipcMain, ipcRenderer } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
 import { createLogWatcher } from '../logWatcher';
@@ -36,7 +36,7 @@ export class LogsModule extends NativeBridgeModule {
   }
 
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
-    console.log('node-LogWatcherStart', wowDirectory);
+    console.log('node-LogWatcherStart', wowDirectory, wowVersion);
     const bridge = bridgeState[wowVersion];
     if (bridge.watcher) {
       bridge.watcher.close();
@@ -57,6 +57,7 @@ export class LogsModule extends NativeBridgeModule {
 
     bridge.logParser.on('arena_match_ended', (data) => {
       const combat = data as ICombatData;
+      console.log('new combat', wowVersion, data.id);
       // TODO: refactor send() names
       mainWindow.webContents.send('wowarenalogs:logs:handleNewCombat', combat);
     });
@@ -110,10 +111,11 @@ export class LogsModule extends NativeBridgeModule {
       if (parseOK) {
         updateLastKnownStats(path, stats);
       }
+      console.log('parseResult', parseOK.toString());
     };
 
     bridge.watcher.onChange((fileName: string) => {
-      console.log('watcher.onChange', fileName);
+      console.log('#### watcher.onChange', fileName);
       const absolutePath = join(wowLogsDirectoryFullPath, fileName);
       console.log('watcher.absolutePath', absolutePath);
       const stats = statSync(absolutePath);
@@ -132,7 +134,6 @@ export class LogsModule extends NativeBridgeModule {
     bridgeState.tbc.logParser?.removeAllListeners();
     bridgeState.tbc.logParser = undefined;
     bridgeState.tbc.watcher = undefined;
-    ipcMain.removeAllListeners('wowarenalogs:logs:handleNewCombat');
   }
 
   public getInvokables() {

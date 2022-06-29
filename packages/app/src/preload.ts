@@ -29,6 +29,10 @@ function ipcOnce(fnName: string, moduleName: string) {
     ipcRenderer.once(qualifiedName(fnName, moduleName), callback);
 }
 
+function ipcRemoveAllListeners(fnName: string, moduleName: string) {
+  return () => ipcRenderer.removeAllListeners(qualifiedName(fnName, moduleName));
+}
+
 function registerApi(api: ModuleApi) {
   const moduleApi: BridgeApi = {};
   bridgeApi[api.moduleName] = moduleApi;
@@ -41,6 +45,9 @@ function registerApi(api: ModuleApi) {
   api.once?.forEach((f) => {
     moduleApi[f] = ipcOnce(f, api.moduleName);
   });
+  api.removeAll?.forEach((f) => {
+    moduleApi['removeAll_' + f + '_listeners'] = ipcRemoveAllListeners(f, api.moduleName);
+  });
 }
 
 registerApi(logsApi);
@@ -49,6 +56,8 @@ registerApi(appApi);
 registerApi(bnetApi);
 registerApi(linksApi);
 registerApi(winApi);
+
+console.log('bridgeApi', bridgeApi);
 
 contextBridge.exposeInMainWorld('wowarenalogs', {
   ...bridgeApi,

@@ -23,12 +23,15 @@ export function combatMonitorEffect(
     // SharedUtils.uploadCombatAsync(combat, userId);
 
     console.log('combatMonitorEffect.handleNewCombat', combat);
-    onNewCombatEnded(combat);
+    // TODO: a more robust way of making sure the handlers only sign up for a single version
+    if (wowVersion === combat.wowVersion) {
+      onNewCombatEnded(combat);
+    }
   });
 
   return () => {
-    // TODO: also unregister handleNewCombat handler when we stop the watcher...
     window.wowarenalogs.logs?.stopLogWatcher();
+    window.wowarenalogs.logs?.removeAll_handleNewCombat_listeners();
     onClearCombats();
   };
 }
