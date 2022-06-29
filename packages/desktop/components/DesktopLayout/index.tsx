@@ -39,48 +39,26 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
   );
 
   useEffect(() => {
-    window.wowarenalogs.win?.onWindowMoved((_event, x, y) => {
-      updateAppConfig((prev) => {
-        return {
-          ...prev,
-          lastWindowX: x,
-          lastWindowY: y,
-        };
-      });
-    });
-
-    window.wowarenalogs.win?.onWindowResized((_event, width, height) => {
-      updateAppConfig((prev) => {
-        return {
-          ...prev,
-          lastWindowWidth: width,
-          lastWindowHeight: height,
-        };
-      });
-    });
-  }, [updateAppConfig]); // TODO: unregister?
-
-  useEffect(() => {
     const appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
     if (appConfigJson) {
       const storedConfig = JSON.parse(appConfigJson) as IAppConfig;
-      const [windowX, windowY] = [0, 0]; // TODO: fix getPosition() logic
-      const [windowWidth, windowHeight] = [800, 400]; // TODO: fix getSize() logic
 
       const newState = {
         wowDirectory: wowInstallations.size > 0 ? storedConfig.wowDirectory : undefined,
         tosAccepted: storedConfig.tosAccepted || false,
-        lastWindowX: storedConfig.lastWindowX === undefined ? windowX : storedConfig.lastWindowX || 0,
-        lastWindowY: storedConfig.lastWindowY === undefined ? windowY : storedConfig.lastWindowY || 0,
-        lastWindowWidth: storedConfig.lastWindowWidth === undefined ? windowWidth : storedConfig.lastWindowWidth || 0,
-        lastWindowHeight:
-          storedConfig.lastWindowHeight === undefined ? windowHeight : storedConfig.lastWindowHeight || 0,
+        lastWindowX: 0,
+        lastWindowY: 0,
+        lastWindowWidth: 1024,
+        lastWindowHeight: 768,
         launchAtStartup: storedConfig.launchAtStartup || false,
       };
       setAppConfig(newState);
 
-      window.wowarenalogs.win?.setWindowPosition(newState.lastWindowX, newState.lastWindowY);
-      window.wowarenalogs.win?.setWindowSize(newState.lastWindowWidth, newState.lastWindowHeight);
+      if (storedConfig.lastWindowX !== undefined && storedConfig.lastWindowY !== undefined) {
+        window.wowarenalogs.win?.setWindowPosition(newState.lastWindowX, newState.lastWindowY);
+      }
+      if (storedConfig.lastWindowHeight !== undefined && storedConfig.lastWindowWidth !== undefined)
+        window.wowarenalogs.win?.setWindowSize(newState.lastWindowWidth, newState.lastWindowHeight);
 
       if (wowInstallations.size > 0) {
         // window.wowarenalogs.fs.installAddon(); // TODO: Fix addon installation

@@ -1,17 +1,18 @@
 import { FiMaximize2, FiMinimize2, FiMinus, FiX } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@wowarenalogs/shared';
+import { Button, useClientContext } from '@wowarenalogs/shared';
 import styles from './index.module.css';
+import { flushSync } from 'react-dom';
 
 function TitleBar() {
+  const clientContext = useClientContext();
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
-    console.log('tb', window);
-    // window.wowarenalogs.win?.isMaximized().then((value) => {
-    //   setIsMaximized(value);
-    // });
+    window.wowarenalogs.win?.isMaximized().then((value) => {
+      setIsMaximized(value);
+    });
   }, []);
 
   return (
@@ -41,8 +42,19 @@ function TitleBar() {
           {isMaximized ? <FiMinimize2 size="16" /> : <FiMaximize2 size="16" />}
         </Button>
         <Button
-          onClick={() => {
-            window.wowarenalogs.app?.quit();
+          onClick={async () => {
+            const pos = (await window.wowarenalogs.win?.getWindowPosition()) || [];
+            const size = (await window.wowarenalogs.win?.getWindowSize()) || [];
+            if (pos.length > 1 && size.length > 1) {
+              clientContext.updateAppConfig((prev) => ({
+                ...prev,
+                lastWindowWidth: size[0],
+                lastWindowHeight: size[1],
+                lastWindowX: pos[0],
+                lastWindowY: pos[1],
+              }));
+            }
+            flushSync(() => window.wowarenalogs.app?.quit());
           }}
         >
           <FiX size="16" />

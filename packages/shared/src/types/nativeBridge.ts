@@ -30,6 +30,8 @@ export type INativeBridge = {
     onWindowMoved: (callback: (event: ElectronOpaqueEvent, x: number, y: number) => void) => void;
     setWindowSize: (width: number, height: number) => Promise<void>;
     setWindowPosition: (x: number, y: number) => Promise<void>;
+    getWindowPosition: () => Promise<[number, number]>;
+    getWindowSize: () => Promise<[number, number]>;
     minimize: () => Promise<void>;
     maximize: (maximize?: boolean) => Promise<void>;
     isMinimized: () => Promise<boolean>;

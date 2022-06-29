@@ -41,6 +41,14 @@ export class MainWindowModule extends NativeBridgeModule {
     mainWindow.setPosition(x, y);
   }
 
+  public async getWindowPosition(mainWindow: BrowserWindow, x: number, y: number) {
+    return mainWindow.getPosition();
+  }
+
+  public async getWindowSize(mainWindow: BrowserWindow, x: number, y: number) {
+    return mainWindow.getSize();
+  }
+
   public onRegistered(mainWindow: BrowserWindow): void {
     mainWindow.on('resize', (e: any, b: any) => {
       const [x, y] = mainWindow.getSize();
@@ -77,6 +85,14 @@ export class MainWindowModule extends NativeBridgeModule {
       {
         name: 'maximize',
         invocation: this.maximize,
+      },
+      {
+        name: 'getWindowPosition',
+        invocation: this.getWindowPosition,
+      },
+      {
+        name: 'getWindowSize',
+        invocation: this.getWindowSize,
       },
     ];
   }
