@@ -6,16 +6,13 @@ import { ApplicationModule } from './modules/applicationModule';
 import { FilesModule } from './modules/filesModule';
 import { MainWindowModule } from './modules/mainWindowModule';
 import { BnetModule } from './modules/bnetModule';
+import { LogsModule } from './modules/logWatcherModule';
 
 export class NativeBridgeRegistry {
   private modules: Map<string, NativeBridgeModule> = new Map<string, NativeBridgeModule>();
 
   public registerModule(module: NativeBridgeModule): void {
     this.modules.set(module.moduleName, module);
-  }
-
-  public generateAPIObject(): Object {
-    return Object.assign({}, ...Array.from(this.modules.values()).map((module) => module.generateAPIObject()));
   }
 
   public startListeners(mainWindow: BrowserWindow): void {
@@ -33,6 +30,7 @@ export class NativeBridgeRegistry {
 
 export const nativeBridgeRegistry = new NativeBridgeRegistry();
 
+nativeBridgeRegistry.registerModule(new LogsModule());
 nativeBridgeRegistry.registerModule(new BnetModule());
 nativeBridgeRegistry.registerModule(new FilesModule());
 nativeBridgeRegistry.registerModule(new ExternalLinksModule());

@@ -10,11 +10,29 @@ export class ApplicationModule extends NativeBridgeModule {
     app.quit();
   }
 
+  public async setOpenAtLogin(_mainWindow: Electron.BrowserWindow, openAtLogin: boolean): Promise<void> {
+    return app.setLoginItemSettings({
+      openAtLogin,
+    });
+  }
+
+  public async getIsPackaged(_mainWindow: Electron.BrowserWindow) {
+    return app.isPackaged;
+  }
+
   public getInvokables() {
     return [
       {
         name: 'quit',
         invocation: this.quit,
+      },
+      {
+        name: 'setOpenAtLogin',
+        invocation: this.setOpenAtLogin,
+      },
+      {
+        name: 'getIsPackaged',
+        invocation: this.getIsPackaged,
       },
     ];
   }

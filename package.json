@@ -43,6 +43,7 @@
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
   "devDependencies": {
+    "@types/estree": "^0.0.52",
     "@types/line-reader": "^0.0.34",
     "@types/md5": "^2.3.2",
     "@typescript-eslint/eslint-plugin": "^5.16.0",

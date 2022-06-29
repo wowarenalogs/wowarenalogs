@@ -1,27 +1,52 @@
+import { WowVersion } from '@wowarenalogs/parser';
 import { BrowserWindow, dialog } from 'electron';
-import { join } from 'path';
+import { ensureDir, writeFileSync } from 'fs-extra';
+import { trim, replace } from 'lodash';
+import { join, dirname } from 'path';
 import { NativeBridgeModule } from '../module';
 import { DesktopUtils } from '../utils';
+import fetch from 'node-fetch';
 
-const folderSelected = 'handleFolderSelected';
+type Codex = {
+  ['setup-page-locate-wow-mac']: string;
+  ['setup-page-locate-wow-windows']: string;
+  ['setup-page-invalid-location']: string;
+  ['setup-page-invalid-location-message']: string;
+  ['confirm']: string;
+};
+
+function normalizeAddonContent(content: string): string {
+  return trim(replace(content, /\r+/g, ''));
+}
+
+async function installAddonToPath(path: string, version: WowVersion) {
+  const remoteAddonTOCResponse = await fetch(
+    `https://desktop-client.wowarenalogs.com/addon/${version}/WoWArenaLogs.toc`, // TODO: Is static url ok here?
+  );
+  const remoteAddonTOC = await remoteAddonTOCResponse.text();
+
+  const remoteAddonLUAResponse = await fetch(
+    `https://desktop-client.wowarenalogs.com/addon/${version}/WoWArenaLogs.lua`,
+  );
+  const remoteAddonLUA = await remoteAddonLUAResponse.text();
+
+  const addonDestPath = join(path, 'Interface/AddOns/WoWArenaLogs');
+  await ensureDir(addonDestPath);
+
+  writeFileSync(join(addonDestPath, 'WoWArenaLogs.toc'), normalizeAddonContent(remoteAddonTOC), {
+    encoding: 'utf-8',
+  });
+  writeFileSync(join(addonDestPath, 'WoWArenaLogs.lua'), normalizeAddonContent(remoteAddonLUA), {
+    encoding: 'utf-8',
+  });
+}
 
 export class FilesModule extends NativeBridgeModule {
   constructor() {
     super('fs');
   }
 
-  public selectFolder(mainWindow: BrowserWindow) {
-    // TODO: Fix codex (inject from renderer)
-    const codex = {
-      'setup-page-locate-wow-mac': 'test',
-      'setup-page-locate-wow-windows': 'test',
-      confirm: 'confirm',
-      'setup-page-invalid-location': 'test',
-      'setup-page-invalid-location-message': 'test',
-    };
-
-    const module = this;
-    console.log('Creating dialog', module);
+  public async selectFolder(mainWindow: BrowserWindow, codex: Codex) {
     return dialog
       .showOpenDialog({
         title:
@@ -35,16 +60,17 @@ export class FilesModule extends NativeBridgeModule {
           },
         ],
       })
-      .then((data) => {
+      .then(async (data) => {
         if (!data.canceled && data.filePaths.length > 0) {
           const wowExePath = data.filePaths[0];
-          const wowDirectory = 'C:\\'; //dirname(wowExePath);
-          const wowInstallations = []; //DesktopUtils.getWowInstallsFromPath(wowDirectory);
-          console.log('int', this);
-          if (wowInstallations.length > 0) {
+          const wowDirectory = dirname(wowExePath);
+          const wowInstallations = await DesktopUtils.getWowInstallsFromPath(wowDirectory);
+          if (wowInstallations.size > 0) {
             // TODO: see note in bnetModule about .send
             mainWindow.webContents.send('wowarenalogs:fs:handleFolderSelected', wowDirectory);
-            // DesktopUtils.installAddon(wowInstallations);
+            for (const [ver, dir] of Array.from(wowInstallations.entries())) {
+              installAddonToPath(dir, ver);
+            }
           } else {
             dialog.showMessageBox({
               title: codex['setup-page-invalid-location'],
@@ -59,28 +85,14 @@ export class FilesModule extends NativeBridgeModule {
       });
   }
 
-  public getInstallationsFolder(mainWindow: BrowserWindow, path: string) {
+  public getAllWoWInstallations(mainWindow: BrowserWindow, path: string) {
     return DesktopUtils.getWowInstallsFromPath(path);
   }
 
   public async installAddon(mainWindow: BrowserWindow, path: string) {
     const wowInstallations = await DesktopUtils.getWowInstallsFromPath(path);
     for (const [ver, dir] of Array.from(wowInstallations.entries())) {
-      const remoteAddonTOCResponse = await fetch(`/addon/${ver}/WoWArenaLogs.toc`);
-      const remoteAddonTOC = await remoteAddonTOCResponse.text();
-
-      const remoteAddonLUAResponse = await fetch(`/addon/${ver}/WoWArenaLogs.lua`);
-      const remoteAddonLUA = await remoteAddonLUAResponse.text();
-
-      const addonDestPath = join(dir, 'Interface/AddOns/WoWArenaLogs');
-      // await ensureDir(addonDestPath); // TODO: REPLACE SHIM
-
-      // await writeFile(join(addonDestPath, 'WoWArenaLogs.toc'), DesktopUtils.normalizeAddonContent(remoteAddonTOC), {
-      //   encoding: 'utf-8',
-      // });
-      // await writeFile(join(addonDestPath, 'WoWArenaLogs.lua'), DesktopUtils.normalizeAddonContent(remoteAddonLUA), {
-      //   encoding: 'utf-8',
-      // });
+      installAddonToPath(dir, ver);
     }
   }
 
@@ -91,23 +103,14 @@ export class FilesModule extends NativeBridgeModule {
         invocation: this.selectFolder,
       },
       {
-        name: 'getInstallationsFolder',
-        invocation: this.getInstallationsFolder,
+        name: 'getAllWoWInstallations',
+        invocation: this.getAllWoWInstallations,
       },
       {
         name: 'installAddon',
         invocation: this.installAddon,
       },
     ];
-
-    //   getInstallationsInFolder: (path: string) =>
-    //   ipcRenderer.invoke(Events.getInstallationsInFolder, path) as Promise<ReturnType<typeof onGetInstalls>>,
-    // installAddon: (path: string) =>
-    //   ipcRenderer.invoke(Events.installAddon, path) as Promise<ReturnType<typeof onInstallAddon>>,
-  }
-
-  public override getListeners() {
-    return [folderSelected];
   }
 
   public async onRegistered(mainWindow: BrowserWindow) {

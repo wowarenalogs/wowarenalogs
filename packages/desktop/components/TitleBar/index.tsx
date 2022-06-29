@@ -1,18 +1,18 @@
 import { FiMaximize2, FiMinimize2, FiMinus, FiX } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@wowarenalogs/shared';
+import { Button, useClientContext } from '@wowarenalogs/shared';
 import styles from './index.module.css';
+import { flushSync } from 'react-dom';
 
 function TitleBar() {
+  const clientContext = useClientContext();
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
-    if (window.wowarenalogs.win.isMaximized) {
-      window.wowarenalogs.win.isMaximized().then((value) => {
-        setIsMaximized(value);
-      });
-    }
+    window.wowarenalogs.win?.isMaximized().then((value) => {
+      setIsMaximized(value);
+    });
   }, []);
 
   return (
@@ -23,7 +23,7 @@ function TitleBar() {
       <div className={`flex flex-row text-white ${styles['title-bar-buttons']}`}>
         <Button
           onClick={() => {
-            window.wowarenalogs.win.minimize && window.wowarenalogs.win.minimize();
+            window.wowarenalogs.win?.minimize();
           }}
         >
           <FiMinus size="16" />
@@ -31,10 +31,10 @@ function TitleBar() {
         <Button
           onClick={() => {
             if (isMaximized) {
-              window.wowarenalogs.win.maximize && window.wowarenalogs.win.maximize(false);
+              window.wowarenalogs.win?.maximize(false);
               setIsMaximized(false);
             } else {
-              window.wowarenalogs.win.maximize && window.wowarenalogs.win.maximize(true);
+              window.wowarenalogs.win?.maximize(true);
               setIsMaximized(true);
             }
           }}
@@ -42,8 +42,9 @@ function TitleBar() {
           {isMaximized ? <FiMinimize2 size="16" /> : <FiMaximize2 size="16" />}
         </Button>
         <Button
-          onClick={() => {
-            window.wowarenalogs.app.quit && window.wowarenalogs.app.quit();
+          onClick={async () => {
+            await clientContext.saveWindowPosition();
+            flushSync(() => window.wowarenalogs.app?.quit());
           }}
         >
           <FiX size="16" />
