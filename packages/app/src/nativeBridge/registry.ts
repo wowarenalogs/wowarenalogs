@@ -1,38 +1,38 @@
 import { BrowserWindow, ipcMain } from 'electron';
 
-import { ArmoryLinksModule } from './modules/armoryLinksModule';
-import { IsMainWindowMaximizedModule } from './modules/isMainWindowMaximizedModule';
-import { IsMainWindowMinimizedModule } from './modules/isMainWindowMinimizedModule';
-import { MaximizeMainWindowModule } from './modules/maximizeMainWindowModule';
-import { MinimizeMainWindowModule } from './modules/minimizeMainWindowModule';
+import { ExternalLinksModule } from './modules/externalLinksModule';
 import { NativeBridgeModule } from './module';
-import { QuitModule } from './modules/quitModule';
+import { ApplicationModule } from './modules/applicationModule';
+import { FilesModule } from './modules/filesModule';
+import { MainWindowModule } from './modules/mainWindowModule';
+import { BnetModule } from './modules/bnetModule';
+import { LogsModule } from './modules/logWatcherModule';
 
 export class NativeBridgeRegistry {
   private modules: Map<string, NativeBridgeModule> = new Map<string, NativeBridgeModule>();
 
   public registerModule(module: NativeBridgeModule): void {
-    this.modules.set(module.name, module);
-  }
-
-  public generateAPIObject(): Object {
-    return Object.assign({}, ...Array.from(this.modules.values()).map((module) => module.generateAPIObject()));
+    this.modules.set(module.moduleName, module);
   }
 
   public startListeners(mainWindow: BrowserWindow): void {
     Array.from(this.modules.values()).forEach((module) => {
-      ipcMain.handle(module.getMessageKey(), async (event, ...args) => {
-        return await module.handleMessageAsync(mainWindow, ...args);
+      const invokableFuncs = module.getInvokables();
+      invokableFuncs.forEach((func) => {
+        ipcMain.handle(module.getInvocationKey(func.name), async (_event, ...args) => {
+          return await func.invocation(mainWindow, ...args);
+        });
       });
+      module.onRegistered(mainWindow);
     });
   }
 }
 
 export const nativeBridgeRegistry = new NativeBridgeRegistry();
 
-nativeBridgeRegistry.registerModule(new ArmoryLinksModule());
-nativeBridgeRegistry.registerModule(new MinimizeMainWindowModule());
-nativeBridgeRegistry.registerModule(new MaximizeMainWindowModule());
-nativeBridgeRegistry.registerModule(new IsMainWindowMinimizedModule());
-nativeBridgeRegistry.registerModule(new IsMainWindowMaximizedModule());
-nativeBridgeRegistry.registerModule(new QuitModule());
+nativeBridgeRegistry.registerModule(new LogsModule());
+nativeBridgeRegistry.registerModule(new BnetModule());
+nativeBridgeRegistry.registerModule(new FilesModule());
+nativeBridgeRegistry.registerModule(new ExternalLinksModule());
+nativeBridgeRegistry.registerModule(new MainWindowModule());
+nativeBridgeRegistry.registerModule(new ApplicationModule());
