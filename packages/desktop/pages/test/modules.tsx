@@ -77,6 +77,24 @@ export default () => {
         >
           Stop Log Watcher
         </Button>
+        <Button
+          onClick={() => {
+            client.updateAppConfig((prev) => {
+              return { ...prev, wowDirectory: 'C:\\Program Files (x86)\\World of Warcraft\\_retail_' };
+            });
+          }}
+        >
+          Set Install Dir (hardcoded)
+        </Button>
+        <Button
+          onClick={() => {
+            client.updateAppConfig((prev) => {
+              return { ...prev, wowDirectory: undefined };
+            });
+          }}
+        >
+          Clear Install Dir
+        </Button>
       </div>
       <div>Log Watcher Running: {logWatcherRunning.toString()}</div>
       <div>Logs ({logs.length} total)</div>

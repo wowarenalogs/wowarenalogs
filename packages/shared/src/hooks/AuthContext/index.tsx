@@ -37,6 +37,7 @@ export const AuthProvider = (props: IProps) => {
   const [loginModalShown, setLoginModalShown] = useState(false);
   const [loginModalClosed, setLoginModalClosed] = useState(false);
 
+  console.log('AuthContextState', { session, loginModalShown });
   useEffect(() => {
     if (!loading) {
       // TODO: set analytics props

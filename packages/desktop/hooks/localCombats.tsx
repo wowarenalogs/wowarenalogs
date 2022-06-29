@@ -27,11 +27,13 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
   const stringifiedInstallations = JSON.stringify(Array.from(clientContext.wowInstallations.entries()).sort());
 
+  console.log('CombatContextState', stringifiedInstallations, auth);
   useEffect(() => {
     if (!auth.isLoadingAuthData && stringifiedInstallations) {
       const installations: [WowVersion, string][] = JSON.parse(stringifiedInstallations);
       const cleanups = installations.map((installRow) => {
         const [wowVersion, wowDirectory] = installRow;
+        console.log('Starting combat monitor: ', wowVersion);
         return combatMonitorEffect(
           wowDirectory,
           wowVersion,
@@ -47,6 +49,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         );
       });
       return () => {
+        console.log('Stopping combat monitors');
         cleanups.forEach((cleanup) => {
           cleanup();
         });

@@ -8,9 +8,10 @@ function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
-    window.wowarenalogs.win?.isMaximized().then((value) => {
-      setIsMaximized(value);
-    });
+    console.log('tb', window);
+    // window.wowarenalogs.win?.isMaximized().then((value) => {
+    //   setIsMaximized(value);
+    // });
   }, []);
 
   return (

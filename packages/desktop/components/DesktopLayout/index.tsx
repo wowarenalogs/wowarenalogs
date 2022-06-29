@@ -1,6 +1,7 @@
 import { WowVersion } from '@wowarenalogs/parser';
 import { ClientContextProvider } from '@wowarenalogs/shared';
 import { IAppConfig } from '@wowarenalogs/shared';
+import { AuthProvider } from '@wowarenalogs/shared';
 import { AppProps } from 'next/app';
 import { useCallback, useEffect, useState } from 'react';
 import { LocalCombatsContextProvider } from '../../hooks/localCombats';
@@ -15,10 +16,11 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
   const [wowInstallations, setWowInstallations] = useState<Map<WowVersion, string>>(new Map());
 
   useEffect(() => {
+    console.log('Check Dir For Installs:', appConfig.wowDirectory);
     window.wowarenalogs.fs?.getAllWoWInstallations(appConfig.wowDirectory || '').then((i) => {
       setWowInstallations(i);
     });
-  }, []);
+  }, [appConfig.wowDirectory]);
 
   const updateLaunchAtStartup = useCallback((launch: boolean) => {
     window.wowarenalogs.app?.setOpenAtLogin(launch);
@@ -125,15 +127,17 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
         window.wowarenalogs.app?.setOpenAtLogin(openAtLogin);
       }}
     >
-      <LocalCombatsContextProvider>
-        <div className="mt-8 text-white">
-          <TitleBar />
-          <div>Apploading: {loading.toString()}</div>
-          <div className="ml-1 mr-1">
-            <Component {...pageProps} />
+      <AuthProvider>
+        <LocalCombatsContextProvider>
+          <div className="mt-8 text-white">
+            <TitleBar />
+            <div>Apploading: {loading.toString()}</div>
+            <div className="ml-1 mr-1">
+              <Component {...pageProps} />
+            </div>
           </div>
-        </div>
-      </LocalCombatsContextProvider>
+        </LocalCombatsContextProvider>
+      </AuthProvider>
     </ClientContextProvider>
   );
 };

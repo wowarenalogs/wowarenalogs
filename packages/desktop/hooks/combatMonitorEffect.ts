@@ -7,6 +7,8 @@ export function combatMonitorEffect(
   onNewCombatEnded: (combat: ICombatData) => void,
   onClearCombats: () => void,
 ) {
+  console.log('Monitor Effect', wowDirectory, wowVersion);
+
   window.wowarenalogs.logs?.startLogWatcher(wowDirectory, wowVersion);
 
   window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
@@ -19,6 +21,8 @@ export function combatMonitorEffect(
 
     // TODO: write upload utiltiy
     // SharedUtils.uploadCombatAsync(combat, userId);
+
+    console.log('combatMonitorEffect.handleNewCombat', combat);
     onNewCombatEnded(combat);
   });
 

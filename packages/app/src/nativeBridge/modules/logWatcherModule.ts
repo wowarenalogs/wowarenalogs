@@ -1,5 +1,5 @@
 import { ICombatData, WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
 import { createLogWatcher } from '../logWatcher';
@@ -11,12 +11,23 @@ interface ILastKnownCombatLogState {
   lastFileSize: number;
 }
 
-const bridgeState: {
+interface IBridge {
   watcher?: ReturnType<typeof createLogWatcher>;
   logParser?: WoWCombatLogParser;
+}
+
+const bridgeState: {
+  shadowlands: IBridge;
+  tbc: IBridge;
 } = {
-  watcher: undefined,
-  logParser: undefined,
+  shadowlands: {
+    watcher: undefined,
+    logParser: undefined,
+  },
+  tbc: {
+    watcher: undefined,
+    logParser: undefined,
+  },
 };
 
 export class LogsModule extends NativeBridgeModule {
@@ -25,14 +36,16 @@ export class LogsModule extends NativeBridgeModule {
   }
 
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
-    if (bridgeState.watcher) {
-      bridgeState.watcher.close();
+    console.log('node-LogWatcherStart', wowDirectory);
+    const bridge = bridgeState[wowVersion];
+    if (bridge.watcher) {
+      bridge.watcher.close();
     }
 
-    bridgeState.logParser = new WoWCombatLogParser(wowVersion);
+    bridge.logParser = new WoWCombatLogParser(wowVersion);
     const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
 
-    bridgeState.watcher = createLogWatcher(wowDirectory, process.platform);
+    bridge.watcher = createLogWatcher(wowDirectory, process.platform);
 
     // Check if there is actually a Logs folder
     //  In rare cases it is possible to have the game folder but not the Logs folder
@@ -40,8 +53,9 @@ export class LogsModule extends NativeBridgeModule {
     if (!logsExist) {
       mkdirSync(wowLogsDirectoryFullPath);
     }
+    console.log('node-LogsExist?', logsExist);
 
-    bridgeState.logParser.on('arena_match_ended', (data) => {
+    bridge.logParser.on('arena_match_ended', (data) => {
       const combat = data as ICombatData;
       // TODO: refactor send() names
       mainWindow.webContents.send('wowarenalogs:logs:handleNewCombat', combat);
@@ -57,6 +71,7 @@ export class LogsModule extends NativeBridgeModule {
     };
 
     const logFiles = readdirSync(wowLogsDirectoryFullPath).filter((f) => f.indexOf('WoWCombatLog') >= 0);
+    console.log('node-logsCount', logFiles.length);
     logFiles.forEach((f) => {
       const fullLogPath = join(wowLogsDirectoryFullPath, f);
       const stats = statSync(fullLogPath);
@@ -64,7 +79,7 @@ export class LogsModule extends NativeBridgeModule {
     });
 
     const processStats = (path: string, stats: Stats | undefined) => {
-      if (!bridgeState.logParser) {
+      if (!bridge.logParser) {
         throw new Error('No log parser');
       }
 
@@ -73,35 +88,51 @@ export class LogsModule extends NativeBridgeModule {
         lastFileSize: 0,
       };
       const fileSizeDelta = (stats?.size || 0) - lastKnownState.lastFileSize;
+      const fileCreationTimeDelta = Math.abs((stats?.birthtimeMs || 0) - lastKnownState.lastFileCreationTime);
+
+      let parseOK = false;
+
+      console.log('Maybeprocess?', { fileCreationTimeDelta, fileSizeDelta });
       if (
         // we are reading the same file if the creation time is close enough
-        Math.abs((stats?.birthtimeMs || 0) - lastKnownState.lastFileCreationTime) < 1 &&
+        fileCreationTimeDelta < 1 &&
         // and size is larger than before
         fileSizeDelta >= 0
       ) {
-        DesktopUtils.parseLogFileChunk(bridgeState.logParser, path, lastKnownState.lastFileSize, fileSizeDelta);
+        parseOK = DesktopUtils.parseLogFileChunk(bridge.logParser, path, lastKnownState.lastFileSize, fileSizeDelta);
       } else {
         // we are now reading a new combat log file, resetting states
-        bridgeState.logParser.resetParserStates(wowVersion);
+        bridge.logParser.resetParserStates(wowVersion);
 
-        DesktopUtils.parseLogFileChunk(bridgeState.logParser, path, 0, stats?.size || 0);
+        parseOK = DesktopUtils.parseLogFileChunk(bridge.logParser, path, 0, stats?.size || 0);
       }
 
-      updateLastKnownStats(path, stats);
+      if (parseOK) {
+        updateLastKnownStats(path, stats);
+      }
     };
 
-    bridgeState.watcher.onChange((fileName: string) => {
+    bridge.watcher.onChange((fileName: string) => {
+      console.log('watcher.onChange', fileName);
       const absolutePath = join(wowLogsDirectoryFullPath, fileName);
+      console.log('watcher.absolutePath', absolutePath);
       const stats = statSync(absolutePath);
+      console.log('watcher.stats', stats.size, stats.birthtimeMs);
       processStats(absolutePath, stats);
+      console.log('watcher.processed...', fileName);
     });
   }
 
   public async stopLogWatcher(_mainWindow: BrowserWindow) {
-    bridgeState.watcher?.close();
-    bridgeState.logParser?.removeAllListeners();
-    bridgeState.logParser = undefined;
-    bridgeState.watcher = undefined;
+    bridgeState.shadowlands.watcher?.close();
+    bridgeState.shadowlands.logParser?.removeAllListeners();
+    bridgeState.shadowlands.logParser = undefined;
+    bridgeState.shadowlands.watcher = undefined;
+    bridgeState.tbc.watcher?.close();
+    bridgeState.tbc.logParser?.removeAllListeners();
+    bridgeState.tbc.logParser = undefined;
+    bridgeState.tbc.watcher = undefined;
+    ipcMain.removeAllListeners('wowarenalogs:logs:handleNewCombat');
   }
 
   public getInvokables() {

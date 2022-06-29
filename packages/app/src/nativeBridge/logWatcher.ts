@@ -18,7 +18,16 @@ class WindowsLogWatcher extends LogWatcher {
   }
 
   onChange(handler: (fileName: string) => void): void {
-    this.watcher.on('change', (_eventType: string, fileName: string) => {
+    this.watcher.on('change', (eventType: string, fileName: string) => {
+      if (eventType === 'rename') {
+        // rename fires on new-file-creation and file-deletion
+        // however-- a 'change' event *also* fires when the bytes are written
+        // which means a rename/change are created at almost identical times for new files
+        // dropping all 'rename' events avoids this weird race that can cause issues with openSync reporting
+        // a locked file
+        return;
+      }
+      console.log('WinWatcher.onChange', eventType, fileName);
       if (typeof fileName !== 'string' || fileName.indexOf('WoWCombatLog') < 0) {
         return;
       }
