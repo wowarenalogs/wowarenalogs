@@ -19,6 +19,7 @@ interface IClientContextData {
   updateAppConfig: (updater: (prevAppConfig: IAppConfig) => IAppConfig) => void;
   launchAtStartup: boolean;
   setLaunchAtStartup: (launch: boolean) => void;
+  saveWindowPosition: () => Promise<void>;
 }
 
 const ClientContext = React.createContext<IClientContextData>({
@@ -35,6 +36,7 @@ const ClientContext = React.createContext<IClientContextData>({
   setLaunchAtStartup: (launch: boolean) => {
     return;
   },
+  saveWindowPosition: () => Promise.resolve(),
 });
 
 interface IProps {
@@ -46,6 +48,7 @@ interface IProps {
   launchAtStartup: boolean;
   setLaunchAtStartup: (launch: boolean) => void;
   children: React.ReactNode | React.ReactNodeArray;
+  saveWindowPosition: () => Promise<void>;
 }
 
 export const ClientContextProvider = (props: IProps) => {
@@ -59,6 +62,7 @@ export const ClientContextProvider = (props: IProps) => {
         updateAppConfig: props.updateAppConfig,
         launchAtStartup: props.launchAtStartup,
         setLaunchAtStartup: props.setLaunchAtStartup,
+        saveWindowPosition: props.saveWindowPosition,
       }}
     >
       {props.children}

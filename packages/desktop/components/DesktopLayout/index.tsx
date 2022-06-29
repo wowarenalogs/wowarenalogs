@@ -52,13 +52,14 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
         lastWindowHeight: 768,
         launchAtStartup: storedConfig.launchAtStartup || false,
       };
+      console.log('LOADING', storedConfig);
       setAppConfig(newState);
 
       if (storedConfig.lastWindowX !== undefined && storedConfig.lastWindowY !== undefined) {
-        window.wowarenalogs.win?.setWindowPosition(newState.lastWindowX, newState.lastWindowY);
+        window.wowarenalogs.win?.setWindowPosition(storedConfig.lastWindowX, storedConfig.lastWindowY);
       }
       if (storedConfig.lastWindowHeight !== undefined && storedConfig.lastWindowWidth !== undefined)
-        window.wowarenalogs.win?.setWindowSize(newState.lastWindowWidth, newState.lastWindowHeight);
+        window.wowarenalogs.win?.setWindowSize(storedConfig.lastWindowWidth, storedConfig.lastWindowHeight);
 
       if (wowInstallations.size > 0) {
         // window.wowarenalogs.fs.installAddon(); // TODO: Fix addon installation
@@ -103,6 +104,20 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
       }}
       setLaunchAtStartup={(openAtLogin: boolean) => {
         window.wowarenalogs.app?.setOpenAtLogin(openAtLogin);
+      }}
+      saveWindowPosition={async () => {
+        const pos = await window.wowarenalogs.win?.getWindowPosition();
+        const size = await window.wowarenalogs.win?.getWindowSize();
+        console.log('Saving sz/pos', size, pos);
+        if (pos && size) {
+          updateAppConfig((prev) => ({
+            ...prev,
+            lastWindowX: pos[0],
+            lastWindowY: pos[1],
+            lastWindowWidth: size[0],
+            lastWindowHeight: size[1],
+          }));
+        }
       }}
     >
       <AuthProvider>

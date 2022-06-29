@@ -27,7 +27,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
   const stringifiedInstallations = JSON.stringify(Array.from(clientContext.wowInstallations.entries()).sort());
 
-  console.log('CombatContextState', stringifiedInstallations, auth);
   useEffect(() => {
     if (!auth.isLoadingAuthData && stringifiedInstallations) {
       const installations: [WowVersion, string][] = JSON.parse(stringifiedInstallations);

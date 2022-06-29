@@ -43,17 +43,7 @@ function TitleBar() {
         </Button>
         <Button
           onClick={async () => {
-            const pos = (await window.wowarenalogs.win?.getWindowPosition()) || [];
-            const size = (await window.wowarenalogs.win?.getWindowSize()) || [];
-            if (pos.length > 1 && size.length > 1) {
-              clientContext.updateAppConfig((prev) => ({
-                ...prev,
-                lastWindowWidth: size[0],
-                lastWindowHeight: size[1],
-                lastWindowX: pos[0],
-                lastWindowY: pos[1],
-              }));
-            }
+            await clientContext.saveWindowPosition();
             flushSync(() => window.wowarenalogs.app?.quit());
           }}
         >

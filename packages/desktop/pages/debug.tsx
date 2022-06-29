@@ -14,9 +14,6 @@ export default () => {
   const client = useClientContext();
   const combats = useLocalCombatsContext();
 
-  console.log('client', client);
-  console.log('combats', combats);
-
   return (
     <div className="mt-8 text-white">
       <TitleBar />
