@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import { app, contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { appApi } from './nativeBridge/modules/applicationModule.api';
 import { bnetApi } from './nativeBridge/modules/bnetModule.api';
 import { linksApi } from './nativeBridge/modules/externalLinksModule.api';
@@ -52,4 +52,5 @@ registerApi(winApi);
 
 contextBridge.exposeInMainWorld('wowarenalogs', {
   ...bridgeApi,
+  platform: process.platform,
 });

@@ -1,100 +1,139 @@
-import { useState, useEffect } from 'react';
-import { ICombatData } from '@wowarenalogs/parser';
+import { WowVersion } from '@wowarenalogs/parser';
+import { ClientContextProvider } from '@wowarenalogs/shared';
+import { IAppConfig } from '@wowarenalogs/shared';
+import { AppProps } from 'next/app';
+import { useCallback, useEffect, useState } from 'react';
+import { LocalCombatsContextProvider } from '../../hooks/localCombats';
 import TitleBar from '../TitleBar';
-import { LoginButton } from '../Login/LoginButton';
-import { useSession } from 'next-auth/client';
-import { LogoutButton } from '../Login/LogoutButton';
 
-export const DesktopLayout = () => {
-  const [platform, setPlatform] = useState('');
-  const [logWatcherRunning, setLogWatcherRunning] = useState(false);
-  const [logs, setLogs] = useState<ICombatData[]>([]);
-  const [session, loading] = useSession();
+const APP_CONFIG_STORAGE_KEY = '@wowarenalogs/appConfig';
+
+export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
+  const [loading, setLoading] = useState(true);
+  const [appConfig, setAppConfig] = useState<IAppConfig>({});
+
+  const [wowInstallations, setWowInstallations] = useState<Map<WowVersion, string>>(new Map());
 
   useEffect(() => {
-    if (window.wowarenalogs.app.getPlatform) window.wowarenalogs.app.getPlatform().then((p) => setPlatform(p));
-  });
+    window.wowarenalogs.fs?.getAllWoWInstallations(appConfig.wowDirectory || '').then((i) => {
+      setWowInstallations(i);
+    });
+  }, []);
+
+  const updateLaunchAtStartup = useCallback((launch: boolean) => {
+    window.wowarenalogs.app?.setOpenAtLogin(launch);
+  }, []);
+
+  const updateAppConfig = useCallback(
+    (updater: (prevAppConfig: IAppConfig) => IAppConfig) => {
+      setAppConfig((prev) => {
+        const newConfig = updater(prev);
+        updateLaunchAtStartup(newConfig.launchAtStartup || false);
+        localStorage.setItem(APP_CONFIG_STORAGE_KEY, JSON.stringify(newConfig));
+        return newConfig;
+      });
+    },
+    [updateLaunchAtStartup],
+  );
+
+  useEffect(() => {
+    window.wowarenalogs.win?.onWindowMoved((_event, x, y) => {
+      updateAppConfig((prev) => {
+        return {
+          ...prev,
+          lastWindowX: x,
+          lastWindowY: y,
+        };
+      });
+    });
+
+    window.wowarenalogs.win?.onWindowResized((_event, width, height) => {
+      updateAppConfig((prev) => {
+        return {
+          ...prev,
+          lastWindowWidth: width,
+          lastWindowHeight: height,
+        };
+      });
+    });
+  }, [updateAppConfig]); // TODO: unregister?
+
+  useEffect(() => {
+    const appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
+    if (appConfigJson) {
+      const storedConfig = JSON.parse(appConfigJson) as IAppConfig;
+      const [windowX, windowY] = [0, 0]; // TODO: fix getPosition() logic
+      const [windowWidth, windowHeight] = [800, 400]; // TODO: fix getSize() logic
+
+      const newState = {
+        wowDirectory: wowInstallations.size > 0 ? storedConfig.wowDirectory : undefined,
+        tosAccepted: storedConfig.tosAccepted || false,
+        lastWindowX: storedConfig.lastWindowX === undefined ? windowX : storedConfig.lastWindowX || 0,
+        lastWindowY: storedConfig.lastWindowY === undefined ? windowY : storedConfig.lastWindowY || 0,
+        lastWindowWidth: storedConfig.lastWindowWidth === undefined ? windowWidth : storedConfig.lastWindowWidth || 0,
+        lastWindowHeight:
+          storedConfig.lastWindowHeight === undefined ? windowHeight : storedConfig.lastWindowHeight || 0,
+        launchAtStartup: storedConfig.launchAtStartup || false,
+      };
+      setAppConfig(newState);
+
+      window.wowarenalogs.win?.setWindowPosition(newState.lastWindowX, newState.lastWindowY);
+      window.wowarenalogs.win?.setWindowSize(newState.lastWindowWidth, newState.lastWindowHeight);
+
+      if (wowInstallations.size > 0) {
+        // window.wowarenalogs.fs.installAddon(); // TODO: Fix addon installation
+      }
+    }
+    setLoading(false);
+  }, []);
+
+  // TODO: Fix Sentry integration + Analytics
+  // useEffect(() => {
+  //   initAnalyticsAsync('650475e4b06ebfb536489356d27b60f8', 'G-Z6E8QS4ENW').then(() => {
+  //     import('@sentry/react').then((Sentry) => {
+  //       import('@sentry/tracing').then(({ Integrations }) => {
+  //         Sentry.init({
+  //           dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
+  //           integrations: [new Integrations.BrowserTracing()],
+  //           tracesSampleRate: 1.0,
+  //         });
+  //         const userId = getAnalyticsDeviceId();
+  //         if (userId) {
+  //           Sentry.setUser({
+  //             id: userId,
+  //           });
+  //         }
+  //       });
+  //     });
+  //   });
+  // }, []);
 
   return (
-    <div className="mt-8 text-white">
-      <TitleBar />
-      <div className="flex flex-col">
-        <div>Platform: {platform}</div>
-        <div>
-          Session: {(session?.user as any)?.battletag} {loading ? 'loading' : null}
+    <ClientContextProvider
+      isDesktop={true}
+      launchAtStartup={false}
+      wowInstallations={wowInstallations}
+      updateAppConfig={updateAppConfig}
+      openExternalURL={(url) => {
+        window.wowarenalogs.links?.openExternalURL(url);
+      }}
+      showLoginModalInSeparateWindow={(authUrl, callback) => {
+        window.wowarenalogs.bnet?.onLoggedIn(callback);
+        window.wowarenalogs.bnet?.login(authUrl, 'window title'); // TODO: window title
+      }}
+      setLaunchAtStartup={(openAtLogin: boolean) => {
+        window.wowarenalogs.app?.setOpenAtLogin(openAtLogin);
+      }}
+    >
+      <LocalCombatsContextProvider>
+        <div className="mt-8 text-white">
+          <TitleBar />
+          <div>Apploading: {loading.toString()}</div>
+          <div className="ml-1 mr-1">
+            <Component {...pageProps} />
+          </div>
         </div>
-        <LoginButton />
-        <LogoutButton />
-        <button
-          onClick={() => {
-            console.log(window);
-            console.log(window.wowarenalogs);
-            window.wowarenalogs.win.onWindowResized((a) => console.log('R', a));
-            window.wowarenalogs.win.onWindowMoved((a) => console.log('M', a));
-          }}
-        >
-          Test Armory and Window Callbacks
-        </button>
-
-        <button
-          onClick={() => {
-            console.log(window.wowarenalogs);
-            window.wowarenalogs.bnet.onLoggedIn((e) => console.log('loggedIn', e));
-            window.wowarenalogs.bnet.login('https://google.com', 'Some title');
-          }}
-        >
-          Test Bnet Login
-        </button>
-
-        <button
-          onClick={() => {
-            console.log(window.wowarenalogs);
-            window.wowarenalogs.fs.folderSelected((_event, folder) => console.log('selected', folder));
-            window.wowarenalogs.fs.selectFolder({
-              'setup-page-locate-wow-mac': '',
-              'setup-page-locate-wow-windows': '',
-              'setup-page-invalid-location': '',
-              'setup-page-invalid-location-message': '',
-              confirm: '',
-            });
-          }}
-        >
-          Test Select Folder (Installs Addon)
-        </button>
-        <button
-          onClick={() => {
-            console.log(window.wowarenalogs);
-            window.wowarenalogs.logs.startLogWatcher(
-              'C:\\Program Files (x86)\\World of Warcraft\\_retail_',
-              'shadowlands',
-            );
-            window.wowarenalogs.logs.handleNewCombat((_event, combat) => {
-              console.log('New Combat', combat);
-              setLogs([...logs, combat]);
-            });
-            setLogWatcherRunning(true);
-          }}
-        >
-          Start Log Watcher
-        </button>
-        <button
-          onClick={() => {
-            console.log(window.wowarenalogs);
-
-            window.wowarenalogs.logs.stopLogWatcher();
-            setLogWatcherRunning(false);
-          }}
-        >
-          Stop Log Watcher
-        </button>
-      </div>
-      <div>Log Watcher Running: {logWatcherRunning.toString()}</div>
-      <div>Logs ({logs.length} total)</div>
-      {logs.map((e) => (
-        <div>
-          start-{e.startTime} zone-{e.startInfo.zoneId} bracket-{e.startInfo.bracket} result-{e.result}
-        </div>
-      ))}
-    </div>
+      </LocalCombatsContextProvider>
+    </ClientContextProvider>
   );
 };

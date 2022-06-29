@@ -1,16 +1,9 @@
-import type { NextPage } from 'next';
-import dynamic from 'next/dynamic';
+import Link from 'next/link';
 
-const DesktopLayout = dynamic(
-  () => {
-    const promise = import('../components/DesktopLayout').then((mod) => mod.DesktopLayout);
-    return promise;
-  },
-  { ssr: false },
-);
-
-const Home: NextPage = () => {
-  return <DesktopLayout />;
+export default () => {
+  return (
+    <div>
+      Index Page<Link href="/test/modules">Test Native Modules Page</Link>
+    </div>
+  );
 };
-
-export default Home;

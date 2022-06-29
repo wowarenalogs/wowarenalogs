@@ -42,11 +42,13 @@ export class MainWindowModule extends NativeBridgeModule {
   }
 
   public onRegistered(mainWindow: BrowserWindow): void {
-    mainWindow.on('resize', () => {
-      mainWindow.webContents.send(this.getEventKey(onWindowResized));
+    mainWindow.on('resize', (e: any, b: any) => {
+      const [x, y] = mainWindow.getSize();
+      mainWindow.webContents.send(this.getEventKey(onWindowResized), x, y);
     });
     mainWindow.on('move', () => {
-      mainWindow.webContents.send(this.getEventKey(onWindowMoved));
+      const [w, h] = mainWindow.getPosition();
+      mainWindow.webContents.send(this.getEventKey(onWindowMoved), w, h);
     });
   }
 

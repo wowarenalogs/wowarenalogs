@@ -10,12 +10,14 @@ export class ApplicationModule extends NativeBridgeModule {
     app.quit();
   }
 
-  public async getPlatform(
-    _mainWindow: Electron.BrowserWindow,
-  ): Promise<
-    'aix' | 'android' | 'darwin' | 'freebsd' | 'haiku' | 'linux' | 'openbsd' | 'sunos' | 'win32' | 'cygwin' | 'netbsd'
-  > {
-    return Promise.resolve(process.platform);
+  public async setOpenAtLogin(_mainWindow: Electron.BrowserWindow, openAtLogin: boolean): Promise<void> {
+    return app.setLoginItemSettings({
+      openAtLogin,
+    });
+  }
+
+  public async getIsPackaged(_mainWindow: Electron.BrowserWindow) {
+    return app.isPackaged;
   }
 
   public getInvokables() {
@@ -25,8 +27,12 @@ export class ApplicationModule extends NativeBridgeModule {
         invocation: this.quit,
       },
       {
-        name: 'getPlatform',
-        invocation: this.getPlatform,
+        name: 'setOpenAtLogin',
+        invocation: this.setOpenAtLogin,
+      },
+      {
+        name: 'getIsPackaged',
+        invocation: this.getIsPackaged,
       },
     ];
   }

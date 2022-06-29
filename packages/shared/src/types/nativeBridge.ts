@@ -13,34 +13,46 @@ type FSCodex = {
 };
 
 export type INativeBridge = {
-  win: {
-    onWindowResized: (callback: (event: ElectronOpaqueEvent) => void) => void;
-    onWindowMoved: (callback: (event: ElectronOpaqueEvent) => void) => void;
+  platform:
+    | 'aix'
+    | 'android'
+    | 'darwin'
+    | 'freebsd'
+    | 'haiku'
+    | 'linux'
+    | 'openbsd'
+    | 'sunos'
+    | 'win32'
+    | 'cygwin'
+    | 'netbsd';
+  win?: {
+    onWindowResized: (callback: (event: ElectronOpaqueEvent, w: number, h: number) => void) => void;
+    onWindowMoved: (callback: (event: ElectronOpaqueEvent, x: number, y: number) => void) => void;
     setWindowSize: (width: number, height: number) => Promise<void>;
     setWindowPosition: (x: number, y: number) => Promise<void>;
-    minimize?: () => Promise<void>;
-    maximize?: (maximize?: boolean) => Promise<void>;
-    isMinimized?: () => Promise<boolean>;
-    isMaximized?: () => Promise<boolean>;
+    minimize: () => Promise<void>;
+    maximize: (maximize?: boolean) => Promise<void>;
+    isMinimized: () => Promise<boolean>;
+    isMaximized: () => Promise<boolean>;
   };
-  app: {
-    quit?: () => Promise<void>;
-    getPlatform?: () => Promise<
-      'aix' | 'android' | 'darwin' | 'freebsd' | 'haiku' | 'linux' | 'openbsd' | 'sunos' | 'win32' | 'cygwin' | 'netbsd'
-    >;
+  app?: {
+    quit: () => Promise<void>;
+    setOpenAtLogin: (openAtLogin: boolean) => Promise<void>;
+    getIsPackaged: () => Promise<boolean>;
   };
-  links: {
-    openArmoryLink?: (locale: string, region: string, serverName: string, playerName: string) => Promise<void>;
+  links?: {
+    openExternalURL: (url: string) => Promise<void>;
   };
-  fs: {
+  fs?: {
+    getAllWoWInstallations: (path: string) => Promise<Map<WowVersion, string>>;
     folderSelected: (callback: (event: ElectronOpaqueEvent, folder: string) => void) => void;
     selectFolder: (codex: FSCodex) => Promise<void>;
   };
-  bnet: {
+  bnet?: {
     login: (authUrl: string, windowTitle: string) => Promise<void>;
     onLoggedIn: (callback: (event: ElectronOpaqueEvent) => void) => void;
   };
-  logs: {
+  logs?: {
     handleNewCombat: (callback: (event: ElectronOpaqueEvent, c: ICombatData) => void) => void;
     startLogWatcher: (wowDirectory: string, wowVersion: WowVersion) => Promise<void>;
     stopLogWatcher: () => Promise<void>;

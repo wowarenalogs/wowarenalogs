@@ -85,7 +85,7 @@ export class FilesModule extends NativeBridgeModule {
       });
   }
 
-  public getInstallationsFolder(mainWindow: BrowserWindow, path: string) {
+  public getAllWoWInstallations(mainWindow: BrowserWindow, path: string) {
     return DesktopUtils.getWowInstallsFromPath(path);
   }
 
@@ -103,8 +103,8 @@ export class FilesModule extends NativeBridgeModule {
         invocation: this.selectFolder,
       },
       {
-        name: 'getInstallationsFolder',
-        invocation: this.getInstallationsFolder,
+        name: 'getAllWoWInstallations',
+        invocation: this.getAllWoWInstallations,
       },
       {
         name: 'installAddon',
