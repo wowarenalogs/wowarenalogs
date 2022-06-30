@@ -21,7 +21,7 @@ export default () => {
         <div className="flex flex-col">
           <div>Platform: {platform}</div>
           <div>
-            Session: {(session?.user as any)?.battletag} {loading ? 'loading' : null}
+            Session: {(session?.user as any)?.battletag || 'not-logged-in'} {loading ? 'loading' : null}
           </div>
           <div>
             {client.wowInstallations.size} Installations
@@ -67,20 +67,11 @@ export default () => {
           <Button
             onClick={() => {
               client.updateAppConfig((prev) => {
-                return { ...prev, wowDirectory: 'C:\\Program Files (x86)\\World of Warcraft\\_retail_' };
-              });
-            }}
-          >
-            Set Install Dir (hardcoded)
-          </Button>
-          <Button
-            onClick={() => {
-              client.updateAppConfig((prev) => {
                 return { ...prev, wowDirectory: undefined };
               });
             }}
           >
-            Clear Install Dir
+            Clear WoW Folder Setting
           </Button>
         </div>
       </div>

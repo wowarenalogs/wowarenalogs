@@ -1,11 +1,13 @@
-import { Button } from '@wowarenalogs/shared/src';
+import { Button, useClientContext } from '@wowarenalogs/shared';
 import { signOut } from 'next-auth/client';
 import React from 'react';
 
 export const LogoutButton = () => {
+  const clientContext = useClientContext();
   return (
     <Button
-      onClick={() => {
+      onClick={async () => {
+        await clientContext.saveWindowPosition();
         signOut();
       }}
     >
