@@ -8,7 +8,6 @@ export const initAnalyticsAsync = (amplitudeAppId: string, gaPropertyId: string)
   return new Promise((resolve) => {
     if (typeof window !== 'undefined' && !amplitude) {
       amplitude = require('amplitude-js').default;
-      console.log(amplitude, window);
       amplitude.getInstance().init(amplitudeAppId, undefined, {
         includeReferrer: true,
       });
@@ -16,9 +15,9 @@ export const initAnalyticsAsync = (amplitudeAppId: string, gaPropertyId: string)
     googleAnalyticsPropertyId = gaPropertyId;
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('get', gaPropertyId, 'client_id', (clientId) => {
-        googleAnalyticsClientId = clientId;
+        googleAnalyticsClientId = clientId as string;
         window.gtag('get', gaPropertyId, 'session_id', (sessionId) => {
-          googleAnalyticsSessionId = sessionId;
+          googleAnalyticsSessionId = sessionId as string;
           resolve();
         });
       });
