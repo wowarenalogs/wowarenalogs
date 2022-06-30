@@ -2,6 +2,8 @@ import { Button, useClientContext } from '@wowarenalogs/shared';
 import { signOut } from 'next-auth/client';
 import React from 'react';
 
+// TODO: translate logout text
+
 export const LogoutButton = () => {
   const clientContext = useClientContext();
   return (
@@ -11,7 +13,6 @@ export const LogoutButton = () => {
         signOut();
       }}
     >
-      {/* {t('login-modal-login-with-battle-net')} */}
       Logout
     </Button>
   );
