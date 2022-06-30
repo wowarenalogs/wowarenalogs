@@ -25,12 +25,12 @@ export default () => {
         <div>
           {client.wowInstallations.size} Installations
           {Array.from(client.wowInstallations).map((v) => (
-            <div>{v.join(': ')}</div>
+            <div key={v[0]}>{v.join(': ')}</div>
           ))}
         </div>
         <div>Local combat logs: ({combats.localCombats.length} total)</div>
         {combats.localCombats.map((e) => (
-          <div>
+          <div key={e.id}>
             start-{e.startTime} zone-{e.startInfo.zoneId} bracket-{e.startInfo.bracket} result-{e.result}
           </div>
         ))}
