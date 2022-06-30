@@ -1,6 +1,7 @@
 import { Session, User } from 'next-auth';
 import { useSession } from 'next-auth/client';
 import React, { useCallback, useContext, useEffect } from 'react';
+import { getAnalyticsDeviceId, getAnalyticsSessionId, setAnalyticsUserProperties } from '../../utils/analytics';
 
 interface WALUser extends User {
   battletag: string;
@@ -31,11 +32,10 @@ export const AuthProvider = (props: IProps) => {
 
   useEffect(() => {
     if (!loading) {
-      // TODO: set analytics props
-      // setAnalyticsUserProperties({
-      //   id: (session as WALSession)?.user?.id || undefined,
-      //   isAuthenticated: session?.user ? true : false,
-      // });
+      setAnalyticsUserProperties({
+        id: (session as WALSession)?.user?.id || undefined,
+        isAuthenticated: session?.user ? true : false,
+      });
     }
   }, [session, loading]);
 
@@ -64,7 +64,7 @@ export const useAuth = () => {
   }
 
   if (!userId) {
-    userId = `anonymous`; // TODO: fix device id //`anonymous:${getAnalyticsDeviceId()}:${getAnalyticsSessionId()}`;
+    userId = `anonymous:${getAnalyticsDeviceId()}:${getAnalyticsSessionId()}`;
   }
 
   return {
