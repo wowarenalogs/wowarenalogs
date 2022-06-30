@@ -35,6 +35,9 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
     window.wowarenalogs.fs?.getAllWoWInstallations(appConfig.wowDirectory || '').then((i) => {
       setWowInstallations(i);
     });
+    if (appConfig.wowDirectory) {
+      window.wowarenalogs.fs?.installAddon(appConfig.wowDirectory);
+    }
   }, [appConfig.wowDirectory]);
 
   const updateLaunchAtStartup = useCallback((launch: boolean) => {
@@ -74,10 +77,6 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
       }
       if (storedConfig.lastWindowHeight !== undefined && storedConfig.lastWindowWidth !== undefined)
         window.wowarenalogs.win?.setWindowSize(storedConfig.lastWindowWidth, storedConfig.lastWindowHeight);
-
-      if (wowInstallations.size > 0) {
-        // window.wowarenalogs.fs.installAddon(); // TODO: Fix addon installation
-      }
     }
     setLoading(false);
   }, []);

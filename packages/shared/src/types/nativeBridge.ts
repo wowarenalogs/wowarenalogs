@@ -49,6 +49,7 @@ export type INativeBridge = {
     getAllWoWInstallations: (path: string) => Promise<Map<WowVersion, string>>;
     folderSelected: (callback: (event: ElectronOpaqueEvent, folder: string) => void) => void;
     selectFolder: (codex: FSCodex) => Promise<void>;
+    installAddon: (wowDirectory: string) => Promise<void>;
   };
   bnet?: {
     login: (authUrl: string, windowTitle: string) => Promise<void>;
