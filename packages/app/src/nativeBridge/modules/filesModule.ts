@@ -67,7 +67,7 @@ export class FilesModule extends NativeBridgeModule {
           const wowInstallations = await DesktopUtils.getWowInstallsFromPath(wowDirectory);
           if (wowInstallations.size > 0) {
             // TODO: see note in bnetModule about .send
-            mainWindow.webContents.send('wowarenalogs:fs:handleFolderSelected', wowDirectory);
+            mainWindow.webContents.send('wowarenalogs:fs:folderSelected', wowDirectory);
             for (const [ver, dir] of Array.from(wowInstallations.entries())) {
               installAddonToPath(dir, ver);
             }
@@ -79,7 +79,7 @@ export class FilesModule extends NativeBridgeModule {
             });
           }
           // TODO: see note in bnetModule about .send
-          mainWindow.webContents.send('wowarenalogs:fs:handleFolderSelected', wowDirectory);
+          mainWindow.webContents.send('wowarenalogs:fs:folderSelected', wowDirectory);
         }
         return data;
       });

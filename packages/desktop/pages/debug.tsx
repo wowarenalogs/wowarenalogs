@@ -39,25 +39,27 @@ export default () => {
         <Button
           onClick={() => {
             window.wowarenalogs.links?.openExternalURL('https://worldofwarcraft.com/en-us/');
-            window.wowarenalogs.win?.onWindowResized((_event, width, height) => console.log('R', width, height));
-            window.wowarenalogs.win?.onWindowMoved((_event, x, y) => console.log('M', x, y));
           }}
         >
-          Test Armory and Window Callbacks
+          Test Open External URL
         </Button>
         <Button
           onClick={() => {
-            window.wowarenalogs.fs?.folderSelected((_event, folder) => console.log('selected', folder));
+            window.wowarenalogs.fs?.folderSelected((_event, folder) =>
+              client.updateAppConfig((prev) => {
+                return { ...prev, wowDirectory: folder };
+              }),
+            );
             window.wowarenalogs.fs?.selectFolder({
               'setup-page-locate-wow-mac': '',
               'setup-page-locate-wow-windows': '',
               'setup-page-invalid-location': '',
               'setup-page-invalid-location-message': '',
-              confirm: '',
+              confirm: 'confirm-message',
             });
           }}
         >
-          Test Select Folder (Installs Addon)
+          Select WoW Folder (installs addon, starts loggers)
         </Button>
         <Button
           onClick={() => {
