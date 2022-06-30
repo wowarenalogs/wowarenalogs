@@ -81,7 +81,6 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
     setLoading(false);
   }, []);
 
-  // TODO: Fix Sentry integration + Analytics
   useEffect(() => {
     if (router.isReady)
       initAnalyticsAsync('650475e4b06ebfb536489356d27b60f8', 'G-Z6E8QS4ENW').then(() => {
@@ -111,7 +110,6 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
         <meta key="viewport" name="viewport" content="width=device-width, initial-scale=1" />
         <meta key="theme-color" name="theme-color" content="#000000" />
         <link type="text/css" href="https://wow.zamimg.com/css/basic.css?16" rel="stylesheet" />
-        <link type="text/css" href="https://wow.zamimg.com/css/global/icon.css?16" rel="stylesheet" />
         <script key="wowhead0">{'window.whTooltips = { colorLinks: true, iconSize: true };'}</script>
         <script key="wowhead1" src="https://wow.zamimg.com/widgets/power.js" />
         <script key="ga0" async src="https://www.googletagmanager.com/gtag/js?id=G-Z6E8QS4ENW"></script>
@@ -159,9 +157,9 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
           <LocalCombatsContextProvider>
             <div className="mt-8 text-white">
               <TitleBar />
-              <div>Apploading: {loading.toString()}</div>
               <div className="ml-1 mr-1">
-                <Component {...pageProps} />
+                {loading && <div>Apploading: {loading.toString()}</div>}
+                {!loading && <Component {...pageProps} />}
               </div>
             </div>
           </LocalCombatsContextProvider>
