@@ -5,6 +5,7 @@ import { LogoutButton } from '../components/Login/LogoutButton';
 import { Button } from '@wowarenalogs/shared';
 import { useClientContext } from '@wowarenalogs/shared';
 import { useLocalCombatsContext } from '../hooks/localCombats';
+import { useGetProfileQuery, useGetMyMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 
 export default () => {
   const [session, loading] = useSession();
@@ -13,6 +14,9 @@ export default () => {
 
   const client = useClientContext();
   const combats = useLocalCombatsContext();
+
+  const profileQuery = useGetProfileQuery();
+  const matchesQuery = useGetMyMatchesQuery();
 
   return (
     <div className="mt-8 text-white">
@@ -35,6 +39,25 @@ export default () => {
               start-{e.startTime} zone-{e.startInfo.zoneId} bracket-{e.startInfo.bracket} result-{e.result}
             </div>
           ))}
+        </div>
+        <div className="flex flex-col">
+          <b>GQL</b>
+          <div>
+            useGetProfile
+            <ul>
+              <li>loading:{profileQuery.loading.toString()}</li>
+              <li>
+                data: <pre>{JSON.stringify(profileQuery.data?.me || {}, null, 2)}</pre>
+              </li>
+            </ul>
+          </div>
+          <div>
+            matchesQuery
+            <ul>
+              <li>loading:{matchesQuery.loading.toString()}</li>
+              <li>data: {matchesQuery.data?.myMatches.combats.length} matches</li>
+            </ul>
+          </div>
         </div>
         <div className="flex flex-col">
           <LoginButton />
@@ -72,6 +95,13 @@ export default () => {
             }}
           >
             Clear WoW Folder Setting
+          </Button>
+          <Button
+            onClick={() => {
+              client.saveWindowPosition();
+            }}
+          >
+            Save Window Pos
           </Button>
         </div>
       </div>

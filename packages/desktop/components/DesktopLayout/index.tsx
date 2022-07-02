@@ -29,7 +29,6 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
 
   const [wowInstallations, setWowInstallations] = useState<Map<WowVersion, string>>(new Map());
 
-  console.log('appconfig', appConfig);
   useEffect(() => {
     console.log('Check Dir For Installs:', appConfig.wowDirectory);
     window.wowarenalogs.fs?.getAllWoWInstallations(appConfig.wowDirectory || '').then((i) => {
