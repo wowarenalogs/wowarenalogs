@@ -1,5 +1,5 @@
 import '../styles/globals.css';
-
+import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -12,6 +12,24 @@ const DesktopLayout = dynamic(
   },
   { ssr: false },
 );
+
+const link = createHttpLink({
+  uri: '/api/graphql',
+  // TODO: FIX ENV
+  // credentials: env.stage === 'development' ? 'include' : 'same-origin',
+  credentials: 'include',
+});
+
+const client = new ApolloClient({
+  cache: new InMemoryCache({
+    typePolicies: {
+      CombatUnitStub: {
+        keyFields: ['id', 'spec'],
+      },
+    },
+  }),
+  link,
+});
 
 function App(props: AppProps) {
   const router = useRouter();
@@ -27,7 +45,9 @@ function App(props: AppProps) {
 
   return (
     <Provider session={props.pageProps.session}>
-      <DesktopLayout {...props} />
+      <ApolloProvider client={client}>
+        <DesktopLayout {...props} />
+      </ApolloProvider>
     </Provider>
   );
 }
