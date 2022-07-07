@@ -27,7 +27,7 @@ class WindowsLogWatcher extends LogWatcher {
         // a locked file
         return;
       }
-      console.log('WinWatcher.onChange', eventType, fileName);
+      // console.log('WinWatcher.onChange', eventType, fileName);
       if (typeof fileName !== 'string' || fileName.indexOf('WoWCombatLog') < 0) {
         return;
       }

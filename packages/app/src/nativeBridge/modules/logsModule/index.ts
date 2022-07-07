@@ -3,9 +3,9 @@ import { BrowserWindow } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
 
-import { createLogWatcher } from '../logWatcher';
-import { NativeBridgeModule } from '../module';
-import { DesktopUtils } from '../utils';
+import { NativeBridgeModule } from '../../module';
+import { DesktopUtils } from '../common/desktopUtils';
+import { createLogWatcher } from './logWatcher';
 
 interface ILastKnownCombatLogState {
   lastFileCreationTime: number;
@@ -37,7 +37,7 @@ export class LogsModule extends NativeBridgeModule {
   }
 
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
-    console.log('node-LogWatcherStart', wowDirectory, wowVersion);
+    // console.log('node-LogWatcherStart', wowDirectory, wowVersion);
     const bridge = bridgeState[wowVersion];
     if (bridge.watcher) {
       bridge.watcher.close();
@@ -54,11 +54,11 @@ export class LogsModule extends NativeBridgeModule {
     if (!logsExist) {
       mkdirSync(wowLogsDirectoryFullPath);
     }
-    console.log('node-LogsExist?', logsExist);
+    // console.log('node-LogsExist?', logsExist);
 
     bridge.logParser.on('arena_match_ended', (data) => {
       const combat = data as ICombatData;
-      console.log('new combat', wowVersion, data.id);
+      // console.log('new combat', wowVersion, data.id);
       // TODO: refactor send() names
       mainWindow.webContents.send('wowarenalogs:logs:handleNewCombat', combat);
     });
@@ -73,7 +73,7 @@ export class LogsModule extends NativeBridgeModule {
     };
 
     const logFiles = readdirSync(wowLogsDirectoryFullPath).filter((f) => f.indexOf('WoWCombatLog') >= 0);
-    console.log('node-logsCount', logFiles.length);
+    // console.log('node-logsCount', logFiles.length);
     logFiles.forEach((f) => {
       const fullLogPath = join(wowLogsDirectoryFullPath, f);
       const stats = statSync(fullLogPath);
@@ -94,7 +94,7 @@ export class LogsModule extends NativeBridgeModule {
 
       let parseOK = false;
 
-      console.log('Maybeprocess?', { fileCreationTimeDelta, fileSizeDelta });
+      // console.log('Maybeprocess?', { fileCreationTimeDelta, fileSizeDelta });
       if (
         // we are reading the same file if the creation time is close enough
         fileCreationTimeDelta < 1 &&
@@ -112,17 +112,17 @@ export class LogsModule extends NativeBridgeModule {
       if (parseOK) {
         updateLastKnownStats(path, stats);
       }
-      console.log('parseResult', parseOK.toString());
+      // console.log('parseResult', parseOK.toString());
     };
 
     bridge.watcher.onChange((fileName: string) => {
-      console.log('#### watcher.onChange', fileName);
+      // console.log('#### watcher.onChange', fileName);
       const absolutePath = join(wowLogsDirectoryFullPath, fileName);
-      console.log('watcher.absolutePath', absolutePath);
+      // console.log('watcher.absolutePath', absolutePath);
       const stats = statSync(absolutePath);
-      console.log('watcher.stats', stats.size, stats.birthtimeMs);
+      // console.log('watcher.stats', stats.size, stats.birthtimeMs);
       processStats(absolutePath, stats);
-      console.log('watcher.processed...', fileName);
+      // console.log('watcher.processed...', fileName);
     });
   }
 

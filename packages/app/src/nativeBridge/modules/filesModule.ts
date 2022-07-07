@@ -6,7 +6,7 @@ import fetch from 'node-fetch';
 import { dirname, join } from 'path';
 
 import { NativeBridgeModule } from '../module';
-import { DesktopUtils } from '../utils';
+import { DesktopUtils } from './common/desktopUtils';
 
 type Codex = {
   ['setup-page-locate-wow-mac']: string;

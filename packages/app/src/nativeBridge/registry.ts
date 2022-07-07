@@ -5,7 +5,7 @@ import { ApplicationModule } from './modules/applicationModule';
 import { BnetModule } from './modules/bnetModule';
 import { ExternalLinksModule } from './modules/externalLinksModule';
 import { FilesModule } from './modules/filesModule';
-import { LogsModule } from './modules/logWatcherModule';
+import { LogsModule } from './modules/logsModule';
 import { MainWindowModule } from './modules/mainWindowModule';
 
 export class NativeBridgeRegistry {
