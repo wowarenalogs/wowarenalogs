@@ -5,7 +5,7 @@ import { replace, trim } from 'lodash';
 import fetch from 'node-fetch';
 import { dirname, join } from 'path';
 
-import { NativeBridgeModule } from '../module';
+import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
 import { DesktopUtils } from './common/desktopUtils';
 
 type Codex = {
@@ -42,11 +42,9 @@ async function installAddonToPath(path: string, version: WowVersion) {
   });
 }
 
+@nativeBridgeModule('fs')
 export class FilesModule extends NativeBridgeModule {
-  constructor() {
-    super('fs');
-  }
-
+  @moduleFunction()
   public async selectFolder(mainWindow: BrowserWindow, codex: Codex) {
     return dialog
       .showOpenDialog({
@@ -68,7 +66,7 @@ export class FilesModule extends NativeBridgeModule {
           const wowInstallations = await DesktopUtils.getWowInstallsFromPath(wowDirectory);
           if (wowInstallations.size > 0) {
             // TODO: see note in bnetModule about .send
-            mainWindow.webContents.send('wowarenalogs:fs:folderSelected', wowDirectory);
+            this.onFolderSelected(mainWindow, wowDirectory);
             for (const [ver, dir] of Array.from(wowInstallations.entries())) {
               installAddonToPath(dir, ver);
             }
@@ -80,16 +78,18 @@ export class FilesModule extends NativeBridgeModule {
             });
           }
           // TODO: see note in bnetModule about .send
-          mainWindow.webContents.send('wowarenalogs:fs:folderSelected', wowDirectory);
+          this.onFolderSelected(mainWindow, wowDirectory);
         }
         return data;
       });
   }
 
+  @moduleFunction()
   public getAllWoWInstallations(mainWindow: BrowserWindow, path: string) {
     return DesktopUtils.getWowInstallsFromPath(path);
   }
 
+  @moduleFunction()
   public async installAddon(mainWindow: BrowserWindow, path: string) {
     const wowInstallations = await DesktopUtils.getWowInstallsFromPath(path);
     for (const [ver, dir] of Array.from(wowInstallations.entries())) {
@@ -97,20 +97,6 @@ export class FilesModule extends NativeBridgeModule {
     }
   }
 
-  public getInvokables() {
-    return [
-      {
-        name: 'selectFolder',
-        invocation: this.selectFolder,
-      },
-      {
-        name: 'getAllWoWInstallations',
-        invocation: this.getAllWoWInstallations,
-      },
-      {
-        name: 'installAddon',
-        invocation: this.installAddon,
-      },
-    ];
-  }
+  @moduleEvent('on')
+  public onFolderSelected(_mainWindow: BrowserWindow, _path: string) {}
 }

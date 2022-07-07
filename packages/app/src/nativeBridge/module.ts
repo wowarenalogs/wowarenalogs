@@ -1,62 +1,103 @@
-import { BrowserWindow, ipcRenderer, IpcRendererEvent } from 'electron';
+import { BrowserWindow } from 'electron';
 
-type InvokableFunction = {
+type ModuleFunction = {
   name: string;
-  invocation: (mainWindow: BrowserWindow, ...args: any[]) => Promise<any>;
+  value: (mainWindow: BrowserWindow, ...args: any[]) => Promise<any>;
 };
 
-export abstract class NativeBridgeModule {
-  constructor(public readonly moduleName: string) {}
+type ModuleEventType = 'on' | 'once';
 
-  public getModuleKey(): string {
-    return `wowarenalogs:${this.moduleName}`;
+type ModuleEvent = {
+  name: string;
+  type: ModuleEventType;
+};
+
+type NativeBridgeModuleMetadata = {
+  name: string;
+  constructor: Function;
+  functions: Record<string, ModuleFunction>;
+  events: Record<string, ModuleEvent>;
+};
+
+export const MODULE_METADATA: Map<Function, NativeBridgeModuleMetadata> = new Map<
+  Function,
+  NativeBridgeModuleMetadata
+>();
+
+function ensureModuleMetadata(ctor: Function): NativeBridgeModuleMetadata {
+  if (!MODULE_METADATA.has(ctor)) {
+    MODULE_METADATA.set(ctor, {
+      name: ctor.name,
+      constructor: ctor,
+      functions: {},
+      events: {},
+    });
   }
 
-  public generateAPIObject(): Object {
-    const moduleApi: Record<string, Object> = {};
+  const result = MODULE_METADATA.get(ctor);
+  if (result) {
+    return result;
+  }
+  throw new Error('Failed to ensure module metadata');
+}
 
-    this.getInvokables().forEach((func) => {
-      moduleApi[func.name] = (...args: any[]) => {
-        return ipcRenderer.invoke(this.getInvocationKey(func.name), ...args);
-      };
-    });
+export function nativeBridgeModule(name: string) {
+  return function (ctor: new () => NativeBridgeModule) {
+    const module = ensureModuleMetadata(ctor);
+    module.name = name;
+  };
+}
 
-    this.getEventNames().forEach((eventName) => {
-      moduleApi[eventName] = (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
-        ipcRenderer.on(this.getEventKey(eventName), callback);
-    });
+export function getModuleKey(moduleName: string): string {
+  return `wowarenalogs:${moduleName}`;
+}
 
-    return {
-      [this.moduleName]: moduleApi,
+export function getModuleFunctionKey(moduleName: string, functionName: string): string {
+  return `${getModuleKey(moduleName)}:${functionName}`;
+}
+
+export function getModuleEventKey(moduleName: string, eventName: string): string {
+  return `${getModuleKey(moduleName)}:${eventName}`;
+}
+
+export function moduleFunction(nameOverride?: string) {
+  return (target: any, key: string, descriptor: PropertyDescriptor) => {
+    if (!target.constructor) {
+      throw new Error('@moduleFunction must be used within a class');
+    }
+
+    const module = ensureModuleMetadata(target.constructor);
+    module.functions[key] = {
+      name: nameOverride || key,
+      value: descriptor.value,
     };
-  }
+  };
+}
 
-  public getInvocationKey(functionName: string) {
-    return `${this.getModuleKey()}:${functionName}`;
-  }
+export function moduleEvent(type: ModuleEventType, nameOverride?: string) {
+  return (target: any, key: string, descriptor: PropertyDescriptor) => {
+    if (!target.constructor) {
+      throw new Error('@moduleEvent must be used within a class');
+    }
 
-  public getEventKey(eventName: string): string {
-    return `${this.getModuleKey()}:${eventName}`;
-  }
+    const module = ensureModuleMetadata(target.constructor);
+    module.events[key] = {
+      type,
+      name: nameOverride || key,
+    };
 
+    descriptor.value = (mainWindow: BrowserWindow, ...args: any[]) => {
+      const eventKey = `${getModuleKey(module.name)}:${key}`;
+      mainWindow.webContents.send(eventKey, ...args);
+    };
+  };
+}
+
+export abstract class NativeBridgeModule {
   /**
    * Callback after module is registered in case any bespoke action is needed.
    * Useful for mapping events on the mainWindow into module domain events.
    * @param _mainWindow BrowserWindow
    */
   public onRegistered(_mainWindow: BrowserWindow): void {}
-
-  /**
-   * List of functions that will be exposed as imperatives on the renderer api
-   * the api will use the [name] and execute [invocation]
-   */
-  public abstract getInvokables(): InvokableFunction[];
-
-  /**
-   * Names of events that get triggered via ipcRenderer.on([name], ...) from your module.
-   * Renderer side bridge API will have callback setters for handling each of these events.
-   */
-  public getEventNames(): string[] {
-    return [];
-  }
 }

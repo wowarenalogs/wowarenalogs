@@ -1,12 +1,10 @@
 import { BrowserWindow } from 'electron';
 
-import { NativeBridgeModule } from '../module';
+import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
 
+@nativeBridgeModule('bnet')
 export class BnetModule extends NativeBridgeModule {
-  constructor() {
-    super('bnet');
-  }
-
+  @moduleFunction()
   public login(mainWindow: Electron.BrowserWindow, absoluteAuthUrl: string, windowTitle: string): Promise<void> {
     const mainWindowPosition = mainWindow.getPosition();
 
@@ -28,10 +26,7 @@ export class BnetModule extends NativeBridgeModule {
     });
     loginModalWindow.setMenuBarVisibility(false);
     loginModalWindow.on('closed', () => {
-      // TODO: How do we create the event key here?
-      // note-- we can't use this.getEventKey because at runtime
-      // the function is no longer a member of the module class!
-      mainWindow.webContents.send('wowarenalogs:bnet:onLoggedIn');
+      this.onLoggedIn(mainWindow);
     });
     loginModalWindow.webContents.on('did-navigate', (_event, url) => {
       const urlObj = new URL(url);
@@ -47,12 +42,6 @@ export class BnetModule extends NativeBridgeModule {
     return loginModalWindow.loadURL(absoluteAuthUrl);
   }
 
-  public getInvokables() {
-    return [
-      {
-        name: 'login',
-        invocation: this.login,
-      },
-    ];
-  }
+  @moduleEvent('once')
+  public onLoggedIn(_mainWindow: Electron.BrowserWindow): void {}
 }

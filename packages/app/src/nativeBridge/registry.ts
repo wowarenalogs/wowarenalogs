@@ -1,32 +1,69 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, ipcMain, ipcRenderer, IpcRendererEvent } from 'electron';
 
-import { NativeBridgeModule } from './module';
+import { getModuleEventKey, getModuleFunctionKey, MODULE_METADATA, NativeBridgeModule } from './module';
 import { ApplicationModule } from './modules/applicationModule';
 import { BnetModule } from './modules/bnetModule';
 import { ExternalLinksModule } from './modules/externalLinksModule';
 import { FilesModule } from './modules/filesModule';
 import { LogsModule } from './modules/logsModule';
 import { MainWindowModule } from './modules/mainWindowModule';
-
 export class NativeBridgeRegistry {
-  private modules: Map<string, NativeBridgeModule> = new Map<string, NativeBridgeModule>();
+  private modules: NativeBridgeModule[] = [];
 
-  public registerModule(module: NativeBridgeModule): void {
-    this.modules.set(module.moduleName, module);
+  public registerModule<T extends NativeBridgeModule>(moduleClass: new () => T): void {
+    const module = new moduleClass();
+    this.modules.push(module);
   }
 
   public generateAPIObject(): Object {
-    return Object.assign({}, ...Array.from(this.modules.values()).map((module) => module.generateAPIObject()));
+    return Object.assign(
+      {},
+      ...this.modules.map((module) => {
+        const ctor = Object.getPrototypeOf(module).constructor;
+        const moduleMetadata = MODULE_METADATA.get(ctor);
+        if (!moduleMetadata) {
+          throw new Error('module metadata not found');
+        }
+
+        const moduleApi: Record<string, Object> = {};
+
+        Object.values(moduleMetadata.functions).forEach((func) => {
+          moduleApi[func.name] = (...args: any[]) => {
+            return ipcRenderer.invoke(getModuleFunctionKey(moduleMetadata.name, func.name), ...args);
+          };
+        });
+
+        Object.values(moduleMetadata.events).forEach((evt) => {
+          moduleApi[evt.name] = (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+            evt.type === 'on'
+              ? ipcRenderer.on(getModuleEventKey(moduleMetadata.name, evt.name), callback)
+              : ipcRenderer.once(getModuleEventKey(moduleMetadata.name, evt.name), callback);
+
+          moduleApi[`removeAll_${evt.name}_listeners`] = () =>
+            ipcRenderer.removeAllListeners(getModuleEventKey(moduleMetadata.name, evt.name));
+        });
+
+        return {
+          [moduleMetadata.name]: moduleApi,
+        };
+      }),
+    );
   }
 
   public startListeners(mainWindow: BrowserWindow): void {
-    Array.from(this.modules.values()).forEach((module) => {
-      const invokableFuncs = module.getInvokables();
-      invokableFuncs.forEach((func) => {
-        ipcMain.handle(module.getInvocationKey(func.name), async (_event, ...args) => {
-          return func.invocation(mainWindow, ...args);
+    this.modules.forEach((module) => {
+      const ctor = Object.getPrototypeOf(module).constructor;
+      const moduleMetadata = MODULE_METADATA.get(ctor);
+      if (!moduleMetadata) {
+        throw new Error('module metadata not found');
+      }
+
+      Object.values(moduleMetadata.functions).forEach((func) => {
+        ipcMain.handle(getModuleFunctionKey(moduleMetadata.name, func.name), async (_event, ...args) => {
+          return func.value(mainWindow, ...args);
         });
       });
+
       module.onRegistered(mainWindow);
     });
   }
@@ -34,9 +71,9 @@ export class NativeBridgeRegistry {
 
 export const nativeBridgeRegistry = new NativeBridgeRegistry();
 
-nativeBridgeRegistry.registerModule(new LogsModule());
-nativeBridgeRegistry.registerModule(new BnetModule());
-nativeBridgeRegistry.registerModule(new FilesModule());
-nativeBridgeRegistry.registerModule(new ExternalLinksModule());
-nativeBridgeRegistry.registerModule(new MainWindowModule());
-nativeBridgeRegistry.registerModule(new ApplicationModule());
+nativeBridgeRegistry.registerModule(LogsModule);
+nativeBridgeRegistry.registerModule(BnetModule);
+nativeBridgeRegistry.registerModule(FilesModule);
+nativeBridgeRegistry.registerModule(ExternalLinksModule);
+nativeBridgeRegistry.registerModule(MainWindowModule);
+nativeBridgeRegistry.registerModule(ApplicationModule);

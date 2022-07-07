@@ -3,7 +3,7 @@ import { BrowserWindow } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
 
-import { NativeBridgeModule } from '../../module';
+import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../../module';
 import { DesktopUtils } from '../common/desktopUtils';
 import { createLogWatcher } from './logWatcher';
 
@@ -31,11 +31,9 @@ const bridgeState: {
   },
 };
 
+@nativeBridgeModule('logs')
 export class LogsModule extends NativeBridgeModule {
-  constructor() {
-    super('logs');
-  }
-
+  @moduleFunction()
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
     // console.log('node-LogWatcherStart', wowDirectory, wowVersion);
     const bridge = bridgeState[wowVersion];
@@ -59,8 +57,7 @@ export class LogsModule extends NativeBridgeModule {
     bridge.logParser.on('arena_match_ended', (data) => {
       const combat = data as ICombatData;
       // console.log('new combat', wowVersion, data.id);
-      // TODO: refactor send() names
-      mainWindow.webContents.send('wowarenalogs:logs:handleNewCombat', combat);
+      this.onNewCombat(mainWindow, combat);
     });
 
     const lastKnownFileStats = new Map<string, ILastKnownCombatLogState>();
@@ -126,6 +123,7 @@ export class LogsModule extends NativeBridgeModule {
     });
   }
 
+  @moduleFunction()
   public async stopLogWatcher(_mainWindow: BrowserWindow) {
     bridgeState.shadowlands.watcher?.close();
     bridgeState.shadowlands.logParser?.removeAllListeners();
@@ -137,18 +135,8 @@ export class LogsModule extends NativeBridgeModule {
     bridgeState.tbc.watcher = undefined;
   }
 
-  public getInvokables() {
-    return [
-      {
-        name: 'startLogWatcher',
-        invocation: this.startLogWatcher,
-      },
-      {
-        name: 'stopLogWatcher',
-        invocation: this.stopLogWatcher,
-      },
-    ];
-  }
+  @moduleEvent('on')
+  public onNewCombat(_mainWindow: BrowserWindow, _combat: ICombatData) {}
 }
 // const bridgeAPI = {
 //   handleNewCombat: (callback: (event: IpcRendererEvent, c: ICombatData) => void) =>
