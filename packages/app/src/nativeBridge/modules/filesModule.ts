@@ -1,11 +1,12 @@
 import { WowVersion } from '@wowarenalogs/parser';
 import { BrowserWindow, dialog } from 'electron';
 import { ensureDir, writeFileSync } from 'fs-extra';
-import { trim, replace } from 'lodash';
-import { join, dirname } from 'path';
+import { replace, trim } from 'lodash';
+import fetch from 'node-fetch';
+import { dirname, join } from 'path';
+
 import { NativeBridgeModule } from '../module';
 import { DesktopUtils } from '../utils';
-import fetch from 'node-fetch';
 
 type Codex = {
   ['setup-page-locate-wow-mac']: string;
@@ -51,7 +52,7 @@ export class FilesModule extends NativeBridgeModule {
       .showOpenDialog({
         title:
           process.platform === 'darwin' ? codex['setup-page-locate-wow-mac'] : codex['setup-page-locate-wow-windows'],
-        buttonLabel: codex['confirm'],
+        buttonLabel: codex.confirm,
         properties: ['openFile'],
         filters: [
           {
@@ -111,12 +112,5 @@ export class FilesModule extends NativeBridgeModule {
         invocation: this.installAddon,
       },
     ];
-  }
-
-  public async onRegistered(mainWindow: BrowserWindow) {
-    // TODO: remove example
-    mainWindow.on('resize', () => {
-      mainWindow.webContents.send('test-resize');
-    });
   }
 }

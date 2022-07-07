@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron';
+
 import { NativeBridgeModule } from '../module';
 
 const onWindowResized = 'onWindowResized';
@@ -41,16 +42,16 @@ export class MainWindowModule extends NativeBridgeModule {
     mainWindow.setPosition(x, y);
   }
 
-  public async getWindowPosition(mainWindow: BrowserWindow, x: number, y: number) {
+  public async getWindowPosition(mainWindow: BrowserWindow) {
     return mainWindow.getPosition();
   }
 
-  public async getWindowSize(mainWindow: BrowserWindow, x: number, y: number) {
+  public async getWindowSize(mainWindow: BrowserWindow) {
     return mainWindow.getSize();
   }
 
   public onRegistered(mainWindow: BrowserWindow): void {
-    mainWindow.on('resize', (e: any, b: any) => {
+    mainWindow.on('resize', () => {
       const [x, y] = mainWindow.getSize();
       mainWindow.webContents.send(this.getEventKey(onWindowResized), x, y);
     });
@@ -95,5 +96,9 @@ export class MainWindowModule extends NativeBridgeModule {
         invocation: this.getWindowSize,
       },
     ];
+  }
+
+  public getEventNames(): string[] {
+    return [onWindowResized, onWindowMoved];
   }
 }

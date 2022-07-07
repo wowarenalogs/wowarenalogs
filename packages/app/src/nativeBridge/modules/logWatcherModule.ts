@@ -1,7 +1,8 @@
 import { ICombatData, WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
-import { BrowserWindow, ipcMain, ipcRenderer } from 'electron';
+import { BrowserWindow } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
+
 import { createLogWatcher } from '../logWatcher';
 import { NativeBridgeModule } from '../module';
 import { DesktopUtils } from '../utils';

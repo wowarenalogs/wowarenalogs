@@ -1,12 +1,12 @@
 import { BrowserWindow, ipcMain } from 'electron';
 
-import { ExternalLinksModule } from './modules/externalLinksModule';
 import { NativeBridgeModule } from './module';
 import { ApplicationModule } from './modules/applicationModule';
-import { FilesModule } from './modules/filesModule';
-import { MainWindowModule } from './modules/mainWindowModule';
 import { BnetModule } from './modules/bnetModule';
+import { ExternalLinksModule } from './modules/externalLinksModule';
+import { FilesModule } from './modules/filesModule';
 import { LogsModule } from './modules/logWatcherModule';
+import { MainWindowModule } from './modules/mainWindowModule';
 
 export class NativeBridgeRegistry {
   private modules: Map<string, NativeBridgeModule> = new Map<string, NativeBridgeModule>();
@@ -15,12 +15,16 @@ export class NativeBridgeRegistry {
     this.modules.set(module.moduleName, module);
   }
 
+  public generateAPIObject(): Object {
+    return Object.assign({}, ...Array.from(this.modules.values()).map((module) => module.generateAPIObject()));
+  }
+
   public startListeners(mainWindow: BrowserWindow): void {
     Array.from(this.modules.values()).forEach((module) => {
       const invokableFuncs = module.getInvokables();
       invokableFuncs.forEach((func) => {
         ipcMain.handle(module.getInvocationKey(func.name), async (_event, ...args) => {
-          return await func.invocation(mainWindow, ...args);
+          return func.invocation(mainWindow, ...args);
         });
       });
       module.onRegistered(mainWindow);

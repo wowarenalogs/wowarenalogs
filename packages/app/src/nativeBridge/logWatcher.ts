@@ -1,5 +1,5 @@
 import chokidar from 'chokidar';
-import { watch, FSWatcher } from 'fs';
+import { FSWatcher, watch } from 'fs';
 import { join } from 'path';
 
 abstract class LogWatcher {

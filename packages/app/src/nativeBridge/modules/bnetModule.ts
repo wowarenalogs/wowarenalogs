@@ -1,5 +1,6 @@
-import { NativeBridgeModule } from '../module';
 import { BrowserWindow } from 'electron';
+
+import { NativeBridgeModule } from '../module';
 
 export class BnetModule extends NativeBridgeModule {
   constructor() {

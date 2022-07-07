@@ -57,14 +57,17 @@
     "eslint-config-airbnb-typescript": "^16.1.4",
     "eslint-config-next": "^12.1.1",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-node": "^0.3.6",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "husky": "^7.0.4",
     "prettier": "^2.6.1",
     "shx": "^0.3.4",
+    "typescript": "^4.6.3",
     "tsdx": "^0.14.1",
     "wait-on": "^6.0.1"
   },
@@ -72,74 +75,11 @@
     "**/@typescript-eslint/eslint-plugin": "^5.16.0",
     "**/@typescript-eslint/parser": "^5.16.0"
   },
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "es6": true,
-      "node": true
-    },
-    "extends": [
-      "eslint:recommended"
-    ],
-    "parser": "babel-eslint",
-    "rules": {},
-    "settings": {
-      "react": {
-        "version": "detect"
-      }
-    },
-    "overrides": [
-      {
-        "files": [
-          "**/*.ts",
-          "**/*.tsx"
-        ],
-        "env": {
-          "browser": true,
-          "es6": true,
-          "node": true
-        },
-        "extends": [
-          "next/core-web-vitals",
-          "airbnb-typescript",
-          "plugin:@typescript-eslint/recommended",
-          "plugin:react/recommended",
-          "plugin:prettier/recommended",
-          "prettier/@typescript-eslint",
-          "prettier/react"
-        ],
-        "parser": "@typescript-eslint/parser",
-        "parserOptions": {
-          "project": "./tsconfig.json"
-        },
-        "rules": {
-          "@typescript-eslint/explicit-module-boundary-types": "off",
-          "react/react-in-jsx-scope": "off"
-        },
-        "settings": {
-          "react": {
-            "version": "detect"
-          }
-        }
-      }
-    ]
-  },
-  "eslintIgnore": [
-    "node_modules",
-    "dist",
-    "build",
-    "__generated__"
-  ],
   "prettier": {
     "semi": true,
     "trailingComma": "all",
     "singleQuote": true,
     "printWidth": 120,
-    "tabWidth": 2,
-    "importOrder": [
-      "\\.css$",
-      "^\\."
-    ],
-    "importOrderSeparation": true
+    "tabWidth": 2
   }
 }

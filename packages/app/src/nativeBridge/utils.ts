@@ -1,6 +1,6 @@
 import { WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
+import { closeSync, existsSync, openSync, readSync } from 'fs-extra';
 import { join } from 'path';
-import { close, closeSync, existsSync, open, openSync, read, readSync } from 'fs-extra';
 
 const chunkParitialsBuffer: Record<string, string> = {};
 

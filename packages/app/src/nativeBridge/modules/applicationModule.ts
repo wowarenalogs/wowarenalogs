@@ -1,5 +1,6 @@
-import { NativeBridgeModule } from '../module';
 import { app } from 'electron';
+
+import { NativeBridgeModule } from '../module';
 
 export class ApplicationModule extends NativeBridgeModule {
   constructor() {

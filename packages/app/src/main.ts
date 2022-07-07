@@ -1,7 +1,6 @@
-import * as moment from 'moment';
-
-import { BrowserWindow, app } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+import * as moment from 'moment';
 
 import { nativeBridgeRegistry } from './nativeBridge/registry';
 
@@ -33,8 +32,8 @@ function createWindow() {
     });
   }
 
-  win.webContents.on('new-window', function (e, u) {
-    e.preventDefault();
+  win.webContents.setWindowOpenHandler(() => {
+    return { action: 'deny' };
   });
 
   win.webContents.on('did-frame-finish-load', () => {

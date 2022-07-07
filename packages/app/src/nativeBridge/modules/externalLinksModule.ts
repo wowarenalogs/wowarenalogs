@@ -1,4 +1,5 @@
 import { BrowserWindow, shell } from 'electron';
+
 import { NativeBridgeModule } from '../module';
 
 export class ExternalLinksModule extends NativeBridgeModule {
