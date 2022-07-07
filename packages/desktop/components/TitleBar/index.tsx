@@ -1,9 +1,9 @@
-import { FiMaximize2, FiMinimize2, FiMinus, FiX } from 'react-icons/fi';
-import { useEffect, useState } from 'react';
-
 import { Button, useClientContext } from '@wowarenalogs/shared';
-import styles from './index.module.css';
+import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
+import { FiMaximize2, FiMinimize2, FiMinus, FiX } from 'react-icons/fi';
+
+import styles from './index.module.css';
 
 function TitleBar() {
   const clientContext = useClientContext();

@@ -1,6 +1,6 @@
 import { Button } from '@wowarenalogs/shared';
-import { signIn, getCsrfToken, getProviders, ClientSafeProvider } from 'next-auth/client';
 import Image from 'next/image';
+import { ClientSafeProvider, getCsrfToken, getProviders, signIn } from 'next-auth/client';
 
 // TODO: see https://hsreplay.net/account/login/?next=%2F
 // I believe bnet now routes all logins through the -us tenant for US/EU/APAC
@@ -15,8 +15,8 @@ const Login = ({ csrfToken, providers }: { csrfToken: string; providers: Record<
       <Image src="https://images.wowarenalogs.com/common/Blizzard.png" width={341} height={200} />
       <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
       <div>
-        We'll send you to the official Blizzard site where you can securely sign in. Blizzard will redirect you back
-        here once you're done.
+        We&apos;ll send you to the official Blizzard site where you can securely sign in. Blizzard will redirect you
+        back here once you&apos;re done.
       </div>
       {providers &&
         Object.values(providers).map((provider) => (

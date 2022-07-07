@@ -1,9 +1,11 @@
 import Link from 'next/link';
 
-export default () => {
+const Index = () => {
   return (
     <div>
       <Link href="/debug">Goto Debug Page</Link>
     </div>
   );
 };
+
+export default Index;

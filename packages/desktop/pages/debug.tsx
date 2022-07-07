@@ -1,13 +1,14 @@
-import TitleBar from '../components/TitleBar';
-import { LoginButton } from '../components/Login/LoginButton';
-import { useSession } from 'next-auth/client';
-import { LogoutButton } from '../components/Login/LogoutButton';
 import { Button } from '@wowarenalogs/shared';
 import { useClientContext } from '@wowarenalogs/shared';
-import { useLocalCombatsContext } from '../hooks/localCombats';
-import { useGetProfileQuery, useGetMyMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
+import { useGetMyMatchesQuery, useGetProfileQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
+import { useSession } from 'next-auth/client';
 
-export default () => {
+import { LoginButton } from '../components/Login/LoginButton';
+import { LogoutButton } from '../components/Login/LogoutButton';
+import TitleBar from '../components/TitleBar';
+import { useLocalCombatsContext } from '../hooks/localCombats';
+
+const Debug = () => {
   const [session, loading] = useSession();
 
   const platform = typeof window !== 'undefined' ? window.wowarenalogs.platform : '';
@@ -108,3 +109,5 @@ export default () => {
     </div>
   );
 };
+
+export default Debug;

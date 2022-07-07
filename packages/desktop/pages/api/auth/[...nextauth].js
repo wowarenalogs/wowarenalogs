@@ -27,7 +27,7 @@ export default NextAuth({
       requestTokenUrl: 'https://us.battle.net/oauth/authorize',
       authorizationUrl: 'https://us.battle.net/oauth/authorize?response_type=code',
       profileUrl: 'https://us.battle.net/oauth/userinfo',
-      async profile(profile, tokens) {
+      async profile(profile, _tokens) {
         return {
           id: profile.id,
           battletag: profile.battletag,
@@ -47,7 +47,7 @@ export default NextAuth({
       requestTokenUrl: 'https://eu.battle.net/oauth/authorize',
       authorizationUrl: 'https://eu.battle.net/oauth/authorize?response_type=code',
       profileUrl: 'https://eu.battle.net/oauth/userinfo',
-      async profile(profile, tokens) {
+      async profile(profile, _tokens) {
         return {
           id: profile.id,
           battletag: profile.battletag,
@@ -67,7 +67,7 @@ export default NextAuth({
       requestTokenUrl: 'https://apac.battle.net/oauth/authorize',
       authorizationUrl: 'https://apac.battle.net/oauth/authorize?response_type=code',
       profileUrl: 'https://apac.battle.net/oauth/userinfo',
-      async profile(profile, tokens) {
+      async profile(profile, _tokens) {
         return {
           id: profile.id,
           battletag: profile.battletag,
@@ -87,7 +87,7 @@ export default NextAuth({
       requestTokenUrl: 'https://www.battlenet.com.cn/oauth/authorize',
       authorizationUrl: 'https://www.battlenet.com.cn/oauth/authorize?response_type=code',
       profileUrl: 'https://www.battlenet.com.cn/oauth/userinfo',
-      async profile(profile, tokens) {
+      async profile(profile, _tokens) {
         return {
           id: profile.id,
           battletag: profile.battletag,
@@ -108,13 +108,13 @@ export default NextAuth({
     secret: process.env.JWT_SECRET,
   },
   callbacks: {
-    jwt: async (token, user, account, profile, isNewUser) => {
+    jwt: async (token, user, account, profile, _isNewUser) => {
       if (account && profile) {
         profile.region = account.provider?.replace('battlenet-', '');
       }
       return Promise.resolve(profile ? profile : token);
     },
-    session: async (session, user, sessionToken) => {
+    session: async (session, user, _sessionToken) => {
       session.user = user;
       return Promise.resolve(session);
     },

@@ -5,7 +5,9 @@ import { AuthProvider } from '@wowarenalogs/shared';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import Script from 'next/script';
 import { useCallback, useEffect, useState } from 'react';
+
 import { LocalCombatsContextProvider } from '../../hooks/localCombats';
 import TitleBar from '../TitleBar';
 
@@ -110,19 +112,18 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
         <meta key="theme-color" name="theme-color" content="#000000" />
         <link type="text/css" href="https://wow.zamimg.com/css/basic.css?16" rel="stylesheet" />
         <script key="wowhead0">{'window.whTooltips = { colorLinks: true, iconSize: true };'}</script>
-        <script key="wowhead1" src="https://wow.zamimg.com/widgets/power.js" />
-        <script key="ga0" async src="https://www.googletagmanager.com/gtag/js?id=G-Z6E8QS4ENW"></script>
-        <script
-          key="ga1"
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-Z6E8QS4ENW');`,
-          }}
-        />
+        <script key="wowhead1" async src="https://wow.zamimg.com/widgets/power.js" />
       </Head>
+      <Script src="https://www.googletagmanager.com/gtag/js?id=G-Z6E8QS4ENW" strategy="afterInteractive" />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){window.dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-Z6E8QS4ENW');
+        `}
+      </Script>
       <ClientContextProvider
         isDesktop={true}
         launchAtStartup={false}

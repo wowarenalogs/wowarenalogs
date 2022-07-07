@@ -1,6 +1,6 @@
+import { ICombatData, WowVersion } from '@wowarenalogs/parser';
 import { useAuth, useClientContext } from '@wowarenalogs/shared';
 import React, { useContext, useEffect, useState } from 'react';
-import { ICombatData, WowVersion } from '@wowarenalogs/parser';
 
 import { combatMonitorEffect } from './combatMonitorEffect';
 
