@@ -32,7 +32,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       const installations: [WowVersion, string][] = JSON.parse(stringifiedInstallations);
       const cleanups = installations.map((installRow) => {
         const [wowVersion, wowDirectory] = installRow;
-        console.log('Starting combat monitor: ', wowVersion);
+        // console.log('Starting combat monitor: ', wowVersion);
         return combatMonitorEffect(
           wowDirectory,
           wowVersion,
@@ -48,7 +48,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         );
       });
       return () => {
-        console.log('Stopping combat monitors');
+        // console.log('Stopping combat monitors');
         cleanups.forEach((cleanup) => {
           cleanup();
         });

@@ -20,14 +20,14 @@ export function combatMonitorEffect(
         }
       })
     )
-      // TODO: write upload utiltiy
-      // SharedUtils.uploadCombatAsync(combat, userId);
+      if (wowVersion === combat.wowVersion) {
+        // TODO: write upload utiltiy
+        // SharedUtils.uploadCombatAsync(combat, userId);
 
-      console.log('combatMonitorEffect.handleNewCombat', combat);
-    // TODO: a more robust way of making sure the handlers only sign up for a single version
-    if (wowVersion === combat.wowVersion) {
-      onNewCombatEnded(combat);
-    }
+        // console.log('combatMonitorEffect.handleNewCombat', combat);
+        // TODO: a more robust way of making sure the handlers only sign up for a single version
+        onNewCombatEnded(combat);
+      }
   });
 
   return () => {
