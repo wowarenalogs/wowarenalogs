@@ -57,7 +57,7 @@ export class LogsModule extends NativeBridgeModule {
     bridge.logParser.on('arena_match_ended', (data) => {
       const combat = data as ICombatData;
       // console.log('new combat', wowVersion, data.id);
-      this.onNewCombat(mainWindow, combat);
+      this.handleNewCombat(mainWindow, combat);
     });
 
     const lastKnownFileStats = new Map<string, ILastKnownCombatLogState>();
@@ -136,7 +136,7 @@ export class LogsModule extends NativeBridgeModule {
   }
 
   @moduleEvent('on')
-  public onNewCombat(_mainWindow: BrowserWindow, _combat: ICombatData) {}
+  public handleNewCombat(_mainWindow: BrowserWindow, _combat: ICombatData) {}
 }
 // const bridgeAPI = {
 //   handleNewCombat: (callback: (event: IpcRendererEvent, c: ICombatData) => void) =>
