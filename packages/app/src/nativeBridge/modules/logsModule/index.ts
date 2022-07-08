@@ -54,8 +54,7 @@ export class LogsModule extends NativeBridgeModule {
     }
     // console.log('node-LogsExist?', logsExist);
 
-    bridge.logParser.on('arena_match_ended', (data) => {
-      const combat = data as ICombatData;
+    bridge.logParser.on('arena_match_ended', (combat: ICombatData) => {
       // console.log('new combat', wowVersion, data.id);
       this.handleNewCombat(mainWindow, combat);
     });
