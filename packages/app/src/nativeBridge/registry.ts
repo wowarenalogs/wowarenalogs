@@ -60,7 +60,7 @@ export class NativeBridgeRegistry {
 
       Object.values(moduleMetadata.functions).forEach((func) => {
         ipcMain.handle(getModuleFunctionKey(moduleMetadata.name, func.name), async (_event, ...args) => {
-          return func.value(mainWindow, ...args);
+          return func.value.bind(module)(mainWindow, ...args);
         });
       });
 
