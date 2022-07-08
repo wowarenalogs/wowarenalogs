@@ -1,6 +1,6 @@
 import { Firestore } from '@google-cloud/firestore';
-import moment from 'moment';
 import { WowVersion } from '@wowarenalogs/parser';
+import moment from 'moment';
 
 import { ApolloContext, CombatQueryResult, ICombatDataStub, UserSubscriptionTier } from '../types';
 import { Constants } from '../utils/constants';

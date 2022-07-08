@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react';
-import { ICombatData, WowVersion } from '@wowarenalogs/parser';
+// import { ICombatData, WowVersion } from '@wowarenalogs/parser';
+// import { useEffect, useState } from 'react';
+
+const temp = {};
+export default temp;
 
 // import { Utils } from '../utils';
 

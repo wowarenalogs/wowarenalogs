@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
 import { WowVersion } from '@wowarenalogs/parser';
+import React, { useContext } from 'react';
 
 export interface IAppConfig {
   wowDirectory?: string;
@@ -33,7 +33,7 @@ const ClientContext = React.createContext<IClientContextData>({
   updateAppConfig: () => {
     return;
   },
-  setLaunchAtStartup: (launch: boolean) => {
+  setLaunchAtStartup: (_launch: boolean) => {
     return;
   },
   saveWindowPosition: () => Promise.resolve(),

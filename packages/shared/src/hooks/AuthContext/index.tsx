@@ -1,6 +1,7 @@
 import { Session, User } from 'next-auth';
 import { useSession } from 'next-auth/client';
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
+
 import { getAnalyticsDeviceId, getAnalyticsSessionId, setAnalyticsUserProperties } from '../../utils/analytics';
 
 interface WALUser extends User {

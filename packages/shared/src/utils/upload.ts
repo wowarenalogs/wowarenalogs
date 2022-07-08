@@ -1,5 +1,5 @@
-import moment from 'moment-timezone';
 import { ICombatData } from '@wowarenalogs/parser';
+import moment from 'moment-timezone';
 
 export async function uploadCombatAsync(
   combat: ICombatData,
@@ -26,9 +26,9 @@ export async function uploadCombatAsync(
 
   const storageSignerResponse = await fetch(`/api/getCombatUploadSignature/${combat.id}`, { headers });
   const jsonResponse = await storageSignerResponse.json();
-  const signedUploadUrl = jsonResponse['url'];
+  const signedUploadUrl = jsonResponse.url;
 
-  return await fetch(signedUploadUrl, {
+  return fetch(signedUploadUrl, {
     method: 'PUT',
     body: buffer,
     headers,

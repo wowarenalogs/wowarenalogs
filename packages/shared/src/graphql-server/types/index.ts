@@ -1,15 +1,15 @@
-import { gql } from 'apollo-server-micro';
 import {
+  ArenaMatchEndInfo,
+  ArenaMatchStartInfo,
   CombatantInfo,
-  CombatUnitSpec,
+  CombatResult,
   CombatUnitClass,
   CombatUnitReaction,
+  CombatUnitSpec,
   CombatUnitType,
-  CombatResult,
-  ArenaMatchStartInfo,
-  ArenaMatchEndInfo,
   WowVersion,
 } from '@wowarenalogs/parser';
+import { gql } from 'apollo-server-micro';
 
 import { CombatDataStub } from '../../graphql/__generated__/graphql';
 
