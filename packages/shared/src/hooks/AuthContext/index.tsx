@@ -1,5 +1,5 @@
 import { Session, User } from 'next-auth';
-import { useSession } from 'next-auth/client';
+import { useSession } from 'next-auth/react';
 import React, { useContext, useEffect } from 'react';
 
 import { getAnalyticsDeviceId, getAnalyticsSessionId, setAnalyticsUserProperties } from '../../utils/analytics';
@@ -29,22 +29,22 @@ interface IProps {
 }
 
 export const AuthProvider = (props: IProps) => {
-  const [session, loading] = useSession();
+  const { data, status } = useSession();
 
   useEffect(() => {
-    if (!loading) {
+    if (status !== 'loading') {
       setAnalyticsUserProperties({
-        id: (session as WALSession)?.user?.id || undefined,
-        isAuthenticated: session?.user ? true : false,
+        id: (data as WALSession)?.user?.id || undefined,
+        isAuthenticated: status === 'authenticated',
       });
     }
-  }, [session, loading]);
+  }, [data, status]);
 
   return (
     <AuthContext.Provider
       value={{
-        session: session as WALSession,
-        loading,
+        session: data as WALSession,
+        loading: status === 'loading',
       }}
     >
       {props.children}
