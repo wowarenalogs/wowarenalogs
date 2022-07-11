@@ -1,5 +1,5 @@
 import { Button, useClientContext } from '@wowarenalogs/shared';
-import { signOut } from 'next-auth/client';
+import { signOut } from 'next-auth/react';
 import React from 'react';
 
 // TODO: translate logout text

@@ -1,5 +1,5 @@
 import { ApolloServer } from 'apollo-server-micro';
-import { getSession } from 'next-auth/client';
+import { getSession } from 'next-auth/react';
 
 import { resolvers } from './resolvers';
 import { typeDefs } from './types';

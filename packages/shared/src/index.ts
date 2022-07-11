@@ -1,5 +1,6 @@
 export { Test } from './components/Test';
 export { Button } from './components/common/Button';
+export { MainLayout } from './components/MainLayout';
 export { ClientContextProvider, useClientContext } from './hooks/ClientContext';
 export { AuthProvider } from './hooks/AuthContext';
 export { useAuth } from './hooks/AuthContext';
