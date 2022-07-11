@@ -4,7 +4,7 @@ import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@ap
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { Provider } from 'next-auth/client';
+import { SessionProvider } from 'next-auth/react';
 
 const DesktopLayout = dynamic(
   () => {
@@ -45,11 +45,11 @@ function App(props: AppProps) {
   }
 
   return (
-    <Provider session={props.pageProps.session}>
+    <SessionProvider session={props.pageProps.session}>
       <ApolloProvider client={client}>
         <DesktopLayout {...props} />
       </ApolloProvider>
-    </Provider>
+    </SessionProvider>
   );
 }
 
