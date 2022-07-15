@@ -5,7 +5,13 @@ import _ from 'lodash';
 import { useTranslation } from 'next-i18next';
 import dynamic from 'next/dynamic';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
-import { CombatHpUpdateAction, CombatUnitClass, getClassColor, ICombatUnit } from 'wow-combat-log-parser';
+import {
+  CombatAbsorbAction,
+  CombatHpUpdateAction,
+  CombatUnitClass,
+  getClassColor,
+  ICombatUnit,
+} from 'wow-combat-log-parser';
 
 import { useGetProfileQuery } from '../../../../graphql/__generated__/graphql';
 import { Utils } from '../../../../utils';
@@ -52,6 +58,78 @@ interface IProps {
 
 const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14, 17, 3];
 
+// Shim to account for overhealing
+const getAmountForEvent = (action: CombatHpUpdateAction) => {
+  if (action.logLine.event === 'SPELL_PERIODIC_HEAL') {
+    // TODO: the parser needs to give us more info about overhealing
+    return action.logLine.parameters[28] - action.logLine.parameters[30];
+  }
+  if (action.logLine.event === 'SPELL_HEAL') {
+    // TODO: the parser needs to give us more info about overhealing
+    return action.logLine.parameters[28] - action.logLine.parameters[30];
+  }
+  return Math.abs(action.amount);
+};
+
+const compileDataBySpell = (actions: CombatHpUpdateAction[], autoAttackName: string) => {
+  const groups = _.groupBy(
+    actions.filter((a) => a.amount !== 0),
+    (a) => a.spellId,
+  );
+  return _.map(groups, (actions, spellId) => {
+    return {
+      spellId,
+      spellName: _.first(actions.filter((a) => a.spellName).map((a) => a.spellName)) || autoAttackName,
+      amount: _.sum(actions.map((a) => getAmountForEvent(a))),
+    };
+  }).sort((a, b) => b.amount - a.amount);
+};
+
+const compileAbsorbsBySpell = (actions: CombatAbsorbAction[], autoAttackName: string) => {
+  const groups = _.groupBy(
+    actions.filter((a) => a.absorbedAmount !== 0),
+    (a) => a.shieldSpellId,
+  );
+
+  return _.map(groups, (actions, spellId) => {
+    return {
+      spellId,
+      count: actions.length,
+      spellName: _.first(actions.filter((a) => a.shieldSpellName).map((a) => a.shieldSpellName)) || autoAttackName,
+      amount: _.sum(actions.map((a) => a.absorbedAmount)),
+    };
+  }).sort((a, b) => b.amount - a.amount);
+};
+
+//
+const compileAbsorbsByDest = (actions: CombatAbsorbAction[], unknownSpellName: string) => {
+  const groups = _.groupBy(
+    actions.filter((a) => a.absorbedAmount !== 0),
+    (a) => a.destUnitId,
+  );
+  return _.map(groups, (actions, destUnitId) => {
+    return {
+      destUnitId,
+      destUnitName: _.first(actions.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || unknownSpellName,
+      amount: _.sum(actions.map((a) => a.absorbedAmount)),
+    };
+  }).sort((a, b) => b.amount - a.amount);
+};
+
+const compileDataByDest = (actions: CombatHpUpdateAction[], unknownSpellName: string) => {
+  const groups = _.groupBy(
+    actions.filter((a) => a.amount !== 0),
+    (a) => a.destUnitId,
+  );
+  return _.map(groups, (actions, destUnitId) => {
+    return {
+      destUnitId,
+      destUnitName: _.first(actions.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || unknownSpellName,
+      amount: _.sum(actions.map((a) => getAmountForEvent(a))),
+    };
+  }).sort((a, b) => b.amount - a.amount);
+};
+
 export function CombatPlayer(props: IProps) {
   const { t, i18n } = useTranslation();
   const combatReportContext = useCombatReportContext();
@@ -69,53 +147,27 @@ export function CombatPlayer(props: IProps) {
     }
   }, [props.player]);
 
-  const compileDataBySpell = useCallback(
-    (actions: CombatHpUpdateAction[]) => {
-      const groups = _.groupBy(
-        actions.filter((a) => a.amount !== 0),
-        (a) => a.spellId,
-      );
-      return _.map(groups, (actions, spellId) => {
-        return {
-          spellId,
-          spellName:
-            _.first(actions.filter((a) => a.spellName).map((a) => a.spellName)) || t('combat-report-auto-attack'),
-          amount: _.sum(actions.map((a) => Math.abs(a.amount))),
-        };
-      }).sort((a, b) => b.amount - a.amount);
-    },
-    [t],
-  );
-
-  const compileDataByDest = useCallback(
-    (actions: CombatHpUpdateAction[]) => {
-      const groups = _.groupBy(
-        actions.filter((a) => a.amount !== 0),
-        (a) => a.destUnitId,
-      );
-      return _.map(groups, (actions, destUnitId) => {
-        return {
-          destUnitId,
-          destUnitName: _.first(actions.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || t('unknown'),
-          amount: _.sum(actions.map((a) => Math.abs(a.amount))),
-        };
-      }).sort((a, b) => b.amount - a.amount);
-    },
-    [t],
-  );
-
   const damageDoneBySpells = useMemo(() => {
-    return compileDataBySpell(props.player.damageOut);
-  }, [props.player, compileDataBySpell]);
+    return compileDataBySpell(props.player.damageOut, t('combat-report-auto-attack'));
+  }, [props.player, t]);
+
   const healsDoneBySpells = useMemo(() => {
-    return compileDataBySpell(props.player.healOut);
-  }, [props.player, compileDataBySpell]);
+    return [
+      ...compileDataBySpell(props.player.healOut, t('combat-report-auto-attack')),
+      ...compileAbsorbsBySpell(props.player.absorbsOut, t('combat-report-auto-attack')),
+    ].sort((a, b) => b.amount - a.amount);
+  }, [props.player, t]);
+
   const damageDoneByDest = useMemo(() => {
-    return compileDataByDest(props.player.damageOut);
-  }, [props.player, compileDataByDest]);
+    return compileDataByDest(props.player.damageOut, t('unknown'));
+  }, [props.player, t]);
+
   const healsDoneByDest = useMemo(() => {
-    return compileDataByDest(props.player.healOut);
-  }, [props.player, compileDataByDest]);
+    return [
+      ...compileDataByDest(props.player.healOut, t('unknown')),
+      ...compileAbsorbsByDest(props.player.absorbsOut, t('unknown')),
+    ].sort((a, b) => b.amount - a.amount);
+  }, [props.player, t]);
 
   if (!props.player.info) {
     return null;
