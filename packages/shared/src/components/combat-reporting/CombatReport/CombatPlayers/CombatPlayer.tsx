@@ -4,7 +4,7 @@ import Title from 'antd/lib/typography/Title';
 import _ from 'lodash';
 import { useTranslation } from 'next-i18next';
 import dynamic from 'next/dynamic';
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import {
   CombatAbsorbAction,
   CombatHpUpdateAction,
