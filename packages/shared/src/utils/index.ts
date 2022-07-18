@@ -109,6 +109,8 @@ export class Utils {
       const logParser = new WoWCombatLogParser();
       const results: ICombatData[] = [];
 
+      logParser.on('malformed_arena_match_detected', (data) => console.log({ data }));
+
       logParser.on('arena_match_ended', (data) => {
         const combat = data as ICombatData;
         results.push(combat);

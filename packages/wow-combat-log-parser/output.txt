@@ -1,0 +1,17 @@
+yarn run v1.22.15
+$ tsdx test
+(node:8776) [DEP0148] DeprecationWarning: Use of deprecated folder mapping "./" in the "exports" field module resolution of the package at D:\Github\wowarenalogs\node_modules\tsdx\node_modules\tslib\package.json.
+Update this package.json to use a subpath pattern like "./*".
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS test/pipelineComponents.test.ts
+(node:21336) [DEP0148] DeprecationWarning: Use of deprecated folder mapping "./" in the "exports" field module resolution of the package at D:\Github\wowarenalogs\node_modules\tsdx\node_modules\tslib\package.json.
+Update this package.json to use a subpath pattern like "./*".
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS test/parser.test.ts (15.468s)
+
+Test Suites: 2 passed, 2 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        17.778s
+Ran all test suites.
+Done in 20.42s.

@@ -502,7 +502,7 @@ export class CombatData {
     }
 
     if (
-      playerUnits.length === this.combatantMetadata.size &&
+      // playerUnits.length === this.combatantMetadata.size &&
       deadPlayerCount > 0 &&
       !wasTimeout &&
       this.startInfo &&
@@ -511,6 +511,15 @@ export class CombatData {
       (this.result === CombatResult.Win || this.result === CombatResult.Lose)
     ) {
       this.isWellFormed = true;
+    } else {
+      // console.log('1');
+      // console.log(playerUnits.length);
+      // console.log(this.startInfo);
+      // console.log(playerUnits.map((p) => p.id));
+      // console.log(playerUnits.map((p) => p.name));
+      // console.log(this.combatantMetadata.keys());
+      // console.log(this.rawLines.length);
+      // console.log('iwF', this.isWellFormed);
     }
   }
 }
