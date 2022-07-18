@@ -502,7 +502,10 @@ export class CombatData {
     }
 
     if (
-      playerUnits.length === this.combatantMetadata.size &&
+      // Due to some outstanding bugs, we can't do this check
+      // In rare circumstances debuffs can persist between matches
+      // playerUnits.length === this.combatantMetadata.size &&
+      // TODO: Detect these cases and report them....
       deadPlayerCount > 0 &&
       !wasTimeout &&
       this.startInfo &&
