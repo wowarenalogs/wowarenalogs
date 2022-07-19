@@ -1,7 +1,5 @@
-import { BigQuery } from '@google-cloud/bigquery';
 import { Firestore } from '@google-cloud/firestore';
 import { instanceToPlain } from 'class-transformer';
-import moment from 'moment';
 import fetch from 'node-fetch';
 import { WoWCombatLogParser, ICombatData, WowVersion } from 'wow-combat-log-parser';
 
@@ -13,7 +11,6 @@ const stage: string = process.env.ENV_STAGE || 'dev';
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
 });
-const bigquery = new BigQuery();
 
 export function parseFromStringArrayAsync(buffer: string[], wowVersion: WowVersion): Promise<ICombatData[]> {
   return new Promise((resolve) => {
@@ -59,18 +56,18 @@ async function handler(file: any, context: any) {
   const document = firestore.doc(`${matchStubsFirestore}/${stub['id']}`);
   await document.set(instanceToPlain(stub));
 
-  console.log(`Loading into BigQuery table: raw_combat_logs/${stage}`);
-  await bigquery
-    .dataset('raw_combat_logs')
-    .table(stage)
-    .insert([
-      {
-        id: stub.id,
-        log_date: moment.utc(stub.startTime).format('YYYY-MM-DD'),
-        file_content: textBuffer,
-        wow_version: wowVersion,
-      },
-    ]);
+  // console.log(`Loading into BigQuery table: raw_combat_logs/${stage}`);
+  // await bigquery
+  //   .dataset('raw_combat_logs')
+  //   .table(stage)
+  //   .insert([
+  //     {
+  //       id: stub.id,
+  //       log_date: moment.utc(stub.startTime).format('YYYY-MM-DD'),
+  //       file_content: textBuffer,
+  //       wow_version: wowVersion,
+  //     },
+  //   ]);
 }
 
 exports.handler = handler;
