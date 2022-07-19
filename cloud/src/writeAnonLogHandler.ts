@@ -4,8 +4,8 @@ import { instanceToPlain } from 'class-transformer';
 import md5 from 'md5';
 import fetch from 'node-fetch';
 import { Readable } from 'stream';
-import { WoWCombatLogParser, ICombatData, WowVersion } from 'wow-combat-log-parser';
 
+import { WoWCombatLogParser, ICombatData, WowVersion } from '../../packages/wow-combat-log-parser/src';
 import { anonymizeDTO, applyCIIMap } from './anonymizer';
 import { createStubDTOFromCombat } from './createMatchStub';
 import { parseFromStringArrayAsync } from './writeMatchStubHandler';

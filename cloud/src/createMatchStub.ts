@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import _ from 'lodash';
-import { ICombatData, CombatUnitType, CombatUnitSpec } from 'wow-combat-log-parser';
 
 // This file is a server-side file so this crazy import is OK for now
 // TODO: fix this crazy import...
 import { ICombatDataStub } from '../../packages/shared/src/graphql-server/types';
+import { ICombatData, CombatUnitType, CombatUnitSpec } from '../../packages/wow-combat-log-parser/src';
 
 /*
   This DTO adds some fields to make queries less index intensive and easier to write

@@ -1,8 +1,8 @@
 import { Firestore } from '@google-cloud/firestore';
 import { instanceToPlain } from 'class-transformer';
 import fetch from 'node-fetch';
-import { WoWCombatLogParser, ICombatData, WowVersion } from 'wow-combat-log-parser';
 
+import { WoWCombatLogParser, ICombatData, WowVersion } from '../../packages/wow-combat-log-parser/src';
 import { createStubDTOFromCombat } from './createMatchStub';
 
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
