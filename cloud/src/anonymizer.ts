@@ -2,8 +2,8 @@ import _ from 'lodash';
 import md5 from 'md5';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { v4 as uuidv4 } from 'uuid';
-import { CombatUnitType } from 'wow-combat-log-parser';
 
+import { CombatUnitType } from '../../packages/wow-combat-log-parser/src';
 import { FirebaseDTO } from './createMatchStub';
 
 const WOW_MIN_NAME_LENGTH = 3;
