@@ -4,7 +4,7 @@ import { ICombatData, CombatUnitType, CombatUnitSpec } from 'wow-combat-log-pars
 
 // This file is a server-side file so this crazy import is OK for now
 // TODO: fix this crazy import...
-import { ICombatDataStub } from '../../shared/src/graphql-server/types';
+import { ICombatDataStub } from '../../packages/shared/src/graphql-server/types';
 
 /*
   This DTO adds some fields to make queries less index intensive and easier to write

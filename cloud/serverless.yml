@@ -18,6 +18,7 @@ package:
 
 functions:
   writeMatchStub:
+    memorySize: 1024
     handler: writeMatchStubHandler
     environment:
       ENV_STAGE: ${opt:stage}
@@ -31,6 +32,7 @@ functions:
           resource: projects/wowarenalogs/buckets/wowarenalogs-log-files-${opt:stage}
 
   writeAnonLog:
+    memorySize: 1024
     handler: writeAnonLogHandler
     environment:
       ENV_STAGE: ${opt:stage}

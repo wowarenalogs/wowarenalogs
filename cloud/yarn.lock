@@ -377,10 +377,10 @@ charenc@0.0.2:
   resolved "https://registry.yarnpkg.com/charenc/-/charenc-0.0.2.tgz#c0a1d2f3a7092e03774bfa83f14c0fc5790a8667"
   integrity sha1-wKHS86cJLgN3S/qD8UwPxXkKhmc=
 
-class-transformer@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/class-transformer/-/class-transformer-0.4.0.tgz#b52144117b423c516afb44cc1c76dbad31c2165b"
-  integrity sha512-ETWD/H2TbWbKEi7m9N4Km5+cw1hNcqJSxlSYhsLsNjQzWWiZIYA1zafxpK9PwVfaZ6AqR5rrjPVUBGESm5tQUA==
+class-transformer@^0.5.0:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/class-transformer/-/class-transformer-0.5.1.tgz#24147d5dffd2a6cea930a3250a677addf96ab336"
+  integrity sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==
 
 color-convert@^2.0.1:
   version "2.0.1"
@@ -1582,10 +1582,10 @@ vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
 
-wow-combat-log-parser@^4.6.0:
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/wow-combat-log-parser/-/wow-combat-log-parser-4.6.0.tgz#7de5592f38d3955bbdbc28c744f4a4a146de3aad"
-  integrity sha512-IDA5DAKs9rkzQyvI/XI+VDSGYmuS+fw3BUXlzT0nOLo47R6YkohgIHoPgMP/UpQYU60RtkodiCgPyMatWsT0sg==
+wow-combat-log-parser@^4.6.7:
+  version "4.6.7"
+  resolved "https://registry.yarnpkg.com/wow-combat-log-parser/-/wow-combat-log-parser-4.6.7.tgz#21e9c9ece5d30b0120414f90b55f5e75b7b28956"
+  integrity sha512-RhkadPq5JKB1ZWR+o8GgWo2wrcADIXwbhLIVeXa5WjW1zGJGKr465u6rJjSr8kr4XJNTOhNfyA+M0yhe6YtPHw==
   dependencies:
     eventemitter3 "^4.0.7"
     line-reader "^0.4.0"
@@ -1632,11 +1632,6 @@ yallist@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-4.0.0.tgz#9bb92790d9c0effec63be73519e11a35019a3a72"
   integrity sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==
-
-yarn@^1.22.10:
-  version "1.22.10"
-  resolved "https://registry.yarnpkg.com/yarn/-/yarn-1.22.10.tgz#c99daa06257c80f8fa2c3f1490724e394c26b18c"
-  integrity sha512-IanQGI9RRPAN87VGTF7zs2uxkSyQSrSPsju0COgbsKQOOXr5LtcVPeyXWgwVa0ywG3d8dg6kSYKGBuYK021qeA==
 
 yn@3.1.1:
   version "3.1.1"
