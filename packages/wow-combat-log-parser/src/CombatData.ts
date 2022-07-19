@@ -502,7 +502,7 @@ export class CombatData {
     }
 
     if (
-      playerUnits.length === this.combatantMetadata.size &&
+      playerUnits.length >= this.combatantMetadata.size &&
       deadPlayerCount > 0 &&
       !wasTimeout &&
       this.startInfo &&
