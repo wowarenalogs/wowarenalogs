@@ -19,7 +19,7 @@ import { Box } from '../../common/Box';
 import { InfiniteCombatDataStubList } from '../../common/InfiniteCombatDataStubList';
 import { LoadingScreen } from '../../common/LoadingScreen';
 
-const RATING_BREAKPOINTS = [0, 1400, 1800, 2100];
+const RATING_BREAKPOINTS = [0, 1400, 1800, 2100, 2400];
 const CLASS_NAMES = new Set();
 const SPECS = Object.entries(CombatUnitSpec)
   .filter((c) => c[0].search('_') > -1)
