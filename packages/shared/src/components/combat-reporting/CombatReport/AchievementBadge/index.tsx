@@ -37,8 +37,8 @@ interface BlizRealmResults {
 }
 
 interface AchievementState {
-  s1?: BlizApiAchievement;
-  s2?: BlizApiAchievement;
+  lastSeason?: BlizApiAchievement;
+  curSeason?: BlizApiAchievement;
   loading: boolean;
 }
 
@@ -48,8 +48,8 @@ interface IProps {
 
 export function AchievementBadge({ player }: IProps) {
   const [cheevos, setCheevos] = useState<AchievementState>({
-    s1: undefined,
-    s2: undefined,
+    lastSeason: undefined,
+    curSeason: undefined,
     loading: true,
   });
   // const clientContext = useClientContext();
@@ -63,8 +63,8 @@ export function AchievementBadge({ player }: IProps) {
   useEffect(() => {
     const fetchCall = async () => {
       try {
-        const s1AchievementPriorityList = [14690, 14689, 14691, 14688, 14687, 14686, 14685];
-        const s2AchievementPriorityList = [14974, 14971, 14970, 14969, 14968];
+        const s2AchievementPriorityList = [14973, 14972, 14974, 14971, 14970, 14969, 14968];
+        const s3AchievementPriorityList = [15353, 15352, 15354, 15351, 15378, 15350, 15379, 15349, 15380, 15348];
 
         if (region && realmId) {
           // Call Blizzard API to figure out the slug name of the realmId (needed for profile query)
@@ -99,18 +99,18 @@ export function AchievementBadge({ player }: IProps) {
           // Call blizzard api for cheevos data
           const profileData: BlizApiAchievementsResponse = await profileCall.json();
           if (profileData.achievements && !profileData.detail) {
-            const s1as = s1AchievementPriorityList
+            const s1as = s2AchievementPriorityList
               .map((achId) => profileData.achievements?.find((li) => li.achievement.id === achId))
               .filter((a) => a);
             const s1a = s1as ? s1as[0] : undefined;
-            const s2as = s2AchievementPriorityList
+            const s2as = s3AchievementPriorityList
               .map((achId) => profileData.achievements?.find((li) => li.achievement.id === achId))
               .filter((a) => a);
             const s2a = s2as ? s2as[0] : undefined;
 
             setCheevos({
-              s1: s1a,
-              s2: s2a,
+              lastSeason: s1a,
+              curSeason: s2a,
               loading: false,
             });
           } else {
@@ -133,11 +133,11 @@ export function AchievementBadge({ player }: IProps) {
     return null;
   }
 
-  if (cheevos.s1 || cheevos.s2) {
+  if (cheevos.lastSeason || cheevos.curSeason) {
     return (
       <>
-        {cheevos.s2 && <Tag color={'gold'}>{cheevos.s2?.achievement.name}</Tag>}
-        {cheevos.s1 && <Tag color={'gold'}>{cheevos.s1?.achievement.name}</Tag>}
+        {cheevos.curSeason && <Tag color={'gold'}>{cheevos.curSeason?.achievement.name}</Tag>}
+        {cheevos.lastSeason && <Tag color={'gold'}>{cheevos.lastSeason?.achievement.name}</Tag>}
       </>
     );
   } else {
