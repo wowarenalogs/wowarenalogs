@@ -1,9 +1,10 @@
-{
+module.exports = {
   "extends": ["next/core-web-vitals", "airbnb-typescript", "plugin:prettier/recommended"],
   "plugins": ["simple-import-sort"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.json",
+    "tsconfigRootDir": __dirname
   },
   "rules": {
     "no-console": ["error", { "allow": ["warn", "error"] }],
