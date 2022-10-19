@@ -5,7 +5,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { env } from '../utils/env';
 
 const logFilesBucket =
-  env.stage === 'development' ? 'wowarenalogs-pubcdev-log-files-dev' : 'wowarenalogs-log-files-prod';
+  env.stage === 'development' ? 'wowarenalogs-pubdev-log-files-dev' : 'wowarenalogs-log-files-prod';
 
 const storage = new Storage(
   env.stage === 'development'
