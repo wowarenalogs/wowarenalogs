@@ -11,7 +11,8 @@ const storage = new Storage(
     ? {
         // This file is in gitignore so we can't import it normally without build errs
         // TODO: fix issue with local dev using local service acct causing builds to fail
-        // credentials: require('../../gcp_service_account.json'),
+        credentials: require('../../gcp_service_account.json'),
+        projectId: 'wowarenalogs-public-dev',
       }
     : {},
 );
