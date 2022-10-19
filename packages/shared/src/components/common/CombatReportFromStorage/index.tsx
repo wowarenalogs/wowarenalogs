@@ -16,8 +16,8 @@ export function CombatReportFromStorage(props: IProps) {
   const defaultErrorMessage = 'There was a problem loading the page, please refresh!';
   const { error, data, loading } = useCombatFromStorage(
     props.anon
-      ? `https://storage.googleapis.com/wowarenalogs-anon-log-files-${props.stage}/${id}`
-      : `https://storage.googleapis.com/wowarenalogs-log-files-${props.stage}/${id}`,
+      ? `https://storage.googleapis.com/wowarenalogs-pubdev-anon-log-files-${props.stage}/${id}`
+      : `https://storage.googleapis.com/wowarenalogs-pubdev-log-files-${props.stage}/${id}`,
   );
 
   if (loading) {

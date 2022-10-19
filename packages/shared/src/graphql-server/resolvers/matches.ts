@@ -10,7 +10,10 @@ const matchStubsCollection = process.env.NODE_ENV === 'development' ? 'match-stu
 const matchAnonStubsCollection =
   process.env.NODE_ENV === 'development' ? 'match-anon-stubs-dev' : 'match-anon-stubs-prod';
 
-const firestore = new Firestore();
+const firestore = new Firestore({
+  credentials: require('../../../gcp_service_account.json'),
+  projectId: 'wowarenalogs-public-dev',
+});
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function firestoreDocToMatchStub(stub: ICombatDataStub): ICombatDataStub {

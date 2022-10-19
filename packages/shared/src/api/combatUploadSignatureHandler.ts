@@ -4,14 +4,16 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { env } from '../utils/env';
 
-const logFilesBucket = env.stage === 'development' ? 'wowarenalogs-log-files-dev' : 'wowarenalogs-log-files-prod';
+const logFilesBucket =
+  env.stage === 'development' ? 'wowarenalogs-pubcdev-log-files-dev' : 'wowarenalogs-log-files-prod';
 
 const storage = new Storage(
   env.stage === 'development'
     ? {
         // This file is in gitignore so we can't import it normally without build errs
         // TODO: fix issue with local dev using local service acct causing builds to fail
-        // credentials: require('../../gcp_service_account.json'),
+        credentials: require('../../gcp_service_account.json'),
+        projectId: 'wowarenalogs-public-dev',
       }
     : {},
 );
