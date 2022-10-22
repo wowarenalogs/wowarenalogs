@@ -1,15 +1,10 @@
 import { Button } from '@wowarenalogs/shared';
 import { useClientContext } from '@wowarenalogs/shared';
 import { useGetMyMatchesQuery, useGetProfileQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
-import { useSession } from 'next-auth/react';
 
-import { LoginButton } from '../components/Login/LoginButton';
-import { LogoutButton } from '../components/Login/LogoutButton';
 import { useLocalCombatsContext } from '../hooks/localCombats';
 
 const Debug = () => {
-  const { data, status } = useSession();
-
   const platform = typeof window !== 'undefined' ? window.wowarenalogs.platform : '';
 
   const client = useClientContext();
@@ -23,9 +18,6 @@ const Debug = () => {
       <div className="flex flex-row justify-between">
         <div className="flex flex-col">
           <div>Platform: {platform}</div>
-          <div>
-            Session: {(data?.user as any)?.battletag || 'not-logged-in'} {status === 'loading' ? 'loading' : null}
-          </div>
           <div>
             {client.wowInstallations.size} Installations
             {Array.from(client.wowInstallations).map((v) => (
@@ -59,8 +51,6 @@ const Debug = () => {
           </div>
         </div>
         <div className="flex flex-col">
-          <LoginButton />
-          <LogoutButton />
           <Button
             onClick={() => {
               window.wowarenalogs.links?.openExternalURL('https://worldofwarcraft.com/en-us/');

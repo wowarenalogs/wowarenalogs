@@ -1,7 +1,6 @@
 import { WowVersion } from '@wowarenalogs/parser';
 import { ClientContextProvider, getAnalyticsDeviceId, initAnalyticsAsync, MainLayout } from '@wowarenalogs/shared';
 import { IAppConfig } from '@wowarenalogs/shared';
-import { AuthProvider } from '@wowarenalogs/shared';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -153,17 +152,15 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
           }
         }}
       >
-        <AuthProvider>
-          <LocalCombatsContextProvider>
-            <div className="w-screen h-screen flex flex-col">
-              <TitleBar />
-              <MainLayout>
-                {loading && <div>Apploading: {loading.toString()}</div>}
-                {!loading && <Component {...pageProps} />}
-              </MainLayout>
-            </div>
-          </LocalCombatsContextProvider>
-        </AuthProvider>
+        <LocalCombatsContextProvider>
+          <div className="w-screen h-screen flex flex-col">
+            <TitleBar />
+            <MainLayout>
+              {loading && <div>Apploading: {loading.toString()}</div>}
+              {!loading && <Component {...pageProps} />}
+            </MainLayout>
+          </div>
+        </LocalCombatsContextProvider>
       </ClientContextProvider>
     </>
   );

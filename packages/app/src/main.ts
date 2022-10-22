@@ -1,12 +1,13 @@
 import { app, BrowserWindow } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
-import * as moment from 'moment';
+import serve from 'electron-serve';
+import path from 'path';
 
 import { nativeBridgeRegistry } from './nativeBridge/registry';
 
-import path = require('path');
+serve({ directory: path.join(__dirname, 'desktop') });
 
-function createWindow() {
+async function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
 
   const win = new BrowserWindow({
@@ -21,15 +22,14 @@ function createWindow() {
       preload: preloadScriptPath,
     },
   });
-
   win.setMenuBarVisibility(false);
 
-  if (!app.isPackaged) {
-    win.loadURL('http://localhost:3000/');
+  nativeBridgeRegistry.startListeners(win);
+
+  if (app.isPackaged) {
+    await win.loadURL('app://-');
   } else {
-    win.loadURL(`https://desktop.wowarenalogs.com/?time=${moment.now()}`, {
-      extraHeaders: 'pragma: no-cache\n',
-    });
+    await win.loadURL('http://localhost:3000');
   }
 
   win.webContents.setWindowOpenHandler(() => {
@@ -37,24 +37,18 @@ function createWindow() {
   });
 
   win.webContents.on('did-frame-finish-load', () => {
-    // DevTools
-    installExtension(REACT_DEVELOPER_TOOLS)
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
-
-    if (!app.isPackaged && win) {
+    if (app.isPackaged && win) {
+      installExtension(REACT_DEVELOPER_TOOLS);
       win.webContents.openDevTools({ mode: 'detach' });
     }
   });
 
-  nativeBridgeRegistry.startListeners(win);
-}
-
-if (app.isPackaged) {
-  require('update-electron-app')({
-    repo: 'wowarenalogs/wowarenalogs',
-    notifyUser: false,
-  });
+  if (app.isPackaged) {
+    require('update-electron-app')({
+      repo: 'wowarenalogs/wowarenalogs',
+      notifyUser: false,
+    });
+  }
 }
 
 app.on('ready', () => {

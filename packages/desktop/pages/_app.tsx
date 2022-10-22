@@ -3,8 +3,6 @@ import '../styles/globals.css';
 import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
-import { SessionProvider } from 'next-auth/react';
 
 const DesktopLayout = dynamic(
   () => {
@@ -33,23 +31,10 @@ const client = new ApolloClient({
 });
 
 function App(props: AppProps) {
-  const router = useRouter();
-
-  if (router.pathname.startsWith('/index.html')) {
-    return <div>HTML INDEX?</div>;
-  }
-
-  if (router.pathname.indexOf('/login') > -1) {
-    // bypass main layout when rendering the desktop login page
-    return <props.Component {...props.pageProps} />;
-  }
-
   return (
-    <SessionProvider session={props.pageProps.session}>
-      <ApolloProvider client={client}>
-        <DesktopLayout {...props} />
-      </ApolloProvider>
-    </SessionProvider>
+    <ApolloProvider client={client}>
+      <DesktopLayout {...props} />
+    </ApolloProvider>
   );
 }
 
