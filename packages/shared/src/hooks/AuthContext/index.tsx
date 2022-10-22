@@ -1,50 +1,63 @@
-import { Session, User } from 'next-auth';
-import { useSession } from 'next-auth/react';
+import { getRedirectResult, OAuthProvider, onAuthStateChanged, signInWithRedirect, User } from 'firebase/auth';
 import React, { useContext, useEffect } from 'react';
 
-import { getAnalyticsDeviceId, getAnalyticsSessionId, setAnalyticsUserProperties } from '../../utils/analytics';
-
-interface WALUser extends User {
-  battletag: string;
-  region: string;
-  id: string;
-}
-
-interface WALSession extends Session {
-  user: WALUser;
-}
+import { useFirebaseContext } from '../FirebaseContext';
 
 interface IAuthContextData {
-  session: WALSession | null | undefined;
-  loading: boolean;
+  signIn: () => void;
+  signOut: () => void;
+  user: User | null;
 }
 
 const AuthContext = React.createContext<IAuthContextData>({
-  session: null,
-  loading: true,
+  signIn: () => {},
+  signOut: () => {},
+  user: null,
 });
 
 interface IProps {
-  children: React.ReactNode | React.ReactNodeArray;
+  children: React.ReactNode | React.ReactNode[];
 }
 
+const battlenetProvider = new OAuthProvider('oidc.battle.net');
+battlenetProvider.addScope('openid');
+
 export const AuthProvider = (props: IProps) => {
-  const { data, status } = useSession();
+  const [user, setUser] = React.useState<User | null>(null);
+  const { auth } = useFirebaseContext();
+
+  const signIn = async () => {
+    await signInWithRedirect(auth, battlenetProvider);
+  };
+
+  const signOut = async () => {
+    await auth.signOut();
+    setUser(null);
+  };
 
   useEffect(() => {
-    if (status !== 'loading') {
-      setAnalyticsUserProperties({
-        id: (data as WALSession)?.user?.id || undefined,
-        isAuthenticated: status === 'authenticated',
+    getRedirectResult(auth)
+      .then((_result) => {
+        console.log('redirect result', _result);
+      })
+      .catch((_error) => {
+        signOut();
       });
-    }
-  }, [data, status]);
+
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
-        session: data as WALSession,
-        loading: status === 'loading',
+        signIn,
+        signOut,
+        user,
       }}
     >
       {props.children}
@@ -54,25 +67,5 @@ export const AuthProvider = (props: IProps) => {
 
 export const useAuth = () => {
   const contextData = useContext(AuthContext);
-
-  let userId = null;
-  let battleTag = null;
-  let region = null;
-  if (contextData.session?.user) {
-    region = contextData.session.user.region;
-    userId = contextData.session.user?.id;
-    battleTag = contextData.session.user?.battletag;
-  }
-
-  if (!userId) {
-    userId = `anonymous:${getAnalyticsDeviceId()}:${getAnalyticsSessionId()}`;
-  }
-
-  return {
-    isLoadingAuthData: contextData.loading,
-    isAuthenticated: contextData.session?.user != null,
-    userId,
-    battleTag,
-    region,
-  };
+  return contextData;
 };

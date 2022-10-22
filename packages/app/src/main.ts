@@ -7,7 +7,7 @@ import { nativeBridgeRegistry } from './nativeBridge/registry';
 
 serve({ directory: path.join(__dirname, 'desktop') });
 
-async function createWindow() {
+function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
 
   const win = new BrowserWindow({
@@ -27,9 +27,9 @@ async function createWindow() {
   nativeBridgeRegistry.startListeners(win);
 
   if (app.isPackaged) {
-    await win.loadURL('app://-');
+    win.loadURL('app://-');
   } else {
-    await win.loadURL('http://localhost:3000');
+    win.loadURL('http://localhost:3000');
   }
 
   win.webContents.setWindowOpenHandler(() => {
@@ -37,7 +37,7 @@ async function createWindow() {
   });
 
   win.webContents.on('did-frame-finish-load', () => {
-    if (app.isPackaged && win) {
+    if (!app.isPackaged && win) {
       installExtension(REACT_DEVELOPER_TOOLS);
       win.webContents.openDevTools({ mode: 'detach' });
     }

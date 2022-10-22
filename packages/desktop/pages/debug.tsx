@@ -1,6 +1,4 @@
-import { Button } from '@wowarenalogs/shared';
-import { useClientContext } from '@wowarenalogs/shared';
-import { useGetMyMatchesQuery, useGetProfileQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
+import { Button, useAuth, useClientContext } from '@wowarenalogs/shared';
 
 import { useLocalCombatsContext } from '../hooks/localCombats';
 
@@ -9,9 +7,7 @@ const Debug = () => {
 
   const client = useClientContext();
   const combats = useLocalCombatsContext();
-
-  const profileQuery = useGetProfileQuery();
-  const matchesQuery = useGetMyMatchesQuery();
+  const auth = useAuth();
 
   return (
     <div className="mt-8 text-white">
@@ -32,23 +28,21 @@ const Debug = () => {
           ))}
         </div>
         <div className="flex flex-col">
-          <b>GQL</b>
-          <div>
-            useGetProfile
-            <ul>
-              <li>loading:{profileQuery.loading.toString()}</li>
-              <li>
-                data: <pre>{JSON.stringify(profileQuery.data?.me || {}, null, 2)}</pre>
-              </li>
-            </ul>
-          </div>
-          <div>
-            matchesQuery
-            <ul>
-              <li>loading:{matchesQuery.loading.toString()}</li>
-              <li>data: {matchesQuery.data?.myMatches.combats.length} matches</li>
-            </ul>
-          </div>
+          <div>User: {JSON.stringify(auth.user)}</div>
+          <Button
+            onClick={() => {
+              auth.signIn();
+            }}
+          >
+            Sign In
+          </Button>
+          <Button
+            onClick={() => {
+              auth.signOut();
+            }}
+          >
+            Sign Out
+          </Button>
         </div>
         <div className="flex flex-col">
           <Button

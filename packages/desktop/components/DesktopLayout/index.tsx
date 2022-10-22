@@ -1,5 +1,5 @@
 import { WowVersion } from '@wowarenalogs/parser';
-import { ClientContextProvider, getAnalyticsDeviceId, initAnalyticsAsync, MainLayout } from '@wowarenalogs/shared';
+import { ClientContextProvider, MainLayout } from '@wowarenalogs/shared';
 import { IAppConfig } from '@wowarenalogs/shared';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
@@ -80,27 +80,6 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
     }
     setLoading(false);
   }, []);
-
-  useEffect(() => {
-    if (router.isReady)
-      initAnalyticsAsync('650475e4b06ebfb536489356d27b60f8', 'G-Z6E8QS4ENW').then(() => {
-        import('@sentry/react').then((Sentry) => {
-          import('@sentry/tracing').then(({ Integrations }) => {
-            Sentry.init({
-              dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
-              integrations: [new Integrations.BrowserTracing()],
-              tracesSampleRate: 1.0,
-            });
-            const userId = getAnalyticsDeviceId();
-            if (userId) {
-              Sentry.setUser({
-                id: userId,
-              });
-            }
-          });
-        });
-      });
-  }, [router.isReady]);
 
   return (
     <>
