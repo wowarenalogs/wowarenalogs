@@ -4,14 +4,6 @@ type ElectronOpaqueEvent = {
   senderId: number;
 };
 
-type FSCodex = {
-  ['setup-page-locate-wow-mac']: string;
-  ['setup-page-locate-wow-windows']: string;
-  ['setup-page-invalid-location']: string;
-  ['setup-page-invalid-location-message']: string;
-  ['confirm']: string;
-};
-
 export type INativeBridge = {
   platform:
     | 'aix'
@@ -47,8 +39,7 @@ export type INativeBridge = {
   };
   fs?: {
     getAllWoWInstallations: (path: string) => Promise<Map<WowVersion, string>>;
-    folderSelected: (callback: (event: ElectronOpaqueEvent, folder: string) => void) => void;
-    selectFolder: (codex: FSCodex) => Promise<void>;
+    selectFolder: () => Promise<string>;
     installAddon: (wowDirectory: string) => Promise<void>;
   };
   bnet?: {

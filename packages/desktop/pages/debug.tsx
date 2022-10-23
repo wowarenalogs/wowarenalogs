@@ -70,17 +70,10 @@ const Debug = () => {
           </Button>
           <Button
             onClick={() => {
-              window.wowarenalogs.fs?.folderSelected((_event, folder) =>
+              window.wowarenalogs.fs?.selectFolder().then((folder) => {
                 client.updateAppConfig((prev) => {
                   return { ...prev, wowDirectory: folder };
-                }),
-              );
-              window.wowarenalogs.fs?.selectFolder({
-                'setup-page-locate-wow-mac': '',
-                'setup-page-locate-wow-windows': '',
-                'setup-page-invalid-location': '',
-                'setup-page-invalid-location-message': '',
-                confirm: 'confirm-message',
+                });
               });
             }}
           >

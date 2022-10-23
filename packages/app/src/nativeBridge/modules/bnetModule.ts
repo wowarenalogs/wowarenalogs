@@ -6,8 +6,9 @@ import { moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../modul
 export class BnetModule extends NativeBridgeModule {
   @moduleFunction()
   public login(mainWindow: Electron.BrowserWindow, absoluteAuthUrl: string, windowTitle: string): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const mainWindowPosition = mainWindow.getPosition();
+      let resolved: boolean = false;
 
       const loginModalWindow = new BrowserWindow({
         backgroundColor: '#000000',
@@ -26,6 +27,13 @@ export class BnetModule extends NativeBridgeModule {
         },
       });
       loginModalWindow.setMenuBarVisibility(false);
+      loginModalWindow.on('closed', () => {
+        // if the window is closed before resolving, that means the user closed it.
+        // In that case we reject the promise.
+        if (!resolved) {
+          reject();
+        }
+      });
       loginModalWindow.webContents.on('did-navigate', (_event, url) => {
         const urlObj = new URL(url);
         if (
@@ -34,6 +42,7 @@ export class BnetModule extends NativeBridgeModule {
             urlObj.hostname.endsWith('.wowarenalogs.com')) &&
           urlObj.pathname === '/'
         ) {
+          resolved = true;
           resolve();
           loginModalWindow.close();
         }

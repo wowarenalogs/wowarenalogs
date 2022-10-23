@@ -11,12 +11,6 @@ export class DesktopUtils {
 
     const METADATA = [
       {
-        version: 'tbc',
-        dir: '_classic_',
-        macAppFile: 'World of Warcraft Classic.app',
-        winAppFile: 'WowClassic.exe',
-      },
-      {
         version: 'shadowlands',
         dir: '_retail_',
         macAppFile: 'World of Warcraft.app',
@@ -40,7 +34,6 @@ export class DesktopUtils {
     if (size <= 0) {
       return true;
     }
-    console.log('parsing chunk', path, start, size);
     try {
       const fd = openSync(path, 'r');
       const buffer = Buffer.alloc(size);
@@ -66,7 +59,6 @@ export class DesktopUtils {
       // Can reproduce by copy+pasting a new log file into wow folder while logger is watching (win32)
       // There are still some transient bugs
       // https://stackoverflow.com/questions/1764809/filesystemwatcher-changed-event-is-raised-twice
-      console.log('parseChunkError', e);
       return false;
     }
     return true;

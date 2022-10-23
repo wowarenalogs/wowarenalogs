@@ -1,10 +1,11 @@
 import { app, BrowserWindow } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { nativeBridgeRegistry } from './nativeBridge/registry';
 
 import path = require('path');
+import { BASE_REMOTE_URL } from './constants';
 
 function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
@@ -24,25 +25,18 @@ function createWindow() {
 
   win.setMenuBarVisibility(false);
 
-  if (!app.isPackaged) {
-    win.loadURL('http://localhost:3000/');
-  } else {
-    win.loadURL(`https://desktop.wowarenalogs.com/?time=${moment.now()}`, {
-      extraHeaders: 'pragma: no-cache\n',
-    });
-  }
+  win.loadURL(`${BASE_REMOTE_URL}/?time=${moment.now()}`, {
+    extraHeaders: 'pragma: no-cache\n',
+  });
 
   win.webContents.setWindowOpenHandler(() => {
     return { action: 'deny' };
   });
 
   win.webContents.on('did-frame-finish-load', () => {
-    // DevTools
-    installExtension(REACT_DEVELOPER_TOOLS)
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
-
     if (!app.isPackaged && win) {
+      // DevTools
+      installExtension(REACT_DEVELOPER_TOOLS);
       win.webContents.openDevTools({ mode: 'detach' });
     }
   });

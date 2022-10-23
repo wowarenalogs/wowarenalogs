@@ -35,7 +35,6 @@ const bridgeState: {
 export class LogsModule extends NativeBridgeModule {
   @moduleFunction()
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
-    // console.log('node-LogWatcherStart', wowDirectory, wowVersion);
     const bridge = bridgeState[wowVersion];
     if (bridge.watcher) {
       bridge.watcher.close();
@@ -52,10 +51,7 @@ export class LogsModule extends NativeBridgeModule {
     if (!logsExist) {
       mkdirSync(wowLogsDirectoryFullPath);
     }
-    // console.log('node-LogsExist?', logsExist);
-
     bridge.logParser.on('arena_match_ended', (combat: ICombatData) => {
-      // console.log('new combat', wowVersion, data.id);
       this.handleNewCombat(mainWindow, combat);
     });
 
@@ -69,7 +65,6 @@ export class LogsModule extends NativeBridgeModule {
     };
 
     const logFiles = readdirSync(wowLogsDirectoryFullPath).filter((f) => f.indexOf('WoWCombatLog') >= 0);
-    // console.log('node-logsCount', logFiles.length);
     logFiles.forEach((f) => {
       const fullLogPath = join(wowLogsDirectoryFullPath, f);
       const stats = statSync(fullLogPath);
@@ -90,7 +85,6 @@ export class LogsModule extends NativeBridgeModule {
 
       let parseOK = false;
 
-      // console.log('Maybeprocess?', { fileCreationTimeDelta, fileSizeDelta });
       if (
         // we are reading the same file if the creation time is close enough
         fileCreationTimeDelta < 1 &&
@@ -108,17 +102,12 @@ export class LogsModule extends NativeBridgeModule {
       if (parseOK) {
         updateLastKnownStats(path, stats);
       }
-      // console.log('parseResult', parseOK.toString());
     };
 
     bridge.watcher.onChange((fileName: string) => {
-      // console.log('#### watcher.onChange', fileName);
       const absolutePath = join(wowLogsDirectoryFullPath, fileName);
-      // console.log('watcher.absolutePath', absolutePath);
       const stats = statSync(absolutePath);
-      // console.log('watcher.stats', stats.size, stats.birthtimeMs);
       processStats(absolutePath, stats);
-      // console.log('watcher.processed...', fileName);
     });
   }
 
@@ -137,13 +126,3 @@ export class LogsModule extends NativeBridgeModule {
   @moduleEvent('on')
   public handleNewCombat(_mainWindow: BrowserWindow, _combat: ICombatData) {}
 }
-// const bridgeAPI = {
-//   handleNewCombat: (callback: (event: IpcRendererEvent, c: ICombatData) => void) =>
-//     ipcRenderer.on(Events.newCombatEvent, callback),
-
-//   startLogWatcher: (wowDirectory: string, wowVersion: WowVersion) =>
-//     ipcRenderer.invoke(Events.startLogWatcher, wowDirectory, wowVersion) as Promise<
-//       ReturnType<typeof onStartLogWatcher>
-//     >,
-//   stopLogWatcher: () => ipcRenderer.invoke(Events.stopLogWatcher) as Promise<ReturnType<typeof onStopLogWatcher>>,
-// };

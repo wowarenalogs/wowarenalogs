@@ -5,30 +5,19 @@ import { replace, trim } from 'lodash';
 import fetch from 'node-fetch';
 import { dirname, join } from 'path';
 
-import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
+import { BASE_REMOTE_URL } from '../../constants';
+import { moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
 import { DesktopUtils } from './common/desktopUtils';
-
-type Codex = {
-  ['setup-page-locate-wow-mac']: string;
-  ['setup-page-locate-wow-windows']: string;
-  ['setup-page-invalid-location']: string;
-  ['setup-page-invalid-location-message']: string;
-  ['confirm']: string;
-};
 
 function normalizeAddonContent(content: string): string {
   return trim(replace(content, /\r+/g, ''));
 }
 
 async function installAddonToPath(path: string, version: WowVersion) {
-  const remoteAddonTOCResponse = await fetch(
-    `https://desktop-client.wowarenalogs.com/addon/${version}/WoWArenaLogs.toc`, // TODO: Is static url ok here?
-  );
+  const remoteAddonTOCResponse = await fetch(`${BASE_REMOTE_URL}/addon/${version}/WoWArenaLogs.toc`);
   const remoteAddonTOC = await remoteAddonTOCResponse.text();
 
-  const remoteAddonLUAResponse = await fetch(
-    `https://desktop-client.wowarenalogs.com/addon/${version}/WoWArenaLogs.lua`,
-  );
+  const remoteAddonLUAResponse = await fetch(`${BASE_REMOTE_URL}/addon/${version}/WoWArenaLogs.lua`);
   const remoteAddonLUA = await remoteAddonLUAResponse.text();
 
   const addonDestPath = join(path, 'Interface/AddOns/WoWArenaLogs');
@@ -45,58 +34,46 @@ async function installAddonToPath(path: string, version: WowVersion) {
 @nativeBridgeModule('fs')
 export class FilesModule extends NativeBridgeModule {
   @moduleFunction()
-  public async selectFolder(mainWindow: BrowserWindow, codex: Codex) {
-    return dialog
-      .showOpenDialog({
-        title:
-          process.platform === 'darwin' ? codex['setup-page-locate-wow-mac'] : codex['setup-page-locate-wow-windows'],
-        buttonLabel: codex.confirm,
-        properties: ['openFile'],
-        filters: [
-          {
-            name: process.platform === 'darwin' ? 'World of Warcraft.app' : 'Wow.exe, WowClassic.exe',
-            extensions: [process.platform === 'darwin' ? 'app' : 'exe'],
-          },
-        ],
-      })
-      .then(async (data) => {
-        if (!data.canceled && data.filePaths.length > 0) {
-          const wowExePath = data.filePaths[0];
-          const wowDirectory = dirname(wowExePath);
-          const wowInstallations = await DesktopUtils.getWowInstallsFromPath(wowDirectory);
-          if (wowInstallations.size > 0) {
-            // TODO: see note in bnetModule about .send
-            this.onFolderSelected(mainWindow, wowDirectory);
-            for (const [ver, dir] of Array.from(wowInstallations.entries())) {
-              installAddonToPath(dir, ver);
-            }
-          } else {
-            dialog.showMessageBox({
-              title: codex['setup-page-invalid-location'],
-              message: codex['setup-page-invalid-location-message'],
-              type: 'error',
-            });
-          }
-          // TODO: see note in bnetModule about .send
-          this.onFolderSelected(mainWindow, wowDirectory);
-        }
-        return data;
-      });
+  public async selectFolder(_mainWindow: BrowserWindow) {
+    const dialogResult = await dialog.showOpenDialog({
+      title: process.platform === 'darwin' ? 'Locate your World of Warcraft game' : 'Locate your WoW.exe',
+      buttonLabel: 'Select',
+      properties: ['openFile'],
+      filters: [
+        {
+          name: process.platform === 'darwin' ? 'World of Warcraft.app' : 'Wow.exe',
+          extensions: [process.platform === 'darwin' ? 'app' : 'exe'],
+        },
+      ],
+    });
+    if (!dialogResult.canceled && dialogResult.filePaths.length > 0) {
+      const wowExePath = dialogResult.filePaths[0];
+      const wowDirectory = dirname(wowExePath);
+      const wowInstallations = await DesktopUtils.getWowInstallsFromPath(wowDirectory);
+      if (wowInstallations.size > 0) {
+        return wowDirectory;
+      }
+      // else {
+      //   dialog.showMessageBox({
+      //     title: 'Invalid Location',
+      //     message: 'The path you selected did not contain a valid WoW installation. Please try again.',
+      //     type: 'error',
+      //   });
+      // }
+    }
+    throw new Error('No valid directory selected');
   }
 
   @moduleFunction()
-  public getAllWoWInstallations(mainWindow: BrowserWindow, path: string) {
+  public getAllWoWInstallations(_mainWindow: BrowserWindow, path: string) {
     return DesktopUtils.getWowInstallsFromPath(path);
   }
 
   @moduleFunction()
-  public async installAddon(mainWindow: BrowserWindow, path: string) {
+  public async installAddon(_mainWindow: BrowserWindow, path: string) {
     const wowInstallations = await DesktopUtils.getWowInstallsFromPath(path);
     for (const [ver, dir] of Array.from(wowInstallations.entries())) {
       installAddonToPath(dir, ver);
     }
   }
-
-  @moduleEvent('on')
-  public onFolderSelected(_mainWindow: BrowserWindow, _path: string) {}
 }
