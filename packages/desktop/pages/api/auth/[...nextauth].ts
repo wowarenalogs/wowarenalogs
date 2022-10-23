@@ -2,8 +2,6 @@ import { Firestore } from '@google-cloud/firestore';
 import { FirestoreNextAuthAdapter } from '@wowarenalogs/shared';
 import NextAuth from 'next-auth';
 
-// Almost on V4
-// See https://github.com/nextauthjs/next-auth/pull/3873
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
 });
@@ -22,8 +20,8 @@ export default NextAuth({
           name: profile.battle_tag,
         };
       },
-      clientId: process.env.BATTLENET_CLIENT_ID,
-      clientSecret: process.env.BATTLENET_CLIENT_SECRET,
+      clientId: process.env.BLIZZARD_CLIENT_ID,
+      clientSecret: process.env.BLIZZARD_CLIENT_SECRET,
     },
   ],
   adapter: FirestoreNextAuthAdapter(firestore),
