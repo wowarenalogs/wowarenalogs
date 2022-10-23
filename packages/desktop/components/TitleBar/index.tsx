@@ -15,6 +15,7 @@ function TitleBar() {
     });
   }, []);
 
+  // TODO: buttons need tooltip text
   return (
     <div className="flex flex-row item-center top-0 left-0 right-0 h-8 relative">
       <div className={`block absolute -z-10 top-0 left-0 right-0 bottom-0 ${styles['title-bar-drag']}`} />

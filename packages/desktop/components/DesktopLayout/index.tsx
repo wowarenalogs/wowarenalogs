@@ -84,7 +84,7 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
 
   useEffect(() => {
     if (router.isReady)
-      initAnalyticsAsync('650475e4b06ebfb536489356d27b60f8', 'G-Z6E8QS4ENW').then(() => {
+      initAnalyticsAsync('G-Z6E8QS4ENW').then(() => {
         import('@sentry/react').then((Sentry) => {
           import('@sentry/tracing').then(({ Integrations }) => {
             Sentry.init({
