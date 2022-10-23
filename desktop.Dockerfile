@@ -10,15 +10,6 @@ RUN mkdir packages/wow-combat-log-parser
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 ENV NEXTAUTH_URL="https://desktop.wowarenalogs.com"
 
-# Inject build args into env
-# --build-arg bliz_secret=zxcexamplev23
-ARG bliz_cid
-ENV BLIZZARD_CLIENT_ID=$bliz_cid
-ARG bliz_csecret
-ENV BLIZZARD_CLIENT_SECRET=$bliz_csecret
-ARG jwt_secret
-ENV JWT_SECRET=$jwt_secret
-
 # Install dependencies
 COPY package.json ./
 COPY package-lock.json ./
