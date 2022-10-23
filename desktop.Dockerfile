@@ -23,6 +23,7 @@ COPY ./packages/desktop ./packages/desktop
 COPY ./packages/wow-combat-log-parser ./packages/wow-combat-log-parser
 
 # Build 
+RUN npm run build:parser
 RUN npm run build:desktop
 
 CMD npm start:desktop
