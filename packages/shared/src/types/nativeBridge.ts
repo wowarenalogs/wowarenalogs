@@ -53,7 +53,6 @@ export type INativeBridge = {
   };
   bnet?: {
     login: (authUrl: string, windowTitle: string) => Promise<void>;
-    onLoggedIn: (callback: (event: ElectronOpaqueEvent) => void) => void;
   };
   logs?: {
     handleNewCombat: (callback: (event: ElectronOpaqueEvent, c: ICombatData) => void) => void;

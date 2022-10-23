@@ -6,7 +6,6 @@ import { getAnalyticsDeviceId, getAnalyticsSessionId, setAnalyticsUserProperties
 
 interface WALUser extends User {
   battletag: string;
-  region: string;
   id: string;
 }
 
@@ -25,7 +24,7 @@ const AuthContext = React.createContext<IAuthContextData>({
 });
 
 interface IProps {
-  children: React.ReactNode | React.ReactNodeArray;
+  children: React.ReactNode | React.ReactNode[];
 }
 
 export const AuthProvider = (props: IProps) => {
@@ -57,9 +56,7 @@ export const useAuth = () => {
 
   let userId = null;
   let battleTag = null;
-  let region = null;
   if (contextData.session?.user) {
-    region = contextData.session.user.region;
     userId = contextData.session.user?.id;
     battleTag = contextData.session.user?.battletag;
   }
@@ -73,6 +70,5 @@ export const useAuth = () => {
     isAuthenticated: contextData.session?.user != null,
     userId,
     battleTag,
-    region,
   };
 };

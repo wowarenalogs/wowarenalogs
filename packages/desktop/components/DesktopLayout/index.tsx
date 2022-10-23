@@ -133,8 +133,9 @@ export const DesktopLayout = ({ Component, pageProps }: AppProps) => {
           window.wowarenalogs.links?.openExternalURL(url);
         }}
         showLoginModalInSeparateWindow={(authUrl, callback) => {
-          window.wowarenalogs.bnet?.onLoggedIn(callback);
-          window.wowarenalogs.bnet?.login(getAbsoluteAuthUrl(authUrl), 'window title'); // TODO: window title
+          window.wowarenalogs.bnet?.login(getAbsoluteAuthUrl(authUrl), 'Login').then(() => {
+            callback();
+          });
         }}
         setLaunchAtStartup={(openAtLogin: boolean) => {
           window.wowarenalogs.app?.setOpenAtLogin(openAtLogin);

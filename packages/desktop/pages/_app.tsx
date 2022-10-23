@@ -35,10 +35,6 @@ const client = new ApolloClient({
 function App(props: AppProps) {
   const router = useRouter();
 
-  if (router.pathname.startsWith('/index.html')) {
-    return <div>HTML INDEX?</div>;
-  }
-
   if (router.pathname.indexOf('/login') > -1) {
     // bypass main layout when rendering the desktop login page
     return <props.Component {...props.pageProps} />;

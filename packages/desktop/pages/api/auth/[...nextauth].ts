@@ -9,7 +9,7 @@ const firestore = new Firestore({
 export default NextAuth({
   providers: [
     {
-      id: 'battlenet-us',
+      id: 'battlenet',
       name: 'Battle.net',
       type: 'oauth',
       wellKnown: 'https://oauth.battle.net/.well-known/openid-configuration',
@@ -31,9 +31,6 @@ export default NextAuth({
   },
   callbacks: {
     jwt: async (params) => {
-      if (params.account && params.profile) {
-        params.profile.region = params.account.provider?.replace('battlenet-', '');
-      }
       return Promise.resolve(params.profile ? params.profile : params.token);
     },
     session: async (params) => {

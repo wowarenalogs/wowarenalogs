@@ -9,10 +9,9 @@ export const LoginButton = () => {
     <Button
       onClick={async () => {
         await clientContext.saveWindowPosition();
-        window.wowarenalogs.bnet?.onLoggedIn(() => {
+        clientContext.showLoginModalInSeparateWindow('/login', () => {
           window.location.reload();
         });
-        window.wowarenalogs.bnet?.login(`http://localhost:3000/login`, 'login-modal-login-with-battle-net');
       }}
     >
       {/* {t('login-modal-login-with-battle-net')} */}
