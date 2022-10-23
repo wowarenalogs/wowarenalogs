@@ -58,5 +58,8 @@
   "resolutions": {
     "**/@typescript-eslint/eslint-plugin": "^4.1.1",
     "**/@typescript-eslint/parser": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.186"
   }
 }
