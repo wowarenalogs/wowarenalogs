@@ -26,7 +26,6 @@ export default NextAuth({
   ],
   adapter: FirestoreNextAuthAdapter(firestore),
   jwt: {
-    secret: process.env.JWT_SECRET,
     maxAge: 90 * 24 * 60 * 60, // 90 days
   },
   callbacks: {

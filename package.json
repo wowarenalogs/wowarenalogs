@@ -37,6 +37,7 @@
     "release:app": "npm run release:app --workspaces --if-present",
     "dev:desktop": "npm run dev:desktop --workspaces --if-present",
     "build:desktop": "npm run build:desktop --workspaces --if-present",
+    "start:desktop": "npm run start:desktop --workspaces --if-present",
     "release:desktop": "npm run release:desktop --workspaces --if-present",
     "dev:web": "npm run dev:web --workspaces --if-present",
     "build:web": "npm run build:web --workspaces --if-present",
