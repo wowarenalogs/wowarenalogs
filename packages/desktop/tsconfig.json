@@ -6,5 +6,12 @@
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"],
-  "references": [{ "path": "../wow-combat-log-parser" }]
+  "references": [
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../wow-combat-log-parser"
+    }
+  ]
 }
