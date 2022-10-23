@@ -1,6 +1,6 @@
 import { Button } from '@wowarenalogs/shared';
 import Image from 'next/image';
-import { ClientSafeProvider, getCsrfToken, getProviders, signIn } from 'next-auth/client';
+import { ClientSafeProvider, getCsrfToken, getProviders, signIn } from 'next-auth/react';
 
 // TODO: see https://hsreplay.net/account/login/?next=%2F
 // I believe bnet now routes all logins through the -us tenant for US/EU/APAC
