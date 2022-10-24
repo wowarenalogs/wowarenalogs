@@ -208,11 +208,10 @@ export interface CombatantInfo {
   specId: string;
   talents: string[];
   pvpTalents: string[];
-  covenantInfo: CovenantInfo;
   equipment: EquippedItem[];
   interestingAurasJSON: string;
+  item28: number;
   item29: number;
-  item30: number;
   personalRating: number;
   highestPvpTier: number;
 }

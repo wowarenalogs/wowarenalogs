@@ -16,7 +16,6 @@ export * from './actions/CombatHpUpdateAction';
 export * from './actions/CombatAbsorbAction';
 export * from './actions/CombatExtraSpellAction';
 export * from './classMetadata';
-export * from './covenantMetadata';
 export * from './pipeline/common/stringToLogLine';
 export * from './pipeline/common/logLineToCombatEvent';
 
