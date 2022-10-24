@@ -26,4 +26,4 @@ COPY ./packages/wow-combat-log-parser ./packages/wow-combat-log-parser
 RUN npm run build:parser
 RUN npm run build:desktop
 
-CMD npm start:desktop
+CMD npm run start:desktop
