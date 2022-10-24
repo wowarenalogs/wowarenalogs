@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import _ from 'lodash';
-
+import { Timestamp } from '@google-cloud/firestore';
 // This file is a server-side file so this crazy import is OK for now
 // TODO: fix this crazy import...
 import { ICombatDataStub } from '../../packages/shared/src/graphql-server/types';
 import { ICombatData, CombatUnitType, CombatUnitSpec } from '../../packages/wow-combat-log-parser/src';
+import moment from 'moment';
 
 /*
   This DTO adds some fields to make queries less index intensive and easier to write
@@ -13,6 +14,7 @@ export interface FirebaseDTO extends ICombatDataStub {
   combatantNames: string[];
   combatantGuids: string[];
   extra: QueryHelpers;
+  expires: Timestamp; // Used to set object TTL for auto-delete
 }
 
 interface QueryHelpers {
@@ -121,15 +123,19 @@ function buildQueryHelpers(com: ICombatData): QueryHelpers {
 }
 
 function createStubDTOFromCombat(com: ICombatData, ownerId: string, logObjectUrl: string): FirebaseDTO {
-  const unitsList = _.values(com.units).map((c) => ({
-    id: c.id,
-    name: c.name,
-    info: c.info,
-    type: c.type,
-    class: c.class,
-    spec: c.spec,
-    reaction: c.reaction,
-  }));
+  const inThirtyDays = moment().add('days', 30);
+  const unitsList = _.values(com.units).map((c) => {
+    if (c.info) c.info.equipment = []; // remove equipped items to save storage
+    return {
+      id: c.id,
+      name: c.name,
+      info: c.info,
+      type: c.type,
+      class: c.class,
+      spec: c.spec,
+      reaction: c.reaction,
+    };
+  });
   return {
     logObjectUrl,
     ownerId,
@@ -148,6 +154,7 @@ function createStubDTOFromCombat(com: ICombatData, ownerId: string, logObjectUrl
     extra: buildQueryHelpers(com),
     combatantNames: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
     combatantGuids: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
+    expires: Timestamp.fromDate(inThirtyDays.toDate()),
   };
 }
 

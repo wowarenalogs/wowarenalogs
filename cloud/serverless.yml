@@ -6,7 +6,7 @@ provider:
   runtime: nodejs14
   region: us-central1
   project: wowarenalogs
-  credentials: gcp_service_account.json
+  credentials: ${self:provider.project}.json
 
 plugins:
   - serverless-google-cloudfunctions
