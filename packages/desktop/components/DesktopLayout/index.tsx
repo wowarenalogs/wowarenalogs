@@ -61,28 +61,37 @@ export const DesktopLayout = !window.wowarenalogs
       );
 
       useEffect(() => {
-        const appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
-        if (appConfigJson) {
-          const storedConfig = JSON.parse(appConfigJson) as IAppConfig;
+        const impl = async () => {
+          const appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
+          if (appConfigJson) {
+            const storedConfig = JSON.parse(appConfigJson) as IAppConfig;
 
-          const newState = {
-            wowDirectory: storedConfig.wowDirectory,
-            tosAccepted: storedConfig.tosAccepted || false,
-            lastWindowX: 0,
-            lastWindowY: 0,
-            lastWindowWidth: 1024,
-            lastWindowHeight: 768,
-            launchAtStartup: storedConfig.launchAtStartup || false,
-          };
-          setAppConfig(newState);
+            const [windowX, windowY] = (await window.wowarenalogs.win?.getWindowPosition()) ?? [];
+            const [windowWidth, windowHeight] = (await window.wowarenalogs.win?.getWindowSize()) ?? [];
 
-          if (storedConfig.lastWindowX !== undefined && storedConfig.lastWindowY !== undefined) {
-            window.wowarenalogs.win?.setWindowPosition(storedConfig.lastWindowX, storedConfig.lastWindowY);
+            const newState = {
+              wowDirectory: storedConfig.wowDirectory,
+              tosAccepted: storedConfig.tosAccepted || false,
+              lastWindowX: storedConfig.lastWindowX === undefined ? windowX : storedConfig.lastWindowX || 0,
+              lastWindowY: storedConfig.lastWindowY === undefined ? windowY : storedConfig.lastWindowY || 0,
+              lastWindowWidth:
+                storedConfig.lastWindowWidth === undefined ? windowWidth : storedConfig.lastWindowWidth || 0,
+              lastWindowHeight:
+                storedConfig.lastWindowHeight === undefined ? windowHeight : storedConfig.lastWindowHeight || 0,
+              launchAtStartup: storedConfig.launchAtStartup || false,
+            };
+            setAppConfig(newState);
+
+            if (storedConfig.lastWindowX !== undefined && storedConfig.lastWindowY !== undefined) {
+              window.wowarenalogs.win?.setWindowPosition(storedConfig.lastWindowX, storedConfig.lastWindowY);
+            }
+            if (storedConfig.lastWindowHeight !== undefined && storedConfig.lastWindowWidth !== undefined)
+              window.wowarenalogs.win?.setWindowSize(storedConfig.lastWindowWidth, storedConfig.lastWindowHeight);
           }
-          if (storedConfig.lastWindowHeight !== undefined && storedConfig.lastWindowWidth !== undefined)
-            window.wowarenalogs.win?.setWindowSize(storedConfig.lastWindowWidth, storedConfig.lastWindowHeight);
-        }
-        setLoading(false);
+          setLoading(false);
+        };
+
+        impl();
       }, []);
 
       useEffect(() => {

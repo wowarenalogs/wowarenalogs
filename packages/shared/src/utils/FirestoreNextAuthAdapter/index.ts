@@ -2,8 +2,8 @@ import * as firestore from '@google-cloud/firestore';
 import { Account } from 'next-auth';
 import { Adapter, AdapterSession, AdapterUser, VerificationToken } from 'next-auth/adapters';
 
-function docSnapshotToObject<T>(snapshot: firestore.DocumentSnapshot<firestore.DocumentData>): T | null {
-  if (!snapshot.exists) {
+function docSnapshotToObject<T>(snapshot?: firestore.DocumentSnapshot<firestore.DocumentData>): T | null {
+  if (!snapshot?.exists) {
     return null;
   }
   const data: any = snapshot.data();
