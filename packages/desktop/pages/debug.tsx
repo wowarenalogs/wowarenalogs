@@ -70,11 +70,14 @@ const Debug = () => {
           </Button>
           <Button
             onClick={() => {
-              window.wowarenalogs.fs?.selectFolder().then((folder) => {
-                client.updateAppConfig((prev) => {
-                  return { ...prev, wowDirectory: folder };
-                });
-              });
+              window.wowarenalogs.fs
+                ?.selectFolder()
+                .then((folder) => {
+                  client.updateAppConfig((prev) => {
+                    return { ...prev, wowDirectory: folder };
+                  });
+                })
+                .catch(() => {});
             }}
           >
             Select WoW Folder (installs addon, starts loggers)

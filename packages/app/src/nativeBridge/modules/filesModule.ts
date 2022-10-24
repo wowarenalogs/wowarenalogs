@@ -53,13 +53,12 @@ export class FilesModule extends NativeBridgeModule {
       if (wowInstallations.size > 0) {
         return wowDirectory;
       }
-      // else {
-      //   dialog.showMessageBox({
-      //     title: 'Invalid Location',
-      //     message: 'The path you selected did not contain a valid WoW installation. Please try again.',
-      //     type: 'error',
-      //   });
-      // }
+
+      dialog.showMessageBox({
+        title: 'Invalid Location',
+        message: 'The path you selected did not contain a valid WoW installation. Please try again.',
+        type: 'error',
+      });
     }
     throw new Error('No valid directory selected');
   }
