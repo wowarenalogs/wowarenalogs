@@ -5,7 +5,7 @@
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
-  "main": "packages/app/dist/main.js",
+  "main": "packages/app/dist/main.bundle.js",
   "engines": {
     "node": ">=16",
     "npm": ">=8.6.0"
