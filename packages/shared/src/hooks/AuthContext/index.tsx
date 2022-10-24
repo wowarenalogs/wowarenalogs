@@ -1,8 +1,9 @@
 import { Session, User } from 'next-auth';
-import { useSession } from 'next-auth/react';
-import React, { useContext, useEffect } from 'react';
+import { signOut, useSession } from 'next-auth/react';
+import React, { useCallback, useContext, useEffect } from 'react';
 
 import { getAnalyticsDeviceId, getAnalyticsSessionId, setAnalyticsUserProperties } from '../../utils/analytics';
+import { useClientContext } from '../ClientContext';
 
 interface WALUser extends User {
   battletag: string;
@@ -53,6 +54,13 @@ export const AuthProvider = (props: IProps) => {
 
 export const useAuth = () => {
   const contextData = useContext(AuthContext);
+  const clientContext = useClientContext();
+
+  const signIn = useCallback(() => {
+    clientContext.showLoginModalInSeparateWindow('/login', () => {
+      window.location.reload();
+    });
+  }, [clientContext]);
 
   let userId = null;
   let battleTag = null;
@@ -70,5 +78,7 @@ export const useAuth = () => {
     isAuthenticated: contextData.session?.user != null,
     userId,
     battleTag,
+    signIn,
+    signOut,
   };
 };
