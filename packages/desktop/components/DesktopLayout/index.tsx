@@ -168,7 +168,7 @@ export const DesktopLayout = !window.wowarenalogs
           >
             <AuthProvider>
               <LocalCombatsContextProvider>
-                <div className="w-screen h-screen flex flex-col">
+                <div className="w-screen h-screen flex flex-col bg-base-300">
                   <TitleBar />
                   <MainLayout>
                     {loading && <div>Apploading: {loading.toString()}</div>}
