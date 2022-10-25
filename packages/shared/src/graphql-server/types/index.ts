@@ -147,7 +147,7 @@ export const typeDefs = gql`
     versatilityDamageTaken: Int!
     armor: Int!
     specId: String!
-    talents: [String!]!
+    talents: [[Int!]!]!
     pvpTalents: [String!]!
     equipment: [EquippedItem!]!
     interestingAurasJSON: String!

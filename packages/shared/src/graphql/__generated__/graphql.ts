@@ -99,7 +99,7 @@ export type CombatantInfo = {
   versatilityDamageTaken: Scalars['Int'];
   armor: Scalars['Int'];
   specId: Scalars['String'];
-  talents: Array<Scalars['String']>;
+  talents: Array<Array<Scalars['Int']>>;
   pvpTalents: Array<Scalars['String']>;
   equipment: Array<EquippedItem>;
   interestingAurasJSON: Scalars['String'];

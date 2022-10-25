@@ -240,12 +240,13 @@ export function CombatPlayer(props: IProps) {
         </Box>
         {combatReportContext.combat?.wowVersion === 'dragonflight' && (
           <Box mt={2}>
+            <div style={{ fontSize: 20 }}>Warning: Talents are currently broken!</div>
             <Box display="flex" flexDirection="row" flexWrap="wrap" alignItems="center">
               {props.player.info?.talents
                 .filter((t) => t && t !== '0')
                 .map((t, i) => (
                   <Box key={i} mr={1}>
-                    <SpellIcon spellId={t} size={32} />
+                    <SpellIcon spellId={t[1]} size={32} />
                   </Box>
                 ))}
               <Divider type="vertical" style={{ height: 32 }} />
