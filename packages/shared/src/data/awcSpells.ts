@@ -8,7 +8,7 @@ import { CombatUnitSpec } from 'wow-combat-log-parser';
 //
 export const awcSpells: Record<CombatUnitSpec, string[]> = {
   // These spells should be tracked for all specs
-  // Covenant abilities, trinkets, neutral spells
+  // Trinkets, neutral spells
   '0': ['356567', '324631', '300728', '310143', '323436', '336126'],
 
   //   DeathKnight_Blood = "250",

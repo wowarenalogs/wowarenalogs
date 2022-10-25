@@ -47,7 +47,7 @@ export function CombatSummary() {
           title={t('combat-report-duration')}
           value={moment.utc(combat.endTime - combat.startTime).format('mm:ss')}
         />
-        {combat.wowVersion === 'shadowlands' && (
+        {combat.wowVersion === 'retail' && (
           <>
             <Box ml={2}>
               <CombatStatistic title={t('combat-report-team-mmr')} value={combat.playerTeamRating.toFixed()} />

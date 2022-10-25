@@ -11,7 +11,6 @@ import { spellEffectData, IMinedSpell } from '../../../../../data/spellEffectDat
 import { spellIdToPriority } from '../../../../../data/spellTags';
 import { UnitCastBar } from './UnitCastBar';
 import { UnitClassIcon } from './UnitClassIcon';
-import { UnitCovenantIcon } from './UnitCovenantIcon';
 import { UnitHpBar } from './UnitHpBar';
 import { UnitPowerBar } from './UnitPowerBar';
 import { UnitSpecIcon } from './UnitSpecIcon';
@@ -440,8 +439,7 @@ export const UnitFrame = (props: IProps) => {
       <UnitPowerBar {...renderData} />
       <UnitCastBar {...renderData} />
       <div className={styles['unit-frame-texture']} />
-      {props.combat.wowVersion === 'shadowlands' && <UnitSpecIcon {...renderData} />}
-      {props.combat.wowVersion === 'shadowlands' && <UnitCovenantIcon {...renderData} />}
+      {props.combat.wowVersion === 'retail' && <UnitSpecIcon {...renderData} />}
       <UnitSpellTracker {...renderData} />
       <UnitTrinketTracker {...renderData} />
     </div>

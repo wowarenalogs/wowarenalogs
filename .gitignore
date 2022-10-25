@@ -140,3 +140,4 @@ build/
 # Google credentials
 
 gcp_service_account.json
+wowarenalogs.json

@@ -187,10 +187,7 @@ export function CombatPlayer(props: IProps) {
     <Box display="flex" flexDirection="row" pb={4} flexWrap={'wrap'}>
       <Box>
         <Box display="flex" flexDirection="row" alignItems="center">
-          <CombatUnitName unit={props.player} isTitle showCovenant />
-          {props.player.info?.covenantInfo.covenantId && props.player.info?.covenantInfo.covenantId !== '0' ? (
-            <Box ml={1}></Box>
-          ) : null}
+          <CombatUnitName unit={props.player} isTitle />
           {i18n.language !== 'zh-CN' && <ArmoryLink player={props.player} />}
           {canUseFeature(data?.me, 'check-pvp-link') && i18n.language !== 'zh-CN' && (
             <CheckPvPLink player={props.player} />
@@ -200,7 +197,7 @@ export function CombatPlayer(props: IProps) {
           {<AchievementBadge player={props.player} />}
         </Box>
         <Box display="flex" flexDirection="row" mt={2} flexWrap="wrap">
-          {combatReportContext.combat?.wowVersion === 'shadowlands' && (
+          {combatReportContext.combat?.wowVersion === 'retail' && (
             <CombatStatistic title={t('combat-report-rating')} value={props.player.info?.personalRating || 0} mr={5} />
           )}
           <CombatStatistic
@@ -208,7 +205,7 @@ export function CombatPlayer(props: IProps) {
             value={Math.trunc(Utils.getAverageItemLevel(props.player)).toFixed(0)}
             mr={7}
           />
-          {combatReportContext.combat?.wowVersion === 'shadowlands' && (
+          {combatReportContext.combat?.wowVersion === 'retail' && (
             <>
               <CombatStatistic
                 title={t('combat-report-crit')}
@@ -241,16 +238,15 @@ export function CombatPlayer(props: IProps) {
             </>
           )}
         </Box>
-        {combatReportContext.combat?.wowVersion === 'shadowlands' && (
+        {combatReportContext.combat?.wowVersion === 'retail' && (
           <Box mt={2}>
+            <div style={{ fontSize: 20 }}>Warning: Talents are currently broken!</div>
             <Box display="flex" flexDirection="row" flexWrap="wrap" alignItems="center">
-              {props.player.info?.talents
-                .filter((t) => t && t !== '0')
-                .map((t, i) => (
-                  <Box key={i} mr={1}>
-                    <SpellIcon spellId={t} size={32} />
-                  </Box>
-                ))}
+              {props.player.info?.talents.map((t, i) => (
+                <Box key={i} mr={1}>
+                  <SpellIcon spellId={t.id1} size={32} />
+                </Box>
+              ))}
               <Divider type="vertical" style={{ height: 32 }} />
               {props.player.info?.pvpTalents
                 .filter((t) => t && t !== '0')
@@ -262,7 +258,7 @@ export function CombatPlayer(props: IProps) {
             </Box>
           </Box>
         )}
-        {combatReportContext.combat?.wowVersion === 'shadowlands' && (
+        {combatReportContext.combat?.wowVersion === 'retail' && (
           <Box mt={2}>
             <Title level={5}>{t('combat-report-gear')}</Title>
             <Box display="flex" flexDirection="row">
