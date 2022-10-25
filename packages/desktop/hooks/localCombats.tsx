@@ -1,7 +1,8 @@
 import { ICombatData, WowVersion } from '@wowarenalogs/parser';
-import { useAuth, useClientContext } from '@wowarenalogs/shared';
+import { useAuth } from '@wowarenalogs/shared';
 import React, { useContext, useEffect, useState } from 'react';
 
+import { useAppConfig } from './AppConfigContext';
 import { combatMonitorEffect } from './combatMonitorEffect';
 
 interface ILocalCombatsContextData {
@@ -17,15 +18,15 @@ const LocalCombatsContext = React.createContext<ILocalCombatsContextData>({
 });
 
 interface IProps {
-  children: React.ReactNode | React.ReactNodeArray;
+  children: React.ReactNode | React.ReactNode[];
 }
 
 export const LocalCombatsContextProvider = (props: IProps) => {
   const [combats, setCombats] = useState<ICombatData[]>([]);
   const auth = useAuth();
-  const clientContext = useClientContext();
+  const { wowInstallations } = useAppConfig();
 
-  const stringifiedInstallations = JSON.stringify(Array.from(clientContext.wowInstallations.entries()).sort());
+  const stringifiedInstallations = JSON.stringify(Array.from(wowInstallations.entries()).sort());
 
   useEffect(() => {
     if (!auth.isLoadingAuthData && stringifiedInstallations) {

@@ -4,6 +4,7 @@ import { useGetMyMatchesQuery, useGetProfileQuery } from '@wowarenalogs/shared/s
 
 import { LoginButton } from '../components/Login/LoginButton';
 import { LogoutButton } from '../components/Login/LogoutButton';
+import { useAppConfig } from '../hooks/AppConfigContext';
 import { useLocalCombatsContext } from '../hooks/localCombats';
 
 const Debug = () => {
@@ -12,20 +13,21 @@ const Debug = () => {
   const platform = typeof window !== 'undefined' ? window.wowarenalogs.platform : '';
 
   const client = useClientContext();
+  const { updateAppConfig, wowInstallations } = useAppConfig();
   const combats = useLocalCombatsContext();
 
   const profileQuery = useGetProfileQuery();
   const matchesQuery = useGetMyMatchesQuery();
 
   return (
-    <div className="mt-8 text-white">
+    <div className="mt-8 text-base-content">
       <div className="flex flex-row justify-between">
         <div className="flex flex-col">
           <div>Platform: {platform}</div>
           <div>Auth: {auth.isLoadingAuthData ? 'loading' : auth.battleTag || 'not-logged-in'}</div>
           <div>
-            {client.wowInstallations.size} Installations
-            {Array.from(client.wowInstallations).map((v) => (
+            {wowInstallations.size} Installations
+            {Array.from(wowInstallations).map((v) => (
               <div key={v[0]}>{v.join(': ')}</div>
             ))}
           </div>
@@ -70,7 +72,7 @@ const Debug = () => {
               window.wowarenalogs.fs
                 ?.selectFolder()
                 .then((folder) => {
-                  client.updateAppConfig((prev) => {
+                  updateAppConfig((prev) => {
                     return { ...prev, wowDirectory: folder };
                   });
                 })
@@ -81,7 +83,7 @@ const Debug = () => {
           </Button>
           <Button
             onClick={() => {
-              client.updateAppConfig((prev) => {
+              updateAppConfig((prev) => {
                 return { ...prev, wowDirectory: undefined };
               });
             }}

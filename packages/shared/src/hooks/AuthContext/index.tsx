@@ -57,7 +57,7 @@ export const useAuth = () => {
   const clientContext = useClientContext();
 
   const signIn = useCallback(() => {
-    clientContext.showLoginModalInSeparateWindow('/login', () => {
+    clientContext.showLoginModal('/login', () => {
       window.location.reload();
     });
   }, [clientContext]);

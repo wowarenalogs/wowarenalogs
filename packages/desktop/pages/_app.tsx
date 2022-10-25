@@ -6,6 +6,8 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { SessionProvider } from 'next-auth/react';
 
+import { AppConfigContextProvider } from '../hooks/AppConfigContext';
+
 const DesktopLayout = dynamic(
   () => {
     const promise = import('../components/DesktopLayout').then((mod) => mod.DesktopLayout);
@@ -43,7 +45,9 @@ function App(props: AppProps) {
   return (
     <SessionProvider session={props.pageProps.session}>
       <ApolloProvider client={client}>
-        <DesktopLayout {...props} />
+        <AppConfigContextProvider>
+          <DesktopLayout {...props} />
+        </AppConfigContextProvider>
       </ApolloProvider>
     </SessionProvider>
   );

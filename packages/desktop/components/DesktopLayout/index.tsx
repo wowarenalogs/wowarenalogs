@@ -1,17 +1,14 @@
-import { WowVersion } from '@wowarenalogs/parser';
 import { ClientContextProvider, getAnalyticsDeviceId, initAnalyticsAsync, MainLayout } from '@wowarenalogs/shared';
-import { IAppConfig } from '@wowarenalogs/shared';
 import { AuthProvider } from '@wowarenalogs/shared';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Script from 'next/script';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
+import { useAppConfig } from '../../hooks/AppConfigContext';
 import { LocalCombatsContextProvider } from '../../hooks/localCombats';
 import TitleBar from '../TitleBar';
-
-const APP_CONFIG_STORAGE_KEY = '@wowarenalogs/appConfig';
 
 function getAbsoluteAuthUrl(authUrl: string): string {
   if (!authUrl.startsWith('/')) {
@@ -30,69 +27,7 @@ export const DesktopLayout = !window.wowarenalogs
     }
   : ({ Component, pageProps }: AppProps) => {
       const router = useRouter();
-      const [loading, setLoading] = useState(true);
-      const [appConfig, setAppConfig] = useState<IAppConfig>({});
-
-      const [wowInstallations, setWowInstallations] = useState<Map<WowVersion, string>>(new Map());
-
-      useEffect(() => {
-        window.wowarenalogs.fs?.getAllWoWInstallations(appConfig.wowDirectory || '').then((i) => {
-          setWowInstallations(i);
-        });
-        if (appConfig.wowDirectory) {
-          window.wowarenalogs.fs?.installAddon(appConfig.wowDirectory);
-        }
-      }, [appConfig.wowDirectory]);
-
-      const updateLaunchAtStartup = useCallback((launch: boolean) => {
-        window.wowarenalogs.app?.setOpenAtLogin(launch);
-      }, []);
-
-      const updateAppConfig = useCallback(
-        (updater: (prevAppConfig: IAppConfig) => IAppConfig) => {
-          setAppConfig((prev) => {
-            const newConfig = updater(prev);
-            updateLaunchAtStartup(newConfig.launchAtStartup || false);
-            localStorage.setItem(APP_CONFIG_STORAGE_KEY, JSON.stringify(newConfig));
-            return newConfig;
-          });
-        },
-        [updateLaunchAtStartup],
-      );
-
-      useEffect(() => {
-        const impl = async () => {
-          const appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
-          if (appConfigJson) {
-            const storedConfig = JSON.parse(appConfigJson) as IAppConfig;
-
-            const [windowX, windowY] = (await window.wowarenalogs.win?.getWindowPosition()) ?? [];
-            const [windowWidth, windowHeight] = (await window.wowarenalogs.win?.getWindowSize()) ?? [];
-
-            const newState = {
-              wowDirectory: storedConfig.wowDirectory,
-              tosAccepted: storedConfig.tosAccepted || false,
-              lastWindowX: storedConfig.lastWindowX === undefined ? windowX : storedConfig.lastWindowX || 0,
-              lastWindowY: storedConfig.lastWindowY === undefined ? windowY : storedConfig.lastWindowY || 0,
-              lastWindowWidth:
-                storedConfig.lastWindowWidth === undefined ? windowWidth : storedConfig.lastWindowWidth || 0,
-              lastWindowHeight:
-                storedConfig.lastWindowHeight === undefined ? windowHeight : storedConfig.lastWindowHeight || 0,
-              launchAtStartup: storedConfig.launchAtStartup || false,
-            };
-            setAppConfig(newState);
-
-            if (storedConfig.lastWindowX !== undefined && storedConfig.lastWindowY !== undefined) {
-              window.wowarenalogs.win?.setWindowPosition(storedConfig.lastWindowX, storedConfig.lastWindowY);
-            }
-            if (storedConfig.lastWindowHeight !== undefined && storedConfig.lastWindowWidth !== undefined)
-              window.wowarenalogs.win?.setWindowSize(storedConfig.lastWindowWidth, storedConfig.lastWindowHeight);
-          }
-          setLoading(false);
-        };
-
-        impl();
-      }, []);
+      const { isLoading, updateAppConfig } = useAppConfig();
 
       useEffect(() => {
         if (router.isReady)
@@ -138,19 +73,13 @@ export const DesktopLayout = !window.wowarenalogs
           </Script>
           <ClientContextProvider
             isDesktop={true}
-            launchAtStartup={false}
-            wowInstallations={wowInstallations}
-            updateAppConfig={updateAppConfig}
             openExternalURL={(url) => {
               window.wowarenalogs.links?.openExternalURL(url);
             }}
-            showLoginModalInSeparateWindow={(authUrl, callback) => {
+            showLoginModal={(authUrl, callback) => {
               window.wowarenalogs.bnet?.login(getAbsoluteAuthUrl(authUrl), 'Login').then(() => {
                 callback();
               });
-            }}
-            setLaunchAtStartup={(openAtLogin: boolean) => {
-              window.wowarenalogs.app?.setOpenAtLogin(openAtLogin);
             }}
             saveWindowPosition={async () => {
               const pos = await window.wowarenalogs.win?.getWindowPosition();
@@ -171,8 +100,8 @@ export const DesktopLayout = !window.wowarenalogs
                 <div className="w-screen h-screen flex flex-col bg-base-300">
                   <TitleBar />
                   <MainLayout>
-                    {loading && <div>Apploading: {loading.toString()}</div>}
-                    {!loading && <Component {...pageProps} />}
+                    {isLoading && <div>Apploading: {isLoading.toString()}</div>}
+                    {!isLoading && <Component {...pageProps} />}
                   </MainLayout>
                 </div>
               </LocalCombatsContextProvider>
