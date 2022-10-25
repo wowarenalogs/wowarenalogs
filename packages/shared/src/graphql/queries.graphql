@@ -19,13 +19,6 @@ fragment itemInfos on EquippedItem {
   id
   ilvl
 }
-fragment covInfos on CovenantInfo {
-  covenantId
-  souldbindId
-  conduitIdsJSON
-  item2
-  item3JSON
-}
 fragment combatantInfos on CombatantInfo {
   teamId
   strength
@@ -52,9 +45,6 @@ fragment combatantInfos on CombatantInfo {
   specId
   talents
   pvpTalents
-  covenantInfo {
-    ...covInfos
-  }
   equipment {
     ...itemInfos
   }

@@ -34,7 +34,7 @@ export function SpellIcon(props: IProps) {
           height: props.size,
         }}
         href={`https://${
-          combatReportContext.combat?.wowVersion === 'shadowlands' ? 'www' : 'tbc'
+          combatReportContext.combat?.wowVersion === 'dragonflight' ? 'www' : 'tbc'
         }.wowhead.com/spell=${spellId}`}
         onClick={(e) => {
           e.preventDefault();

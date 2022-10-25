@@ -4,12 +4,6 @@ import { useEffect } from 'react';
 import { EquippedItem } from 'wow-combat-log-parser';
 
 import { Box } from '../../../common/Box';
-import legendaryData from './legendary-abilities.json';
-
-const legendaryBonusMap = legendaryData.reduce((prev, cur, curIdx, ary) => {
-  prev[`${cur.id_bonus}`] = cur.name;
-  return prev;
-}, {} as Record<string, string>);
 
 const enchantsMap: Record<string, string> = {
   '6170': '+16 Versatility',
@@ -81,14 +75,6 @@ export function EquipmentInfo({ item, size = 'large', notext = false, bonusOnly 
     return null;
   }
 
-  let bonusAnnotation = '';
-  item.bonuses.map((b) => {
-    if (b in legendaryBonusMap) {
-      bonusAnnotation = legendaryBonusMap[b];
-    }
-    return null;
-  });
-
   let enchantAnnotation = '';
   item.enchants.map((b) => {
     if (b !== '0') {
@@ -134,16 +120,6 @@ export function EquipmentInfo({ item, size = 'large', notext = false, bonusOnly 
             e.preventDefault();
           }}
         ></a>
-        {!notext && (
-          <div
-            style={{
-              fontSize,
-              color: '#1eff00',
-            }}
-          >
-            {bonusAnnotation}
-          </div>
-        )}
         {!notext && !bonusOnly && (
           <div
             style={{

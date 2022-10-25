@@ -41,7 +41,7 @@ export const ReplayEvents = (props: IProps) => {
   });
 
   const qualifiedEvents = useMemo(() => {
-    const MIN_DAMAGE_HEAL_NUMBER = context.combat?.wowVersion === 'shadowlands' ? 3000 : 300;
+    const MIN_DAMAGE_HEAL_NUMBER = context.combat?.wowVersion === 'dragonflight' ? 3000 : 300;
 
     const isWantedDamageOrHeal = (e: CombatEvent) =>
       e instanceof CombatHpUpdateAction &&

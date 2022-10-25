@@ -210,7 +210,7 @@ export function CombatReplay(props: IProps) {
           &nbsp;
           {'/ ' + moment.utc(props.combat.endTime - props.combat.startTime).format('mm:ss')}
         </Text>
-        {props.combat.wowVersion === 'shadowlands' && (
+        {props.combat.wowVersion === 'dragonflight' && (
           <ReplayDampeningTracker players={players} currentSecond={Math.floor(currentTimeOffset / 1000)} />
         )}
       </Box>

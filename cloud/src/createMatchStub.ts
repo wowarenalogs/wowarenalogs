@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import _ from 'lodash';
 import { Timestamp } from '@google-cloud/firestore';
+import _ from 'lodash';
+import moment from 'moment';
+
 // This file is a server-side file so this crazy import is OK for now
 // TODO: fix this crazy import...
 import { ICombatDataStub } from '../../packages/shared/src/graphql-server/types';
 import { ICombatData, CombatUnitType, CombatUnitSpec } from '../../packages/wow-combat-log-parser/src';
-import moment from 'moment';
 
 /*
   This DTO adds some fields to make queries less index intensive and easier to write
