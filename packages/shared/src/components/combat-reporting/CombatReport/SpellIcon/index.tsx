@@ -2,7 +2,7 @@ import { Box } from '../../../common/Box';
 import { useCombatReportContext } from '../CombatReportContext';
 
 interface IProps {
-  spellId: string;
+  spellId: string | number;
   size: number;
   className?: string;
   charges?: number;
@@ -13,7 +13,7 @@ interface IProps {
 export function SpellIcon(props: IProps) {
   const combatReportContext = useCombatReportContext();
   // assuming 0 = auto attack
-  const spellId = props.spellId === '0' ? '6603' : props.spellId;
+  const spellId = props.spellId === '0' || props.spellId === 0 ? '6603' : props.spellId;
 
   return (
     <Box
