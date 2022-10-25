@@ -12,6 +12,5 @@ export {
   getAnalyticsDeviceId,
   getAnalyticsSessionId,
 } from './utils/analytics';
-export type { IAppConfig } from './hooks/ClientContext';
 export type { INativeBridge } from './types/nativeBridge';
 export { FirestoreNextAuthAdapter } from './utils/FirestoreNextAuthAdapter';

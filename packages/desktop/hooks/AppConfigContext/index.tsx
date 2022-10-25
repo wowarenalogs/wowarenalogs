@@ -1,6 +1,5 @@
 import { WowVersion } from '@wowarenalogs/parser';
-import { useClientContext } from '@wowarenalogs/shared';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 const APP_CONFIG_STORAGE_KEY = '@wowarenalogs/appConfig';
 
