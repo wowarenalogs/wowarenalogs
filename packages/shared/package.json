@@ -13,7 +13,7 @@
   "author": "WoW Arena Logs",
   "devDependencies": {},
   "dependencies": {
-    "wow-combat-log-parser": "^4.6.4"
+    "wow-combat-log-parser": "^5.0.0"
   },
   "peerDependencies": {}
 }
