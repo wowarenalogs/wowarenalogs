@@ -322,7 +322,7 @@ export const PublicMatchesPage = () => {
               query: GetPublicMatchesDocument,
               variables: {
                 offset: startIndex,
-                wowVersion: 'shadowlands',
+                wowVersion: 'retail',
                 bracket: filters.bracket,
                 minRating: filters.minRating,
                 compQueryString: compQuery,

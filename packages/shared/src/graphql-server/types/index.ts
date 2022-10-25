@@ -123,12 +123,10 @@ export const typeDefs = gql`
     id: String!
     ilvl: Int!
   }
-  type CovenantInfo {
-    covenantId: String
-    souldbindId: String
-    conduitIdsJSON: String!
-    item2: [Int]
-    item3JSON: String!
+  type Talent {
+    id1: Int!
+    id2: Int!
+    count: Int!
   }
   type CombatantInfo {
     teamId: String!
@@ -154,13 +152,12 @@ export const typeDefs = gql`
     versatilityDamageTaken: Int!
     armor: Int!
     specId: String!
-    talents: [String!]!
+    talents: [Talent]!
     pvpTalents: [String!]!
-    covenantInfo: CovenantInfo!
     equipment: [EquippedItem!]!
     interestingAurasJSON: String!
+    item28: Int!
     item29: Int!
-    item30: Int!
     personalRating: Int!
     highestPvpTier: Int!
   }

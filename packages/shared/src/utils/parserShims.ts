@@ -5,7 +5,7 @@ import { WowVersion, CombatAction, LogEvent } from 'wow-combat-log-parser';
 
 // Missing crit flag
 export const isCrit = (event: CombatAction, wowversion: WowVersion) => {
-  if (wowversion !== 'shadowlands') return false;
+  if (wowversion !== 'retail') return false;
   if (event.logLine.event === 'SPELL_DAMAGE') {
     return event.logLine.parameters[35] === 1;
   }
@@ -23,7 +23,7 @@ export const isCrit = (event: CombatAction, wowversion: WowVersion) => {
 
 // Decoding for SPELL_AURA_APPLIED_DOSE and _REMOVED_DOSE
 export const getDosesCount = (event: CombatAction, wowversion: WowVersion) => {
-  if (wowversion !== 'shadowlands') return NaN;
+  if (wowversion !== 'retail') return NaN;
   if (
     event.logLine.event === LogEvent.SPELL_AURA_APPLIED_DOSE ||
     event.logLine.event === LogEvent.SPELL_AURA_REMOVED_DOSE
