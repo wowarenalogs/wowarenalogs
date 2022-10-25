@@ -99,12 +99,12 @@ export type CombatantInfo = {
   versatilityDamageTaken: Scalars['Int'];
   armor: Scalars['Int'];
   specId: Scalars['String'];
-  talents: Array<Array<Scalars['Int']>>;
+  talents: Array<Maybe<Talent>>;
   pvpTalents: Array<Scalars['String']>;
   equipment: Array<EquippedItem>;
   interestingAurasJSON: Scalars['String'];
+  item28: Scalars['Int'];
   item29: Scalars['Int'];
-  item30: Scalars['Int'];
   personalRating: Scalars['Int'];
   highestPvpTier: Scalars['Int'];
 };
@@ -176,6 +176,13 @@ export type QueryMatchesWithCombatantArgs = {
   playerName: Scalars['String'];
 };
 
+export type Talent = {
+  __typename?: 'Talent';
+  id1: Scalars['Int'];
+  id2: Scalars['Int'];
+  count: Scalars['Int'];
+};
+
 
 export type EndInfosFragment = (
   { __typename?: 'ArenaMatchEndInfo' }
@@ -194,8 +201,11 @@ export type ItemInfosFragment = (
 
 export type CombatantInfosFragment = (
   { __typename?: 'CombatantInfo' }
-  & Pick<CombatantInfo, 'teamId' | 'strength' | 'agility' | 'stamina' | 'intelligence' | 'dodge' | 'parry' | 'block' | 'critMelee' | 'critRanged' | 'critSpell' | 'speed' | 'lifesteal' | 'hasteMelee' | 'hasteRanged' | 'hasteSpell' | 'avoidance' | 'mastery' | 'versatilityDamgeDone' | 'versatilityHealingDone' | 'versatilityDamageTaken' | 'armor' | 'specId' | 'talents' | 'pvpTalents' | 'interestingAurasJSON' | 'item29' | 'item30' | 'personalRating' | 'highestPvpTier'>
-  & { equipment: Array<(
+  & Pick<CombatantInfo, 'teamId' | 'strength' | 'agility' | 'stamina' | 'intelligence' | 'dodge' | 'parry' | 'block' | 'critMelee' | 'critRanged' | 'critSpell' | 'speed' | 'lifesteal' | 'hasteMelee' | 'hasteRanged' | 'hasteSpell' | 'avoidance' | 'mastery' | 'versatilityDamgeDone' | 'versatilityHealingDone' | 'versatilityDamageTaken' | 'armor' | 'specId' | 'pvpTalents' | 'interestingAurasJSON' | 'item28' | 'item29' | 'personalRating' | 'highestPvpTier'>
+  & { talents: Array<Maybe<(
+    { __typename?: 'Talent' }
+    & Pick<Talent, 'id1' | 'id2' | 'count'>
+  )>>, equipment: Array<(
     { __typename?: 'EquippedItem' }
     & ItemInfosFragment
   )> }
@@ -357,14 +367,18 @@ export const CombatantInfosFragmentDoc = gql`
   versatilityDamageTaken
   armor
   specId
-  talents
+  talents {
+    id1
+    id2
+    count
+  }
   pvpTalents
   equipment {
     ...itemInfos
   }
   interestingAurasJSON
+  item28
   item29
-  item30
   personalRating
   highestPvpTier
 }

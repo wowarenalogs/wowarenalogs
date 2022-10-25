@@ -199,7 +199,7 @@ export interface CombatantInfo {
   versatilityDamageTaken: number;
   armor: number;
   specId: string;
-  talents: [number, number, number][];
+  talents: { id1: number; id2: number; count: number }[];
   pvpTalents: string[];
   equipment: EquippedItem[];
   interestingAurasJSON: string;

@@ -50,7 +50,7 @@ export class CombatantInfoAction {
       versatilityDamageTaken: logLine.parameters[21],
       armor: logLine.parameters[22],
       specId: logLine.parameters[23].toString(),
-      talents: logLine.parameters[24].map((v: number) => v),
+      talents: logLine.parameters[24].map((v: number[]) => ({ id1: v[0], id2: v[1], count: v[2] })),
       pvpTalents: logLine.parameters[25].map((v: number) => v.toString()),
       equipment: parseEquippedItems(logLine.parameters[26]),
       interestingAurasJSON: JSON.stringify(logLine.parameters[27]),

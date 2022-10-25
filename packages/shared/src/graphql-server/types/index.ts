@@ -123,6 +123,11 @@ export const typeDefs = gql`
     id: String!
     ilvl: Int!
   }
+  type Talent {
+    id1: Int!
+    id2: Int!
+    count: Int!
+  }
   type CombatantInfo {
     teamId: String!
     strength: Int!
@@ -147,12 +152,12 @@ export const typeDefs = gql`
     versatilityDamageTaken: Int!
     armor: Int!
     specId: String!
-    talents: [[Int!]!]!
+    talents: [Talent]!
     pvpTalents: [String!]!
     equipment: [EquippedItem!]!
     interestingAurasJSON: String!
+    item28: Int!
     item29: Int!
-    item30: Int!
     personalRating: Int!
     highestPvpTier: Int!
   }

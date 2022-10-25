@@ -68,6 +68,10 @@ describe('parser tests', () => {
       expect(combatant.spec).toEqual(CombatUnitSpec.Shaman_Restoration);
       expect(combatant.info?.specId).toEqual(CombatUnitSpec.Shaman_Restoration);
 
+      const someTalent = combatant.info?.talents.find((a) => a.id1 === 81035);
+      expect(someTalent?.id2).toBe(101916);
+      expect(someTalent?.count).toBe(2);
+
       const gloves = combatant.info?.equipment.find((i) => i.id === '153976');
       expect(gloves).not.toBeNull();
 
