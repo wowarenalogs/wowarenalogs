@@ -7,7 +7,7 @@ import Script from 'next/script';
 import { useEffect } from 'react';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
-import { LocalCombatsContextProvider } from '../../hooks/localCombats';
+import { LocalCombatsContextProvider } from '../../hooks/LocalCombatsContext';
 import TitleBar from '../TitleBar';
 
 function getAbsoluteAuthUrl(authUrl: string): string {

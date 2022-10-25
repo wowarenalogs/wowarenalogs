@@ -5,7 +5,7 @@ import { useGetMyMatchesQuery, useGetProfileQuery } from '@wowarenalogs/shared/s
 import { LoginButton } from '../components/Login/LoginButton';
 import { LogoutButton } from '../components/Login/LogoutButton';
 import { useAppConfig } from '../hooks/AppConfigContext';
-import { useLocalCombatsContext } from '../hooks/localCombats';
+import { useLocalCombats } from '../hooks/LocalCombatsContext';
 
 const Debug = () => {
   const auth = useAuth();
@@ -14,7 +14,7 @@ const Debug = () => {
 
   const client = useClientContext();
   const { updateAppConfig, wowInstallations } = useAppConfig();
-  const combats = useLocalCombatsContext();
+  const combats = useLocalCombats();
 
   const profileQuery = useGetProfileQuery();
   const matchesQuery = useGetMyMatchesQuery();
