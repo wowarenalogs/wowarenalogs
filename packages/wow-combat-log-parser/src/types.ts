@@ -3,7 +3,7 @@ import { ArenaMatchStart } from './actions/ArenaMatchStart';
 import { CombatAction } from './actions/CombatAction';
 import { CombatantInfoAction } from './actions/CombatantInfoAction';
 
-export type WowVersion = 'tbc' | 'dragonflight';
+export type WowVersion = 'tbc' | 'retail';
 
 export enum LogEvent {
   ARENA_MATCH_START = 'ARENA_MATCH_START',

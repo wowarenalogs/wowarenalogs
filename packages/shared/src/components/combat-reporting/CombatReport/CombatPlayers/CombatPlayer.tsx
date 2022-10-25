@@ -197,7 +197,7 @@ export function CombatPlayer(props: IProps) {
           {<AchievementBadge player={props.player} />}
         </Box>
         <Box display="flex" flexDirection="row" mt={2} flexWrap="wrap">
-          {combatReportContext.combat?.wowVersion === 'dragonflight' && (
+          {combatReportContext.combat?.wowVersion === 'retail' && (
             <CombatStatistic title={t('combat-report-rating')} value={props.player.info?.personalRating || 0} mr={5} />
           )}
           <CombatStatistic
@@ -205,7 +205,7 @@ export function CombatPlayer(props: IProps) {
             value={Math.trunc(Utils.getAverageItemLevel(props.player)).toFixed(0)}
             mr={7}
           />
-          {combatReportContext.combat?.wowVersion === 'dragonflight' && (
+          {combatReportContext.combat?.wowVersion === 'retail' && (
             <>
               <CombatStatistic
                 title={t('combat-report-crit')}
@@ -238,7 +238,7 @@ export function CombatPlayer(props: IProps) {
             </>
           )}
         </Box>
-        {combatReportContext.combat?.wowVersion === 'dragonflight' && (
+        {combatReportContext.combat?.wowVersion === 'retail' && (
           <Box mt={2}>
             <div style={{ fontSize: 20 }}>Warning: Talents are currently broken!</div>
             <Box display="flex" flexDirection="row" flexWrap="wrap" alignItems="center">
@@ -258,7 +258,7 @@ export function CombatPlayer(props: IProps) {
             </Box>
           </Box>
         )}
-        {combatReportContext.combat?.wowVersion === 'dragonflight' && (
+        {combatReportContext.combat?.wowVersion === 'retail' && (
           <Box mt={2}>
             <Title level={5}>{t('combat-report-gear')}</Title>
             <Box display="flex" flexDirection="row">

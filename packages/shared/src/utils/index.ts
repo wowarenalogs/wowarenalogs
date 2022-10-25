@@ -162,7 +162,7 @@ export class Utils {
 
     const headers: Record<string, string> = {
       'content-type': 'text/plain;charset=UTF-8',
-      'x-goog-meta-wow-version': combat.wowVersion || 'shadowlands',
+      'x-goog-meta-wow-version': combat.wowVersion || 'retail',
       'x-goog-meta-ownerid': ownerId,
       'x-goog-meta-starttime-utc': combat.startTime.toString(),
       'x-goog-meta-client-timezone': moment.tz.guess(),

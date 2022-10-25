@@ -21,7 +21,7 @@ export function useCombatFromStorage(url: string): {
         const text = await result.text();
         const com = await Utils.parseFromStringArrayAsync(
           text.split('\n'),
-          (result.headers.get('x-goog-meta-wow-version') || 'shadowlands') as WowVersion,
+          (result.headers.get('x-goog-meta-wow-version') || 'retail') as WowVersion,
         );
         setData(com[0]);
       } catch (error) {

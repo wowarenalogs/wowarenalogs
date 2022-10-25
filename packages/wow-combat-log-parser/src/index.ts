@@ -1,6 +1,6 @@
 import EventEmitter from 'eventemitter3';
 
-import { createDragonflightParserPipeline } from './pipeline/shadowlands';
+import { createRetailParserPipeline } from './pipeline/retail';
 import { createTBCParserPipeline } from './pipeline/tbc';
 import { WowVersion } from './types';
 import { PIPELINE_FLUSH_SIGNAL } from './utils';
@@ -66,13 +66,13 @@ export class WoWCombatLogParser extends EventEmitter {
       }
 
       const wowBuild = wowVersionLineMatches[2];
-      const wowVersion: WowVersion = wowBuild.startsWith('2.') ? 'tbc' : 'dragonflight';
+      const wowVersion: WowVersion = wowBuild.startsWith('2.') ? 'tbc' : 'retail';
       this.setWowVersion(wowVersion);
     } else {
       if (!this.context.wowVersion) {
         this.context = {
-          wowVersion: 'dragonflight',
-          pipeline: createDragonflightParserPipeline(
+          wowVersion: 'retail',
+          pipeline: createRetailParserPipeline(
             (combat) => {
               this.emit('arena_match_ended', combat);
             },
@@ -87,7 +87,7 @@ export class WoWCombatLogParser extends EventEmitter {
   }
 
   private setWowVersion(wowVersion: WowVersion) {
-    const pipelineFactory = wowVersion === 'tbc' ? createTBCParserPipeline : createDragonflightParserPipeline;
+    const pipelineFactory = wowVersion === 'tbc' ? createTBCParserPipeline : createRetailParserPipeline;
     this.context = {
       wowVersion,
       pipeline: pipelineFactory(

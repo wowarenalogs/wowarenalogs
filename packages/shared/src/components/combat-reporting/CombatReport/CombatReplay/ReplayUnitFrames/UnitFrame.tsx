@@ -439,7 +439,7 @@ export const UnitFrame = (props: IProps) => {
       <UnitPowerBar {...renderData} />
       <UnitCastBar {...renderData} />
       <div className={styles['unit-frame-texture']} />
-      {props.combat.wowVersion === 'dragonflight' && <UnitSpecIcon {...renderData} />}
+      {props.combat.wowVersion === 'retail' && <UnitSpecIcon {...renderData} />}
       <UnitSpellTracker {...renderData} />
       <UnitTrinketTracker {...renderData} />
     </div>

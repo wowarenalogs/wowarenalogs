@@ -78,7 +78,7 @@ export class CombatAbsorbAction extends CombatAction {
 
     this.absorbedAmount = logLine.parameters[18 - meleeAbsorbOffset];
 
-    if (wowVersion === 'dragonflight') {
+    if (wowVersion === 'retail') {
       this.critical = logLine.parameters[20 - meleeAbsorbOffset] === '1';
     } else {
       this.critical = null;

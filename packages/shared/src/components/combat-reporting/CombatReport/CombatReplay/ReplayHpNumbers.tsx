@@ -53,7 +53,7 @@ const ReplayHpNumber = (props: { renderState: IHpNumberRenderState }) => {
 
 export const ReplayHpNumbers = (props: IProps) => {
   const combatReportContext = useCombatReportContext();
-  const MIN_NUMBER = combatReportContext.combat?.wowVersion === 'dragonflight' ? 3000 : 300;
+  const MIN_NUMBER = combatReportContext.combat?.wowVersion === 'retail' ? 3000 : 300;
 
   const numbers = props.unit.damageIn
     .concat(props.unit.healIn)

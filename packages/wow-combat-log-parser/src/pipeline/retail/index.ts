@@ -6,14 +6,14 @@ import { stringToLogLine } from '../common/stringToLogLine';
 import { combatEventsToSegment } from './combatEventsToSegment';
 import { segmentToCombat } from './segmentToCombat';
 
-export const createDragonflightParserPipeline = (
+export const createRetailParserPipeline = (
   onValidCombat: (combat: ICombatData) => void,
   onMalformedCombat: (combat: IMalformedCombatData) => void,
 ) => {
   const rawLogs = new Subject<string>();
 
   rawLogs
-    .pipe(stringToLogLine(), logLineToCombatEvent('dragonflight'), combatEventsToSegment(), segmentToCombat())
+    .pipe(stringToLogLine(), logLineToCombatEvent('retail'), combatEventsToSegment(), segmentToCombat())
     .subscribe({
       next: (v) => {
         if (v.isWellFormed) {
