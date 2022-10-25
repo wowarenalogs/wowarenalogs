@@ -18,7 +18,7 @@ export class DesktopUtils {
         winAppFile: 'WowClassic.exe',
       },
       {
-        version: 'shadowlands',
+        version: 'retail',
         dir: '_retail_',
         macAppFile: 'World of Warcraft.app',
         winAppFile: 'Wow.exe',

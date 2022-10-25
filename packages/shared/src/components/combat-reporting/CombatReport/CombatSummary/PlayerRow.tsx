@@ -11,12 +11,6 @@ import { Box } from '../../../common/Box';
 import { CombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
-import legendaryData from '../EquipmentInfo/legendary-abilities.json';
-
-const legendaryBonusMap = legendaryData.reduce((prev, cur, curIdx, ary) => {
-  prev[`${cur.id_bonus}`] = cur.name;
-  return prev;
-}, {} as Record<string, string>);
 
 interface IProps {
   player: ICombatUnit;
@@ -36,7 +30,6 @@ export function PlayerRow(props: IProps) {
     (combat.endInfo?.matchDurationInSeconds || 1)
   ).toFixed(1);
 
-  const legendary = u.info?.equipment.filter((e) => e.bonuses.some((b) => b in legendaryBonusMap)) || [];
   const trinkets = u.info?.equipment.filter((_, i) => [12, 13].includes(i)) || [];
 
   return (
@@ -54,13 +47,10 @@ export function PlayerRow(props: IProps) {
           title={u.spec === CombatUnitSpec.None ? Utils.getClassName(u.class) : Utils.getSpecName(u.spec)}
         />
         <Box display="flex" flexDirection="column">
-          <CombatUnitName unit={u} navigateToPlayerView showCovenant showSpec={false} />
+          <CombatUnitName unit={u} navigateToPlayerView showSpec={false} />
           <Box display="flex" flexDirection="row">
             {trinkets.map((e, i) => (
               <EquipmentInfo key={`${i}`} item={e} size={'small'} notext />
-            ))}
-            {legendary.map((e, i) => (
-              <EquipmentInfo key={`${i}`} item={e} size={'small'} bonusOnly />
             ))}
           </Box>
         </Box>

@@ -16,15 +16,6 @@ export type Scalars = {
 };
 
 
-export type IUser = {
-  __typename?: 'IUser';
-  id: Scalars['String'];
-  battletag?: Maybe<Scalars['String']>;
-  referrer?: Maybe<Scalars['String']>;
-  subscriptionTier: Scalars['String'];
-  tags?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
 export type ArenaMatchEndInfo = {
   __typename?: 'ArenaMatchEndInfo';
   timestamp: Scalars['Float'];
@@ -42,6 +33,11 @@ export type ArenaMatchStartInfo = {
   bracket: Scalars['String'];
   isRanked: Scalars['Boolean'];
 };
+
+export enum CacheControlScope {
+  Public = 'PUBLIC',
+  Private = 'PRIVATE'
+}
 
 export type CombatDataStub = {
   __typename?: 'CombatDataStub';
@@ -61,22 +57,21 @@ export type CombatDataStub = {
   utcCorrected?: Maybe<Scalars['Boolean']>;
 };
 
-export type EquippedItem = {
-  __typename?: 'EquippedItem';
-  bonuses: Array<Scalars['String']>;
-  enchants: Array<Scalars['String']>;
-  gems: Array<Scalars['String']>;
-  id: Scalars['String'];
-  ilvl: Scalars['Int'];
+export type CombatQueryResult = {
+  __typename?: 'CombatQueryResult';
+  combats: Array<CombatDataStub>;
+  queryLimitReached: Scalars['Boolean'];
 };
 
-export type CovenantInfo = {
-  __typename?: 'CovenantInfo';
-  covenantId?: Maybe<Scalars['String']>;
-  souldbindId?: Maybe<Scalars['String']>;
-  conduitIdsJSON: Scalars['String'];
-  item2?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  item3JSON: Scalars['String'];
+export type CombatUnitStub = {
+  __typename?: 'CombatUnitStub';
+  id: Scalars['String'];
+  name: Scalars['String'];
+  info?: Maybe<CombatantInfo>;
+  type: Scalars['Int'];
+  spec: Scalars['String'];
+  class: Scalars['Int'];
+  reaction: Scalars['Int'];
 };
 
 export type CombatantInfo = {
@@ -104,32 +99,42 @@ export type CombatantInfo = {
   versatilityDamageTaken: Scalars['Int'];
   armor: Scalars['Int'];
   specId: Scalars['String'];
-  talents: Array<Scalars['String']>;
+  talents: Array<Maybe<Talent>>;
   pvpTalents: Array<Scalars['String']>;
-  covenantInfo: CovenantInfo;
   equipment: Array<EquippedItem>;
   interestingAurasJSON: Scalars['String'];
+  item28: Scalars['Int'];
   item29: Scalars['Int'];
-  item30: Scalars['Int'];
   personalRating: Scalars['Int'];
   highestPvpTier: Scalars['Int'];
 };
 
-export type CombatUnitStub = {
-  __typename?: 'CombatUnitStub';
+export type EquippedItem = {
+  __typename?: 'EquippedItem';
+  bonuses: Array<Scalars['String']>;
+  enchants: Array<Scalars['String']>;
+  gems: Array<Scalars['String']>;
   id: Scalars['String'];
-  name: Scalars['String'];
-  info?: Maybe<CombatantInfo>;
-  type: Scalars['Int'];
-  spec: Scalars['String'];
-  class: Scalars['Int'];
-  reaction: Scalars['Int'];
+  ilvl: Scalars['Int'];
 };
 
-export type CombatQueryResult = {
-  __typename?: 'CombatQueryResult';
-  combats: Array<CombatDataStub>;
-  queryLimitReached: Scalars['Boolean'];
+export type IUser = {
+  __typename?: 'IUser';
+  id: Scalars['String'];
+  battletag?: Maybe<Scalars['String']>;
+  referrer?: Maybe<Scalars['String']>;
+  subscriptionTier: Scalars['String'];
+  tags?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  setUserReferrer?: Maybe<IUser>;
+};
+
+
+export type MutationSetUserReferrerArgs = {
+  referrer?: Maybe<Scalars['String']>;
 };
 
 export type Query = {
@@ -171,20 +176,12 @@ export type QueryMatchesWithCombatantArgs = {
   playerName: Scalars['String'];
 };
 
-export type Mutation = {
-  __typename?: 'Mutation';
-  setUserReferrer?: Maybe<IUser>;
+export type Talent = {
+  __typename?: 'Talent';
+  id1: Scalars['Int'];
+  id2: Scalars['Int'];
+  count: Scalars['Int'];
 };
-
-
-export type MutationSetUserReferrerArgs = {
-  referrer?: Maybe<Scalars['String']>;
-};
-
-export enum CacheControlScope {
-  Public = 'PUBLIC',
-  Private = 'PRIVATE'
-}
 
 
 export type EndInfosFragment = (
@@ -202,18 +199,13 @@ export type ItemInfosFragment = (
   & Pick<EquippedItem, 'bonuses' | 'enchants' | 'gems' | 'id' | 'ilvl'>
 );
 
-export type CovInfosFragment = (
-  { __typename?: 'CovenantInfo' }
-  & Pick<CovenantInfo, 'covenantId' | 'souldbindId' | 'conduitIdsJSON' | 'item2' | 'item3JSON'>
-);
-
 export type CombatantInfosFragment = (
   { __typename?: 'CombatantInfo' }
-  & Pick<CombatantInfo, 'teamId' | 'strength' | 'agility' | 'stamina' | 'intelligence' | 'dodge' | 'parry' | 'block' | 'critMelee' | 'critRanged' | 'critSpell' | 'speed' | 'lifesteal' | 'hasteMelee' | 'hasteRanged' | 'hasteSpell' | 'avoidance' | 'mastery' | 'versatilityDamgeDone' | 'versatilityHealingDone' | 'versatilityDamageTaken' | 'armor' | 'specId' | 'talents' | 'pvpTalents' | 'interestingAurasJSON' | 'item29' | 'item30' | 'personalRating' | 'highestPvpTier'>
-  & { covenantInfo: (
-    { __typename?: 'CovenantInfo' }
-    & CovInfosFragment
-  ), equipment: Array<(
+  & Pick<CombatantInfo, 'teamId' | 'strength' | 'agility' | 'stamina' | 'intelligence' | 'dodge' | 'parry' | 'block' | 'critMelee' | 'critRanged' | 'critSpell' | 'speed' | 'lifesteal' | 'hasteMelee' | 'hasteRanged' | 'hasteSpell' | 'avoidance' | 'mastery' | 'versatilityDamgeDone' | 'versatilityHealingDone' | 'versatilityDamageTaken' | 'armor' | 'specId' | 'pvpTalents' | 'interestingAurasJSON' | 'item28' | 'item29' | 'personalRating' | 'highestPvpTier'>
+  & { talents: Array<Maybe<(
+    { __typename?: 'Talent' }
+    & Pick<Talent, 'id1' | 'id2' | 'count'>
+  )>>, equipment: Array<(
     { __typename?: 'EquippedItem' }
     & ItemInfosFragment
   )> }
@@ -341,15 +333,6 @@ export type SetUserReferrerMutation = (
   )> }
 );
 
-export const CovInfosFragmentDoc = gql`
-    fragment covInfos on CovenantInfo {
-  covenantId
-  souldbindId
-  conduitIdsJSON
-  item2
-  item3JSON
-}
-    `;
 export const ItemInfosFragmentDoc = gql`
     fragment itemInfos on EquippedItem {
   bonuses
@@ -384,22 +367,22 @@ export const CombatantInfosFragmentDoc = gql`
   versatilityDamageTaken
   armor
   specId
-  talents
-  pvpTalents
-  covenantInfo {
-    ...covInfos
+  talents {
+    id1
+    id2
+    count
   }
+  pvpTalents
   equipment {
     ...itemInfos
   }
   interestingAurasJSON
+  item28
   item29
-  item30
   personalRating
   highestPvpTier
 }
-    ${CovInfosFragmentDoc}
-${ItemInfosFragmentDoc}`;
+    ${ItemInfosFragmentDoc}`;
 export const UnitInfosFragmentDoc = gql`
     fragment unitInfos on CombatUnitStub {
   id

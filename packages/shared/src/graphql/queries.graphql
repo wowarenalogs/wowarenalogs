@@ -19,13 +19,6 @@ fragment itemInfos on EquippedItem {
   id
   ilvl
 }
-fragment covInfos on CovenantInfo {
-  covenantId
-  souldbindId
-  conduitIdsJSON
-  item2
-  item3JSON
-}
 fragment combatantInfos on CombatantInfo {
   teamId
   strength
@@ -50,17 +43,18 @@ fragment combatantInfos on CombatantInfo {
   versatilityDamageTaken
   armor
   specId
-  talents
-  pvpTalents
-  covenantInfo {
-    ...covInfos
+  talents {
+    id1
+    id2
+    count
   }
+  pvpTalents
   equipment {
     ...itemInfos
   }
   interestingAurasJSON
+  item28
   item29
-  item30
   personalRating
   highestPvpTier
 }

@@ -41,7 +41,7 @@ export const ReplayEvents = (props: IProps) => {
   });
 
   const qualifiedEvents = useMemo(() => {
-    const MIN_DAMAGE_HEAL_NUMBER = context.combat?.wowVersion === 'shadowlands' ? 3000 : 300;
+    const MIN_DAMAGE_HEAL_NUMBER = context.combat?.wowVersion === 'retail' ? 3000 : 300;
 
     const isWantedDamageOrHeal = (e: CombatEvent) =>
       e instanceof CombatHpUpdateAction &&
@@ -72,7 +72,7 @@ export const ReplayEvents = (props: IProps) => {
 
     const items: CombatEvent[] = [];
     from(context.combat?.rawLines || [])
-      .pipe(stringToLogLine(), logLineToCombatEvent(context.combat?.wowVersion || 'shadowlands'), filter(isCombatEvent))
+      .pipe(stringToLogLine(), logLineToCombatEvent(context.combat?.wowVersion || 'retail'), filter(isCombatEvent))
       .subscribe((e) => {
         if (
           (isWantedDamageOrHeal(e) || isExtraSpellAction(e) || isPlayerDeath(e) || isWantedAura(e) || isAuraDose(e)) &&

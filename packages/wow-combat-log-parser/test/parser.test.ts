@@ -101,8 +101,6 @@ describe('parser tests', () => {
       expect(combatant.info?.equipment[10].bonuses[2]).toEqual('1492');
       expect(combatant.info?.teamId).toEqual('0');
       expect(combatant.info?.highestPvpTier).toEqual(2);
-      expect(combatant.info?.covenantInfo.conduitIdsJSON).toEqual('[[169,184],[8,145]]');
-      expect(combatant.info?.covenantInfo.item3JSON).toEqual('[[1393],[1395],[1406],[1397]]');
     });
 
     it('should parse arena start event', () => {

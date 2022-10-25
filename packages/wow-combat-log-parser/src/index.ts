@@ -1,6 +1,6 @@
 import EventEmitter from 'eventemitter3';
 
-import { createShadowlandsParserPipeline } from './pipeline/shadowlands';
+import { createRetailParserPipeline } from './pipeline/retail';
 import { createTBCParserPipeline } from './pipeline/tbc';
 import { WowVersion } from './types';
 import { PIPELINE_FLUSH_SIGNAL } from './utils';
@@ -16,7 +16,6 @@ export * from './actions/CombatHpUpdateAction';
 export * from './actions/CombatAbsorbAction';
 export * from './actions/CombatExtraSpellAction';
 export * from './classMetadata';
-export * from './covenantMetadata';
 export * from './pipeline/common/stringToLogLine';
 export * from './pipeline/common/logLineToCombatEvent';
 
@@ -67,13 +66,13 @@ export class WoWCombatLogParser extends EventEmitter {
       }
 
       const wowBuild = wowVersionLineMatches[2];
-      const wowVersion: WowVersion = wowBuild.startsWith('2.') ? 'tbc' : 'shadowlands';
+      const wowVersion: WowVersion = wowBuild.startsWith('2.') ? 'tbc' : 'retail';
       this.setWowVersion(wowVersion);
     } else {
       if (!this.context.wowVersion) {
         this.context = {
-          wowVersion: 'shadowlands',
-          pipeline: createShadowlandsParserPipeline(
+          wowVersion: 'retail',
+          pipeline: createRetailParserPipeline(
             (combat) => {
               this.emit('arena_match_ended', combat);
             },
@@ -88,7 +87,7 @@ export class WoWCombatLogParser extends EventEmitter {
   }
 
   private setWowVersion(wowVersion: WowVersion) {
-    const pipelineFactory = wowVersion === 'tbc' ? createTBCParserPipeline : createShadowlandsParserPipeline;
+    const pipelineFactory = wowVersion === 'tbc' ? createTBCParserPipeline : createRetailParserPipeline;
     this.context = {
       wowVersion,
       pipeline: pipelineFactory(

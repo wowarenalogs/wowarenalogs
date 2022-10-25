@@ -16,7 +16,7 @@ export const segmentToCombat = () => {
         segment.events[0] instanceof ArenaMatchStart &&
         segment.events[segment.events.length - 1] instanceof ArenaMatchEnd
       ) {
-        const combat = new CombatData('shadowlands');
+        const combat = new CombatData('retail');
         combat.startTime = segment.events[0].timestamp || 0;
         segment.events.forEach((e) => {
           combat.readEvent(e);
