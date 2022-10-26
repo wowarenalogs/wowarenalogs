@@ -124,9 +124,9 @@ export const typeDefs = gql`
     ilvl: Int!
   }
   type Talent {
-    id1: Int!
-    id2: Int!
-    count: Int!
+    id1: Int
+    id2: Int
+    count: Int
   }
   type CombatantInfo {
     teamId: String!

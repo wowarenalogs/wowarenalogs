@@ -244,7 +244,7 @@ export function CombatPlayer(props: IProps) {
             <Box display="flex" flexDirection="row" flexWrap="wrap" alignItems="center">
               {props.player.info?.talents.map((t, i) => (
                 <Box key={i} mr={1}>
-                  <SpellIcon spellId={t.id1} size={32} />
+                  <SpellIcon spellId={t?.id1 || 0} size={32} />
                 </Box>
               ))}
               <Divider type="vertical" style={{ height: 32 }} />
