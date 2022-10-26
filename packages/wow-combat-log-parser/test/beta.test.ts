@@ -1,7 +1,7 @@
 import lineReader from 'line-reader';
 import path from 'path';
 
-import { ICombatData, WoWCombatLogParser } from '../src';
+import { CombatUnitClass, CombatUnitSpec, ICombatData, WoWCombatLogParser } from '../src';
 import { IMalformedCombatData } from '../src/CombatData';
 
 // import { CombatResult } from '../src/types';
@@ -38,10 +38,10 @@ const parseLogFileAsync = (logFileName: string): Promise<[ICombatData[], IMalfor
 describe('parser tests', () => {
   describe('parsing a short match', () => {
     let combats: ICombatData[] = [];
-    let malformed: IMalformedCombatData[] = [];
+    // let malformed: IMalformedCombatData[] = [];
 
     beforeAll(async () => {
-      [combats, malformed] = await parseLogFileAsync('dfbeta_skirmish.txt');
+      [combats] = await parseLogFileAsync('dfbeta_skirmish.txt');
     });
 
     it('should return a single match', () => {
@@ -61,23 +61,24 @@ describe('parser tests', () => {
     //     expect(combats[0].linesNotParsedCount).toEqual(386);
     //   });
 
-    //   it('should have correct combatant metadata', () => {
-    //     const combat = combats[0];
-    //     const combatant = combat.units['Player-4184-00216AC8'];
-    //     expect(combatant.class).toEqual(CombatUnitClass.Shaman);
-    //     expect(combatant.spec).toEqual(CombatUnitSpec.Shaman_Restoration);
-    //     expect(combatant.info?.specId).toEqual(CombatUnitSpec.Shaman_Restoration);
+    it('should have correct combatant metadata', () => {
+      const combat = combats[0];
+      const combatant = combat.units['Player-3684-0D80A58F'];
+      expect(combatant.class).toEqual(CombatUnitClass.Warrior);
+      expect(combatant.spec).toEqual(CombatUnitSpec.Warrior_Fury);
+      expect(combatant.info?.specId).toEqual(CombatUnitSpec.Warrior_Fury);
 
-    //     const someTalent = combatant.info?.talents.find((a) => a.id1 === 81035);
-    //     expect(someTalent?.id2).toBe(101916);
-    //     expect(someTalent?.count).toBe(2);
+      console.log(JSON.stringify(combatant.info?.talents, null, 2));
+      const someTalent = combatant.info?.talents.find((a) => a.id1 === 90394);
+      expect(someTalent?.id2).toBe(112263);
+      expect(someTalent?.count).toBe(1);
 
-    //     const gloves = combatant.info?.equipment.find((i) => i.id === '153976');
-    //     expect(gloves).not.toBeNull();
+      const gloves = combatant.info?.equipment.find((i) => i.id === '192271');
+      expect(gloves).not.toBeNull();
 
-    //     expect(combatant.info?.teamId).toEqual('1');
-    //     expect(combatant.info?.highestPvpTier).toEqual(0);
-    //   });
+      expect(combatant.info?.teamId).toEqual('1');
+      expect(combatant.info?.highestPvpTier).toEqual(4);
+    });
 
     //   it('should parse arena start event', () => {
     //     const combat = combats[0];
