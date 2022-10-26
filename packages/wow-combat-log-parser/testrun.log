@@ -1,0 +1,3412 @@
+yarn run v1.22.15
+$ tsdx test beta
+  console.log
+    readInfo {
+      id: '1',
+      timestamp: 1666748090479,
+      event: 'COMBATANT_INFO',
+      parameters: [
+        'Player-3684-0D80A58F',
+        1,
+        2695,
+        307,
+        5325,
+        305,
+        0,
+        0,
+        0,
+        139,
+        139,
+        139,
+        30,
+        0,
+        1045,
+        1045,
+        1045,
+        0,
+        231,
+        1593,
+        1593,
+        1593,
+        2573,
+        72,
+        [
+          [Array], [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array]
+        ],
+        [ 0, 352998, 213857, 236077 ],
+        [ 18, 1, [], [Array], [Array] ],
+        [
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array]
+        ],
+        [ 'Player-3684-0D80A58F', 6673 ],
+        123,
+        0,
+        1917,
+        4
+      ],
+      raw: '10/25 21:34:50.479  COMBATANT_INFO,Player-3684-0D80A58F,1,2695,307,5325,305,0,0,0,139,139,139,30,0,1045,1045,1045,0,231,1593,1593,1593,2573,72,[(90325,112182,1),(90386,112254,1),(90326,112183,1),(90371,112238,1),(90350,112213,1),(90346,112208,1),(90385,112253,1),(90344,112206,1),(90336,112197,1),(90353,112217,1),(90368,112235,1),(90367,112234,1),(90355,112219,1),(90356,112220,1),(90382,112249,1),(90378,112245,2),(90335,112196,1),(90258,112108,2),(90392,112261,1),(90396,112265,1),(90398,112267,1),(90430,112301,1),(90395,112264,1),(90394,112263,1),(90390,112259,1),(90429,112300,1),(90428,112299,1),(90408,112277,1),(90406,112275,1),(90407,112276,1),(90411,112280,1),(90412,112281,1),(90409,112278,1),(90387,112255,1),(90410,112279,1),(90426,112297,1),(90418,112289,1),(90362,112226,1),(90365,112232,1),(90416,112286,2),(90329,112186,1),(90330,112187,1),(90331,112188,1),(90360,112224,1),(90397,112266,1),(90403,112272,1),(90414,112283,1),(90415,112284,1),(90337,112198,1)],(0,352998,213857,236077),[18,1,[],[(1379),(1380),(1381),(1408),(1411),(1413),(1416),(1418),(1831),(1834),(1836),(1832)],[(8,278),(5,278),(50,278),(9,278),(52,278),(283,278)]],[(188942,307,(),(7578,8151,8354,1514,6646),()),(192216,307,(),(7578,8342,1566,6646),()),(188941,307,(),(8152,8348,1514,6646),()),(0,0,(),(),()),(192267,307,(6230,0,0),(8136,8116,8354,1566,6646),()),(192280,307,(),(7578,8136,8137,8348,1566,6646),()),(192275,307,(),(8136,8116,8354,1566,6646),()),(192269,307,(),(8136,8137,8348,1566,6646),()),(192282,307,(),(7578,8136,8138,8342,1566,6646),()),(192271,288,(),(8345,8136,8117,1547,6646),()),(178926,291,(6170,0,0),(8130,7882,8156,6649,6650,1588,6935),(173129,120)),(178926,291,(6166,0,0),(6959,8156,6648,6649,6935,7882,1588),(173128,120)),(192298,307,(),(8342,1566,6646),()),(192296,307,(),(8348,1566,6646),()),(192210,307,(6202,0,0),(8136,8138,8342,1566,6646),()),(192308,307,(6228,0,0),(8360,1566,6646),()),(192291,307,(6229,0,0),(8360,1566,6646),()),(52252,32,(),(),())],[Player-3684-0D80A58F,6673],123,0,1917,4'
+    }
+
+      at new CombatantInfoAction (src/actions/CombatantInfoAction.ts:36:13)
+
+  console.log
+    0 => Player-3684-0D80A58F
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    1 => 1
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    2 => 2695
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    3 => 307
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    4 => 5325
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    5 => 305
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    6 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    7 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    8 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    9 => 139
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    10 => 139
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    11 => 139
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    12 => 30
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    13 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    14 => 1045
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    15 => 1045
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    16 => 1045
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    17 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    18 => 231
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    19 => 1593
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    20 => 1593
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    21 => 1593
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    22 => 2573
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    23 => 72
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    24 => [
+      [ 90325, 112182, 1 ], [ 90386, 112254, 1 ], [ 90326, 112183, 1 ],
+      [ 90371, 112238, 1 ], [ 90350, 112213, 1 ], [ 90346, 112208, 1 ],
+      [ 90385, 112253, 1 ], [ 90344, 112206, 1 ], [ 90336, 112197, 1 ],
+      [ 90353, 112217, 1 ], [ 90368, 112235, 1 ], [ 90367, 112234, 1 ],
+      [ 90355, 112219, 1 ], [ 90356, 112220, 1 ], [ 90382, 112249, 1 ],
+      [ 90378, 112245, 2 ], [ 90335, 112196, 1 ], [ 90258, 112108, 2 ],
+      [ 90392, 112261, 1 ], [ 90396, 112265, 1 ], [ 90398, 112267, 1 ],
+      [ 90430, 112301, 1 ], [ 90395, 112264, 1 ], [ 90394, 112263, 1 ],
+      [ 90390, 112259, 1 ], [ 90429, 112300, 1 ], [ 90428, 112299, 1 ],
+      [ 90408, 112277, 1 ], [ 90406, 112275, 1 ], [ 90407, 112276, 1 ],
+      [ 90411, 112280, 1 ], [ 90412, 112281, 1 ], [ 90409, 112278, 1 ],
+      [ 90387, 112255, 1 ], [ 90410, 112279, 1 ], [ 90426, 112297, 1 ],
+      [ 90418, 112289, 1 ], [ 90362, 112226, 1 ], [ 90365, 112232, 1 ],
+      [ 90416, 112286, 2 ], [ 90329, 112186, 1 ], [ 90330, 112187, 1 ],
+      [ 90331, 112188, 1 ], [ 90360, 112224, 1 ], [ 90397, 112266, 1 ],
+      [ 90403, 112272, 1 ], [ 90414, 112283, 1 ], [ 90415, 112284, 1 ],
+      [ 90337, 112198, 1 ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    25 => [ 0, 352998, 213857, 236077 ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    26 => [
+      18,
+      1,
+      [],
+      [
+        [ 1379 ], [ 1380 ],
+        [ 1381 ], [ 1408 ],
+        [ 1411 ], [ 1413 ],
+        [ 1416 ], [ 1418 ],
+        [ 1831 ], [ 1834 ],
+        [ 1836 ], [ 1832 ]
+      ],
+      [
+        [ 8, 278 ],
+        [ 5, 278 ],
+        [ 50, 278 ],
+        [ 9, 278 ],
+        [ 52, 278 ],
+        [ 283, 278 ]
+      ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    27 => [
+      [ 188942, 307, [], [ 7578, 8151, 8354, 1514, 6646 ], [] ],
+      [ 192216, 307, [], [ 7578, 8342, 1566, 6646 ], [] ],
+      [ 188941, 307, [], [ 8152, 8348, 1514, 6646 ], [] ],
+      [ 0, 0, [], [], [] ],
+      [ 192267, 307, [ 6230, 0, 0 ], [ 8136, 8116, 8354, 1566, 6646 ], [] ],
+      [ 192280, 307, [], [ 7578, 8136, 8137, 8348, 1566, 6646 ], [] ],
+      [ 192275, 307, [], [ 8136, 8116, 8354, 1566, 6646 ], [] ],
+      [ 192269, 307, [], [ 8136, 8137, 8348, 1566, 6646 ], [] ],
+      [ 192282, 307, [], [ 7578, 8136, 8138, 8342, 1566, 6646 ], [] ],
+      [ 192271, 288, [], [ 8345, 8136, 8117, 1547, 6646 ], [] ],
+      [
+        178926,
+        291,
+        [ 6170, 0, 0 ],
+        [
+          8130, 7882,
+          8156, 6649,
+          6650, 1588,
+          6935
+        ],
+        [ 173129, 120 ]
+      ],
+      [
+        178926,
+        291,
+        [ 6166, 0, 0 ],
+        [
+          6959, 8156,
+          6648, 6649,
+          6935, 7882,
+          1588
+        ],
+        [ 173128, 120 ]
+      ],
+      [ 192298, 307, [], [ 8342, 1566, 6646 ], [] ],
+      [ 192296, 307, [], [ 8348, 1566, 6646 ], [] ],
+      [ 192210, 307, [ 6202, 0, 0 ], [ 8136, 8138, 8342, 1566, 6646 ], [] ],
+      [ 192308, 307, [ 6228, 0, 0 ], [ 8360, 1566, 6646 ], [] ],
+      [ 192291, 307, [ 6229, 0, 0 ], [ 8360, 1566, 6646 ], [] ],
+      [ 52252, 32, [], [], [] ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    28 => [ 'Player-3684-0D80A58F', 6673 ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    29 => 123
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    30 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    31 => 1917
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    32 => 4
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    ################### 3 number
+
+      at src/actions/CombatantInfoAction.ts:7:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      0,
+      0,
+      [],
+      [],
+      []
+    ]
+
+      at src/actions/CombatantInfoAction.ts:8:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      [
+        188942,
+        307,
+        [],
+        [
+          7578,
+          8151,
+          8354,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        192216,
+        307,
+        [],
+        [
+          7578,
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        188941,
+        307,
+        [],
+        [
+          8152,
+          8348,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ],
+      [
+        192267,
+        307,
+        [
+          6230,
+          0,
+          0
+        ],
+        [
+          8136,
+          8116,
+          8354,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192280,
+        307,
+        [],
+        [
+          7578,
+          8136,
+          8137,
+          8348,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192275,
+        307,
+        [],
+        [
+          8136,
+          8116,
+          8354,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192269,
+        307,
+        [],
+        [
+          8136,
+          8137,
+          8348,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192282,
+        307,
+        [],
+        [
+          7578,
+          8136,
+          8138,
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192271,
+        288,
+        [],
+        [
+          8345,
+          8136,
+          8117,
+          1547,
+          6646
+        ],
+        []
+      ],
+      [
+        178926,
+        291,
+        [
+          6170,
+          0,
+          0
+        ],
+        [
+          8130,
+          7882,
+          8156,
+          6649,
+          6650,
+          1588,
+          6935
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        178926,
+        291,
+        [
+          6166,
+          0,
+          0
+        ],
+        [
+          6959,
+          8156,
+          6648,
+          6649,
+          6935,
+          7882,
+          1588
+        ],
+        [
+          173128,
+          120
+        ]
+      ],
+      [
+        192298,
+        307,
+        [],
+        [
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192296,
+        307,
+        [],
+        [
+          8348,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192210,
+        307,
+        [
+          6202,
+          0,
+          0
+        ],
+        [
+          8136,
+          8138,
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192308,
+        307,
+        [
+          6228,
+          0,
+          0
+        ],
+        [
+          8360,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192291,
+        307,
+        [
+          6229,
+          0,
+          0
+        ],
+        [
+          8360,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        52252,
+        32,
+        [],
+        [],
+        []
+      ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:9:15
+          at Array.map (<anonymous>)
+
+  console.log
+    readInfo {
+      id: '2',
+      timestamp: 1666748090479,
+      event: 'COMBATANT_INFO',
+      parameters: [
+        'Player-57-0D561701',
+        0,
+        194,
+        2230,
+        5072,
+        449,
+        0,
+        0,
+        0,
+        629,
+        629,
+        629,
+        30,
+        0,
+        0,
+        0,
+        0,
+        0,
+        689,
+        1479,
+        1479,
+        1479,
+        995,
+        269,
+        [
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array]
+        ],
+        [ 0, 233759, 287681, 287503 ],
+        [ 4, 4, [], [Array], [Array] ],
+        [
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array]
+        ],
+        [
+          'Player-57-0D561701',
+          392993,
+          'Player-57-0D561701',
+          392991,
+          'Player-57-0D2FEADE',
+          21562
+        ],
+        517,
+        0,
+        1825,
+        4
+      ],
+      raw: '10/25 21:34:50.479  COMBATANT_INFO,Player-57-0D561701,0,194,2230,5072,449,0,0,0,629,629,629,30,0,0,0,0,0,689,1479,1479,1479,995,269,[(80690,101508,1),(80689,101507,1),(80693,101511,1),(80679,101495,1),(80688,101506,1),(80686,101504,1),(80680,101496,1),(80705,101523,2),(80684,101501,1),(80695,101513,1),(80694,101512,1),(80698,101516,1),(80681,101497,1),(80613,101423,1),(80614,101424,1),(80612,101422,1),(80610,101420,1),(80678,101494,1),(80677,101493,1),(80611,101421,2),(80675,101491,1),(80621,101432,1),(80622,101433,2),(80618,101429,1),(80619,101430,1),(80657,101473,1),(80656,101472,1),(80662,101478,1),(80615,101425,2),(80616,101426,1),(80663,101479,1),(80673,101489,2),(80674,101490,1),(80676,101492,1),(80682,101499,1),(80683,101500,2),(80685,101503,1),(80687,101505,1),(80692,101510,2),(80697,101515,1),(80704,101522,1),(80715,101534,2),(80717,101536,2)],(0,233759,287681,287503),[4,4,[],[(1121),(1122),(1124),(1126),(1128),(1135),(1136),(1820),(1822),(1824),(1819),(1130)],[(35,278),(22,278),(33,278),(60,278),(15,278),(16,278)]],[(188910,304,(),(7578,8151,8389,1511,6646),()),(178927,291,(),(7068,7882,8156,6648,6650,1588,6935),(173129,120)),(188914,304,(),(8152,8386,1511,6646),()),(17723,1,(),(),()),(188912,304,(6230,0,0),(8153,8389,1511,6646),()),(192247,304,(),(7579,8136,8137,8386,1563,6646),()),(188911,304,(),(8155,8389,1511,6646),()),(192237,304,(6211,0,0),(8136,8137,8386,1563,6646),()),(192250,304,(6222,0,0),(7578,8136,8138,8383,1563,6646),()),(192239,304,(),(8136,8117,8386,1563,6646),()),(178926,291,(6170,0,0),(8124,7882,8156,6648,6650,1588,6935),(173129,120)),(192215,304,(6170,0,0),(7579,8383,1563,6646),()),(192298,304,(),(8383,1563,6646),()),(192295,304,(),(8386,1563,6646),()),(192211,304,(6202,0,0),(8136,8138,8383,1563,6646),()),(192313,304,(6228,0,0),(8401,1563,6646),()),(192313,304,(6229,0,0),(8401,1563,6646),()),(0,0,(),(),())],[Player-57-0D561701,392993,Player-57-0D561701,392991,Player-57-0D2FEADE,21562],517,0,1825,4'
+    }
+
+      at new CombatantInfoAction (src/actions/CombatantInfoAction.ts:36:13)
+
+  console.log
+    0 => Player-57-0D561701
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    1 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    2 => 194
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    3 => 2230
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    4 => 5072
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    5 => 449
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    6 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    7 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    8 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    9 => 629
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    10 => 629
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    11 => 629
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    12 => 30
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    13 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    14 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    15 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    16 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    17 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    18 => 689
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    19 => 1479
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    20 => 1479
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    21 => 1479
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    22 => 995
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    23 => 269
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    24 => [
+      [ 80690, 101508, 1 ], [ 80689, 101507, 1 ],
+      [ 80693, 101511, 1 ], [ 80679, 101495, 1 ],
+      [ 80688, 101506, 1 ], [ 80686, 101504, 1 ],
+      [ 80680, 101496, 1 ], [ 80705, 101523, 2 ],
+      [ 80684, 101501, 1 ], [ 80695, 101513, 1 ],
+      [ 80694, 101512, 1 ], [ 80698, 101516, 1 ],
+      [ 80681, 101497, 1 ], [ 80613, 101423, 1 ],
+      [ 80614, 101424, 1 ], [ 80612, 101422, 1 ],
+      [ 80610, 101420, 1 ], [ 80678, 101494, 1 ],
+      [ 80677, 101493, 1 ], [ 80611, 101421, 2 ],
+      [ 80675, 101491, 1 ], [ 80621, 101432, 1 ],
+      [ 80622, 101433, 2 ], [ 80618, 101429, 1 ],
+      [ 80619, 101430, 1 ], [ 80657, 101473, 1 ],
+      [ 80656, 101472, 1 ], [ 80662, 101478, 1 ],
+      [ 80615, 101425, 2 ], [ 80616, 101426, 1 ],
+      [ 80663, 101479, 1 ], [ 80673, 101489, 2 ],
+      [ 80674, 101490, 1 ], [ 80676, 101492, 1 ],
+      [ 80682, 101499, 1 ], [ 80683, 101500, 2 ],
+      [ 80685, 101503, 1 ], [ 80687, 101505, 1 ],
+      [ 80692, 101510, 2 ], [ 80697, 101515, 1 ],
+      [ 80704, 101522, 1 ], [ 80715, 101534, 2 ],
+      [ 80717, 101536, 2 ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    25 => [ 0, 233759, 287681, 287503 ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    26 => [
+      4,
+      4,
+      [],
+      [
+        [ 1121 ], [ 1122 ],
+        [ 1124 ], [ 1126 ],
+        [ 1128 ], [ 1135 ],
+        [ 1136 ], [ 1820 ],
+        [ 1822 ], [ 1824 ],
+        [ 1819 ], [ 1130 ]
+      ],
+      [
+        [ 35, 278 ],
+        [ 22, 278 ],
+        [ 33, 278 ],
+        [ 60, 278 ],
+        [ 15, 278 ],
+        [ 16, 278 ]
+      ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    27 => [
+      [ 188910, 304, [], [ 7578, 8151, 8389, 1511, 6646 ], [] ],
+      [
+        178927,
+        291,
+        [],
+        [
+          7068, 7882,
+          8156, 6648,
+          6650, 1588,
+          6935
+        ],
+        [ 173129, 120 ]
+      ],
+      [ 188914, 304, [], [ 8152, 8386, 1511, 6646 ], [] ],
+      [ 17723, 1, [], [], [] ],
+      [ 188912, 304, [ 6230, 0, 0 ], [ 8153, 8389, 1511, 6646 ], [] ],
+      [ 192247, 304, [], [ 7579, 8136, 8137, 8386, 1563, 6646 ], [] ],
+      [ 188911, 304, [], [ 8155, 8389, 1511, 6646 ], [] ],
+      [ 192237, 304, [ 6211, 0, 0 ], [ 8136, 8137, 8386, 1563, 6646 ], [] ],
+      [
+        192250,
+        304,
+        [ 6222, 0, 0 ],
+        [ 7578, 8136, 8138, 8383, 1563, 6646 ],
+        []
+      ],
+      [ 192239, 304, [], [ 8136, 8117, 8386, 1563, 6646 ], [] ],
+      [
+        178926,
+        291,
+        [ 6170, 0, 0 ],
+        [
+          8124, 7882,
+          8156, 6648,
+          6650, 1588,
+          6935
+        ],
+        [ 173129, 120 ]
+      ],
+      [ 192215, 304, [ 6170, 0, 0 ], [ 7579, 8383, 1563, 6646 ], [] ],
+      [ 192298, 304, [], [ 8383, 1563, 6646 ], [] ],
+      [ 192295, 304, [], [ 8386, 1563, 6646 ], [] ],
+      [ 192211, 304, [ 6202, 0, 0 ], [ 8136, 8138, 8383, 1563, 6646 ], [] ],
+      [ 192313, 304, [ 6228, 0, 0 ], [ 8401, 1563, 6646 ], [] ],
+      [ 192313, 304, [ 6229, 0, 0 ], [ 8401, 1563, 6646 ], [] ],
+      [ 0, 0, [], [], [] ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    28 => [
+      'Player-57-0D561701',
+      392993,
+      'Player-57-0D561701',
+      392991,
+      'Player-57-0D2FEADE',
+      21562
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    29 => 517
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    30 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    31 => 1825
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    32 => 4
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    ################### 17 number
+
+      at src/actions/CombatantInfoAction.ts:7:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      0,
+      0,
+      [],
+      [],
+      []
+    ]
+
+      at src/actions/CombatantInfoAction.ts:8:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      [
+        188910,
+        304,
+        [],
+        [
+          7578,
+          8151,
+          8389,
+          1511,
+          6646
+        ],
+        []
+      ],
+      [
+        178927,
+        291,
+        [],
+        [
+          7068,
+          7882,
+          8156,
+          6648,
+          6650,
+          1588,
+          6935
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        188914,
+        304,
+        [],
+        [
+          8152,
+          8386,
+          1511,
+          6646
+        ],
+        []
+      ],
+      [
+        17723,
+        1,
+        [],
+        [],
+        []
+      ],
+      [
+        188912,
+        304,
+        [
+          6230,
+          0,
+          0
+        ],
+        [
+          8153,
+          8389,
+          1511,
+          6646
+        ],
+        []
+      ],
+      [
+        192247,
+        304,
+        [],
+        [
+          7579,
+          8136,
+          8137,
+          8386,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        188911,
+        304,
+        [],
+        [
+          8155,
+          8389,
+          1511,
+          6646
+        ],
+        []
+      ],
+      [
+        192237,
+        304,
+        [
+          6211,
+          0,
+          0
+        ],
+        [
+          8136,
+          8137,
+          8386,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        192250,
+        304,
+        [
+          6222,
+          0,
+          0
+        ],
+        [
+          7578,
+          8136,
+          8138,
+          8383,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        192239,
+        304,
+        [],
+        [
+          8136,
+          8117,
+          8386,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        178926,
+        291,
+        [
+          6170,
+          0,
+          0
+        ],
+        [
+          8124,
+          7882,
+          8156,
+          6648,
+          6650,
+          1588,
+          6935
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        192215,
+        304,
+        [
+          6170,
+          0,
+          0
+        ],
+        [
+          7579,
+          8383,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        192298,
+        304,
+        [],
+        [
+          8383,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        192295,
+        304,
+        [],
+        [
+          8386,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        192211,
+        304,
+        [
+          6202,
+          0,
+          0
+        ],
+        [
+          8136,
+          8138,
+          8383,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        192313,
+        304,
+        [
+          6228,
+          0,
+          0
+        ],
+        [
+          8401,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        192313,
+        304,
+        [
+          6229,
+          0,
+          0
+        ],
+        [
+          8401,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:9:15
+          at Array.map (<anonymous>)
+
+  console.log
+    readInfo {
+      id: '3',
+      timestamp: 1666748090479,
+      event: 'COMBATANT_INFO',
+      parameters: [
+        'Player-57-0D2FEADE',
+        0,
+        263,
+        372,
+        5294,
+        2891,
+        0,
+        0,
+        0,
+        139,
+        139,
+        139,
+        79,
+        0,
+        818,
+        818,
+        818,
+        0,
+        339,
+        1576,
+        1576,
+        1576,
+        620,
+        256,
+        [
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array]
+        ],
+        [ 0, 197590, 356085, 236499 ],
+        [ 8, 2, [], [Array], [Array] ],
+        [
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array]
+        ],
+        [
+          'Player-57-0D2FEADE',
+          373456,
+          'Player-57-0D2FEADE',
+          21562,
+          'Player-57-0D561701',
+          389685
+        ],
+        276,
+        0,
+        2043,
+        208
+      ],
+      raw: '10/25 21:34:50.479  COMBATANT_INFO,Player-57-0D2FEADE,0,263,372,5294,2891,0,0,0,139,139,139,79,0,818,818,818,0,339,1576,1576,1576,620,256,[(82564,103687,1),(82567,103692,1),(82577,103702,1),(82587,103713,1),(82590,103718,1),(82591,103719,1),(82592,103721,1),(82593,103722,1),(82594,103723,1),(82595,103724,1),(82596,103725,1),(82598,103727,1),(82599,103728,2),(82600,103729,2),(82601,103731,1),(82683,103832,1),(82684,103833,2),(82692,103842,1),(82694,103844,1),(82696,103846,1),(82697,103847,2),(82701,103851,1),(82706,103856,1),(82707,103858,1),(82709,103861,2),(82714,103866,1),(82718,103870,1),(82713,103865,1),(82717,103869,1),(82572,103697,2),(82576,103701,1),(82579,103704,1),(82588,103715,1),(82589,103716,1),(82678,103824,1),(82687,103837,1),(82710,103678,1),(82712,103864,1),(92225,108225,1),(82699,103849,1),(82715,103867,1),(82716,103868,1),(82720,103677,1),(82556,103834,1),(82677,103823,2),(82602,103732,1)],(0,197590,356085,236499),[8,2,[],[(1868),(1393),(1395),(1397),(1398),(1400),(1866),(1403),(1405),(1406),(1870),(1871)],[(75,278),(69,278),(76,278),(81,278),(66,278),(72,278)]],[(188880,307,(),(8151,7580,8354,1514,6646),(169220,50)),(192216,307,(),(7580,8342,1566,6646),(173129,120)),(188879,307,(),(8152,8348,1514,6646),()),(0,0,(),(),()),(188875,307,(6217,0,0),(8153,8354,1514,6646),()),(192231,307,(),(8136,8137,7580,8348,1566,6646),(173129,120)),(192227,307,(),(8136,8116,8354,1566,6646),()),(192222,307,(),(8136,8137,8348,1566,6646),()),(192234,307,(6220,0,0),(8136,8138,7580,8342,1566,6646),(173129,120)),(188881,307,(6210,0,0),(6652,8154,8348,1514,6646),()),(192215,307,(),(7578,8342,1566,6646),()),(192213,307,(6170,0,0),(7580,8342,1566,6646),(173126,118)),(192296,307,(),(8348,1566,6646),()),(192298,307,(),(8342,1566,6646),()),(192210,307,(6202,0,0),(8136,8138,8342,1566,6646),()),(192294,307,(6229,0,0),(8360,1566,6646),()),(0,0,(),(),()),(0,0,(),(),())],[Player-57-0D2FEADE,373456,Player-57-0D2FEADE,21562,Player-57-0D561701,389685],276,0,2043,208'
+    }
+
+      at new CombatantInfoAction (src/actions/CombatantInfoAction.ts:36:13)
+
+  console.log
+    0 => Player-57-0D2FEADE
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    1 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    2 => 263
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    3 => 372
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    4 => 5294
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    5 => 2891
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    6 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    7 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    8 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    9 => 139
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    10 => 139
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    11 => 139
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    12 => 79
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    13 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    14 => 818
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    15 => 818
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    16 => 818
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    17 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    18 => 339
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    19 => 1576
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    20 => 1576
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    21 => 1576
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    22 => 620
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    23 => 256
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    24 => [
+      [ 82564, 103687, 1 ], [ 82567, 103692, 1 ],
+      [ 82577, 103702, 1 ], [ 82587, 103713, 1 ],
+      [ 82590, 103718, 1 ], [ 82591, 103719, 1 ],
+      [ 82592, 103721, 1 ], [ 82593, 103722, 1 ],
+      [ 82594, 103723, 1 ], [ 82595, 103724, 1 ],
+      [ 82596, 103725, 1 ], [ 82598, 103727, 1 ],
+      [ 82599, 103728, 2 ], [ 82600, 103729, 2 ],
+      [ 82601, 103731, 1 ], [ 82683, 103832, 1 ],
+      [ 82684, 103833, 2 ], [ 82692, 103842, 1 ],
+      [ 82694, 103844, 1 ], [ 82696, 103846, 1 ],
+      [ 82697, 103847, 2 ], [ 82701, 103851, 1 ],
+      [ 82706, 103856, 1 ], [ 82707, 103858, 1 ],
+      [ 82709, 103861, 2 ], [ 82714, 103866, 1 ],
+      [ 82718, 103870, 1 ], [ 82713, 103865, 1 ],
+      [ 82717, 103869, 1 ], [ 82572, 103697, 2 ],
+      [ 82576, 103701, 1 ], [ 82579, 103704, 1 ],
+      [ 82588, 103715, 1 ], [ 82589, 103716, 1 ],
+      [ 82678, 103824, 1 ], [ 82687, 103837, 1 ],
+      [ 82710, 103678, 1 ], [ 82712, 103864, 1 ],
+      [ 92225, 108225, 1 ], [ 82699, 103849, 1 ],
+      [ 82715, 103867, 1 ], [ 82716, 103868, 1 ],
+      [ 82720, 103677, 1 ], [ 82556, 103834, 1 ],
+      [ 82677, 103823, 2 ], [ 82602, 103732, 1 ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    25 => [ 0, 197590, 356085, 236499 ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    26 => [
+      8,
+      2,
+      [],
+      [
+        [ 1868 ], [ 1393 ],
+        [ 1395 ], [ 1397 ],
+        [ 1398 ], [ 1400 ],
+        [ 1866 ], [ 1403 ],
+        [ 1405 ], [ 1406 ],
+        [ 1870 ], [ 1871 ]
+      ],
+      [
+        [ 75, 278 ],
+        [ 69, 278 ],
+        [ 76, 278 ],
+        [ 81, 278 ],
+        [ 66, 278 ],
+        [ 72, 278 ]
+      ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    27 => [
+      [ 188880, 307, [], [ 8151, 7580, 8354, 1514, 6646 ], [ 169220, 50 ] ],
+      [ 192216, 307, [], [ 7580, 8342, 1566, 6646 ], [ 173129, 120 ] ],
+      [ 188879, 307, [], [ 8152, 8348, 1514, 6646 ], [] ],
+      [ 0, 0, [], [], [] ],
+      [ 188875, 307, [ 6217, 0, 0 ], [ 8153, 8354, 1514, 6646 ], [] ],
+      [
+        192231,
+        307,
+        [],
+        [ 8136, 8137, 7580, 8348, 1566, 6646 ],
+        [ 173129, 120 ]
+      ],
+      [ 192227, 307, [], [ 8136, 8116, 8354, 1566, 6646 ], [] ],
+      [ 192222, 307, [], [ 8136, 8137, 8348, 1566, 6646 ], [] ],
+      [
+        192234,
+        307,
+        [ 6220, 0, 0 ],
+        [ 8136, 8138, 7580, 8342, 1566, 6646 ],
+        [ 173129, 120 ]
+      ],
+      [ 188881, 307, [ 6210, 0, 0 ], [ 6652, 8154, 8348, 1514, 6646 ], [] ],
+      [ 192215, 307, [], [ 7578, 8342, 1566, 6646 ], [] ],
+      [
+        192213,
+        307,
+        [ 6170, 0, 0 ],
+        [ 7580, 8342, 1566, 6646 ],
+        [ 173126, 118 ]
+      ],
+      [ 192296, 307, [], [ 8348, 1566, 6646 ], [] ],
+      [ 192298, 307, [], [ 8342, 1566, 6646 ], [] ],
+      [ 192210, 307, [ 6202, 0, 0 ], [ 8136, 8138, 8342, 1566, 6646 ], [] ],
+      [ 192294, 307, [ 6229, 0, 0 ], [ 8360, 1566, 6646 ], [] ],
+      [ 0, 0, [], [], [] ],
+      [ 0, 0, [], [], [] ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    28 => [
+      'Player-57-0D2FEADE',
+      373456,
+      'Player-57-0D2FEADE',
+      21562,
+      'Player-57-0D561701',
+      389685
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    29 => 276
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    30 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    31 => 2043
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    32 => 208
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    ################### 3 number
+
+      at src/actions/CombatantInfoAction.ts:7:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      0,
+      0,
+      [],
+      [],
+      []
+    ]
+
+      at src/actions/CombatantInfoAction.ts:8:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      [
+        188880,
+        307,
+        [],
+        [
+          8151,
+          7580,
+          8354,
+          1514,
+          6646
+        ],
+        [
+          169220,
+          50
+        ]
+      ],
+      [
+        192216,
+        307,
+        [],
+        [
+          7580,
+          8342,
+          1566,
+          6646
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        188879,
+        307,
+        [],
+        [
+          8152,
+          8348,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ],
+      [
+        188875,
+        307,
+        [
+          6217,
+          0,
+          0
+        ],
+        [
+          8153,
+          8354,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        192231,
+        307,
+        [],
+        [
+          8136,
+          8137,
+          7580,
+          8348,
+          1566,
+          6646
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        192227,
+        307,
+        [],
+        [
+          8136,
+          8116,
+          8354,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192222,
+        307,
+        [],
+        [
+          8136,
+          8137,
+          8348,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192234,
+        307,
+        [
+          6220,
+          0,
+          0
+        ],
+        [
+          8136,
+          8138,
+          7580,
+          8342,
+          1566,
+          6646
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        188881,
+        307,
+        [
+          6210,
+          0,
+          0
+        ],
+        [
+          6652,
+          8154,
+          8348,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        192215,
+        307,
+        [],
+        [
+          7578,
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192213,
+        307,
+        [
+          6170,
+          0,
+          0
+        ],
+        [
+          7580,
+          8342,
+          1566,
+          6646
+        ],
+        [
+          173126,
+          118
+        ]
+      ],
+      [
+        192296,
+        307,
+        [],
+        [
+          8348,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192298,
+        307,
+        [],
+        [
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192210,
+        307,
+        [
+          6202,
+          0,
+          0
+        ],
+        [
+          8136,
+          8138,
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192294,
+        307,
+        [
+          6229,
+          0,
+          0
+        ],
+        [
+          8360,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:9:15
+          at Array.map (<anonymous>)
+
+  console.log
+    ################### 16 number
+
+      at src/actions/CombatantInfoAction.ts:7:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      0,
+      0,
+      [],
+      [],
+      []
+    ]
+
+      at src/actions/CombatantInfoAction.ts:8:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      [
+        188880,
+        307,
+        [],
+        [
+          8151,
+          7580,
+          8354,
+          1514,
+          6646
+        ],
+        [
+          169220,
+          50
+        ]
+      ],
+      [
+        192216,
+        307,
+        [],
+        [
+          7580,
+          8342,
+          1566,
+          6646
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        188879,
+        307,
+        [],
+        [
+          8152,
+          8348,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ],
+      [
+        188875,
+        307,
+        [
+          6217,
+          0,
+          0
+        ],
+        [
+          8153,
+          8354,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        192231,
+        307,
+        [],
+        [
+          8136,
+          8137,
+          7580,
+          8348,
+          1566,
+          6646
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        192227,
+        307,
+        [],
+        [
+          8136,
+          8116,
+          8354,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192222,
+        307,
+        [],
+        [
+          8136,
+          8137,
+          8348,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192234,
+        307,
+        [
+          6220,
+          0,
+          0
+        ],
+        [
+          8136,
+          8138,
+          7580,
+          8342,
+          1566,
+          6646
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        188881,
+        307,
+        [
+          6210,
+          0,
+          0
+        ],
+        [
+          6652,
+          8154,
+          8348,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        192215,
+        307,
+        [],
+        [
+          7578,
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192213,
+        307,
+        [
+          6170,
+          0,
+          0
+        ],
+        [
+          7580,
+          8342,
+          1566,
+          6646
+        ],
+        [
+          173126,
+          118
+        ]
+      ],
+      [
+        192296,
+        307,
+        [],
+        [
+          8348,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192298,
+        307,
+        [],
+        [
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192210,
+        307,
+        [
+          6202,
+          0,
+          0
+        ],
+        [
+          8136,
+          8138,
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192294,
+        307,
+        [
+          6229,
+          0,
+          0
+        ],
+        [
+          8360,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:9:15
+          at Array.map (<anonymous>)
+
+  console.log
+    ################### 17 number
+
+      at src/actions/CombatantInfoAction.ts:7:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      0,
+      0,
+      [],
+      [],
+      []
+    ]
+
+      at src/actions/CombatantInfoAction.ts:8:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      [
+        188880,
+        307,
+        [],
+        [
+          8151,
+          7580,
+          8354,
+          1514,
+          6646
+        ],
+        [
+          169220,
+          50
+        ]
+      ],
+      [
+        192216,
+        307,
+        [],
+        [
+          7580,
+          8342,
+          1566,
+          6646
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        188879,
+        307,
+        [],
+        [
+          8152,
+          8348,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ],
+      [
+        188875,
+        307,
+        [
+          6217,
+          0,
+          0
+        ],
+        [
+          8153,
+          8354,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        192231,
+        307,
+        [],
+        [
+          8136,
+          8137,
+          7580,
+          8348,
+          1566,
+          6646
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        192227,
+        307,
+        [],
+        [
+          8136,
+          8116,
+          8354,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192222,
+        307,
+        [],
+        [
+          8136,
+          8137,
+          8348,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192234,
+        307,
+        [
+          6220,
+          0,
+          0
+        ],
+        [
+          8136,
+          8138,
+          7580,
+          8342,
+          1566,
+          6646
+        ],
+        [
+          173129,
+          120
+        ]
+      ],
+      [
+        188881,
+        307,
+        [
+          6210,
+          0,
+          0
+        ],
+        [
+          6652,
+          8154,
+          8348,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        192215,
+        307,
+        [],
+        [
+          7578,
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192213,
+        307,
+        [
+          6170,
+          0,
+          0
+        ],
+        [
+          7580,
+          8342,
+          1566,
+          6646
+        ],
+        [
+          173126,
+          118
+        ]
+      ],
+      [
+        192296,
+        307,
+        [],
+        [
+          8348,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192298,
+        307,
+        [],
+        [
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192210,
+        307,
+        [
+          6202,
+          0,
+          0
+        ],
+        [
+          8136,
+          8138,
+          8342,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192294,
+        307,
+        [
+          6229,
+          0,
+          0
+        ],
+        [
+          8360,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:9:15
+          at Array.map (<anonymous>)
+
+  console.log
+    readInfo {
+      id: '4',
+      timestamp: 1666748090479,
+      event: 'COMBATANT_INFO',
+      parameters: [
+        'Player-3684-0D9A26AA',
+        1,
+        258,
+        374,
+        4420,
+        2745,
+        0,
+        0,
+        0,
+        293,
+        293,
+        293,
+        30,
+        0,
+        551,
+        551,
+        551,
+        0,
+        678,
+        1234,
+        1234,
+        1234,
+        592,
+        257,
+        [
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array], [Array], [Array],
+          [Array], [Array]
+        ],
+        [ 0, 0, 0, 197268 ],
+        [ 4, 4, [], [Array], [Array] ],
+        [
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array],
+          [Array], [Array], [Array]
+        ],
+        [
+          'Player-3684-0D9A26AA',
+          390636,
+          'Player-3684-0D9A26AA',
+          373456,
+          'Player-3684-0D80A58F',
+          6673
+        ],
+        152,
+        0,
+        1956,
+        208
+      ],
+      raw: '10/25 21:34:50.479  COMBATANT_INFO,Player-3684-0D9A26AA,1,258,374,4420,2745,0,0,0,293,293,293,30,0,551,551,551,0,678,1234,1234,1234,592,257,[(82714,103866,1),(82703,103853,1),(82707,103858,1),(82701,103851,1),(82700,103850,1),(82694,103844,1),(82696,103846,1),(82697,103847,2),(82684,103833,2),(82692,103842,1),(82709,103861,1),(82713,103865,1),(82677,103823,2),(82676,103822,1),(82638,103775,1),(82631,103766,1),(82632,103767,1),(82637,103774,1),(82636,103773,1),(82620,103754,1),(82617,103751,1),(82614,103748,2),(82634,103770,2),(82618,103752,1),(82610,103743,1),(82717,103869,1),(82718,103870,1),(82607,103739,1),(82619,103753,1),(82622,103756,1),(82627,103762,2),(82639,103776,1),(82640,103777,1),(82678,103824,1),(82683,103832,1),(82685,103835,1),(82699,103849,1),(82711,103863,1),(82712,103864,1),(82715,103867,1),(82716,103868,1),(82686,103836,1),(82605,103676,1),(82606,103738,2),(82612,103745,1),(82633,103768,1)],(0,0,0,197268),[4,4,[],[(1122),(1123),(1124),(1126),(1128),(1130),(1136),(1819),(1821),(1823),(1824),(1135)],[(113,278),(66,278),(283,278),(114,278),(67,278),(107,278)]],[(188880,307,(),(7578,8151,8354,1514,6646),()),(192216,304,(),(7578,8383,1563,6646),()),(188879,304,(),(6652,8272,7359,8765,8152,1524),()),(6796,1,(),(),()),(188875,304,(),(8153,8389,1511,6646),()),(190468,265,(),(6652,7578),()),(188878,304,(),(8155,8389,1511,6646),()),(192222,304,(),(8136,8137,8386,1563,6646),()),(192234,304,(),(7578,8136,8138,8383,1563,6646),()),(192223,307,(),(8136,8117,8348,1566,6646),()),(192213,304,(6166,0,0),(7578,8383,1563,6646),()),(192215,301,(6166,0,0),(7578,8341,1560,6646),()),(192298,304,(),(8383,1563,6646),()),(179350,272,(),(7359,6652,7784,1586,6646),()),(173242,291,(6202,0,0),(6984,6648,6650,8156,7882,1588),()),(192294,301,(6226,0,0),(8359,1560,6646),()),(0,0,(),(),()),(83080,1,(),(),())],[Player-3684-0D9A26AA,390636,Player-3684-0D9A26AA,373456,Player-3684-0D80A58F,6673],152,0,1956,208'
+    }
+
+      at new CombatantInfoAction (src/actions/CombatantInfoAction.ts:36:13)
+
+  console.log
+    0 => Player-3684-0D9A26AA
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    1 => 1
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    2 => 258
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    3 => 374
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    4 => 4420
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    5 => 2745
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    6 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    7 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    8 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    9 => 293
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    10 => 293
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    11 => 293
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    12 => 30
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    13 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    14 => 551
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    15 => 551
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    16 => 551
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    17 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    18 => 678
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    19 => 1234
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    20 => 1234
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    21 => 1234
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    22 => 592
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    23 => 257
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    24 => [
+      [ 82714, 103866, 1 ], [ 82703, 103853, 1 ],
+      [ 82707, 103858, 1 ], [ 82701, 103851, 1 ],
+      [ 82700, 103850, 1 ], [ 82694, 103844, 1 ],
+      [ 82696, 103846, 1 ], [ 82697, 103847, 2 ],
+      [ 82684, 103833, 2 ], [ 82692, 103842, 1 ],
+      [ 82709, 103861, 1 ], [ 82713, 103865, 1 ],
+      [ 82677, 103823, 2 ], [ 82676, 103822, 1 ],
+      [ 82638, 103775, 1 ], [ 82631, 103766, 1 ],
+      [ 82632, 103767, 1 ], [ 82637, 103774, 1 ],
+      [ 82636, 103773, 1 ], [ 82620, 103754, 1 ],
+      [ 82617, 103751, 1 ], [ 82614, 103748, 2 ],
+      [ 82634, 103770, 2 ], [ 82618, 103752, 1 ],
+      [ 82610, 103743, 1 ], [ 82717, 103869, 1 ],
+      [ 82718, 103870, 1 ], [ 82607, 103739, 1 ],
+      [ 82619, 103753, 1 ], [ 82622, 103756, 1 ],
+      [ 82627, 103762, 2 ], [ 82639, 103776, 1 ],
+      [ 82640, 103777, 1 ], [ 82678, 103824, 1 ],
+      [ 82683, 103832, 1 ], [ 82685, 103835, 1 ],
+      [ 82699, 103849, 1 ], [ 82711, 103863, 1 ],
+      [ 82712, 103864, 1 ], [ 82715, 103867, 1 ],
+      [ 82716, 103868, 1 ], [ 82686, 103836, 1 ],
+      [ 82605, 103676, 1 ], [ 82606, 103738, 2 ],
+      [ 82612, 103745, 1 ], [ 82633, 103768, 1 ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    25 => [ 0, 0, 0, 197268 ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    26 => [
+      4,
+      4,
+      [],
+      [
+        [ 1122 ], [ 1123 ],
+        [ 1124 ], [ 1126 ],
+        [ 1128 ], [ 1130 ],
+        [ 1136 ], [ 1819 ],
+        [ 1821 ], [ 1823 ],
+        [ 1824 ], [ 1135 ]
+      ],
+      [
+        [ 113, 278 ],
+        [ 66, 278 ],
+        [ 283, 278 ],
+        [ 114, 278 ],
+        [ 67, 278 ],
+        [ 107, 278 ]
+      ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    27 => [
+      [ 188880, 307, [], [ 7578, 8151, 8354, 1514, 6646 ], [] ],
+      [ 192216, 304, [], [ 7578, 8383, 1563, 6646 ], [] ],
+      [ 188879, 304, [], [ 6652, 8272, 7359, 8765, 8152, 1524 ], [] ],
+      [ 6796, 1, [], [], [] ],
+      [ 188875, 304, [], [ 8153, 8389, 1511, 6646 ], [] ],
+      [ 190468, 265, [], [ 6652, 7578 ], [] ],
+      [ 188878, 304, [], [ 8155, 8389, 1511, 6646 ], [] ],
+      [ 192222, 304, [], [ 8136, 8137, 8386, 1563, 6646 ], [] ],
+      [ 192234, 304, [], [ 7578, 8136, 8138, 8383, 1563, 6646 ], [] ],
+      [ 192223, 307, [], [ 8136, 8117, 8348, 1566, 6646 ], [] ],
+      [ 192213, 304, [ 6166, 0, 0 ], [ 7578, 8383, 1563, 6646 ], [] ],
+      [ 192215, 301, [ 6166, 0, 0 ], [ 7578, 8341, 1560, 6646 ], [] ],
+      [ 192298, 304, [], [ 8383, 1563, 6646 ], [] ],
+      [ 179350, 272, [], [ 7359, 6652, 7784, 1586, 6646 ], [] ],
+      [
+        173242,
+        291,
+        [ 6202, 0, 0 ],
+        [ 6984, 6648, 6650, 8156, 7882, 1588 ],
+        []
+      ],
+      [ 192294, 301, [ 6226, 0, 0 ], [ 8359, 1560, 6646 ], [] ],
+      [ 0, 0, [], [], [] ],
+      [ 83080, 1, [], [], [] ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    28 => [
+      'Player-3684-0D9A26AA',
+      390636,
+      'Player-3684-0D9A26AA',
+      373456,
+      'Player-3684-0D80A58F',
+      6673
+    ]
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    29 => 152
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    30 => 0
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    31 => 1956
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    32 => 208
+
+      at src/actions/CombatantInfoAction.ts:38:15
+          at Array.forEach (<anonymous>)
+
+  console.log
+    ################### 16 number
+
+      at src/actions/CombatantInfoAction.ts:7:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      0,
+      0,
+      [],
+      [],
+      []
+    ]
+
+      at src/actions/CombatantInfoAction.ts:8:15
+          at Array.map (<anonymous>)
+
+  console.log
+    [
+      [
+        188880,
+        307,
+        [],
+        [
+          7578,
+          8151,
+          8354,
+          1514,
+          6646
+        ],
+        []
+      ],
+      [
+        192216,
+        304,
+        [],
+        [
+          7578,
+          8383,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        188879,
+        304,
+        [],
+        [
+          6652,
+          8272,
+          7359,
+          8765,
+          8152,
+          1524
+        ],
+        []
+      ],
+      [
+        6796,
+        1,
+        [],
+        [],
+        []
+      ],
+      [
+        188875,
+        304,
+        [],
+        [
+          8153,
+          8389,
+          1511,
+          6646
+        ],
+        []
+      ],
+      [
+        190468,
+        265,
+        [],
+        [
+          6652,
+          7578
+        ],
+        []
+      ],
+      [
+        188878,
+        304,
+        [],
+        [
+          8155,
+          8389,
+          1511,
+          6646
+        ],
+        []
+      ],
+      [
+        192222,
+        304,
+        [],
+        [
+          8136,
+          8137,
+          8386,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        192234,
+        304,
+        [],
+        [
+          7578,
+          8136,
+          8138,
+          8383,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        192223,
+        307,
+        [],
+        [
+          8136,
+          8117,
+          8348,
+          1566,
+          6646
+        ],
+        []
+      ],
+      [
+        192213,
+        304,
+        [
+          6166,
+          0,
+          0
+        ],
+        [
+          7578,
+          8383,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        192215,
+        301,
+        [
+          6166,
+          0,
+          0
+        ],
+        [
+          7578,
+          8341,
+          1560,
+          6646
+        ],
+        []
+      ],
+      [
+        192298,
+        304,
+        [],
+        [
+          8383,
+          1563,
+          6646
+        ],
+        []
+      ],
+      [
+        179350,
+        272,
+        [],
+        [
+          7359,
+          6652,
+          7784,
+          1586,
+          6646
+        ],
+        []
+      ],
+      [
+        173242,
+        291,
+        [
+          6202,
+          0,
+          0
+        ],
+        [
+          6984,
+          6648,
+          6650,
+          8156,
+          7882,
+          1588
+        ],
+        []
+      ],
+      [
+        192294,
+        301,
+        [
+          6226,
+          0,
+          0
+        ],
+        [
+          8359,
+          1560,
+          6646
+        ],
+        []
+      ],
+      [
+        0,
+        0,
+        [],
+        [],
+        []
+      ],
+      [
+        83080,
+        1,
+        [],
+        [],
+        []
+      ]
+    ]
+
+      at src/actions/CombatantInfoAction.ts:9:15
+          at Array.map (<anonymous>)
+
+  console.log
+    cinfo CombatantInfoAction {
+      logLine: {
+        id: '1',
+        timestamp: 1666748090479,
+        event: 'COMBATANT_INFO',
+        parameters: [
+          'Player-3684-0D80A58F', 1,
+          2695,                   307,
+          5325,                   305,
+          0,                      0,
+          0,                      139,
+          139,                    139,
+          30,                     0,
+          1045,                   1045,
+          1045,                   0,
+          231,                    1593,
+          1593,                   1593,
+          2573,                   72,
+          [Array],                [Array],
+          [Array],                [Array],
+          [Array],                123,
+          0,                      1917,
+          4
+        ],
+        raw: '10/25 21:34:50.479  COMBATANT_INFO,Player-3684-0D80A58F,1,2695,307,5325,305,0,0,0,139,139,139,30,0,1045,1045,1045,0,231,1593,1593,1593,2573,72,[(90325,112182,1),(90386,112254,1),(90326,112183,1),(90371,112238,1),(90350,112213,1),(90346,112208,1),(90385,112253,1),(90344,112206,1),(90336,112197,1),(90353,112217,1),(90368,112235,1),(90367,112234,1),(90355,112219,1),(90356,112220,1),(90382,112249,1),(90378,112245,2),(90335,112196,1),(90258,112108,2),(90392,112261,1),(90396,112265,1),(90398,112267,1),(90430,112301,1),(90395,112264,1),(90394,112263,1),(90390,112259,1),(90429,112300,1),(90428,112299,1),(90408,112277,1),(90406,112275,1),(90407,112276,1),(90411,112280,1),(90412,112281,1),(90409,112278,1),(90387,112255,1),(90410,112279,1),(90426,112297,1),(90418,112289,1),(90362,112226,1),(90365,112232,1),(90416,112286,2),(90329,112186,1),(90330,112187,1),(90331,112188,1),(90360,112224,1),(90397,112266,1),(90403,112272,1),(90414,112283,1),(90415,112284,1),(90337,112198,1)],(0,352998,213857,236077),[18,1,[],[(1379),(1380),(1381),(1408),(1411),(1413),(1416),(1418),(1831),(1834),(1836),(1832)],[(8,278),(5,278),(50,278),(9,278),(52,278),(283,278)]],[(188942,307,(),(7578,8151,8354,1514,6646),()),(192216,307,(),(7578,8342,1566,6646),()),(188941,307,(),(8152,8348,1514,6646),()),(0,0,(),(),()),(192267,307,(6230,0,0),(8136,8116,8354,1566,6646),()),(192280,307,(),(7578,8136,8137,8348,1566,6646),()),(192275,307,(),(8136,8116,8354,1566,6646),()),(192269,307,(),(8136,8137,8348,1566,6646),()),(192282,307,(),(7578,8136,8138,8342,1566,6646),()),(192271,288,(),(8345,8136,8117,1547,6646),()),(178926,291,(6170,0,0),(8130,7882,8156,6649,6650,1588,6935),(173129,120)),(178926,291,(6166,0,0),(6959,8156,6648,6649,6935,7882,1588),(173128,120)),(192298,307,(),(8342,1566,6646),()),(192296,307,(),(8348,1566,6646),()),(192210,307,(6202,0,0),(8136,8138,8342,1566,6646),()),(192308,307,(6228,0,0),(8360,1566,6646),()),(192291,307,(6229,0,0),(8360,1566,6646),()),(52252,32,(),(),())],[Player-3684-0D80A58F,6673],123,0,1917,4'
+      },
+      timestamp: 1666748090479,
+      info: {
+        teamId: '1',
+        strength: 2695,
+        agility: 307,
+        stamina: 5325,
+        intelligence: 305,
+        dodge: 0,
+        parry: 0,
+        block: 0,
+        critMelee: 139,
+        critRanged: 139,
+        critSpell: 139,
+        speed: 30,
+        lifesteal: 0,
+        hasteMelee: 1045,
+        hasteRanged: 1045,
+        hasteSpell: 1045,
+        avoidance: 0,
+        mastery: 231,
+        versatilityDamgeDone: 1593,
+        versatilityHealingDone: 1593,
+        versatilityDamageTaken: 1593,
+        armor: 2573,
+        specId: '72',
+        talents: [
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object]
+        ],
+        pvpTalents: [ '0', '352998', '213857', '236077' ],
+        equipment: [
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object]
+        ],
+        interestingAurasJSON: '["Player-3684-0D80A58F",6673]',
+        item28: 123,
+        item29: 0,
+        personalRating: 1917,
+        highestPvpTier: 4
+      }
+    }
+
+      at CombatData.readEvent (src/CombatData.ts:118:15)
+          at Array.forEach (<anonymous>)
+
+  console.log
+    cinfo CombatantInfoAction {
+      logLine: {
+        id: '2',
+        timestamp: 1666748090479,
+        event: 'COMBATANT_INFO',
+        parameters: [
+          'Player-57-0D561701', 0,
+          194,                  2230,
+          5072,                 449,
+          0,                    0,
+          0,                    629,
+          629,                  629,
+          30,                   0,
+          0,                    0,
+          0,                    0,
+          689,                  1479,
+          1479,                 1479,
+          995,                  269,
+          [Array],              [Array],
+          [Array],              [Array],
+          [Array],              517,
+          0,                    1825,
+          4
+        ],
+        raw: '10/25 21:34:50.479  COMBATANT_INFO,Player-57-0D561701,0,194,2230,5072,449,0,0,0,629,629,629,30,0,0,0,0,0,689,1479,1479,1479,995,269,[(80690,101508,1),(80689,101507,1),(80693,101511,1),(80679,101495,1),(80688,101506,1),(80686,101504,1),(80680,101496,1),(80705,101523,2),(80684,101501,1),(80695,101513,1),(80694,101512,1),(80698,101516,1),(80681,101497,1),(80613,101423,1),(80614,101424,1),(80612,101422,1),(80610,101420,1),(80678,101494,1),(80677,101493,1),(80611,101421,2),(80675,101491,1),(80621,101432,1),(80622,101433,2),(80618,101429,1),(80619,101430,1),(80657,101473,1),(80656,101472,1),(80662,101478,1),(80615,101425,2),(80616,101426,1),(80663,101479,1),(80673,101489,2),(80674,101490,1),(80676,101492,1),(80682,101499,1),(80683,101500,2),(80685,101503,1),(80687,101505,1),(80692,101510,2),(80697,101515,1),(80704,101522,1),(80715,101534,2),(80717,101536,2)],(0,233759,287681,287503),[4,4,[],[(1121),(1122),(1124),(1126),(1128),(1135),(1136),(1820),(1822),(1824),(1819),(1130)],[(35,278),(22,278),(33,278),(60,278),(15,278),(16,278)]],[(188910,304,(),(7578,8151,8389,1511,6646),()),(178927,291,(),(7068,7882,8156,6648,6650,1588,6935),(173129,120)),(188914,304,(),(8152,8386,1511,6646),()),(17723,1,(),(),()),(188912,304,(6230,0,0),(8153,8389,1511,6646),()),(192247,304,(),(7579,8136,8137,8386,1563,6646),()),(188911,304,(),(8155,8389,1511,6646),()),(192237,304,(6211,0,0),(8136,8137,8386,1563,6646),()),(192250,304,(6222,0,0),(7578,8136,8138,8383,1563,6646),()),(192239,304,(),(8136,8117,8386,1563,6646),()),(178926,291,(6170,0,0),(8124,7882,8156,6648,6650,1588,6935),(173129,120)),(192215,304,(6170,0,0),(7579,8383,1563,6646),()),(192298,304,(),(8383,1563,6646),()),(192295,304,(),(8386,1563,6646),()),(192211,304,(6202,0,0),(8136,8138,8383,1563,6646),()),(192313,304,(6228,0,0),(8401,1563,6646),()),(192313,304,(6229,0,0),(8401,1563,6646),()),(0,0,(),(),())],[Player-57-0D561701,392993,Player-57-0D561701,392991,Player-57-0D2FEADE,21562],517,0,1825,4'
+      },
+      timestamp: 1666748090479,
+      info: {
+        teamId: '0',
+        strength: 194,
+        agility: 2230,
+        stamina: 5072,
+        intelligence: 449,
+        dodge: 0,
+        parry: 0,
+        block: 0,
+        critMelee: 629,
+        critRanged: 629,
+        critSpell: 629,
+        speed: 30,
+        lifesteal: 0,
+        hasteMelee: 0,
+        hasteRanged: 0,
+        hasteSpell: 0,
+        avoidance: 0,
+        mastery: 689,
+        versatilityDamgeDone: 1479,
+        versatilityHealingDone: 1479,
+        versatilityDamageTaken: 1479,
+        armor: 995,
+        specId: '269',
+        talents: [
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object]
+        ],
+        pvpTalents: [ '0', '233759', '287681', '287503' ],
+        equipment: [
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object]
+        ],
+        interestingAurasJSON: '["Player-57-0D561701",392993,"Player-57-0D561701",392991,"Player-57-0D2FEADE",21562]',
+        item28: 517,
+        item29: 0,
+        personalRating: 1825,
+        highestPvpTier: 4
+      }
+    }
+
+      at CombatData.readEvent (src/CombatData.ts:118:15)
+          at Array.forEach (<anonymous>)
+
+  console.log
+    cinfo CombatantInfoAction {
+      logLine: {
+        id: '3',
+        timestamp: 1666748090479,
+        event: 'COMBATANT_INFO',
+        parameters: [
+          'Player-57-0D2FEADE', 0,
+          263,                  372,
+          5294,                 2891,
+          0,                    0,
+          0,                    139,
+          139,                  139,
+          79,                   0,
+          818,                  818,
+          818,                  0,
+          339,                  1576,
+          1576,                 1576,
+          620,                  256,
+          [Array],              [Array],
+          [Array],              [Array],
+          [Array],              276,
+          0,                    2043,
+          208
+        ],
+        raw: '10/25 21:34:50.479  COMBATANT_INFO,Player-57-0D2FEADE,0,263,372,5294,2891,0,0,0,139,139,139,79,0,818,818,818,0,339,1576,1576,1576,620,256,[(82564,103687,1),(82567,103692,1),(82577,103702,1),(82587,103713,1),(82590,103718,1),(82591,103719,1),(82592,103721,1),(82593,103722,1),(82594,103723,1),(82595,103724,1),(82596,103725,1),(82598,103727,1),(82599,103728,2),(82600,103729,2),(82601,103731,1),(82683,103832,1),(82684,103833,2),(82692,103842,1),(82694,103844,1),(82696,103846,1),(82697,103847,2),(82701,103851,1),(82706,103856,1),(82707,103858,1),(82709,103861,2),(82714,103866,1),(82718,103870,1),(82713,103865,1),(82717,103869,1),(82572,103697,2),(82576,103701,1),(82579,103704,1),(82588,103715,1),(82589,103716,1),(82678,103824,1),(82687,103837,1),(82710,103678,1),(82712,103864,1),(92225,108225,1),(82699,103849,1),(82715,103867,1),(82716,103868,1),(82720,103677,1),(82556,103834,1),(82677,103823,2),(82602,103732,1)],(0,197590,356085,236499),[8,2,[],[(1868),(1393),(1395),(1397),(1398),(1400),(1866),(1403),(1405),(1406),(1870),(1871)],[(75,278),(69,278),(76,278),(81,278),(66,278),(72,278)]],[(188880,307,(),(8151,7580,8354,1514,6646),(169220,50)),(192216,307,(),(7580,8342,1566,6646),(173129,120)),(188879,307,(),(8152,8348,1514,6646),()),(0,0,(),(),()),(188875,307,(6217,0,0),(8153,8354,1514,6646),()),(192231,307,(),(8136,8137,7580,8348,1566,6646),(173129,120)),(192227,307,(),(8136,8116,8354,1566,6646),()),(192222,307,(),(8136,8137,8348,1566,6646),()),(192234,307,(6220,0,0),(8136,8138,7580,8342,1566,6646),(173129,120)),(188881,307,(6210,0,0),(6652,8154,8348,1514,6646),()),(192215,307,(),(7578,8342,1566,6646),()),(192213,307,(6170,0,0),(7580,8342,1566,6646),(173126,118)),(192296,307,(),(8348,1566,6646),()),(192298,307,(),(8342,1566,6646),()),(192210,307,(6202,0,0),(8136,8138,8342,1566,6646),()),(192294,307,(6229,0,0),(8360,1566,6646),()),(0,0,(),(),()),(0,0,(),(),())],[Player-57-0D2FEADE,373456,Player-57-0D2FEADE,21562,Player-57-0D561701,389685],276,0,2043,208'
+      },
+      timestamp: 1666748090479,
+      info: {
+        teamId: '0',
+        strength: 263,
+        agility: 372,
+        stamina: 5294,
+        intelligence: 2891,
+        dodge: 0,
+        parry: 0,
+        block: 0,
+        critMelee: 139,
+        critRanged: 139,
+        critSpell: 139,
+        speed: 79,
+        lifesteal: 0,
+        hasteMelee: 818,
+        hasteRanged: 818,
+        hasteSpell: 818,
+        avoidance: 0,
+        mastery: 339,
+        versatilityDamgeDone: 1576,
+        versatilityHealingDone: 1576,
+        versatilityDamageTaken: 1576,
+        armor: 620,
+        specId: '256',
+        talents: [
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object]
+        ],
+        pvpTalents: [ '0', '197590', '356085', '236499' ],
+        equipment: [
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object]
+        ],
+        interestingAurasJSON: '["Player-57-0D2FEADE",373456,"Player-57-0D2FEADE",21562,"Player-57-0D561701",389685]',
+        item28: 276,
+        item29: 0,
+        personalRating: 2043,
+        highestPvpTier: 208
+      }
+    }
+
+      at CombatData.readEvent (src/CombatData.ts:118:15)
+          at Array.forEach (<anonymous>)
+
+  console.log
+    cinfo CombatantInfoAction {
+      logLine: {
+        id: '4',
+        timestamp: 1666748090479,
+        event: 'COMBATANT_INFO',
+        parameters: [
+          'Player-3684-0D9A26AA', 1,
+          258,                    374,
+          4420,                   2745,
+          0,                      0,
+          0,                      293,
+          293,                    293,
+          30,                     0,
+          551,                    551,
+          551,                    0,
+          678,                    1234,
+          1234,                   1234,
+          592,                    257,
+          [Array],                [Array],
+          [Array],                [Array],
+          [Array],                152,
+          0,                      1956,
+          208
+        ],
+        raw: '10/25 21:34:50.479  COMBATANT_INFO,Player-3684-0D9A26AA,1,258,374,4420,2745,0,0,0,293,293,293,30,0,551,551,551,0,678,1234,1234,1234,592,257,[(82714,103866,1),(82703,103853,1),(82707,103858,1),(82701,103851,1),(82700,103850,1),(82694,103844,1),(82696,103846,1),(82697,103847,2),(82684,103833,2),(82692,103842,1),(82709,103861,1),(82713,103865,1),(82677,103823,2),(82676,103822,1),(82638,103775,1),(82631,103766,1),(82632,103767,1),(82637,103774,1),(82636,103773,1),(82620,103754,1),(82617,103751,1),(82614,103748,2),(82634,103770,2),(82618,103752,1),(82610,103743,1),(82717,103869,1),(82718,103870,1),(82607,103739,1),(82619,103753,1),(82622,103756,1),(82627,103762,2),(82639,103776,1),(82640,103777,1),(82678,103824,1),(82683,103832,1),(82685,103835,1),(82699,103849,1),(82711,103863,1),(82712,103864,1),(82715,103867,1),(82716,103868,1),(82686,103836,1),(82605,103676,1),(82606,103738,2),(82612,103745,1),(82633,103768,1)],(0,0,0,197268),[4,4,[],[(1122),(1123),(1124),(1126),(1128),(1130),(1136),(1819),(1821),(1823),(1824),(1135)],[(113,278),(66,278),(283,278),(114,278),(67,278),(107,278)]],[(188880,307,(),(7578,8151,8354,1514,6646),()),(192216,304,(),(7578,8383,1563,6646),()),(188879,304,(),(6652,8272,7359,8765,8152,1524),()),(6796,1,(),(),()),(188875,304,(),(8153,8389,1511,6646),()),(190468,265,(),(6652,7578),()),(188878,304,(),(8155,8389,1511,6646),()),(192222,304,(),(8136,8137,8386,1563,6646),()),(192234,304,(),(7578,8136,8138,8383,1563,6646),()),(192223,307,(),(8136,8117,8348,1566,6646),()),(192213,304,(6166,0,0),(7578,8383,1563,6646),()),(192215,301,(6166,0,0),(7578,8341,1560,6646),()),(192298,304,(),(8383,1563,6646),()),(179350,272,(),(7359,6652,7784,1586,6646),()),(173242,291,(6202,0,0),(6984,6648,6650,8156,7882,1588),()),(192294,301,(6226,0,0),(8359,1560,6646),()),(0,0,(),(),()),(83080,1,(),(),())],[Player-3684-0D9A26AA,390636,Player-3684-0D9A26AA,373456,Player-3684-0D80A58F,6673],152,0,1956,208'
+      },
+      timestamp: 1666748090479,
+      info: {
+        teamId: '1',
+        strength: 258,
+        agility: 374,
+        stamina: 4420,
+        intelligence: 2745,
+        dodge: 0,
+        parry: 0,
+        block: 0,
+        critMelee: 293,
+        critRanged: 293,
+        critSpell: 293,
+        speed: 30,
+        lifesteal: 0,
+        hasteMelee: 551,
+        hasteRanged: 551,
+        hasteSpell: 551,
+        avoidance: 0,
+        mastery: 678,
+        versatilityDamgeDone: 1234,
+        versatilityHealingDone: 1234,
+        versatilityDamageTaken: 1234,
+        armor: 592,
+        specId: '257',
+        talents: [
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object], [Object], [Object],
+          [Object], [Object]
+        ],
+        pvpTalents: [ '0', '0', '0', '197268' ],
+        equipment: [
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object],
+          [Object], [Object], [Object]
+        ],
+        interestingAurasJSON: '["Player-3684-0D9A26AA",390636,"Player-3684-0D9A26AA",373456,"Player-3684-0D80A58F",6673]',
+        item28: 152,
+        item29: 0,
+        personalRating: 1956,
+        highestPvpTier: 208
+      }
+    }
+
+      at CombatData.readEvent (src/CombatData.ts:118:15)
+          at Array.forEach (<anonymous>)
+
+  console.log
+    deaths 2
+
+      at CombatData.end (src/CombatData.ts:498:13)
+
+  console.log
+    timeout undefined
+
+      at CombatData.end (src/CombatData.ts:499:13)
+
+  console.log
+    {
+      timestamp: 1666748090479,
+      zoneId: '1911',
+      item1: '0',
+      bracket: '2v2',
+      isRanked: true
+    }
+
+      at CombatData.end (src/CombatData.ts:500:13)
+
+  console.log
+    {
+      timestamp: 1666748283457,
+      winningTeamId: '0',
+      matchDurationInSeconds: 192,
+      team0MMR: 1852,
+      team1MMR: 1838
+    }
+
+      at CombatData.end (src/CombatData.ts:501:13)
+
+  console.log
+    meta size 4
+
+      at CombatData.end (src/CombatData.ts:502:13)
+
+  console.log
+    { malformed: [] }
+
+      at Object.<anonymous> (test/beta.test.ts:48:15)
+
+Done in 8.44s.

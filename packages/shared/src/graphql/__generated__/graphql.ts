@@ -178,9 +178,9 @@ export type QueryMatchesWithCombatantArgs = {
 
 export type Talent = {
   __typename?: 'Talent';
-  id1: Scalars['Int'];
-  id2: Scalars['Int'];
-  count: Scalars['Int'];
+  id1?: Maybe<Scalars['Int']>;
+  id2?: Maybe<Scalars['Int']>;
+  count?: Maybe<Scalars['Int']>;
 };
 
 

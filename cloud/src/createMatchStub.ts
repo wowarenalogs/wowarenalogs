@@ -124,7 +124,7 @@ function buildQueryHelpers(com: ICombatData): QueryHelpers {
 }
 
 function createStubDTOFromCombat(com: ICombatData, ownerId: string, logObjectUrl: string): FirebaseDTO {
-  const inThirtyDays = moment().add('days', 30);
+  const inThirtyDays = moment().add(30, 'days');
   const unitsList = _.values(com.units).map((c) => {
     if (c.info) c.info.equipment = []; // remove equipped items to save storage
     return {
