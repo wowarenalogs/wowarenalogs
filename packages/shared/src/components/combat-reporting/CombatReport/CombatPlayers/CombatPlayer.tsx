@@ -25,6 +25,7 @@ import { CombatStatistic } from '../CombatStatistic';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
+import { talentIdMap } from './betaTalents';
 
 const Pie = dynamic(
   () => {
@@ -55,6 +56,32 @@ const PIE_CHART_CONFIG = {
 interface IProps {
   player: ICombatUnit;
 }
+
+const specTalentEntryToSpellId = talentIdMap
+  .map((a) => a.specNodes)
+  .flat()
+  .map((n) => n.entries)
+  .flat()
+  .reduce((prev, cur, curIdx, ary) => {
+    prev[cur.id] = cur.spellId;
+    return prev;
+  }, {} as Record<number, number>);
+
+const classTalentEntryToSpellId = talentIdMap
+  .map((a) => a.classNodes)
+  .flat()
+  .map((n) => n.entries)
+  .flat()
+  .reduce((prev, cur, curIdx, ary) => {
+    prev[cur.id] = cur.spellId;
+    return prev;
+  }, {} as Record<number, number>);
+
+const maybeGetSpellIdFromTalentId = (talentId: number) => {
+  return classTalentEntryToSpellId[talentId] ?? specTalentEntryToSpellId[talentId] ?? 0;
+};
+
+console.log([...Object.values(specTalentEntryToSpellId), ...Object.values(classTalentEntryToSpellId)]);
 
 const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14, 17, 3];
 
@@ -240,11 +267,11 @@ export function CombatPlayer(props: IProps) {
         </Box>
         {combatReportContext.combat?.wowVersion === 'retail' && (
           <Box mt={2}>
-            <div style={{ fontSize: 20 }}>Warning: Talents are currently broken!</div>
+            <div style={{ fontSize: 20 }}>Warning: Talents are a work in progress!</div>
             <Box display="flex" flexDirection="row" flexWrap="wrap" alignItems="center">
               {props.player.info?.talents.map((t, i) => (
                 <Box key={i} mr={1}>
-                  <SpellIcon spellId={t?.id1 || 0} size={32} />
+                  <SpellIcon spellId={maybeGetSpellIdFromTalentId(t?.id2 || 0)} size={32} />
                 </Box>
               ))}
               <Divider type="vertical" style={{ height: 32 }} />
