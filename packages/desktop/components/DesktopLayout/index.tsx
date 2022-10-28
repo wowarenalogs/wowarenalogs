@@ -1,4 +1,10 @@
-import { ClientContextProvider, getAnalyticsDeviceId, initAnalyticsAsync, MainLayout } from '@wowarenalogs/shared';
+import {
+  ClientContextProvider,
+  getAnalyticsDeviceId,
+  initAnalyticsAsync,
+  LoadingScreen,
+  MainLayout,
+} from '@wowarenalogs/shared';
 import { AuthProvider } from '@wowarenalogs/shared';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
@@ -99,10 +105,7 @@ export const DesktopLayout = !window.wowarenalogs
               <LocalCombatsContextProvider>
                 <div className="w-screen h-screen flex flex-col bg-base-300">
                   <TitleBar />
-                  <MainLayout>
-                    {isLoading && <div>Apploading: {isLoading.toString()}</div>}
-                    {!isLoading && <Component {...pageProps} />}
-                  </MainLayout>
+                  <MainLayout>{isLoading ? <LoadingScreen /> : <Component {...pageProps} />}</MainLayout>
                 </div>
               </LocalCombatsContextProvider>
             </AuthProvider>

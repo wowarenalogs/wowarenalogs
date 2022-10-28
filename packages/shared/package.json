@@ -28,9 +28,7 @@
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "@google-cloud/firestore": "^5.0.2",
-    "@headlessui/react": "^1.5.0",
     "@wowarenalogs/parser": "^4.6.4",
-    "amplitude-js": "^8.18.5",
     "apollo-server-micro": "^3.9.0",
     "daisyui": "^2.33.0",
     "lodash": "^4.17.21",

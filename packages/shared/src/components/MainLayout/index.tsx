@@ -116,8 +116,8 @@ export function MainLayout(props: IProps) {
           </div>
         )}
       </div>
-      <div className="flex-1 flex flex-col bg-base-100 relative">
-        <div className="absolute w-full h-full overflow-hidden">{props.children}</div>
+      <div className="flex-1 flex flex-col bg-base-100 text-base-content relative">
+        <div className="absolute w-full h-full overflow-hidden flex flex-col">{props.children}</div>
       </div>
     </div>
   );
