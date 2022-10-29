@@ -26,6 +26,7 @@ import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
 import { talentIdMap } from './betaTalents';
+import { createExportString } from './importExport';
 
 const Pie = dynamic(
   () => {
@@ -274,6 +275,17 @@ export function CombatPlayer(props: IProps) {
                   <SpellIcon spellId={maybeGetSpellIdFromTalentId(t?.id2 || 0)} size={32} />
                 </Box>
               ))}
+              <Box
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    createExportString(parseInt(props.player.info?.specId), props.player.info.talents),
+                  );
+                }}
+              >
+                Export String (click to copy):{' '}
+                {createExportString(parseInt(props.player.info?.specId), props.player.info.talents)}
+              </Box>
+              <Box>Should be BgEAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAhkAJARQISQ0ISIgEESCRkkEIkkkEpFBQkEAAAA</Box>
               <Divider type="vertical" style={{ height: 32 }} />
               {props.player.info?.pvpTalents
                 .filter((t) => t && t !== '0')
