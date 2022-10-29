@@ -1,15 +1,16 @@
-import { Button, useAuth } from '@wowarenalogs/shared';
+import { useAuth } from '@wowarenalogs/shared';
 import React from 'react';
 
 export const LoginButton = () => {
   const auth = useAuth();
   return (
-    <Button
+    <button
+      className="btn"
       onClick={async () => {
         auth.signIn();
       }}
     >
       Login with Battle.net
-    </Button>
+    </button>
   );
 };

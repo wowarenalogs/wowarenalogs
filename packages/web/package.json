@@ -14,6 +14,7 @@
     "release:web": "git checkout release/web && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.7",
     "@wowarenalogs/shared": "^1.0.0",
     "daisyui": "^2.33.0",
     "next": "^12.1.1",

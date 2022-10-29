@@ -39,11 +39,9 @@ export function MainLayout(props: IProps) {
       <div className="flex flex-col text-base-content">
         {clientContext.isDesktop && (
           <div
-            className={`p-2 hover:text-white ${
-              selectedNavMenuKey === '/my-matches/latest' ? 'bg-base-100 text-white' : ''
-            }`}
+            className={`p-2 hover:text-primary ${selectedNavMenuKey === '/latest' ? 'bg-base-100 text-primary' : ''}`}
           >
-            <Link href="/my-matches/latest" aria-label="Latest match">
+            <Link href="/latest" aria-label="Latest match">
               <a>
                 <TbSwords size="32" />
               </a>
@@ -51,29 +49,23 @@ export function MainLayout(props: IProps) {
           </div>
         )}
         <div
-          className={`p-2 hover:text-white ${
-            selectedNavMenuKey === '/my-matches/history' ? 'bg-base-100 text-white' : ''
-          }`}
+          className={`p-2 hover:text-primary ${selectedNavMenuKey === '/history' ? 'bg-base-100 text-primary' : ''}`}
         >
-          <Link href="/my-matches/history" aria-label="History">
+          <Link href="/history" aria-label="History">
             <a>
               <TbHistory size="32" />
             </a>
           </Link>
         </div>
-        <div
-          className={`p-2 hover:text-white ${
-            selectedNavMenuKey === '/community-matches' ? 'bg-base-100 text-white' : ''
-          }`}
-        >
-          <Link href="/community-matches" aria-label="Community matches">
+        <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/search' ? 'bg-base-100 text-primary' : ''}`}>
+          <Link href="/search" aria-label="Search matches">
             <a>
               <TbSearch size="32" />
             </a>
           </Link>
         </div>
         <div className="flex-1" />
-        <div className={`p-2 hover:text-white ${selectedNavMenuKey === '/debug' ? 'bg-base-100 text-white' : ''}`}>
+        <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/debug' ? 'bg-base-100 text-primary' : ''}`}>
           <Link href="/debug">
             <a>
               <TbBug size="32" />
@@ -81,9 +73,9 @@ export function MainLayout(props: IProps) {
           </Link>
         </div>
         <div
-          className={`p-2 hover:text-white ${
+          className={`p-2 hover:text-primary ${
             selectedNavMenuKey === '/profile'
-              ? 'bg-base-100 text-white'
+              ? 'bg-base-100 text-primary'
               : auth.isAuthenticated
               ? ''
               : 'bg-error text-error-content'
@@ -107,7 +99,9 @@ export function MainLayout(props: IProps) {
           )}
         </div>
         {clientContext.isDesktop && (
-          <div className={`p-2 hover:text-white ${selectedNavMenuKey === '/settings' ? 'bg-base-100 text-white' : ''}`}>
+          <div
+            className={`p-2 hover:text-primary ${selectedNavMenuKey === '/settings' ? 'bg-base-100 text-primary' : ''}`}
+          >
             <Link href="/settings" aria-label="Settings">
               <a>
                 <TbSettings size="32" />

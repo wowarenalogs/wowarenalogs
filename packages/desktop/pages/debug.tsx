@@ -1,4 +1,4 @@
-import { Button, useAuth } from '@wowarenalogs/shared';
+import { useAuth } from '@wowarenalogs/shared';
 import { useClientContext } from '@wowarenalogs/shared';
 import { useGetMyMatchesQuery, useGetProfileQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 
@@ -60,14 +60,16 @@ const Debug = () => {
         <div className="flex flex-col">
           <LoginButton />
           <LogoutButton />
-          <Button
+          <button
+            className="btn"
             onClick={() => {
               window.wowarenalogs.links?.openExternalURL('https://worldofwarcraft.com/en-us/');
             }}
           >
             Test Open External URL
-          </Button>
-          <Button
+          </button>
+          <button
+            className="btn"
             onClick={() => {
               window.wowarenalogs.fs
                 ?.selectFolder()
@@ -80,8 +82,9 @@ const Debug = () => {
             }}
           >
             Select WoW Folder (installs addon, starts loggers)
-          </Button>
-          <Button
+          </button>
+          <button
+            className="btn"
             onClick={() => {
               updateAppConfig((prev) => {
                 return { ...prev, wowDirectory: undefined };
@@ -89,14 +92,15 @@ const Debug = () => {
             }}
           >
             Clear WoW Folder Setting
-          </Button>
-          <Button
+          </button>
+          <button
+            className="btn"
             onClick={() => {
               client.saveWindowPosition();
             }}
           >
             Save Window Pos
-          </Button>
+          </button>
         </div>
       </div>
     </div>

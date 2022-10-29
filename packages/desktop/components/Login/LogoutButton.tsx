@@ -1,4 +1,4 @@
-import { Button, useAuth } from '@wowarenalogs/shared';
+import { useAuth } from '@wowarenalogs/shared';
 import React from 'react';
 
 // TODO: translate logout text
@@ -6,12 +6,13 @@ import React from 'react';
 export const LogoutButton = () => {
   const auth = useAuth();
   return (
-    <Button
+    <button
+      className="btn"
       onClick={async () => {
         auth.signOut();
       }}
     >
       Logout
-    </Button>
+    </button>
   );
 };

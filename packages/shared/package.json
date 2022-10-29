@@ -28,6 +28,7 @@
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "@google-cloud/firestore": "^5.0.2",
+    "@tailwindcss/typography": "^0.5.7",
     "@wowarenalogs/parser": "^4.6.4",
     "apollo-server-micro": "^3.9.0",
     "daisyui": "^2.33.0",
