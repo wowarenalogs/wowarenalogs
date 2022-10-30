@@ -4098,7 +4098,7 @@ export const talentIdMap = [
       },
       {
         "id": 82098,
-        "name": "Merciless Claws",
+        "name": "Merciless Strikes",
         "type": "single",
         "posX": 10500,
         "posY": 2700,
@@ -4117,7 +4117,7 @@ export const talentIdMap = [
             "definitionId": 108164,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Merciless Claws",
+            "name": "Merciless Strikes",
             "spellId": 231063,
             "icon": "inv_misc_monsterclaw_03",
             "index": 100
@@ -4394,7 +4394,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Berserk",
-            "spellId": 343223,
+            "spellId": 106951,
             "icon": "ability_druid_berserk",
             "index": 100
           }
@@ -9732,7 +9732,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Celestial Alignment",
-            "spellId": 395022,
+            "spellId": 194223,
             "icon": "spell_nature_natureguardian",
             "index": 100
           }
@@ -9828,7 +9828,7 @@ export const talentIdMap = [
       },
       {
         "id": 88221,
-        "name": "Orbital Strike / Primordial Arcanic Pulsar",
+        "name": "Syzygy / Primordial Arcanic Pulsar",
         "type": "choice",
         "posX": 11700,
         "posY": 5100,
@@ -9844,7 +9844,7 @@ export const talentIdMap = [
             "definitionId": 114861,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Orbital Strike",
+            "name": "Syzygy",
             "spellId": 390378,
             "icon": "ability_druid_cresentburn",
             "index": 100
@@ -11120,7 +11120,7 @@ export const talentIdMap = [
       },
       {
         "id": 68670,
-        "name": "Inherent Resistance",
+        "name": "Tempered Scales",
         "type": "single",
         "posX": 3900,
         "posY": 4500,
@@ -11138,7 +11138,7 @@ export const talentIdMap = [
             "definitionId": 92699,
             "maxRanks": 2,
             "type": "passive",
-            "name": "Inherent Resistance",
+            "name": "Tempered Scales",
             "spellId": 375544,
             "icon": "inv_misc_rubysanctum1",
             "index": 100
@@ -11278,7 +11278,7 @@ export const talentIdMap = [
             "type": "passive",
             "name": "Exuberance",
             "spellId": 375542,
-            "icon": "ability_evoker_hover2",
+            "icon": "achievement_guildperk_mountup",
             "index": 100
           }
         ]
@@ -13558,7 +13558,7 @@ export const talentIdMap = [
       },
       {
         "id": 68670,
-        "name": "Inherent Resistance",
+        "name": "Tempered Scales",
         "type": "single",
         "posX": 3900,
         "posY": 4500,
@@ -13576,7 +13576,7 @@ export const talentIdMap = [
             "definitionId": 92699,
             "maxRanks": 2,
             "type": "passive",
-            "name": "Inherent Resistance",
+            "name": "Tempered Scales",
             "spellId": 375544,
             "icon": "inv_misc_rubysanctum1",
             "index": 100
@@ -13716,7 +13716,7 @@ export const talentIdMap = [
             "type": "passive",
             "name": "Exuberance",
             "spellId": 375542,
-            "icon": "ability_evoker_hover2",
+            "icon": "achievement_guildperk_mountup",
             "index": 100
           }
         ]
@@ -18233,7 +18233,8 @@ export const talentIdMap = [
       82719,
       82720,
       82721,
-      86730
+      86730,
+      92225
     ]
   },
   {
@@ -21075,7 +21076,8 @@ export const talentIdMap = [
       82719,
       82720,
       82721,
-      86730
+      86730,
+      92225
     ]
   },
   {
@@ -22551,7 +22553,8 @@ export const talentIdMap = [
         "posY": 2100,
         "maxRanks": 1,
         "next": [
-          82592
+          82592,
+          92225
         ],
         "prev": [
           82594
@@ -22577,6 +22580,7 @@ export const talentIdMap = [
         "posY": 2100,
         "maxRanks": 1,
         "next": [
+          92225,
           82588
         ],
         "prev": [
@@ -22650,6 +22654,34 @@ export const talentIdMap = [
         ]
       },
       {
+        "id": 92225,
+        "name": "Make Amends",
+        "type": "single",
+        "posX": 11700,
+        "posY": 2700,
+        "maxRanks": 1,
+        "next": [
+          82589,
+          82564
+        ],
+        "prev": [
+          82587,
+          82593
+        ],
+        "entries": [
+          {
+            "id": 108225,
+            "definitionId": 113230,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Make Amends",
+            "spellId": 391079,
+            "icon": "spell_holy_penance",
+            "index": 100
+          }
+        ]
+      },
+      {
         "id": 82588,
         "name": "Pain Transformation / Protector of the Frail",
         "type": "choice",
@@ -22657,7 +22689,6 @@ export const talentIdMap = [
         "posY": 2700,
         "maxRanks": 1,
         "next": [
-          82589,
           82564
         ],
         "prev": [
@@ -22790,7 +22821,7 @@ export const talentIdMap = [
         ],
         "prev": [
           82592,
-          82588
+          92225
         ],
         "entries": [
           {
@@ -22826,8 +22857,9 @@ export const talentIdMap = [
           82598
         ],
         "prev": [
-          82588,
-          82596
+          82596,
+          92225,
+          82588
         ],
         "entries": [
           {
@@ -23340,7 +23372,7 @@ export const talentIdMap = [
         "maxRanks": 1,
         "next": [
           82585,
-          82570
+          82586
         ],
         "prev": [
           82583
@@ -23497,36 +23529,36 @@ export const talentIdMap = [
         ]
       },
       {
-        "id": 82570,
-        "name": "Void Summoner",
+        "id": 82586,
+        "name": "Inescapable Torment",
         "type": "single",
         "posX": 14100,
         "posY": 6300,
         "reqPoints": 20,
         "maxRanks": 2,
         "next": [
-          82586
+          82570
         ],
         "prev": [
           82584
         ],
         "entries": [
           {
-            "id": 103695,
-            "definitionId": 108700,
+            "id": 103712,
+            "definitionId": 108717,
             "maxRanks": 2,
             "type": "passive",
-            "name": "Void Summoner",
-            "spellId": 390770,
-            "icon": "spell_shadow_shadowfiend",
+            "name": "Inescapable Torment",
+            "spellId": 373427,
+            "icon": "spell_shadow_chilltouch",
             "index": 100
           }
         ]
       },
       {
         "id": 86730,
-        "name": "Aegis of Wrath / Make Amends",
-        "type": "choice",
+        "name": "Aegis of Wrath",
+        "type": "single",
         "posX": 10500,
         "posY": 6900,
         "reqPoints": 20,
@@ -23545,16 +23577,6 @@ export const talentIdMap = [
             "spellId": 238135,
             "icon": "spell_holy_powerwordshield",
             "index": 100
-          },
-          {
-            "id": 108225,
-            "definitionId": 113230,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Make Amends",
-            "spellId": 391079,
-            "icon": "spell_holy_penance",
-            "index": 200
           }
         ]
       },
@@ -23635,26 +23657,26 @@ export const talentIdMap = [
         ]
       },
       {
-        "id": 82586,
-        "name": "Inescapable Torment",
+        "id": 82570,
+        "name": "Void Summoner",
         "type": "single",
-        "posX": 13500,
+        "posX": 14100,
         "posY": 6900,
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [],
         "prev": [
-          82570
+          82586
         ],
         "entries": [
           {
-            "id": 103712,
-            "definitionId": 108717,
+            "id": 103695,
+            "definitionId": 108700,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Inescapable Torment",
-            "spellId": 373427,
-            "icon": "spell_shadow_chilltouch",
+            "name": "Void Summoner",
+            "spellId": 390770,
+            "icon": "spell_shadow_shadowfiend",
             "index": 100
           }
         ]
@@ -23830,7 +23852,8 @@ export const talentIdMap = [
       82719,
       82720,
       82721,
-      86730
+      86730,
+      92225
     ]
   },
   {
@@ -25031,7 +25054,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Empower Rune Weapon",
-            "spellId": 392962,
+            "spellId": 47568,
             "icon": "inv_sword_62",
             "index": 100
           }
@@ -25819,7 +25842,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Empower Rune Weapon",
-            "spellId": 392963,
+            "spellId": 47568,
             "icon": "inv_sword_62",
             "index": 100
           }
@@ -27576,7 +27599,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Empower Rune Weapon",
-            "spellId": 392962,
+            "spellId": 47568,
             "icon": "inv_sword_62",
             "index": 100
           }
@@ -30133,7 +30156,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Empower Rune Weapon",
-            "spellId": 392962,
+            "spellId": 47568,
             "icon": "inv_sword_62",
             "index": 100
           }
@@ -32196,7 +32219,7 @@ export const talentIdMap = [
       },
       {
         "id": 79819,
-        "name": "Sentinel",
+        "name": "Sentinel Owl",
         "type": "single",
         "posX": 6000,
         "posY": 4500,
@@ -32214,8 +32237,8 @@ export const talentIdMap = [
             "definitionId": 105522,
             "maxRanks": 1,
             "type": "active",
-            "name": "Sentinel",
-            "spellId": 393505,
+            "name": "Sentinel Owl",
+            "spellId": 388045,
             "icon": "ability_hunter_sentinelowl",
             "index": 100
           }
@@ -34681,7 +34704,7 @@ export const talentIdMap = [
       },
       {
         "id": 79819,
-        "name": "Sentinel",
+        "name": "Sentinel Owl",
         "type": "single",
         "posX": 6000,
         "posY": 4500,
@@ -34699,8 +34722,8 @@ export const talentIdMap = [
             "definitionId": 105522,
             "maxRanks": 1,
             "type": "active",
-            "name": "Sentinel",
-            "spellId": 393505,
+            "name": "Sentinel Owl",
+            "spellId": 388045,
             "icon": "ability_hunter_sentinelowl",
             "index": 100
           }
@@ -37040,7 +37063,7 @@ export const talentIdMap = [
       },
       {
         "id": 79819,
-        "name": "Sentinel",
+        "name": "Sentinel Owl",
         "type": "single",
         "posX": 6000,
         "posY": 4500,
@@ -37058,8 +37081,8 @@ export const talentIdMap = [
             "definitionId": 105522,
             "maxRanks": 1,
             "type": "active",
-            "name": "Sentinel",
-            "spellId": 393505,
+            "name": "Sentinel Owl",
+            "spellId": 388045,
             "icon": "ability_hunter_sentinelowl",
             "index": 100
           }
@@ -39266,8 +39289,8 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Shadowstep",
-            "spellId": 394931,
-            "icon": "rogue_shadowfocus",
+            "spellId": 36554,
+            "icon": "ability_rogue_shadowstep",
             "index": 100
           }
         ]
@@ -39979,8 +40002,8 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Shadow Dance",
-            "spellId": 394930,
-            "icon": "rogue_shadowfocus",
+            "spellId": 185313,
+            "icon": "ability_rogue_shadowdance",
             "index": 100
           }
         ]
@@ -40088,8 +40111,8 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Shadowstep",
-            "spellId": 394932,
-            "icon": "rogue_shadowfocus",
+            "spellId": 36554,
+            "icon": "ability_rogue_shadowstep",
             "index": 100
           }
         ]
@@ -41751,8 +41774,8 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Shadowstep",
-            "spellId": 394931,
-            "icon": "rogue_shadowfocus",
+            "spellId": 36554,
+            "icon": "ability_rogue_shadowstep",
             "index": 100
           }
         ]
@@ -42464,8 +42487,8 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Shadow Dance",
-            "spellId": 394930,
-            "icon": "rogue_shadowfocus",
+            "spellId": 185313,
+            "icon": "ability_rogue_shadowdance",
             "index": 100
           }
         ]
@@ -44380,8 +44403,8 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Shadowstep",
-            "spellId": 394931,
-            "icon": "rogue_shadowfocus",
+            "spellId": 36554,
+            "icon": "ability_rogue_shadowstep",
             "index": 100
           }
         ]
@@ -45093,8 +45116,8 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Shadow Dance",
-            "spellId": 394930,
-            "icon": "rogue_shadowfocus",
+            "spellId": 185313,
+            "icon": "ability_rogue_shadowdance",
             "index": 100
           }
         ]
@@ -45148,8 +45171,8 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Shadowstep",
-            "spellId": 394935,
-            "icon": "rogue_shadowfocus",
+            "spellId": 36554,
+            "icon": "ability_rogue_shadowstep",
             "index": 100
           }
         ]
@@ -47430,7 +47453,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Healing Stream Totem",
-            "spellId": 392915,
+            "spellId": 5394,
             "icon": "inv_spear_04",
             "index": 100
           }
@@ -48583,7 +48606,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Elemental Blast",
-            "spellId": 394150,
+            "spellId": 117014,
             "icon": "shaman_talent_elementalblast",
             "index": 100
           }
@@ -50214,7 +50237,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Healing Stream Totem",
-            "spellId": 392915,
+            "spellId": 5394,
             "icon": "inv_spear_04",
             "index": 100
           }
@@ -50808,7 +50831,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Healing Stream Totem",
-            "spellId": 392916,
+            "spellId": 5394,
             "icon": "inv_spear_04",
             "index": 100
           }
@@ -53078,7 +53101,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Healing Stream Totem",
-            "spellId": 392915,
+            "spellId": 5394,
             "icon": "inv_spear_04",
             "index": 100
           }
@@ -54034,7 +54057,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Stormkeeper",
-            "spellId": 392714,
+            "spellId": 191634,
             "icon": "ability_thunderking_lightningwhip",
             "index": 100
           }
@@ -54657,7 +54680,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Stormkeeper",
-            "spellId": 392763,
+            "spellId": 191634,
             "icon": "ability_thunderking_lightningwhip",
             "index": 200
           }
@@ -54665,7 +54688,7 @@ export const talentIdMap = [
       },
       {
         "id": 80978,
-        "name": "Primordial Surge / Splintered Elements",
+        "name": "Heat Wave / Splintered Elements",
         "type": "choice",
         "posX": 11400,
         "posY": 6600,
@@ -54681,7 +54704,7 @@ export const talentIdMap = [
             "definitionId": 106857,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Primordial Surge",
+            "name": "Heat Wave",
             "spellId": 386474,
             "icon": "ability_rhyolith_magmaflow_wave",
             "index": 200
@@ -59753,7 +59776,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Final Verdict",
-            "spellId": 383327,
+            "spellId": 383328,
             "icon": "spell_paladin_templarsverdict",
             "index": 100
           }
@@ -60371,7 +60394,7 @@ export const talentIdMap = [
       },
       {
         "id": 92220,
-        "name": "Greater Judgment",
+        "name": "Judgment",
         "type": "single",
         "posX": 6600,
         "posY": 3300,
@@ -60388,7 +60411,7 @@ export const talentIdMap = [
             "definitionId": 119297,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Greater Judgment",
+            "name": "Judgment",
             "spellId": 231644,
             "icon": "spell_holy_righteousfury",
             "index": 0
@@ -61824,8 +61847,8 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Light of the Martyr",
-            "spellId": 219562,
-            "icon": "spell_holy_power",
+            "spellId": 183998,
+            "icon": "ability_paladin_lightofthemartyr",
             "index": 100
           }
         ]
@@ -70429,7 +70452,7 @@ export const talentIdMap = [
         "next": [
           90346,
           90384,
-          92223
+          90343
         ],
         "prev": [
           90386
@@ -70455,7 +70478,7 @@ export const talentIdMap = [
         "posY": 2100,
         "maxRanks": 1,
         "next": [
-          92223,
+          90343,
           90336
         ],
         "prev": [
@@ -70596,7 +70619,7 @@ export const talentIdMap = [
         ]
       },
       {
-        "id": 92223,
+        "id": 90343,
         "name": "Thunder Clap",
         "type": "single",
         "posX": 4500,
@@ -70612,12 +70635,12 @@ export const talentIdMap = [
         ],
         "entries": [
           {
-            "id": 114295,
-            "definitionId": 119300,
+            "id": 112205,
+            "definitionId": 117210,
             "maxRanks": 1,
             "type": "active",
             "name": "Thunder Clap",
-            "spellId": 396719,
+            "spellId": 6343,
             "icon": "spell_nature_thunderclap",
             "index": 100
           }
@@ -70791,12 +70814,12 @@ export const talentIdMap = [
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          92222,
+          90377,
           90340
         ],
         "prev": [
           90336,
-          92223
+          90343
         ],
         "entries": [
           {
@@ -70820,7 +70843,7 @@ export const talentIdMap = [
         "reqPoints": 8,
         "maxRanks": 2,
         "next": [
-          92222
+          90377
         ],
         "prev": [
           90336
@@ -70840,14 +70863,14 @@ export const talentIdMap = [
       },
       {
         "id": 90335,
-        "name": "Sidearm / Concussive Blows",
+        "name": "Barbaric Training / Concussive Blows",
         "type": "choice",
         "posX": 6300,
         "posY": 3300,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          92222
+          90377
         ],
         "prev": [
           90336
@@ -70858,9 +70881,9 @@ export const talentIdMap = [
             "definitionId": 117201,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Sidearm",
-            "spellId": 384404,
-            "icon": "inv_throwingaxe_06",
+            "name": "Barbaric Training",
+            "spellId": 390674,
+            "icon": "ability_garrosh_whirling_corruption",
             "index": 0
           },
           {
@@ -70948,7 +70971,7 @@ export const talentIdMap = [
           90340
         ],
         "prev": [
-          92223
+          90343
         ],
         "entries": [
           {
@@ -70974,8 +70997,8 @@ export const talentIdMap = [
         ]
       },
       {
-        "id": 92222,
-        "name": "Barbaric Training",
+        "id": 90377,
+        "name": "Sidearm",
         "type": "single",
         "posX": 5700,
         "posY": 3900,
@@ -70986,19 +71009,19 @@ export const talentIdMap = [
           90376
         ],
         "prev": [
+          90378,
           90335,
-          90337,
-          90378
+          90337
         ],
         "entries": [
           {
-            "id": 114294,
-            "definitionId": 119299,
+            "id": 112244,
+            "definitionId": 117249,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Barbaric Training",
-            "spellId": 390674,
-            "icon": "ability_garrosh_whirling_corruption",
+            "name": "Sidearm",
+            "spellId": 384404,
+            "icon": "inv_throwingaxe_06",
             "index": 0
           }
         ]
@@ -71131,9 +71154,9 @@ export const talentIdMap = [
           90376
         ],
         "prev": [
+          90377,
           90337,
-          90342,
-          92222
+          90342
         ],
         "entries": [
           {
@@ -71272,7 +71295,7 @@ export const talentIdMap = [
         ],
         "prev": [
           90340,
-          92222
+          90377
         ],
         "entries": [
           {
@@ -73016,11 +73039,7 @@ export const talentIdMap = [
       90449,
       90450,
       90451,
-      90452,
-      92221,
-      92222,
-      92223,
-      92224
+      90452
     ]
   },
   {
@@ -73707,7 +73726,7 @@ export const talentIdMap = [
       },
       {
         "id": 90334,
-        "name": "Sidearm / Concussive Blows",
+        "name": "Barbaric Training / Concussive Blows",
         "type": "choice",
         "posX": 6300,
         "posY": 3300,
@@ -73725,9 +73744,9 @@ export const talentIdMap = [
             "definitionId": 117199,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Sidearm",
-            "spellId": 384404,
-            "icon": "inv_throwingaxe_06",
+            "name": "Barbaric Training",
+            "spellId": 390675,
+            "icon": "ability_garrosh_whirling_corruption",
             "index": 0
           },
           {
@@ -73842,7 +73861,7 @@ export const talentIdMap = [
       },
       {
         "id": 90377,
-        "name": "Barbaric Training",
+        "name": "Sidearm",
         "type": "single",
         "posX": 5700,
         "posY": 3900,
@@ -73863,9 +73882,9 @@ export const talentIdMap = [
             "definitionId": 117249,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Barbaric Training",
-            "spellId": 390675,
-            "icon": "ability_garrosh_whirling_corruption",
+            "name": "Sidearm",
+            "spellId": 384404,
+            "icon": "inv_throwingaxe_06",
             "index": 0
           }
         ]
@@ -75817,11 +75836,7 @@ export const talentIdMap = [
       90449,
       90450,
       90451,
-      90452,
-      92221,
-      92222,
-      92223,
-      92224
+      90452
     ]
   },
   {
@@ -76096,7 +76111,7 @@ export const talentIdMap = [
         "next": [
           90346,
           90384,
-          92224
+          90343
         ],
         "prev": [
           90328
@@ -76122,7 +76137,7 @@ export const talentIdMap = [
         "posY": 2100,
         "maxRanks": 1,
         "next": [
-          92224,
+          90343,
           90336
         ],
         "prev": [
@@ -76263,7 +76278,7 @@ export const talentIdMap = [
         ]
       },
       {
-        "id": 92224,
+        "id": 90343,
         "name": "Thunder Clap",
         "type": "single",
         "posX": 4500,
@@ -76279,12 +76294,12 @@ export const talentIdMap = [
         ],
         "entries": [
           {
-            "id": 114296,
-            "definitionId": 119301,
+            "id": 112205,
+            "definitionId": 117210,
             "maxRanks": 1,
             "type": "active",
             "name": "Thunder Clap",
-            "spellId": 396719,
+            "spellId": 6343,
             "icon": "spell_nature_thunderclap",
             "index": 100
           }
@@ -76458,12 +76473,12 @@ export const talentIdMap = [
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          92221,
+          90377,
           90340
         ],
         "prev": [
           90336,
-          92224
+          90343
         ],
         "entries": [
           {
@@ -76487,7 +76502,7 @@ export const talentIdMap = [
         "reqPoints": 8,
         "maxRanks": 2,
         "next": [
-          92221
+          90377
         ],
         "prev": [
           90336
@@ -76507,14 +76522,14 @@ export const talentIdMap = [
       },
       {
         "id": 90333,
-        "name": "Sidearm / Concussive Blows",
+        "name": "Barbaric Training / Concussive Blows",
         "type": "choice",
         "posX": 6300,
         "posY": 3300,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          92221
+          90377
         ],
         "prev": [
           90336
@@ -76525,9 +76540,9 @@ export const talentIdMap = [
             "definitionId": 117197,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Sidearm",
-            "spellId": 384404,
-            "icon": "inv_throwingaxe_06",
+            "name": "Barbaric Training",
+            "spellId": 383082,
+            "icon": "ability_garrosh_whirling_corruption",
             "index": 100
           },
           {
@@ -76615,7 +76630,7 @@ export const talentIdMap = [
           90340
         ],
         "prev": [
-          92224
+          90343
         ],
         "entries": [
           {
@@ -76641,8 +76656,8 @@ export const talentIdMap = [
         ]
       },
       {
-        "id": 92221,
-        "name": "Barbaric Training",
+        "id": 90377,
+        "name": "Sidearm",
         "type": "single",
         "posX": 5700,
         "posY": 3900,
@@ -76659,13 +76674,13 @@ export const talentIdMap = [
         ],
         "entries": [
           {
-            "id": 114293,
-            "definitionId": 119298,
+            "id": 112244,
+            "definitionId": 117249,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Barbaric Training",
-            "spellId": 383082,
-            "icon": "ability_garrosh_whirling_corruption",
+            "name": "Sidearm",
+            "spellId": 384404,
+            "icon": "inv_throwingaxe_06",
             "index": 0
           }
         ]
@@ -76798,9 +76813,9 @@ export const talentIdMap = [
           90338
         ],
         "prev": [
+          90377,
           90337,
-          90342,
-          92221
+          90342
         ],
         "entries": [
           {
@@ -76939,7 +76954,7 @@ export const talentIdMap = [
         ],
         "prev": [
           90340,
-          92221
+          90377
         ],
         "entries": [
           {
@@ -78640,11 +78655,7 @@ export const talentIdMap = [
       90449,
       90450,
       90451,
-      90452,
-      92221,
-      92222,
-      92223,
-      92224
+      90452
     ]
   },
   {
@@ -78704,7 +78715,8 @@ export const talentIdMap = [
             "icon": "spell_shadow_demoniccirclesummon",
             "index": 100
           }
-        ]
+        ],
+        "freeNode": true
       },
       {
         "id": 71949,
@@ -79802,7 +79814,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Summon Soulkeeper",
-            "spellId": 386244,
+            "spellId": 386256,
             "icon": "spell_fel_elementaldevastation",
             "index": 100
           },
@@ -80144,7 +80156,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Drain Soul",
-            "spellId": 388667,
+            "spellId": 198590,
             "icon": "spell_shadow_haunting",
             "index": 0
           }
@@ -81077,7 +81089,8 @@ export const talentIdMap = [
             "icon": "spell_shadow_demoniccirclesummon",
             "index": 100
           }
-        ]
+        ],
+        "freeNode": true
       },
       {
         "id": 71949,
@@ -82175,7 +82188,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Summon Soulkeeper",
-            "spellId": 386244,
+            "spellId": 386256,
             "icon": "spell_fel_elementaldevastation",
             "index": 100
           },
@@ -83582,7 +83595,8 @@ export const talentIdMap = [
             "icon": "spell_shadow_demoniccirclesummon",
             "index": 100
           }
-        ]
+        ],
+        "freeNode": true
       },
       {
         "id": 71949,
@@ -84680,7 +84694,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Summon Soulkeeper",
-            "spellId": 386244,
+            "spellId": 386256,
             "icon": "spell_fel_elementaldevastation",
             "index": 100
           },
@@ -86558,7 +86572,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Fortifying Brew",
-            "spellId": 388917,
+            "spellId": 115203,
             "icon": "ability_monk_fortifyingale_new",
             "index": 100
           }
@@ -89260,7 +89274,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Fortifying Brew",
-            "spellId": 388917,
+            "spellId": 115203,
             "icon": "ability_monk_fortifyingale_new",
             "index": 100
           }
@@ -90154,7 +90168,7 @@ export const talentIdMap = [
       },
       {
         "id": 80727,
-        "name": "Rushing Jade Wind / Special Delivery",
+        "name": "Special Delivery / Rushing Jade Wind",
         "type": "choice",
         "posX": 13200,
         "posY": 3300,
@@ -90172,20 +90186,20 @@ export const talentIdMap = [
             "id": 101549,
             "definitionId": 106551,
             "maxRanks": 1,
-            "type": "active",
-            "name": "Rushing Jade Wind",
-            "spellId": 116847,
-            "icon": "ability_monk_rushingjadewind",
+            "type": "passive",
+            "name": "Special Delivery",
+            "spellId": 196730,
+            "icon": "achievement_brewery_2",
             "index": 100
           },
           {
             "id": 101548,
             "definitionId": 106550,
             "maxRanks": 1,
-            "type": "passive",
-            "name": "Special Delivery",
-            "spellId": 196730,
-            "icon": "achievement_brewery_2",
+            "type": "active",
+            "name": "Rushing Jade Wind",
+            "spellId": 116847,
+            "icon": "ability_monk_rushingjadewind",
             "index": 200
           }
         ]
@@ -90616,7 +90630,7 @@ export const talentIdMap = [
       },
       {
         "id": 80636,
-        "name": "Black Ox Brew / Bob and Weave",
+        "name": "Bob and Weave / Black Ox Brew",
         "type": "choice",
         "posX": 11400,
         "posY": 5100,
@@ -90633,20 +90647,20 @@ export const talentIdMap = [
             "id": 101450,
             "definitionId": 106452,
             "maxRanks": 1,
-            "type": "active",
-            "name": "Black Ox Brew",
-            "spellId": 115399,
-            "icon": "ability_monk_chibrew",
+            "type": "passive",
+            "name": "Bob and Weave",
+            "spellId": 280515,
+            "icon": "ability_creature_cursed_04",
             "index": 100
           },
           {
             "id": 101449,
             "definitionId": 106451,
             "maxRanks": 1,
-            "type": "passive",
-            "name": "Bob and Weave",
-            "spellId": 280515,
-            "icon": "ability_creature_cursed_04",
+            "type": "active",
+            "name": "Black Ox Brew",
+            "spellId": 115399,
+            "icon": "ability_monk_chibrew",
             "index": 200
           }
         ]
@@ -90984,7 +90998,7 @@ export const talentIdMap = [
       },
       {
         "id": 80720,
-        "name": "Improved Invoke Niuzao, the Black Ox",
+        "name": "Invoke Niuzao, the Black Ox",
         "type": "single",
         "posX": 11400,
         "posY": 6300,
@@ -91002,7 +91016,7 @@ export const talentIdMap = [
             "definitionId": 106542,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Improved Invoke Niuzao, the Black Ox",
+            "name": "Invoke Niuzao, the Black Ox",
             "spellId": 322740,
             "icon": "spell_monk_brewmaster_spec",
             "index": 100
@@ -91899,7 +91913,7 @@ export const talentIdMap = [
             "maxRanks": 1,
             "type": "active",
             "name": "Fortifying Brew",
-            "spellId": 388917,
+            "spellId": 115203,
             "icon": "ability_monk_fortifyingale_new",
             "index": 100
           }
@@ -93661,8 +93675,8 @@ export const talentIdMap = [
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [
-          80605,
-          80671
+          80671,
+          80605
         ],
         "prev": [
           80673
