@@ -2,7 +2,7 @@
   "name": "@wowarenalogs/parser",
   "author": "WoW Arena Logs",
   "license": "MIT",
-  "version": "4.6.4",
+  "version": "5.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
@@ -20,15 +20,9 @@
     "lint": "eslint . --ext .ts,.tsx",
     "prepare": "npm run build",
     "size": "size-limit",
-    "analyze": "size-limit --why",
-    "publish:no-bump": "git checkout release/parser && git pull && git merge --no-edit --no-ff main && git push && git checkout main",
-    "publish:patch": "git checkout main && bump patch -t \"v%s\" -p && yarn publish:no-bump",
-    "publish:minor": "git checkout main && bump minor -t \"v%s\" -p && yarn publish:no-bump",
-    "publish:major": "git checkout main && bump major -t \"v%s\" -p && yarn publish:no-bump",
-    "pre:patch": "bump prepatch -t \"v%s-beta\" -p && cross-env npm_config_registry=https://registry.npmjs.org/ npm publish --tag beta",
-    "pre:minor": "bump preminor -t \"v%s-beta\" -p && cross-env npm_config_registry=https://registry.npmjs.org/ npm publish --tag beta",
-    "pre:major": "bump premajor -t \"v%s-beta\" -p && cross-env npm_config_registry=https://registry.npmjs.org/ npm publish --tag beta"
+    "analyze": "size-limit --why"
   },
+  "peerDependencies": {},
   "module": "dist/wow-combat-log-parser.esm.js",
   "size-limit": [
     {
@@ -46,6 +40,9 @@
     "build",
     "__generated__"
   ],
+  "devDependencies": {
+    "@types/lodash": "^4.14.186"
+  },
   "dependencies": {
     "eventemitter3": "^4.0.7",
     "line-reader": "^0.4.0",
@@ -56,10 +53,7 @@
     "rxjs": "6.6.6"
   },
   "resolutions": {
-    "**/@typescript-eslint/eslint-plugin": "^4.1.1",
-    "**/@typescript-eslint/parser": "^4.1.1"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.14.186"
+    "**/@typescript-eslint/eslint-plugin": "^5.16.0",
+    "**/@typescript-eslint/parser": "^5.16.0"
   }
 }

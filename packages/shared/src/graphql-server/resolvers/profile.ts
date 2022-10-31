@@ -3,7 +3,7 @@ import { getUserProfileAsync } from '../utils/getUserProfileAsync';
 import { setUserReferrerAsync } from '../utils/setUserReferrerAsync';
 
 export async function me(parent: unknown, args: Record<string, unknown>, context: ApolloContext): Promise<User | null> {
-  return getUserProfileAsync(context);
+  return await getUserProfileAsync(context);
 }
 
 export async function setUserReferrer(
@@ -11,5 +11,5 @@ export async function setUserReferrer(
   args: { referrer: string | null },
   context: ApolloContext,
 ): Promise<User | null> {
-  return setUserReferrerAsync(context, args.referrer);
+  return await setUserReferrerAsync(context, args.referrer);
 }

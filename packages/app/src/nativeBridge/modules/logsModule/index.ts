@@ -18,10 +18,10 @@ interface IBridge {
 }
 
 const bridgeState: {
-  shadowlands: IBridge;
+  retail: IBridge;
   tbc: IBridge;
 } = {
-  shadowlands: {
+  retail: {
     watcher: undefined,
     logParser: undefined,
   },
@@ -113,10 +113,10 @@ export class LogsModule extends NativeBridgeModule {
 
   @moduleFunction()
   public async stopLogWatcher(_mainWindow: BrowserWindow) {
-    bridgeState.shadowlands.watcher?.close();
-    bridgeState.shadowlands.logParser?.removeAllListeners();
-    bridgeState.shadowlands.logParser = undefined;
-    bridgeState.shadowlands.watcher = undefined;
+    bridgeState.retail.watcher?.close();
+    bridgeState.retail.logParser?.removeAllListeners();
+    bridgeState.retail.logParser = undefined;
+    bridgeState.retail.watcher = undefined;
     bridgeState.tbc.watcher?.close();
     bridgeState.tbc.logParser?.removeAllListeners();
     bridgeState.tbc.logParser = undefined;

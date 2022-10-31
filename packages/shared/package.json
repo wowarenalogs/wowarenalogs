@@ -7,7 +7,16 @@
   "engines": {
     "node": ">=16"
   },
+  "scripts": {
+    "codegen": "graphql-codegen --config codegen.yml",
+    "codegen:dev": "graphql-codegen --config codegen.dev.yml"
+  },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.13.8",
+    "@graphql-codegen/introspection": "^2.2.1",
+    "@graphql-codegen/typescript": "^2.8.0",
+    "@graphql-codegen/typescript-operations": "^2.5.5",
+    "@graphql-codegen/typescript-react-apollo": "^3.3.5",
     "@types/nprogress": "^0.2.0",
     "@types/react": "^17.0.43",
     "@types/react-dom": "^17.0.14",
@@ -29,7 +38,7 @@
     "@apollo/client": "^3.6.9",
     "@google-cloud/firestore": "^5.0.2",
     "@tailwindcss/typography": "^0.5.7",
-    "@wowarenalogs/parser": "^4.6.4",
+    "@wowarenalogs/parser": "^5.0.0",
     "apollo-server-micro": "^3.9.0",
     "daisyui": "^2.33.0",
     "lodash": "^4.17.21",

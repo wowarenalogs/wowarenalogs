@@ -3,7 +3,7 @@ import { ArenaMatchStart } from './actions/ArenaMatchStart';
 import { CombatAction } from './actions/CombatAction';
 import { CombatantInfoAction } from './actions/CombatantInfoAction';
 
-export type WowVersion = 'tbc' | 'shadowlands';
+export type WowVersion = 'tbc' | 'retail';
 
 export enum LogEvent {
   ARENA_MATCH_START = 'ARENA_MATCH_START',
@@ -99,6 +99,7 @@ export enum CombatUnitClass {
   DeathKnight,
   DemonHunter,
   Monk,
+  Evoker,
 }
 
 export enum CombatUnitSpec {
@@ -174,14 +175,6 @@ export interface EquippedItem {
   ilvl: number;
 }
 
-export interface CovenantInfo {
-  covenantId: string;
-  soulbindId: string;
-  conduitIdsJSON: string;
-  item2: number[]; // Always empty?
-  item3JSON: string; // This is related to soulbind tree choices somehow
-}
-
 export interface CombatantInfo {
   teamId: string;
   strength: number;
@@ -206,13 +199,12 @@ export interface CombatantInfo {
   versatilityDamageTaken: number;
   armor: number;
   specId: string;
-  talents: string[];
+  talents: ({ id1: number; id2: number; count: number } | null)[];
   pvpTalents: string[];
-  covenantInfo: CovenantInfo;
   equipment: EquippedItem[];
   interestingAurasJSON: string;
+  item28: number;
   item29: number;
-  item30: number;
   personalRating: number;
   highestPvpTier: number;
 }

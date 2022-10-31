@@ -28,7 +28,7 @@
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
-    "@wowarenalogs/parser": "^4.6.4",
+    "@wowarenalogs/parser": "^5.0.0",
     "@wowarenalogs/shared": "^1.0.0",
     "chokidar": "^3.5.3",
     "electron": "17.1.0",

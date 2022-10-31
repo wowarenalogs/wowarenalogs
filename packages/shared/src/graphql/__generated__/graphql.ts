@@ -15,14 +15,6 @@ export type Scalars = {
   Upload: any;
 };
 
-export type IUser = {
-  __typename?: 'IUser';
-  id: Scalars['String'];
-  battletag?: Maybe<Scalars['String']>;
-  referrer?: Maybe<Scalars['String']>;
-  subscriptionTier: Scalars['String'];
-  tags?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
 
 export type ArenaMatchEndInfo = {
   __typename?: 'ArenaMatchEndInfo';
@@ -42,6 +34,11 @@ export type ArenaMatchStartInfo = {
   isRanked: Scalars['Boolean'];
 };
 
+export enum CacheControlScope {
+  Public = 'PUBLIC',
+  Private = 'PRIVATE'
+}
+
 export type CombatDataStub = {
   __typename?: 'CombatDataStub';
   id: Scalars['String'];
@@ -60,22 +57,21 @@ export type CombatDataStub = {
   utcCorrected?: Maybe<Scalars['Boolean']>;
 };
 
-export type EquippedItem = {
-  __typename?: 'EquippedItem';
-  bonuses: Array<Scalars['String']>;
-  enchants: Array<Scalars['String']>;
-  gems: Array<Scalars['String']>;
-  id: Scalars['String'];
-  ilvl: Scalars['Int'];
+export type CombatQueryResult = {
+  __typename?: 'CombatQueryResult';
+  combats: Array<CombatDataStub>;
+  queryLimitReached: Scalars['Boolean'];
 };
 
-export type CovenantInfo = {
-  __typename?: 'CovenantInfo';
-  covenantId?: Maybe<Scalars['String']>;
-  souldbindId?: Maybe<Scalars['String']>;
-  conduitIdsJSON: Scalars['String'];
-  item2?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  item3JSON: Scalars['String'];
+export type CombatUnitStub = {
+  __typename?: 'CombatUnitStub';
+  id: Scalars['String'];
+  name: Scalars['String'];
+  info?: Maybe<CombatantInfo>;
+  type: Scalars['Int'];
+  spec: Scalars['String'];
+  class: Scalars['Int'];
+  reaction: Scalars['Int'];
 };
 
 export type CombatantInfo = {
@@ -103,32 +99,42 @@ export type CombatantInfo = {
   versatilityDamageTaken: Scalars['Int'];
   armor: Scalars['Int'];
   specId: Scalars['String'];
-  talents: Array<Scalars['String']>;
+  talents: Array<Maybe<Talent>>;
   pvpTalents: Array<Scalars['String']>;
-  covenantInfo: CovenantInfo;
   equipment: Array<EquippedItem>;
   interestingAurasJSON: Scalars['String'];
+  item28: Scalars['Int'];
   item29: Scalars['Int'];
-  item30: Scalars['Int'];
   personalRating: Scalars['Int'];
   highestPvpTier: Scalars['Int'];
 };
 
-export type CombatUnitStub = {
-  __typename?: 'CombatUnitStub';
+export type EquippedItem = {
+  __typename?: 'EquippedItem';
+  bonuses: Array<Scalars['String']>;
+  enchants: Array<Scalars['String']>;
+  gems: Array<Scalars['String']>;
   id: Scalars['String'];
-  name: Scalars['String'];
-  info?: Maybe<CombatantInfo>;
-  type: Scalars['Int'];
-  spec: Scalars['String'];
-  class: Scalars['Int'];
-  reaction: Scalars['Int'];
+  ilvl: Scalars['Int'];
 };
 
-export type CombatQueryResult = {
-  __typename?: 'CombatQueryResult';
-  combats: Array<CombatDataStub>;
-  queryLimitReached: Scalars['Boolean'];
+export type IUser = {
+  __typename?: 'IUser';
+  id: Scalars['String'];
+  battletag?: Maybe<Scalars['String']>;
+  referrer?: Maybe<Scalars['String']>;
+  subscriptionTier: Scalars['String'];
+  tags?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  setUserReferrer?: Maybe<IUser>;
+};
+
+
+export type MutationSetUserReferrerArgs = {
+  referrer?: Maybe<Scalars['String']>;
 };
 
 export type Query = {
@@ -140,6 +146,7 @@ export type Query = {
   matchesWithCombatant: Array<CombatDataStub>;
 };
 
+
 export type QueryLatestMatchesArgs = {
   wowVersion: Scalars['String'];
   bracket?: Maybe<Scalars['String']>;
@@ -150,11 +157,13 @@ export type QueryLatestMatchesArgs = {
   count?: Scalars['Int'];
 };
 
+
 export type QueryMyMatchesArgs = {
   anonymousUserId?: Maybe<Scalars['String']>;
   offset?: Scalars['Int'];
   count?: Scalars['Int'];
 };
+
 
 export type QueryUserMatchesArgs = {
   userId: Scalars['String'];
@@ -162,104 +171,69 @@ export type QueryUserMatchesArgs = {
   count?: Scalars['Int'];
 };
 
+
 export type QueryMatchesWithCombatantArgs = {
   playerName: Scalars['String'];
 };
 
-export type Mutation = {
-  __typename?: 'Mutation';
-  setUserReferrer?: Maybe<IUser>;
+export type Talent = {
+  __typename?: 'Talent';
+  id1?: Maybe<Scalars['Int']>;
+  id2?: Maybe<Scalars['Int']>;
+  count?: Maybe<Scalars['Int']>;
 };
 
-export type MutationSetUserReferrerArgs = {
-  referrer?: Maybe<Scalars['String']>;
-};
 
-export enum CacheControlScope {
-  Public = 'PUBLIC',
-  Private = 'PRIVATE',
-}
+export type EndInfosFragment = (
+  { __typename?: 'ArenaMatchEndInfo' }
+  & Pick<ArenaMatchEndInfo, 'timestamp' | 'winningTeamId' | 'matchDurationInSeconds' | 'team0MMR' | 'team1MMR'>
+);
 
-export type EndInfosFragment = { __typename?: 'ArenaMatchEndInfo' } & Pick<
-  ArenaMatchEndInfo,
-  'timestamp' | 'winningTeamId' | 'matchDurationInSeconds' | 'team0MMR' | 'team1MMR'
->;
+export type StartInfosFragment = (
+  { __typename?: 'ArenaMatchStartInfo' }
+  & Pick<ArenaMatchStartInfo, 'timestamp' | 'zoneId' | 'item1' | 'bracket' | 'isRanked'>
+);
 
-export type StartInfosFragment = { __typename?: 'ArenaMatchStartInfo' } & Pick<
-  ArenaMatchStartInfo,
-  'timestamp' | 'zoneId' | 'item1' | 'bracket' | 'isRanked'
->;
+export type ItemInfosFragment = (
+  { __typename?: 'EquippedItem' }
+  & Pick<EquippedItem, 'bonuses' | 'enchants' | 'gems' | 'id' | 'ilvl'>
+);
 
-export type ItemInfosFragment = { __typename?: 'EquippedItem' } & Pick<
-  EquippedItem,
-  'bonuses' | 'enchants' | 'gems' | 'id' | 'ilvl'
->;
+export type CombatantInfosFragment = (
+  { __typename?: 'CombatantInfo' }
+  & Pick<CombatantInfo, 'teamId' | 'strength' | 'agility' | 'stamina' | 'intelligence' | 'dodge' | 'parry' | 'block' | 'critMelee' | 'critRanged' | 'critSpell' | 'speed' | 'lifesteal' | 'hasteMelee' | 'hasteRanged' | 'hasteSpell' | 'avoidance' | 'mastery' | 'versatilityDamgeDone' | 'versatilityHealingDone' | 'versatilityDamageTaken' | 'armor' | 'specId' | 'pvpTalents' | 'interestingAurasJSON' | 'item28' | 'item29' | 'personalRating' | 'highestPvpTier'>
+  & { talents: Array<Maybe<(
+    { __typename?: 'Talent' }
+    & Pick<Talent, 'id1' | 'id2' | 'count'>
+  )>>, equipment: Array<(
+    { __typename?: 'EquippedItem' }
+    & ItemInfosFragment
+  )> }
+);
 
-export type CovInfosFragment = { __typename?: 'CovenantInfo' } & Pick<
-  CovenantInfo,
-  'covenantId' | 'souldbindId' | 'conduitIdsJSON' | 'item2' | 'item3JSON'
->;
+export type UnitInfosFragment = (
+  { __typename?: 'CombatUnitStub' }
+  & Pick<CombatUnitStub, 'id' | 'name' | 'type' | 'spec' | 'class' | 'reaction'>
+  & { info?: Maybe<(
+    { __typename?: 'CombatantInfo' }
+    & CombatantInfosFragment
+  )> }
+);
 
-export type CombatantInfosFragment = { __typename?: 'CombatantInfo' } & Pick<
-  CombatantInfo,
-  | 'teamId'
-  | 'strength'
-  | 'agility'
-  | 'stamina'
-  | 'intelligence'
-  | 'dodge'
-  | 'parry'
-  | 'block'
-  | 'critMelee'
-  | 'critRanged'
-  | 'critSpell'
-  | 'speed'
-  | 'lifesteal'
-  | 'hasteMelee'
-  | 'hasteRanged'
-  | 'hasteSpell'
-  | 'avoidance'
-  | 'mastery'
-  | 'versatilityDamgeDone'
-  | 'versatilityHealingDone'
-  | 'versatilityDamageTaken'
-  | 'armor'
-  | 'specId'
-  | 'talents'
-  | 'pvpTalents'
-  | 'interestingAurasJSON'
-  | 'item29'
-  | 'item30'
-  | 'personalRating'
-  | 'highestPvpTier'
-> & {
-    covenantInfo: { __typename?: 'CovenantInfo' } & CovInfosFragment;
-    equipment: Array<{ __typename?: 'EquippedItem' } & ItemInfosFragment>;
-  };
-
-export type UnitInfosFragment = { __typename?: 'CombatUnitStub' } & Pick<
-  CombatUnitStub,
-  'id' | 'name' | 'type' | 'spec' | 'class' | 'reaction'
-> & { info?: Maybe<{ __typename?: 'CombatantInfo' } & CombatantInfosFragment> };
-
-export type CombatInfosFragment = { __typename?: 'CombatDataStub' } & Pick<
-  CombatDataStub,
-  | 'id'
-  | 'wowVersion'
-  | 'ownerId'
-  | 'result'
-  | 'logObjectUrl'
-  | 'startTime'
-  | 'endTime'
-  | 'playerTeamId'
-  | 'playerTeamRating'
-  | 'hasAdvancedLogging'
-  | 'utcCorrected'
-> & {
-    units: Array<{ __typename?: 'CombatUnitStub' } & UnitInfosFragment>;
-    startInfo?: Maybe<{ __typename?: 'ArenaMatchStartInfo' } & StartInfosFragment>;
-    endInfo?: Maybe<{ __typename?: 'ArenaMatchEndInfo' } & EndInfosFragment>;
-  };
+export type CombatInfosFragment = (
+  { __typename?: 'CombatDataStub' }
+  & Pick<CombatDataStub, 'id' | 'wowVersion' | 'ownerId' | 'result' | 'logObjectUrl' | 'startTime' | 'endTime' | 'playerTeamId' | 'playerTeamRating' | 'hasAdvancedLogging' | 'utcCorrected'>
+  & { units: Array<(
+    { __typename?: 'CombatUnitStub' }
+    & UnitInfosFragment
+  )>, startInfo?: Maybe<(
+    { __typename?: 'ArenaMatchStartInfo' }
+    & StartInfosFragment
+  )>, endInfo?: Maybe<(
+    { __typename?: 'ArenaMatchEndInfo' }
+    & EndInfosFragment
+  )> }
+);
 
 export type GetPublicMatchesQueryVariables = Exact<{
   wowVersion: Scalars['String'];
@@ -271,11 +245,18 @@ export type GetPublicMatchesQueryVariables = Exact<{
   count?: Maybe<Scalars['Int']>;
 }>;
 
-export type GetPublicMatchesQuery = { __typename?: 'Query' } & {
-  latestMatches: { __typename?: 'CombatQueryResult' } & Pick<CombatQueryResult, 'queryLimitReached'> & {
-      combats: Array<{ __typename?: 'CombatDataStub' } & CombatInfosFragment>;
-    };
-};
+
+export type GetPublicMatchesQuery = (
+  { __typename?: 'Query' }
+  & { latestMatches: (
+    { __typename?: 'CombatQueryResult' }
+    & Pick<CombatQueryResult, 'queryLimitReached'>
+    & { combats: Array<(
+      { __typename?: 'CombatDataStub' }
+      & CombatInfosFragment
+    )> }
+  ) }
+);
 
 export type GetMyMatchesQueryVariables = Exact<{
   anonymousUserId?: Maybe<Scalars['String']>;
@@ -283,11 +264,18 @@ export type GetMyMatchesQueryVariables = Exact<{
   count?: Maybe<Scalars['Int']>;
 }>;
 
-export type GetMyMatchesQuery = { __typename?: 'Query' } & {
-  myMatches: { __typename?: 'CombatQueryResult' } & Pick<CombatQueryResult, 'queryLimitReached'> & {
-      combats: Array<{ __typename?: 'CombatDataStub' } & CombatInfosFragment>;
-    };
-};
+
+export type GetMyMatchesQuery = (
+  { __typename?: 'Query' }
+  & { myMatches: (
+    { __typename?: 'CombatQueryResult' }
+    & Pick<CombatQueryResult, 'queryLimitReached'>
+    & { combats: Array<(
+      { __typename?: 'CombatDataStub' }
+      & CombatInfosFragment
+    )> }
+  ) }
+);
 
 export type GetUserMatchesQueryVariables = Exact<{
   userId: Scalars['String'];
@@ -295,180 +283,181 @@ export type GetUserMatchesQueryVariables = Exact<{
   count?: Maybe<Scalars['Int']>;
 }>;
 
-export type GetUserMatchesQuery = { __typename?: 'Query' } & {
-  userMatches: { __typename?: 'CombatQueryResult' } & Pick<CombatQueryResult, 'queryLimitReached'> & {
-      combats: Array<{ __typename?: 'CombatDataStub' } & CombatInfosFragment>;
-    };
-};
+
+export type GetUserMatchesQuery = (
+  { __typename?: 'Query' }
+  & { userMatches: (
+    { __typename?: 'CombatQueryResult' }
+    & Pick<CombatQueryResult, 'queryLimitReached'>
+    & { combats: Array<(
+      { __typename?: 'CombatDataStub' }
+      & CombatInfosFragment
+    )> }
+  ) }
+);
 
 export type GetMatchesWithCombatantQueryVariables = Exact<{
   playerName: Scalars['String'];
 }>;
 
-export type GetMatchesWithCombatantQuery = { __typename?: 'Query' } & {
-  matchesWithCombatant: Array<{ __typename?: 'CombatDataStub' } & CombatInfosFragment>;
-};
 
-export type GetProfileQueryVariables = Exact<{ [key: string]: never }>;
+export type GetMatchesWithCombatantQuery = (
+  { __typename?: 'Query' }
+  & { matchesWithCombatant: Array<(
+    { __typename?: 'CombatDataStub' }
+    & CombatInfosFragment
+  )> }
+);
 
-export type GetProfileQuery = { __typename?: 'Query' } & {
-  me?: Maybe<{ __typename?: 'IUser' } & Pick<IUser, 'id' | 'battletag' | 'referrer' | 'subscriptionTier' | 'tags'>>;
-};
+export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetProfileQuery = (
+  { __typename?: 'Query' }
+  & { me?: Maybe<(
+    { __typename?: 'IUser' }
+    & Pick<IUser, 'id' | 'battletag' | 'referrer' | 'subscriptionTier' | 'tags'>
+  )> }
+);
 
 export type SetUserReferrerMutationVariables = Exact<{
   referrer?: Maybe<Scalars['String']>;
 }>;
 
-export type SetUserReferrerMutation = { __typename?: 'Mutation' } & {
-  setUserReferrer?: Maybe<{ __typename?: 'IUser' } & Pick<IUser, 'id' | 'battletag' | 'referrer' | 'subscriptionTier'>>;
-};
 
-export const CovInfosFragmentDoc = gql`
-  fragment covInfos on CovenantInfo {
-    covenantId
-    souldbindId
-    conduitIdsJSON
-    item2
-    item3JSON
-  }
-`;
+export type SetUserReferrerMutation = (
+  { __typename?: 'Mutation' }
+  & { setUserReferrer?: Maybe<(
+    { __typename?: 'IUser' }
+    & Pick<IUser, 'id' | 'battletag' | 'referrer' | 'subscriptionTier'>
+  )> }
+);
+
 export const ItemInfosFragmentDoc = gql`
-  fragment itemInfos on EquippedItem {
-    bonuses
-    enchants
-    gems
-    id
-    ilvl
-  }
-`;
+    fragment itemInfos on EquippedItem {
+  bonuses
+  enchants
+  gems
+  id
+  ilvl
+}
+    `;
 export const CombatantInfosFragmentDoc = gql`
-  fragment combatantInfos on CombatantInfo {
-    teamId
-    strength
-    agility
-    stamina
-    intelligence
-    dodge
-    parry
-    block
-    critMelee
-    critRanged
-    critSpell
-    speed
-    lifesteal
-    hasteMelee
-    hasteRanged
-    hasteSpell
-    avoidance
-    mastery
-    versatilityDamgeDone
-    versatilityHealingDone
-    versatilityDamageTaken
-    armor
-    specId
-    talents
-    pvpTalents
-    covenantInfo {
-      ...covInfos
-    }
-    equipment {
-      ...itemInfos
-    }
-    interestingAurasJSON
-    item29
-    item30
-    personalRating
-    highestPvpTier
+    fragment combatantInfos on CombatantInfo {
+  teamId
+  strength
+  agility
+  stamina
+  intelligence
+  dodge
+  parry
+  block
+  critMelee
+  critRanged
+  critSpell
+  speed
+  lifesteal
+  hasteMelee
+  hasteRanged
+  hasteSpell
+  avoidance
+  mastery
+  versatilityDamgeDone
+  versatilityHealingDone
+  versatilityDamageTaken
+  armor
+  specId
+  talents {
+    id1
+    id2
+    count
   }
-  ${CovInfosFragmentDoc}
-  ${ItemInfosFragmentDoc}
-`;
+  pvpTalents
+  equipment {
+    ...itemInfos
+  }
+  interestingAurasJSON
+  item28
+  item29
+  personalRating
+  highestPvpTier
+}
+    ${ItemInfosFragmentDoc}`;
 export const UnitInfosFragmentDoc = gql`
-  fragment unitInfos on CombatUnitStub {
-    id
-    name
-    info {
-      ...combatantInfos
-    }
-    type
-    spec
-    class
-    reaction
+    fragment unitInfos on CombatUnitStub {
+  id
+  name
+  info {
+    ...combatantInfos
   }
-  ${CombatantInfosFragmentDoc}
-`;
+  type
+  spec
+  class
+  reaction
+}
+    ${CombatantInfosFragmentDoc}`;
 export const StartInfosFragmentDoc = gql`
-  fragment startInfos on ArenaMatchStartInfo {
-    timestamp
-    zoneId
-    item1
-    bracket
-    isRanked
-  }
-`;
+    fragment startInfos on ArenaMatchStartInfo {
+  timestamp
+  zoneId
+  item1
+  bracket
+  isRanked
+}
+    `;
 export const EndInfosFragmentDoc = gql`
-  fragment endInfos on ArenaMatchEndInfo {
-    timestamp
-    winningTeamId
-    matchDurationInSeconds
-    team0MMR
-    team1MMR
-  }
-`;
+    fragment endInfos on ArenaMatchEndInfo {
+  timestamp
+  winningTeamId
+  matchDurationInSeconds
+  team0MMR
+  team1MMR
+}
+    `;
 export const CombatInfosFragmentDoc = gql`
-  fragment combatInfos on CombatDataStub {
-    id
-    wowVersion
-    ownerId
-    units {
-      ...unitInfos
-    }
-    result
-    logObjectUrl
-    startInfo {
-      ...startInfos
-    }
-    endInfo {
-      ...endInfos
-    }
-    startTime
-    endTime
-    playerTeamId
-    playerTeamRating
-    hasAdvancedLogging
-    utcCorrected
+    fragment combatInfos on CombatDataStub {
+  id
+  wowVersion
+  ownerId
+  units {
+    ...unitInfos
   }
-  ${UnitInfosFragmentDoc}
-  ${StartInfosFragmentDoc}
-  ${EndInfosFragmentDoc}
-`;
+  result
+  logObjectUrl
+  startInfo {
+    ...startInfos
+  }
+  endInfo {
+    ...endInfos
+  }
+  startTime
+  endTime
+  playerTeamId
+  playerTeamRating
+  hasAdvancedLogging
+  utcCorrected
+}
+    ${UnitInfosFragmentDoc}
+${StartInfosFragmentDoc}
+${EndInfosFragmentDoc}`;
 export const GetPublicMatchesDocument = gql`
-  query GetPublicMatches(
-    $wowVersion: String!
-    $bracket: String
-    $minRating: Float
-    $compQueryString: String
-    $lhsShouldBeWinner: Boolean
-    $offset: Int = 0
-    $count: Int = 50
+    query GetPublicMatches($wowVersion: String!, $bracket: String, $minRating: Float, $compQueryString: String, $lhsShouldBeWinner: Boolean, $offset: Int = 0, $count: Int = 50) {
+  latestMatches(
+    wowVersion: $wowVersion
+    bracket: $bracket
+    minRating: $minRating
+    compQueryString: $compQueryString
+    lhsShouldBeWinner: $lhsShouldBeWinner
+    offset: $offset
+    count: $count
   ) {
-    latestMatches(
-      wowVersion: $wowVersion
-      bracket: $bracket
-      minRating: $minRating
-      compQueryString: $compQueryString
-      lhsShouldBeWinner: $lhsShouldBeWinner
-      offset: $offset
-      count: $count
-    ) {
-      combats {
-        ...combatInfos
-      }
-      queryLimitReached
+    combats {
+      ...combatInfos
     }
+    queryLimitReached
   }
-  ${CombatInfosFragmentDoc}
-`;
+}
+    ${CombatInfosFragmentDoc}`;
 
 /**
  * __useGetPublicMatchesQuery__
@@ -492,33 +481,25 @@ export const GetPublicMatchesDocument = gql`
  *   },
  * });
  */
-export function useGetPublicMatchesQuery(
-  baseOptions: Apollo.QueryHookOptions<GetPublicMatchesQuery, GetPublicMatchesQueryVariables>,
-) {
-  return Apollo.useQuery<GetPublicMatchesQuery, GetPublicMatchesQueryVariables>(GetPublicMatchesDocument, baseOptions);
-}
-export function useGetPublicMatchesLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetPublicMatchesQuery, GetPublicMatchesQueryVariables>,
-) {
-  return Apollo.useLazyQuery<GetPublicMatchesQuery, GetPublicMatchesQueryVariables>(
-    GetPublicMatchesDocument,
-    baseOptions,
-  );
-}
+export function useGetPublicMatchesQuery(baseOptions: Apollo.QueryHookOptions<GetPublicMatchesQuery, GetPublicMatchesQueryVariables>) {
+        return Apollo.useQuery<GetPublicMatchesQuery, GetPublicMatchesQueryVariables>(GetPublicMatchesDocument, baseOptions);
+      }
+export function useGetPublicMatchesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPublicMatchesQuery, GetPublicMatchesQueryVariables>) {
+          return Apollo.useLazyQuery<GetPublicMatchesQuery, GetPublicMatchesQueryVariables>(GetPublicMatchesDocument, baseOptions);
+        }
 export type GetPublicMatchesQueryHookResult = ReturnType<typeof useGetPublicMatchesQuery>;
 export type GetPublicMatchesLazyQueryHookResult = ReturnType<typeof useGetPublicMatchesLazyQuery>;
 export type GetPublicMatchesQueryResult = Apollo.QueryResult<GetPublicMatchesQuery, GetPublicMatchesQueryVariables>;
 export const GetMyMatchesDocument = gql`
-  query GetMyMatches($anonymousUserId: String = null, $offset: Int = 0, $count: Int = 50) {
-    myMatches(anonymousUserId: $anonymousUserId, offset: $offset, count: $count) {
-      combats {
-        ...combatInfos
-      }
-      queryLimitReached
+    query GetMyMatches($anonymousUserId: String = null, $offset: Int = 0, $count: Int = 50) {
+  myMatches(anonymousUserId: $anonymousUserId, offset: $offset, count: $count) {
+    combats {
+      ...combatInfos
     }
+    queryLimitReached
   }
-  ${CombatInfosFragmentDoc}
-`;
+}
+    ${CombatInfosFragmentDoc}`;
 
 /**
  * __useGetMyMatchesQuery__
@@ -538,30 +519,25 @@ export const GetMyMatchesDocument = gql`
  *   },
  * });
  */
-export function useGetMyMatchesQuery(
-  baseOptions?: Apollo.QueryHookOptions<GetMyMatchesQuery, GetMyMatchesQueryVariables>,
-) {
-  return Apollo.useQuery<GetMyMatchesQuery, GetMyMatchesQueryVariables>(GetMyMatchesDocument, baseOptions);
-}
-export function useGetMyMatchesLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetMyMatchesQuery, GetMyMatchesQueryVariables>,
-) {
-  return Apollo.useLazyQuery<GetMyMatchesQuery, GetMyMatchesQueryVariables>(GetMyMatchesDocument, baseOptions);
-}
+export function useGetMyMatchesQuery(baseOptions?: Apollo.QueryHookOptions<GetMyMatchesQuery, GetMyMatchesQueryVariables>) {
+        return Apollo.useQuery<GetMyMatchesQuery, GetMyMatchesQueryVariables>(GetMyMatchesDocument, baseOptions);
+      }
+export function useGetMyMatchesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMyMatchesQuery, GetMyMatchesQueryVariables>) {
+          return Apollo.useLazyQuery<GetMyMatchesQuery, GetMyMatchesQueryVariables>(GetMyMatchesDocument, baseOptions);
+        }
 export type GetMyMatchesQueryHookResult = ReturnType<typeof useGetMyMatchesQuery>;
 export type GetMyMatchesLazyQueryHookResult = ReturnType<typeof useGetMyMatchesLazyQuery>;
 export type GetMyMatchesQueryResult = Apollo.QueryResult<GetMyMatchesQuery, GetMyMatchesQueryVariables>;
 export const GetUserMatchesDocument = gql`
-  query GetUserMatches($userId: String!, $offset: Int = 0, $count: Int = 50) {
-    userMatches(userId: $userId, offset: $offset, count: $count) {
-      combats {
-        ...combatInfos
-      }
-      queryLimitReached
+    query GetUserMatches($userId: String!, $offset: Int = 0, $count: Int = 50) {
+  userMatches(userId: $userId, offset: $offset, count: $count) {
+    combats {
+      ...combatInfos
     }
+    queryLimitReached
   }
-  ${CombatInfosFragmentDoc}
-`;
+}
+    ${CombatInfosFragmentDoc}`;
 
 /**
  * __useGetUserMatchesQuery__
@@ -581,27 +557,22 @@ export const GetUserMatchesDocument = gql`
  *   },
  * });
  */
-export function useGetUserMatchesQuery(
-  baseOptions: Apollo.QueryHookOptions<GetUserMatchesQuery, GetUserMatchesQueryVariables>,
-) {
-  return Apollo.useQuery<GetUserMatchesQuery, GetUserMatchesQueryVariables>(GetUserMatchesDocument, baseOptions);
-}
-export function useGetUserMatchesLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetUserMatchesQuery, GetUserMatchesQueryVariables>,
-) {
-  return Apollo.useLazyQuery<GetUserMatchesQuery, GetUserMatchesQueryVariables>(GetUserMatchesDocument, baseOptions);
-}
+export function useGetUserMatchesQuery(baseOptions: Apollo.QueryHookOptions<GetUserMatchesQuery, GetUserMatchesQueryVariables>) {
+        return Apollo.useQuery<GetUserMatchesQuery, GetUserMatchesQueryVariables>(GetUserMatchesDocument, baseOptions);
+      }
+export function useGetUserMatchesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserMatchesQuery, GetUserMatchesQueryVariables>) {
+          return Apollo.useLazyQuery<GetUserMatchesQuery, GetUserMatchesQueryVariables>(GetUserMatchesDocument, baseOptions);
+        }
 export type GetUserMatchesQueryHookResult = ReturnType<typeof useGetUserMatchesQuery>;
 export type GetUserMatchesLazyQueryHookResult = ReturnType<typeof useGetUserMatchesLazyQuery>;
 export type GetUserMatchesQueryResult = Apollo.QueryResult<GetUserMatchesQuery, GetUserMatchesQueryVariables>;
 export const GetMatchesWithCombatantDocument = gql`
-  query GetMatchesWithCombatant($playerName: String!) {
-    matchesWithCombatant(playerName: $playerName) {
-      ...combatInfos
-    }
+    query GetMatchesWithCombatant($playerName: String!) {
+  matchesWithCombatant(playerName: $playerName) {
+    ...combatInfos
   }
-  ${CombatInfosFragmentDoc}
-`;
+}
+    ${CombatInfosFragmentDoc}`;
 
 /**
  * __useGetMatchesWithCombatantQuery__
@@ -619,39 +590,26 @@ export const GetMatchesWithCombatantDocument = gql`
  *   },
  * });
  */
-export function useGetMatchesWithCombatantQuery(
-  baseOptions: Apollo.QueryHookOptions<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>,
-) {
-  return Apollo.useQuery<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>(
-    GetMatchesWithCombatantDocument,
-    baseOptions,
-  );
-}
-export function useGetMatchesWithCombatantLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>,
-) {
-  return Apollo.useLazyQuery<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>(
-    GetMatchesWithCombatantDocument,
-    baseOptions,
-  );
-}
+export function useGetMatchesWithCombatantQuery(baseOptions: Apollo.QueryHookOptions<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>) {
+        return Apollo.useQuery<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>(GetMatchesWithCombatantDocument, baseOptions);
+      }
+export function useGetMatchesWithCombatantLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>) {
+          return Apollo.useLazyQuery<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>(GetMatchesWithCombatantDocument, baseOptions);
+        }
 export type GetMatchesWithCombatantQueryHookResult = ReturnType<typeof useGetMatchesWithCombatantQuery>;
 export type GetMatchesWithCombatantLazyQueryHookResult = ReturnType<typeof useGetMatchesWithCombatantLazyQuery>;
-export type GetMatchesWithCombatantQueryResult = Apollo.QueryResult<
-  GetMatchesWithCombatantQuery,
-  GetMatchesWithCombatantQueryVariables
->;
+export type GetMatchesWithCombatantQueryResult = Apollo.QueryResult<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>;
 export const GetProfileDocument = gql`
-  query GetProfile {
-    me {
-      id
-      battletag
-      referrer
-      subscriptionTier
-      tags
-    }
+    query GetProfile {
+  me {
+    id
+    battletag
+    referrer
+    subscriptionTier
+    tags
   }
-`;
+}
+    `;
 
 /**
  * __useGetProfileQuery__
@@ -669,30 +627,25 @@ export const GetProfileDocument = gql`
  * });
  */
 export function useGetProfileQuery(baseOptions?: Apollo.QueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
-  return Apollo.useQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, baseOptions);
-}
-export function useGetProfileLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetProfileQuery, GetProfileQueryVariables>,
-) {
-  return Apollo.useLazyQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, baseOptions);
-}
+        return Apollo.useQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, baseOptions);
+      }
+export function useGetProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
+          return Apollo.useLazyQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, baseOptions);
+        }
 export type GetProfileQueryHookResult = ReturnType<typeof useGetProfileQuery>;
 export type GetProfileLazyQueryHookResult = ReturnType<typeof useGetProfileLazyQuery>;
 export type GetProfileQueryResult = Apollo.QueryResult<GetProfileQuery, GetProfileQueryVariables>;
 export const SetUserReferrerDocument = gql`
-  mutation SetUserReferrer($referrer: String) {
-    setUserReferrer(referrer: $referrer) {
-      id
-      battletag
-      referrer
-      subscriptionTier
-    }
+    mutation SetUserReferrer($referrer: String) {
+  setUserReferrer(referrer: $referrer) {
+    id
+    battletag
+    referrer
+    subscriptionTier
   }
-`;
-export type SetUserReferrerMutationFn = Apollo.MutationFunction<
-  SetUserReferrerMutation,
-  SetUserReferrerMutationVariables
->;
+}
+    `;
+export type SetUserReferrerMutationFn = Apollo.MutationFunction<SetUserReferrerMutation, SetUserReferrerMutationVariables>;
 
 /**
  * __useSetUserReferrerMutation__
@@ -711,17 +664,9 @@ export type SetUserReferrerMutationFn = Apollo.MutationFunction<
  *   },
  * });
  */
-export function useSetUserReferrerMutation(
-  baseOptions?: Apollo.MutationHookOptions<SetUserReferrerMutation, SetUserReferrerMutationVariables>,
-) {
-  return Apollo.useMutation<SetUserReferrerMutation, SetUserReferrerMutationVariables>(
-    SetUserReferrerDocument,
-    baseOptions,
-  );
-}
+export function useSetUserReferrerMutation(baseOptions?: Apollo.MutationHookOptions<SetUserReferrerMutation, SetUserReferrerMutationVariables>) {
+        return Apollo.useMutation<SetUserReferrerMutation, SetUserReferrerMutationVariables>(SetUserReferrerDocument, baseOptions);
+      }
 export type SetUserReferrerMutationHookResult = ReturnType<typeof useSetUserReferrerMutation>;
 export type SetUserReferrerMutationResult = Apollo.MutationResult<SetUserReferrerMutation>;
-export type SetUserReferrerMutationOptions = Apollo.BaseMutationOptions<
-  SetUserReferrerMutation,
-  SetUserReferrerMutationVariables
->;
+export type SetUserReferrerMutationOptions = Apollo.BaseMutationOptions<SetUserReferrerMutation, SetUserReferrerMutationVariables>;

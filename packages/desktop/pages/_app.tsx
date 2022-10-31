@@ -4,7 +4,7 @@ import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@ap
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider, SessionProviderProps } from 'next-auth/react';
 
 import { AppConfigContextProvider } from '../hooks/AppConfigContext';
 
@@ -34,7 +34,7 @@ const client = new ApolloClient({
   link,
 });
 
-function App(props: AppProps) {
+function App(props: AppProps<SessionProviderProps>) {
   const router = useRouter();
 
   if (router.pathname.indexOf('/login') > -1) {

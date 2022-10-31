@@ -53,7 +53,9 @@ export async function latestMatches(
   }
 
   if (args.minRating) {
-    if (args.minRating >= 2100) {
+    if (args.minRating >= 2400) {
+      docsQuery = docsQuery.where('extra.gte2400', '==', true);
+    } else if (args.minRating >= 2100) {
       docsQuery = docsQuery.where('extra.gte2100', '==', true);
     } else if (args.minRating >= 1800) {
       docsQuery = docsQuery.where('extra.gte1800', '==', true);

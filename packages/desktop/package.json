@@ -19,7 +19,7 @@
     "@sentry/react": "^7.3.1",
     "@sentry/tracing": "^7.3.1",
     "@tailwindcss/typography": "^0.5.7",
-    "@wowarenalogs/parser": "^4.6.4",
+    "@wowarenalogs/parser": "^5.0.0",
     "@wowarenalogs/shared": "^1.0.0",
     "daisyui": "^2.33.0",
     "next": "^12.1.1",

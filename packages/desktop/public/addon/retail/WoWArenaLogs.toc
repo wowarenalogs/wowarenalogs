@@ -1,8 +1,8 @@
-﻿## Interface: 90100
-## X-Min-Interface: 90100
+## Interface: 100000
+## X-Min-Interface: 100000
 ## Title: |cffff8000WoW Arena Logs|r
 ## Notes: Automatically enables combat logging when in arenas.
 ## Author: WoWArenaLogs.com
-## Version: 1.2.1
+## Version: 1.3
 
 WoWArenaLogs.lua

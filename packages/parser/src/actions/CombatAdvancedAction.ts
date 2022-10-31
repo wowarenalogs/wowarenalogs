@@ -51,7 +51,7 @@ export class CombatAdvancedAction extends CombatAction {
     this.advancedActorCurrentHp = logLine.parameters[advancedLoggingOffset + 2];
     this.advancedActorMaxHp = logLine.parameters[advancedLoggingOffset + 3];
 
-    const wowVersionOffset = wowVersion === 'shadowlands' ? 0 : -1;
+    const wowVersionOffset = wowVersion === 'retail' ? 0 : -1;
 
     const powerType = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 8]
       .toString()
