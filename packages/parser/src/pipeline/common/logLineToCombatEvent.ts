@@ -61,6 +61,7 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
             return logLine.raw;
         }
       } catch (e) {
+        console.log('##### FAILED TO PARSE', e);
         return logLine.raw;
       }
     }),

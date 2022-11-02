@@ -31,6 +31,48 @@ const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
   }),
 );
 
+/*
+   Create a new interface to hold shuffle specific data
+
+   We can detect when we need this at the first event (_START) using "Rated Solo Shuffle" and "Solo Shuffle"
+   strings in the bracket column
+*/
+export interface IShuffleRoundData {
+  startInfo: ArenaMatchStartInfo;
+
+  units: { [unitId: string]: ICombatUnit };
+  events: (CombatAction | CombatAdvancedAction)[];
+  rawLines: string[];
+  linesNotParsedCount: number;
+  winningTeamId: number;
+  roundEndInfo: {
+    endTime: number;
+    killedUnitId: number; // Combatant whose death caused the round to end
+  };
+  scoreboard: { [unitId: string]: number }; // scoreboard at round-end of # of wins each unit has
+
+  sequenceNumber: number; // 0-5, which round in the 6 round sequence this is
+}
+
+export interface IShuffleCombatData {
+  // metadata with normal meanings
+  id: string;
+  wowVersion: WowVersion;
+  isWellFormed: true;
+  startTime: number;
+  endTime: number;
+  hasAdvancedLogging: boolean;
+  // result is only slightly different, I believe this is WIN if you have >=3 rounds won
+  result: CombatResult; // 10/24 18:52:26.611  ARENA_MATCH_END,0,14,1591,1482
+
+  // _START is fired 6 times, same signature for every round
+  startInfo: ArenaMatchStartInfo; // 10/24 18:46:42.783  ARENA_MATCH_START,2563,34,Rated Solo Shuffle,0
+  endInfo: ArenaMatchEndInfo; // 10/24 18:52:26.611  ARENA_MATCH_END,0,14,1591,1482
+
+  // Store information about each round individually
+  rounds: IShuffleRoundData[];
+}
+
 export interface ICombatData {
   id: string;
   wowVersion: WowVersion;
@@ -504,6 +546,15 @@ export class CombatData {
       (this.result === CombatResult.Win || this.result === CombatResult.Lose)
     ) {
       this.isWellFormed = true;
+    } else {
+      console.log('Malformed match report');
+      console.log('unitLength >=? combatMetadata', playerUnits.length, this.combatantMetadata.size);
+      console.log('deadPlayerCount', deadPlayerCount);
+      console.log('wasTimeout', wasTimeout);
+      console.log('has startInfo', !!this.startInfo);
+      console.log('has endInfo', !!this.endInfo);
+      console.log('deadPlayerCount < combatMetadata', deadPlayerCount < this.combatantMetadata.size);
+      console.log('result type valid', this.result === CombatResult.Win || this.result === CombatResult.Lose);
     }
   }
 }

@@ -1,51 +1,25 @@
-import lineReader from 'line-reader';
-import path from 'path';
-
-import { CombatUnitClass, CombatUnitSpec, ICombatData, WoWCombatLogParser } from '../src';
-import { IMalformedCombatData } from '../src/CombatData';
-
-// import { CombatResult } from '../src/types';
-
-const parseLogFileAsync = (logFileName: string): Promise<[ICombatData[], IMalformedCombatData[]]> => {
-  return new Promise((resolve) => {
-    const logParser = new WoWCombatLogParser();
-    const results: ICombatData[] = [];
-    const malformedResults: IMalformedCombatData[] = [];
-
-    logParser.on('arena_match_ended', (data) => {
-      const combat = data as ICombatData;
-      results.push(combat);
-    });
-
-    logParser.on('malformed_arena_match_detected', (data) => {
-      const combat = data as IMalformedCombatData;
-      malformedResults.push(combat);
-    });
-
-    lineReader.eachLine(path.join(__dirname, 'logs', logFileName), (line, last) => {
-      logParser.parseLine(line);
-      if (last) {
-        resolve([results, malformedResults]);
-        return false;
-      }
-      return true;
-    });
-
-    logParser.flush();
-  });
-};
+import { CombatUnitClass, CombatUnitSpec } from '../src';
+import { LoaderResults, loadLogFile } from './testLogLoader';
 
 describe('parser tests', () => {
   describe('parsing a short match', () => {
-    let combats: ICombatData[] = [];
-    // let malformed: IMalformedCombatData[] = [];
+    const results: LoaderResults = {
+      combats: [],
+      malformedCombats: [],
+      shuffleRounds: [],
+      shuffles: [],
+    };
 
-    beforeAll(async () => {
-      [combats] = await parseLogFileAsync('dfbeta_skirmish.txt');
+    beforeAll(() => {
+      const loaded = loadLogFile('one_solo_shuffle.txt');
+      results.combats = loaded.combats;
+      results.malformedCombats = loaded.malformedCombats;
+      results.shuffleRounds = loaded.shuffleRounds;
+      results.shuffles = loaded.shuffles;
     });
 
     it('should return a single match', () => {
-      expect(combats).toHaveLength(1);
+      expect(results.combats).toHaveLength(1);
     });
 
     //   it('reaction based fields should populate', () => {
@@ -62,14 +36,14 @@ describe('parser tests', () => {
     //   });
 
     it('should have correct combatant metadata', () => {
-      const combat = combats[0];
+      const combat = results.combats[0];
       const combatant = combat.units['Player-3684-0D80A58F'];
       expect(combatant.class).toEqual(CombatUnitClass.Warrior);
       expect(combatant.spec).toEqual(CombatUnitSpec.Warrior_Fury);
       expect(combatant.info?.specId).toEqual(CombatUnitSpec.Warrior_Fury);
 
       console.log(JSON.stringify(combatant.info?.talents, null, 2));
-      const someTalent = combatant.info?.talents.find((a) => a.id1 === 90394);
+      const someTalent = combatant.info?.talents.find((a) => a?.id1 === 90394);
       expect(someTalent?.id2).toBe(112263);
       expect(someTalent?.count).toBe(1);
 
