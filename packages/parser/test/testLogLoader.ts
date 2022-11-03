@@ -31,6 +31,7 @@ export const loadLogFile = (logFileName: string): LoaderResults => {
   });
 
   logParser.on('solo_shuffle_round_ended', (data) => {
+    console.log('Loader SHUFFLE ROUND ENDED');
     const combat = data as IShuffleRoundData;
     shuffleRounds.push(combat);
   });

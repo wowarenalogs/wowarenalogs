@@ -38,16 +38,17 @@ const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
    strings in the bracket column
 */
 export interface IShuffleRoundData {
+  dataType: 'ShuffleRound';
   startInfo: ArenaMatchStartInfo;
 
   units: { [unitId: string]: ICombatUnit };
   events: (CombatAction | CombatAdvancedAction)[];
   rawLines: string[];
   linesNotParsedCount: number;
-  winningTeamId: number;
+  winningTeamId: string;
   roundEndInfo: {
     endTime: number;
-    killedUnitId: number; // Combatant whose death caused the round to end
+    killedUnitId: string; // Combatant whose death caused the round to end
   };
   scoreboard: { [unitId: string]: number }; // scoreboard at round-end of # of wins each unit has
 
@@ -55,6 +56,7 @@ export interface IShuffleRoundData {
 }
 
 export interface IShuffleCombatData {
+  dataType: 'Shuffle';
   // metadata with normal meanings
   id: string;
   wowVersion: WowVersion;
@@ -74,6 +76,7 @@ export interface IShuffleCombatData {
 }
 
 export interface ICombatData {
+  dataType: 'Combat';
   id: string;
   wowVersion: WowVersion;
   isWellFormed: true;
@@ -92,6 +95,7 @@ export interface ICombatData {
 }
 
 export interface IMalformedCombatData {
+  dataType: 'MalformedCombat';
   id: string;
   isWellFormed: false;
   startTime: number;
@@ -359,6 +363,8 @@ export class CombatData {
         destUnit.actionIn.push(event.logLine);
         break;
       case LogEvent.UNIT_DIED:
+        console.log('UNIT_DIED');
+        console.log(JSON.stringify(event, null, 2));
         if (
           event.logLine.parameters.length > 8 &&
           event.logLine.parameters[8] === 1 // 8 is unconsciousOnDeath in wowcombatlog
