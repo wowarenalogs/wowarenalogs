@@ -1,6 +1,9 @@
 import { CombatResult, CombatUnitClass } from '../src/types';
 import { LoaderResults, loadLogFile } from './testLogLoader';
 
+/**
+ * Tests for TBC files are defunct until we resume wow classic development
+ */
 xdescribe('parsing a tbc log file', () => {
   const results: LoaderResults = {
     combats: [],

@@ -59,61 +59,29 @@ describe('solo shuffle tests', () => {
       });
     });
 
-    // it('should parse round 1', () => {
-    //   const round = results.shuffleRounds[1];
-    //   const team0Ids = ['1', '2', '3'];
-    //   const team1Ids = ['1', '2', '3'];
+    it('should parse round 1', () => {
+      const round = results.shuffleRounds[1];
+      expect(round.sequenceNumber).toBe(1);
+      expect(round.winningTeamId).toBe('1');
+    });
 
-    //   team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe(0));
-    //   team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe(1));
+    it('should parse round 2', () => {
+      const round = results.shuffleRounds[2];
+      expect(round.sequenceNumber).toBe(2);
+      expect(round.winningTeamId).toBe('1');
+    });
 
-    //   expect(round.sequenceNumber).toBe(1);
+    it('should parse round 3', () => {
+      const round = results.shuffleRounds[3];
+      expect(round.sequenceNumber).toBe(3);
+      expect(round.winningTeamId).toBe('1');
+    });
 
-    //   expect(round.winningTeamId).toBe(0);
-    //   expect(round.roundEndInfo.killedUnitId).toBe('some-guid');
-    // });
-
-    // it('should parse round 2', () => {
-    //   const round = results.shuffleRounds[2];
-    //   const team0Ids = ['1', '2', '3'];
-    //   const team1Ids = ['1', '2', '3'];
-
-    //   team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe(0));
-    //   team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe(1));
-
-    //   expect(round.sequenceNumber).toBe(2);
-
-    //   expect(round.winningTeamId).toBe(0);
-    //   expect(round.roundEndInfo.killedUnitId).toBe('some-guid');
-    // });
-
-    // it('should parse round 3', () => {
-    //   const round = results.shuffleRounds[3];
-    //   const team0Ids = ['1', '2', '3'];
-    //   const team1Ids = ['1', '2', '3'];
-
-    //   team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe(0));
-    //   team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe(1));
-
-    //   expect(round.sequenceNumber).toBe(3);
-
-    //   expect(round.winningTeamId).toBe(0);
-    //   expect(round.roundEndInfo.killedUnitId).toBe('some-guid');
-    // });
-
-    // it('should parse round 4', () => {
-    //   const round = results.shuffleRounds[4];
-    //   const team0Ids = ['1', '2', '3'];
-    //   const team1Ids = ['1', '2', '3'];
-
-    //   team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe(0));
-    //   team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe(1));
-
-    //   expect(round.sequenceNumber).toBe(4);
-
-    //   expect(round.winningTeamId).toBe(0);
-    //   expect(round.roundEndInfo.killedUnitId).toBe('some-guid');
-    // });
+    it('should parse round 4', () => {
+      const round = results.shuffleRounds[4];
+      expect(round.sequenceNumber).toBe(4);
+      expect(round.winningTeamId).toBe('0');
+    });
 
     it('should parse round 5', () => {
       const round = results.shuffleRounds[5];

@@ -151,7 +151,7 @@ describe('parser tests', () => {
     });
   });
 
-  xdescribe('parsing a log with no end will time out', () => {
+  describe('parsing a log with no end will time out', () => {
     const results: LoaderResults = {
       combats: [],
       malformedCombats: [],
@@ -160,7 +160,7 @@ describe('parser tests', () => {
     };
 
     beforeAll(() => {
-      const loaded = loadLogFile('one_solo_shuffle.txt');
+      const loaded = loadLogFile('one_match_synthetic_no_end.txt');
       results.combats = loaded.combats;
       results.malformedCombats = loaded.malformedCombats;
       results.shuffleRounds = loaded.shuffleRounds;
@@ -168,22 +168,25 @@ describe('parser tests', () => {
     });
 
     it('should return no valid match', () => {
+      console.log('###RESULTS');
+      console.log(results);
       expect(results.combats).toHaveLength(0);
     });
-    it('should return one malformed match', () => {
-      expect(results.malformedCombats).toHaveLength(1);
-    });
 
-    it('should buffer the raw logs', () => {
-      expect(results.malformedCombats[0].rawLines.length).toEqual(10);
-    });
+    // it('should return one malformed match', () => {
+    //   expect(results.malformedCombats).toHaveLength(1);
+    // });
 
-    it('should count the lines it cant parse', () => {
-      expect(results.malformedCombats[0].linesNotParsedCount).toEqual(1);
-    });
+    // it('should buffer the raw logs', () => {
+    //   expect(results.malformedCombats[0].rawLines.length).toEqual(10);
+    // });
+
+    // it('should count the lines it cant parse', () => {
+    //   expect(results.malformedCombats[0].linesNotParsedCount).toEqual(1);
+    // });
   });
 
-  xdescribe('parsing a log with advanced logging', () => {
+  describe('parsing a log with advanced logging', () => {
     const results: LoaderResults = {
       combats: [],
       malformedCombats: [],
@@ -192,35 +195,42 @@ describe('parser tests', () => {
     };
 
     beforeAll(() => {
-      const loaded = loadLogFile('one_solo_shuffle.txt');
+      const loaded = loadLogFile('hunter_priest_match.txt');
       results.combats = loaded.combats;
       results.malformedCombats = loaded.malformedCombats;
       results.shuffleRounds = loaded.shuffleRounds;
       results.shuffles = loaded.shuffles;
     });
 
-    it('should return a single match', () => {
-      expect(results.combats).toHaveLength(1);
-    });
-
     it('should have correct mana data', () => {
-      expect(results.combats[0].units['Player-57-0A628E42'].advancedActions[0].advancedActorPowers).toHaveLength(1);
+      expect(results.combats).toHaveLength(1);
 
-      expect(results.combats[0].units['Player-57-0A628E42'].advancedActions[0].advancedActorPowers[0].type).toEqual(
-        CombatUnitPowerType.Mana,
-      );
+      expect(
+        results.combats[0].units['286d3193-c3bb-4033-b1a0-b3318a06e0d5'].advancedActions[0].advancedActorPowers,
+      ).toHaveLength(1);
 
-      expect(results.combats[0].units['Player-57-0A628E42'].advancedActions[0].advancedActorPowers[0].max).toEqual(
-        42565,
-      );
+      expect(
+        results.combats[0].units['286d3193-c3bb-4033-b1a0-b3318a06e0d5'].advancedActions[0].advancedActorPowers[0].type,
+      ).toEqual(CombatUnitPowerType.Mana);
+
+      expect(
+        results.combats[0].units['286d3193-c3bb-4033-b1a0-b3318a06e0d5'].advancedActions[0].advancedActorPowers[0].max,
+      ).toEqual(53000);
     });
 
     it('should have merged pet activities correctly', () => {
+      // BM hunter has two pets:
       expect(
-        results.combats[0].units['Player-57-0C9DA89C'].damageOut.filter(
-          (e) => e.srcUnitId === 'Creature-0-3886-1505-13080-103673-00001E55D3',
+        results.combats[0].units['c5f3ff0a-040a-4e88-a171-59d4ceca1a42'].damageOut.filter(
+          (e) => e.srcUnitId === 'Pet-0-4221-2167-21249-165189-050415A773',
         ).length,
-      ).toEqual(7);
+      ).toEqual(85);
+
+      expect(
+        results.combats[0].units['c5f3ff0a-040a-4e88-a171-59d4ceca1a42'].damageOut.filter(
+          (e) => e.srcUnitId === 'Pet-0-4221-2167-21249-165189-0304151C51',
+        ).length,
+      ).toEqual(113);
     });
   });
 });
