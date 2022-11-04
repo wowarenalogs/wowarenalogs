@@ -115,31 +115,31 @@ describe('solo shuffle tests', () => {
     //   expect(round.roundEndInfo.killedUnitId).toBe('some-guid');
     // });
 
-    // it('should parse round 5', () => {
-    //   const round = results.shuffleRounds[5];
-    //   const team0Ids = ['1', '2', '3'];
-    //   const team1Ids = ['1', '2', '3'];
+    it('should parse round 5', () => {
+      const round = results.shuffleRounds[5];
+      const team0Ids = ['Player-2073-094DF239', 'Player-580-0A594065', 'Player-1929-0675D6C6'];
+      const team1Ids = ['Player-1335-09D86B90', 'Player-1084-0979C1C5', 'Player-1098-0A781F24'];
 
-    //   team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe(0));
-    //   team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe(1));
+      team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('0'));
+      team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('1'));
 
-    //   expect(round.sequenceNumber).toBe(5);
+      expect(round.sequenceNumber).toBe(5);
 
-    //   expect(round.winningTeamId).toBe(0);
-    //   expect(round.roundEndInfo.killedUnitId).toBe('some-guid');
+      expect(round.winningTeamId).toBe('0');
+      expect(round.roundEndInfo.killedUnitId).toBe('Player-1098-0A781F24');
 
-    //   // Check the scoreboard after round 6
-    //   const scores = [
-    //     ['some-player-guid', 0],
-    //     ['some-player-guid', 0],
-    //     ['some-player-guid', 0],
-    //     ['some-player-guid', 0],
-    //     ['some-player-guid', 0],
-    //     ['some-player-guid', 0],
-    //   ];
-    //   scores.forEach((score) => {
-    //     expect(round.scoreboard[score[0]]).toBe(score[1]);
-    //   });
-    // });
+      // Check the scoreboard after round 6
+      const scores = [
+        ['Player-1098-0A781F24', 1],
+        ['Player-1084-0979C1C5', 2],
+        ['Player-1335-09D86B90', 5],
+        ['Player-1929-0675D6C6', 3],
+        ['Player-580-0A594065', 3],
+        ['Player-2073-094DF239', 4],
+      ];
+      scores.forEach((score) => {
+        expect(round.scoreboard[score[0]]).toBe(score[1]);
+      });
+    });
   });
 });

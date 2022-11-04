@@ -18,7 +18,6 @@ export const createRetailParserPipeline = (
     .pipe(stringToLogLine(), logLineToCombatEvent('retail'), combatEventsToSegment(), segmentToCombat())
     .subscribe({
       next: (d) => {
-        console.log('.NEXT', d.dataType);
         switch (d.dataType) {
           case 'Combat':
             onValidCombat(d);

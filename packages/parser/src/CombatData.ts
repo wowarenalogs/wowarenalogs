@@ -363,8 +363,6 @@ export class CombatData {
         destUnit.actionIn.push(event.logLine);
         break;
       case LogEvent.UNIT_DIED:
-        console.log('UNIT_DIED');
-        console.log(JSON.stringify(event, null, 2));
         if (
           event.logLine.parameters.length > 8 &&
           event.logLine.parameters[8] === 1 // 8 is unconsciousOnDeath in wowcombatlog

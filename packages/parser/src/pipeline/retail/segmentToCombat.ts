@@ -118,7 +118,6 @@ export const segmentToCombat = () => {
         if (isShuffleRound) {
           try {
             const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
-            console.log('Decoded solo shuffle round', decoded);
             return decoded.shuffle;
           } catch (e) {
             console.log('Decoder fail', e);
