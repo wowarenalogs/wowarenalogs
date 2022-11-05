@@ -23,7 +23,7 @@ describe('parser tests', () => {
     });
   });
 
-  xdescribe('parsing a malformed log file that has double start bug', () => {
+  describe('parsing a malformed log file that has double start bug', () => {
     const results: LoaderResults = {
       combats: [],
       malformedCombats: [],
@@ -32,7 +32,7 @@ describe('parser tests', () => {
     };
 
     beforeAll(() => {
-      const loaded = loadLogFile('one_match_synthetic.txt');
+      const loaded = loadLogFile('double_start.txt');
       results.combats = loaded.combats;
       results.malformedCombats = loaded.malformedCombats;
       results.shuffleRounds = loaded.shuffleRounds;
@@ -55,7 +55,7 @@ describe('parser tests', () => {
     });
   });
 
-  xdescribe('parsing a real log file without advanced combat logging', () => {
+  describe('parsing a real log file without advanced combat logging', () => {
     const results: LoaderResults = {
       combats: [],
       malformedCombats: [],
@@ -64,7 +64,7 @@ describe('parser tests', () => {
     };
 
     beforeAll(() => {
-      const loaded = loadLogFile('one_match_synthetic.txt');
+      const loaded = loadLogFile('no_advanced.txt');
       results.combats = loaded.combats;
       results.malformedCombats = loaded.malformedCombats;
       results.shuffleRounds = loaded.shuffleRounds;
@@ -84,7 +84,7 @@ describe('parser tests', () => {
     });
 
     it('should count the lines it cant parse', () => {
-      expect(results.combats[0].linesNotParsedCount).toEqual(87);
+      expect(results.combats[0].linesNotParsedCount).toEqual(0);
     });
 
     it('should have aura events', () => {
@@ -96,7 +96,7 @@ describe('parser tests', () => {
     });
   });
 
-  xdescribe('parsing a log with two matches', () => {
+  describe('parsing a log with two matches', () => {
     const results: LoaderResults = {
       combats: [],
       malformedCombats: [],
@@ -105,7 +105,7 @@ describe('parser tests', () => {
     };
 
     beforeAll(() => {
-      const loaded = loadLogFile('one_solo_shuffle.txt');
+      const loaded = loadLogFile('two_matches.txt');
       results.combats = loaded.combats;
       results.malformedCombats = loaded.malformedCombats;
       results.shuffleRounds = loaded.shuffleRounds;
