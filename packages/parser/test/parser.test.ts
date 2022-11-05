@@ -168,22 +168,16 @@ describe('parser tests', () => {
     });
 
     it('should return no valid match', () => {
-      console.log('###RESULTS');
-      console.log(results);
       expect(results.combats).toHaveLength(0);
+      expect(results.malformedCombats).toHaveLength(1);
+      expect(results.shuffleRounds).toHaveLength(0);
+      expect(results.shuffles).toHaveLength(0);
     });
 
-    // it('should return one malformed match', () => {
-    //   expect(results.malformedCombats).toHaveLength(1);
-    // });
-
-    // it('should buffer the raw logs', () => {
-    //   expect(results.malformedCombats[0].rawLines.length).toEqual(10);
-    // });
-
-    // it('should count the lines it cant parse', () => {
-    //   expect(results.malformedCombats[0].linesNotParsedCount).toEqual(1);
-    // });
+    it('should buffer the raw logs', () => {
+      expect(results.malformedCombats[0].rawLines.length).toEqual(14);
+      expect(results.malformedCombats[0].linesNotParsedCount).toEqual(0);
+    });
   });
 
   describe('parsing a log with advanced logging', () => {

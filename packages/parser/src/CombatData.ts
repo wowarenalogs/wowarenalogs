@@ -267,7 +267,7 @@ export class CombatData {
     srcUnit.proveReaction(getUnitReaction(srcFlag));
     destUnit.proveReaction(getUnitReaction(destFlag));
 
-    if (this.wowVersion === 'tbc') {
+    if (this.wowVersion === 'classic') {
       const isMatchStartEvent =
         event.logLine.event === LogEvent.SPELL_AURA_REMOVED &&
         getUnitType(event.destUnitFlags) === CombatUnitType.Player &&
@@ -382,7 +382,7 @@ export class CombatData {
           }
           srcUnit.spellCastEvents.push(advancedAction);
 
-          if (this.wowVersion === 'tbc' && advancedAction.spellId) {
+          if (this.wowVersion === 'classic' && advancedAction.spellId) {
             const unitClass = SPELL_ID_TO_CLASS_MAP.get(advancedAction.spellId);
             if (unitClass) {
               srcUnit.proveClass(unitClass);
@@ -406,7 +406,7 @@ export class CombatData {
   }
 
   private inferMatchMetadata() {
-    this.playerTeamId = '0'; // for TBC logs, we always use 0 as the owner's team
+    this.playerTeamId = '0'; // for Classic logs, we always use 0 as the owner's team
     this.playerTeamRating = 0;
 
     this.startInfo = {
@@ -492,7 +492,7 @@ export class CombatData {
       unit.end();
     });
 
-    if (this.wowVersion === 'tbc') {
+    if (this.wowVersion === 'classic') {
       this.inferMatchMetadata();
     }
 

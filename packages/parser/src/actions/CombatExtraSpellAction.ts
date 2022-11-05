@@ -1,4 +1,5 @@
 import { ILogLine, LogEvent } from '../types';
+import { parseQuotedName } from '../utils';
 import { CombatAction } from './CombatAction';
 
 export class CombatExtraSpellAction extends CombatAction {
@@ -22,6 +23,6 @@ export class CombatExtraSpellAction extends CombatAction {
     }
 
     this.extraSpellId = logLine.parameters[11].toString();
-    this.extraSpellName = logLine.parameters[12];
+    this.extraSpellName = parseQuotedName(logLine.parameters[12]);
   }
 }

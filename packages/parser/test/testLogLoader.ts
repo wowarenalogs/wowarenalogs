@@ -40,7 +40,7 @@ export const loadLogFile = (logFileName: string): LoaderResults => {
     shuffles.push(combat);
   });
 
-  const buffer = fs.readFileSync(path.join(__dirname, 'logs', logFileName));
+  const buffer = fs.readFileSync(path.join(__dirname, 'testlogs', logFileName));
   buffer
     .toString()
     .split('\n')

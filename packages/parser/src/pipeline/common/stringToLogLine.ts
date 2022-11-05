@@ -29,6 +29,7 @@ export const stringToLogLine = () => {
 
       // unsupported event
       if (!(eventName in LogEvent)) {
+        console.log('#### UNSUPPORTED', eventName);
         return line;
       }
       const event = LogEvent[eventName as keyof typeof LogEvent];

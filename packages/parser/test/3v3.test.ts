@@ -38,7 +38,7 @@ describe('3v3 match parsing', () => {
 
     it('should have accounting for the raw lines', () => {
       expect(results.combats[0].rawLines.length).toEqual(19);
-      expect(results.combats[0].linesNotParsedCount).toEqual(1);
+      expect(results.combats[0].linesNotParsedCount).toEqual(0);
     });
 
     it('should have correct combatant metadata', () => {

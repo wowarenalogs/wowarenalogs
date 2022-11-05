@@ -4,13 +4,14 @@ import { from } from 'rxjs';
 
 import { CombatHpUpdateAction } from '../src/actions/CombatHpUpdateAction';
 import { stringToLogLine } from '../src/pipeline/common/stringToLogLine';
-import { dedup } from '../src/pipeline/tbc/dedup';
+import { dedup } from '../src/pipeline/classic/dedup';
 import { ILogLine } from '../src/types';
+import { PartyKill } from '../src/actions/PartyKill';
 
 describe('pipeline component tests', () => {
   describe('dedup', () => {
     it('should remove duplicate lines', () => {
-      const inputLines = fs.readFileSync(path.join(__dirname, 'logs', 'test_dedup.txt')).toString().split('\n');
+      const inputLines = fs.readFileSync(path.join(__dirname, 'testlogs', 'test_dedup.txt')).toString().split('\n');
 
       const outputLines: string[] = [];
       from(inputLines)
@@ -42,7 +43,21 @@ describe('pipeline component tests', () => {
       expect(action.advancedActorItemLevel).toEqual(125);
     });
 
-    it('should parse TBC log correctly', () => {
+    it('should parse party kill events', () => {
+      const log =
+        '11/1 20:35:25.646  PARTY_KILL,dd6dcc4e-fe9c-4485-84db-f5beb34b748a,"EarlyPanda",0x512,0x0,ce9434a7-b379-4919-b825-f94e1df6cbef,"BrokenPython",0x10548,0x0,0';
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine())
+        .forEach((line) => (logLine = line));
+
+      expect(logLine).not.toBeNull();
+
+      const action = new PartyKill(logLine as unknown as ILogLine);
+      expect(action.destUnitName).toBe('BrokenPython');
+    });
+
+    it('should parse Classic log correctly', () => {
       const log =
         '5/21 16:35:39.437  SPELL_DAMAGE,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4700-01A0750A,"Darshath-Kirtonos",0x10548,0x0,17348,"Hemorrhage",0x1,Player-4700-01A0750A,0000000000000000,89,100,28,327,957,0,4844,7239,0,4028.03,2925.57,0,4.7879,75,371,389,-1,1,0,0,0,nil,nil,nil';
       let logLine = null;
@@ -52,7 +67,7 @@ describe('pipeline component tests', () => {
 
       expect(logLine).not.toBeNull();
 
-      const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'tbc');
+      const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'classic');
       expect(action.amount).toEqual(-371);
       expect(action.advanced).toEqual(true);
       expect(action.advancedActorCurrentHp).toEqual(89);

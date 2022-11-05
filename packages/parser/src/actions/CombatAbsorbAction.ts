@@ -21,10 +21,10 @@ export class CombatAbsorbAction extends CombatAction {
   constructor(logLine: ILogLine, wowVersion: WowVersion) {
     super(logLine);
     if (!CombatAbsorbAction.supports(logLine)) {
-      throw new Error('event not supported');
+      throw new Error('Event not supported as CombatAbsorbAction');
     }
 
-    // tbc are 17/20, sl are 18/21
+    // classic are 17/20, sl are 18/21
     // 3 fields are missing for melee absorb events
     const meleeAbsorbOffset = logLine.parameters.length < 20 ? 3 : 0;
 
@@ -41,7 +41,7 @@ export class CombatAbsorbAction extends CombatAction {
     // SHIELD SPELL: 324867, "Fleshcraft",0x20,1830,3329,nil
     // spell id, spell name, spell school, absorbed amount, base incoming damage, crit flag
 
-    // TBC
+    // Classic
     // 5/21 16:34:31.398  SPELL_ABSORBED,
     //   0                        1               2    3
     // Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,
@@ -54,14 +54,14 @@ export class CombatAbsorbAction extends CombatAction {
     //  15    16                 17   18    19
     // 10901,"Power Word: Shield",0x2,1424,1518
 
-    // 17 - melee - tbc
+    // 17 - melee - classic
     // 5/24 11:44:30.749  SPELL_ABSORBED,
     // Pet-0-4401-559-20609-17252-01004BFD4E,"Jhuuthun",0x1148,0x0,
     // Player-4399-0130E5C1,"Blury-Kurinnaxx",0x512,0x0,
     // Player-4399-0130E5C1,"Blury-Kurinnaxx",0x512,0x0,
     // 13033,"Ice Barrier",0x10,152,192
 
-    // 18 - melee - SL
+    // 18 - melee - retail, SL
     // 2/6 00:40:06.214  SPELL_ABSORBED,
     // Creature-0-3886-1505-13080-26125-00001E55D5,"Risen Ghoul",0x2148,0x0,
     // Player-57-0A628E42,"Teckkno-Illidan",0x512,0x0,

@@ -154,6 +154,11 @@ export const segmentToCombat = () => {
             });
             combat.end();
 
+            // console.log('--------------');
+            // segment.lines.forEach((l) => console.log(l));
+            // console.log('Events');
+            // segment.events.forEach((e) => console.log(e));
+            // console.log('---------------');
             if (combat.isWellFormed) {
               const plainCombatDataObject: ICombatData = {
                 dataType: 'Combat',
