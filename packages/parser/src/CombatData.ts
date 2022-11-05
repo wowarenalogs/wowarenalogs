@@ -271,6 +271,7 @@ export class CombatData {
       const isMatchStartEvent =
         event.logLine.event === LogEvent.SPELL_AURA_REMOVED &&
         getUnitType(event.destUnitFlags) === CombatUnitType.Player &&
+        event instanceof CombatAction &&
         event.spellId === '32727'; // arena preparation buff
       if (isMatchStartEvent) {
         this.inferredCombatantIds.add(event.destUnitId);
@@ -352,7 +353,9 @@ export class CombatData {
       case LogEvent.SPELL_AURA_REMOVED_DOSE:
       case LogEvent.SPELL_AURA_BROKEN:
       case LogEvent.SPELL_AURA_BROKEN_SPELL:
-        destUnit.auraEvents.push(event);
+        if (event instanceof CombatAction) {
+          destUnit.auraEvents.push(event);
+        }
         break;
       case LogEvent.SPELL_INTERRUPT:
       case LogEvent.SPELL_STOLEN:
@@ -392,7 +395,9 @@ export class CombatData {
         break;
       case LogEvent.SPELL_CAST_START:
       case LogEvent.SPELL_CAST_FAILED:
-        srcUnit.spellCastEvents.push(event);
+        if (event instanceof CombatAction) {
+          srcUnit.spellCastEvents.push(event);
+        }
         break;
       case LogEvent.SPELL_SUMMON:
         srcUnit.actionOut.push(event.logLine);
@@ -550,15 +555,17 @@ export class CombatData {
       (this.result === CombatResult.Win || this.result === CombatResult.Lose)
     ) {
       this.isWellFormed = true;
-    } else {
-      console.log('Malformed match report');
-      console.log('unitLength >=? combatMetadata', playerUnits.length, this.combatantMetadata.size);
-      console.log('deadPlayerCount', deadPlayerCount);
-      console.log('wasTimeout', wasTimeout);
-      console.log('has startInfo', !!this.startInfo);
-      console.log('has endInfo', !!this.endInfo);
-      console.log('deadPlayerCount < combatMetadata', deadPlayerCount < this.combatantMetadata.size);
-      console.log('result type valid', this.result === CombatResult.Win || this.result === CombatResult.Lose);
     }
+    // Debugging for malformed matches in tests
+    // else {
+    //   console.log('Malformed match report');
+    //   console.log('unitLength >=? combatMetadata', playerUnits.length, this.combatantMetadata.size);
+    //   console.log('deadPlayerCount', deadPlayerCount);
+    //   console.log('wasTimeout', wasTimeout);
+    //   console.log('has startInfo', !!this.startInfo);
+    //   console.log('has endInfo', !!this.endInfo);
+    //   console.log('deadPlayerCount < combatMetadata', deadPlayerCount < this.combatantMetadata.size);
+    //   console.log('result type valid', this.result === CombatResult.Win || this.result === CombatResult.Lose);
+    // }
   }
 }

@@ -21,11 +21,6 @@ export const combatEventsToSegment = () => {
             return;
           }
 
-          // console.log(event.logLine.event);
-          // if (event.logLine.event === 'SWING_MISSED') {
-          //   console.log(JSON.stringify(event, null, 2));
-          // }
-
           const emitCurrentBuffer = () => {
             if (!currentBuffer.lines.length) {
               return;

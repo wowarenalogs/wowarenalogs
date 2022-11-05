@@ -120,7 +120,7 @@ export const segmentToCombat = () => {
             const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
             return decoded.shuffle;
           } catch (e) {
-            console.log('Decoder fail', e);
+            // console.log('Decoder fail', e);
           }
         }
 
@@ -154,11 +154,6 @@ export const segmentToCombat = () => {
             });
             combat.end();
 
-            // console.log('--------------');
-            // segment.lines.forEach((l) => console.log(l));
-            // console.log('Events');
-            // segment.events.forEach((e) => console.log(e));
-            // console.log('---------------');
             if (combat.isWellFormed) {
               const plainCombatDataObject: ICombatData = {
                 dataType: 'Combat',

@@ -4,7 +4,7 @@ import { LoaderResults, loadLogFile } from './testLogLoader';
 /**
  * Tests for Classic files are defunct until we resume wow classic development
  */
-xdescribe('parsing a classic log file', () => {
+describe('parsing a classic log file', () => {
   const results: LoaderResults = {
     combats: [],
     malformedCombats: [],
@@ -13,7 +13,7 @@ xdescribe('parsing a classic log file', () => {
   };
 
   beforeAll(() => {
-    const loaded = loadLogFile('one_solo_shuffle.txt');
+    const loaded = loadLogFile('classic_matches.txt');
     results.combats = loaded.combats;
     results.malformedCombats = loaded.malformedCombats;
     results.shuffleRounds = loaded.shuffleRounds;

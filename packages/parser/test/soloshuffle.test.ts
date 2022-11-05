@@ -35,8 +35,6 @@ describe('solo shuffle tests', () => {
       const team0Ids = ['Player-580-0A594065', 'Player-2073-094DF239', 'Player-1335-09D86B90'];
       const team1Ids = ['Player-1084-0979C1C5', 'Player-1098-0A781F24', 'Player-1929-0675D6C6'];
 
-      console.log(round.rawLines[0]);
-      console.log(round.rawLines[1]);
       team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('1'));
       team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('0'));
 
