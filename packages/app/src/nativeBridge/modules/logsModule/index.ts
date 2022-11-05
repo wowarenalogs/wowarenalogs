@@ -1,4 +1,11 @@
-import { ICombatData, WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
+import {
+  ICombatData,
+  IMalformedCombatData,
+  IShuffleCombatData,
+  IShuffleRoundData,
+  WoWCombatLogParser,
+  WowVersion,
+} from '@wowarenalogs/parser';
 import { BrowserWindow } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
@@ -19,13 +26,13 @@ interface IBridge {
 
 const bridgeState: {
   retail: IBridge;
-  tbc: IBridge;
+  classic: IBridge;
 } = {
   retail: {
     watcher: undefined,
     logParser: undefined,
   },
-  tbc: {
+  classic: {
     watcher: undefined,
     logParser: undefined,
   },
@@ -53,6 +60,15 @@ export class LogsModule extends NativeBridgeModule {
     }
     bridge.logParser.on('arena_match_ended', (combat: ICombatData) => {
       this.handleNewCombat(mainWindow, combat);
+    });
+    bridge.logParser.on('solo_shuffle_round_ended', (combat: IShuffleRoundData) => {
+      this.handleSoloShuffleRoundEnded(mainWindow, combat);
+    });
+    bridge.logParser.on('solo_shuffle_ended', (combat: IShuffleCombatData) => {
+      this.handleSoloShuffleEnded(mainWindow, combat);
+    });
+    bridge.logParser.on('malformed_arena_match_detected', (combat: IMalformedCombatData) => {
+      this.handleMalformedCombatDetected(mainWindow, combat);
     });
 
     const lastKnownFileStats = new Map<string, ILastKnownCombatLogState>();
@@ -117,12 +133,21 @@ export class LogsModule extends NativeBridgeModule {
     bridgeState.retail.logParser?.removeAllListeners();
     bridgeState.retail.logParser = undefined;
     bridgeState.retail.watcher = undefined;
-    bridgeState.tbc.watcher?.close();
-    bridgeState.tbc.logParser?.removeAllListeners();
-    bridgeState.tbc.logParser = undefined;
-    bridgeState.tbc.watcher = undefined;
+    bridgeState.classic.watcher?.close();
+    bridgeState.classic.logParser?.removeAllListeners();
+    bridgeState.classic.logParser = undefined;
+    bridgeState.classic.watcher = undefined;
   }
 
   @moduleEvent('on')
   public handleNewCombat(_mainWindow: BrowserWindow, _combat: ICombatData) {}
+
+  @moduleEvent('on')
+  public handleSoloShuffleRoundEnded(_mainWindow: BrowserWindow, _combat: IShuffleRoundData) {}
+
+  @moduleEvent('on')
+  public handleSoloShuffleEnded(_mainWindow: BrowserWindow, _combat: IShuffleCombatData) {}
+
+  @moduleEvent('on')
+  public handleMalformedCombatDetected(_mainWindow: BrowserWindow, _combat: IMalformedCombatData) {}
 }

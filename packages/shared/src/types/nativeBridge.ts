@@ -1,4 +1,5 @@
 import { ICombatData, WowVersion } from '@wowarenalogs/parser';
+import { IMalformedCombatData, IShuffleCombatData, IShuffleRoundData } from '@wowarenalogs/parser/dist/CombatData';
 
 type ElectronOpaqueEvent = {
   senderId: number;
@@ -47,6 +48,9 @@ export type INativeBridge = {
   };
   logs?: {
     handleNewCombat: (callback: (event: ElectronOpaqueEvent, c: ICombatData) => void) => void;
+    handleSoloShuffleRoundEnded: (callback: (event: ElectronOpaqueEvent, c: IShuffleRoundData) => void) => void;
+    handleSoloShuffleEnded: (callback: (event: ElectronOpaqueEvent, c: IShuffleCombatData) => void) => void;
+    handleMalformedCombatDetected: (callback: (event: ElectronOpaqueEvent, c: IMalformedCombatData) => void) => void;
     startLogWatcher: (wowDirectory: string, wowVersion: WowVersion) => Promise<void>;
     stopLogWatcher: () => Promise<void>;
     removeAll_handleNewCombat_listeners: () => Promise<void>;

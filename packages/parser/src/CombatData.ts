@@ -39,6 +39,7 @@ const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
 */
 export interface IShuffleRoundData {
   dataType: 'ShuffleRound';
+  wowVersion: 'retail';
   startInfo: ArenaMatchStartInfo;
 
   units: { [unitId: string]: ICombatUnit };
@@ -59,7 +60,7 @@ export interface IShuffleCombatData {
   dataType: 'Shuffle';
   // metadata with normal meanings
   id: string;
-  wowVersion: WowVersion;
+  wowVersion: 'retail';
   isWellFormed: true;
   startTime: number;
   endTime: number;
@@ -95,6 +96,7 @@ export interface ICombatData {
 }
 
 export interface IMalformedCombatData {
+  wowVersion: WowVersion;
   dataType: 'MalformedCombat';
   id: string;
   isWellFormed: false;
@@ -557,15 +559,15 @@ export class CombatData {
       this.isWellFormed = true;
     }
     // Debugging for malformed matches in tests
-    // else {
-    //   console.log('Malformed match report');
-    //   console.log('unitLength >=? combatMetadata', playerUnits.length, this.combatantMetadata.size);
-    //   console.log('deadPlayerCount', deadPlayerCount);
-    //   console.log('wasTimeout', wasTimeout);
-    //   console.log('has startInfo', !!this.startInfo);
-    //   console.log('has endInfo', !!this.endInfo);
-    //   console.log('deadPlayerCount < combatMetadata', deadPlayerCount < this.combatantMetadata.size);
-    //   console.log('result type valid', this.result === CombatResult.Win || this.result === CombatResult.Lose);
-    // }
+    else {
+      console.log('Malformed match report');
+      console.log('unitLength >=? combatMetadata', playerUnits.length, this.combatantMetadata.size);
+      console.log('deadPlayerCount', deadPlayerCount);
+      console.log('wasTimeout', wasTimeout);
+      console.log('has startInfo', !!this.startInfo);
+      console.log('has endInfo', !!this.endInfo);
+      console.log('deadPlayerCount < combatMetadata', deadPlayerCount < this.combatantMetadata.size);
+      console.log('result type valid', this.result === CombatResult.Win || this.result === CombatResult.Lose);
+    }
   }
 }
