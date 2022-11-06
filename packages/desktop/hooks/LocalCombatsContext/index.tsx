@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
-import { ICombatData, IShuffleCombatData, IShuffleRoundData } from '@wowarenalogs/parser';
+import { IArenaMatch, IShuffleMatch, IShuffleRound } from '@wowarenalogs/parser';
 import { logAnalyticsEvent, useAuth } from '@wowarenalogs/shared';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { useAppConfig } from '../AppConfigContext';
 
-type ParserCombatData = ICombatData | IShuffleCombatData | IShuffleRoundData;
+type ParserCombatData = IArenaMatch | IShuffleMatch | IShuffleRound;
 
 interface ILocalCombatsContextData {
   localCombats: ParserCombatData[];
@@ -70,9 +70,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         if (wowVersion === combat.wowVersion) {
           console.log('ShuffleEnded');
           console.log(combat);
-          setCombats((prev) => {
-            return prev.concat([combat]);
-          });
+          // TODO: holistic support for suffle matches
         }
       });
 

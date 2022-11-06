@@ -1,4 +1,4 @@
-import { ICombatData } from '@wowarenalogs/parser';
+import { IArenaMatch } from '@wowarenalogs/parser';
 import { useState } from 'react';
 
 import { TimestampDisplay } from '../common/TimestampDisplay';
@@ -6,13 +6,12 @@ import { CombatReportContextProvider } from './CombatReportContext';
 import { CombatSummary } from './CombatSummary';
 
 interface IProps {
-  id: string;
-  combat: ICombatData;
+  combat: IArenaMatch;
   anon?: boolean;
   search?: string;
 }
 
-export const CombatReport = ({ id, combat, anon }: IProps) => {
+export const CombatReport = ({ combat, anon }: IProps) => {
   const [activeTab, setActiveTab] = useState<string>('summary');
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
 

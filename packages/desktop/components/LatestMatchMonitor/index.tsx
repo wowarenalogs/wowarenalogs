@@ -15,7 +15,6 @@ export const LatestMatchMonitor = () => {
     case 'ArenaMatch':
       return <CombatReport id={latestLocalCombat.id} combat={latestLocalCombat} />;
     case 'ShuffleMatch':
-      return <div>shuffle {latestLocalCombat.id}</div>;
     case 'ShuffleRound':
     default:
       return (
