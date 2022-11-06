@@ -20,6 +20,7 @@ function roundsBelongToSameMatch(roundA: ArenaMatchStartInfo, roundB: ArenaMatch
   if (roundA.isRanked !== roundB.isRanked) return false;
   if (roundA.item1 !== roundB.item1) return false;
   if (roundA.zoneId !== roundB.zoneId) return false;
+  return true;
 }
 
 // TODO: Handle case where a round is accidentally ingested twice; timestamp will match
@@ -28,10 +29,14 @@ function roundsBelongToSameMatch(roundA: ArenaMatchStartInfo, roundB: ArenaMatch
 // Some sanity checks before we report this shuffle
 function validateRounds(rounds: IShuffleRoundData[]) {
   // Must contain 6 rounds
-  if (rounds.length !== 6) return false;
+  if (rounds.length !== 6) {
+    return false;
+  }
 
   for (let i = 1; i < 6; i++) {
-    if (!roundsBelongToSameMatch(rounds[i].startInfo, rounds[0].startInfo)) return false;
+    if (!roundsBelongToSameMatch(rounds[i].startInfo, rounds[0].startInfo)) {
+      return false;
+    }
   }
   return true;
 }
@@ -51,7 +56,6 @@ function decodeShuffleRound(
   combat.end();
 
   if (recentShuffleRounds.length == 6) {
-    console.log('### decodeShuffleRound.panic 1');
     // Panic: Already 6 rounds in the buffer, this cant be the same solo shuffle match
     recentShuffleRoundsBuffer = [];
     recentScoreboardBuffer = {};
@@ -59,9 +63,8 @@ function decodeShuffleRound(
 
   if (
     recentShuffleRounds.length > 0 &&
-    roundsBelongToSameMatch(recentShuffleRounds[0].startInfo, nullthrows(combat.startInfo))
+    !roundsBelongToSameMatch(recentShuffleRounds[0].startInfo, nullthrows(combat.startInfo))
   ) {
-    console.log('### decodeShuffleRound.panic 2');
     // Panic: New round does not appear to be a member of the solo shuffle match
     recentShuffleRoundsBuffer = [];
     recentScoreboardBuffer = {};
@@ -129,7 +132,6 @@ export const segmentToCombat = () => {
       (
         segment: ICombatEventSegment,
       ): ICombatData | IMalformedCombatData | IShuffleRoundData | IShuffleCombatData | null => {
-        console.log('### segmentToCombat');
         const isShuffleRound =
           segment.events.length >= 3 &&
           segment.events[0] instanceof ArenaMatchStart &&
@@ -139,9 +141,6 @@ export const segmentToCombat = () => {
           segment.events.length >= 3 &&
           segment.events[0] instanceof ArenaMatchStart &&
           segment.events[segment.events.length - 1] instanceof ArenaMatchEnd;
-
-        console.log('isShuffle?', isShuffleRound);
-        console.log('metaDataOK?', metadataLooksGood);
 
         if (isShuffleRound) {
           try {
@@ -155,11 +154,12 @@ export const segmentToCombat = () => {
         if (metadataLooksGood) {
           if (segment.events[0] instanceof ArenaMatchStart && segment.events[0].bracket.endsWith('Solo Shuffle')) {
             const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
+            const validRounds = validateRounds(recentShuffleRoundsBuffer);
 
-            if (validateRounds(recentShuffleRoundsBuffer)) {
+            if (validRounds) {
               const shuf: IShuffleCombatData = {
                 dataType: 'Shuffle',
-                id: 'what for this', // TODO: which id to use??
+                id: decoded.combat.id, // TODO: which id to use??
                 wowVersion: 'retail',
                 isWellFormed: true, // TODO: decide how to handle this field
                 startTime: recentShuffleRoundsBuffer[0].startInfo.timestamp, // TODO: start of first round??
@@ -175,7 +175,6 @@ export const segmentToCombat = () => {
               return shuf;
             }
             // Reset buffer also if rounds are invalid...
-            console.log('### segmentToCombat.resetRounds');
             recentShuffleRoundsBuffer = [];
             recentScoreboardBuffer = {};
           } else {

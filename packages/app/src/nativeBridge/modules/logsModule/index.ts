@@ -62,6 +62,8 @@ export class LogsModule extends NativeBridgeModule {
       this.handleNewCombat(mainWindow, combat);
     });
     bridge.logParser.on('solo_shuffle_round_ended', (combat: IShuffleRoundData) => {
+      // eslint-disable-next-line no-console
+      console.log('logParser.solo_shuffle_round_ended round ending');
       this.handleSoloShuffleRoundEnded(mainWindow, combat);
     });
     bridge.logParser.on('solo_shuffle_ended', (combat: IShuffleCombatData) => {

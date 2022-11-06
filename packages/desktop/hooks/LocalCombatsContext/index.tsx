@@ -29,6 +29,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
   useEffect(() => {
     const cleanups = Array.from(wowInstallations.entries()).map((installRow) => {
       const [wowVersion, wowDirectory] = installRow;
+      console.log('Starting log watcher');
       window.wowarenalogs.logs?.startLogWatcher(wowDirectory, wowVersion);
 
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
@@ -84,6 +85,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
     });
     return () => {
       cleanups.forEach((cleanup) => {
+        console.log('logger cleanup');
         cleanup();
       });
     };
