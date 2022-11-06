@@ -7,6 +7,7 @@ import { useAppConfig } from '../AppConfigContext';
 
 type ParserCombatData = IArenaMatch | IShuffleRound;
 
+
 interface ILocalCombatsContextData {
   localCombats: ParserCombatData[];
   appendCombat: (combat: ParserCombatData) => void;
@@ -68,9 +69,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         if (wowVersion === combat.wowVersion) {
           console.log('ShuffleEnded');
           console.log(combat);
-          // setCombats((prev) => {
-          //   return prev.concat([combat]);
-          // });
+          // TODO: holistic support for suffle matches
         }
       });
 
