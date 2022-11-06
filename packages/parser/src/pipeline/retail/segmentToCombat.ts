@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { CombatData, IArenaMatch, IMalformedCombatData, IShuffleMatch, IShuffleRound } from '../../CombatData';
 import { ArenaMatchEnd } from '../../actions/ArenaMatchEnd';
 import { ArenaMatchStart, ArenaMatchStartInfo } from '../../actions/ArenaMatchStart';
-import { CombatUnitType, ICombatEventSegment } from '../../types';
+import { CombatResult, CombatUnitType, ICombatEventSegment } from '../../types';
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
 import { logInfo } from '../../logger';
@@ -107,7 +107,11 @@ function decodeShuffleRound(
     }
   });
 
+  const deadPlayerTeam = playerDeaths[0].unit.info?.teamId;
+  const result = combat.playerTeamId === deadPlayerTeam ? CombatResult.Lose : CombatResult.Win;
+
   const rv: IShuffleRound = {
+    id: combat.id,
     wowVersion: 'retail',
     dataType: 'ShuffleRound',
     startInfo: nullthrows(combat.startInfo),
@@ -116,12 +120,15 @@ function decodeShuffleRound(
     rawLines: segment.lines,
     linesNotParsedCount: combat.linesNotParsedCount,
     winningTeamId: losingTeam === '0' ? '1' : '0',
-    roundEndInfo: {
-      endTime: deathRecords[0].timestamp,
-      killedUnitId: deadPlayerId,
-    },
+    killedUnitId: deadPlayerId,
     scoreboard: _.clone(recentScoreboard),
     sequenceNumber: recentShuffleRounds.length,
+    startTime: combat.startTime,
+    endTime: combat.endInfo ? combat.endInfo.timestamp : deathRecords[0].timestamp,
+    hasAdvancedLogging: combat.hasAdvancedLogging,
+    playerTeamId: combat.playerTeamId,
+    playerTeamRating: combat.playerTeamRating,
+    result: result,
   };
 
   recentShuffleRounds.push(rv);
@@ -167,13 +174,11 @@ export const segmentToCombat = () => {
               dataType: 'ShuffleMatch',
               id: decoded.combat.id, // TODO: which id to use??
               wowVersion: 'retail',
-              isWellFormed: true, // TODO: decide how to handle this field
-              startTime: recentShuffleRoundsBuffer[0].startInfo.timestamp, // TODO: start of first round??
+              startTime: recentShuffleRoundsBuffer[0].startTime,
               endTime: decoded.combat.endTime,
-              hasAdvancedLogging: decoded.combat.hasAdvancedLogging,
               result: decoded.combat.result, // TODO: wrong data here
               startInfo: nullthrows(decoded.combat.startInfo),
-              endInfo: nullthrows(decoded.combat.endInfo),
+              matchEndInfo: nullthrows(decoded.combat.endInfo),
               rounds: [...recentShuffleRoundsBuffer], // TODO: round buffer
             };
             recentShuffleRoundsBuffer = [];
@@ -197,7 +202,6 @@ export const segmentToCombat = () => {
               events: combat.events,
               id: computeCanonicalHash(segment.lines),
               wowVersion: combat.wowVersion,
-              isWellFormed: true,
               startTime: combat.startTime,
               endTime: combat.endTime,
               units: combat.units,
@@ -208,7 +212,8 @@ export const segmentToCombat = () => {
               rawLines: segment.lines,
               linesNotParsedCount: segment.lines.length - segment.events.length,
               startInfo: nullthrows(combat.startInfo),
-              endInfo: nullthrows(combat.endInfo),
+              matchEndInfo: nullthrows(combat.endInfo),
+              winningTeamId: '',
             };
             return plainCombatDataObject;
           }

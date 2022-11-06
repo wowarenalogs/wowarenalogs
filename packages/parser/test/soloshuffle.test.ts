@@ -1,3 +1,4 @@
+import { CombatResult } from '../src/types';
 import { LoaderResults, loadLogFile } from './testLogLoader';
 
 describe('solo shuffle tests', () => {
@@ -26,8 +27,15 @@ describe('solo shuffle tests', () => {
 
     it('should have normal metadata', () => {
       const shuffle = results.shuffles[0];
-      expect(shuffle.isWellFormed).toBe(true);
-      expect(shuffle.hasAdvancedLogging).toBe(true);
+      const firstRound = results.shuffleRounds[0];
+      const lastRound = results.shuffleRounds[5];
+
+      console.log(JSON.stringify(lastRound, null, 2));
+
+      expect(shuffle.startTime).toBe(1667429644514);
+      expect(shuffle.startTime).toBe(firstRound.startTime);
+      expect(shuffle.endTime).toBe(1667430187514);
+      expect(shuffle.endTime).toBe(lastRound.endTime);
     });
 
     it('should parse round 0', () => {
@@ -39,9 +47,15 @@ describe('solo shuffle tests', () => {
       team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('0'));
 
       expect(round.sequenceNumber).toBe(0);
-
       expect(round.winningTeamId).toBe('0');
-      expect(round.roundEndInfo.killedUnitId).toBe('Player-1098-0A781F24');
+      expect(round.killedUnitId).toBe('Player-1098-0A781F24');
+
+      expect(round.startTime).toBe(1667429644514);
+      expect(round.endTime).toBe(1667429692521);
+      expect(round.hasAdvancedLogging).toBe(true);
+      expect(round.playerTeamId).toBe('1');
+      expect(round.playerTeamRating).toBe(0);
+      expect(round.result).toBe(CombatResult.Lose);
 
       // Check the scoreboard after round 1
       const scores = [
