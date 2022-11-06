@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { TimestampDisplay } from '../common/TimestampDisplay';
 import { CombatReportContextProvider } from './CombatReportContext';
+import { CombatSummary } from './CombatSummary';
 
 interface IProps {
   id: string;
@@ -73,7 +74,7 @@ export const CombatReport = ({ id, combat, anon }: IProps) => {
             Replay
           </a>
         </div>
-        <div className="mt-2 mx-2">{activeTab === 'summary' && <div>summary</div>}</div>
+        <div className="mt-2 mx-2">{activeTab === 'summary' && <CombatSummary />}</div>
       </div>
     </CombatReportContextProvider>
   );
