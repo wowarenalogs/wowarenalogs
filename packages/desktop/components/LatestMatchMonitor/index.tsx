@@ -12,12 +12,12 @@ export const LatestMatchMonitor = () => {
     : null;
 
   switch (latestLocalCombat?.dataType) {
-    case 'Combat':
+    case 'ArenaMatch':
       return <CombatReport id={latestLocalCombat.id} combat={latestLocalCombat} />;
-    case 'Shuffle':
+    case 'ShuffleMatch':
       return <div>shuffle {latestLocalCombat.id}</div>;
     case 'ShuffleRound':
-    case undefined:
+    default:
       return (
         <div className="w-full h-full flex flex-col items-center justify-center">
           <div className="hero">

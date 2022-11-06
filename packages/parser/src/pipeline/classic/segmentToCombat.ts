@@ -36,7 +36,7 @@ export const segmentToCombat = () => {
 
         if (combat.isWellFormed) {
           const plainCombatDataObject: IArenaMatch = {
-            dataType: 'Combat',
+            dataType: 'ArenaMatch',
             events: combat.events,
             id: computeCanonicalHash(segment.lines),
             wowVersion: combat.wowVersion,
