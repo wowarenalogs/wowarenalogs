@@ -56,7 +56,7 @@ export const segmentToCombat = () => {
               timestamp: combat.startInfo?.timestamp || 0,
               zoneId: combat.startInfo?.zoneId || '',
             },
-            matchEndInfo: nullthrows(combat.endInfo),
+            endInfo: nullthrows(combat.endInfo),
             winningTeamId: 'TODO: WRITE THIS!',
           };
           return plainCombatDataObject;

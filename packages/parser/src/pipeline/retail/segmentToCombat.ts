@@ -173,12 +173,11 @@ export const segmentToCombat = () => {
             const shuf: IShuffleMatch = {
               dataType: 'ShuffleMatch',
               id: decoded.combat.id, // TODO: which id to use??
-              wowVersion: 'retail',
               startTime: recentShuffleRoundsBuffer[0].startTime,
               endTime: decoded.combat.endTime,
               result: decoded.combat.result, // TODO: wrong data here
               startInfo: nullthrows(decoded.combat.startInfo),
-              matchEndInfo: nullthrows(decoded.combat.endInfo),
+              endInfo: nullthrows(decoded.combat.endInfo),
               rounds: [...recentShuffleRoundsBuffer], // TODO: round buffer
             };
             recentShuffleRoundsBuffer = [];
@@ -212,7 +211,7 @@ export const segmentToCombat = () => {
               rawLines: segment.lines,
               linesNotParsedCount: segment.lines.length - segment.events.length,
               startInfo: nullthrows(combat.startInfo),
-              matchEndInfo: nullthrows(combat.endInfo),
+              endInfo: nullthrows(combat.endInfo),
               winningTeamId: '',
             };
             return plainCombatDataObject;

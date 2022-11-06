@@ -100,23 +100,6 @@ export interface IArenaCombat {
   hasAdvancedLogging: boolean;
 
   /**
-   * Information decoded from ARENA_MATCH_END
-   * This data will be unavailable for solo shuffle rounds that are recorded locally
-   * However - once the match ends the DTO will contain the endInfo object copied from
-   * the end of the match
-   *
-   * __Will not be available on locally recorded shuffles__
-   */
-  matchEndInfo?: ArenaMatchEndInfo;
-
-  /**
-   * Results of the match according to ARENA_MATCH_END
-   *
-   * __Will not be available on locally recorded shuffles__
-   */
-  matchResult?: CombatResult;
-
-  /**
    * Rating for team of player who recorded the match, according to ARENA_MATCH_END
    */
   playerTeamRating?: number;
@@ -136,8 +119,32 @@ export interface IShuffleRound extends IArenaCombat {
    */
   killedUnitId: string; //
 
-  scoreboard: { [unitId: string]: number }; // scoreboard at round-end of # of wins each unit has
-  sequenceNumber: number; // 0-5, which round in the 6 round sequence this is
+  /**
+   * Scoreboard at the end of the round
+   */
+  scoreboard: { [unitId: string]: number };
+
+  /**
+   * Round number of the shulffe round, 0-5
+   */
+  sequenceNumber: number;
+
+  /**
+   * Information decoded from ARENA_MATCH_END
+   * This data will be unavailable for solo shuffle rounds that are recorded locally
+   * However - once the match ends the DTO will contain the endInfo object copied from
+   * the end of the match
+   *
+   * __Will not be available on locally recorded shuffles__
+   */
+  shuffleMatchEndInfo?: ArenaMatchEndInfo;
+
+  /**
+   * Results of the match according to ARENA_MATCH_END
+   *
+   * __Will not be available on locally recorded shuffles__
+   */
+  shuffleMatchResult?: CombatResult;
 }
 
 /**
@@ -145,6 +152,7 @@ export interface IShuffleRound extends IArenaCombat {
  */
 export interface IArenaMatch extends IArenaCombat {
   dataType: 'ArenaMatch';
+  endInfo: ArenaMatchEndInfo;
 }
 
 /**
@@ -168,7 +176,7 @@ export interface IShuffleMatch {
   /**
    * Information decoded from ARENA_MATCH_END for the last round
    */
-  matchEndInfo: ArenaMatchEndInfo;
+  endInfo: ArenaMatchEndInfo;
 
   // Store information about each round individually
   rounds: IShuffleRound[];
