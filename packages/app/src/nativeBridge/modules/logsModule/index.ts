@@ -63,6 +63,21 @@ export class LogsModule extends NativeBridgeModule {
             this.handleNewCombat(mainWindow, combat);
           });
 
+          logParser.on('solo_shuffle_round_ended', (c) => {
+            const combat = c as IShuffleRoundData;
+            this.handleSoloShuffleRoundEnded(mainWindow, combat);
+          });
+
+          logParser.on('solo_shuffle_ended', (c) => {
+            const combat = c as IShuffleCombatData;
+            this.handleSoloShuffleEnded(mainWindow, combat);
+          });
+
+          logParser.on('malformed_arena_match_detected', (c) => {
+            const combat = c as IMalformedCombatData;
+            this.handleMalformedCombatDetected(mainWindow, combat);
+          });
+
           data.filePaths.forEach((logFile) => {
             const logStat = statSync(logFile);
             DesktopUtils.parseLogFileChunk(logParser, logFile, 0, logStat.size);

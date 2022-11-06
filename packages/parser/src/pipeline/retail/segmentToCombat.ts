@@ -2,7 +2,7 @@ import { pipe } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import _ from 'lodash';
 
-import { CombatData, ICombatData, IMalformedCombatData, IShuffleCombatData, IShuffleRoundData } from '../../CombatData';
+import { CombatData, IArenaMatch, IMalformedCombatData, IShuffleMatch, IShuffleRound } from '../../CombatData';
 import { ArenaMatchEnd } from '../../actions/ArenaMatchEnd';
 import { ArenaMatchStart, ArenaMatchStartInfo } from '../../actions/ArenaMatchStart';
 import { CombatUnitType, ICombatEventSegment } from '../../types';
@@ -12,8 +12,8 @@ import { logInfo } from '../../logger';
 
 // Global buffer to hold recent shuffle rounds
 // once a shuffle-ending is detected this is reset
-let recentShuffleRoundsBuffer: IShuffleRoundData[] = [];
-let recentScoreboardBuffer: IShuffleRoundData['scoreboard'] = {};
+let recentShuffleRoundsBuffer: IShuffleRound[] = [];
+let recentScoreboardBuffer: IShuffleRound['scoreboard'] = {};
 
 function roundsBelongToSameMatch(roundA: ArenaMatchStartInfo, roundB: ArenaMatchStartInfo) {
   // ARENA_MATCH_START is identical for every round of a shuffle except the timestamp
@@ -28,7 +28,7 @@ function roundsBelongToSameMatch(roundA: ArenaMatchStartInfo, roundB: ArenaMatch
 // something already in buffer
 
 // Some sanity checks before we report this shuffle
-function validateRounds(rounds: IShuffleRoundData[]) {
+function validateRounds(rounds: IShuffleRound[]) {
   // Must contain 6 rounds
   if (rounds.length !== 6) {
     logInfo(`validateRounds length != 6`);
@@ -46,8 +46,8 @@ function validateRounds(rounds: IShuffleRoundData[]) {
 
 function decodeShuffleRound(
   segment: ICombatEventSegment,
-  recentShuffleRounds: IShuffleRoundData[],
-  recentScoreboard: IShuffleRoundData['scoreboard'],
+  recentShuffleRounds: IShuffleRound[],
+  recentScoreboard: IShuffleRound['scoreboard'],
 ) {
   // a segment was emitted that looks valid but does not end with ArenaMatchEnd
   // assume this is a solo shuffle round
@@ -107,7 +107,7 @@ function decodeShuffleRound(
     }
   });
 
-  const rv: IShuffleRoundData = {
+  const rv: IShuffleRound = {
     wowVersion: 'retail',
     dataType: 'ShuffleRound',
     startInfo: nullthrows(combat.startInfo),
@@ -133,107 +133,103 @@ function decodeShuffleRound(
 
 export const segmentToCombat = () => {
   return pipe(
-    map(
-      (
-        segment: ICombatEventSegment,
-      ): ICombatData | IMalformedCombatData | IShuffleRoundData | IShuffleCombatData | null => {
-        const isShuffleRound =
-          segment.events.length >= 3 &&
-          segment.events[0] instanceof ArenaMatchStart &&
-          !(segment.events[segment.events.length - 1] instanceof ArenaMatchEnd);
+    map((segment: ICombatEventSegment): IArenaMatch | IMalformedCombatData | IShuffleRound | IShuffleMatch | null => {
+      const isShuffleRound =
+        segment.events.length >= 3 &&
+        segment.events[0] instanceof ArenaMatchStart &&
+        !(segment.events[segment.events.length - 1] instanceof ArenaMatchEnd);
 
-        const metadataLooksGood =
-          segment.events.length >= 3 &&
-          segment.events[0] instanceof ArenaMatchStart &&
-          segment.events[segment.events.length - 1] instanceof ArenaMatchEnd;
+      const metadataLooksGood =
+        segment.events.length >= 3 &&
+        segment.events[0] instanceof ArenaMatchStart &&
+        segment.events[segment.events.length - 1] instanceof ArenaMatchEnd;
 
-        logInfo(`segmentToCombat isShuffle=${isShuffleRound} metadataOK=${metadataLooksGood}`);
-        if (isShuffleRound) {
-          try {
-            const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
-            return decoded.shuffle;
-          } catch (e) {
-            logInfo('Decoder fail');
-            logInfo(e);
-          }
+      logInfo(`segmentToCombat isShuffle=${isShuffleRound} metadataOK=${metadataLooksGood}`);
+      if (isShuffleRound) {
+        try {
+          const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
+          return decoded.shuffle;
+        } catch (e) {
+          logInfo('Decoder fail');
+          logInfo(e);
         }
+      }
 
-        if (metadataLooksGood) {
-          if (segment.events[0] instanceof ArenaMatchStart && segment.events[0].bracket.endsWith('Solo Shuffle')) {
-            logInfo(`final shuffle round decode starting`);
-            const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
-            const validRounds = validateRounds(recentShuffleRoundsBuffer);
+      if (metadataLooksGood) {
+        if (segment.events[0] instanceof ArenaMatchStart && segment.events[0].bracket.endsWith('Solo Shuffle')) {
+          logInfo(`final shuffle round decode starting`);
+          const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
+          const validRounds = validateRounds(recentShuffleRoundsBuffer);
 
-            logInfo(`final shuffle round validRounds=${validRounds}`);
-            if (validRounds) {
-              const shuf: IShuffleCombatData = {
-                dataType: 'Shuffle',
-                id: decoded.combat.id, // TODO: which id to use??
-                wowVersion: 'retail',
-                isWellFormed: true, // TODO: decide how to handle this field
-                startTime: recentShuffleRoundsBuffer[0].startInfo.timestamp, // TODO: start of first round??
-                endTime: decoded.combat.endTime,
-                hasAdvancedLogging: decoded.combat.hasAdvancedLogging,
-                result: decoded.combat.result, // TODO: wrong data here
-                startInfo: nullthrows(decoded.combat.startInfo),
-                endInfo: nullthrows(decoded.combat.endInfo),
-                rounds: [...recentShuffleRoundsBuffer], // TODO: round buffer
-              };
-              recentShuffleRoundsBuffer = [];
-              recentScoreboardBuffer = {};
-              return shuf;
-            }
-            // Reset buffer also if rounds are invalid...
+          logInfo(`final shuffle round validRounds=${validRounds}`);
+          if (validRounds) {
+            const shuf: IShuffleMatch = {
+              dataType: 'ShuffleMatch',
+              id: decoded.combat.id, // TODO: which id to use??
+              wowVersion: 'retail',
+              isWellFormed: true, // TODO: decide how to handle this field
+              startTime: recentShuffleRoundsBuffer[0].startInfo.timestamp, // TODO: start of first round??
+              endTime: decoded.combat.endTime,
+              hasAdvancedLogging: decoded.combat.hasAdvancedLogging,
+              result: decoded.combat.result, // TODO: wrong data here
+              startInfo: nullthrows(decoded.combat.startInfo),
+              endInfo: nullthrows(decoded.combat.endInfo),
+              rounds: [...recentShuffleRoundsBuffer], // TODO: round buffer
+            };
             recentShuffleRoundsBuffer = [];
             recentScoreboardBuffer = {};
-          } else {
-            const combat = new CombatData('retail');
-            combat.startTime = segment.events[0].timestamp || 0;
-            segment.events.forEach((e) => {
-              combat.readEvent(e);
-            });
-            combat.end();
+            return shuf;
+          }
+          // Reset buffer also if rounds are invalid...
+          recentShuffleRoundsBuffer = [];
+          recentScoreboardBuffer = {};
+        } else {
+          const combat = new CombatData('retail');
+          combat.startTime = segment.events[0].timestamp || 0;
+          segment.events.forEach((e) => {
+            combat.readEvent(e);
+          });
+          combat.end();
 
-            if (combat.isWellFormed) {
-              const plainCombatDataObject: ICombatData = {
-                dataType: 'Combat',
-                events: combat.events,
-                id: computeCanonicalHash(segment.lines),
-                wowVersion: combat.wowVersion,
-                isWellFormed: true,
-                startTime: combat.startTime,
-                endTime: combat.endTime,
-                units: combat.units,
-                playerTeamId: combat.playerTeamId,
-                playerTeamRating: combat.playerTeamRating,
-                result: combat.result,
-                hasAdvancedLogging: combat.hasAdvancedLogging,
-                rawLines: segment.lines,
-                linesNotParsedCount: segment.lines.length - segment.events.length,
-                startInfo: nullthrows(combat.startInfo),
-                endInfo: nullthrows(combat.endInfo),
-              };
-              return plainCombatDataObject;
-            }
+          if (combat.isWellFormed) {
+            const plainCombatDataObject: IArenaMatch = {
+              dataType: 'ArenaMatch',
+              events: combat.events,
+              id: computeCanonicalHash(segment.lines),
+              wowVersion: combat.wowVersion,
+              isWellFormed: true,
+              startTime: combat.startTime,
+              endTime: combat.endTime,
+              units: combat.units,
+              playerTeamId: combat.playerTeamId,
+              playerTeamRating: combat.playerTeamRating,
+              result: combat.result,
+              hasAdvancedLogging: combat.hasAdvancedLogging,
+              rawLines: segment.lines,
+              linesNotParsedCount: segment.lines.length - segment.events.length,
+              startInfo: nullthrows(combat.startInfo),
+              endInfo: nullthrows(combat.endInfo),
+            };
+            return plainCombatDataObject;
           }
         }
+      }
 
-        if (segment.events.length >= 1 && segment.events[0] instanceof ArenaMatchStart) {
-          const malformedCombatObject: IMalformedCombatData = {
-            wowVersion: 'retail', // TODO: malformed classic matches?
-            dataType: 'MalformedCombat',
-            id: computeCanonicalHash(segment.lines),
-            isWellFormed: false,
-            startTime: segment.events[0].timestamp,
-            rawLines: segment.lines,
-            linesNotParsedCount: segment.lines.length - segment.events.length,
-          };
-          return malformedCombatObject;
-        }
+      if (segment.events.length >= 1 && segment.events[0] instanceof ArenaMatchStart) {
+        const malformedCombatObject: IMalformedCombatData = {
+          wowVersion: 'retail', // TODO: malformed classic matches?
+          dataType: 'MalformedCombat',
+          id: computeCanonicalHash(segment.lines),
+          isWellFormed: false,
+          startTime: segment.events[0].timestamp,
+          rawLines: segment.lines,
+          linesNotParsedCount: segment.lines.length - segment.events.length,
+        };
+        return malformedCombatObject;
+      }
 
-        return null;
-      },
-    ),
+      return null;
+    }),
     filter(isNonNull),
   );
 };

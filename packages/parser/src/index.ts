@@ -5,7 +5,12 @@ import { createClassicParserPipeline } from './pipeline/classic';
 import { WowVersion } from './types';
 import { PIPELINE_FLUSH_SIGNAL } from './utils';
 
-export type { ICombatData, IMalformedCombatData, IShuffleCombatData, IShuffleRoundData } from './CombatData';
+export type {
+  IArenaMatch as ICombatData,
+  IMalformedCombatData,
+  IShuffleMatch as IShuffleCombatData,
+  IShuffleRound as IShuffleRoundData,
+} from './CombatData';
 export type { ICombatUnit } from './CombatUnit';
 export * from './types';
 export * from './utils';
