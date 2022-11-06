@@ -7,6 +7,7 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 testrun.log
+testreport.txt
 
 gcp_service_account.json
 

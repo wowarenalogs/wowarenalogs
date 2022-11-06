@@ -21,7 +21,7 @@ export class ArenaMatchEnd implements ArenaMatchEndInfo {
 
   constructor(public readonly logLine: ILogLine) {
     if (!ArenaMatchEnd.supports(logLine)) {
-      throw new Error('event not supported');
+      throw new Error('Event not supported as ArenaMatchEnd: ' + logLine.raw);
     }
 
     this.timestamp = logLine.timestamp;

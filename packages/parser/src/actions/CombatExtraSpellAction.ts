@@ -1,4 +1,5 @@
 import { ILogLine, LogEvent } from '../types';
+import { parseQuotedName } from '../utils';
 import { CombatAction } from './CombatAction';
 
 export class CombatExtraSpellAction extends CombatAction {
@@ -18,10 +19,10 @@ export class CombatExtraSpellAction extends CombatAction {
   constructor(logLine: ILogLine) {
     super(logLine);
     if (!CombatExtraSpellAction.supports(logLine)) {
-      throw new Error('event not supported');
+      throw new Error('Event not supported as CombatExtraSpellAction: ' + logLine.raw);
     }
 
     this.extraSpellId = logLine.parameters[11].toString();
-    this.extraSpellName = logLine.parameters[12];
+    this.extraSpellName = parseQuotedName(logLine.parameters[12]);
   }
 }

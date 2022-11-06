@@ -3,7 +3,10 @@ import { CombatAdvancedAction } from './CombatAdvancedAction';
 
 export class CombatHpUpdateAction extends CombatAdvancedAction {
   public static supports(logLine: ILogLine): boolean {
-    return super.supports(logLine) && (logLine.event.endsWith('_DAMAGE') || logLine.event.endsWith('_HEAL'));
+    return (
+      super.supports(logLine) &&
+      (logLine.event.endsWith('_DAMAGE') || logLine.event.endsWith('_HEAL') || logLine.event.endsWith('_LANDED'))
+    );
   }
 
   public readonly amount: number;
@@ -11,7 +14,7 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
   constructor(logLine: ILogLine, wowVersion: WowVersion) {
     super(logLine, wowVersion);
     if (!CombatHpUpdateAction.supports(logLine)) {
-      throw new Error('event not supported');
+      throw new Error('Event not supported as CombatHpUpdateAction: ' + logLine.raw);
     }
 
     const wowVersionOffset = wowVersion === 'retail' ? 0 : -1;

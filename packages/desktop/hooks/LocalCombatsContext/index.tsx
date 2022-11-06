@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ICombatData } from '@wowarenalogs/parser';
 import { logAnalyticsEvent, useAuth } from '@wowarenalogs/shared';
 import React, { useContext, useEffect, useState } from 'react';
@@ -29,6 +30,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
     const cleanups = Array.from(wowInstallations.entries()).map((installRow) => {
       const [wowVersion, wowDirectory] = installRow;
       window.wowarenalogs.logs?.startLogWatcher(wowDirectory, wowVersion);
+
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
         if (
           window.wowarenalogs.app?.getIsPackaged().then((isPackaged) => {
@@ -51,9 +53,34 @@ export const LocalCombatsContextProvider = (props: IProps) => {
           }
       });
 
+      window.wowarenalogs.logs?.handleSoloShuffleRoundEnded((_event, combat) => {
+        if (wowVersion === combat.wowVersion) {
+          console.log(
+            `${wowVersion} ShuffleRoundEnded Round ${combat.sequenceNumber}, killed: ${combat.roundEndInfo.killedUnitId}`,
+          );
+        }
+      });
+
+      window.wowarenalogs.logs?.handleSoloShuffleEnded((_event, combat) => {
+        if (wowVersion === combat.wowVersion) {
+          console.log('ShuffleEnded');
+          console.log(combat);
+        }
+      });
+
+      window.wowarenalogs.logs?.handleMalformedCombatDetected((_event, combat) => {
+        if (wowVersion === combat.wowVersion) {
+          console.log('Malformed combat');
+          console.log(combat);
+        }
+      });
+
       return () => {
         window.wowarenalogs.logs?.stopLogWatcher();
         window.wowarenalogs.logs?.removeAll_handleNewCombat_listeners();
+        window.wowarenalogs.logs?.removeAll_handleMalformedCombatDetected_listeners();
+        window.wowarenalogs.logs?.removeAll_handleSoloShuffleEnded_listeners();
+        window.wowarenalogs.logs?.removeAll_handleSoloShuffleRoundEnded_listeners();
         setCombats([]);
       };
     });
