@@ -66,7 +66,7 @@ export class WoWCombatLogParser extends EventEmitter {
       }
 
       const wowBuild = wowVersionLineMatches[2];
-      const wowVersion: WowVersion = wowBuild.startsWith('2.') ? 'classic' : 'retail';
+      const wowVersion: WowVersion = wowBuild.startsWith('3.') ? 'classic' : 'retail';
       this.setWowVersion(wowVersion);
     } else {
       if (!this.context.wowVersion) {
