@@ -7,14 +7,14 @@ import { dedup } from './dedup';
 import { inferCombatEventSegments } from './inferCombatEventSegments';
 import { segmentToCombat } from './segmentToCombat';
 
-export const createTBCParserPipeline = (
+export const createClassicParserPipeline = (
   onValidCombat: (combat: ICombatData) => void,
   onMalformedCombat: (combat: IMalformedCombatData) => void,
 ) => {
   const rawLogs = new Subject<string>();
 
   rawLogs
-    .pipe(dedup(), stringToLogLine(), logLineToCombatEvent('tbc'), inferCombatEventSegments(), segmentToCombat())
+    .pipe(dedup(), stringToLogLine(), logLineToCombatEvent('classic'), inferCombatEventSegments(), segmentToCombat())
     .subscribe({
       next: (v) => {
         if (v.isWellFormed) {

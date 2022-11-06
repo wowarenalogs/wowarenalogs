@@ -2,8 +2,9 @@ import { ArenaMatchEnd } from './actions/ArenaMatchEnd';
 import { ArenaMatchStart } from './actions/ArenaMatchStart';
 import { CombatAction } from './actions/CombatAction';
 import { CombatantInfoAction } from './actions/CombatantInfoAction';
+import { PartyKill } from './actions/PartyKill';
 
-export type WowVersion = 'tbc' | 'retail';
+export type WowVersion = 'classic' | 'retail';
 
 export enum LogEvent {
   ARENA_MATCH_START = 'ARENA_MATCH_START',
@@ -48,9 +49,10 @@ export enum LogEvent {
   SPELL_ABSORBED = 'SPELL_ABSORBED',
   DAMAGE_SPLIT = 'DAMAGE_SPLIT',
   UNIT_DIED = 'UNIT_DIED',
+  PARTY_KILL = 'PARTY_KILL',
 }
 
-export type CombatEvent = ArenaMatchStart | ArenaMatchEnd | CombatAction | CombatantInfoAction;
+export type CombatEvent = ArenaMatchStart | ArenaMatchEnd | CombatAction | CombatantInfoAction | PartyKill;
 
 export interface ICombatEventSegment {
   events: CombatEvent[];

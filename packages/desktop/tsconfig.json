@@ -11,7 +11,7 @@
       "path": "../shared"
     },
     {
-      "path": "../wow-combat-log-parser"
+      "path": "../parser"
     }
   ]
 }

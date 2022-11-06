@@ -21,10 +21,11 @@ export class CombatAction {
   public readonly destUnitFlags: number;
   public readonly spellId: string | null;
   public readonly spellName: string | null;
+  public readonly spellSchoolId: string | null;
 
   constructor(public readonly logLine: ILogLine) {
     if (!CombatAction.supports(logLine)) {
-      throw new Error('event not supported');
+      throw new Error('Event not supported as CombatAction: ' + logLine.raw);
     }
 
     this.timestamp = logLine.timestamp;
@@ -43,16 +44,20 @@ export class CombatAction {
       if (logLine.parameters.length < 20) {
         this.spellId = null;
         this.spellName = null;
+        this.spellSchoolId = null;
       } else {
         this.spellId = logLine.parameters[8].toString();
         this.spellName = parseQuotedName(logLine.parameters[9]);
+        this.spellSchoolId = logLine.parameters[10].toString();
       }
     } else if (logLine.event.startsWith('RANGE_') || logLine.event.startsWith('SPELL_')) {
       this.spellId = logLine.parameters[8].toString();
       this.spellName = parseQuotedName(logLine.parameters[9]);
+      this.spellSchoolId = logLine.parameters[10].toString();
     } else {
       this.spellId = null;
       this.spellName = null;
+      this.spellSchoolId = null;
     }
   }
 }

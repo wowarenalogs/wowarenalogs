@@ -92,7 +92,7 @@ const Warrior = {
       name: 'War Banner',
       tags: [SpellTag.Defensive],
     },
-    // -- TBC
+    // -- Classic
     {
       spellId: '71',
       name: 'Defensive Stance',
@@ -1837,7 +1837,7 @@ const Paladin = {
       name: 'Ultimate Sacrifice',
       tags: [SpellTag.Defensive],
     },
-    // -- TBC
+    // -- Classic
     {
       spellId: '465',
       name: 'Devotion Aura (Rank 1)',
@@ -3783,7 +3783,7 @@ const Hunter = {
     { spellId: '266779', name: 'Coordinated Assault', tags: [] },
     // -- PvP
     { spellId: '212638', name: "Tracker's Net", tags: [SpellTag.Control] },
-    // -- TBC
+    // -- Classic
     {
       spellId: '75',
       name: 'Auto Shot',
@@ -5713,7 +5713,7 @@ const Rogue = {
     { spellId: '209782', name: "Goremaw's Bite", tags: [] },
     { spellId: '212182', name: 'Smoke Bomb', tags: [SpellTag.Control] },
     { spellId: '213981', name: 'Cold Blood', tags: [SpellTag.Offensive] },
-    // -- TBC
+    // -- Classic
     {
       spellId: '53',
       name: 'Backstab (Rank 1)',
@@ -7381,7 +7381,7 @@ const Priest = {
     // -- PvP
     { spellId: '213602', name: 'Greater Fade', tags: [SpellTag.Defensive] },
     { spellId: '328530', name: 'Divine Ascension', tags: [SpellTag.Defensive] },
-    // -- TBC
+    // -- Classic
     {
       spellId: '17',
       name: 'Power Word: Shield (Rank 1)',
@@ -9689,7 +9689,7 @@ const Shaman = {
     // -- PvP
     { spellId: '305483', name: 'Lightning Lasso', tags: [SpellTag.Offensive] },
     { spellId: '305485', name: 'Lightning Lasso', tags: [SpellTag.Offensive] },
-    // -- TBC
+    // -- Classic
     {
       spellId: '131',
       name: 'Water Breathing',
@@ -11708,7 +11708,7 @@ const Mage = {
     { spellId: '157997', name: 'Ice Nova', tags: [] },
     { spellId: '205021', name: 'Ray of Frost', tags: [] },
     { spellId: '214634', name: 'Ebonbolt', tags: [] },
-    // -- TBC
+    // -- Classic
     {
       spellId: '10',
       name: 'Blizzard (Rank 1)',
@@ -13825,7 +13825,7 @@ const Warlock = {
     { spellId: '196447', name: 'Channel Demonfire', tags: [] },
     { spellId: '196586', name: 'Dimensional Rift', tags: [] },
     { spellId: '212284', name: 'Firestone', tags: [] },
-    // -- TBC
+    // -- Classic
     {
       spellId: '126',
       name: 'Eye of Kilrogg (Summon)',
@@ -15853,7 +15853,7 @@ const Druid = {
     { spellId: '203651', name: 'Overgrowth', tags: [] },
     { spellId: '236696', name: 'Thorns', tags: [SpellTag.Defensive] },
     { spellId: '208253', name: "Essence of G'Hanir", tags: [] },
-    // -- TBC
+    // -- Classic
     {
       spellId: '467',
       name: 'Thorns (Rank 1)',
