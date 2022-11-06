@@ -1,5 +1,7 @@
+import { LatestMatchMonitor } from '../components/LatestMatchMonitor';
+
 const Page = () => {
-  return <div />;
+  return <LatestMatchMonitor />;
 };
 
 export default Page;

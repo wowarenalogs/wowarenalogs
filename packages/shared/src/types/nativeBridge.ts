@@ -47,6 +47,7 @@ export type INativeBridge = {
   };
   logs?: {
     handleNewCombat: (callback: (event: ElectronOpaqueEvent, c: ICombatData) => void) => void;
+    importLogFiles: (wowDirectory: string, wowVersion: WowVersion) => Promise<void>;
     startLogWatcher: (wowDirectory: string, wowVersion: WowVersion) => Promise<void>;
     stopLogWatcher: () => Promise<void>;
     removeAll_handleNewCombat_listeners: () => Promise<void>;

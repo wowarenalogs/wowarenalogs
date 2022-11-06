@@ -1,5 +1,5 @@
 import { ICombatData, WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, dialog } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
 
@@ -33,6 +33,37 @@ const bridgeState: {
 
 @nativeBridgeModule('logs')
 export class LogsModule extends NativeBridgeModule {
+  @moduleFunction()
+  public async importLogFiles(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
+    dialog
+      .showOpenDialog({
+        defaultPath: wowDirectory,
+        title: 'Manually import log files',
+        buttonLabel: 'Confirm',
+        properties: ['openFile', 'multiSelections'],
+        filters: [
+          {
+            name: 'WoWCombatLog-*.txt',
+            extensions: ['txt'],
+          },
+        ],
+      })
+      .then((data) => {
+        if (!data.canceled && data.filePaths.length > 0) {
+          const logParser = new WoWCombatLogParser(wowVersion);
+          logParser.on('arena_match_ended', (c) => {
+            const combat = c as ICombatData;
+            this.handleNewCombat(mainWindow, combat);
+          });
+
+          data.filePaths.forEach((logFile) => {
+            const logStat = statSync(logFile);
+            DesktopUtils.parseLogFileChunk(logParser, logFile, 0, logStat.size);
+          });
+        }
+      });
+  }
+
   @moduleFunction()
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
     const bridge = bridgeState[wowVersion];
