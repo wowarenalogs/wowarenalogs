@@ -54,5 +54,8 @@ export type INativeBridge = {
     startLogWatcher: (wowDirectory: string, wowVersion: WowVersion) => Promise<void>;
     stopLogWatcher: () => Promise<void>;
     removeAll_handleNewCombat_listeners: () => Promise<void>;
+    removeAll_handleMalformedCombatDetected_listeners: () => Promise<void>;
+    removeAll_handleSoloShuffleEnded_listeners: () => Promise<void>;
+    removeAll_handleSoloShuffleRoundEnded_listeners: () => Promise<void>;
   };
 };

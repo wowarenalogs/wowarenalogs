@@ -8,6 +8,7 @@ import { ArenaMatchStart, ArenaMatchStartInfo } from '../../actions/ArenaMatchSt
 import { CombatUnitType, ICombatEventSegment } from '../../types';
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
+import { logInfo } from '../../logger';
 
 // Global buffer to hold recent shuffle rounds
 // once a shuffle-ending is detected this is reset
@@ -30,11 +31,13 @@ function roundsBelongToSameMatch(roundA: ArenaMatchStartInfo, roundB: ArenaMatch
 function validateRounds(rounds: IShuffleRoundData[]) {
   // Must contain 6 rounds
   if (rounds.length !== 6) {
+    logInfo(`validateRounds length != 6`);
     return false;
   }
 
   for (let i = 1; i < 6; i++) {
     if (!roundsBelongToSameMatch(rounds[i].startInfo, rounds[0].startInfo)) {
+      logInfo(`validateRounds ${i} => false`);
       return false;
     }
   }
@@ -57,6 +60,7 @@ function decodeShuffleRound(
 
   if (recentShuffleRounds.length == 6) {
     // Panic: Already 6 rounds in the buffer, this cant be the same solo shuffle match
+    logInfo(`decodeShuffle panic 1 - rounds length=${recentShuffleRounds.length}`);
     recentShuffleRoundsBuffer = [];
     recentScoreboardBuffer = {};
   }
@@ -65,6 +69,7 @@ function decodeShuffleRound(
     recentShuffleRounds.length > 0 &&
     !roundsBelongToSameMatch(recentShuffleRounds[0].startInfo, nullthrows(combat.startInfo))
   ) {
+    logInfo(`decodeShuffle panic 2 - rounds length=${recentShuffleRounds.length}`);
     // Panic: New round does not appear to be a member of the solo shuffle match
     recentShuffleRoundsBuffer = [];
     recentScoreboardBuffer = {};
@@ -142,20 +147,24 @@ export const segmentToCombat = () => {
           segment.events[0] instanceof ArenaMatchStart &&
           segment.events[segment.events.length - 1] instanceof ArenaMatchEnd;
 
+        logInfo(`segmentToCombat isShuffle=${isShuffleRound} metadataOK=${metadataLooksGood}`);
         if (isShuffleRound) {
           try {
             const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
             return decoded.shuffle;
           } catch (e) {
-            console.log('Decoder fail', e);
+            logInfo('Decoder fail');
+            logInfo(e);
           }
         }
 
         if (metadataLooksGood) {
           if (segment.events[0] instanceof ArenaMatchStart && segment.events[0].bracket.endsWith('Solo Shuffle')) {
+            logInfo(`final shuffle round decode starting`);
             const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
             const validRounds = validateRounds(recentShuffleRoundsBuffer);
 
+            logInfo(`final shuffle round validRounds=${validRounds}`);
             if (validRounds) {
               const shuf: IShuffleCombatData = {
                 dataType: 'Shuffle',

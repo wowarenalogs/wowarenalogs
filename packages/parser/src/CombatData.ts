@@ -24,6 +24,7 @@ import {
   WowVersion,
 } from './types';
 import { getUnitReaction, getUnitType } from './utils';
+import { logInfo } from './logger';
 
 const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
   classMetadata.flatMap((cls) => {
@@ -560,14 +561,14 @@ export class CombatData {
     }
     // Debugging for malformed matches in tests
     else {
-      console.log('Malformed match report');
-      console.log('unitLength >=? combatMetadata', playerUnits.length, this.combatantMetadata.size);
-      console.log('deadPlayerCount', deadPlayerCount);
-      console.log('wasTimeout', wasTimeout);
-      console.log('has startInfo', !!this.startInfo);
-      console.log('has endInfo', !!this.endInfo);
-      console.log('deadPlayerCount < combatMetadata', deadPlayerCount < this.combatantMetadata.size);
-      console.log('result type valid', this.result === CombatResult.Win || this.result === CombatResult.Lose);
+      logInfo('Malformed match report');
+      logInfo('unitLength >=? combatMetadata', playerUnits.length, this.combatantMetadata.size);
+      logInfo('deadPlayerCount', deadPlayerCount);
+      logInfo('wasTimeout', wasTimeout);
+      logInfo('has startInfo', !!this.startInfo);
+      logInfo('has endInfo', !!this.endInfo);
+      logInfo('deadPlayerCount < combatMetadata', deadPlayerCount < this.combatantMetadata.size);
+      logInfo('result type valid', this.result === CombatResult.Win || this.result === CombatResult.Lose);
     }
   }
 }

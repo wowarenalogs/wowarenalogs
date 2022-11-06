@@ -12,6 +12,7 @@ import { CombatantInfoAction } from '../../actions/CombatantInfoAction';
 import { CombatEvent, ILogLine, LogEvent, WowVersion } from '../../types';
 import { PartyKill } from '../../actions/PartyKill';
 import { SpellAuraBrokenSpell } from '../../actions/SpellAuraBrokenSpell';
+import { logInfo } from '../../logger';
 
 export const logLineToCombatEvent = (wowVersion: WowVersion) => {
   return pipe(
@@ -72,7 +73,8 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
             return logLine.raw;
         }
       } catch (e) {
-        // console.log('##### FAILED TO PARSE', e);
+        logInfo('Failed to parse');
+        logInfo(e);
         return logLine.raw;
       }
     }),

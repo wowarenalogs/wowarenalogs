@@ -29,7 +29,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
   useEffect(() => {
     const cleanups = Array.from(wowInstallations.entries()).map((installRow) => {
       const [wowVersion, wowDirectory] = installRow;
-      console.log('Starting log watcher');
       window.wowarenalogs.logs?.startLogWatcher(wowDirectory, wowVersion);
 
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
@@ -71,7 +70,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleMalformedCombatDetected((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
-          console.log(wowVersion);
           console.log('Malformed combat');
           console.log(combat);
         }
@@ -80,12 +78,14 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       return () => {
         window.wowarenalogs.logs?.stopLogWatcher();
         window.wowarenalogs.logs?.removeAll_handleNewCombat_listeners();
+        window.wowarenalogs.logs?.removeAll_handleMalformedCombatDetected_listeners();
+        window.wowarenalogs.logs?.removeAll_handleSoloShuffleEnded_listeners();
+        window.wowarenalogs.logs?.removeAll_handleSoloShuffleRoundEnded_listeners();
         setCombats([]);
       };
     });
     return () => {
       cleanups.forEach((cleanup) => {
-        console.log('logger cleanup');
         cleanup();
       });
     };
