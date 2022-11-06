@@ -38,7 +38,7 @@ const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
    We can detect when we need this at the first event (_START) using "Rated Solo Shuffle" and "Solo Shuffle"
    strings in the bracket column
 */
-export interface IShuffleRoundData {
+export interface IShuffleRound {
   dataType: 'ShuffleRound';
   wowVersion: 'retail';
   startInfo: ArenaMatchStartInfo;
@@ -57,8 +57,8 @@ export interface IShuffleRoundData {
   sequenceNumber: number; // 0-5, which round in the 6 round sequence this is
 }
 
-export interface IShuffleCombatData {
-  dataType: 'Shuffle';
+export interface IShuffleMatch {
+  dataType: 'ShuffleMatch';
   // metadata with normal meanings
   id: string;
   wowVersion: 'retail';
@@ -74,11 +74,11 @@ export interface IShuffleCombatData {
   endInfo: ArenaMatchEndInfo; // 10/24 18:52:26.611  ARENA_MATCH_END,0,14,1591,1482
 
   // Store information about each round individually
-  rounds: IShuffleRoundData[];
+  rounds: IShuffleRound[];
 }
 
-export interface ICombatData {
-  dataType: 'Combat';
+export interface IArenaMatch {
+  dataType: 'ArenaMatch';
   id: string;
   wowVersion: WowVersion;
   isWellFormed: true;

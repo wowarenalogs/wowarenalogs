@@ -2,13 +2,13 @@ import fs from 'fs';
 import path from 'path';
 
 import { ICombatData, WoWCombatLogParser } from '../src';
-import { IMalformedCombatData, IShuffleRoundData, IShuffleCombatData } from '../src/CombatData';
+import { IMalformedCombatData, IShuffleRound, IShuffleMatch } from '../src/CombatData';
 
 export type LoaderResults = {
   combats: ICombatData[];
   malformedCombats: IMalformedCombatData[];
-  shuffleRounds: IShuffleRoundData[];
-  shuffles: IShuffleCombatData[];
+  shuffleRounds: IShuffleRound[];
+  shuffles: IShuffleMatch[];
 };
 
 export const loadLogFile = (logFileName: string): LoaderResults => {
@@ -17,8 +17,8 @@ export const loadLogFile = (logFileName: string): LoaderResults => {
   const combats: ICombatData[] = [];
   const malformedCombats: IMalformedCombatData[] = [];
 
-  const shuffleRounds: IShuffleRoundData[] = [];
-  const shuffles: IShuffleCombatData[] = [];
+  const shuffleRounds: IShuffleRound[] = [];
+  const shuffles: IShuffleMatch[] = [];
 
   logParser.on('arena_match_ended', (data) => {
     const combat = data as ICombatData;
@@ -31,12 +31,12 @@ export const loadLogFile = (logFileName: string): LoaderResults => {
   });
 
   logParser.on('solo_shuffle_round_ended', (data) => {
-    const combat = data as IShuffleRoundData;
+    const combat = data as IShuffleRound;
     shuffleRounds.push(combat);
   });
 
   logParser.on('solo_shuffle_ended', (data) => {
-    const combat = data as IShuffleCombatData;
+    const combat = data as IShuffleMatch;
     shuffles.push(combat);
   });
 
