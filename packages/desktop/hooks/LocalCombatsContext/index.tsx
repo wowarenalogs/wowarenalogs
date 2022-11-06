@@ -1,13 +1,15 @@
 /* eslint-disable no-console */
-import { ICombatData } from '@wowarenalogs/parser';
+import { ICombatData, IShuffleCombatData, IShuffleRoundData } from '@wowarenalogs/parser';
 import { logAnalyticsEvent, useAuth } from '@wowarenalogs/shared';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { useAppConfig } from '../AppConfigContext';
 
+type ParserCombatData = ICombatData | IShuffleCombatData | IShuffleRoundData;
+
 interface ILocalCombatsContextData {
-  localCombats: ICombatData[];
-  appendCombat: (combat: ICombatData) => void;
+  localCombats: ParserCombatData[];
+  appendCombat: (combat: ParserCombatData) => void;
 }
 
 const LocalCombatsContext = React.createContext<ILocalCombatsContextData>({
@@ -22,7 +24,7 @@ interface IProps {
 }
 
 export const LocalCombatsContextProvider = (props: IProps) => {
-  const [combats, setCombats] = useState<ICombatData[]>([]);
+  const [combats, setCombats] = useState<ParserCombatData[]>([]);
   const auth = useAuth();
   const { wowInstallations } = useAppConfig();
 
@@ -58,6 +60,9 @@ export const LocalCombatsContextProvider = (props: IProps) => {
           console.log(
             `${wowVersion} ShuffleRoundEnded Round ${combat.sequenceNumber}, killed: ${combat.roundEndInfo.killedUnitId}`,
           );
+          setCombats((prev) => {
+            return prev.concat([combat]);
+          });
         }
       });
 
@@ -65,6 +70,9 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         if (wowVersion === combat.wowVersion) {
           console.log('ShuffleEnded');
           console.log(combat);
+          setCombats((prev) => {
+            return prev.concat([combat]);
+          });
         }
       });
 

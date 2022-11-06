@@ -2,14 +2,14 @@ import _ from 'lodash';
 import { pipe } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
-import { CombatData, ICombatData, IMalformedCombatData } from '../../CombatData';
+import { CombatData, IArenaMatch, IMalformedCombatData } from '../../CombatData';
 import { CombatUnitReaction, CombatUnitType, ICombatEventSegment } from '../../types';
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
 
 export const segmentToCombat = () => {
   return pipe(
-    map((segment: ICombatEventSegment): ICombatData | IMalformedCombatData | null => {
+    map((segment: ICombatEventSegment): IArenaMatch | IMalformedCombatData | null => {
       if (segment.events.length >= 3) {
         const combat = new CombatData('classic');
         combat.startTime = segment.events[0].timestamp || 0;
@@ -35,8 +35,8 @@ export const segmentToCombat = () => {
         }
 
         if (combat.isWellFormed) {
-          const plainCombatDataObject: ICombatData = {
-            dataType: 'Combat',
+          const plainCombatDataObject: IArenaMatch = {
+            dataType: 'ArenaMatch',
             events: combat.events,
             id: computeCanonicalHash(segment.lines),
             wowVersion: combat.wowVersion,

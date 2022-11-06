@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
 
-import { ICombatData, IMalformedCombatData } from '../../CombatData';
+import { IArenaMatch, IMalformedCombatData } from '../../CombatData';
 import { logLineToCombatEvent } from '../common/logLineToCombatEvent';
 import { stringToLogLine } from '../common/stringToLogLine';
 import { dedup } from './dedup';
@@ -8,7 +8,7 @@ import { inferCombatEventSegments } from './inferCombatEventSegments';
 import { segmentToCombat } from './segmentToCombat';
 
 export const createClassicParserPipeline = (
-  onValidCombat: (combat: ICombatData) => void,
+  onValidCombat: (combat: IArenaMatch) => void,
   onMalformedCombat: (combat: IMalformedCombatData) => void,
 ) => {
   const rawLogs = new Subject<string>();
