@@ -21,7 +21,7 @@ export class ArenaMatchStart implements ArenaMatchStartInfo {
 
   constructor(public readonly logLine: ILogLine) {
     if (!ArenaMatchStart.supports(logLine)) {
-      throw new Error('event not supported');
+      throw new Error('Event not supported as ArenaMatchStart: ' + logLine.raw);
     }
 
     this.timestamp = logLine.timestamp;

@@ -28,7 +28,7 @@ export class PartyKill {
 
   constructor(public readonly logLine: ILogLine) {
     if (!PartyKill.supports(logLine)) {
-      throw new Error('event not supported');
+      throw new Error('Event not supported as PartyKill: ' + logLine.raw);
     }
 
     this.timestamp = logLine.timestamp;

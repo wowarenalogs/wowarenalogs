@@ -21,7 +21,7 @@ export class CombatAbsorbAction extends CombatAction {
   constructor(logLine: ILogLine, wowVersion: WowVersion) {
     super(logLine);
     if (!CombatAbsorbAction.supports(logLine)) {
-      throw new Error('Event not supported as CombatAbsorbAction');
+      throw new Error('Event not supported as CombatAbsorbAction: ' + logLine.raw);
     }
 
     // classic are 17/20, sl are 18/21

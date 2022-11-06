@@ -25,7 +25,7 @@ export class CombatAction {
 
   constructor(public readonly logLine: ILogLine) {
     if (!CombatAction.supports(logLine)) {
-      throw new Error('Event not supported as CombatAction ' + logLine.raw);
+      throw new Error('Event not supported as CombatAction: ' + logLine.raw);
     }
 
     this.timestamp = logLine.timestamp;

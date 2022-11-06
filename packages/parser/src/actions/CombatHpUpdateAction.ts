@@ -14,7 +14,7 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
   constructor(logLine: ILogLine, wowVersion: WowVersion) {
     super(logLine, wowVersion);
     if (!CombatHpUpdateAction.supports(logLine)) {
-      throw new Error('Event not supported as CombatHpUpdateAction');
+      throw new Error('Event not supported as CombatHpUpdateAction: ' + logLine.raw);
     }
 
     const wowVersionOffset = wowVersion === 'retail' ? 0 : -1;

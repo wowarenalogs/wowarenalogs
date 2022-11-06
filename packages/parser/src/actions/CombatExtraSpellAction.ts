@@ -19,7 +19,7 @@ export class CombatExtraSpellAction extends CombatAction {
   constructor(logLine: ILogLine) {
     super(logLine);
     if (!CombatExtraSpellAction.supports(logLine)) {
-      throw new Error('event not supported');
+      throw new Error('Event not supported as CombatExtraSpellAction: ' + logLine.raw);
     }
 
     this.extraSpellId = logLine.parameters[11].toString();

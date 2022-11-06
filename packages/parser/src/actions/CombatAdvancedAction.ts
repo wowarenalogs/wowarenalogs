@@ -40,7 +40,7 @@ export class CombatAdvancedAction extends CombatAction {
   constructor(logLine: ILogLine, wowVersion: WowVersion) {
     super(logLine);
     if (!CombatAdvancedAction.supports(logLine)) {
-      throw new Error('x event not supported');
+      throw new Error('Event not supported as CombatAdvancedAction: ' + logLine.raw);
     }
 
     const advancedLoggingOffset = logLine.event.startsWith('SWING_') ? 8 : 11;

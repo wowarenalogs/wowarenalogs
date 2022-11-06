@@ -13,7 +13,7 @@ export class SpellAuraBrokenSpell extends CombatAction {
   constructor(logLine: ILogLine, wowVersion: WowVersion) {
     super(logLine);
     if (!SpellAuraBrokenSpell.supports(logLine)) {
-      throw new Error('Event not supported as SpellAuraBrokenSpell');
+      throw new Error('Event not supported as SpellAuraBrokenSpell: ' + logLine.raw);
     }
 
     this.breakingSpellId = logLine.parameters[11];
