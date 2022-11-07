@@ -1,11 +1,12 @@
 /* eslint-disable no-console */
-import { IArenaMatch, IShuffleMatch, IShuffleRound } from '@wowarenalogs/parser';
+import { IArenaMatch, IShuffleRound } from '@wowarenalogs/parser';
 import { logAnalyticsEvent, useAuth } from '@wowarenalogs/shared';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { useAppConfig } from '../AppConfigContext';
 
-type ParserCombatData = IArenaMatch | IShuffleMatch | IShuffleRound;
+type ParserCombatData = IArenaMatch | IShuffleRound;
+
 
 interface ILocalCombatsContextData {
   localCombats: ParserCombatData[];
@@ -57,9 +58,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleSoloShuffleRoundEnded((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
-          console.log(
-            `${wowVersion} ShuffleRoundEnded Round ${combat.sequenceNumber}, killed: ${combat.roundEndInfo.killedUnitId}`,
-          );
+          console.log(`${wowVersion} ShuffleRoundEnded Round ${combat.sequenceNumber}, killed: ${combat.killedUnitId}`);
           setCombats((prev) => {
             return prev.concat([combat]);
           });

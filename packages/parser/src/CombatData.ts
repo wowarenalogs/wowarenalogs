@@ -32,68 +32,154 @@ const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
   }),
 );
 
+/**
+ * Fields that describe a 2v2 or 3v3 conflict between players
+ * with a conclusive end as observed by one of the players in the match
+ */
+export interface IArenaCombat {
+  id: string;
+  wowVersion: WowVersion;
+
+  /**
+   * Marker to discriminate types of combats into shuffle rounds or arena matches
+   */
+  dataType: 'ShuffleRound' | 'ArenaMatch';
+
+  /**
+   * Information decoded from ARENA_MATCH_START
+   */
+  startInfo: ArenaMatchStartInfo;
+
+  /**
+   * All units that had log events during the match, includes players and pets
+   */
+  units: { [unitId: string]: ICombatUnit };
+  /**
+   * Parsed events
+   */
+  events: (CombatAction | CombatAdvancedAction)[];
+
+  /**
+   * Raw log lines of the underlying segment
+   */
+  rawLines: string[];
+  /**
+   * Count of lines the combat log parser could not turn into higher level objects
+   */
+  linesNotParsedCount: number;
+  /**
+   * Start time of the round, based on ARENA_MATCH_START
+   */
+  startTime: number;
+  /**
+   * End time of the round, based on player death inspection
+   */
+  endTime: number;
+
+  /**
+   * Team of player who recorded the match
+   */
+  playerTeamId: string;
+
+  /**
+   * Result of the match from the perspective of the recorder's team
+   *   Based on unit deaths for shuffles
+   *   Based on ARENA_MATCH_END event for regular arena matches
+   */
+  result: CombatResult;
+
+  /**
+   * Id of team who won, inferred from player death
+   */
+  winningTeamId: string;
+
+  /**
+   * Flag based on combat log data observed, an option in WoW's advanced settings
+   * Required to have position data in the logs
+   */
+  hasAdvancedLogging: boolean;
+
+  /**
+   * Rating for team of player who recorded the match, according to ARENA_MATCH_END
+   */
+  playerTeamRating?: number;
+}
+
 /*
-   Create a new interface to hold shuffle specific data
+   Interface for solo shuffle rounds
 
    We can detect when we need this at the first event (_START) using "Rated Solo Shuffle" and "Solo Shuffle"
    strings in the bracket column
 */
-export interface IShuffleRound {
+export interface IShuffleRound extends IArenaCombat {
   dataType: 'ShuffleRound';
-  wowVersion: 'retail';
-  startInfo: ArenaMatchStartInfo;
 
-  units: { [unitId: string]: ICombatUnit };
-  events: (CombatAction | CombatAdvancedAction)[];
-  rawLines: string[];
-  linesNotParsedCount: number;
-  winningTeamId: string;
-  roundEndInfo: {
-    endTime: number;
-    killedUnitId: string; // Combatant whose death caused the round to end
-  };
-  scoreboard: { [unitId: string]: number }; // scoreboard at round-end of # of wins each unit has
+  /**
+   * Combatant whose death caused the round to end
+   */
+  killedUnitId: string; //
 
-  sequenceNumber: number; // 0-5, which round in the 6 round sequence this is
+  /**
+   * Scoreboard at the end of the round
+   */
+  scoreboard: { [unitId: string]: number };
+
+  /**
+   * Round number of the shulffe round, 0-5
+   */
+  sequenceNumber: number;
+
+  /**
+   * Information decoded from ARENA_MATCH_END
+   * This data will be unavailable for solo shuffle rounds that are recorded locally
+   * However - once the match ends the DTO will contain the endInfo object copied from
+   * the end of the match
+   *
+   * __Will not be available on locally recorded shuffles__
+   */
+  shuffleMatchEndInfo?: ArenaMatchEndInfo;
+
+  /**
+   * Results of the match according to ARENA_MATCH_END
+   *
+   * __Will not be available on locally recorded shuffles__
+   */
+  shuffleMatchResult?: CombatResult;
 }
 
+/**
+ * Interface for ranked or skirmish 2v2 or 3v3 matches
+ */
+export interface IArenaMatch extends IArenaCombat {
+  dataType: 'ArenaMatch';
+  endInfo: ArenaMatchEndInfo;
+}
+
+/**
+ * Interface to hold all 6 rounds of a shuffle and have more details about the match's overall end
+ */
 export interface IShuffleMatch {
   dataType: 'ShuffleMatch';
-  // metadata with normal meanings
   id: string;
-  wowVersion: 'retail';
-  isWellFormed: true;
   startTime: number;
   endTime: number;
-  hasAdvancedLogging: boolean;
-  // result is only slightly different, I believe this is WIN if you have >=3 rounds won
-  result: CombatResult; // 10/24 18:52:26.611  ARENA_MATCH_END,0,14,1591,1482
 
-  // _START is fired 6 times, same signature for every round
-  startInfo: ArenaMatchStartInfo; // 10/24 18:46:42.783  ARENA_MATCH_START,2563,34,Rated Solo Shuffle,0
-  endInfo: ArenaMatchEndInfo; // 10/24 18:52:26.611  ARENA_MATCH_END,0,14,1591,1482
+  /**
+   * Result as reported by ARENA_MATCH_END
+   */
+  result: CombatResult;
+
+  /**
+   * Information decoded from ARENA_MATCH_START for the first round
+   */
+  startInfo: ArenaMatchStartInfo;
+  /**
+   * Information decoded from ARENA_MATCH_END for the last round
+   */
+  endInfo: ArenaMatchEndInfo;
 
   // Store information about each round individually
   rounds: IShuffleRound[];
-}
-
-export interface IArenaMatch {
-  dataType: 'ArenaMatch';
-  id: string;
-  wowVersion: WowVersion;
-  isWellFormed: true;
-  startTime: number;
-  endTime: number;
-  units: { [unitId: string]: ICombatUnit };
-  playerTeamId: string;
-  playerTeamRating: number;
-  result: CombatResult;
-  hasAdvancedLogging: boolean;
-  rawLines: string[];
-  linesNotParsedCount: number;
-  startInfo: ArenaMatchStartInfo;
-  endInfo: ArenaMatchEndInfo;
-  events: (CombatAction | CombatAdvancedAction)[];
 }
 
 export interface IMalformedCombatData {

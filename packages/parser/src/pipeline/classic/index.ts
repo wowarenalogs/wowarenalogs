@@ -17,7 +17,7 @@ export const createClassicParserPipeline = (
     .pipe(dedup(), stringToLogLine(), logLineToCombatEvent('classic'), inferCombatEventSegments(), segmentToCombat())
     .subscribe({
       next: (v) => {
-        if (v.isWellFormed) {
+        if (v.dataType === 'ArenaMatch') {
           onValidCombat(v);
         } else {
           onMalformedCombat(v);

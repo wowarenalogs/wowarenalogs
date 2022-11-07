@@ -1,4 +1,4 @@
-import { IArenaMatch } from '@wowarenalogs/parser';
+import { IArenaMatch, IShuffleRound } from '@wowarenalogs/parser';
 import { useState } from 'react';
 
 import { TimestampDisplay } from '../common/TimestampDisplay';
@@ -6,7 +6,7 @@ import { CombatReportContextProvider } from './CombatReportContext';
 import { CombatSummary } from './CombatSummary';
 
 interface IProps {
-  combat: IArenaMatch;
+  combat: IArenaMatch | IShuffleRound;
   anon?: boolean;
   search?: string;
 }
@@ -14,6 +14,9 @@ interface IProps {
 export const CombatReport = ({ combat, anon }: IProps) => {
   const [activeTab, setActiveTab] = useState<string>('summary');
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
+
+  const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber : null;
+  const mmr = combat.dataType === 'ArenaMatch' ? combat.endInfo.team0MMR : null;
 
   return (
     <CombatReportContextProvider
