@@ -80,6 +80,7 @@ describe('3v3 match parsing', () => {
       expect(combat.endInfo.timestamp).toBeGreaterThan(5000);
       expect(combat.endTime).toBe(combat.endInfo.timestamp);
       expect(combat.endInfo.matchDurationInSeconds).toEqual(27);
+      expect(combat.durationInSeconds).toBe(combat.endInfo.matchDurationInSeconds);
       expect(combat.endInfo.winningTeamId).toEqual('0');
       expect(combat.endInfo.team0MMR).toEqual(1422);
       expect(combat.endInfo.team1MMR).toEqual(1496);

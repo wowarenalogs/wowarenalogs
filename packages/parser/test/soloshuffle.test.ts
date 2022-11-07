@@ -36,6 +36,7 @@ describe('solo shuffle tests', () => {
       expect(shuffle.endTime).toBe(lastRound.endTime);
 
       expect(shuffle.endInfo.matchDurationInSeconds).toBe(100);
+      expect(shuffle.durationInSeconds).toBe(543);
       expect(shuffle.endInfo.team0MMR).toBe(0);
       expect(shuffle.endInfo.team1MMR).toBe(0);
       expect(shuffle.endInfo.winningTeamId).toBe('0');
@@ -63,6 +64,9 @@ describe('solo shuffle tests', () => {
       expect(round.playerTeamId).toBe('1');
       expect(round.playerTeamRating).toBe(0);
       expect(round.result).toBe(CombatResult.Lose);
+
+      expect(Math.round(round.durationInSeconds)).toBe(48);
+      expect(round.durationInSeconds).toBe((round.endTime - round.startTime) / 1000);
 
       expect(round.shuffleMatchEndInfo).toBeFalsy();
       expect(round.shuffleMatchResult).toBeFalsy();
@@ -117,6 +121,9 @@ describe('solo shuffle tests', () => {
 
       expect(round.winningTeamId).toBe('0');
       expect(round.killedUnitId).toBe('Player-1098-0A781F24');
+
+      expect(Math.round(round.durationInSeconds)).toBe(100);
+      expect(round.durationInSeconds).toBe((round.endTime - round.startTime) / 1000);
 
       // Check the scoreboard after round 6
       const scores = [

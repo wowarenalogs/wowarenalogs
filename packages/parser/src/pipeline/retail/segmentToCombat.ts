@@ -110,6 +110,8 @@ function decodeShuffleRound(
   const deadPlayerTeam = playerDeaths[0].unit.info?.teamId;
   const result = combat.playerTeamId === deadPlayerTeam ? CombatResult.Lose : CombatResult.Win;
 
+  const endTime = combat.endInfo ? combat.endInfo.timestamp : deathRecords[0].timestamp;
+
   const rv: IShuffleRound = {
     id: combat.id,
     wowVersion: 'retail',
@@ -124,11 +126,12 @@ function decodeShuffleRound(
     scoreboard: _.clone(recentScoreboard),
     sequenceNumber: recentShuffleRounds.length,
     startTime: combat.startTime,
-    endTime: combat.endInfo ? combat.endInfo.timestamp : deathRecords[0].timestamp,
+    endTime,
     hasAdvancedLogging: combat.hasAdvancedLogging,
     playerTeamId: combat.playerTeamId,
     playerTeamRating: combat.playerTeamRating,
     result: result,
+    durationInSeconds: (endTime - combat.startTime) / 1000,
   };
 
   recentShuffleRounds.push(rv);
@@ -180,6 +183,7 @@ export const segmentToCombat = () => {
               startInfo: nullthrows(decoded.combat.startInfo),
               endInfo: nullthrows(decoded.combat.endInfo),
               rounds: [...recentShuffleRoundsBuffer],
+              durationInSeconds: (decoded.combat.endTime - recentShuffleRoundsBuffer[0].startTime) / 1000,
             };
             recentShuffleRoundsBuffer = [];
             recentScoreboardBuffer = {};
@@ -214,6 +218,7 @@ export const segmentToCombat = () => {
               startInfo: nullthrows(combat.startInfo),
               endInfo: nullthrows(combat.endInfo),
               winningTeamId: nullthrows(combat.endInfo?.winningTeamId),
+              durationInSeconds: nullthrows(combat.endInfo?.matchDurationInSeconds),
             };
             return plainCombatDataObject;
           }

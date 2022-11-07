@@ -89,6 +89,19 @@ export interface IArenaCombat {
   result: CombatResult;
 
   /**
+   * Duration of round or match - calculated from death timing or
+   * based on ARENA_MATCH_END if available
+   *
+   * * __ShuffleMatch__: the duration of the entire match
+   *
+   * * __ArenaMatch__: the duration of the entire match
+   *
+   * * __ShuffleRound__: the duration of the round
+   *
+   */
+  durationInSeconds: number;
+
+  /**
    * Id of team who won, inferred from player death
    */
   winningTeamId: string;
@@ -181,6 +194,19 @@ export interface IShuffleMatch {
    * Information decoded from ARENA_MATCH_END for the last round
    */
   endInfo: ArenaMatchEndInfo;
+
+  /**
+   * Duration of round or match - calculated from death timing or
+   * based on ARENA_MATCH_END if available
+   *
+   * * __ShuffleMatch__: the duration of the entire match
+   *
+   * * __ArenaMatch__: the duration of the entire match
+   *
+   * * __ShuffleRound__: the duration of the round
+   *
+   */
+  durationInSeconds: number;
 
   // Store information about each round individually
   rounds: IShuffleRound[];
