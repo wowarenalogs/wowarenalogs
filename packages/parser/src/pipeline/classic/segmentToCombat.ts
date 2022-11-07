@@ -40,7 +40,6 @@ export const segmentToCombat = () => {
             events: combat.events,
             id: computeCanonicalHash(segment.lines),
             wowVersion: combat.wowVersion,
-            isWellFormed: true,
             startTime: combat.startTime,
             endTime: combat.endTime,
             units: combat.units,
@@ -58,6 +57,7 @@ export const segmentToCombat = () => {
               zoneId: combat.startInfo?.zoneId || '',
             },
             endInfo: nullthrows(combat.endInfo),
+            winningTeamId: 'TODO: WRITE THIS!',
           };
           return plainCombatDataObject;
         }

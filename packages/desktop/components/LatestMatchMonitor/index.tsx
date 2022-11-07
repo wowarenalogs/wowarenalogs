@@ -11,29 +11,26 @@ export const LatestMatchMonitor = () => {
     ? localCombats.localCombats[localCombats.localCombats.length - 1]
     : null;
 
-  switch (latestLocalCombat?.dataType) {
-    case 'ArenaMatch':
-      return <CombatReport id={latestLocalCombat.id} combat={latestLocalCombat} />;
-    case 'ShuffleMatch':
-    case 'ShuffleRound':
-    default:
-      return (
-        <div className="w-full h-full flex flex-col items-center justify-center">
-          <div className="hero">
-            <div className="hero-content text-center flex flex-col">
-              <h1 className="text-5xl font-bold">Ready for battle</h1>
-              <p className="py-6">Please keep WoW Arena Logs running. Your latest match will be reported here.</p>
-              <button
-                className="btn glass btn-wide"
-                onClick={() => {
-                  window.wowarenalogs?.logs?.importLogFiles(appConfig.wowDirectory ?? '', 'retail');
-                }}
-              >
-                Manually import log files
-              </button>
-            </div>
-          </div>
-        </div>
-      );
+  if (latestLocalCombat) {
+    return <CombatReport id={latestLocalCombat.id} combat={latestLocalCombat} />;
   }
+
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center">
+      <div className="hero">
+        <div className="hero-content text-center flex flex-col">
+          <h1 className="text-5xl font-bold">Ready for battle</h1>
+          <p className="py-6">Please keep WoW Arena Logs running. Your latest match will be reported here.</p>
+          <button
+            className="btn glass btn-wide"
+            onClick={() => {
+              window.wowarenalogs?.logs?.importLogFiles(appConfig.wowDirectory ?? '', 'retail');
+            }}
+          >
+            Manually import log files
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
