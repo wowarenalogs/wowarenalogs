@@ -57,22 +57,30 @@ interface ICombatUnitStub {
 }
 
 export interface ICombatDataStub {
+  dataType: 'ArenaMatch' | 'ShuffleRound';
   logObjectUrl: string;
-  wowVersion?: WowVersion;
+  wowVersion: WowVersion;
   ownerId: string | null;
   units: ICombatUnitStub[]; // changed from original type
   id: string;
   startTime: number;
   endTime: number;
   playerTeamId: string;
-  playerTeamRating: number;
+  /**
+   * Team rating not available for shuffle rounds 0-4
+   */
+  playerTeamRating?: number;
   result: CombatResult;
   hasAdvancedLogging: boolean;
   // rawLines: string[];
   // linesNotParsedCount: number;
-  startInfo?: ArenaMatchStartInfo;
+  startInfo: ArenaMatchStartInfo;
   endInfo?: ArenaMatchEndInfo;
   utcCorrected: boolean;
+
+  shuffleMatchId?: string;
+  shuffleMatchResult?: CombatResult;
+  shuffleMatchEndInfo?: ArenaMatchEndInfo;
 }
 
 export interface CombatQueryResult {

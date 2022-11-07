@@ -2,11 +2,15 @@
 import { Timestamp } from '@google-cloud/firestore';
 import _ from 'lodash';
 import moment from 'moment';
-
-// This file is a server-side file so this crazy import is OK for now
-// TODO: fix this crazy import...
 import { ICombatDataStub } from '@wowarenalogs/shared';
-import { ICombatData, CombatUnitType, CombatUnitSpec } from '@wowarenalogs/parser';
+import { IArenaMatch, IShuffleRound, CombatUnitType, CombatUnitSpec, IShuffleMatch } from '@wowarenalogs/parser';
+
+export function nullthrows<T>(value: T | null | undefined): T {
+  if (value === null || value === undefined) {
+    throw Error('this value cannot be null or undefined');
+  }
+  return value;
+}
 
 /*
   This DTO adds some fields to make queries less index intensive and easier to write
@@ -18,17 +22,21 @@ export interface FirebaseDTO extends ICombatDataStub {
   expires: Timestamp; // Used to set object TTL for auto-delete
 }
 
-interface QueryHelpers {
-  matchAverageMMR: number;
+interface SpecIndexFields {
   singleSidedSpecs: string[];
   doubleSidedSpecs: string[];
   singleSidedSpecsWinners: string[];
   doubleSidedSpecsWLHS: string[];
+}
+
+interface MMRIndexFields {
+  matchAverageMMR: number;
   gte1400: boolean;
   gte1800: boolean;
   gte2100: boolean;
   gte2400: boolean;
 }
+interface QueryHelpers extends SpecIndexFields, MMRIndexFields {}
 
 function all_combinations(set: any[]) {
   let combs: any[] = [];
@@ -65,7 +73,21 @@ function k_combinations(set: any[], k: number): any[] {
   return combs;
 }
 
-function buildQueryHelpers(com: ICombatData): QueryHelpers {
+function buildMMRHelpers(com: IArenaMatch | IShuffleRound): MMRIndexFields {
+  const averageMMR =
+    com.dataType === 'ArenaMatch'
+      ? ((com.endInfo?.team0MMR || 0) + (com.endInfo?.team1MMR || 0)) / 2
+      : ((com.shuffleMatchEndInfo?.team0MMR || 0) + (com.shuffleMatchEndInfo?.team1MMR || 0)) / 2;
+  return {
+    matchAverageMMR: averageMMR,
+    gte1400: nullthrows(com.playerTeamRating) >= 1400,
+    gte1800: nullthrows(com.playerTeamRating) >= 1800,
+    gte2100: nullthrows(com.playerTeamRating) >= 2100,
+    gte2400: nullthrows(com.playerTeamRating) >= 2400,
+  };
+}
+
+function buildQueryHelpers(com: IArenaMatch | IShuffleRound): SpecIndexFields {
   const unitsList = _.values(com.units).map((c) => ({
     id: c.id,
     name: c.name,
@@ -88,7 +110,7 @@ function buildQueryHelpers(com: ICombatData): QueryHelpers {
   const team0sss = all_combinations(team0specs).map((s: string[]) => s.join('_'));
   const team1sss = all_combinations(team1specs).map((s: string[]) => s.join('_'));
   let singleSidedSpecsWinners = [];
-  if (com.endInfo?.winningTeamId === '0') {
+  if (com.winningTeamId === '0') {
     singleSidedSpecsWinners = team0sss;
   } else {
     singleSidedSpecsWinners = team1sss;
@@ -99,7 +121,7 @@ function buildQueryHelpers(com: ICombatData): QueryHelpers {
     for (const t1 of team1sss) {
       doubleSided.add(`${t0}x${t1}`);
       doubleSided.add(`${t1}x${t0}`);
-      if (com.endInfo?.winningTeamId === '0') {
+      if (com.winningTeamId === '0') {
         doubleSidedWinnersLHS.add(`${t0}x${t1}`);
       } else {
         doubleSidedWinnersLHS.add(`${t1}x${t0}`);
@@ -107,11 +129,6 @@ function buildQueryHelpers(com: ICombatData): QueryHelpers {
     }
   }
   return {
-    matchAverageMMR: ((com.endInfo?.team0MMR || 0) + (com.endInfo?.team1MMR || 0)) / 2,
-    gte1400: com.playerTeamRating >= 1400,
-    gte1800: com.playerTeamRating >= 1800,
-    gte2100: com.playerTeamRating >= 2100,
-    gte2400: com.playerTeamRating >= 2400,
     singleSidedSpecs: team0sss.concat(team1sss),
     singleSidedSpecsWinners,
     doubleSidedSpecs: Array.from(doubleSided),
@@ -119,7 +136,56 @@ function buildQueryHelpers(com: ICombatData): QueryHelpers {
   };
 }
 
-function createStubDTOFromCombat(com: ICombatData, ownerId: string, logObjectUrl: string): FirebaseDTO {
+function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, logObjectUrl: string): FirebaseDTO[] {
+  const rounds = match.rounds;
+  const lastRound = rounds[5];
+
+  const inThirtyDays = moment().add(30, 'days');
+  const unitsList = _.values(lastRound.units).map((c) => {
+    if (c.info) c.info.equipment = []; // remove equipped items to save storage
+    return {
+      id: c.id,
+      name: c.name,
+      info: c.info,
+      type: c.type,
+      class: c.class,
+      spec: c.spec,
+      reaction: c.reaction,
+    };
+  });
+
+  rounds.forEach((round) => {
+    round.shuffleMatchEndInfo = match.endInfo;
+    round.shuffleMatchResult = match.result;
+  });
+
+  return rounds.map((round) => ({
+    dataType: 'ShuffleRound',
+    logObjectUrl,
+    ownerId,
+    wowVersion: round.wowVersion,
+    id: round.id,
+    units: unitsList,
+    utcCorrected: false,
+    startTime: round.startTime,
+    endTime: round.endTime,
+    playerTeamId: lastRound.playerTeamId,
+    playerTeamRating: lastRound.playerTeamRating,
+    hasAdvancedLogging: lastRound.hasAdvancedLogging,
+    startInfo: round.startInfo,
+    // endInfo: UNDEFINED HERE!
+    result: round.result,
+    extra: { ...buildQueryHelpers(round), ...buildMMRHelpers(round) },
+    combatantNames: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
+    combatantGuids: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
+    expires: Timestamp.fromDate(inThirtyDays.toDate()),
+    shuffleMatchId: match.id,
+    shuffleMatchResult: match.result,
+    shuffleMatchEndInfo: match.endInfo,
+  }));
+}
+
+function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjectUrl: string): FirebaseDTO {
   const inThirtyDays = moment().add(30, 'days');
   const unitsList = _.values(com.units).map((c) => {
     if (c.info) c.info.equipment = []; // remove equipped items to save storage
@@ -134,6 +200,7 @@ function createStubDTOFromCombat(com: ICombatData, ownerId: string, logObjectUrl
     };
   });
   return {
+    dataType: 'ArenaMatch',
     logObjectUrl,
     ownerId,
     wowVersion: com.wowVersion,
@@ -148,11 +215,11 @@ function createStubDTOFromCombat(com: ICombatData, ownerId: string, logObjectUrl
     endInfo: com.endInfo,
     startInfo: com.startInfo,
     result: com.result,
-    extra: buildQueryHelpers(com),
+    extra: { ...buildQueryHelpers(com), ...buildMMRHelpers(com) },
     combatantNames: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
     combatantGuids: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
     expires: Timestamp.fromDate(inThirtyDays.toDate()),
   };
 }
 
-export { createStubDTOFromCombat };
+export { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch };

@@ -6,7 +6,7 @@ import { Readable } from 'stream';
 
 import { WowVersion } from '@wowarenalogs/parser';
 import { anonymizeDTO, applyCIIMap } from './anonymizer';
-import { createStubDTOFromCombat } from './createMatchStub';
+import { createStubDTOFromArenaMatch } from './createMatchStub';
 import { parseFromStringArrayAsync } from './writeMatchStubHandler';
 
 const anonFilesBucket = process.env.ENV_LOG_FILES_BUCKET || '';
@@ -37,10 +37,10 @@ export async function handler(file: any, context: any): Promise<unknown> {
 
   console.log(`Reading file: ${response.status} ${textBuffer.slice(0, 50)}`);
   const stringBuffer = textBuffer.split('\n');
-  const combats = await parseFromStringArrayAsync(stringBuffer, wowVersion);
-  console.log(`Parsed ${combats.length} combats`);
+  const results = await parseFromStringArrayAsync(stringBuffer, wowVersion);
+  console.log(`Parsed ${results.arenaMatches.length} arenaMatches`);
   const logObjectUrl = fileUrl;
-  const stub = createStubDTOFromCombat(combats[0], ownerId, logObjectUrl);
+  const stub = createStubDTOFromArenaMatch(results.arenaMatches[0], ownerId, logObjectUrl);
   if (startTimeUTC) {
     // Write the start time based on client-side headers to account for timezone differences
     stub.startTime = parseFloat(startTimeUTC);
@@ -62,7 +62,7 @@ export async function handler(file: any, context: any): Promise<unknown> {
   const promise = new Promise((res, rej) => {
     anonReadStream
       .pipe(anonStream)
-      .on('error', function (err) {
+      .on('error', function (err: any) {
         console.log(`Error writing: ${anonFileName}`);
         console.log(err);
         rej(err);
