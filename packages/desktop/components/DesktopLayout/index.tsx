@@ -8,7 +8,6 @@ import {
 import { AuthProvider } from '@wowarenalogs/shared';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import Script from 'next/script';
 import { useEffect } from 'react';
 
@@ -32,29 +31,27 @@ export const DesktopLayout = !window.wowarenalogs
       return null;
     }
   : ({ Component, pageProps }: AppProps) => {
-      const router = useRouter();
       const { isLoading, updateAppConfig } = useAppConfig();
 
       useEffect(() => {
-        if (router.isReady)
-          initAnalyticsAsync('G-Z6E8QS4ENW').then(() => {
-            import('@sentry/react').then((Sentry) => {
-              import('@sentry/tracing').then(({ Integrations }) => {
-                Sentry.init({
-                  dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
-                  integrations: [new Integrations.BrowserTracing()],
-                  tracesSampleRate: 1.0,
-                });
-                const userId = getAnalyticsDeviceId();
-                if (userId) {
-                  Sentry.setUser({
-                    id: userId,
-                  });
-                }
+        initAnalyticsAsync('G-Z6E8QS4ENW').then(() => {
+          import('@sentry/react').then((Sentry) => {
+            import('@sentry/tracing').then(({ Integrations }) => {
+              Sentry.init({
+                dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
+                integrations: [new Integrations.BrowserTracing()],
+                tracesSampleRate: 1.0,
               });
+              const userId = getAnalyticsDeviceId();
+              if (userId) {
+                Sentry.setUser({
+                  id: userId,
+                });
+              }
             });
           });
-      }, [router.isReady]);
+        });
+      }, []);
 
       return (
         <>
