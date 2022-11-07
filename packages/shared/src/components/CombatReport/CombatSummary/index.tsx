@@ -1,8 +1,9 @@
-import moment from 'moment';
+import { CombatResult } from '@wowarenalogs/parser';
+import _ from 'lodash';
 
-import { Utils } from '../../../utils/utils';
 import { useCombatReportContext } from '../CombatReportContext';
-import { CombatStatistic } from '../CombatStatistic';
+import { Meters } from './Meters';
+import { PlayerSummary } from './PlayerSummary';
 
 export const CombatSummary = () => {
   const { combat, isAnonymized, enemies, friends, players } = useCombatReportContext();
@@ -14,26 +15,35 @@ export const CombatSummary = () => {
     .filter((u) => u.deathRecords.length > 0)
     .sort((a, b) => a.deathRecords[0].timestamp - b.deathRecords[0].timestamp);
 
-  const enemyAvgItemLevel = enemies.length ? _.sumBy(enemies, (u) => Utils.getAverageItemLevel(u)) / enemies.length : 0;
-  const friendsAvgItemLevel = enemies.length
-    ? _.sumBy(friends, (u) => Utils.getAverageItemLevel(u)) / friends.length
-    : 0;
-  const iLvlAdvantage = friendsAvgItemLevel - enemyAvgItemLevel;
-
   return (
     <div className="flex flex-col">
-      <div className="stats">
-        <CombatStatistic title="Duration" value={moment.utc(combat.endTime - combat.startTime).format('mm:ss')} />
-        <CombatStatistic title="Team MMR" value={combat.playerTeamRating.toFixed()} />
-        {isAnonymized ? (
-          <CombatStatistic title="iLvl Difference" value={Math.abs(iLvlAdvantage).toFixed(1)} />
-        ) : (
-          <CombatStatistic
-            title="iLvl Advantage"
-            value={iLvlAdvantage.toFixed(1)}
-            valueColor={iLvlAdvantage >= 0 ? 'text-success' : 'text-error'}
-          />
+      <div className="flex flex-row w-full items-center">
+        <div className="flex-grow rounded-box bg-base-300 flex flex-row px-4 py-2">
+          {enemies.map((u) => {
+            return <PlayerSummary key={u.id} player={u} />;
+          })}
+        </div>
+        {combat.result === CombatResult.Win && (
+          <div className="ml-2 w-6 h-6 text-center rounded bg-error text-error-content">L</div>
         )}
+        {combat.result === CombatResult.Lose && (
+          <div className="ml-2 w-6 h-6 text-center rounded bg-success text-success-content">W</div>
+        )}
+        <div className="divider divider-horizontal">V.S.</div>
+        {combat.result === CombatResult.Lose && (
+          <div className="mr-2 w-6 h-6 text-center rounded bg-error text-error-content">L</div>
+        )}
+        {combat.result === CombatResult.Win && (
+          <div className="mr-2 w-6 h-6 text-center rounded bg-success text-success-content">W</div>
+        )}
+        <div className="flex-grow rounded-box bg-base-300 flex flex-row px-4 py-2">
+          {friends.map((u) => {
+            return <PlayerSummary key={u.id} player={u} />;
+          })}
+        </div>
+      </div>
+      <div className="flex flex-row mt-4">
+        <Meters />
       </div>
     </div>
   );

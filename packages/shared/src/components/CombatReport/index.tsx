@@ -73,7 +73,7 @@ export const CombatReport = ({ combat, anon }: IProps) => {
             Replay
           </a>
         </div>
-        <div className="mt-2 mx-2">{activeTab === 'summary' && <CombatSummary />}</div>
+        <div className="mt-4 mx-2">{activeTab === 'summary' && <CombatSummary />}</div>
       </div>
     </CombatReportContextProvider>
   );
