@@ -6,7 +6,7 @@ import { Meters } from './Meters';
 import { PlayerSummary } from './PlayerSummary';
 
 export const CombatSummary = () => {
-  const { combat, isAnonymized, enemies, friends, players } = useCombatReportContext();
+  const { combat, enemies, friends, players } = useCombatReportContext();
   if (!combat) {
     return null;
   }
