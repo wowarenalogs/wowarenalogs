@@ -1,6 +1,6 @@
 /* eslint-disable no-fallthrough */
 import _ from 'lodash';
-import { uniqueId } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 import { CombatUnit, ICombatUnit } from './CombatUnit';
 import { ArenaMatchEnd, ArenaMatchEndInfo } from './actions/ArenaMatchEnd';
@@ -101,6 +101,8 @@ export interface IArenaCombat {
 
   /**
    * Rating for team of player who recorded the match, according to ARENA_MATCH_END
+   *
+   * __Will not be available on locally recorded shuffle rounds 0-4__
    */
   playerTeamRating?: number;
 }
@@ -159,6 +161,8 @@ export interface IArenaMatch extends IArenaCombat {
  * Interface to hold all 6 rounds of a shuffle and have more details about the match's overall end
  */
 export interface IShuffleMatch {
+  wowVersion: WowVersion;
+
   dataType: 'ShuffleMatch';
   id: string;
   startTime: number;
@@ -195,7 +199,7 @@ export interface IMalformedCombatData {
 export class CombatData {
   public endInfo: ArenaMatchEndInfo | undefined = undefined;
   public startInfo: ArenaMatchStartInfo | undefined = undefined;
-  public id: string = uniqueId('combat');
+  public id: string = uuidv4();
   public isWellFormed = false;
   public startTime = 0;
   public endTime = 0;

@@ -24,7 +24,7 @@ export const CombatSummary = () => {
     <div className="flex flex-col">
       <div className="stats">
         <CombatStatistic title="Duration" value={moment.utc(combat.endTime - combat.startTime).format('mm:ss')} />
-        <CombatStatistic title="Team MMR" value={combat.playerTeamRating.toFixed()} />
+        <CombatStatistic title="Team MMR" value={combat.playerTeamRating?.toFixed()} />
         {isAnonymized ? (
           <CombatStatistic title="iLvl Difference" value={Math.abs(iLvlAdvantage).toFixed(1)} />
         ) : (

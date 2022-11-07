@@ -25,17 +25,23 @@ describe('solo shuffle tests', () => {
       expect(results.malformedCombats).toHaveLength(0);
     });
 
-    it('should have normal metadata', () => {
+    it('should parse the shuffle as a match', () => {
       const shuffle = results.shuffles[0];
       const firstRound = results.shuffleRounds[0];
       const lastRound = results.shuffleRounds[5];
-
-      console.log(JSON.stringify(lastRound, null, 2));
 
       expect(shuffle.startTime).toBe(1667429644514);
       expect(shuffle.startTime).toBe(firstRound.startTime);
       expect(shuffle.endTime).toBe(1667430187514);
       expect(shuffle.endTime).toBe(lastRound.endTime);
+
+      expect(shuffle.endInfo.matchDurationInSeconds).toBe(100);
+      expect(shuffle.endInfo.team0MMR).toBe(0);
+      expect(shuffle.endInfo.team1MMR).toBe(0);
+      expect(shuffle.endInfo.winningTeamId).toBe('0');
+
+      expect(shuffle.rounds.length).toBe(6);
+      expect(shuffle.dataType).toBe('ShuffleMatch');
     });
 
     it('should parse round 0', () => {
@@ -46,6 +52,7 @@ describe('solo shuffle tests', () => {
       team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('1'));
       team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('0'));
 
+      expect(round.dataType).toBe('ShuffleRound');
       expect(round.sequenceNumber).toBe(0);
       expect(round.winningTeamId).toBe('0');
       expect(round.killedUnitId).toBe('Player-1098-0A781F24');
@@ -56,6 +63,9 @@ describe('solo shuffle tests', () => {
       expect(round.playerTeamId).toBe('1');
       expect(round.playerTeamRating).toBe(0);
       expect(round.result).toBe(CombatResult.Lose);
+
+      expect(round.shuffleMatchEndInfo).toBeFalsy();
+      expect(round.shuffleMatchResult).toBeFalsy();
 
       // Check the scoreboard after round 1
       const scores = [
@@ -106,7 +116,7 @@ describe('solo shuffle tests', () => {
       expect(round.sequenceNumber).toBe(5);
 
       expect(round.winningTeamId).toBe('0');
-      expect(round.roundEndInfo.killedUnitId).toBe('Player-1098-0A781F24');
+      expect(round.killedUnitId).toBe('Player-1098-0A781F24');
 
       // Check the scoreboard after round 6
       const scores = [
