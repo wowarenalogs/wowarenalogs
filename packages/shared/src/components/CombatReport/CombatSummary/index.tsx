@@ -2,6 +2,8 @@ import { CombatResult } from '@wowarenalogs/parser';
 import _ from 'lodash';
 
 import { useCombatReportContext } from '../CombatReportContext';
+import { CombatUnitName } from '../CombatUnitName';
+import { CombatUnitTimelineView } from '../CombatUnitTimelineView';
 import { Meters } from './Meters';
 import { PlayerSummary } from './PlayerSummary';
 
@@ -11,9 +13,17 @@ export const CombatSummary = () => {
     return null;
   }
 
-  const deadPlayers = players
-    .filter((u) => u.deathRecords.length > 0)
-    .sort((a, b) => a.deathRecords[0].timestamp - b.deathRecords[0].timestamp);
+  const allPlayerDeath = _.sortBy(
+    _.flatMap(players, (p) => {
+      return p.deathRecords.map((r) => {
+        return {
+          unit: p,
+          deathRecord: r,
+        };
+      });
+    }),
+    (r) => r.deathRecord.timestamp,
+  );
 
   return (
     <div className="flex flex-col">
@@ -44,6 +54,33 @@ export const CombatSummary = () => {
       </div>
       <div className="flex flex-row mt-4">
         <Meters />
+        <div className="relative flex-1 ml-4">
+          {allPlayerDeath.length ? (
+            <table className="table table-compact w-full h-full">
+              <thead>
+                <tr>
+                  <th className="bg-base-300 flex flex-row">
+                    First Blood
+                    <div className="ml-2">
+                      <CombatUnitName unit={allPlayerDeath[0].unit} navigateToPlayerView />
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="bg-base-200">
+                    <CombatUnitTimelineView
+                      unit={allPlayerDeath[0].unit}
+                      startTime={allPlayerDeath[0].deathRecord.timestamp - 20 * 1000}
+                      endTime={allPlayerDeath[0].deathRecord.timestamp}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          ) : null}
+        </div>
       </div>
     </div>
   );

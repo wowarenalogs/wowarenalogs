@@ -171,6 +171,11 @@ export interface IArenaMatch extends IArenaCombat {
 }
 
 /**
+* Union type for IArenaMatch and IShuffleRound.
+*/
+export type AtomicArenaCombat = IArenaMatch | IShuffleRound;
+
+/**
  * Interface to hold all 6 rounds of a shuffle and have more details about the match's overall end
  */
 export interface IShuffleMatch {

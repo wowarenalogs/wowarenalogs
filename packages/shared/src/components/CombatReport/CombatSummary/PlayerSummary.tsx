@@ -16,9 +16,9 @@ export const PlayerSummary = ({ player }: IProps) => {
   return (
     <div className="flex flex-row items-start flex-1">
       <div className={`avatar ${rating ? 'indicator' : ''}`}>
-        {rating && (
+        {rating ? (
           <span className="indicator-item indicator-middle indicator-center badge badge-sm opacity-90">{rating}</span>
-        )}
+        ) : null}
         <div className="rounded">
           <Image
             src={

@@ -1,11 +1,4 @@
-import {
-  CombatUnitReaction,
-  CombatUnitType,
-  IArenaMatch,
-  ICombatUnit,
-  IShuffleRound,
-  LogEvent,
-} from '@wowarenalogs/parser';
+import { AtomicArenaCombat, CombatUnitReaction, CombatUnitType, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import React, { useContext, useMemo } from 'react';
 
@@ -13,7 +6,7 @@ import { ccSpellIds } from '../../data/spellTags';
 
 interface ICombatReportContextData {
   isAnonymized: boolean;
-  combat: IArenaMatch | IShuffleRound | null;
+  combat: AtomicArenaCombat | null;
   navigateToPlayerView: (unitId: string) => void;
   players: ICombatUnit[];
   friends: ICombatUnit[];
@@ -42,7 +35,7 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
 });
 
 interface IProps {
-  combat: IArenaMatch | IShuffleRound;
+  combat: AtomicArenaCombat;
   isAnonymized: boolean;
   navigateToPlayerView: (unitId: string) => void;
   children: React.ReactNode | React.ReactNode[];
