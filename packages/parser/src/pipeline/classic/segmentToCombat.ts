@@ -56,13 +56,13 @@ export const segmentToCombat = () => {
               timestamp: combat.startInfo?.timestamp || 0,
               zoneId: combat.startInfo?.zoneId || '',
             },
+            durationInSeconds: (nullthrows(combat.endInfo).timestamp - nullthrows(combat.startInfo).timestamp) / 1000,
             endInfo: nullthrows(combat.endInfo),
             winningTeamId: 'TODO: WRITE THIS!',
           };
           return plainCombatDataObject;
         }
       }
-
       return null;
     }),
     filter(isNonNull),
