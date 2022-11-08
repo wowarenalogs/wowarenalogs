@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
-import { ICombatData, WoWCombatLogParser } from '../src';
-import { IMalformedCombatData, IShuffleRound, IShuffleMatch } from '../src/CombatData';
+import { WoWCombatLogParser } from '../src';
+import { IMalformedCombatData, IShuffleRound, IShuffleMatch, IArenaMatch } from '../src/CombatData';
 
 export type LoaderResults = {
-  combats: ICombatData[];
+  combats: IArenaMatch[];
   malformedCombats: IMalformedCombatData[];
   shuffleRounds: IShuffleRound[];
   shuffles: IShuffleMatch[];
@@ -14,14 +14,14 @@ export type LoaderResults = {
 export const loadLogFile = (logFileName: string): LoaderResults => {
   const logParser = new WoWCombatLogParser();
 
-  const combats: ICombatData[] = [];
+  const combats: IArenaMatch[] = [];
   const malformedCombats: IMalformedCombatData[] = [];
 
   const shuffleRounds: IShuffleRound[] = [];
   const shuffles: IShuffleMatch[] = [];
 
   logParser.on('arena_match_ended', (data) => {
-    const combat = data as ICombatData;
+    const combat = data as IArenaMatch;
     combats.push(combat);
   });
 

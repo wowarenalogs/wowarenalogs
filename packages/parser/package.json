@@ -22,7 +22,6 @@
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
-  "peerDependencies": {},
   "module": "dist/wow-combat-log-parser.esm.js",
   "size-limit": [
     {
@@ -41,6 +40,7 @@
     "__generated__"
   ],
   "devDependencies": {
+    "@types/uuid": "^8.3.4",
     "@types/lodash": "^4.14.186"
   },
   "dependencies": {

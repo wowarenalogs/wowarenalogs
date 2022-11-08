@@ -1,6 +1,6 @@
 /* eslint-disable no-fallthrough */
 import _ from 'lodash';
-import { uniqueId } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 import { CombatUnit, ICombatUnit } from './CombatUnit';
 import { ArenaMatchEnd, ArenaMatchEndInfo } from './actions/ArenaMatchEnd';
@@ -89,6 +89,19 @@ export interface IArenaCombat {
   result: CombatResult;
 
   /**
+   * Duration of round or match - calculated from death timing or
+   * based on ARENA_MATCH_END if available
+   *
+   * * __ShuffleMatch__: the duration of the entire match
+   *
+   * * __ArenaMatch__: the duration of the entire match
+   *
+   * * __ShuffleRound__: the duration of the round
+   *
+   */
+  durationInSeconds: number;
+
+  /**
    * Id of team who won, inferred from player death
    */
   winningTeamId: string;
@@ -101,6 +114,8 @@ export interface IArenaCombat {
 
   /**
    * Rating for team of player who recorded the match, according to ARENA_MATCH_END
+   *
+   * __Will not be available on locally recorded shuffle rounds 0-4__
    */
   playerTeamRating?: number;
 }
@@ -159,6 +174,8 @@ export interface IArenaMatch extends IArenaCombat {
  * Interface to hold all 6 rounds of a shuffle and have more details about the match's overall end
  */
 export interface IShuffleMatch {
+  wowVersion: WowVersion;
+
   dataType: 'ShuffleMatch';
   id: string;
   startTime: number;
@@ -178,6 +195,19 @@ export interface IShuffleMatch {
    */
   endInfo: ArenaMatchEndInfo;
 
+  /**
+   * Duration of round or match - calculated from death timing or
+   * based on ARENA_MATCH_END if available
+   *
+   * * __ShuffleMatch__: the duration of the entire match
+   *
+   * * __ArenaMatch__: the duration of the entire match
+   *
+   * * __ShuffleRound__: the duration of the round
+   *
+   */
+  durationInSeconds: number;
+
   // Store information about each round individually
   rounds: IShuffleRound[];
 }
@@ -195,7 +225,7 @@ export interface IMalformedCombatData {
 export class CombatData {
   public endInfo: ArenaMatchEndInfo | undefined = undefined;
   public startInfo: ArenaMatchStartInfo | undefined = undefined;
-  public id: string = uniqueId('combat');
+  public id: string = uuidv4();
   public isWellFormed = false;
   public startTime = 0;
   public endTime = 0;
