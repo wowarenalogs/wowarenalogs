@@ -37,6 +37,7 @@ describe('parsing a classic log file', () => {
     expect(Object.values(results.combats[0].units).filter((u) => u.name === 'Assinoth-Whitemane')[0].class).toEqual(
       CombatUnitClass.Rogue,
     );
+    expect(results.combats[0].playerId).toBe('Player-4395-01C5EEA8');
   });
 
   it('should have the correct bracket inferred', () => {

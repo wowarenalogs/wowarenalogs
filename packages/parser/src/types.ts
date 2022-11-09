@@ -81,6 +81,14 @@ export enum CombatUnitReaction {
   Hostile,
 }
 
+export enum CombatUnitAffiliation {
+  None,
+  Mine,
+  Party,
+  Raid,
+  Outsider,
+}
+
 export enum CombatUnitType {
   None,
   Player,

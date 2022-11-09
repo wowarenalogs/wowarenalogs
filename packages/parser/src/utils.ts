@@ -1,6 +1,12 @@
 import md5 from 'md5';
 
-import { CombatUnitClass, CombatUnitPowerType, CombatUnitReaction, CombatUnitType } from './types';
+import {
+  CombatUnitAffiliation,
+  CombatUnitClass,
+  CombatUnitPowerType,
+  CombatUnitReaction,
+  CombatUnitType,
+} from './types';
 
 export const PIPELINE_FLUSH_SIGNAL = '__WOW_ARENA_LOGS_PIPELINE_FLUSH_SIGNAL__';
 
@@ -41,6 +47,23 @@ export function getUnitReaction(flag: number): CombatUnitReaction {
       return CombatUnitReaction.Friendly;
     default:
       return CombatUnitReaction.Neutral;
+  }
+}
+
+export function getUnitAffiliation(flag: number): CombatUnitAffiliation {
+  // tslint:disable-next-line: no-bitwise
+  const masked = flag & 0x0000000f;
+  switch (masked) {
+    case 0x00000001:
+      return CombatUnitAffiliation.Mine;
+    case 0x00000002:
+      return CombatUnitAffiliation.Party;
+    case 0x00000004:
+      return CombatUnitAffiliation.Raid;
+    case 0x00000008:
+      return CombatUnitAffiliation.Outsider;
+    default:
+      return CombatUnitAffiliation.None;
   }
 }
 
