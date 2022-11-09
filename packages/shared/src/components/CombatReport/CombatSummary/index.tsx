@@ -28,25 +28,21 @@ export const CombatSummary = () => {
   return (
     <div className="flex flex-col">
       <div className="flex flex-row w-full items-center">
-        <div className="flex-grow rounded-box bg-base-300 flex flex-row px-4 py-2">
+        <div
+          className={`flex-grow rounded-box bg-base-300 flex flex-row px-4 py-2 border ${
+            combat.result === CombatResult.Win && 'border-error'
+          } ${combat.result === CombatResult.Lose && 'border-success'}`}
+        >
           {enemies.map((u) => {
             return <PlayerSummary key={u.id} player={u} />;
           })}
         </div>
-        {combat.result === CombatResult.Win && (
-          <div className="ml-2 w-6 h-6 text-center rounded bg-error text-error-content">L</div>
-        )}
-        {combat.result === CombatResult.Lose && (
-          <div className="ml-2 w-6 h-6 text-center rounded bg-success text-success-content">W</div>
-        )}
         <div className="divider divider-horizontal">V.S.</div>
-        {combat.result === CombatResult.Lose && (
-          <div className="mr-2 w-6 h-6 text-center rounded bg-error text-error-content">L</div>
-        )}
-        {combat.result === CombatResult.Win && (
-          <div className="mr-2 w-6 h-6 text-center rounded bg-success text-success-content">W</div>
-        )}
-        <div className="flex-grow rounded-box bg-base-300 flex flex-row px-4 py-2">
+        <div
+          className={`flex-grow rounded-box bg-base-300 flex flex-row px-4 py-2 border ${
+            combat.result === CombatResult.Lose && 'border-error'
+          } ${combat.result === CombatResult.Win && 'border-success'}`}
+        >
           {friends.map((u) => {
             return <PlayerSummary key={u.id} player={u} />;
           })}

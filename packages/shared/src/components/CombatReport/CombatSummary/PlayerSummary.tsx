@@ -11,14 +11,10 @@ interface IProps {
 
 export const PlayerSummary = ({ player }: IProps) => {
   const trinkets = player.info?.equipment.filter((_, i) => [12, 13].includes(i)) || [];
-  const rating = player.info?.personalRating;
 
   return (
     <div className="flex flex-row items-start flex-1">
-      <div className={`avatar ${rating ? 'indicator' : ''}`}>
-        {rating ? (
-          <span className="indicator-item indicator-middle indicator-center badge badge-sm opacity-90">{rating}</span>
-        ) : null}
+      <div className={`avatar`}>
         <div className="rounded">
           <Image
             src={
