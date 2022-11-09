@@ -29,10 +29,16 @@ export function getUnitType(flag: number): CombatUnitType {
   // tslint:disable-next-line: no-bitwise
   const masked = flag & 0x0000fc00;
   switch (masked) {
-    case 0x00001000:
-      return CombatUnitType.Pet;
     case 0x00000400:
       return CombatUnitType.Player;
+    case 0x00000800:
+      return CombatUnitType.NPC;
+    case 0x00001000:
+      return CombatUnitType.Pet;
+    case 0x00002000:
+      return CombatUnitType.Guardian;
+    case 0x00004000:
+      return CombatUnitType.Object;
     default:
       return CombatUnitType.None;
   }
