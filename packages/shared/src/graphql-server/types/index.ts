@@ -120,11 +120,6 @@ interface IDTOPublicFeatures {
 
 export type ICombatDataStub = (IArenaMatchStub | IShuffleRoundStub) & IUnitsStub & IDTOPublicFeatures;
 
-const stub: ICombatDataStub = {} as ICombatDataStub;
-
-// eslint-disable-next-line no-console
-console.log(stub.dataType);
-
 export interface CombatQueryResult {
   combats: CombatDataStub[];
   queryLimitReached: boolean;
