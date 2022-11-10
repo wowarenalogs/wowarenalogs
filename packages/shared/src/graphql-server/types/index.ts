@@ -55,6 +55,7 @@ interface ICombatUnitStub {
   // deathRecords: ILogLine[];
   // advancedActions: CombatAdvancedAction[];
 }
+
 export interface ICombatDataStub {
   logObjectUrl: string;
   wowVersion?: WowVersion;
