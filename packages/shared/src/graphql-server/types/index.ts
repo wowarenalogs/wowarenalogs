@@ -1,14 +1,4 @@
-import {
-  ArenaMatchEndInfo,
-  ArenaMatchStartInfo,
-  CombatantInfo,
-  CombatResult,
-  CombatUnitClass,
-  CombatUnitReaction,
-  CombatUnitSpec,
-  CombatUnitType,
-  WowVersion,
-} from '@wowarenalogs/parser';
+import { CombatantInfo, IArenaMatch, ICombatUnit, IShuffleRound } from '@wowarenalogs/parser';
 import { gql } from 'apollo-server-micro';
 
 import { CombatDataStub } from '../../graphql/__generated__/graphql';
@@ -36,52 +26,104 @@ export interface ApolloContext {
   non-stub versions cleanly. If fields are removed in the definition
   of a stub from the base, leave them as commented out here.
 */
-interface ICombatUnitStub {
-  id: string;
-  name: string;
-  reaction: CombatUnitReaction;
-  type: CombatUnitType;
-  class: CombatUnitClass;
-  spec: CombatUnitSpec;
-  info?: CombatantInfo;
-  // damageIn: CombatHpUpdateAction[];
-  // damageOut: CombatHpUpdateAction[];
-  // healIn: CombatHpUpdateAction[];
-  // healOut: CombatHpUpdateAction[];
-  // actionIn: ILogLine[];
-  // actionOut: ILogLine[];
-  // auraEvents: CombatAction[];
-  // spellCastEvents: CombatAction[];
-  // deathRecords: ILogLine[];
-  // advancedActions: CombatAdvancedAction[];
+/**
+ * Stub of CombatantInfo for cloud storage
+ *
+ * Missing fields as of 11/10/2022:
+ * * strength: number;
+ * * agility: number;
+ * * stamina: number;
+ * * intelligence: number;
+ * * dodge: number;
+ * * parry: number;
+ * * block: number;
+ * * critMelee: number;
+ * * critRanged: number;
+ * * critSpell: number;
+ * * speed: number;
+ * * lifesteal: number;
+ * * hasteMelee: number;
+ * * hasteRanged: number;
+ * * hasteSpell: number;
+ * * avoidance: number;
+ * * mastery: number;
+ * * versatilityDamgeDone: number;
+ * * versatilityHealingDone: number;
+ * * versatilityDamageTaken: number;
+ * * armor: number;
+ * * equipment: EquippedItem[];
+ * * interestingAurasJSON: string;
+ * * item28: number;
+ * * item29: number;
+ */
+export interface ICombatantInfoStub
+  extends Pick<CombatantInfo, 'teamId' | 'specId' | 'talents' | 'pvpTalents' | 'personalRating' | 'highestPvpTier'> {}
+
+/**
+ * Stub of ICombatUnit for cloud storage
+ *
+ * Missing fields as of 11/10/2022:
+ * * isWellFormed: boolean;
+ * * damageIn: CombatHpUpdateAction[];
+ * * damageOut: CombatHpUpdateAction[];
+ * * healIn: CombatHpUpdateAction[];
+ * * healOut: CombatHpUpdateAction[];
+ * * absorbsIn: CombatAbsorbAction[];
+ * * absorbsOut: CombatAbsorbAction[];
+ * * absorbsDamaged: CombatAbsorbAction[];
+ * * actionIn: ILogLine[];
+ * * actionOut: ILogLine[];
+ * * auraEvents: CombatAction[];
+ * * spellCastEvents: CombatAction[];
+ * * deathRecords: ILogLine[];
+ * * consciousDeathRecords: ILogLine[];
+ * * advancedActions: CombatAdvancedAction[];
+ */
+export interface ICombatUnitStub
+  extends Pick<ICombatUnit, 'id' | 'name' | 'reaction' | 'affiliation' | 'type' | 'class' | 'spec'> {
+  info: ICombatantInfoStub;
 }
 
-export interface ICombatDataStub {
-  dataType: 'ArenaMatch' | 'ShuffleRound';
-  logObjectUrl: string;
-  wowVersion: WowVersion;
-  ownerId: string | null;
-  units: ICombatUnitStub[]; // changed from original type
-  id: string;
-  startTime: number;
-  endTime: number;
-  playerTeamId: string;
+interface IArenaMatchStub extends Omit<IArenaMatch, 'units' | 'events' | 'rawLines'> {}
+interface IShuffleRoundStub extends Omit<IShuffleRound, 'units' | 'events' | 'rawLines'> {}
+
+interface IUnitsStub {
   /**
-   * Team rating not available for shuffle rounds 0-4
+   * A copy of the units array from a parsed log output with
+   * some fields removed to save space when stored in the cloud
+   *
+   * Combat event mappings are notable all removed
+   * As is unit equipped items
    */
-  playerTeamRating?: number;
-  result: CombatResult;
-  hasAdvancedLogging: boolean;
-  // rawLines: string[];
-  // linesNotParsedCount: number;
-  startInfo: ArenaMatchStartInfo;
-  endInfo?: ArenaMatchEndInfo;
-  utcCorrected: boolean;
-
-  shuffleMatchId?: string;
-  shuffleMatchResult?: CombatResult;
-  shuffleMatchEndInfo?: ArenaMatchEndInfo;
+  units: ICombatUnitStub[];
 }
+
+/**
+ * These items are useful for the frontend but ultimately only present as part of an uploaded log
+ */
+interface IDTOPublicFeatures {
+  /**
+   * Battle.net ID of the log uploader
+   */
+  ownerId: string;
+  /**
+   * Cloud storage URL of the raw log file
+   */
+  logObjectUrl: string;
+  /**
+   * TODO: what is this field for again?
+   * It was something to do with how we were correcting for UTC time
+   * differentials between the log and rtc of the user's machine
+   */
+  utcCorrected: boolean;
+}
+
+export type ICombatDataStub = (IArenaMatchStub | IShuffleRoundStub) & IUnitsStub & IDTOPublicFeatures;
+
+const stub: ICombatDataStub = {} as ICombatDataStub;
+
+// eslint-disable-next-line no-console
+console.log(stub.dataType);
 
 export interface CombatQueryResult {
   combats: CombatDataStub[];
@@ -126,13 +168,6 @@ export const typeDefs = gql`
     hasAdvancedLogging: Boolean!
     utcCorrected: Boolean
   }
-  type EquippedItem {
-    bonuses: [String!]!
-    enchants: [String!]!
-    gems: [String!]!
-    id: String!
-    ilvl: Int!
-  }
   type Talent {
     id1: Int
     id2: Int
@@ -140,34 +175,9 @@ export const typeDefs = gql`
   }
   type CombatantInfo {
     teamId: String!
-    strength: Int!
-    agility: Int!
-    stamina: Int!
-    intelligence: Int!
-    dodge: Int!
-    parry: Int!
-    block: Int!
-    critMelee: Int!
-    critRanged: Int!
-    critSpell: Int!
-    speed: Int!
-    lifesteal: Int!
-    hasteMelee: Int!
-    hasteRanged: Int!
-    hasteSpell: Int!
-    avoidance: Int!
-    mastery: Int!
-    versatilityDamgeDone: Int!
-    versatilityHealingDone: Int!
-    versatilityDamageTaken: Int!
-    armor: Int!
     specId: String!
     talents: [Talent]!
     pvpTalents: [String!]!
-    equipment: [EquippedItem!]!
-    interestingAurasJSON: String!
-    item28: Int!
-    item29: Int!
     personalRating: Int!
     highestPvpTier: Int!
   }
@@ -179,6 +189,7 @@ export const typeDefs = gql`
     spec: String!
     class: Int!
     reaction: Int!
+    affiliation: Int!
   }
   type CombatQueryResult {
     combats: [CombatDataStub!]!

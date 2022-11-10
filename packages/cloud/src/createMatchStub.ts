@@ -15,12 +15,12 @@ export function nullthrows<T>(value: T | null | undefined): T {
 /*
   This DTO adds some fields to make queries less index intensive and easier to write
 */
-export interface FirebaseDTO extends ICombatDataStub {
+export type FirebaseDTO = ICombatDataStub & {
   combatantNames: string[];
   combatantGuids: string[];
   extra: QueryHelpers;
   expires: Timestamp; // Used to set object TTL for auto-delete
-}
+};
 
 interface SpecIndexFields {
   singleSidedSpecs: string[];
@@ -142,15 +142,23 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
 
   const inThirtyDays = moment().add(30, 'days');
   const unitsList = _.values(lastRound.units).map((c) => {
-    if (c.info) c.info.equipment = []; // remove equipped items to save storage
+    if (!c.info) throw new Error(`Could not find player info for ${c.id}`);
     return {
       id: c.id,
       name: c.name,
-      info: c.info,
+      info: {
+        teamId: c.info.teamId,
+        specId: c.info.specId,
+        talents: c.info.talents,
+        pvpTalents: c.info.pvpTalents,
+        personalRating: c.info.personalRating,
+        highestPvpTier: c.info.highestPvpTier,
+      },
       type: c.type,
       class: c.class,
       spec: c.spec,
       reaction: c.reaction,
+      affiliation: c.affiliation,
     };
   });
 
@@ -173,6 +181,13 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
     playerTeamRating: lastRound.playerTeamRating,
     hasAdvancedLogging: lastRound.hasAdvancedLogging,
     startInfo: round.startInfo,
+    linesNotParsedCount: round.linesNotParsedCount,
+    durationInSeconds: round.durationInSeconds,
+    playerId: round.playerId,
+    winningTeamId: round.winningTeamId,
+    killedUnitId: round.killedUnitId,
+    scoreboard: round.scoreboard,
+    sequenceNumber: round.sequenceNumber,
     // endInfo: UNDEFINED HERE!
     result: round.result,
     extra: { ...buildQueryHelpers(round), ...buildMMRHelpers(round) },
@@ -188,15 +203,23 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
 function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjectUrl: string): FirebaseDTO {
   const inThirtyDays = moment().add(30, 'days');
   const unitsList = _.values(com.units).map((c) => {
-    if (c.info) c.info.equipment = []; // remove equipped items to save storage
+    if (!c.info) throw new Error(`Could not find player info for ${c.id}`);
     return {
       id: c.id,
       name: c.name,
-      info: c.info,
+      info: {
+        teamId: c.info.teamId,
+        specId: c.info.specId,
+        talents: c.info.talents,
+        pvpTalents: c.info.pvpTalents,
+        personalRating: c.info.personalRating,
+        highestPvpTier: c.info.highestPvpTier,
+      },
       type: c.type,
       class: c.class,
       spec: c.spec,
       reaction: c.reaction,
+      affiliation: c.affiliation,
     };
   });
   return {
@@ -215,6 +238,10 @@ function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjec
     endInfo: com.endInfo,
     startInfo: com.startInfo,
     result: com.result,
+    linesNotParsedCount: com.linesNotParsedCount,
+    playerId: com.playerId,
+    durationInSeconds: com.durationInSeconds,
+    winningTeamId: com.winningTeamId,
     extra: { ...buildQueryHelpers(com), ...buildMMRHelpers(com) },
     combatantNames: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
     combatantGuids: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
