@@ -1,6 +1,12 @@
 import md5 from 'md5';
 
-import { CombatUnitClass, CombatUnitPowerType, CombatUnitReaction, CombatUnitType } from './types';
+import {
+  CombatUnitAffiliation,
+  CombatUnitClass,
+  CombatUnitPowerType,
+  CombatUnitReaction,
+  CombatUnitType,
+} from './types';
 
 export const PIPELINE_FLUSH_SIGNAL = '__WOW_ARENA_LOGS_PIPELINE_FLUSH_SIGNAL__';
 
@@ -23,10 +29,16 @@ export function getUnitType(flag: number): CombatUnitType {
   // tslint:disable-next-line: no-bitwise
   const masked = flag & 0x0000fc00;
   switch (masked) {
-    case 0x00001000:
-      return CombatUnitType.Pet;
     case 0x00000400:
       return CombatUnitType.Player;
+    case 0x00000800:
+      return CombatUnitType.NPC;
+    case 0x00001000:
+      return CombatUnitType.Pet;
+    case 0x00002000:
+      return CombatUnitType.Guardian;
+    case 0x00004000:
+      return CombatUnitType.Object;
     default:
       return CombatUnitType.None;
   }
@@ -41,6 +53,23 @@ export function getUnitReaction(flag: number): CombatUnitReaction {
       return CombatUnitReaction.Friendly;
     default:
       return CombatUnitReaction.Neutral;
+  }
+}
+
+export function getUnitAffiliation(flag: number): CombatUnitAffiliation {
+  // tslint:disable-next-line: no-bitwise
+  const masked = flag & 0x0000000f;
+  switch (masked) {
+    case 0x00000001:
+      return CombatUnitAffiliation.Mine;
+    case 0x00000002:
+      return CombatUnitAffiliation.Party;
+    case 0x00000004:
+      return CombatUnitAffiliation.Raid;
+    case 0x00000008:
+      return CombatUnitAffiliation.Outsider;
+    default:
+      return CombatUnitAffiliation.None;
   }
 }
 

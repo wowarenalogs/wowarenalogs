@@ -4,13 +4,23 @@ import { CombatAbsorbAction } from './actions/CombatAbsorbAction';
 import { CombatAction } from './actions/CombatAction';
 import { CombatAdvancedAction } from './actions/CombatAdvancedAction';
 import { CombatHpUpdateAction } from './actions/CombatHpUpdateAction';
-import { CombatUnitClass, CombatUnitReaction, CombatUnitSpec, CombatUnitType, CombatantInfo, ILogLine } from './types';
+import {
+  CombatUnitClass,
+  CombatUnitReaction,
+  CombatUnitSpec,
+  CombatUnitType,
+  CombatantInfo,
+  ILogLine,
+  CombatUnitAffiliation,
+} from './types';
+import { getUnitAffiliation } from './utils';
 
 export interface ICombatUnit {
   id: string;
   name: string;
   isWellFormed: boolean;
   reaction: CombatUnitReaction;
+  affiliation: CombatUnitAffiliation;
   type: CombatUnitType;
   class: CombatUnitClass;
   spec: CombatUnitSpec;
@@ -39,6 +49,7 @@ export interface ICombatUnit {
 
 export class CombatUnit implements ICombatUnit {
   public reaction: CombatUnitReaction = CombatUnitReaction.Neutral;
+  public affiliation: CombatUnitAffiliation = CombatUnitAffiliation.None;
   public type: CombatUnitType = CombatUnitType.None;
   public class: CombatUnitClass = CombatUnitClass.None;
   public spec: CombatUnitSpec = CombatUnitSpec.None;
@@ -111,6 +122,18 @@ export class CombatUnit implements ICombatUnit {
   }
 
   public endActivity() {
+    if (this.auraEvents.length > 0) {
+      if (this.auraEvents[0].srcUnitId === this.id) {
+        this.affiliation = getUnitAffiliation(this.auraEvents[0].srcUnitFlags);
+      }
+    }
+
+    if (this.spellCastEvents.length > 0) {
+      if (this.spellCastEvents[0].srcUnitId === this.id) {
+        this.affiliation = getUnitAffiliation(this.spellCastEvents[0].srcUnitFlags);
+      }
+    }
+
     if (
       this.damageIn.length +
         this.damageOut.length +

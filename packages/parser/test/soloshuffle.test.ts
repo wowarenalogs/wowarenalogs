@@ -1,4 +1,4 @@
-import { CombatResult } from '../src/types';
+import { CombatResult, CombatUnitAffiliation, CombatUnitType } from '../src/types';
 import { LoaderResults, loadLogFile } from './testLogLoader';
 
 describe('solo shuffle tests', () => {
@@ -47,8 +47,23 @@ describe('solo shuffle tests', () => {
 
     it('should parse round 0', () => {
       const round = results.shuffleRounds[0];
+
+      const totem = round.units['Creature-0-3111-980-18621-59764-000062BCF6'];
+      expect(totem.name).toBe('Healing Tide Totem');
+      expect(totem.type).toBe(CombatUnitType.Guardian);
+
       const team0Ids = ['Player-580-0A594065', 'Player-2073-094DF239', 'Player-1335-09D86B90'];
       const team1Ids = ['Player-1084-0979C1C5', 'Player-1098-0A781F24', 'Player-1929-0675D6C6'];
+
+      expect(round.units['Player-580-0A594065'].affiliation).toBe(CombatUnitAffiliation.Outsider);
+      expect(round.units['Player-2073-094DF239'].affiliation).toBe(CombatUnitAffiliation.Outsider);
+      expect(round.units['Player-1335-09D86B90'].affiliation).toBe(CombatUnitAffiliation.Outsider);
+
+      expect(round.units['Player-1084-0979C1C5'].affiliation).toBe(CombatUnitAffiliation.Mine);
+      expect(round.units['Player-1098-0A781F24'].affiliation).toBe(CombatUnitAffiliation.Party);
+      expect(round.units['Player-1929-0675D6C6'].affiliation).toBe(CombatUnitAffiliation.Party);
+
+      expect(round.playerId).toBe('Player-1084-0979C1C5');
 
       team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('1'));
       team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('0'));
