@@ -96,7 +96,7 @@ describe('solo shuffle tests', () => {
         ['Player-1929-0675D6C6', 0],
       ];
       scores.forEach((score) => {
-        expect(round.scoreboard[score[0]]).toBe(score[1]);
+        expect(round.scoreboard.find((u) => u.unitId === score[0])?.wins).toBe(score[1]);
       });
     });
 
@@ -150,7 +150,7 @@ describe('solo shuffle tests', () => {
         ['Player-2073-094DF239', 4],
       ];
       scores.forEach((score) => {
-        expect(round.scoreboard[score[0]]).toBe(score[1]);
+        expect(round.scoreboard.find((u) => u.unitId === score[0])?.wins).toBe(score[1]);
       });
     });
   });

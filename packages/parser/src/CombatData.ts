@@ -147,7 +147,7 @@ export interface IShuffleRound extends IArenaCombat {
   /**
    * Scoreboard at the end of the round
    */
-  scoreboard: { [unitId: string]: number };
+  scoreboard: { unitId: string; wins: number }[];
 
   /**
    * Round number of the shulffe round, 0-5
