@@ -53,6 +53,31 @@ const Debug = () => {
             matchesQuery
             <ul>
               <li>loading:{matchesQuery.loading.toString()}</li>
+              {matchesQuery.data?.myMatches.combats.map((c) => {
+                if (c.__typename === 'ArenaMatchDataStub') {
+                  return (
+                    <div key={c.id}>
+                      <div>
+                        arenaMatch
+                        {c.id} {c.playerId} {c.playerTeamId} {c.playerTeamRating} {c.result} {c.durationInSeconds}
+                      </div>
+                      <div>extra: {c.endInfo?.team0MMR}</div>
+                    </div>
+                  );
+                }
+                if (c.__typename === 'ShuffleRoundStub') {
+                  return (
+                    <div key={c.id}>
+                      <div>
+                        shuffle
+                        {c.id} {c.playerId} {c.playerTeamId} {c.playerTeamRating} {c.result} {c.durationInSeconds}
+                      </div>
+                      <div>extra: {c.sequenceNumber}</div>
+                    </div>
+                  );
+                }
+                return <div key={c.id}>error {c.id}</div>;
+              })}
               <li>data: {matchesQuery.data?.myMatches.combats.length} matches</li>
             </ul>
           </div>

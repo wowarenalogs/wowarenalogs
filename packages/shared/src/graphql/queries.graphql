@@ -12,36 +12,8 @@ fragment startInfos on ArenaMatchStartInfo {
   bracket
   isRanked
 }
-fragment itemInfos on EquippedItem {
-  bonuses
-  enchants
-  gems
-  id
-  ilvl
-}
 fragment combatantInfos on CombatantInfo {
   teamId
-  strength
-  agility
-  stamina
-  intelligence
-  dodge
-  parry
-  block
-  critMelee
-  critRanged
-  critSpell
-  speed
-  lifesteal
-  hasteMelee
-  hasteRanged
-  hasteSpell
-  avoidance
-  mastery
-  versatilityDamgeDone
-  versatilityHealingDone
-  versatilityDamageTaken
-  armor
   specId
   talents {
     id1
@@ -49,12 +21,6 @@ fragment combatantInfos on CombatantInfo {
     count
   }
   pvpTalents
-  equipment {
-    ...itemInfos
-  }
-  interestingAurasJSON
-  item28
-  item29
   personalRating
   highestPvpTier
 }
@@ -70,7 +36,7 @@ fragment unitInfos on CombatUnitStub {
   reaction
 }
 
-fragment combatInfos on CombatDataStub {
+fragment arenaInfos on ArenaMatchDataStub {
   id
   wowVersion
   ownerId
@@ -87,10 +53,43 @@ fragment combatInfos on CombatDataStub {
   }
   startTime
   endTime
+  playerId
   playerTeamId
   playerTeamRating
   hasAdvancedLogging
   utcCorrected
+  durationInSeconds
+}
+fragment shuffleInfos on ShuffleRoundStub {
+  id
+  wowVersion
+  ownerId
+  units {
+    ...unitInfos
+  }
+  result
+  logObjectUrl
+  startInfo {
+    ...startInfos
+  }
+  startTime
+  endTime
+  playerId
+  playerTeamId
+  playerTeamRating
+  hasAdvancedLogging
+  utcCorrected
+  durationInSeconds
+  killedUnitId
+  scoreboard {
+    unitId
+    wins
+  }
+  sequenceNumber
+  shuffleMatchEndInfo {
+    ...endInfos
+  }
+  shuffleMatchResult
 }
 
 query GetPublicMatches(
@@ -112,7 +111,8 @@ query GetPublicMatches(
     count: $count
   ) {
     combats {
-      ...combatInfos
+      ...arenaInfos
+      ...shuffleInfos
     }
     queryLimitReached
   }
@@ -121,7 +121,8 @@ query GetPublicMatches(
 query GetMyMatches($anonymousUserId: String = null, $offset: Int = 0, $count: Int = 50) {
   myMatches(anonymousUserId: $anonymousUserId, offset: $offset, count: $count) {
     combats {
-      ...combatInfos
+      ...arenaInfos
+      ...shuffleInfos
     }
     queryLimitReached
   }
@@ -130,7 +131,8 @@ query GetMyMatches($anonymousUserId: String = null, $offset: Int = 0, $count: In
 query GetUserMatches($userId: String!, $offset: Int = 0, $count: Int = 50) {
   userMatches(userId: $userId, offset: $offset, count: $count) {
     combats {
-      ...combatInfos
+      ...arenaInfos
+      ...shuffleInfos
     }
     queryLimitReached
   }
@@ -138,7 +140,8 @@ query GetUserMatches($userId: String!, $offset: Int = 0, $count: Int = 50) {
 
 query GetMatchesWithCombatant($playerName: String!) {
   matchesWithCombatant(playerName: $playerName) {
-    ...combatInfos
+    ...arenaInfos
+    ...shuffleInfos
   }
 }
 

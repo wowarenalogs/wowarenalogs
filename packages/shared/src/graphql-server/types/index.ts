@@ -147,7 +147,7 @@ export const typeDefs = gql`
     bracket: String!
     isRanked: Boolean!
   }
-  type CombatDataStub {
+  type ArenaMatchDataStub {
     id: String!
     wowVersion: String
     ownerId: String
@@ -158,11 +158,41 @@ export const typeDefs = gql`
     endInfo: ArenaMatchEndInfo
     startTime: Float!
     endTime: Float!
+    playerId: String!
     playerTeamId: String!
     playerTeamRating: Int!
     hasAdvancedLogging: Boolean!
     utcCorrected: Boolean
+    durationInSeconds: Int!
   }
+  type ScoreboardEntry {
+    unitId: String!
+    wins: Int!
+  }
+  type ShuffleRoundStub {
+    id: String!
+    wowVersion: String
+    ownerId: String
+    units: [CombatUnitStub!]!
+    result: Int!
+    logObjectUrl: String!
+    startInfo: ArenaMatchStartInfo
+    startTime: Float!
+    endTime: Float!
+    playerId: String!
+    playerTeamId: String!
+    playerTeamRating: Int!
+    hasAdvancedLogging: Boolean!
+    utcCorrected: Boolean
+    durationInSeconds: Int!
+    killedUnitId: String!
+    scoreboard: [ScoreboardEntry]
+    sequenceNumber: Int!
+    shuffleMatchEndInfo: ArenaMatchEndInfo
+    shuffleMatchResult: Int
+  }
+
+  union CombatDataStub = ShuffleRoundStub | ArenaMatchDataStub
   type Talent {
     id1: Int
     id2: Int
