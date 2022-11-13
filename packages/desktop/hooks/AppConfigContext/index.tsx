@@ -56,6 +56,27 @@ export const AppConfigContextProvider = (props: IProps) => {
   };
 
   useEffect(() => {
+    window.wowarenalogs.win?.onWindowMoved((_, x, y) => {
+      updateAppConfig((prev) => {
+        return {
+          ...prev,
+          lastWindowX: x,
+          lastWindowY: y,
+        };
+      });
+    });
+    window.wowarenalogs.win?.onWindowResized((_, w, h) => {
+      updateAppConfig((prev) => {
+        return {
+          ...prev,
+          lastWindowWidth: w,
+          lastWindowHeight: h,
+        };
+      });
+    });
+  }, []);
+
+  useEffect(() => {
     const impl = async () => {
       const appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
       if (appConfigJson) {
