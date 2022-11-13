@@ -36,6 +36,7 @@ export const segmentToCombat = () => {
 
         if (combat.isWellFormed) {
           const plainCombatDataObject: IArenaMatch = {
+            playerId: combat.playerId,
             dataType: 'ArenaMatch',
             events: combat.events,
             id: computeCanonicalHash(segment.lines),

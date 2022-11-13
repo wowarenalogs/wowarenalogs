@@ -13,7 +13,19 @@ import { logInfo } from '../../logger';
 // Global buffer to hold recent shuffle rounds
 // once a shuffle-ending is detected this is reset
 let recentShuffleRoundsBuffer: IShuffleRound[] = [];
-let recentScoreboardBuffer: IShuffleRound['scoreboard'] = {};
+let recentScoreboardBuffer: IShuffleRound['scoreboard'] = [];
+
+function recordOutcomeToScoreboard(unitId: string, didWin: boolean) {
+  const score = recentScoreboardBuffer.find((u) => u.unitId === unitId);
+  if (!score) {
+    recentScoreboardBuffer.push({
+      unitId,
+      wins: didWin ? 1 : 0,
+    });
+  } else {
+    score.wins = didWin ? score.wins + 1 : score.wins;
+  }
+}
 
 function roundsBelongToSameMatch(roundA: ArenaMatchStartInfo, roundB: ArenaMatchStartInfo) {
   // ARENA_MATCH_START is identical for every round of a shuffle except the timestamp
@@ -62,7 +74,7 @@ function decodeShuffleRound(
     // Panic: Already 6 rounds in the buffer, this cant be the same solo shuffle match
     logInfo(`decodeShuffle panic 1 - rounds length=${recentShuffleRounds.length}`);
     recentShuffleRoundsBuffer = [];
-    recentScoreboardBuffer = {};
+    recentScoreboardBuffer = [];
   }
 
   if (
@@ -72,7 +84,7 @@ function decodeShuffleRound(
     logInfo(`decodeShuffle panic 2 - rounds length=${recentShuffleRounds.length}`);
     // Panic: New round does not appear to be a member of the solo shuffle match
     recentShuffleRoundsBuffer = [];
-    recentScoreboardBuffer = {};
+    recentScoreboardBuffer = [];
   }
 
   const players = _.values(combat.units).filter((a) => a.type === CombatUnitType.Player);
@@ -101,10 +113,7 @@ function decodeShuffleRound(
   }
 
   players.forEach((unit) => {
-    if (!recentScoreboard[unit.id]) recentScoreboard[unit.id] = 0;
-    if (unit.info?.teamId !== losingTeam) {
-      recentScoreboard[unit.id] = recentScoreboard[unit.id] + 1;
-    }
+    recordOutcomeToScoreboard(unit.id, unit.info?.teamId !== losingTeam);
   });
 
   const deadPlayerTeam = playerDeaths[0].unit.info?.teamId;
@@ -123,11 +132,12 @@ function decodeShuffleRound(
     linesNotParsedCount: combat.linesNotParsedCount,
     winningTeamId: losingTeam === '0' ? '1' : '0',
     killedUnitId: deadPlayerId,
-    scoreboard: _.clone(recentScoreboard),
+    scoreboard: _.cloneDeep(recentScoreboard),
     sequenceNumber: recentShuffleRounds.length,
     startTime: combat.startTime,
     endTime,
     hasAdvancedLogging: combat.hasAdvancedLogging,
+    playerId: combat.playerId,
     playerTeamId: combat.playerTeamId,
     playerTeamRating: combat.playerTeamRating,
     result: result,
@@ -186,12 +196,12 @@ export const segmentToCombat = () => {
               durationInSeconds: (decoded.combat.endTime - recentShuffleRoundsBuffer[0].startTime) / 1000,
             };
             recentShuffleRoundsBuffer = [];
-            recentScoreboardBuffer = {};
+            recentScoreboardBuffer = [];
             return shuf;
           }
           // Reset buffer also if rounds are invalid...
           recentShuffleRoundsBuffer = [];
-          recentScoreboardBuffer = {};
+          recentScoreboardBuffer = [];
         } else {
           const combat = new CombatData('retail');
           combat.startTime = segment.events[0].timestamp || 0;
@@ -209,6 +219,7 @@ export const segmentToCombat = () => {
               startTime: combat.startTime,
               endTime: combat.endTime,
               units: combat.units,
+              playerId: combat.playerId,
               playerTeamId: combat.playerTeamId,
               playerTeamRating: combat.playerTeamRating,
               result: combat.result,

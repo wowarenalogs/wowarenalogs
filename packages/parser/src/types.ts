@@ -81,10 +81,38 @@ export enum CombatUnitReaction {
   Hostile,
 }
 
+export enum CombatUnitAffiliation {
+  None,
+  Mine,
+  Party,
+  Raid,
+  Outsider,
+}
+
 export enum CombatUnitType {
   None,
+  /**
+   * Units directly controlled by players.
+   */
   Player,
+  /**
+   * Units controlled by the server.
+   */
+  NPC,
+  /**
+   * Pets are units controlled by a player or NPC, including via mind control.
+   */
   Pet,
+  /**
+   * Units that are not controlled, but automatically defend their master.
+   * Includes totems and totem-like objects such as War Banner
+   * Traps?
+   */
+  Guardian,
+  /**
+   * Objects are everything else
+   */
+  Object,
 }
 
 export enum CombatUnitClass {

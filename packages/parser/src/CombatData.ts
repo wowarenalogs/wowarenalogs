@@ -14,6 +14,7 @@ import { classMetadata } from './classMetadata';
 import {
   CombatEvent,
   CombatResult,
+  CombatUnitAffiliation,
   CombatUnitClass,
   CombatUnitReaction,
   CombatUnitSpec,
@@ -77,7 +78,16 @@ export interface IArenaCombat {
   endTime: number;
 
   /**
+   * Id of player who recorded the match
+   * Based on https://wowpedia.fandom.com/wiki/UnitFlag
+   * COMBATLOG_OBJECT_AFFILIATION_MINE
+   */
+  playerId: string;
+
+  /**
    * Team of player who recorded the match
+   * Based on https://wowpedia.fandom.com/wiki/UnitFlag
+   * COMBATLOG_OBJECT_REACTION_FRIENDLY
    */
   playerTeamId: string;
 
@@ -137,7 +147,7 @@ export interface IShuffleRound extends IArenaCombat {
   /**
    * Scoreboard at the end of the round
    */
-  scoreboard: { [unitId: string]: number };
+  scoreboard: { unitId: string; wins: number }[];
 
   /**
    * Round number of the shulffe round, 0-5
@@ -171,8 +181,8 @@ export interface IArenaMatch extends IArenaCombat {
 }
 
 /**
-* Union type for IArenaMatch and IShuffleRound.
-*/
+ * Union type for IArenaMatch and IShuffleRound.
+ */
 export type AtomicArenaCombat = IArenaMatch | IShuffleRound;
 
 /**
@@ -235,6 +245,7 @@ export class CombatData {
   public startTime = 0;
   public endTime = 0;
   public units: { [unitId: string]: CombatUnit } = {};
+  public playerId = '';
   public playerTeamId = '';
   public playerTeamRating = 0;
   public result: CombatResult = CombatResult.Unknown;
@@ -655,9 +666,13 @@ export class CombatData {
     const playerUnits = Array.from(_.values(this.units)).filter((unit) => unit.type === CombatUnitType.Player);
     const deadPlayerCount = playerUnits.filter((p) => p.deathRecords.length > 0).length;
 
+    const recordingPlayer = playerUnits.find((p) => p.affiliation === CombatUnitAffiliation.Mine);
+
     if (this.playerTeamId) {
       this.playerTeamRating = this.playerTeamId === '0' ? this.endInfo?.team0MMR || 0 : this.endInfo?.team1MMR || 0;
     }
+
+    this.playerId = recordingPlayer?.id || '';
 
     if (this.endInfo) {
       if (this.endInfo.winningTeamId === this.playerTeamId) {
