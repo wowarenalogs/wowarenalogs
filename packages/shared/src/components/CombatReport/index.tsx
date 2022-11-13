@@ -1,12 +1,13 @@
-import { IArenaMatch, IShuffleRound } from '@wowarenalogs/parser';
+import { AtomicArenaCombat } from '@wowarenalogs/parser';
 import { useState } from 'react';
 
 import { TimestampDisplay } from '../common/TimestampDisplay';
+import { CombatDeathReports } from './CombatDeathReports';
 import { CombatReportContextProvider } from './CombatReportContext';
 import { CombatSummary } from './CombatSummary';
 
 interface IProps {
-  combat: IArenaMatch | IShuffleRound;
+  combat: AtomicArenaCombat;
   anon?: boolean;
   search?: string;
 }
@@ -77,6 +78,7 @@ export const CombatReport = ({ combat, anon }: IProps) => {
           </a>
         </div>
         <div className="mt-4 mx-2">{activeTab === 'summary' && <CombatSummary />}</div>
+        <div className="mt-4 mx-2">{activeTab === 'death' && <CombatDeathReports />}</div>
       </div>
     </CombatReportContextProvider>
   );

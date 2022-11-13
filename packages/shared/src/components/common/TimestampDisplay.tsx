@@ -12,7 +12,7 @@ export function TimestampDisplay(props: IProps) {
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(moment.now());
-    }, 30 * 1000);
+    }, 5 * 1000);
 
     return () => {
       window.clearInterval(timer);
