@@ -18,9 +18,6 @@
   "include": ["src/"],
   "references": [
     {
-      "path": "../shared"
-    },
-    {
       "path": "../parser"
     }
   ]

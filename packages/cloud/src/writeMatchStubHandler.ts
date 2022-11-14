@@ -2,7 +2,7 @@ import { Firestore } from '@google-cloud/firestore';
 import { instanceToPlain } from 'class-transformer';
 import fetch from 'node-fetch';
 
-import { WoWCombatLogParser, WowVersion, IArenaMatch, IShuffleMatch } from '@wowarenalogs/parser';
+import { WoWCombatLogParser, WowVersion, IArenaMatch, IShuffleMatch } from '../../parser/dist/index';
 import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from './createMatchStub';
 
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
@@ -72,6 +72,7 @@ async function handler(file: any, context: any) {
       stub.utcCorrected = true;
     }
     const document = firestore.doc(`${matchStubsFirestore}/${stub['id']}`);
+    console.log(`writing ${matchStubsFirestore}/${stub['id']}`);
     await document.set(instanceToPlain(stub));
     return;
   }
@@ -79,19 +80,23 @@ async function handler(file: any, context: any) {
   if (parseResults.shuffleMatches.length > 0) {
     const shuffleMatch = parseResults.shuffleMatches[0];
     const stubs = createStubDTOFromShuffleMatch(shuffleMatch, ownerId, logObjectUrl);
-    stubs.forEach((stub) => {
+    stubs.forEach(async (stub) => {
+      console.log(`processing stub ${stub.id}`);
       if (startTimeUTC) {
         stub.startTime = parseFloat(startTimeUTC);
         stub.utcCorrected = true;
       }
-    });
-
-    const promises = stubs.map((stub) => async () => {
-      const document = firestore.doc(`${matchStubsFirestore}/${stub['id']}`);
+      const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
       await document.set(instanceToPlain(stub));
     });
 
-    await Promise.all(promises);
+    // const promises = stubs.map((stub) => () => {
+    //   const document = firestore.doc(`${matchStubsFirestore}/${stub['id']}`);
+    //   console.log(`writing ${matchStubsFirestore}/${stub['id']}`);
+    //   return document.set(instanceToPlain(stub));
+    // });
+
+    // await Promise.all(promises);
     return;
   }
   console.log('Parser did not find useable matches');

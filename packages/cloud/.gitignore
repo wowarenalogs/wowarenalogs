@@ -3,3 +3,4 @@
 node_modules
 .serverless
 gcp_service_account.json
+wowarenalogs-public-dev.json

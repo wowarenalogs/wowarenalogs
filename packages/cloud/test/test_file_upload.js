@@ -3,13 +3,15 @@ const fs = require('fs');
 
 const STAGE = 'dev';
 
+const functionURL = 'us-central1-wowarenalogs.cloudfunctions.net';
+
 /*
   Submits combat logs to the arena matches service
 */
 async function uploadFile(fullFilePath, hashedName) {
   console.log('Uploading file', fullFilePath, hashedName);
   const s3_preflight = await fetch(
-    `https://us-central1-wowarenalogs.cloudfunctions.net/gcp-wowarenalogs-${STAGE}-getUploadSignature?name=${hashedName}`,
+    `https://${functionURL}/gcp-wowarenalogs-${STAGE}-getUploadSignature?name=${hashedName}`,
     {
       method: 'OPTIONS',
       headers: {
@@ -21,7 +23,7 @@ async function uploadFile(fullFilePath, hashedName) {
   console.log(s3_preflight.headers);
 
   const s3_signed_response = await fetch(
-    `https://us-central1-wowarenalogs.cloudfunctions.net/gcp-wowarenalogs-${STAGE}-getUploadSignature?name=${hashedName}`,
+    `https://${functionURL}/gcp-wowarenalogs-${STAGE}-getUploadSignature?name=${hashedName}`,
     {
       headers: {
         'content-type': 'text/plain;charset=UTF-8',

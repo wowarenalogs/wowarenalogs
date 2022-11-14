@@ -4,7 +4,7 @@ import { instanceToPlain } from 'class-transformer';
 import fetch from 'node-fetch';
 import { Readable } from 'stream';
 
-import { WowVersion } from '@wowarenalogs/parser';
+import { WowVersion } from '../../parser/dist/index';
 import { anonymizeDTO, applyCIIMap } from './anonymizer';
 import { createStubDTOFromArenaMatch } from './createMatchStub';
 import { parseFromStringArrayAsync } from './writeMatchStubHandler';

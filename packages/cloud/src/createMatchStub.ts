@@ -1,9 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Timestamp } from '@google-cloud/firestore';
 import _ from 'lodash';
 import moment from 'moment';
-import { ICombatDataStub } from '@wowarenalogs/shared';
-import { IArenaMatch, IShuffleRound, CombatUnitType, CombatUnitSpec, IShuffleMatch } from '@wowarenalogs/parser';
+
+// Do not reference with @shared here -- this ref style is needed to preserve tsconfig settings
+// for the application build in @shared
+import { ICombatDataStub } from '../../shared/src/graphql-server/types/index';
+
+import { IArenaMatch, IShuffleRound, CombatUnitType, CombatUnitSpec, IShuffleMatch } from '../../parser/dist/index';
 
 export function nullthrows<T>(value: T | null | undefined): T {
   if (value === null || value === undefined) {
@@ -142,18 +145,19 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
 
   const inThirtyDays = moment().add(30, 'days');
   const unitsList = _.values(lastRound.units).map((c) => {
-    if (!c.info) throw new Error(`Could not find player info for ${c.id}`);
     return {
       id: c.id,
       name: c.name,
-      info: {
-        teamId: c.info.teamId,
-        specId: c.info.specId,
-        talents: c.info.talents,
-        pvpTalents: c.info.pvpTalents,
-        personalRating: c.info.personalRating,
-        highestPvpTier: c.info.highestPvpTier,
-      },
+      info: c.info
+        ? {
+            teamId: c.info.teamId,
+            specId: c.info.specId,
+            talents: c.info.talents,
+            pvpTalents: c.info.pvpTalents,
+            personalRating: c.info.personalRating,
+            highestPvpTier: c.info.highestPvpTier,
+          }
+        : undefined,
       type: c.type,
       class: c.class,
       spec: c.spec,

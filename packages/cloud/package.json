@@ -5,7 +5,7 @@
   "main": "index.js",
   "author": "prsauer",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build tsconfig.json",
     "deploy:dev": "tsc && serverless deploy --stage dev",
     "deploy:prod": "tsc && serverless deploy --stage prod"
   },
@@ -17,10 +17,9 @@
     "serverless-google-cloudfunctions": "^3.1.1"
   },
   "dependencies": {
-    "@google-cloud/bigquery": "^5.5.0",
-    "@google-cloud/firestore": "^4.9.1",
-    "@google-cloud/functions-framework": "^1.7.1",
-    "@google-cloud/storage": "^5.7.4",
+    "@google-cloud/firestore": "^6.4.1",
+    "@google-cloud/functions-framework": "^3.1.2",
+    "@google-cloud/storage": "^6.7.0",
     "aws-sdk": "^2.834.0",
     "class-transformer": "^0.5.0",
     "eventemitter3": "^4.0.7",

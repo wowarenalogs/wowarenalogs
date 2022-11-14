@@ -4,11 +4,19 @@ This repo contains cloud functions that handle match ingress, data storage, and 
 
 ## Deployment
 
-`yarn tsc`
-`serverless deploy --stage dev`
+Currently the distribution build of the parser must be manually injected:
+
+From repo root:
+`npm run build:parser`
+`copy parser/dist to cloud/parser/dist`
+
+In /cloud:
+`npm install`
+`npm run build`
+
+`npm run deploy:dev`
 or
-`yarn tsc`
-`serverless deploy --stage prod`
+`npm run deploy:prod`
 
 ## Manual steps to config env:
 
