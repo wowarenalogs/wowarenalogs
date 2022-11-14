@@ -89,14 +89,6 @@ async function handler(file: any, context: any) {
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
       await document.set(instanceToPlain(stub));
     });
-
-    // const promises = stubs.map((stub) => () => {
-    //   const document = firestore.doc(`${matchStubsFirestore}/${stub['id']}`);
-    //   console.log(`writing ${matchStubsFirestore}/${stub['id']}`);
-    //   return document.set(instanceToPlain(stub));
-    // });
-
-    // await Promise.all(promises);
     return;
   }
   console.log('Parser did not find useable matches');
