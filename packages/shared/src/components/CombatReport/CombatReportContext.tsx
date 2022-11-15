@@ -23,7 +23,7 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
   combat: null,
   isAnonymized: true,
   activePlayerId: null,
-  navigateToPlayerView: (_playerId: string) => {};
+  navigateToPlayerView: (_playerId: string) => {},
   players: [],
   friends: [],
   enemies: [],
