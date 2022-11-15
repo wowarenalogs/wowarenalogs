@@ -59,7 +59,7 @@ export const segmentToCombat = () => {
             },
             durationInSeconds: (nullthrows(combat.endInfo).timestamp - nullthrows(combat.startInfo).timestamp) / 1000,
             endInfo: nullthrows(combat.endInfo),
-            winningTeamId: 'TODO: WRITE THIS!',
+            winningTeamId: nullthrows(combat.endInfo?.winningTeamId),
           };
           return plainCombatDataObject;
         }

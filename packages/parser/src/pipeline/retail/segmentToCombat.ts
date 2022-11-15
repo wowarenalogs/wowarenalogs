@@ -122,7 +122,7 @@ function decodeShuffleRound(
   const endTime = combat.endInfo ? combat.endInfo.timestamp : deathRecords[0].timestamp;
 
   const rv: IShuffleRound = {
-    id: combat.id,
+    id: computeCanonicalHash(segment.lines),
     wowVersion: 'retail',
     dataType: 'ShuffleRound',
     startInfo: nullthrows(combat.startInfo),
@@ -186,7 +186,7 @@ export const segmentToCombat = () => {
             const shuf: IShuffleMatch = {
               wowVersion: 'retail',
               dataType: 'ShuffleMatch',
-              id: decoded.combat.id, // TODO: which id to use??
+              id: decoded.shuffle.id, // Using id of last round
               startTime: recentShuffleRoundsBuffer[0].startTime,
               endTime: decoded.combat.endTime,
               result: decoded.combat.result,
