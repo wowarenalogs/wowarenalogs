@@ -1,13 +1,14 @@
 import { AtomicArenaCombat, CombatUnitReaction, CombatUnitType, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 import _ from 'lodash';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 
 import { ccSpellIds } from '../../data/spellTags';
 
 interface ICombatReportContextData {
   isAnonymized: boolean;
   combat: AtomicArenaCombat | null;
-  navigateToPlayerView: (unitId: string) => void;
+  activePlayerId: string | null;
+  navigateToPlayerView: (playerId: string) => void;
   players: ICombatUnit[];
   friends: ICombatUnit[];
   enemies: ICombatUnit[];
@@ -21,9 +22,8 @@ interface ICombatReportContextData {
 export const CombatReportContext = React.createContext<ICombatReportContextData>({
   combat: null,
   isAnonymized: true,
-  navigateToPlayerView: (_unitId) => {
-    return;
-  },
+  activePlayerId: null,
+  navigateToPlayerView: (_playerId: string) => {};
   players: [],
   friends: [],
   enemies: [],
@@ -37,11 +37,16 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
 interface IProps {
   combat: AtomicArenaCombat;
   isAnonymized: boolean;
-  navigateToPlayerView: (unitId: string) => void;
   children: React.ReactNode | React.ReactNode[];
 }
 
 export const CombatReportContextProvider = (props: IProps) => {
+  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setActivePlayerId(null);
+  }, [props.combat]);
+
   const [
     players,
     friends,
@@ -139,6 +144,8 @@ export const CombatReportContextProvider = (props: IProps) => {
         players,
         friends,
         enemies,
+        activePlayerId,
+        navigateToPlayerView: setActivePlayerId,
         maxOutputNumber,
         playerTotalDamageOut,
         playerTotalHealOut,
@@ -146,7 +153,6 @@ export const CombatReportContextProvider = (props: IProps) => {
         playerInterrupts,
         combat: props.combat,
         isAnonymized: props.isAnonymized,
-        navigateToPlayerView: props.navigateToPlayerView,
       }}
     >
       {props.children}
