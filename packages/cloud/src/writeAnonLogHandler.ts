@@ -31,7 +31,7 @@ export async function handler(file: any, context: any): Promise<unknown> {
   const response = await fetch(fileUrl);
   const textBuffer = await response.text();
 
-  const ownerId = response.headers.get('x-goog-meta-ownerid') || '';
+  const ownerId = response.headers.get('x-goog-meta-ownerid') || 'unknown-uploader';
   const wowVersion = (response.headers.get('x-goog-meta-wow-version') || 'retail') as WowVersion;
   const startTimeUTC = response.headers.get('x-goog-meta-starttime-utc');
 

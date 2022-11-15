@@ -26,20 +26,6 @@ Create buckets
 
 set cors using cors.json
 
-## Cloud function commands
-
-### Clear temp
-
-gsutil -m rm gs://wowarenalogs-anon-log-files-dev/\*
-
-### Transfer TO temp
-
-gsutil -m cp -r gs://wowarenalogs-log-files-dev/\* gs://wowarenalogs-log-files-temp
-
-### Transfer FROM temp
-
-gsutil -m cp -r gs://wowarenalogs-log-files-temp/\* gs://wowarenalogs-log-files-dev
-
 ## TODO / Random notes:
 
 -Front end must submit year as combat log timestamp format omits this
@@ -71,10 +57,6 @@ PUT is made with buffer to URL with line buffer of single arena match
 
 Cloud function `writeMatchStubHandler` fires when this is saved into Cloud Storage account
 
-The event stream is parsed and summarized and a `MatchStub` object is written to Firestore
+The event stream is parsed and summarized and a stub object is written to Firestore
 
-The resulting `MatchStub` is then queryable on the /graphql endpoint
-
-// TODO: Record data on what permissions the service account needs
-
-// "spires@appspot.gserviceaccount.com" needed "Service Account Token Creator" for the signed URL endpoint to work
+The resulting stub is then queryable on the /graphql endpoint
