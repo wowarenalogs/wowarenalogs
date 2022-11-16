@@ -11,7 +11,7 @@ export class ApplicationModule extends NativeBridgeModule {
 
   @moduleFunction()
   public async setOpenAtLogin(_mainWindow: Electron.BrowserWindow, openAtLogin: boolean): Promise<void> {
-    if (app.isPackaged) {
+    if (!app.isPackaged) {
       // do not make the dev app launch on startup
       return;
     }
