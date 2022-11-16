@@ -170,6 +170,8 @@ export enum CombatUnitSpec {
   Warrior_Arms = '71',
   Warrior_Fury = '72',
   Warrior_Protection = '73',
+  Evoker_Devastation = '1467',
+  Evoker_Preservation = '1468',
 }
 
 export enum CombatUnitPowerType {
