@@ -19,6 +19,13 @@ export interface IClassMetadata {
   abilities: IClassSpellMetadata[];
 }
 
+const Evoker = {
+  unitClass: CombatUnitClass.Evoker,
+  icon: 'https://render.worldofwarcraft.com/us/icons/56/classicon_evoker.jpg',
+  blizNumber: 13,
+  abilities: [],
+};
+
 const Warrior = {
   unitClass: CombatUnitClass.Warrior,
   icon: 'https://render-us.worldofwarcraft.com/icons/56/classicon_warrior.jpg',
@@ -18000,5 +18007,6 @@ export const classMetadata: IClassMetadata[] = [
   Priest,
   Monk,
   Paladin,
+  Evoker,
   Neutral,
 ];
