@@ -14,20 +14,12 @@ interface IProps {
 
 export const CombatReport = ({ combat, anon }: IProps) => {
   const [activeTab, setActiveTab] = useState<string>('summary');
-  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
 
-  const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber : null;
-  const mmr = combat.dataType === 'ArenaMatch' ? combat.endInfo.team0MMR : null;
+  // const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber : null;
+  // const mmr = combat.dataType === 'ArenaMatch' ? combat.endInfo.team0MMR : null;
 
   return (
-    <CombatReportContextProvider
-      combat={combat}
-      isAnonymized={anon || false}
-      navigateToPlayerView={(unitId: string) => {
-        setActiveTab('players');
-        setActivePlayerId(unitId);
-      }}
-    >
+    <CombatReportContextProvider combat={combat} isAnonymized={anon || false}>
       <div className="w-full h-full flex flex-col p-2">
         <div className="flex flex-row items-center px-2">
           <h2 className="text-2xl font-bold">

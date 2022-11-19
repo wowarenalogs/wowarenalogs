@@ -55,11 +55,8 @@ export const CombatSummary = () => {
             <table className="table table-compact w-full h-full">
               <thead>
                 <tr>
-                  <th className="bg-base-300 flex flex-row">
-                    First Blood
-                    <div className="ml-2">
-                      <CombatUnitName unit={allPlayerDeath[0].unit} navigateToPlayerView />
-                    </div>
+                  <th className="bg-base-300">
+                    <CombatUnitName unit={allPlayerDeath[0].unit} navigateToPlayerView />
                   </th>
                 </tr>
               </thead>

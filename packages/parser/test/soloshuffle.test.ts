@@ -43,6 +43,7 @@ describe('solo shuffle tests', () => {
 
       expect(shuffle.rounds.length).toBe(6);
       expect(shuffle.dataType).toBe('ShuffleMatch');
+      expect(shuffle.id).toBe(lastRound.id);
     });
 
     it('should parse round 0', () => {
@@ -68,6 +69,7 @@ describe('solo shuffle tests', () => {
       team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('1'));
       team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('0'));
 
+      expect(round.id).toBe('68bd3de521023a67016dc234d2473558');
       expect(round.dataType).toBe('ShuffleRound');
       expect(round.sequenceNumber).toBe(0);
       expect(round.winningTeamId).toBe('0');

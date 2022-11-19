@@ -363,6 +363,10 @@ export class CombatData {
           case CombatUnitSpec.Warrior_Protection:
             unitClass = CombatUnitClass.Warrior;
             break;
+          case CombatUnitSpec.Evoker_Devastation:
+          case CombatUnitSpec.Evoker_Preservation:
+            unitClass = CombatUnitClass.Evoker;
+            break;
         }
         this.registerCombatant(unitId, {
           spec,

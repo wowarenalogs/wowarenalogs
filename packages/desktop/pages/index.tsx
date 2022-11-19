@@ -9,7 +9,7 @@ const Page = () => {
 
   useEffect(() => {
     if (!isLoading) {
-      if (appConfig.tosAccepted) {
+      if (appConfig.wowDirectory && appConfig.tosAccepted) {
         router.push('/latest');
       } else {
         router.push('/first_time_setup');

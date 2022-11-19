@@ -101,6 +101,8 @@ export const getClassColor = (unitClass: CombatUnitClass): string => {
       return '#8787ED';
     case CombatUnitClass.Warrior:
       return '#C79C6E';
+    case CombatUnitClass.Evoker:
+      return '#33937F';
   }
 };
 

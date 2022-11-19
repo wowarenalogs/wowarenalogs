@@ -7,7 +7,6 @@ import { useAppConfig } from '../AppConfigContext';
 
 type ParserCombatData = IArenaMatch | IShuffleRound;
 
-
 interface ILocalCombatsContextData {
   localCombats: ParserCombatData[];
   appendCombat: (combat: ParserCombatData) => void;
