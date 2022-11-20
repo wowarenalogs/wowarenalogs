@@ -1,14 +1,18 @@
-import { ICombatData } from '@wowarenalogs/parser';
+import { IArenaMatch, IShuffleMatch } from '@wowarenalogs/parser';
 import moment from 'moment-timezone';
 
 export async function uploadCombatAsync(
-  combat: ICombatData,
+  combat: IArenaMatch | IShuffleMatch,
   ownerId: string,
   options?: {
     patchRevision?: string;
   },
 ) {
-  const buffer = combat.rawLines.join('\n');
+  console.log('uploadAsync', { combat, ownerId, options });
+  const buffer =
+    combat.dataType === 'ArenaMatch'
+      ? combat.rawLines.join('\n')
+      : combat.rounds.map((c) => c.rawLines.join('\n')).join('\n');
 
   const headers: Record<string, string> = {
     'content-type': 'text/plain;charset=UTF-8',
@@ -24,10 +28,16 @@ export async function uploadCombatAsync(
     headers['x-goog-meta-wow-patch-rev'] = options.patchRevision;
   }
 
+  console.log('calling upload signature');
   const storageSignerResponse = await fetch(`/api/getCombatUploadSignature/${combat.id}`, { headers });
   const jsonResponse = await storageSignerResponse.json();
   const signedUploadUrl = jsonResponse.url;
 
+  console.log(signedUploadUrl, {
+    method: 'PUT',
+    body: buffer,
+    headers,
+  });
   return fetch(signedUploadUrl, {
     method: 'PUT',
     body: buffer,

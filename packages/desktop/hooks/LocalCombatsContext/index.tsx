@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { IArenaMatch, IShuffleRound } from '@wowarenalogs/parser';
-import { logAnalyticsEvent, useAuth } from '@wowarenalogs/shared';
+import { logAnalyticsEvent, uploadCombatAsync, useAuth } from '@wowarenalogs/shared';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { useAppConfig } from '../AppConfigContext';
@@ -44,8 +44,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
           })
         )
           if (wowVersion === combat.wowVersion) {
-            // TODO: write upload utiltiy
-            // SharedUtils.uploadCombatAsync(combat, userId);
+            uploadCombatAsync(combat, auth.userId);
 
             // console.log('combatMonitorEffect.handleNewCombat', combat);
             // TODO: a more robust way of making sure the handlers only sign up for a single version
@@ -68,7 +67,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         if (wowVersion === combat.wowVersion) {
           console.log('ShuffleEnded');
           console.log(combat);
-          // TODO: holistic support for suffle matches
+          uploadCombatAsync(combat, auth.userId);
         }
       });
 
