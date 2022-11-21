@@ -208,18 +208,19 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
 function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjectUrl: string): FirebaseDTO {
   const inThirtyDays = moment().add(30, 'days');
   const unitsList = _.values(com.units).map((c) => {
-    if (!c.info) throw new Error(`Could not find player info for ${c.id}`);
     return {
       id: c.id,
       name: c.name,
-      info: {
-        teamId: c.info.teamId,
-        specId: c.info.specId,
-        talents: c.info.talents,
-        pvpTalents: c.info.pvpTalents,
-        personalRating: c.info.personalRating,
-        highestPvpTier: c.info.highestPvpTier,
-      },
+      info: c.info
+        ? {
+            teamId: c.info.teamId,
+            specId: c.info.specId,
+            talents: c.info.talents,
+            pvpTalents: c.info.pvpTalents,
+            personalRating: c.info.personalRating,
+            highestPvpTier: c.info.highestPvpTier,
+          }
+        : undefined,
       type: c.type,
       class: c.class,
       spec: c.spec,
