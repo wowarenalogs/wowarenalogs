@@ -44,7 +44,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
           })
         )
           if (wowVersion === combat.wowVersion) {
-            uploadCombatAsync(combat, auth.userId);
+            uploadCombatAsync(combat, auth.battlenetId);
 
             // console.log('combatMonitorEffect.handleNewCombat', combat);
             // TODO: a more robust way of making sure the handlers only sign up for a single version
@@ -67,7 +67,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         if (wowVersion === combat.wowVersion) {
           console.log('ShuffleEnded');
           console.log(combat);
-          uploadCombatAsync(combat, auth.userId);
+          uploadCombatAsync(combat, auth.battlenetId);
         }
       });
 
@@ -92,7 +92,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         cleanup();
       });
     };
-  }, [wowInstallations, auth.userId]);
+  }, [wowInstallations, auth.userId, auth.battlenetId]);
 
   return (
     <LocalCombatsContext.Provider

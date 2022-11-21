@@ -90,6 +90,7 @@ fragment shuffleInfos on ShuffleRoundStub {
     ...endInfos
   }
   shuffleMatchResult
+  shuffleMatchId
 }
 
 query GetPublicMatches(
@@ -149,6 +150,7 @@ query GetProfile {
   me {
     id
     battletag
+    battlenetId
     referrer
     subscriptionTier
     tags

@@ -6,6 +6,7 @@ import { getAnalyticsDeviceId, getAnalyticsSessionId, setAnalyticsUserProperties
 import { useClientContext } from '../ClientContext';
 
 interface WALUser extends User {
+  battlenetId: string;
   battletag: string;
   id: string;
 }
@@ -64,13 +65,18 @@ export const useAuth = () => {
 
   let userId = null;
   let battleTag = null;
+  let battlenetId = null;
   if (contextData.session?.user) {
     userId = contextData.session.user?.id;
     battleTag = contextData.session.user?.battletag;
+    battlenetId = contextData.session.user?.battlenetId;
   }
 
   if (!userId) {
     userId = `anonymous:${getAnalyticsDeviceId()}:${getAnalyticsSessionId()}`;
+  }
+  if (!battlenetId) {
+    battlenetId = userId;
   }
 
   return {
@@ -78,6 +84,7 @@ export const useAuth = () => {
     isAuthenticated: contextData.session?.user != null,
     userId,
     battleTag,
+    battlenetId,
     signIn,
     signOut,
   };

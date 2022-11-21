@@ -15,10 +15,5 @@
     "isolatedModules": true,
     "outDir": "dist"
   },
-  "include": ["src/"],
-  "references": [
-    {
-      "path": "../parser"
-    }
-  ]
+  "include": ["src/"]
 }

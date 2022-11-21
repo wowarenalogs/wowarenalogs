@@ -22,7 +22,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "Int",
+                "name": "Float",
                 "ofType": null
               }
             },
@@ -797,6 +797,18 @@
         "description": null,
         "fields": [
           {
+            "name": "battlenetId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "battletag",
             "description": null,
             "args": [],
@@ -1280,7 +1292,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "Int",
+                "name": "Float",
                 "ofType": null
               }
             },
@@ -1482,6 +1494,18 @@
             "type": {
               "kind": "OBJECT",
               "name": "ArenaMatchEndInfo",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "shuffleMatchId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,

@@ -8,7 +8,6 @@ export async function uploadCombatAsync(
     patchRevision?: string;
   },
 ) {
-  console.log('uploadAsync', { combat, ownerId, options });
   const buffer =
     combat.dataType === 'ArenaMatch'
       ? combat.rawLines.join('\n')

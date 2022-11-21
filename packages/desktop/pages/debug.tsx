@@ -1,3 +1,4 @@
+import { CombatResult } from '@wowarenalogs/parser';
 import { useAuth } from '@wowarenalogs/shared';
 import { useClientContext } from '@wowarenalogs/shared';
 import { useGetMyMatchesQuery, useGetProfileQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
@@ -53,32 +54,31 @@ const Debug = () => {
             matchesQuery
             <ul>
               <li>loading:{matchesQuery.loading.toString()}</li>
+              <li>data: {matchesQuery.data?.myMatches.combats.length} entries</li>
               {matchesQuery.data?.myMatches.combats.map((c) => {
                 if (c.__typename === 'ArenaMatchDataStub') {
                   return (
-                    <div key={c.id}>
-                      <div>
-                        arenaMatch
-                        {c.id} {c.playerId} {c.playerTeamId} {c.playerTeamRating} {c.result} {c.durationInSeconds}
-                      </div>
-                      <div>extra: {c.endInfo?.team0MMR}</div>
+                    <div key={c.id} title={c.id} className="flex flex-row gap-4">
+                      <div>ArenaMatch</div>
+                      <div>{c.playerTeamRating}</div>
+                      <div>{CombatResult[c.result]}</div>
+                      <div>{Math.round(c.durationInSeconds)}s</div>
                     </div>
                   );
                 }
                 if (c.__typename === 'ShuffleRoundStub') {
                   return (
-                    <div key={c.id}>
-                      <div>
-                        shuffle
-                        {c.id} {c.playerId} {c.playerTeamId} {c.playerTeamRating} {c.result} {c.durationInSeconds}
-                      </div>
-                      <div>extra: {c.sequenceNumber}</div>
+                    <div key={c.id} title={c.id} className="flex flex-row gap-4">
+                      <div>ShuffleRound {c.sequenceNumber}</div>
+                      <div>{c.playerTeamRating}</div>
+                      <div>{CombatResult[c.result]}</div>
+                      <div>{Math.round(c.durationInSeconds)}s</div>
+                      <div>matchId={c.shuffleMatchId?.slice(0, 5)}</div>
                     </div>
                   );
                 }
                 return <div key={c.id}>error {c.id}</div>;
               })}
-              <li>data: {matchesQuery.data?.myMatches.combats.length} matches</li>
             </ul>
           </div>
         </div>

@@ -19,6 +19,7 @@ export function nullthrows<T>(value: T | null | undefined): T {
   This DTO adds some fields to make queries less index intensive and easier to write
 */
 export type FirebaseDTO = ICombatDataStub & {
+  shuffleMatchId?: string;
   combatantNames: string[];
   combatantGuids: string[];
   extra: QueryHelpers;

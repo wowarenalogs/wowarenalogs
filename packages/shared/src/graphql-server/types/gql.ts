@@ -3,6 +3,7 @@ import { gql } from 'apollo-server-micro';
 export const typeDefs = gql`
   type IUser {
     id: String!
+    battlenetId: String
     battletag: String
     referrer: String
     subscriptionTier: String!
@@ -38,7 +39,7 @@ export const typeDefs = gql`
     playerTeamRating: Int!
     hasAdvancedLogging: Boolean!
     utcCorrected: Boolean
-    durationInSeconds: Int!
+    durationInSeconds: Float!
   }
   type ScoreboardEntry {
     unitId: String!
@@ -59,12 +60,13 @@ export const typeDefs = gql`
     playerTeamRating: Int!
     hasAdvancedLogging: Boolean!
     utcCorrected: Boolean
-    durationInSeconds: Int!
+    durationInSeconds: Float!
     killedUnitId: String!
     scoreboard: [ScoreboardEntry]
     sequenceNumber: Int!
     shuffleMatchEndInfo: ArenaMatchEndInfo
     shuffleMatchResult: Int
+    shuffleMatchId: String
   }
 
   union CombatDataStub = ShuffleRoundStub | ArenaMatchDataStub
