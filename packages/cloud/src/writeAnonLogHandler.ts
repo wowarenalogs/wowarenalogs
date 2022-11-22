@@ -1,5 +1,5 @@
 import { Firestore } from '@google-cloud/firestore';
-import { Storage } from '@google-cloud/storage';
+import { Storage as GoogleCloudStorage } from '@google-cloud/storage';
 import { instanceToPlain } from 'class-transformer';
 import fetch from 'node-fetch';
 import { Readable } from 'stream';
@@ -17,7 +17,7 @@ const firestore = new Firestore({
   ignoreUndefinedProperties: true,
 });
 
-const storage = new Storage({
+const storage = new GoogleCloudStorage({
   projectId,
 });
 
@@ -25,7 +25,7 @@ const bucket = storage.bucket(anonFilesBucket);
 
 // In the Google code they actually type file as `data:{}`
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function handler(file: any, context: any): Promise<unknown> {
+export async function handler(file: any, _context: any): Promise<unknown> {
   const fileUrl = `https://storage.googleapis.com/${file.bucket}/${file.name}`;
   console.log(`Opening ${fileUrl}`);
   const response = await fetch(fileUrl);
@@ -55,7 +55,7 @@ export async function handler(file: any, context: any): Promise<unknown> {
   anonReadStream.push(null);
 
   // Set object URL, write stream
-  const anonFileName = anonymousStub['id'];
+  const anonFileName = anonymousStub.id;
   anonymousStub.logObjectUrl = `https://storage.googleapis.com/${anonFilesBucket}/${anonFileName}`;
   const anonFile = bucket.file(anonFileName);
   const anonStream = anonFile.createWriteStream();
@@ -69,9 +69,9 @@ export async function handler(file: any, context: any): Promise<unknown> {
       })
       .on('finish', function () {
         console.log(`Anon log written: ${anonFileName}`);
-        const document = firestore.doc(`${matchStubsFirestore}/${anonymousStub['id']}`);
+        const document = firestore.doc(`${matchStubsFirestore}/${anonymousStub.id}`);
         document.set(instanceToPlain(anonymousStub)).then(() => {
-          console.log(`Stub written: ${matchStubsFirestore}/${anonymousStub['id']}`);
+          console.log(`Stub written: ${matchStubsFirestore}/${anonymousStub.id}`);
           res(true);
         });
       });

@@ -2,11 +2,10 @@ import { Timestamp } from '@google-cloud/firestore';
 import _ from 'lodash';
 import moment from 'moment';
 
+import { CombatUnitSpec, CombatUnitType, IArenaMatch, IShuffleMatch, IShuffleRound } from '../../parser/dist/index';
 // Do not reference with @shared here -- this ref style is needed to preserve tsconfig settings
 // for the application build in @shared
 import { ICombatDataStub } from '../../shared/src/graphql-server/types/index';
-
-import { IArenaMatch, IShuffleRound, CombatUnitType, CombatUnitSpec, IShuffleMatch } from '../../parser/dist/index';
 
 export function nullthrows<T>(value: T | null | undefined): T {
   if (value === null || value === undefined) {
@@ -42,15 +41,7 @@ interface MMRIndexFields {
 }
 interface QueryHelpers extends SpecIndexFields, MMRIndexFields {}
 
-function all_combinations(set: any[]) {
-  let combs: any[] = [];
-  for (let i = 0; i < set.length; i++) {
-    combs = combs.concat(k_combinations(set, i + 1));
-  }
-  return combs;
-}
-
-function k_combinations(set: any[], k: number): any[] {
+function kCombinations(set: any[], k: number): any[] {
   // https://gist.github.com/axelpale/3118596
   let i, j, combs, head, tailcombs;
   if (k > set.length || k <= 0) {
@@ -69,10 +60,18 @@ function k_combinations(set: any[], k: number): any[] {
   combs = [];
   for (i = 0; i < set.length - k + 1; i++) {
     head = set.slice(i, i + 1);
-    tailcombs = k_combinations(set.slice(i + 1), k - 1);
+    tailcombs = kCombinations(set.slice(i + 1), k - 1);
     for (j = 0; j < tailcombs.length; j++) {
       combs.push(head.concat(tailcombs[j]));
     }
+  }
+  return combs;
+}
+
+function allCombinations(set: any[]) {
+  let combs: any[] = [];
+  for (let i = 0; i < set.length; i++) {
+    combs = combs.concat(kCombinations(set, i + 1));
   }
   return combs;
 }
@@ -111,8 +110,8 @@ function buildQueryHelpers(com: IArenaMatch | IShuffleRound): SpecIndexFields {
     .filter((u) => u.info?.teamId === '1')
     .map((u) => (u.spec === CombatUnitSpec.None ? `c${u.class}` : u.spec))
     .sort();
-  const team0sss = all_combinations(team0specs).map((s: string[]) => s.join('_'));
-  const team1sss = all_combinations(team1specs).map((s: string[]) => s.join('_'));
+  const team0sss = allCombinations(team0specs).map((s: string[]) => s.join('_'));
+  const team1sss = allCombinations(team1specs).map((s: string[]) => s.join('_'));
   let singleSidedSpecsWinners = [];
   if (com.winningTeamId === '0') {
     singleSidedSpecsWinners = team0sss;

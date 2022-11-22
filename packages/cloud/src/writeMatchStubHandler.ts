@@ -2,11 +2,10 @@ import { Firestore } from '@google-cloud/firestore';
 import { instanceToPlain } from 'class-transformer';
 import fetch from 'node-fetch';
 
-import { WoWCombatLogParser, WowVersion, IArenaMatch, IShuffleMatch } from '../../parser/dist/index';
+import { IArenaMatch, IShuffleMatch, WoWCombatLogParser, WowVersion } from '../../parser/dist/index';
 import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from './createMatchStub';
 
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
-const stage: string = process.env.ENV_STAGE || 'dev';
 
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
@@ -45,7 +44,7 @@ export function parseFromStringArrayAsync(buffer: string[], wowVersion: WowVersi
 
 // In the Google code they actually type file as `data:{}`
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function handler(file: any, context: any) {
+async function handler(file: any, _context: any) {
   const fileUrl = `https://storage.googleapis.com/${file.bucket}/${file.name}`;
 
   console.log(`Opening ${fileUrl}`);
@@ -71,8 +70,8 @@ async function handler(file: any, context: any) {
       stub.startTime = parseFloat(startTimeUTC);
       stub.utcCorrected = true;
     }
-    const document = firestore.doc(`${matchStubsFirestore}/${stub['id']}`);
-    console.log(`writing ${matchStubsFirestore}/${stub['id']}`);
+    const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
+    console.log(`writing ${matchStubsFirestore}/${stub.id}`);
     await document.set(instanceToPlain(stub));
     return;
   }

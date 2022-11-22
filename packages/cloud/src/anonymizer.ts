@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import md5 from 'md5';
-import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
+import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 import { v4 as uuidv4 } from 'uuid';
 
 import { CombatUnitType } from '../../parser/dist/index';
