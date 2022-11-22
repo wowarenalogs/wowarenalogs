@@ -1,14 +1,17 @@
-import { ICombatData } from '@wowarenalogs/parser';
+import { IArenaMatch, IShuffleMatch } from '@wowarenalogs/parser';
 import moment from 'moment-timezone';
 
 export async function uploadCombatAsync(
-  combat: ICombatData,
+  combat: IArenaMatch | IShuffleMatch,
   ownerId: string,
   options?: {
     patchRevision?: string;
   },
 ) {
-  const buffer = combat.rawLines.join('\n');
+  const buffer =
+    combat.dataType === 'ArenaMatch'
+      ? combat.rawLines.join('\n')
+      : combat.rounds.map((c) => c.rawLines.join('\n')).join('\n');
 
   const headers: Record<string, string> = {
     'content-type': 'text/plain;charset=UTF-8',

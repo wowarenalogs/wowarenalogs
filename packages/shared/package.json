@@ -9,7 +9,7 @@
   },
   "scripts": {
     "codegen": "graphql-codegen --config codegen.yml",
-    "codegen:dev": "graphql-codegen --config codegen.dev.yml"
+    "codegen:dev": "graphql-codegen --config codegen.dev.yml --verbose"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.13.8",
@@ -37,6 +37,7 @@
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "@google-cloud/firestore": "^5.0.2",
+    "@google-cloud/storage": "^6.7.0",
     "@tailwindcss/typography": "^0.5.7",
     "@wowarenalogs/parser": "^5.0.0",
     "apollo-server-micro": "^3.9.0",

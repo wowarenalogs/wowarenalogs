@@ -2,7 +2,7 @@ import { ApolloServer } from 'apollo-server-micro';
 import { getSession } from 'next-auth/react';
 
 import { resolvers } from './resolvers';
-import { typeDefs } from './types';
+import { typeDefs } from './types/gql';
 
 export const graphqlServer = new ApolloServer({
   typeDefs,

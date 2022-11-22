@@ -1,6 +1,5 @@
-/* eslint-disable no-console */
 import { IArenaMatch, IShuffleRound } from '@wowarenalogs/parser';
-import { logAnalyticsEvent, useAuth } from '@wowarenalogs/shared';
+import { logAnalyticsEvent, uploadCombatAsync, useAuth } from '@wowarenalogs/shared';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { useAppConfig } from '../AppConfigContext';
@@ -44,11 +43,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
           })
         )
           if (wowVersion === combat.wowVersion) {
-            // TODO: write upload utiltiy
-            // SharedUtils.uploadCombatAsync(combat, userId);
-
-            // console.log('combatMonitorEffect.handleNewCombat', combat);
-            // TODO: a more robust way of making sure the handlers only sign up for a single version
+            uploadCombatAsync(combat, auth.battlenetId);
             setCombats((prev) => {
               return prev.concat([combat]);
             });
@@ -57,7 +52,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleSoloShuffleRoundEnded((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
-          console.log(`${wowVersion} ShuffleRoundEnded Round ${combat.sequenceNumber}, killed: ${combat.killedUnitId}`);
           setCombats((prev) => {
             return prev.concat([combat]);
           });
@@ -66,15 +60,15 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleSoloShuffleEnded((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
-          console.log('ShuffleEnded');
-          console.log(combat);
-          // TODO: holistic support for suffle matches
+          uploadCombatAsync(combat, auth.battlenetId);
         }
       });
 
       window.wowarenalogs.logs?.handleMalformedCombatDetected((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
+          // eslint-disable-next-line no-console
           console.log('Malformed combat');
+          // eslint-disable-next-line no-console
           console.log(combat);
         }
       });
@@ -93,7 +87,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         cleanup();
       });
     };
-  }, [wowInstallations, auth.userId]);
+  }, [wowInstallations, auth.userId, auth.battlenetId]);
 
   return (
     <LocalCombatsContext.Provider
