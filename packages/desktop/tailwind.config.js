@@ -5,10 +5,14 @@ module.exports = {
     '../shared/src/components/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        'spin-slow': 'spin 3s linear infinite',
+      },
+    },
   },
   plugins: [require('@tailwindcss/typography'), require('daisyui')],
   daisyui: {
-    themes: ['halloween']
-  }
+    themes: ['halloween'],
+  },
 };

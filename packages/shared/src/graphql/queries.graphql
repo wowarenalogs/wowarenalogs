@@ -27,6 +27,7 @@ fragment combatantInfos on CombatantInfo {
 fragment unitInfos on CombatUnitStub {
   id
   name
+  affiliation
   info {
     ...combatantInfos
   }

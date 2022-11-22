@@ -81,8 +81,8 @@ export interface ICombatUnitStub
   info?: ICombatantInfoStub;
 }
 
-interface IArenaMatchStub extends Omit<IArenaMatch, 'units' | 'events' | 'rawLines'> {}
-interface IShuffleRoundStub extends Omit<IShuffleRound, 'units' | 'events' | 'rawLines'> {}
+export interface IArenaMatchStub extends Omit<IArenaMatch, 'units' | 'events' | 'rawLines'> {}
+export interface IShuffleRoundStub extends Omit<IShuffleRound, 'units' | 'events' | 'rawLines'> {}
 
 interface IUnitsStub {
   /**
