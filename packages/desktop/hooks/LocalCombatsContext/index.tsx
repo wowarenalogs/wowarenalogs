@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { IArenaMatch, IShuffleRound } from '@wowarenalogs/parser';
 import { logAnalyticsEvent, uploadCombatAsync, useAuth } from '@wowarenalogs/shared';
 import React, { useContext, useEffect, useState } from 'react';
@@ -45,9 +44,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         )
           if (wowVersion === combat.wowVersion) {
             uploadCombatAsync(combat, auth.battlenetId);
-
-            // console.log('combatMonitorEffect.handleNewCombat', combat);
-            // TODO: a more robust way of making sure the handlers only sign up for a single version
             setCombats((prev) => {
               return prev.concat([combat]);
             });
@@ -56,7 +52,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleSoloShuffleRoundEnded((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
-          console.log(`${wowVersion} ShuffleRoundEnded Round ${combat.sequenceNumber}, killed: ${combat.killedUnitId}`);
           setCombats((prev) => {
             return prev.concat([combat]);
           });
@@ -65,15 +60,15 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleSoloShuffleEnded((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
-          console.log('ShuffleEnded');
-          console.log(combat);
           uploadCombatAsync(combat, auth.battlenetId);
         }
       });
 
       window.wowarenalogs.logs?.handleMalformedCombatDetected((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
+          // eslint-disable-next-line no-console
           console.log('Malformed combat');
+          // eslint-disable-next-line no-console
           console.log(combat);
         }
       });
