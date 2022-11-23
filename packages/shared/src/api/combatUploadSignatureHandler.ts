@@ -46,18 +46,19 @@ export const combatUploadSignatureHandler = (request: NextApiRequest, response: 
         }
       });
     } else {
-      response.status(400).send('x-goog-meta-ownerid header is required.');
-      return;
+      return response.status(400).json({ error: 'x-goog-meta-ownerid header is required.' });
     }
-    file.getSignedUrl(signedUrlConfig, function (err, url) {
-      if (err) {
-        console.log(err);
-        response.status(500).send('An error has occurred');
-      } else {
-        response.send(JSON.stringify({ url, parsedName: id }));
-      }
+    return new Promise((resolve) => {
+      file.getSignedUrl(signedUrlConfig, function (err, url) {
+        if (err) {
+          console.log(err);
+          resolve(response.status(500).json({ error: 'An error has occurred' }));
+        } else {
+          resolve(response.status(200).json({ url, parsedName: id }));
+        }
+      });
     });
   } else {
-    response.status(400).send('Only GET requests are allowed.');
+    return response.status(400).json({ error: 'Only GET requests are allowed.' });
   }
 };
