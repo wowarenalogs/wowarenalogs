@@ -119,7 +119,6 @@ const Page = () => {
           <h1 onClick={() => setFakeLoad(!fakeLoad)} className="text-5xl font-bold">
             Match History
           </h1>
-          {/* <TbRefresh onClick={() => matchesQuery.refetch()}></TbRefresh> */}
         </div>
       </div>
       {matchesQuery.loading && (

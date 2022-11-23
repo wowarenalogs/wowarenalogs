@@ -22,6 +22,7 @@
     "@wowarenalogs/parser": "^5.0.0",
     "@wowarenalogs/shared": "^1.0.0",
     "daisyui": "^2.33.0",
+    "lodash": "^4.17.21",
     "next": "^12.1.1",
     "next-auth": "^4.9.0",
     "next-transpile-modules": "^9.0.0",
