@@ -40,6 +40,7 @@ export const typeDefs = gql`
     hasAdvancedLogging: Boolean!
     utcCorrected: Boolean
     durationInSeconds: Float!
+    winningTeamId: String!
   }
   type ScoreboardEntry {
     unitId: String!
@@ -61,6 +62,7 @@ export const typeDefs = gql`
     hasAdvancedLogging: Boolean!
     utcCorrected: Boolean
     durationInSeconds: Float!
+    winningTeamId: String!
     killedUnitId: String!
     scoreboard: [ScoreboardEntry]
     sequenceNumber: Int!

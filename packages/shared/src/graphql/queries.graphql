@@ -60,6 +60,7 @@ fragment arenaInfos on ArenaMatchDataStub {
   hasAdvancedLogging
   utcCorrected
   durationInSeconds
+  winningTeamId
 }
 fragment shuffleInfos on ShuffleRoundStub {
   id
@@ -81,6 +82,7 @@ fragment shuffleInfos on ShuffleRoundStub {
   hasAdvancedLogging
   utcCorrected
   durationInSeconds
+  winningTeamId
   killedUnitId
   scoreboard {
     unitId
