@@ -1,63 +1,99 @@
-import { CombatResult, CombatUnitAffiliation } from '@wowarenalogs/parser';
-import { PlayerIcon } from '@wowarenalogs/shared';
+import { CombatResult, CombatUnitType } from '@wowarenalogs/parser';
+import { PlayerIcon, TimestampDisplay, zoneMetadata } from '@wowarenalogs/shared';
 import {
   ArenaMatchDataStub,
   CombatUnitStub,
   ShuffleRoundStub,
   useGetMyMatchesQuery,
 } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
-import { TbLoader } from 'react-icons/tb';
+import { TbLoader, TbRefresh } from 'react-icons/tb';
 
-function TeamSpecs({ units }: { units: CombatUnitStub[] }) {
-  const team0 = units.filter((u) => u.info?.teamId === '0');
-  const team1 = units.filter((u) => u.info?.teamId === '1');
+function durationString(durationInSeconds: number) {
+  if (durationInSeconds < 60) {
+    return `${Math.round(durationInSeconds)}s`;
+  }
+  const min = Math.floor(durationInSeconds / 60);
+  const sec = Math.round(durationInSeconds - min * 60);
+  return `${min}m ${sec}s`;
+}
+
+function ResultBadge({ result, text }: { result?: number | null; text: string | number }) {
+  const resultEnum = result as CombatResult;
+  switch (resultEnum) {
+    case CombatResult.Win:
+      return <div className="badge badge-success">{text}</div>;
+    case CombatResult.Lose:
+      return <div className="badge badge-error">{text}</div>;
+    default:
+      return <div className="badge badge-warning">??? {text}</div>;
+  }
+}
+
+function TeamSpecs({
+  units,
+  playerTeamId,
+  winningTeamId,
+}: {
+  units: CombatUnitStub[];
+  playerTeamId: string;
+  winningTeamId: string;
+}) {
+  const teamLeft = units.filter((u) => u.type === CombatUnitType.Player).filter((u) => u.info?.teamId === playerTeamId);
+  const teamRight = units
+    .filter((u) => u.type === CombatUnitType.Player)
+    .filter((u) => u.info?.teamId === playerTeamId);
+  const leftExtraClasses = winningTeamId === playerTeamId ? 'border-2 border-green-700' : '';
+  const rightExtraClasses = winningTeamId !== playerTeamId ? 'border-2 border-green-700' : '';
   return (
     <>
-      {team0.map((p) => (
-        <span key={p.id}>
-          {CombatUnitAffiliation[p.affiliation]}
-          <PlayerIcon player={p} />
-        </span>
-      ))}
-      <div className="w-2" />
-      {team1.map((p) => (
-        <span key={p.id}>
-          {CombatUnitAffiliation[p.affiliation]}
-          <PlayerIcon player={p} />
-        </span>
-      ))}
+      <div className={`flex flex-row items-center rounded ${leftExtraClasses}`}>
+        {teamLeft.map((p) => (
+          <PlayerIcon key={p.id} player={p} />
+        ))}
+      </div>
+      <div className={`w-2 `} />
+      <div className={`flex flex-row items-center rounded ${rightExtraClasses}`}>
+        {teamRight.map((p) => (
+          <PlayerIcon key={p.id} player={p} />
+        ))}
+      </div>
     </>
   );
 }
 
 function ArenaMatchRow({ match }: { match: ArenaMatchDataStub }) {
   return (
-    <div key={match.id} title={match.id} className="flex flex-row gap-4">
-      <div>{match.startInfo?.bracket}</div>
-      <div className="flex flex-row align-middle">
-        <TeamSpecs units={match.units} />
+    <div key={match.id} title={match.id} className="flex flex-row gap-1 w-full items-center">
+      <TimestampDisplay timestamp={match.startTime} />
+      <div className="badge">{durationString(match.durationInSeconds)}</div>
+      <div className="badge">{zoneMetadata[match.startInfo?.zoneId || '0']?.name}</div>
+      <div className="flex flex-1" />
+      <ResultBadge result={match.result} text={match.playerTeamRating || '???'} />
+      <div className="flex flex-row align-middle items-center ml-2">
+        <TeamSpecs
+          units={match.units}
+          playerTeamId={match.playerTeamId}
+          winningTeamId={match.endInfo?.winningTeamId || '0'}
+        />
       </div>
-      <div>{match.playerTeamRating}</div>
-      <div>{CombatResult[match.result]}</div>
-      <div>{Math.round(match.durationInSeconds)}s</div>
     </div>
   );
 }
 
 function ShuffleRoundRow({ round }: { round: ShuffleRoundStub }) {
-  console.log(round.id, round.units);
   return (
-    <div key={round.id} title={round.id} className="flex flex-row gap-4">
-      <div>
-        {round.startInfo?.bracket} - Round {round.sequenceNumber}
+    <div title={round.id} className="flex flex-row gap-1 w-full items-center">
+      <TimestampDisplay timestamp={round.startTime} />
+      <div className="badge">{durationString(round.durationInSeconds)}</div>
+      <div className="badge">{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
+      <div className="flex flex-1" />
+      <ResultBadge result={round.shuffleMatchResult} text={round.playerTeamRating} />
+      <div className={`badge ${round.result === CombatResult.Win ? 'badge-success' : 'badge-error'}`}>
+        Round {round.sequenceNumber}
       </div>
-      <div>{round.playerTeamRating}</div>
-      <div className="flex flex-row align-middle">
-        <TeamSpecs units={round.units} />
+      <div className="flex flex-row align-middle ml-2">
+        <TeamSpecs units={round.units} playerTeamId={round.playerTeamId} winningTeamId={round.winningTeamId} />
       </div>
-      <div>{CombatResult[round.result]}</div>
-      <div>{Math.round(round.durationInSeconds)}s</div>
-      <div>matchId={round.shuffleMatchId?.slice(0, 5)}</div>
     </div>
   );
 }
@@ -80,8 +116,14 @@ const Page = () => {
     );
   }
   return (
-    <div className="transition-all">
-      <ul>
+    <div className="transition-all w-full h-full">
+      <div className="hero">
+        <div className="hero-content flex flex-col items-center">
+          <h1 className="text-5xl font-bold">Match History</h1>
+          <TbRefresh onClick={() => matchesQuery.refetch()}></TbRefresh>
+        </div>
+      </div>
+      <ul className="pl-2 pr-2 space-y-3">
         {matchesQuery.data?.myMatches.combats.map((c) => {
           if (c.__typename === 'ArenaMatchDataStub') {
             return <ArenaMatchRow match={c} key={c.id} />;

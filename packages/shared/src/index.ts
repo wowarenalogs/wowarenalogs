@@ -17,3 +17,5 @@ export type { INativeBridge } from './types/nativeBridge';
 export { FirestoreNextAuthAdapter } from './utils/FirestoreNextAuthAdapter';
 export type { ICombatDataStub } from './graphql-server/types/index';
 export { PlayerIcon } from './components/common/PlayerIcon';
+export { zoneMetadata } from './data/zoneMetadata';
+export { TimestampDisplay } from './components/common/TimestampDisplay';

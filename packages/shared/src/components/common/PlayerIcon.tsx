@@ -1,4 +1,4 @@
-import { CombatUnitClass, CombatUnitSpec } from '@wowarenalogs/parser';
+import { CombatUnitAffiliation, CombatUnitClass, CombatUnitSpec } from '@wowarenalogs/parser';
 import Image from 'next/image';
 
 import { Utils } from '../../utils/utils';
