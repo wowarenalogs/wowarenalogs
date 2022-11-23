@@ -27,7 +27,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies: {
       CombatUnitStub: {
-        keyFields: ['id', 'spec'],
+        keyFields: false,
       },
     },
   }),
