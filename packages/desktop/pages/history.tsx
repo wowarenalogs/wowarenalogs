@@ -7,6 +7,7 @@ import {
   useGetMyMatchesQuery,
 } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
+import Link from 'next/link';
 import { useState } from 'react';
 import { TbLoader } from 'react-icons/tb';
 
@@ -90,42 +91,42 @@ function ArenaMatchRow({ match }: { match: ArenaMatchDataStub }) {
 
 function ShuffleRoundRow({ round }: { round: ShuffleRoundStub }) {
   return (
-    <div title={round.id} className="flex flex-row gap-1 w-full items-center">
-      <a href={`/match?id=${round.id}&logId=${round.shuffleMatchId}`}>
+    <Link href={`/match?id=${round.id}&logId=${round.shuffleMatchId}`}>
+      <div
+        title={round.id}
+        className="flex pt-1 pb-1 flex-row gap-1 w-full items-center hover:bg-gray-700 transition-colors duration-200"
+      >
         <TimestampDisplay timestamp={round.startTime} />
-      </a>
-      <div className="badge">{durationString(round.durationInSeconds)}</div>
-      <div className={`badge ${colorGenerator(round.shuffleMatchId || 'none')}`}>
-        {zoneMetadata[round.startInfo?.zoneId || '0']?.name}
+        <div className="badge">{durationString(round.durationInSeconds)}</div>
+        <div className={`badge ${colorGenerator(round.shuffleMatchId || 'none')}`}>
+          {zoneMetadata[round.startInfo?.zoneId || '0']?.name}
+        </div>
+        <div className="flex flex-1" />
+        <ResultBadge result={round.shuffleMatchResult} text={round.playerTeamRating} />
+        <div className={`badge badge-lg ${round.result === CombatResult.Win ? 'badge-success' : 'badge-error'}`}>
+          {round.sequenceNumber}
+        </div>
+        <div className="flex flex-row align-middle ml-2">
+          <TeamSpecs units={round.units} playerTeamId={round.playerTeamId} winningTeamId={round.winningTeamId} />
+        </div>
       </div>
-      <div className="flex flex-1" />
-      <ResultBadge result={round.shuffleMatchResult} text={round.playerTeamRating} />
-      <div className={`badge badge-lg ${round.result === CombatResult.Win ? 'badge-success' : 'badge-error'}`}>
-        {round.sequenceNumber}
-      </div>
-      <div className="flex flex-row align-middle ml-2">
-        <TeamSpecs units={round.units} playerTeamId={round.playerTeamId} winningTeamId={round.winningTeamId} />
-      </div>
-    </div>
+    </Link>
   );
 }
 
 const Page = () => {
   const matchesQuery = useGetMyMatchesQuery();
-  const [fakeLoad, setFakeLoad] = useState(false);
 
   return (
     <div className="transition-all mx-4 overflow-y-auto">
       <div className="hero">
         <div className="hero-content flex flex-col items-center">
-          <h1 onClick={() => setFakeLoad(!fakeLoad)} className="text-5xl font-bold">
-            Match History
-          </h1>
+          <h1 className="text-5xl font-bold">Match History</h1>
         </div>
       </div>
       {matchesQuery.loading && (
         <div className="flex flex-row items-center justify-center animate-loader h-[300px]">
-          <TbLoader onClick={() => setFakeLoad(!fakeLoad)} color="gray" size={60} className="animate-spin-slow" />
+          <TbLoader color="gray" size={60} className="animate-spin-slow" />
         </div>
       )}
       {matchesQuery.error && (
@@ -135,7 +136,7 @@ const Page = () => {
       )}
       {!matchesQuery.loading && (
         <div className="animate-fadein mt-4">
-          <ul className="space-y-3">
+          <ul>
             {matchesQuery.data?.myMatches.combats.map((c) => {
               if (c.__typename === 'ArenaMatchDataStub') {
                 return <ArenaMatchRow match={c} key={c.id} />;

@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import { TbLoader } from 'react-icons/tb';
 
 import { useCombatFromStorage } from '../../hooks/useCombatFromStorage';
 import { CombatReport } from '../CombatReport';
@@ -19,7 +20,13 @@ export function CombatReportFromStorage(props: IProps) {
   );
 
   if (loading) {
-    return <div>Loading</div>;
+    return (
+      <div>
+        <div className="flex flex-row items-center justify-center animate-loader h-[300px]">
+          <TbLoader color="gray" size={60} className="animate-spin-slow" />
+        </div>
+      </div>
+    );
   }
   if (data) {
     return (
