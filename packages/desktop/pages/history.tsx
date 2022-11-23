@@ -6,7 +6,15 @@ import {
   ShuffleRoundStub,
   useGetMyMatchesQuery,
 } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
-import { TbLoader, TbRefresh } from 'react-icons/tb';
+import _ from 'lodash';
+import { useState } from 'react';
+import { TbLoader } from 'react-icons/tb';
+
+let colorIndex = 0;
+function getNextColor() {
+  return ['bg-red-800', 'bg-green-800', 'bg-purple-800', 'bg-cyan-800'][colorIndex++ % 4];
+}
+const colorGenerator = _.memoize((_s: string) => getNextColor());
 
 function durationString(durationInSeconds: number) {
   if (durationInSeconds < 60) {
@@ -21,11 +29,11 @@ function ResultBadge({ result, text }: { result?: number | null; text: string | 
   const resultEnum = result as CombatResult;
   switch (resultEnum) {
     case CombatResult.Win:
-      return <div className="badge badge-success">{text}</div>;
+      return <div className="badge badge-lg badge-success">{text}</div>;
     case CombatResult.Lose:
-      return <div className="badge badge-error">{text}</div>;
+      return <div className="badge badge-lg badge-error">{text}</div>;
     default:
-      return <div className="badge badge-warning">??? {text}</div>;
+      return <div className="badge badge-lg badge-warning">??? {text}</div>;
   }
 }
 
@@ -46,13 +54,13 @@ function TeamSpecs({
   const rightExtraClasses = winningTeamId !== playerTeamId ? 'border-2 border-green-700' : '';
   return (
     <>
-      <div className={`flex flex-row items-center rounded ${leftExtraClasses}`}>
+      <div className={`flex flex-row items-center pl-1 pr-1 space-x-2 rounded-lg ${leftExtraClasses}`}>
         {teamLeft.map((p) => (
           <PlayerIcon key={p.id} player={p} />
         ))}
       </div>
-      <div className={`w-2 `} />
-      <div className={`flex flex-row items-center rounded ${rightExtraClasses}`}>
+      <div className="w-1" />
+      <div className={`flex flex-row items-center pl-1 pr-1 space-x-2 rounded-lg ${rightExtraClasses}`}>
         {teamRight.map((p) => (
           <PlayerIcon key={p.id} player={p} />
         ))}
@@ -85,11 +93,13 @@ function ShuffleRoundRow({ round }: { round: ShuffleRoundStub }) {
     <div title={round.id} className="flex flex-row gap-1 w-full items-center">
       <TimestampDisplay timestamp={round.startTime} />
       <div className="badge">{durationString(round.durationInSeconds)}</div>
-      <div className="badge">{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
+      <div className={`badge ${colorGenerator(round.shuffleMatchId || 'none')}`}>
+        {zoneMetadata[round.startInfo?.zoneId || '0']?.name}
+      </div>
       <div className="flex flex-1" />
       <ResultBadge result={round.shuffleMatchResult} text={round.playerTeamRating} />
-      <div className={`badge ${round.result === CombatResult.Win ? 'badge-success' : 'badge-error'}`}>
-        Round {round.sequenceNumber}
+      <div className={`badge badge-lg ${round.result === CombatResult.Win ? 'badge-success' : 'badge-error'}`}>
+        {round.sequenceNumber}
       </div>
       <div className="flex flex-row align-middle ml-2">
         <TeamSpecs units={round.units} playerTeamId={round.playerTeamId} winningTeamId={round.winningTeamId} />
@@ -100,40 +110,43 @@ function ShuffleRoundRow({ round }: { round: ShuffleRoundStub }) {
 
 const Page = () => {
   const matchesQuery = useGetMyMatchesQuery();
+  const [fakeLoad, setFakeLoad] = useState(false);
 
-  if (matchesQuery.loading) {
-    return (
-      <div className="flex flex-row justify-center items-center h-full transition-all">
-        <TbLoader size={60} className="h-100 animate-spin-slow" />
-      </div>
-    );
-  }
-  if (matchesQuery.error) {
-    return (
-      <div className="flex flex-row justify-center items-center h-full transition-all">
-        <div>An error has occurred</div>
-      </div>
-    );
-  }
   return (
-    <div className="transition-all w-full h-full">
+    <div className="transition-all mx-4 overflow-y-auto">
       <div className="hero">
         <div className="hero-content flex flex-col items-center">
-          <h1 className="text-5xl font-bold">Match History</h1>
-          <TbRefresh onClick={() => matchesQuery.refetch()}></TbRefresh>
+          <h1 onClick={() => setFakeLoad(!fakeLoad)} className="text-5xl font-bold">
+            Match History
+          </h1>
+          {/* <TbRefresh onClick={() => matchesQuery.refetch()}></TbRefresh> */}
         </div>
       </div>
-      <ul className="pl-2 pr-2 space-y-3">
-        {matchesQuery.data?.myMatches.combats.map((c) => {
-          if (c.__typename === 'ArenaMatchDataStub') {
-            return <ArenaMatchRow match={c} key={c.id} />;
-          }
-          if (c.__typename === 'ShuffleRoundStub') {
-            return <ShuffleRoundRow round={c} key={c.id} />;
-          }
-          return <div key={c.id}>Error loading {c.id}</div>;
-        })}
-      </ul>
+      {matchesQuery.loading && (
+        <div className="flex flex-row items-center justify-center animate-loader h-[300px]">
+          <TbLoader onClick={() => setFakeLoad(!fakeLoad)} color="gray" size={60} className="animate-spin-slow" />
+        </div>
+      )}
+      {matchesQuery.error && (
+        <div className="flex flex-row justify-center items-center h-full transition-all animate-fadein">
+          <div>An error has occurred</div>
+        </div>
+      )}
+      {!matchesQuery.loading && (
+        <div className="animate-fadein mt-4">
+          <ul className="space-y-3">
+            {matchesQuery.data?.myMatches.combats.map((c) => {
+              if (c.__typename === 'ArenaMatchDataStub') {
+                return <ArenaMatchRow match={c} key={c.id} />;
+              }
+              if (c.__typename === 'ShuffleRoundStub') {
+                return <ShuffleRoundRow round={c} key={c.id} />;
+              }
+              return <div key={c.id}>Error loading {c.id}</div>;
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
