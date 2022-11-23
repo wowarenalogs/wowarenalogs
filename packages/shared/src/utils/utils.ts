@@ -1,4 +1,12 @@
-import { CombatUnitClass, CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
+import {
+  CombatUnitClass,
+  CombatUnitSpec,
+  IArenaMatch,
+  ICombatUnit,
+  IShuffleMatch,
+  WoWCombatLogParser,
+  WowVersion,
+} from '@wowarenalogs/parser';
 import _ from 'lodash';
 
 const combatUnitSpecReverse: Record<string, string> = {};
@@ -20,7 +28,38 @@ _.keys(CombatUnitClass).forEach((k) => {
   classNames[CombatUnitClass[k as keyof typeof CombatUnitClass]] = k.split('_').reverse().join(' ');
 });
 
+type ParseResult = {
+  arenaMatches: IArenaMatch[];
+  shuffleMatches: IShuffleMatch[];
+};
+
 export class Utils {
+  public static parseFromStringArrayAsync(buffer: string[], wowVersion: WowVersion): Promise<ParseResult> {
+    return new Promise((resolve) => {
+      const logParser = new WoWCombatLogParser(wowVersion);
+
+      const results: ParseResult = {
+        arenaMatches: [],
+        shuffleMatches: [],
+      };
+
+      logParser.on('arena_match_ended', (data: IArenaMatch) => {
+        results.arenaMatches.push(data);
+      });
+
+      logParser.on('solo_shuffle_ended', (data: IShuffleMatch) => {
+        results.shuffleMatches.push(data);
+      });
+
+      for (const line of buffer) {
+        logParser.parseLine(line);
+      }
+      logParser.flush();
+
+      resolve(results);
+    });
+  }
+
   public static getSpecName(spec: CombatUnitSpec) {
     return specNames[spec];
   }

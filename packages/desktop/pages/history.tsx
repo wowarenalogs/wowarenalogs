@@ -91,7 +91,9 @@ function ArenaMatchRow({ match }: { match: ArenaMatchDataStub }) {
 function ShuffleRoundRow({ round }: { round: ShuffleRoundStub }) {
   return (
     <div title={round.id} className="flex flex-row gap-1 w-full items-center">
-      <TimestampDisplay timestamp={round.startTime} />
+      <a href={`/match?id=${round.id}&logId=${round.shuffleMatchId}`}>
+        <TimestampDisplay timestamp={round.startTime} />
+      </a>
       <div className="badge">{durationString(round.durationInSeconds)}</div>
       <div className={`badge ${colorGenerator(round.shuffleMatchId || 'none')}`}>
         {zoneMetadata[round.startInfo?.zoneId || '0']?.name}

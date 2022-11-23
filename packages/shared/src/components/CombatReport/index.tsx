@@ -1,5 +1,7 @@
 import { AtomicArenaCombat } from '@wowarenalogs/parser';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { TbArrowBack, TbArrowBigLeft, TbArrowBigLeftLine, TbBackhoe, TbBackspace } from 'react-icons/tb';
 
 import { TimestampDisplay } from '../common/TimestampDisplay';
 import { CombatDeathReports } from './CombatDeathReports';
@@ -13,17 +15,20 @@ interface IProps {
 }
 
 export const CombatReport = ({ combat, anon }: IProps) => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>('summary');
 
-  // const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber : null;
+  const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber : null;
   // const mmr = combat.dataType === 'ArenaMatch' ? combat.endInfo.team0MMR : null;
 
   return (
     <CombatReportContextProvider combat={combat} isAnonymized={anon || false}>
-      <div className="w-full h-full flex flex-col p-2">
+      <div className="w-full h-full flex flex-col p-2 animate-fadein">
         <div className="flex flex-row items-center px-2">
           <h2 className="text-2xl font-bold">
+            <TbArrowBigLeft className="inline mr-4" onClick={() => router.back()} />
             <TimestampDisplay timestamp={combat.startTime} />
+            {sequence && <div className="ml-4 inline">Round {sequence}</div>}
           </h2>
           <div className="flex flex-1" />
         </div>

@@ -58,7 +58,7 @@ export function MainLayout(props: IProps) {
           </Link>
         </div>
         <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/search' ? 'bg-base-100 text-primary' : ''}`}>
-          <Link href="/search" aria-label="Search matches">
+          <Link href="/match" aria-label="Search matches">
             <a>
               <TbSearch size="32" />
             </a>
