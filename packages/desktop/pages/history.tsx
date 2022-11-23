@@ -1,45 +1,32 @@
-import { CombatResult, CombatUnitClass, CombatUnitSpec } from '@wowarenalogs/parser';
+import { CombatResult, CombatUnitAffiliation } from '@wowarenalogs/parser';
+import { PlayerIcon } from '@wowarenalogs/shared';
 import {
   ArenaMatchDataStub,
   CombatUnitStub,
   ShuffleRoundStub,
   useGetMyMatchesQuery,
 } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
-import { Utils } from '@wowarenalogs/shared/src/utils/utils';
-import Image from 'next/image';
 import { TbLoader } from 'react-icons/tb';
-
-function PlayerIcon({
-  player,
-}: {
-  player: {
-    spec: string;
-    class: CombatUnitClass;
-  };
-}) {
-  const spec = player.spec as CombatUnitSpec;
-  return (
-    <Image
-      src={(player.spec === CombatUnitSpec.None ? Utils.getClassIcon(player.class) : Utils.getSpecIcon(spec)) ?? ''}
-      alt={(player.spec === CombatUnitSpec.None ? Utils.getClassName(player.class) : Utils.getSpecName(spec)) ?? ''}
-      width={48}
-      height={48}
-    />
-  );
-}
 
 function TeamSpecs({ units }: { units: CombatUnitStub[] }) {
   const team0 = units.filter((u) => u.info?.teamId === '0');
   const team1 = units.filter((u) => u.info?.teamId === '1');
   return (
-    <div>
+    <>
       {team0.map((p) => (
-        <PlayerIcon key={p.id} player={p} />
-      ))}{' '}
-      {team1.map((p) => (
-        <PlayerIcon key={p.id} player={p} />
+        <span key={p.id}>
+          {CombatUnitAffiliation[p.affiliation]}
+          <PlayerIcon player={p} />
+        </span>
       ))}
-    </div>
+      <div className="w-2" />
+      {team1.map((p) => (
+        <span key={p.id}>
+          {CombatUnitAffiliation[p.affiliation]}
+          <PlayerIcon player={p} />
+        </span>
+      ))}
+    </>
   );
 }
 
@@ -47,7 +34,9 @@ function ArenaMatchRow({ match }: { match: ArenaMatchDataStub }) {
   return (
     <div key={match.id} title={match.id} className="flex flex-row gap-4">
       <div>{match.startInfo?.bracket}</div>
-      <TeamSpecs units={match.units} />
+      <div className="flex flex-row align-middle">
+        <TeamSpecs units={match.units} />
+      </div>
       <div>{match.playerTeamRating}</div>
       <div>{CombatResult[match.result]}</div>
       <div>{Math.round(match.durationInSeconds)}s</div>
@@ -56,12 +45,16 @@ function ArenaMatchRow({ match }: { match: ArenaMatchDataStub }) {
 }
 
 function ShuffleRoundRow({ round }: { round: ShuffleRoundStub }) {
+  console.log(round.id, round.units);
   return (
     <div key={round.id} title={round.id} className="flex flex-row gap-4">
       <div>
-        {round.startInfo?.bracket} {round.sequenceNumber}
+        {round.startInfo?.bracket} - Round {round.sequenceNumber}
       </div>
       <div>{round.playerTeamRating}</div>
+      <div className="flex flex-row align-middle">
+        <TeamSpecs units={round.units} />
+      </div>
       <div>{CombatResult[round.result]}</div>
       <div>{Math.round(round.durationInSeconds)}s</div>
       <div>matchId={round.shuffleMatchId?.slice(0, 5)}</div>

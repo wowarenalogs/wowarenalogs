@@ -2,7 +2,14 @@ import { Timestamp } from '@google-cloud/firestore';
 import _ from 'lodash';
 import moment from 'moment';
 
-import { CombatUnitSpec, CombatUnitType, IArenaMatch, IShuffleMatch, IShuffleRound } from '../../parser/dist/index';
+import {
+  CombatUnitSpec,
+  CombatUnitType,
+  IArenaCombat,
+  IArenaMatch,
+  IShuffleMatch,
+  IShuffleRound,
+} from '../../parser/dist/index';
 // Do not reference with @shared here -- this ref style is needed to preserve tsconfig settings
 // for the application build in @shared
 import { ICombatDataStub } from '../../shared/src/graphql-server/types/index';
@@ -139,12 +146,8 @@ function buildQueryHelpers(com: IArenaMatch | IShuffleRound): SpecIndexFields {
   };
 }
 
-function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, logObjectUrl: string): FirebaseDTO[] {
-  const rounds = match.rounds;
-  const lastRound = rounds[5];
-
-  const inThirtyDays = moment().add(30, 'days');
-  const unitsList = _.values(lastRound.units).map((c) => {
+function createUnitsList(units: IArenaCombat['units']) {
+  return _.values(units).map((c) => {
     return {
       id: c.id,
       name: c.name,
@@ -165,75 +168,66 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
       affiliation: c.affiliation,
     };
   });
+}
+
+function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, logObjectUrl: string): FirebaseDTO[] {
+  const rounds = match.rounds;
+  const lastRound = rounds[5];
+
+  const inThirtyDays = moment().add(30, 'days');
 
   rounds.forEach((round) => {
     round.shuffleMatchEndInfo = match.endInfo;
     round.shuffleMatchResult = match.result;
   });
 
-  return rounds.map((round) => ({
-    dataType: 'ShuffleRound',
-    logObjectUrl,
-    ownerId,
-    wowVersion: round.wowVersion,
-    id: round.id,
-    units: unitsList,
-    utcCorrected: false,
-    startTime: round.startTime,
-    endTime: round.endTime,
-    playerTeamId: lastRound.playerTeamId,
-    playerTeamRating: lastRound.playerTeamRating,
-    hasAdvancedLogging: lastRound.hasAdvancedLogging,
-    startInfo: round.startInfo,
-    linesNotParsedCount: round.linesNotParsedCount,
-    durationInSeconds: round.durationInSeconds,
-    playerId: round.playerId,
-    winningTeamId: round.winningTeamId,
-    killedUnitId: round.killedUnitId,
-    scoreboard: round.scoreboard,
-    sequenceNumber: round.sequenceNumber,
-    // endInfo: UNDEFINED HERE!
-    result: round.result,
-    extra: { ...buildQueryHelpers(round), ...buildMMRHelpers(round) },
-    combatantNames: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
-    combatantGuids: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
-    expires: Timestamp.fromDate(inThirtyDays.toDate()),
-    shuffleMatchId: match.id,
-    shuffleMatchResult: match.result,
-    shuffleMatchEndInfo: match.endInfo,
-  }));
+  return rounds.map((round) => {
+    const roundUnits = createUnitsList(round.units);
+
+    return {
+      dataType: 'ShuffleRound',
+      logObjectUrl,
+      ownerId,
+      wowVersion: round.wowVersion,
+      id: round.id,
+      units: roundUnits,
+      utcCorrected: false,
+      startTime: round.startTime,
+      endTime: round.endTime,
+      playerTeamId: lastRound.playerTeamId,
+      playerTeamRating: lastRound.playerTeamRating,
+      hasAdvancedLogging: lastRound.hasAdvancedLogging,
+      startInfo: round.startInfo,
+      linesNotParsedCount: round.linesNotParsedCount,
+      durationInSeconds: round.durationInSeconds,
+      playerId: round.playerId,
+      winningTeamId: round.winningTeamId,
+      killedUnitId: round.killedUnitId,
+      scoreboard: round.scoreboard,
+      sequenceNumber: round.sequenceNumber,
+      // endInfo: UNDEFINED HERE!
+      result: round.result,
+      extra: { ...buildQueryHelpers(round), ...buildMMRHelpers(round) },
+      combatantNames: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
+      combatantGuids: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
+      expires: Timestamp.fromDate(inThirtyDays.toDate()),
+      shuffleMatchId: match.id,
+      shuffleMatchResult: match.result,
+      shuffleMatchEndInfo: match.endInfo,
+    };
+  });
 }
 
 function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjectUrl: string): FirebaseDTO {
   const inThirtyDays = moment().add(30, 'days');
-  const unitsList = _.values(com.units).map((c) => {
-    return {
-      id: c.id,
-      name: c.name,
-      info: c.info
-        ? {
-            teamId: c.info.teamId,
-            specId: c.info.specId,
-            talents: c.info.talents,
-            pvpTalents: c.info.pvpTalents,
-            personalRating: c.info.personalRating,
-            highestPvpTier: c.info.highestPvpTier,
-          }
-        : undefined,
-      type: c.type,
-      class: c.class,
-      spec: c.spec,
-      reaction: c.reaction,
-      affiliation: c.affiliation,
-    };
-  });
+  const combatUnits = createUnitsList(com.units);
   return {
     dataType: 'ArenaMatch',
     logObjectUrl,
     ownerId,
     wowVersion: com.wowVersion,
     id: com.id,
-    units: unitsList,
+    units: combatUnits,
     utcCorrected: false,
     startTime: com.startTime,
     endTime: com.endTime,
@@ -248,8 +242,8 @@ function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjec
     durationInSeconds: com.durationInSeconds,
     winningTeamId: com.winningTeamId,
     extra: { ...buildQueryHelpers(com), ...buildMMRHelpers(com) },
-    combatantNames: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
-    combatantGuids: unitsList.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
+    combatantNames: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
+    combatantGuids: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
     expires: Timestamp.fromDate(inThirtyDays.toDate()),
   };
 }
