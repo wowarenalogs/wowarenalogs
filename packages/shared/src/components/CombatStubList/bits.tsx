@@ -1,4 +1,5 @@
 import { CombatResult, CombatUnitType } from '@wowarenalogs/parser';
+
 import { CombatUnitStub } from '../../graphql/__generated__/graphql';
 import { PlayerIcon } from '../common/PlayerIcon';
 
@@ -11,15 +12,26 @@ export function durationString(durationInSeconds: number) {
   return `${min}m ${sec}s`;
 }
 
-export function ResultBadge({ result, text }: { result?: number | null; text: string | number }) {
+export function ResultBadge({
+  result,
+  text,
+  nocolor,
+}: {
+  result?: number | null;
+  text: string | number;
+  nocolor: boolean;
+}) {
+  if (nocolor) {
+    return <div className="badge badge-lg badge-neutral badge-outline">{text}</div>;
+  }
   const resultEnum = result as CombatResult;
   switch (resultEnum) {
     case CombatResult.Win:
-      return <div className="badge badge-lg badge-success">{text}</div>;
+      return <div className="badge badge-lg badge-success badge-outline">{text}</div>;
     case CombatResult.Lose:
-      return <div className="badge badge-lg badge-error">{text}</div>;
+      return <div className="badge badge-lg badge-outline border-gray-500 text-gray-500">{text}</div>;
     default:
-      return <div className="badge badge-lg badge-warning">??? {text}</div>;
+      return <div className="badge badge-lg badge-warning badge-outline">??? {text}</div>;
   }
 }
 
@@ -32,7 +44,6 @@ export function TeamSpecs({
   playerTeamId: string;
   winningTeamId: string;
 }) {
-  console.log({ playerTeamId });
   const teamLeft = units.filter((u) => u.type === CombatUnitType.Player).filter((u) => u.info?.teamId === playerTeamId);
   const teamRight = units
     .filter((u) => u.type === CombatUnitType.Player)

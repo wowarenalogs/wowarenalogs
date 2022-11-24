@@ -1,16 +1,12 @@
 import { CombatResult } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import Link from 'next/link';
+import { TbDice1, TbDice2, TbDice3, TbDice4, TbDice5, TbDice6 } from 'react-icons/tb';
+
 import { zoneMetadata } from '../../data/zoneMetadata';
 import { ArenaMatchDataStub, ShuffleRoundStub } from '../../graphql/__generated__/graphql';
 import { TimestampDisplay } from '../common/TimestampDisplay';
 import { durationString, ResultBadge, TeamSpecs } from './bits';
-
-let colorIndex = 0;
-function getNextColor() {
-  return ['bg-red-800/50', 'bg-green-800/50', 'bg-purple-800/50', 'bg-cyan-800/50'][colorIndex++ % 4];
-}
-const colorGenerator = _.memoize((_s: string) => getNextColor());
 
 export function ArenaMatchRow({
   match,
@@ -18,7 +14,7 @@ export function ArenaMatchRow({
   combatUrlFactory,
 }: {
   match: ArenaMatchDataStub;
-  viewerIsOwner: boolean;
+  viewerIsOwner?: boolean;
   combatUrlFactory: (combatId: string, logId: string) => string;
 }) {
   return (
@@ -28,7 +24,7 @@ export function ArenaMatchRow({
         <div className="badge">{durationString(match.durationInSeconds)}</div>
         <div className="badge">{zoneMetadata[match.startInfo?.zoneId || '0']?.name}</div>
         <div className="flex flex-1" />
-        <ResultBadge result={match.result} text={match.playerTeamRating || '???'} />
+        <ResultBadge result={match.result} text={match.playerTeamRating || '???'} nocolor={!viewerIsOwner} />
         <div className="flex flex-row align-middle items-center ml-2">
           <TeamSpecs
             units={match.units}
@@ -47,25 +43,46 @@ export function ShuffleRoundRow({
   combatUrlFactory,
 }: {
   round: ShuffleRoundStub;
-  viewerIsOwner: boolean;
+  viewerIsOwner?: boolean;
   combatUrlFactory: (combatId: string, logId: string) => string;
 }) {
+  let roundTitle = `Round ${round.sequenceNumber + 1} ${round.result === CombatResult.Win ? 'win' : 'loss'}`;
+  let roundColor = round.result === CombatResult.Win ? 'green' : 'gray';
+
+  if (!viewerIsOwner) {
+    roundColor = 'gray';
+  }
+
+  let RoundWidget = <TbDice1 color={roundColor} size={32} title={roundTitle} />;
+  switch (round.sequenceNumber) {
+    case 1:
+      RoundWidget = <TbDice2 color={roundColor} size={32} title={roundTitle} />;
+      break;
+    case 2:
+      RoundWidget = <TbDice3 color={roundColor} size={32} title={roundTitle} />;
+      break;
+    case 3:
+      RoundWidget = <TbDice4 color={roundColor} size={32} title={roundTitle} />;
+      break;
+    case 4:
+      RoundWidget = <TbDice5 color={roundColor} size={32} title={roundTitle} />;
+      break;
+    case 5:
+      RoundWidget = <TbDice6 color={roundColor} size={32} title={roundTitle} />;
+      break;
+  }
   return (
     <Link href={combatUrlFactory(round.id, round.shuffleMatchId || 'error')}>
       <div
-        title={round.id}
+        title={roundTitle}
         className="flex pt-1 pb-1 flex-row gap-1 w-full items-center hover:bg-gray-700 transition-colors duration-200"
       >
         <TimestampDisplay timestamp={round.startTime} />
-        <div className="badge">{durationString(round.durationInSeconds)}</div>
-        <div className={`badge ${colorGenerator(round.shuffleMatchId || 'none')}`}>
-          {zoneMetadata[round.startInfo?.zoneId || '0']?.name}
-        </div>
+        <div className="badge badge-outline">{durationString(round.durationInSeconds)}</div>
+        <div className={`badge badge-outline`}>{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
         <div className="flex flex-1" />
-        <ResultBadge result={round.shuffleMatchResult} text={round.playerTeamRating} />
-        <div className={`badge badge-lg ${round.result === CombatResult.Win ? 'badge-success' : 'badge-error'}`}>
-          {round.sequenceNumber}
-        </div>
+        <ResultBadge nocolor={!viewerIsOwner} result={round.shuffleMatchResult} text={round.playerTeamRating} />
+        {RoundWidget}
         <div className="flex flex-row align-middle ml-2">
           <TeamSpecs units={round.units} playerTeamId={round.playerTeamId} winningTeamId={round.winningTeamId} />
         </div>
