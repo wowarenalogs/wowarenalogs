@@ -20,3 +20,4 @@ export { PlayerIcon } from './components/common/PlayerIcon';
 export { zoneMetadata } from './data/zoneMetadata';
 export { TimestampDisplay } from './components/common/TimestampDisplay';
 export { CombatReportFromStorage } from './components/common/CombatReportFromStorage';
+export { CombatStubList } from './components/CombatStubList';
