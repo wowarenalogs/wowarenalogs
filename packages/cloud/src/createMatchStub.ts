@@ -90,10 +90,10 @@ function buildMMRHelpers(com: IArenaMatch | IShuffleRound): MMRIndexFields {
       : ((com.shuffleMatchEndInfo?.team0MMR || 0) + (com.shuffleMatchEndInfo?.team1MMR || 0)) / 2;
   return {
     matchAverageMMR: averageMMR,
-    gte1400: nullthrows(com.playerTeamRating) >= 1400,
-    gte1800: nullthrows(com.playerTeamRating) >= 1800,
-    gte2100: nullthrows(com.playerTeamRating) >= 2100,
-    gte2400: nullthrows(com.playerTeamRating) >= 2400,
+    gte1400: nullthrows(averageMMR) >= 1400,
+    gte1800: nullthrows(averageMMR) >= 1800,
+    gte2100: nullthrows(averageMMR) >= 2100,
+    gte2400: nullthrows(averageMMR) >= 2400,
   };
 }
 

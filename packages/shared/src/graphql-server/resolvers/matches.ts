@@ -40,8 +40,11 @@ export async function latestMatches(
     };
   }
 
-  const collectionReference = firestore.collection(matchAnonStubsCollection);
-  // let docsQuery = collectionReference.orderBy('startTime', 'desc');
+  const collectionReference =
+    args.bracket === 'Rated Solo Shuffle'
+      ? firestore.collection(matchStubsCollection)
+      : firestore.collection(matchAnonStubsCollection);
+
   const now = moment().valueOf();
   let docsQuery = collectionReference
     .where('wowVersion', '==', args.wowVersion)
