@@ -32,10 +32,11 @@ export function TeamSpecs({
   playerTeamId: string;
   winningTeamId: string;
 }) {
+  console.log({ playerTeamId });
   const teamLeft = units.filter((u) => u.type === CombatUnitType.Player).filter((u) => u.info?.teamId === playerTeamId);
   const teamRight = units
     .filter((u) => u.type === CombatUnitType.Player)
-    .filter((u) => u.info?.teamId === playerTeamId);
+    .filter((u) => u.info?.teamId !== playerTeamId);
   const leftExtraClasses = winningTeamId === playerTeamId ? 'border-2 border-green-700' : '';
   const rightExtraClasses = winningTeamId !== playerTeamId ? 'border-2 border-green-700' : '';
   return (
