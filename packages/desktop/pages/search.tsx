@@ -156,7 +156,7 @@ const Page = () => {
       )}
       <QuerryError query={matchesQuery} />
       {!matchesQuery.loading && (
-        <div className="animate-fadein mt-4">
+        <div className="animate-fadein">
           <CombatStubList
             viewerIsOwner
             combats={matchesQuery.data?.latestMatches.combats || []}
