@@ -1,5 +1,6 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import { BracketSelector, CombatStubList, RatingSelector, SpecSelector } from '@wowarenalogs/shared';
+import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryError';
 import { useGetPublicMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -92,7 +93,7 @@ const Page = () => {
   });
 
   return (
-    <div className="transition-all mx-4">
+    <div className="transition-all px-4 overflow-y-auto">
       <div className="hero">
         <div className="hero-content flex flex-col items-center">
           <h1 className="text-5xl font-bold">Community Matches</h1>
@@ -153,11 +154,7 @@ const Page = () => {
           <TbLoader color="gray" size={60} className="animate-spin-slow" />
         </div>
       )}
-      {matchesQuery.error && (
-        <div className="flex flex-col justify-center items-center h-full transition-all animate-fadein">
-          <div>An error has occurred</div>
-        </div>
-      )}
+      <QuerryError query={matchesQuery} />
       {!matchesQuery.loading && (
         <div className="animate-fadein mt-4">
           <CombatStubList

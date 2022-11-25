@@ -28,7 +28,7 @@ export function RatingSelector({ minRating, setMinRating }: { minRating: number;
                   onClick={() => setMinRating(o)}
                   defaultChecked={minRating === o}
                 />
-                <span className="label-text">{o}</span>
+                <span className="label-text">{o}+</span>
               </label>
             </div>
           );

@@ -1,6 +1,4 @@
-import { CombatResult } from '@wowarenalogs/parser';
 import { useAuth } from '@wowarenalogs/shared';
-import { useClientContext } from '@wowarenalogs/shared';
 
 import { LoginButton } from '../components/Login/LoginButton';
 import { LogoutButton } from '../components/Login/LogoutButton';
