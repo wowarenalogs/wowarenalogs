@@ -18,7 +18,7 @@ export const CombatReport = ({ combat, anon }: IProps) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>('summary');
 
-  const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber : null;
+  const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber + 1 : null;
   // const mmr = combat.dataType === 'ArenaMatch' ? combat.endInfo.team0MMR : null;
 
   return (
