@@ -38,8 +38,8 @@ const Page = () => {
   const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
   // const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
 
-  const setFilters = (filters: IPublicMatchesFilters) => {
-    setFiltersImpl(filters);
+  const setFilters = (newFilters: IPublicMatchesFilters) => {
+    setFiltersImpl(newFilters);
     // const encoded = btoa(JSON.stringify(filters));
     // router.push(`/community-matches/shadowlands/${encoded}`, undefined, { shallow: true });
 

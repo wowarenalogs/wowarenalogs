@@ -1,4 +1,3 @@
-import { useApolloClient } from '@apollo/client';
 import { CombatStubList } from '@wowarenalogs/shared';
 import { useGetMyMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
@@ -6,8 +5,6 @@ import { TbLoader } from 'react-icons/tb';
 
 const Page = () => {
   const matchesQuery = useGetMyMatchesQuery();
-  const client = useApolloClient();
-  console.log({ client });
   return (
     <div className="transition-all mx-4 overflow-y-auto">
       <div className="hero">

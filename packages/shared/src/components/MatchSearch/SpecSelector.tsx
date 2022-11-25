@@ -67,7 +67,7 @@ export function SpecSelector({
                   <div
                     className="hover:border-gray-600 rounded border-2 border-transparent box-border transition-colors duration-150"
                     key={a[2]}
-                    onClick={(e) => {
+                    onClick={() => {
                       addCallback(a[2] as CombatUnitSpec);
                     }}
                   >
