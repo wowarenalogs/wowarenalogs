@@ -1,5 +1,5 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
-import { CombatStubList, SpecSelector } from '@wowarenalogs/shared';
+import { BracketSelector, CombatStubList, RatingSelector, SpecSelector } from '@wowarenalogs/shared';
 import { useGetPublicMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -21,12 +21,9 @@ function computeCompQueryString(team1specs: CombatUnitSpec[], team2specs: Combat
   }
 }
 
-const bracketOptions = ['2v2', '3v3', 'Rated Solo Shuffle'];
-const ratingOptions = [1400, 1800, 2100, 2400];
-
 const Page = () => {
   const [bracket, setBracket] = useState('Rated Solo Shuffle');
-  const [minRating, setMinRating] = useState<number | undefined>(undefined);
+  const [minRating, setMinRating] = useState<number>(0);
 
   const [filters, setFiltersImpl] = useState<IPublicMatchesFilters>({
     minRating: 0,
@@ -102,62 +99,8 @@ const Page = () => {
         </div>
       </div>
       <div className="bg-gray-800 rounded-md p-4">
-        <div className="flex flex-row space-x-8 mb-2">
-          <div className="flex flex-col">
-            <div className="font-semibold text-gray-400 mt-[5px] mb-[-5px]">LADDER</div>
-            <div className="flex flex-row space-x-4 m-0 p-0 items-center">
-              {bracketOptions.map((o) => {
-                return (
-                  <div className="form-control" key={o}>
-                    <label className="label cursor-pointer space-x-2">
-                      <input
-                        type="radio"
-                        name="radio-10"
-                        className="radio checked:bg-blue-500"
-                        onClick={() => setBracket(o)}
-                        defaultChecked={bracket === o}
-                      />
-                      <span className="label-text">{o}</span>
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <div>
-            <div className="font-semibold text-gray-400 mt-[5px] mb-[-5px]">RATING</div>
-            <div className="flex flex-row space-x-4 items-center">
-              <div className="form-control">
-                <label className="label cursor-pointer space-x-2">
-                  <input
-                    type="radio"
-                    name="radio-11"
-                    className="radio checked:bg-blue-500"
-                    onClick={() => setMinRating(undefined)}
-                    defaultChecked={minRating === undefined}
-                  />
-                  <span className="label-text">Any</span>
-                </label>
-              </div>
-              {ratingOptions.map((o) => {
-                return (
-                  <div className="form-control" key={o}>
-                    <label className="label cursor-pointer space-x-2">
-                      <input
-                        type="radio"
-                        name="radio-11"
-                        className="radio checked:bg-blue-500"
-                        onClick={() => setMinRating(o)}
-                        defaultChecked={minRating === o}
-                      />
-                      <span className="label-text">{o}</span>
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        <BracketSelector bracket={bracket} setBracket={setBracket} />
+        <RatingSelector minRating={minRating} setMinRating={setMinRating} />
         <div>
           <div className="font-semibold text-gray-400 mt-[5px]">COMPOSITION</div>
           <div className="flex flex-row items-center">
