@@ -159,9 +159,9 @@ const Page = () => {
           </div>
         </div>
         <div>
-          <div className="font-semibold text-gray-400 mt-[5px]">COMP</div>
+          <div className="font-semibold text-gray-400 mt-[5px]">COMPOSITION</div>
           <div className="flex flex-row items-center">
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-center space-x-2">
               {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s) => (
                 <SpecSelector
                   key={s}
@@ -171,10 +171,8 @@ const Page = () => {
                 />
               ))}
             </div>
-            <div className="mx-2">
-              <div>VS</div>
-            </div>
-            <div className="flex flex-row items-center">
+            <div className="divider divider-horizontal">VS</div>
+            <div className="flex flex-row items-center space-x-2">
               {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s) => (
                 <SpecSelector
                   key={s}
@@ -184,7 +182,7 @@ const Page = () => {
                 />
               ))}
             </div>
-            <div className="form-control w-[120px]">
+            <div className="form-control w-[120px] ml-2">
               <label className="label cursor-pointer">
                 <input
                   type="checkbox"

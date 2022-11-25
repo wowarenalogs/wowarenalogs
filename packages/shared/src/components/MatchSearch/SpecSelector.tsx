@@ -27,7 +27,7 @@ export function SpecSelector({
   if (spec) {
     return (
       <div
-        className="inline-block w-[48px] h-[48px] mr-2 border-gray-400 border rounded hover:opacity-20 hover:border-red-600 hover:border-2"
+        className="inline-block w-[48px] h-[48px] border-gray-400 border rounded hover:opacity-20 hover:border-red-600 hover:border-2"
         onClick={() => removeCallback(spec)}
       >
         <SpecImage specId={spec} size={48} />
@@ -36,7 +36,7 @@ export function SpecSelector({
   }
 
   return (
-    <div className="dropdown w-[48px] h-[48px] mr-2">
+    <div className="dropdown w-[48px] h-[48px]">
       <label
         onClick={() => {
           if (isShowing) {

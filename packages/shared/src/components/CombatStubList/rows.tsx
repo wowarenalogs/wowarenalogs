@@ -19,7 +19,11 @@ export function ArenaMatchRow({
 }) {
   return (
     <Link href={combatUrlFactory(match.id, match.id)}>
-      <div key={match.id} title={match.id} className="flex flex-row gap-1 w-full items-center">
+      <div
+        key={match.id}
+        title={match.id}
+        className="flex flex-row py-1 gap-1 w-full items-center hover:bg-gray-700 transition-colors duration-200"
+      >
         <TimestampDisplay timestamp={match.startTime} />
         <div className="badge">{durationString(match.durationInSeconds)}</div>
         <div className="badge">{zoneMetadata[match.startInfo?.zoneId || '0']?.name}</div>
@@ -75,7 +79,7 @@ export function ShuffleRoundRow({
     <Link href={combatUrlFactory(round.id, round.shuffleMatchId || 'error')}>
       <div
         title={roundTitle}
-        className="flex pt-1 pb-1 flex-row gap-1 w-full items-center hover:bg-gray-700 transition-colors duration-200"
+        className="flex py-1 flex-row gap-1 w-full items-center hover:bg-gray-700 transition-colors duration-200"
       >
         <TimestampDisplay timestamp={round.startTime} />
         <div className="badge">{durationString(round.durationInSeconds)}</div>
