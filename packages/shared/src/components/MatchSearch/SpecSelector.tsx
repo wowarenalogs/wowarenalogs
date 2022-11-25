@@ -38,7 +38,9 @@ export function SpecSelector({
       <label
         onClick={(e) => {
           if (isShowing) {
-            document.activeElement.blur();
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
+            }
           }
           setIsShowing(!isShowing);
         }}
