@@ -78,8 +78,8 @@ export function ShuffleRoundRow({
         className="flex pt-1 pb-1 flex-row gap-1 w-full items-center hover:bg-gray-700 transition-colors duration-200"
       >
         <TimestampDisplay timestamp={round.startTime} />
-        <div className="badge badge-outline">{durationString(round.durationInSeconds)}</div>
-        <div className={`badge badge-outline`}>{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
+        <div className="badge">{durationString(round.durationInSeconds)}</div>
+        <div className={`badge`}>{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
         <div className="flex flex-1" />
         <ResultBadge nocolor={!viewerIsOwner} result={round.shuffleMatchResult} text={round.playerTeamRating} />
         {RoundWidget}
