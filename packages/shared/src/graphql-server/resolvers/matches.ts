@@ -207,3 +207,12 @@ export async function userMatches(
     queryLimitReached: false,
   };
 }
+
+export async function matchById(parent: unknown, args: { matchId: string; anon: boolean }) {
+  const collection = args.anon ? matchAnonStubsCollection : matchStubsCollection;
+  const collectionReference = firestore.collection(collection);
+  const matchDocs = await collectionReference.where('id', '==', `${args.matchId}`).limit(1).get();
+  const match = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub))[0];
+
+  return match;
+}

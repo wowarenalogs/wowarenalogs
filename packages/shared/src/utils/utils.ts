@@ -34,30 +34,28 @@ type ParseResult = {
 };
 
 export class Utils {
-  public static parseFromStringArrayAsync(buffer: string[], wowVersion: WowVersion): Promise<ParseResult> {
-    return new Promise((resolve) => {
-      const logParser = new WoWCombatLogParser(wowVersion);
+  public static parseFromStringArray(buffer: string[], wowVersion: WowVersion): ParseResult {
+    const logParser = new WoWCombatLogParser(wowVersion);
 
-      const results: ParseResult = {
-        arenaMatches: [],
-        shuffleMatches: [],
-      };
+    const results: ParseResult = {
+      arenaMatches: [],
+      shuffleMatches: [],
+    };
 
-      logParser.on('arena_match_ended', (data: IArenaMatch) => {
-        results.arenaMatches.push(data);
-      });
-
-      logParser.on('solo_shuffle_ended', (data: IShuffleMatch) => {
-        results.shuffleMatches.push(data);
-      });
-
-      for (const line of buffer) {
-        logParser.parseLine(line);
-      }
-      logParser.flush();
-
-      resolve(results);
+    logParser.on('arena_match_ended', (data: IArenaMatch) => {
+      results.arenaMatches.push(data);
     });
+
+    logParser.on('solo_shuffle_ended', (data: IShuffleMatch) => {
+      results.shuffleMatches.push(data);
+    });
+
+    for (const line of buffer) {
+      logParser.parseLine(line);
+    }
+    logParser.flush();
+
+    return results;
   }
 
   public static getSpecName(spec: CombatUnitSpec) {

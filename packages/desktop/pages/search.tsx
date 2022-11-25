@@ -160,8 +160,12 @@ const Page = () => {
           <CombatStubList
             viewerIsOwner
             combats={matchesQuery.data?.latestMatches.combats || []}
-            combatUrlFactory={(combatId: string, logId: string) => {
-              return `/match?id=${combatId}&logId=${logId}`;
+            combatUrlFactory={(combatId: string, combatBracket: string) => {
+              if (combatBracket === 'Rated Solo Shuffle') {
+                return `/match?id=${combatId}`;
+              } else {
+                return `/match?id=${combatId}&anon=true`;
+              }
             }}
           />
           {matchesQuery.data?.latestMatches.combats.length === 0 && <div>No matches to display!</div>}

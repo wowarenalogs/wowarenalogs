@@ -4,7 +4,7 @@ import { ArenaMatchRow, ShuffleRoundRow } from './rows';
 export interface IProps {
   viewerIsOwner?: boolean;
   combats: CombatDataStub[];
-  combatUrlFactory: (combatId: string, logId: string) => string;
+  combatUrlFactory: (combatId: string, combatBracket: string) => string;
 }
 
 export const CombatStubList = (props: IProps) => {

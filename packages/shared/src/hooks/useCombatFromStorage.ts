@@ -1,45 +1,45 @@
-import { AtomicArenaCombat, WowVersion } from '@wowarenalogs/parser';
-import { useEffect, useState } from 'react';
+import { WowVersion } from '@wowarenalogs/parser';
+import { useQuery } from 'react-query';
 
+import { useGetMatchByIdQuery } from '../graphql/__generated__/graphql';
 import { Utils } from '../utils/utils';
 
-export function useCombatFromStorage(
-  url: string,
-  matchId: string,
-): {
-  data: AtomicArenaCombat | undefined;
-  loading: boolean;
-  error: Error | undefined;
-} {
-  const [data, setData] = useState<AtomicArenaCombat>();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error | undefined>(undefined);
-  useEffect(() => {
-    const abortController = new AbortController();
-    const fetchData = async () => {
-      setError(undefined);
-      setLoading(true);
-      try {
-        const result = await fetch(url, abortController);
-        const text = await result.text();
-        const results = await Utils.parseFromStringArrayAsync(
-          text.split('\n'),
-          (result.headers.get('x-goog-meta-wow-version') || 'shadowlands') as WowVersion,
-        );
-        const foundCombat =
-          results.arenaMatches.find((i) => i.id === matchId) ||
-          results.shuffleMatches[0].rounds.find((i) => i.id === matchId);
-        setData(foundCombat);
-      } catch (exception) {
-        setError(exception as Error);
-      }
-      setLoading(false);
-    };
-    if (url) {
-      fetchData();
-    }
-    return () => abortController.abort();
-  }, [url, matchId]);
+export function useCombatFromStorage(matchId: string, anon?: boolean) {
+  const queryCombat = useGetMatchByIdQuery({
+    variables: {
+      matchId,
+      anon: anon ?? false,
+    },
+  });
 
-  return { data: data, loading, error };
+  const queryParsedLog = useQuery(
+    ['log-file', matchId],
+    async () => {
+      const logObjectUrl = queryCombat.data?.matchById.logObjectUrl;
+      const wowVersion = queryCombat.data?.matchById.wowVersion as WowVersion;
+      if (!logObjectUrl) {
+        throw new Error('No log object url for query ' + matchId, {});
+      }
+      if (!wowVersion) {
+        throw new Error('No wow version for query ' + matchId);
+      }
+      const result = await fetch(logObjectUrl);
+      const text = await result.text();
+      const results = Utils.parseFromStringArray(text.split('\n'), wowVersion);
+      return results.arenaMatches.at(0) || results.shuffleMatches[0].rounds.find((i) => i.id === matchId);
+    },
+    {
+      cacheTime: 60 * 60 * 24,
+      staleTime: Infinity,
+      enabled: matchId != '' && !queryCombat.loading && Boolean(queryCombat.data?.matchById.logObjectUrl),
+    },
+  );
+
+  const loading = queryCombat.loading || queryParsedLog.isLoading;
+
+  return {
+    combat: queryParsedLog.data,
+    loading,
+    error: queryParsedLog.error || queryCombat.error,
+  };
 }

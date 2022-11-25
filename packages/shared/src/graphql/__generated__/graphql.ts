@@ -107,6 +107,7 @@ export type MutationSetUserReferrerArgs = {
 export type Query = {
   __typename?: 'Query';
   latestMatches: CombatQueryResult;
+  matchById: CombatDataStub;
   matchesWithCombatant: Array<CombatDataStub>;
   me?: Maybe<IUser>;
   myMatches: CombatQueryResult;
@@ -122,6 +123,12 @@ export type QueryLatestMatchesArgs = {
   minRating?: InputMaybe<Scalars['Float']>;
   offset?: Scalars['Int'];
   wowVersion: Scalars['String'];
+};
+
+
+export type QueryMatchByIdArgs = {
+  anon: Scalars['Boolean'];
+  matchId: Scalars['String'];
 };
 
 
@@ -231,6 +238,14 @@ export type GetMatchesWithCombatantQueryVariables = Exact<{
 
 
 export type GetMatchesWithCombatantQuery = { __typename?: 'Query', matchesWithCombatant: Array<{ __typename?: 'ArenaMatchDataStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId: string, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, utcCorrected?: boolean | null, durationInSeconds: number, winningTeamId: string, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation: number, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier: number, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, endInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null } | { __typename?: 'ShuffleRoundStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId: string, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, utcCorrected?: boolean | null, durationInSeconds: number, winningTeamId: string, killedUnitId: string, sequenceNumber: number, shuffleMatchResult?: number | null, shuffleMatchId?: string | null, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation: number, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier: number, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, scoreboard?: Array<{ __typename?: 'ScoreboardEntry', unitId: string, wins: number } | null> | null, shuffleMatchEndInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null }> };
+
+export type GetMatchByIdQueryVariables = Exact<{
+  matchId: Scalars['String'];
+  anon: Scalars['Boolean'];
+}>;
+
+
+export type GetMatchByIdQuery = { __typename?: 'Query', matchById: { __typename?: 'ArenaMatchDataStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId: string, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, utcCorrected?: boolean | null, durationInSeconds: number, winningTeamId: string, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation: number, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier: number, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, endInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null } | { __typename?: 'ShuffleRoundStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId: string, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, utcCorrected?: boolean | null, durationInSeconds: number, winningTeamId: string, killedUnitId: string, sequenceNumber: number, shuffleMatchResult?: number | null, shuffleMatchId?: string | null, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation: number, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier: number, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, scoreboard?: Array<{ __typename?: 'ScoreboardEntry', unitId: string, wins: number } | null> | null, shuffleMatchEndInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null } };
 
 export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -531,6 +546,44 @@ export function useGetMatchesWithCombatantLazyQuery(baseOptions?: Apollo.LazyQue
 export type GetMatchesWithCombatantQueryHookResult = ReturnType<typeof useGetMatchesWithCombatantQuery>;
 export type GetMatchesWithCombatantLazyQueryHookResult = ReturnType<typeof useGetMatchesWithCombatantLazyQuery>;
 export type GetMatchesWithCombatantQueryResult = Apollo.QueryResult<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>;
+export const GetMatchByIdDocument = gql`
+    query GetMatchById($matchId: String!, $anon: Boolean!) {
+  matchById(matchId: $matchId, anon: $anon) {
+    ...arenaInfos
+    ...shuffleInfos
+  }
+}
+    ${ArenaInfosFragmentDoc}
+${ShuffleInfosFragmentDoc}`;
+
+/**
+ * __useGetMatchByIdQuery__
+ *
+ * To run a query within a React component, call `useGetMatchByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMatchByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMatchByIdQuery({
+ *   variables: {
+ *      matchId: // value for 'matchId'
+ *      anon: // value for 'anon'
+ *   },
+ * });
+ */
+export function useGetMatchByIdQuery(baseOptions: Apollo.QueryHookOptions<GetMatchByIdQuery, GetMatchByIdQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMatchByIdQuery, GetMatchByIdQueryVariables>(GetMatchByIdDocument, options);
+      }
+export function useGetMatchByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMatchByIdQuery, GetMatchByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMatchByIdQuery, GetMatchByIdQueryVariables>(GetMatchByIdDocument, options);
+        }
+export type GetMatchByIdQueryHookResult = ReturnType<typeof useGetMatchByIdQuery>;
+export type GetMatchByIdLazyQueryHookResult = ReturnType<typeof useGetMatchByIdLazyQuery>;
+export type GetMatchByIdQueryResult = Apollo.QueryResult<GetMatchByIdQuery, GetMatchByIdQueryVariables>;
 export const GetProfileDocument = gql`
     query GetProfile {
   me {

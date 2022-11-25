@@ -51,6 +51,7 @@ export const combatUploadSignatureHandler = (request: NextApiRequest, response: 
     return new Promise((resolve) => {
       file.getSignedUrl(signedUrlConfig, function (err, url) {
         if (err) {
+          // eslint-disable-next-line no-console
           console.log(err);
           resolve(response.status(500).json({ error: 'An error has occurred' }));
         } else {

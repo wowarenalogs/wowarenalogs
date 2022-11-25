@@ -1,7 +1,7 @@
 import { AtomicArenaCombat } from '@wowarenalogs/parser';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { TbArrowBack, TbArrowBigLeft, TbArrowBigLeftLine, TbBackhoe, TbBackspace } from 'react-icons/tb';
+import { TbArrowBigLeft } from 'react-icons/tb';
 
 import { TimestampDisplay } from '../common/TimestampDisplay';
 import { CombatDeathReports } from './CombatDeathReports';

@@ -15,10 +15,10 @@ export function ArenaMatchRow({
 }: {
   match: ArenaMatchDataStub;
   viewerIsOwner?: boolean;
-  combatUrlFactory: (combatId: string, logId: string) => string;
+  combatUrlFactory: (combatId: string, combatBracket: string) => string;
 }) {
   return (
-    <Link href={combatUrlFactory(match.id, match.id)}>
+    <Link href={combatUrlFactory(match.id, match.startInfo?.bracket || '')}>
       <div
         key={match.id}
         title={match.id}
@@ -76,7 +76,7 @@ export function ShuffleRoundRow({
       break;
   }
   return (
-    <Link href={combatUrlFactory(round.id, round.shuffleMatchId || 'error')}>
+    <Link href={combatUrlFactory(round.id, round.startInfo?.bracket || '')}>
       <div
         title={roundTitle}
         className="flex py-1 flex-row gap-1 w-full items-center hover:bg-base-200 transition-colors duration-200 rounded"
