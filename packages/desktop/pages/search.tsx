@@ -1,4 +1,3 @@
-import { useApolloClient } from '@apollo/client';
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import { CombatStubList, SpecSelector } from '@wowarenalogs/shared';
 import { useGetPublicMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
@@ -91,86 +90,121 @@ const Page = () => {
       bracket,
       minRating,
       compQueryString,
+      lhsShouldBeWinner: filters.winsOnly,
     },
   });
-  const client = useApolloClient();
-  console.log({ compQueryString });
-  console.log(matchesQuery.error);
 
   return (
     <div className="transition-all mx-4">
       <div className="hero">
         <div className="hero-content flex flex-col items-center">
-          <h1 className="text-5xl font-bold">Match History</h1>
+          <h1 className="text-5xl font-bold">Community Matches</h1>
         </div>
       </div>
-      <button className="btn" onClick={() => matchesQuery.refetch()}>
-        refresh
-      </button>
-      <button className="btn" onClick={() => clearAllFilters()}>
-        clear filters
-      </button>
-      <div className="flex flex-row">
-        {bracketOptions.map((o) => {
-          return (
-            <div className="form-control" key={o}>
+      <div className="bg-gray-800 rounded-md p-4">
+        <div className="flex flex-row space-x-8 mb-2">
+          <div className="flex flex-col">
+            <div className="font-semibold text-gray-400 mt-[5px] mb-[-5px]">LADDER</div>
+            <div className="flex flex-row space-x-4 m-0 p-0 items-center">
+              {bracketOptions.map((o) => {
+                return (
+                  <div className="form-control" key={o}>
+                    <label className="label cursor-pointer space-x-2">
+                      <input
+                        type="radio"
+                        name="radio-10"
+                        className="radio checked:bg-blue-500"
+                        onClick={() => setBracket(o)}
+                        defaultChecked={bracket === o}
+                      />
+                      <span className="label-text">{o}</span>
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <div className="font-semibold text-gray-400 mt-[5px] mb-[-5px]">RATING</div>
+            <div className="flex flex-row space-x-4 items-center">
+              <div className="form-control">
+                <label className="label cursor-pointer space-x-2">
+                  <input
+                    type="radio"
+                    name="radio-11"
+                    className="radio checked:bg-blue-500"
+                    onClick={() => setMinRating(undefined)}
+                    defaultChecked={minRating === undefined}
+                  />
+                  <span className="label-text">Any</span>
+                </label>
+              </div>
+              {ratingOptions.map((o) => {
+                return (
+                  <div className="form-control" key={o}>
+                    <label className="label cursor-pointer space-x-2">
+                      <input
+                        type="radio"
+                        name="radio-11"
+                        className="radio checked:bg-blue-500"
+                        onClick={() => setMinRating(o)}
+                        defaultChecked={minRating === o}
+                      />
+                      <span className="label-text">{o}</span>
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <div>
+          <div className="font-semibold text-gray-400 mt-[5px]">COMP</div>
+          <div className="flex flex-row items-center">
+            <div className="flex flex-row items-center">
+              {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s) => (
+                <SpecSelector
+                  key={s}
+                  spec={filters.team1SpecIds[s]}
+                  addCallback={addToOne}
+                  removeCallback={remFromOne}
+                />
+              ))}
+            </div>
+            <div className="mx-2">
+              <div>VS</div>
+            </div>
+            <div className="flex flex-row items-center">
+              {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s) => (
+                <SpecSelector
+                  key={s}
+                  spec={filters.team2SpecIds[s]}
+                  addCallback={addToTwo}
+                  removeCallback={remFromTwo}
+                />
+              ))}
+            </div>
+            <div className="form-control w-[120px]">
               <label className="label cursor-pointer">
                 <input
-                  type="radio"
-                  name="radio-10"
-                  className="radio checked:bg-blue-500"
-                  onClick={() => setBracket(o)}
-                  defaultChecked={bracket === o}
+                  type="checkbox"
+                  checked={filters.winsOnly}
+                  onChange={(v) =>
+                    setFilters({
+                      ...filters,
+                      winsOnly: v.target.checked,
+                    })
+                  }
+                  className="checkbox"
                 />
-                <span className="label-text">{o}</span>
+                <span className="label-text">Team 1 Wins</span>
               </label>
             </div>
-          );
-        })}
-      </div>
-      <div className="flex flex-row">
-        <div className="form-control">
-          <label className="label cursor-pointer">
-            <input
-              type="radio"
-              name="radio-11"
-              className="radio checked:bg-blue-500"
-              onClick={() => setMinRating(undefined)}
-              defaultChecked={minRating === undefined}
-            />
-            <span className="label-text">Any</span>
-          </label>
-        </div>
-        {ratingOptions.map((o) => {
-          return (
-            <div className="form-control" key={o}>
-              <label className="label cursor-pointer">
-                <input
-                  type="radio"
-                  name="radio-11"
-                  className="radio checked:bg-blue-500"
-                  onClick={() => setMinRating(o)}
-                  defaultChecked={minRating === o}
-                />
-                <span className="label-text">{o}</span>
-              </label>
-            </div>
-          );
-        })}
-      </div>
-      <div className="flex flex-row items-center">
-        <div className="flex flex-row items-center">
-          {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s) => (
-            <SpecSelector key={s} spec={filters.team1SpecIds[s]} addCallback={addToOne} removeCallback={remFromOne} />
-          ))}
-        </div>
-        <div className="mx-2">
-          <div>VS</div>
-        </div>
-        <div className="flex flex-row items-center">
-          {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s) => (
-            <SpecSelector key={s} spec={filters.team2SpecIds[s]} addCallback={addToTwo} removeCallback={remFromTwo} />
-          ))}
+            <div className="flex flex-1" />
+            <button className="btn btn-secondary" onClick={() => clearAllFilters()}>
+              clear filters
+            </button>
+          </div>
         </div>
       </div>
       {matchesQuery.loading && (
