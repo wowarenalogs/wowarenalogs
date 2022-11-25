@@ -4,7 +4,7 @@ export function BracketSelector({ bracket, setBracket }: { bracket: string; setB
   return (
     <div className="flex flex-row space-x-8 mb-2">
       <div className="flex flex-col">
-        <div className="font-semibold text-gray-400 mt-[5px] mb-[-5px]">LADDER</div>
+        <div className="font-semibold text-info-content opacity-50 mt-[5px] mb-[-5px]">LADDER</div>
         <div className="flex flex-row space-x-4 m-0 p-0 items-center">
           {bracketOptions.map((o) => {
             return (
@@ -13,7 +13,7 @@ export function BracketSelector({ bracket, setBracket }: { bracket: string; setB
                   <input
                     type="radio"
                     name="radio-10"
-                    className="radio checked:bg-blue-500"
+                    className="radio checked:bg-primary"
                     onClick={() => setBracket(o)}
                     defaultChecked={bracket === o}
                   />

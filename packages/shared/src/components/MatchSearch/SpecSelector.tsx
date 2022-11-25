@@ -50,13 +50,13 @@ export function SpecSelector({
         onBlur={() => {
           setIsShowing(false);
         }}
-        className="btn w-[48px] border-gray-400 border rounded"
+        className="btn hover:border-accent-focus hover:border-2 w-[48px] border rounded"
       >
         ?
       </label>
       <div
         tabIndex={0}
-        className="flex flex-wrap space-y-1 dropdown-content div p-2 shadow bg-gray-900 rounded-box w-[414px]"
+        className="flex flex-wrap space-y-1 dropdown-content div p-2 shadow bg-primary-content rounded-box w-[414px] z-[100]"
       >
         {SPEC_BY_CLASS.map((s) => {
           return (

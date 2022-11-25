@@ -93,17 +93,17 @@ const Page = () => {
   });
 
   return (
-    <div className="transition-all px-4 overflow-y-auto">
+    <div className="transition-all px-4 overflow-y-auto overflow-visible">
       <div className="hero">
         <div className="hero-content flex flex-col items-center">
           <h1 className="text-5xl font-bold">Community Matches</h1>
         </div>
       </div>
-      <div className="bg-gray-800 rounded-md p-4">
+      <div className="p-4 rounded bg-base-300">
         <BracketSelector bracket={bracket} setBracket={setBracket} />
         <RatingSelector minRating={minRating} setMinRating={setMinRating} />
         <div>
-          <div className="font-semibold text-gray-400 mt-[5px]">COMPOSITION</div>
+          <div className="font-semibold text-info-content opacity-50 mt-[5px]">COMPOSITION</div>
           <div className="flex flex-row items-center">
             <div className="flex flex-row items-center space-x-2">
               {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s) => (

@@ -22,5 +22,5 @@ export { TimestampDisplay } from './components/common/TimestampDisplay';
 export { CombatReportFromStorage } from './components/common/CombatReportFromStorage';
 export { CombatStubList } from './components/CombatStubList';
 export { SpecSelector } from './components/MatchSearch/SpecSelector';
-export { RatingSelector } from './components/CombatStubList/RatingSelector';
-export { BracketSelector } from './components/CombatStubList/BracketSelector';
+export { RatingSelector } from './components/MatchSearch/RatingSelector';
+export { BracketSelector } from './components/MatchSearch/BracketSelector';
