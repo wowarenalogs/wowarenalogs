@@ -7,8 +7,21 @@ import { stringToLogLine } from '../src/pipeline/common/stringToLogLine';
 import { dedup } from '../src/pipeline/classic/dedup';
 import { ILogLine } from '../src/types';
 import { PartyKill } from '../src/actions/PartyKill';
+import { WoWCombatLogParser } from '../src';
 
 describe('pipeline component tests', () => {
+  describe('timezone on construction', () => {
+    it('should not set an invalid timezone', () => {
+      const parser = new WoWCombatLogParser('retail', 'America/Goldshire');
+      expect(parser.getTimezone()).toBeUndefined();
+    });
+
+    it('should set a normal timezone', () => {
+      const parser = new WoWCombatLogParser('retail', 'America/New_York');
+      expect(parser.getTimezone()).toBe('America/New_York');
+    });
+  });
+
   describe('dedup', () => {
     it('should remove duplicate lines', () => {
       const inputLines = fs.readFileSync(path.join(__dirname, 'testlogs', 'test_dedup.txt')).toString().split('\n');

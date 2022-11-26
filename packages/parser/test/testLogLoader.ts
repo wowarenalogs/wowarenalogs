@@ -12,7 +12,7 @@ export type LoaderResults = {
 };
 
 export const loadLogFile = (logFileName: string): LoaderResults => {
-  const logParser = new WoWCombatLogParser();
+  const logParser = new WoWCombatLogParser(null, 'America/RNew_York');
 
   const combats: IArenaMatch[] = [];
   const malformedCombats: IMalformedCombatData[] = [];
