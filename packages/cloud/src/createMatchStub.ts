@@ -30,7 +30,7 @@ export type FirebaseDTO = ICombatDataStub & {
   combatantGuids: string[];
   extra: QueryHelpers;
   expires: Timestamp; // Used to set object TTL for auto-delete
-  timezone?: string;
+  timezone: string;
 };
 
 interface SpecIndexFields {
