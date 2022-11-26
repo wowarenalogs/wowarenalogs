@@ -929,6 +929,8 @@ export const ccSpellIds = new Set<string>(
   }),
 );
 
+export const trinketSpellIds = ['336126']; // TODO: Add adaptation spell id here
+
 export const spellIdToPriority = new Map<string, number>(
   spellTags.flatMap((cls) => {
     return cls.abilities

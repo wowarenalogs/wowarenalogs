@@ -63,7 +63,7 @@ export const FirstTimeSetup = () => {
                   <span className="label-text">
                     I agree with WoW Arena Logs&apos;{' '}
                     <a
-                      href="javascript:void(0)"
+                      href="#"
                       className="link"
                       onClick={() => {
                         clientContext.openExternalURL('https://wowarenalogs.com/privacy.html');

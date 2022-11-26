@@ -7,7 +7,6 @@ import React, { useEffect } from 'react';
 import { TbBug, TbHistory, TbSearch, TbSettings, TbSwords, TbUser } from 'react-icons/tb';
 
 import { useAuth } from '../../hooks/AuthContext';
-// import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
 
 interface IProps {
@@ -35,7 +34,7 @@ export function MainLayout(props: IProps) {
   const selectedNavMenuKey = router.pathname === '' ? '/' : router.pathname;
 
   return (
-    <div className={`flex flex-1 flex-row items-stretch`}>
+    <div className={`flex flex-1 flex-row items-stretch relative`}>
       <div className="flex flex-col text-base-content">
         {clientContext.isDesktop && (
           <div
@@ -73,7 +72,7 @@ export function MainLayout(props: IProps) {
           </Link>
         </div>
         <div
-          className={`p-2 hover:text-primary ${
+          className={`p-2 ${
             selectedNavMenuKey === '/profile'
               ? 'bg-base-100 text-primary'
               : auth.isAuthenticated
@@ -83,13 +82,14 @@ export function MainLayout(props: IProps) {
         >
           {auth.isAuthenticated ? (
             <Link href="/profile" aria-label="Profile">
-              <a>
+              <a className="hover:text-primary">
                 <TbUser size="32" />
               </a>
             </Link>
           ) : (
             <a
-              href="javascript:void(0)"
+              className="hover:text-white"
+              href="#"
               onClick={() => {
                 auth.signIn();
               }}
@@ -111,7 +111,7 @@ export function MainLayout(props: IProps) {
         )}
       </div>
       <div className="flex-1 flex flex-col bg-base-100 text-base-content relative">
-        <div className="absolute w-full h-full overflow-hidden flex flex-col">{props.children}</div>
+        <div className="absolute w-full h-full flex flex-col">{props.children}</div>
       </div>
     </div>
   );

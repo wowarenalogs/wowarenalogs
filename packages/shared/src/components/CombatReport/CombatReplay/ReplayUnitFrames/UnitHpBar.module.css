@@ -1,0 +1,24 @@
+.unit-frame-hp-bar-root {
+  position: absolute;
+  top: 24px;
+  left: 78px;
+  width: 120px;
+  height: 18px;
+}
+
+.unit-frame-hp-bar-fill {
+  position: absolute;
+  height: 18px;
+  top: 0;
+  left: 0;
+}
+
+.unit-frame-hp-bar-text {
+  position: absolute;
+  right: 0;
+  line-height: 18px;
+  margin-right: 4px;
+  font-size: 0.8em;
+  color: white;
+  text-shadow: 1px 1px #000000;
+}
