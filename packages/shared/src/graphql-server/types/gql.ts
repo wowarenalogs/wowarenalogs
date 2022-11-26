@@ -40,6 +40,7 @@ export const typeDefs = gql`
     hasAdvancedLogging: Boolean!
     utcCorrected: Boolean
     durationInSeconds: Float!
+    winningTeamId: String!
   }
   type ScoreboardEntry {
     unitId: String!
@@ -61,6 +62,7 @@ export const typeDefs = gql`
     hasAdvancedLogging: Boolean!
     utcCorrected: Boolean
     durationInSeconds: Float!
+    winningTeamId: String!
     killedUnitId: String!
     scoreboard: [ScoreboardEntry]
     sequenceNumber: Int!
@@ -111,6 +113,7 @@ export const typeDefs = gql`
     myMatches(anonymousUserId: String = null, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
     userMatches(userId: String!, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
     matchesWithCombatant(playerName: String!): [CombatDataStub!]!
+    matchById(matchId: String!, anon: Boolean!): CombatDataStub!
   }
   type Mutation {
     setUserReferrer(referrer: String): IUser

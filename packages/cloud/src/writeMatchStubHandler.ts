@@ -82,7 +82,6 @@ async function handler(file: any, _context: any) {
     stubs.forEach(async (stub) => {
       console.log(`processing stub ${stub.id}`);
       if (startTimeUTC) {
-        stub.startTime = parseFloat(startTimeUTC);
         stub.utcCorrected = true;
       }
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);

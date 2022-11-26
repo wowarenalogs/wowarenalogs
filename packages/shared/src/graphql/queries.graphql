@@ -27,6 +27,7 @@ fragment combatantInfos on CombatantInfo {
 fragment unitInfos on CombatUnitStub {
   id
   name
+  affiliation
   info {
     ...combatantInfos
   }
@@ -59,6 +60,7 @@ fragment arenaInfos on ArenaMatchDataStub {
   hasAdvancedLogging
   utcCorrected
   durationInSeconds
+  winningTeamId
 }
 fragment shuffleInfos on ShuffleRoundStub {
   id
@@ -80,6 +82,7 @@ fragment shuffleInfos on ShuffleRoundStub {
   hasAdvancedLogging
   utcCorrected
   durationInSeconds
+  winningTeamId
   killedUnitId
   scoreboard {
     unitId
@@ -141,6 +144,13 @@ query GetUserMatches($userId: String!, $offset: Int = 0, $count: Int = 50) {
 
 query GetMatchesWithCombatant($playerName: String!) {
   matchesWithCombatant(playerName: $playerName) {
+    ...arenaInfos
+    ...shuffleInfos
+  }
+}
+
+query GetMatchById($matchId: String!, $anon: Boolean!) {
+  matchById(matchId: $matchId, anon: $anon) {
     ...arenaInfos
     ...shuffleInfos
   }

@@ -5,6 +5,7 @@ import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { SessionProvider, SessionProviderProps } from 'next-auth/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 import { AppConfigContextProvider } from '../hooks/AppConfigContext';
 
@@ -27,11 +28,26 @@ const client = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies: {
       CombatUnitStub: {
-        keyFields: ['id', 'spec'],
+        keyFields: false,
       },
     },
   }),
   link,
+});
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 600,
+      retry: (_failureCount: any, error: any) => {
+        if ((error as Error)?.message === 'Fetch error 404') {
+          return false;
+        }
+        return true;
+      },
+    },
+  },
 });
 
 function App(props: AppProps<SessionProviderProps>) {
@@ -44,11 +60,13 @@ function App(props: AppProps<SessionProviderProps>) {
 
   return (
     <SessionProvider session={props.pageProps.session}>
-      <ApolloProvider client={client}>
-        <AppConfigContextProvider>
-          <DesktopLayout {...props} />
-        </AppConfigContextProvider>
-      </ApolloProvider>
+      <QueryClientProvider client={queryClient}>
+        <ApolloProvider client={client}>
+          <AppConfigContextProvider>
+            <DesktopLayout {...props} />
+          </AppConfigContextProvider>
+        </ApolloProvider>
+      </QueryClientProvider>
     </SessionProvider>
   );
 }

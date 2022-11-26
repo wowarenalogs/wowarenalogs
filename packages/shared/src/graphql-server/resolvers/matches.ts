@@ -40,8 +40,11 @@ export async function latestMatches(
     };
   }
 
-  const collectionReference = firestore.collection(matchAnonStubsCollection);
-  // let docsQuery = collectionReference.orderBy('startTime', 'desc');
+  const collectionReference =
+    args.bracket === 'Rated Solo Shuffle'
+      ? firestore.collection(matchStubsCollection)
+      : firestore.collection(matchAnonStubsCollection);
+
   const now = moment().valueOf();
   let docsQuery = collectionReference
     .where('wowVersion', '==', args.wowVersion)
@@ -203,4 +206,13 @@ export async function userMatches(
     combats: matches,
     queryLimitReached: false,
   };
+}
+
+export async function matchById(parent: unknown, args: { matchId: string; anon: boolean }) {
+  const collection = args.anon ? matchAnonStubsCollection : matchStubsCollection;
+  const collectionReference = firestore.collection(collection);
+  const matchDocs = await collectionReference.where('id', '==', `${args.matchId}`).limit(1).get();
+  const match = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub))[0];
+
+  return match;
 }
