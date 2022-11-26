@@ -148,7 +148,7 @@ export async function myMatches(
   }
 
   const userProfile = await getUserProfileAsync(context);
-  const userId = context.user ? context.user.id : args.anonymousUserId;
+  const userId = context.user ? context.user.battlenetId : args.anonymousUserId;
   const subscriptionTier = userProfile ? userProfile.subscriptionTier : UserSubscriptionTier.Common;
 
   const collectionReference = firestore.collection(matchStubsCollection);

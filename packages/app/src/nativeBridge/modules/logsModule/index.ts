@@ -75,8 +75,7 @@ export class LogsModule extends NativeBridgeModule {
           });
 
           data.filePaths.forEach((logFile) => {
-            const logStat = statSync(logFile);
-            DesktopUtils.parseLogFileChunk(logParser, logFile, 0, logStat.size);
+            DesktopUtils.parseLogFile(logParser, logFile);
           });
         }
       });
