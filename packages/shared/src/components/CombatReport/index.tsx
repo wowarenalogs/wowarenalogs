@@ -1,10 +1,19 @@
 import { AtomicArenaCombat } from '@wowarenalogs/parser';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
 import { TimestampDisplay } from '../common/TimestampDisplay';
 import { CombatDeathReports } from './CombatDeathReports';
 import { CombatReportContextProvider } from './CombatReportContext';
 import { CombatSummary } from './CombatSummary';
+
+const CombatReplay = dynamic(
+  () => {
+    const promise = import('./CombatReplay').then((mod) => mod.CombatReplay);
+    return promise;
+  },
+  { ssr: false },
+);
 
 interface IProps {
   combat: AtomicArenaCombat;
@@ -69,8 +78,21 @@ export const CombatReport = ({ combat, anon }: IProps) => {
             Replay
           </a>
         </div>
-        <div className="mt-4 mx-2">{activeTab === 'summary' && <CombatSummary />}</div>
-        <div className="mt-4 mx-2">{activeTab === 'death' && <CombatDeathReports />}</div>
+        {activeTab === 'summary' && (
+          <div className="mt-4 mx-2">
+            <CombatSummary />
+          </div>
+        )}
+        {activeTab === 'death' && (
+          <div className="mt-4 mx-2">
+            <CombatDeathReports />
+          </div>
+        )}
+        {activeTab === 'replay' && (
+          <div className="mt-4 mx-2">
+            <CombatReplay />
+          </div>
+        )}
       </div>
     </CombatReportContextProvider>
   );

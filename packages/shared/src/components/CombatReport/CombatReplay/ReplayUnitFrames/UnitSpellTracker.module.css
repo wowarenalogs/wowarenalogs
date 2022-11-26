@@ -1,0 +1,33 @@
+.unit-frame-aurastates {
+  position: absolute;
+  top: 20px;
+  left: 200px;
+  width: 140px;
+  height: 52px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.unit-frame-auraicon {
+  position: relative;
+  margin-left: 2px;
+  box-shadow: 0 0px 5px 0 rgba(255, 255, 255, 1);
+}
+
+.unit-frame-auraicon-casting {
+  position: relative;
+  margin-left: 2px;
+  box-shadow: 0 0px 12px 0 rgba(255, 255, 255, 1);
+}
+
+.unit-frame-auraicon-cooldown {
+  position: relative;
+  margin-left: 2px;
+  opacity: 0.45;
+}
+
+.unit-frame-auraicon-ready {
+  position: relative;
+  margin-left: 2px;
+  opacity: 0.75;
+}
