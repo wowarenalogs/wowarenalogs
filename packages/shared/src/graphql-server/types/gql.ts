@@ -40,7 +40,7 @@ export const typeDefs = gql`
     hasAdvancedLogging: Boolean!
     durationInSeconds: Float!
     winningTeamId: String!
-    timezone: String!
+    timezone: String
   }
   type ScoreboardEntry {
     unitId: String!
@@ -68,7 +68,7 @@ export const typeDefs = gql`
     shuffleMatchEndInfo: ArenaMatchEndInfo
     shuffleMatchResult: Int
     shuffleMatchId: String
-    timezone: String!
+    timezone: String
   }
 
   union CombatDataStub = ShuffleRoundStub | ArenaMatchDataStub
