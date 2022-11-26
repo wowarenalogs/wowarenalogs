@@ -4,7 +4,7 @@ import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryErr
 import { useGetPublicMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
 import { useState } from 'react';
-import { TbLoader } from 'react-icons/tb';
+import { TbLoader, TbRocketOff } from 'react-icons/tb';
 
 interface IPublicMatchesFilters {
   minRating: number;
@@ -106,9 +106,10 @@ const Page = () => {
           <div className="font-semibold text-info-content opacity-50 mt-[5px]">COMPOSITION</div>
           <div className="flex flex-row items-center">
             <div className="flex flex-row items-center space-x-2">
-              {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s) => (
+              {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s, idx) => (
                 <SpecSelector
-                  key={s}
+                  key={`1-${idx}`}
+                  modalKey={`1-${idx}`}
                   spec={filters.team1SpecIds[s]}
                   addCallback={addToOne}
                   removeCallback={remFromOne}
@@ -117,9 +118,10 @@ const Page = () => {
             </div>
             <div className="divider divider-horizontal">VS</div>
             <div className="flex flex-row items-center space-x-2">
-              {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s) => (
+              {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s, idx) => (
                 <SpecSelector
-                  key={s}
+                  key={`2-${idx}`}
+                  modalKey={`2-${idx}`}
                   spec={filters.team2SpecIds[s]}
                   addCallback={addToTwo}
                   removeCallback={remFromTwo}
@@ -157,6 +159,14 @@ const Page = () => {
       <QuerryError query={matchesQuery} />
       {!matchesQuery.loading && (
         <div className="animate-fadein">
+          {matchesQuery.data?.latestMatches.combats.length === 0 && (
+            <div className="alert shadow-lg">
+              <div>
+                <TbRocketOff size={24} />
+                <span>No matches to display!</span>
+              </div>
+            </div>
+          )}
           <CombatStubList
             viewerIsOwner
             combats={matchesQuery.data?.latestMatches.combats || []}
@@ -168,7 +178,6 @@ const Page = () => {
               }
             }}
           />
-          {matchesQuery.data?.latestMatches.combats.length === 0 && <div>No matches to display!</div>}
         </div>
       )}
     </div>
