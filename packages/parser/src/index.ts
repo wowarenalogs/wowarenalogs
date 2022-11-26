@@ -45,6 +45,11 @@ export class WoWCombatLogParser extends EventEmitter {
     },
   };
 
+  /**
+   * Build a WoWCombatLogParser to handle a log stream and emit events with information about parsed combat
+   * @param initialWowVersion WoWVersion the log files will use, defaults to retail
+   * @param timezone Timezone the log was recorded in, defaults to the system timezone
+   */
   constructor(initialWowVersion: WowVersion | null = null, timezone?: string) {
     super();
     this.resetParserStates(initialWowVersion);

@@ -41,11 +41,8 @@ export const stringToLogLine = (timezone?: string) => {
         m: minute,
         s: second,
       };
-      console.log('tz', timezone);
-      console.log('guess:', moment.tz.guess());
       const timestampValue = timezone ? moment.tz(timestampValueObj, timezone) : moment(timestampValueObj);
       const timestamp = timestampValue.valueOf();
-      if (timezone) console.log(timestampValue.tz(timezone));
 
       const jsonParameters = parseWowToJSON(regex_matches[8]);
 

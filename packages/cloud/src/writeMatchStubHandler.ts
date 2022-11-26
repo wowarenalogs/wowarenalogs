@@ -54,8 +54,11 @@ async function handler(file: any, _context: any) {
   const ownerId = response.headers.get('x-goog-meta-ownerid') || 'unknown-uploader';
   const wowVersion = (response.headers.get('x-goog-meta-wow-version') || 'retail') as WowVersion;
   const startTimeUTC = response.headers.get('x-goog-meta-starttime-utc');
+  const logTimezone = response.headers.get('x-goog-meta-client-timezone');
 
   console.log(`Reading file: ${response.status} ${textBuffer.slice(0, 50)}`);
+  console.log(`Parsed timezone ${logTimezone}`);
+
   const parseResults = await parseFromStringArrayAsync(textBuffer.split('\n'), wowVersion);
   console.log(
     `Parsed arenaMatchesLength=${parseResults.arenaMatches.length} shuffleMatchesLength=${parseResults.shuffleMatches.length}`,
