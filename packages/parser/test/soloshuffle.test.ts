@@ -34,6 +34,7 @@ describe('solo shuffle tests', () => {
       expect(shuffle.startTime).toBe(firstRound.startTime);
       expect(shuffle.endTime).toBe(1667430187514);
       expect(shuffle.endTime).toBe(lastRound.endTime);
+      expect(shuffle.timezone).toBe('America/New_York');
 
       expect(shuffle.endInfo.matchDurationInSeconds).toBe(100);
       expect(shuffle.durationInSeconds).toBe(543);
@@ -75,6 +76,7 @@ describe('solo shuffle tests', () => {
       expect(round.winningTeamId).toBe('0');
       expect(round.killedUnitId).toBe('Player-1098-0A781F24');
 
+      expect(round.timezone).toBe('America/New_York');
       expect(round.startTime).toBe(1667429644514);
       expect(round.endTime).toBe(1667429692521);
       expect(round.hasAdvancedLogging).toBe(true);

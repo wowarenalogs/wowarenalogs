@@ -11,12 +11,12 @@ export const createRetailParserPipeline = (
   onMalformedCombat: (combat: IMalformedCombatData) => void,
   onShuffleRound: (combat: IShuffleRound) => void,
   onShuffleComplete: (combat: IShuffleMatch) => void,
-  timezone?: string,
+  timezone: string,
 ) => {
   const rawLogs = new Subject<string>();
 
   rawLogs
-    .pipe(stringToLogLine(timezone), logLineToCombatEvent('retail'), combatEventsToSegment(), segmentToCombat())
+    .pipe(stringToLogLine(timezone), logLineToCombatEvent('retail'), combatEventsToSegment(), segmentToCombat(timezone))
     .subscribe({
       next: (d) => {
         switch (d.dataType) {

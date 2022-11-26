@@ -60,10 +60,11 @@ function decodeShuffleRound(
   segment: ICombatEventSegment,
   recentShuffleRounds: IShuffleRound[],
   recentScoreboard: IShuffleRound['scoreboard'],
+  timezone: string,
 ) {
   // a segment was emitted that looks valid but does not end with ArenaMatchEnd
   // assume this is a solo shuffle round
-  const combat = new CombatData('retail');
+  const combat = new CombatData('retail', timezone);
   combat.startTime = segment.events[0].timestamp || 0;
   segment.events.forEach((e) => {
     combat.readEvent(e);
@@ -142,6 +143,7 @@ function decodeShuffleRound(
     playerTeamRating: combat.playerTeamRating,
     result: result,
     durationInSeconds: (endTime - combat.startTime) / 1000,
+    timezone: combat.timezone,
   };
 
   recentShuffleRounds.push(rv);
@@ -151,7 +153,7 @@ function decodeShuffleRound(
   };
 }
 
-export const segmentToCombat = () => {
+export const segmentToCombat = (timezone: string) => {
   return pipe(
     map((segment: ICombatEventSegment): IArenaMatch | IMalformedCombatData | IShuffleRound | IShuffleMatch | null => {
       const isShuffleRound =
@@ -167,7 +169,7 @@ export const segmentToCombat = () => {
       logInfo(`segmentToCombat isShuffle=${isShuffleRound} metadataOK=${metadataLooksGood}`);
       if (isShuffleRound) {
         try {
-          const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
+          const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer, timezone);
           return decoded.shuffle;
         } catch (e) {
           logInfo('Decoder fail');
@@ -178,7 +180,7 @@ export const segmentToCombat = () => {
       if (metadataLooksGood) {
         if (segment.events[0] instanceof ArenaMatchStart && segment.events[0].bracket.endsWith('Solo Shuffle')) {
           logInfo(`final shuffle round decode starting`);
-          const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer);
+          const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer, timezone);
           const validRounds = validateRounds(recentShuffleRoundsBuffer);
 
           logInfo(`final shuffle round validRounds=${validRounds}`);
@@ -194,6 +196,7 @@ export const segmentToCombat = () => {
               endInfo: nullthrows(decoded.combat.endInfo),
               rounds: [...recentShuffleRoundsBuffer],
               durationInSeconds: (decoded.combat.endTime - recentShuffleRoundsBuffer[0].startTime) / 1000,
+              timezone: decoded.combat.timezone,
             };
             recentShuffleRoundsBuffer = [];
             recentScoreboardBuffer = [];
@@ -203,7 +206,7 @@ export const segmentToCombat = () => {
           recentShuffleRoundsBuffer = [];
           recentScoreboardBuffer = [];
         } else {
-          const combat = new CombatData('retail');
+          const combat = new CombatData('retail', timezone);
           combat.startTime = segment.events[0].timestamp || 0;
           segment.events.forEach((e) => {
             combat.readEvent(e);
@@ -213,6 +216,7 @@ export const segmentToCombat = () => {
           if (combat.isWellFormed) {
             const plainCombatDataObject: IArenaMatch = {
               dataType: 'ArenaMatch',
+              timezone: combat.timezone,
               events: combat.events,
               id: computeCanonicalHash(segment.lines),
               wowVersion: combat.wowVersion,

@@ -70,7 +70,7 @@ export const ReplayEvents = (props: IProps) => {
 
     const items: CombatEvent[] = [];
     from(context.combat?.rawLines || [])
-      .pipe(stringToLogLine(), logLineToCombatEvent('retail'), filter(isCombatEvent))
+      .pipe(stringToLogLine(context.combat.timezone), logLineToCombatEvent('retail'), filter(isCombatEvent))
       .subscribe((e) => {
         if (
           (isWantedDamageOrHeal(e) || isExtraSpellAction(e) || isPlayerDeath(e) || isWantedAura(e) || isAuraDose(e)) &&

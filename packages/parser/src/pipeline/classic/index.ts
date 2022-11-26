@@ -10,7 +10,7 @@ import { segmentToCombat } from './segmentToCombat';
 export const createClassicParserPipeline = (
   onValidCombat: (combat: IArenaMatch) => void,
   onMalformedCombat: (combat: IMalformedCombatData) => void,
-  timezone?: string,
+  timezone: string,
 ) => {
   const rawLogs = new Subject<string>();
 
@@ -20,7 +20,7 @@ export const createClassicParserPipeline = (
       stringToLogLine(timezone),
       logLineToCombatEvent('classic'),
       inferCombatEventSegments(),
-      segmentToCombat(),
+      segmentToCombat(timezone),
     )
     .subscribe({
       next: (v) => {

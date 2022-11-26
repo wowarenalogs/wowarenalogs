@@ -16,9 +16,13 @@ type ParseResult = {
   shuffleMatches: IShuffleMatch[];
 };
 
-export function parseFromStringArrayAsync(buffer: string[], wowVersion: WowVersion): Promise<ParseResult> {
+export function parseFromStringArrayAsync(
+  buffer: string[],
+  wowVersion: WowVersion,
+  timezone?: string,
+): Promise<ParseResult> {
   return new Promise((resolve) => {
-    const logParser = new WoWCombatLogParser(wowVersion);
+    const logParser = new WoWCombatLogParser(wowVersion, timezone);
 
     const results: ParseResult = {
       arenaMatches: [],
@@ -53,13 +57,12 @@ async function handler(file: any, _context: any) {
 
   const ownerId = response.headers.get('x-goog-meta-ownerid') || 'unknown-uploader';
   const wowVersion = (response.headers.get('x-goog-meta-wow-version') || 'retail') as WowVersion;
-  const startTimeUTC = response.headers.get('x-goog-meta-starttime-utc');
-  const logTimezone = response.headers.get('x-goog-meta-client-timezone');
+  const logTimezone = response.headers.get('x-goog-meta-client-timezone') || undefined;
 
   console.log(`Reading file: ${response.status} ${textBuffer.slice(0, 50)}`);
   console.log(`Parsed timezone ${logTimezone}`);
 
-  const parseResults = await parseFromStringArrayAsync(textBuffer.split('\n'), wowVersion);
+  const parseResults = await parseFromStringArrayAsync(textBuffer.split('\n'), wowVersion, logTimezone);
   console.log(
     `Parsed arenaMatchesLength=${parseResults.arenaMatches.length} shuffleMatchesLength=${parseResults.shuffleMatches.length}`,
   );
@@ -68,11 +71,6 @@ async function handler(file: any, _context: any) {
   if (parseResults.arenaMatches.length > 0) {
     const arenaMatch = parseResults.arenaMatches[0];
     const stub = createStubDTOFromArenaMatch(arenaMatch, ownerId, logObjectUrl);
-    if (startTimeUTC) {
-      // Write the start time based on client-side headers to account for timezone differences
-      stub.startTime = parseFloat(startTimeUTC);
-      stub.utcCorrected = true;
-    }
     const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
     console.log(`writing ${matchStubsFirestore}/${stub.id}`);
     await document.set(instanceToPlain(stub));
@@ -84,9 +82,6 @@ async function handler(file: any, _context: any) {
     const stubs = createStubDTOFromShuffleMatch(shuffleMatch, ownerId, logObjectUrl);
     stubs.forEach(async (stub) => {
       console.log(`processing stub ${stub.id}`);
-      if (startTimeUTC) {
-        stub.utcCorrected = true;
-      }
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
       await document.set(instanceToPlain(stub));
     });

@@ -8,7 +8,7 @@ import { ILogLine, LogEvent } from '../../types';
 const LINE_PARSER = /^(\d+)\/(\d+)\s+(\d+):(\d+):(\d+)\.(\d+)\s+([A-Z_]+),(.+)\s*$/;
 let nextId = 0;
 
-export const stringToLogLine = (timezone?: string) => {
+export const stringToLogLine = (timezone: string) => {
   return pipe(
     map((line: string): ILogLine | string => {
       const regex_matches = line.match(LINE_PARSER);
@@ -41,7 +41,7 @@ export const stringToLogLine = (timezone?: string) => {
         m: minute,
         s: second,
       };
-      const timestampValue = timezone ? moment.tz(timestampValueObj, timezone) : moment(timestampValueObj);
+      const timestampValue = moment.tz(timestampValueObj, timezone);
       const timestamp = timestampValue.valueOf();
 
       const jsonParameters = parseWowToJSON(regex_matches[8]);
