@@ -3,8 +3,11 @@ import { BracketSelector, CombatStubList, RatingSelector, SpecSelector } from '@
 import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryError';
 import { useGetPublicMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { TbLoader, TbRocketOff } from 'react-icons/tb';
+import { TbArrowBigUpLines, TbLoader, TbRocketOff } from 'react-icons/tb';
+
+const PAGE_SIZE = 50;
 
 interface IPublicMatchesFilters {
   minRating: number;
@@ -23,9 +26,11 @@ function computeCompQueryString(team1specs: CombatUnitSpec[], team2specs: Combat
 }
 
 const Page = () => {
+  const router = useRouter();
+  const { page } = router.query;
+  const pageNum = parseInt(page?.toString() || '0');
   const [bracket, setBracket] = useState('Rated Solo Shuffle');
   const [minRating, setMinRating] = useState<number>(0);
-
   const [filters, setFiltersImpl] = useState<IPublicMatchesFilters>({
     minRating: 0,
     winsOnly: false,
@@ -89,6 +94,7 @@ const Page = () => {
       minRating,
       compQueryString,
       lhsShouldBeWinner: filters.winsOnly,
+      offset: PAGE_SIZE * pageNum,
     },
   });
 
@@ -99,7 +105,7 @@ const Page = () => {
           <h1 className="text-5xl font-bold">Community Matches</h1>
         </div>
       </div>
-      <div className="p-4 rounded bg-base-300">
+      <div className="p-4 rounded-2xl bg-base-300">
         <BracketSelector bracket={bracket} setBracket={setBracket} />
         <RatingSelector minRating={minRating} setMinRating={setMinRating} />
         <div>
@@ -178,6 +184,59 @@ const Page = () => {
               }
             }}
           />
+          {matchesQuery.data?.latestMatches.queryLimitReached && (
+            <div className="alert alert-info shadow-lg">
+              <div>
+                <TbArrowBigUpLines size={24} />
+                <span>Upgrade your user tier to see more matches!</span>
+              </div>
+            </div>
+          )}
+          <div className={`btn-group grid pt-4 pb-10 ${pageNum > 0 ? 'grid-cols-3' : 'grid-cols-1'}`}>
+            {pageNum > 0 && (
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => {
+                  router.push({
+                    pathname: router.pathname,
+                    query: {
+                      page: 0,
+                    },
+                  });
+                }}
+              >
+                First
+              </button>
+            )}
+            {pageNum > 0 && (
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => {
+                  router.push({
+                    pathname: router.pathname,
+                    query: {
+                      page: pageNum - 1,
+                    },
+                  });
+                }}
+              >
+                Previous
+              </button>
+            )}
+            <button
+              className="btn btn-outline btn-sm"
+              onClick={() => {
+                router.push({
+                  pathname: router.pathname,
+                  query: {
+                    page: pageNum + 1,
+                  },
+                });
+              }}
+            >
+              Next Page
+            </button>
+          </div>
         </div>
       )}
     </div>
