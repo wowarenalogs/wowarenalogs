@@ -52,12 +52,12 @@ export class WoWCombatLogParser extends EventEmitter {
    */
   constructor(initialWowVersion: WowVersion | null = null, timezone?: string) {
     super();
-    this.resetParserStates(initialWowVersion);
     if (timezone && moment.tz.names().includes(timezone)) {
       this._timezone = timezone;
     } else {
       this._timezone = moment.tz.guess();
     }
+    this.resetParserStates(initialWowVersion);
   }
 
   public getTimezone() {
