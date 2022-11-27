@@ -75,7 +75,7 @@ export function MainLayout(props: IProps) {
           className={`p-2 ${
             selectedNavMenuKey === '/profile'
               ? 'bg-base-100 text-primary'
-              : auth.isAuthenticated
+              : auth.isLoadingAuthData || auth.isAuthenticated
               ? ''
               : 'bg-error text-error-content'
           }`}
@@ -86,6 +86,10 @@ export function MainLayout(props: IProps) {
                 <TbUser size="32" />
               </a>
             </Link>
+          ) : auth.isLoadingAuthData ? (
+            <a className="cursor-wait opacity-60" href="#">
+              <TbUser size="32" />
+            </a>
           ) : (
             <a
               className="hover:text-white"

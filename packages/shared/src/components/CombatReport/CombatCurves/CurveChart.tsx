@@ -26,7 +26,15 @@ export const CurveChart = (props: IProps) => {
         />
         <Legend />
         {props.series.map((s) => (
-          <Line key={s.key} type="monotone" legendType="rect" dataKey={s.key} name={s.displayName} stroke={s.color} />
+          <Line
+            key={s.key}
+            type="monotone"
+            legendType="rect"
+            dataKey={s.key}
+            name={s.displayName}
+            stroke={s.color}
+            dot={false}
+          />
         ))}
       </LineChart>
     </ResponsiveContainer>

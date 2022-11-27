@@ -84,7 +84,7 @@ export const CombatReport = ({ combat, anon }: IProps) => {
             Replay
           </a>
         </div>
-        <div className="mt-4 mx-2 flex-1 relative overflow-y-scroll">
+        <div className="mt-4 ml-2 flex-1 relative overflow-x-hidden overflow-y-scroll">
           <div className="pr-4">
             {activeTab === 'summary' && <CombatSummary />}
             {activeTab === 'death' && <CombatDeathReports />}

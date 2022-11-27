@@ -43,7 +43,7 @@ export const CombatCurves = () => {
             )}
           </a>
         </li>
-        {friends.map((u) => (
+        {enemies.map((u) => (
           <li key={u.id} className={`${activeTabID === u.id ? 'bordered' : ''}`}>
             <a
               className="flex flex-row"
@@ -68,7 +68,7 @@ export const CombatCurves = () => {
             )}
           </a>
         </li>
-        {enemies.map((u) => (
+        {friends.map((u) => (
           <li key={u.id} className={`${activeTabID === u.id ? 'bordered' : ''}`}>
             <a
               className="flex flex-row"
