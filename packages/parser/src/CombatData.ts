@@ -40,6 +40,12 @@ const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
 export interface IArenaCombat {
   id: string;
   wowVersion: WowVersion;
+  /**
+   * The timezone the parser interpreted the log file's timestamps as being in
+   *
+   * Could have been user provided or guessed using moment.tz.guess
+   */
+  timezone: string;
 
   /**
    * Marker to discriminate types of combats into shuffle rounds or arena matches
@@ -197,6 +203,13 @@ export interface IShuffleMatch {
   endTime: number;
 
   /**
+   * The timezone the parser interpreted the log file's timestamps as being in
+   *
+   * Could have been user provided or guessed using moment.tz.guess
+   */
+  timezone: string;
+
+  /**
    * Result as reported by ARENA_MATCH_END
    */
   result: CombatResult;
@@ -258,7 +271,7 @@ export class CombatData {
 
   private inferredCombatantIds: Set<string> = new Set<string>();
 
-  constructor(public readonly wowVersion: WowVersion) {}
+  constructor(public readonly wowVersion: WowVersion, public readonly timezone: string) {}
 
   public readEvent(event: CombatEvent) {
     if (this.startTime === 0) {

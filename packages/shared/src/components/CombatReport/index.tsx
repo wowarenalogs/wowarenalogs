@@ -36,7 +36,7 @@ export const CombatReport = ({ combat, anon }: IProps) => {
         <div className="flex flex-row items-center px-2">
           <h2 className="text-2xl font-bold">
             <TbArrowBigLeft className="inline mr-4" onClick={() => router.back()} />
-            <TimestampDisplay timestamp={combat.startTime} />
+            <TimestampDisplay timestamp={combat.startTime} timezone={combat.timezone} />
             {sequence && <div className="ml-4 inline">Round {sequence}</div>}
           </h2>
           <div className="flex flex-1" />

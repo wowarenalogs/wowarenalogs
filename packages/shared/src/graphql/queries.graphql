@@ -58,9 +58,9 @@ fragment arenaInfos on ArenaMatchDataStub {
   playerTeamId
   playerTeamRating
   hasAdvancedLogging
-  utcCorrected
   durationInSeconds
   winningTeamId
+  timezone
 }
 fragment shuffleInfos on ShuffleRoundStub {
   id
@@ -80,7 +80,6 @@ fragment shuffleInfos on ShuffleRoundStub {
   playerTeamId
   playerTeamRating
   hasAdvancedLogging
-  utcCorrected
   durationInSeconds
   winningTeamId
   killedUnitId
@@ -94,6 +93,7 @@ fragment shuffleInfos on ShuffleRoundStub {
   }
   shuffleMatchResult
   shuffleMatchId
+  timezone
 }
 
 query GetPublicMatches(

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 export interface IProps {
   timestamp: number;
-  applyUtcFix?: boolean;
+  timezone?: string | null;
 }
 
 export function TimestampDisplay(props: IProps) {
@@ -19,17 +19,10 @@ export function TimestampDisplay(props: IProps) {
     };
   }, [props.timestamp]);
 
-  let timestampInLocalTimezone = moment(props.timestamp).valueOf();
-  if (props.applyUtcFix) {
-    const timestampObj = moment.tz(props.timestamp, 'Etc/UTC');
-    const timestampObjLocal = timestampObj.tz(moment.tz.guess(), true);
-    timestampInLocalTimezone = timestampObjLocal.valueOf();
-  }
+  const timezone = props.timezone || moment.tz.guess();
+  const timestamp = moment.tz(props.timestamp, timezone).valueOf();
 
-  const text =
-    now - timestampInLocalTimezone < 60 * 60 * 1000
-      ? moment(timestampInLocalTimezone).from(now)
-      : moment(timestampInLocalTimezone).calendar(now);
+  const text = now - timestamp < 60 * 60 * 1000 ? moment(timestamp).from(now) : moment(timestamp).calendar(now);
 
   return <span>{text}</span>;
 }

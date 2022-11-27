@@ -107,12 +107,6 @@ interface IDTOPublicFeatures {
    * Cloud storage URL of the raw log file
    */
   logObjectUrl: string;
-  /**
-   * TODO: what is this field for again?
-   * It was something to do with how we were correcting for UTC time
-   * differentials between the log and rtc of the user's machine
-   */
-  utcCorrected: boolean;
 }
 
 export type ICombatDataStub = (IArenaMatchStub | IShuffleRoundStub) & IUnitsStub & IDTOPublicFeatures;

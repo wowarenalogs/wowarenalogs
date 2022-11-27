@@ -31,6 +31,7 @@ describe('3v3 match parsing', () => {
       const combat = results.combats[0];
       expect(combat.id).toEqual('f972d3d639ddb2f048b2f21ec137462c');
       expect(combat.dataType).toBe('ArenaMatch');
+      expect(combat.timezone).toBe('America/New_York');
     });
 
     it('reaction based fields should populate', () => {
