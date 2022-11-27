@@ -25,7 +25,6 @@ export function ArenaMatchRow({
         className="flex flex-row py-1 gap-1 w-full items-center hover:bg-base-200 transition-colors duration-200 rounded"
       >
         <TimestampDisplay timestamp={match.startTime} timezone={match.timezone} />
-        <div>{match.timezone}</div>
         <div className="badge">{durationString(match.durationInSeconds)}</div>
         <div className="badge">{zoneMetadata[match.startInfo?.zoneId || '0']?.name}</div>
         <div className="flex flex-1" />
@@ -83,7 +82,6 @@ export function ShuffleRoundRow({
         className="flex py-1 flex-row gap-1 w-full items-center hover:bg-base-200 transition-colors duration-200 rounded"
       >
         <TimestampDisplay timestamp={round.startTime} timezone={round.timezone} />
-        <div>{round.timezone}</div>
         <div className="badge">{durationString(round.durationInSeconds)}</div>
         <div className={`badge`}>{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
         <div className="flex flex-1" />
