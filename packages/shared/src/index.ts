@@ -1,4 +1,3 @@
-export { Test } from './components/Test';
 export { CombatReport } from './components/CombatReport';
 export { LoadingScreen } from './components/LoadingScreen';
 export { MainLayout } from './components/MainLayout';
