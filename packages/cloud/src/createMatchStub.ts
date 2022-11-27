@@ -214,7 +214,7 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
       shuffleMatchId: match.id,
       shuffleMatchResult: match.result,
       shuffleMatchEndInfo: match.endInfo,
-      timezone: match.timezone,
+      timezone: round.timezone,
     };
   });
 }
