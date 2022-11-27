@@ -13,8 +13,8 @@ function createWindow() {
   const win = new BrowserWindow({
     frame: false,
     backgroundColor: '#000000',
-    width: 1000,
-    height: 600,
+    width: 1120,
+    height: 900,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -23,7 +23,7 @@ function createWindow() {
     },
   });
 
-  win.setMinimumSize(1000, 600);
+  win.setMinimumSize(1120, 600);
   win.setMenuBarVisibility(false);
 
   win.loadURL(`${BASE_REMOTE_URL}/?time=${moment.now()}`, {
