@@ -16,7 +16,7 @@ export const createRetailParserPipeline = (
   const rawLogs = new Subject<string>();
 
   rawLogs
-    .pipe(stringToLogLine(timezone), logLineToCombatEvent('retail'), combatEventsToSegment(), segmentToCombat(timezone))
+    .pipe(stringToLogLine(timezone), logLineToCombatEvent('retail'), combatEventsToSegment(), segmentToCombat())
     .subscribe({
       next: (d) => {
         switch (d.dataType) {

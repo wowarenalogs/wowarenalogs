@@ -14,12 +14,12 @@ describe('pipeline component tests', () => {
   describe('timezone on construction', () => {
     it('should use moment default if an invalid tz string is passed', () => {
       const parser = new WoWCombatLogParser('retail', 'America/Goldshire');
-      expect(parser.getTimezone()).toBe(moment.tz.guess());
+      expect(parser._timezone).toBe(moment.tz.guess());
     });
 
     it('should set a normal timezone', () => {
       const parser = new WoWCombatLogParser('retail', 'America/New_York');
-      expect(parser.getTimezone()).toBe('America/New_York');
+      expect(parser._timezone).toBe('America/New_York');
     });
   });
 

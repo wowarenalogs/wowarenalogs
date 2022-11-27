@@ -36,7 +36,7 @@ export interface IParserContext {
 const WOW_VERSION_LINE_PARSER = /COMBAT_LOG_VERSION,(\d+),ADVANCED_LOG_ENABLED,\d,BUILD_VERSION,([^,]+),(.+)\s*$/;
 
 export class WoWCombatLogParser extends EventEmitter {
-  private _timezone: string;
+  public readonly _timezone: string;
 
   private context: IParserContext = {
     wowVersion: null,
@@ -58,10 +58,6 @@ export class WoWCombatLogParser extends EventEmitter {
       this._timezone = moment.tz.guess();
     }
     this.resetParserStates(initialWowVersion);
-  }
-
-  public getTimezone() {
-    return this._timezone;
   }
 
   public resetParserStates(wowVersion: WowVersion | null = null): void {

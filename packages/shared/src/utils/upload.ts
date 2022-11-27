@@ -18,7 +18,6 @@ export async function uploadCombatAsync(
     'x-goog-meta-wow-version': combat.wowVersion,
     'x-goog-meta-ownerid': ownerId,
     'x-goog-meta-starttime-utc': combat.startTime.toString(),
-
     'x-goog-meta-client-timezone': moment.tz.guess(),
     'x-goog-meta-client-year': new Date().getFullYear().toString(),
   };

@@ -7,11 +7,11 @@ import { CombatUnitReaction, CombatUnitType, ICombatEventSegment } from '../../t
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
 
-export const segmentToCombat = (timezone: string) => {
+export const segmentToCombat = () => {
   return pipe(
     map((segment: ICombatEventSegment): IArenaMatch | IMalformedCombatData | null => {
       if (segment.events.length >= 3) {
-        const combat = new CombatData('classic', timezone);
+        const combat = new CombatData('classic', segment.events[0].logLine.timezone);
         combat.startTime = segment.events[0].timestamp || 0;
         segment.events.forEach((e) => {
           combat.readEvent(e);
@@ -57,7 +57,7 @@ export const segmentToCombat = (timezone: string) => {
               timestamp: combat.startInfo?.timestamp || 0,
               zoneId: combat.startInfo?.zoneId || '',
             },
-            timezone,
+            timezone: combat.timezone,
             durationInSeconds: (nullthrows(combat.endInfo).timestamp - nullthrows(combat.startInfo).timestamp) / 1000,
             endInfo: nullthrows(combat.endInfo),
             winningTeamId: nullthrows(combat.endInfo?.winningTeamId),

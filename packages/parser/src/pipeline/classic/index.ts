@@ -20,7 +20,7 @@ export const createClassicParserPipeline = (
       stringToLogLine(timezone),
       logLineToCombatEvent('classic'),
       inferCombatEventSegments(),
-      segmentToCombat(timezone),
+      segmentToCombat(),
     )
     .subscribe({
       next: (v) => {

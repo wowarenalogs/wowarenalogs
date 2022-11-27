@@ -52,6 +52,7 @@ export const stringToLogLine = (timezone: string) => {
         event,
         parameters: jsonParameters.data,
         raw: line,
+        timezone,
       };
     }),
   );

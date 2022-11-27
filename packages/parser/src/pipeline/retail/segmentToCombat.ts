@@ -153,7 +153,7 @@ function decodeShuffleRound(
   };
 }
 
-export const segmentToCombat = (timezone: string) => {
+export const segmentToCombat = () => {
   return pipe(
     map((segment: ICombatEventSegment): IArenaMatch | IMalformedCombatData | IShuffleRound | IShuffleMatch | null => {
       const isShuffleRound =
@@ -169,7 +169,12 @@ export const segmentToCombat = (timezone: string) => {
       logInfo(`segmentToCombat isShuffle=${isShuffleRound} metadataOK=${metadataLooksGood}`);
       if (isShuffleRound) {
         try {
-          const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer, timezone);
+          const decoded = decodeShuffleRound(
+            segment,
+            recentShuffleRoundsBuffer,
+            recentScoreboardBuffer,
+            segment.events[0].logLine.timezone,
+          );
           return decoded.shuffle;
         } catch (e) {
           logInfo('Decoder fail');
@@ -180,7 +185,12 @@ export const segmentToCombat = (timezone: string) => {
       if (metadataLooksGood) {
         if (segment.events[0] instanceof ArenaMatchStart && segment.events[0].bracket.endsWith('Solo Shuffle')) {
           logInfo(`final shuffle round decode starting`);
-          const decoded = decodeShuffleRound(segment, recentShuffleRoundsBuffer, recentScoreboardBuffer, timezone);
+          const decoded = decodeShuffleRound(
+            segment,
+            recentShuffleRoundsBuffer,
+            recentScoreboardBuffer,
+            segment.events[0].logLine.timezone,
+          );
           const validRounds = validateRounds(recentShuffleRoundsBuffer);
 
           logInfo(`final shuffle round validRounds=${validRounds}`);
@@ -206,7 +216,7 @@ export const segmentToCombat = (timezone: string) => {
           recentShuffleRoundsBuffer = [];
           recentScoreboardBuffer = [];
         } else {
-          const combat = new CombatData('retail', timezone);
+          const combat = new CombatData('retail', segment.events[0].logLine.timezone);
           combat.startTime = segment.events[0].timestamp || 0;
           segment.events.forEach((e) => {
             combat.readEvent(e);
