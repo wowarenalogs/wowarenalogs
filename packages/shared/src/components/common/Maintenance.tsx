@@ -12,7 +12,7 @@ export function Maintenance() {
       <Result
         status="warning"
         title="Maintenance"
-        subTitle="We are currently performing maintenance. Please check back later."
+        subTitle="We are getting things ready for Dragonflight! Please check back again later."
       />
     </div>
   );
