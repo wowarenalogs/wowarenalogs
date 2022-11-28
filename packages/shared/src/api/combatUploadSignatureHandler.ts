@@ -2,7 +2,7 @@ import { GetSignedUrlConfig, Storage } from '@google-cloud/storage';
 import _ from 'lodash';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const isDev = process.env.NODE_ENV;
+const isDev = process.env.NODE_ENV === 'development';
 
 const logFilesBucket = isDev ? 'wowarenalogs-public-dev-log-files-dev' : 'wowarenalogs-log-files-prod';
 
