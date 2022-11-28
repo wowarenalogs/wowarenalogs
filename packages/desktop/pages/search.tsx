@@ -93,12 +93,7 @@ const Page = () => {
   });
 
   return (
-    <div className="transition-all px-4 overflow-y-auto overflow-visible">
-      <div className="hero">
-        <div className="hero-content flex flex-col items-center">
-          <h1 className="text-5xl font-bold">Community Matches</h1>
-        </div>
-      </div>
+    <div className="transition-all px-4 mt-4 overflow-y-auto overflow-visible">
       <div className="p-4 rounded bg-base-300">
         <BracketSelector bracket={bracket} setBracket={setBracket} />
         <RatingSelector minRating={minRating} setMinRating={setMinRating} />
@@ -156,7 +151,7 @@ const Page = () => {
       )}
       <QuerryError query={matchesQuery} />
       {!matchesQuery.loading && (
-        <div className="animate-fadein">
+        <div className="animate-fadein mt-2">
           <CombatStubList
             viewerIsOwner
             combats={matchesQuery.data?.latestMatches.combats || []}
