@@ -8,7 +8,7 @@
   "scripts": {
     "dev:desktop": "cross-env NODE_ENV=development next dev",
     "start:desktop": "next start",
-    "build:desktop": "cross-env NODE_ENV=production next build",
+    "build:desktop": "next build",
     "lint": "next lint",
     "test": "next test",
     "release:desktop": "git checkout release/wowarenalogs/desktop && git pull && git merge --no-edit --no-ff features/rewrite_202203 && git push && git checkout features/rewrite_202203"
