@@ -9,6 +9,8 @@ interface ICombatReportContextData {
   combat: AtomicArenaCombat | null;
   activePlayerId: string | null;
   navigateToPlayerView: (playerId: string) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
   players: ICombatUnit[];
   friends: ICombatUnit[];
   enemies: ICombatUnit[];
@@ -24,6 +26,8 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
   isAnonymized: true,
   activePlayerId: null,
   navigateToPlayerView: (_playerId: string) => {},
+  activeTab: 'summary',
+  setActiveTab: (_tab: string) => {},
   players: [],
   friends: [],
   enemies: [],
@@ -42,10 +46,7 @@ interface IProps {
 
 export const CombatReportContextProvider = (props: IProps) => {
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
-
-  useEffect(() => {
-    setActivePlayerId(null);
-  }, [props.combat]);
+  const [activeTab, setActiveTab] = useState<string>('summary');
 
   const [
     players,
@@ -57,7 +58,11 @@ export const CombatReportContextProvider = (props: IProps) => {
     playerTimeInCC,
     playerInterrupts,
   ] = useMemo(() => {
-    const mPlayers = _.values(props.combat.units).filter((u) => u.type === CombatUnitType.Player);
+    const mPlayers = _.orderBy(
+      _.values(props.combat.units).filter((u) => u.type === CombatUnitType.Player),
+      ['reaction', 'name'],
+      ['desc', 'asc'],
+    );
     const mFriends = _.sortBy(
       mPlayers.filter((p) => p.reaction === CombatUnitReaction.Friendly),
       ['class', 'name'],
@@ -138,6 +143,18 @@ export const CombatReportContextProvider = (props: IProps) => {
     ];
   }, [props.combat]);
 
+  useEffect(() => {
+    if (players && players.length > 0) {
+      setActivePlayerId(players[0].id);
+    } else {
+      setActivePlayerId(null);
+    }
+  }, [players]);
+
+  useEffect(() => {
+    setActiveTab('summary');
+  }, [props.combat]);
+
   return (
     <CombatReportContext.Provider
       value={{
@@ -145,7 +162,12 @@ export const CombatReportContextProvider = (props: IProps) => {
         friends,
         enemies,
         activePlayerId,
-        navigateToPlayerView: setActivePlayerId,
+        navigateToPlayerView: (playerId: string) => {
+          setActivePlayerId(playerId);
+          setActiveTab('players');
+        },
+        activeTab,
+        setActiveTab,
         maxOutputNumber,
         playerTotalDamageOut,
         playerTotalHealOut,
