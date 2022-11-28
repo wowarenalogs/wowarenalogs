@@ -7,12 +7,7 @@ import { TbLoader } from 'react-icons/tb';
 const Page = () => {
   const matchesQuery = useGetMyMatchesQuery();
   return (
-    <div className="transition-all px-4 overflow-y-auto">
-      <div className="hero">
-        <div className="hero-content flex flex-col items-center">
-          <h1 className="text-5xl font-bold">Match History</h1>
-        </div>
-      </div>
+    <div className="transition-all px-2 overflow-y-auto">
       {matchesQuery.loading && (
         <div className="flex flex-row items-center justify-center animate-loader h-[300px]">
           <TbLoader color="gray" size={60} className="animate-spin-slow" />
@@ -20,7 +15,7 @@ const Page = () => {
       )}
       <QuerryError query={matchesQuery} />
       {!matchesQuery.loading && (
-        <div className="animate-fadein mt-4">
+        <div className="animate-fadein mt-2">
           <CombatStubList
             viewerIsOwner
             combats={matchesQuery.data?.myMatches.combats || []}
