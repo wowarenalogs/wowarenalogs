@@ -42,7 +42,7 @@ export function TeamSpecs({
 }: {
   units: CombatUnitStub[];
   playerTeamId: string;
-  winningTeamId: string;
+  winningTeamId?: string | null;
 }) {
   const teamLeft = units.filter((u) => u.type === CombatUnitType.Player).filter((u) => u.info?.teamId === playerTeamId);
   const teamRight = units
