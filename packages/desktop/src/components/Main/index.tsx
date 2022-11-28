@@ -1,5 +1,5 @@
 import {
-  Maintenance,
+  Migration,
 } from '@wowarenalogs/shared';
 
 import 'antd/dist/antd.dark.css';
@@ -11,7 +11,7 @@ export function Main(_props: AppProps) {
   return (
     <div id="desktop">
       <TitleBar />
-      <Maintenance />
+      <Migration />
     </div>
   );
 }
