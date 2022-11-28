@@ -72,6 +72,8 @@ jobs:
         run: npm i -g node-gyp@latest
       - name: install dependencies
         run: npm ci
+      - name: install dmg-license
+        run: npm i dmg-license
       - name: build for mac
         run: npm run build:app:mac
       - name: upload to google cloud storage
