@@ -1,6 +1,6 @@
-import { CombatAbsorbAction, CombatHpUpdateAction, ICombatUnit } from '@wowarenalogs/parser';
+import { ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
 import talentIdMap from '../../../data/talentIdMap.json';
 import { Utils } from '../../../utils/utils';
@@ -8,7 +8,6 @@ import { CombatStatistic } from '../CombatStatistic';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
-import { PlayerPieChart } from './PlayerPieChart';
 
 interface IProps {
   player: ICombatUnit;
@@ -40,7 +39,7 @@ const maybeGetSpellIdFromTalentId = (talentId: number) => {
 
 const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14, 17, 3];
 
-// Shim to account for overhealing
+/* // Shim to account for overhealing
 const getAmountForEvent = (action: CombatHpUpdateAction) => {
   if (action.logLine.event === 'SPELL_PERIODIC_HEAL') {
     // TODO: the parser needs to give us more info about overhealing
@@ -110,7 +109,7 @@ const compileDataByDest = (actions: CombatHpUpdateAction[]) => {
       value: _.sum(actionsGroup.map((a) => getAmountForEvent(a))),
     };
   }).sort((a, b) => b.value - a.value);
-};
+}; */
 
 export function CombatPlayer(props: IProps) {
   useEffect(() => {
@@ -122,7 +121,7 @@ export function CombatPlayer(props: IProps) {
     }
   }, [props.player]);
 
-  const damageDoneBySpells = useMemo(() => {
+  /* const damageDoneBySpells = useMemo(() => {
     return compileDataBySpell(props.player.damageOut);
   }, [props.player]);
 
@@ -140,7 +139,7 @@ export function CombatPlayer(props: IProps) {
     return [...compileDataByDest(props.player.healOut), ...compileAbsorbsByDest(props.player.absorbsOut)].sort(
       (a, b) => b.value - a.value,
     );
-  }, [props.player]);
+  }, [props.player]); */
 
   if (!props.player.info) {
     return null;
@@ -232,7 +231,7 @@ export function CombatPlayer(props: IProps) {
           </div>
         </div>
       </div>
-
+      {/*
       {damageDoneBySpells.length > 0 && (
         <div className="mt-4">
           <div className="text-lg font-bold">Damage Done</div>
@@ -251,6 +250,7 @@ export function CombatPlayer(props: IProps) {
           </div>
         </div>
       )}
+      */}
     </div>
   );
 }

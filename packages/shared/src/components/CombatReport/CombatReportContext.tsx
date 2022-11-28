@@ -43,10 +43,6 @@ interface IProps {
 export const CombatReportContextProvider = (props: IProps) => {
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
 
-  useEffect(() => {
-    setActivePlayerId(null);
-  }, [props.combat]);
-
   const [
     players,
     friends,
@@ -57,7 +53,11 @@ export const CombatReportContextProvider = (props: IProps) => {
     playerTimeInCC,
     playerInterrupts,
   ] = useMemo(() => {
-    const mPlayers = _.values(props.combat.units).filter((u) => u.type === CombatUnitType.Player);
+    const mPlayers = _.orderBy(
+      _.values(props.combat.units).filter((u) => u.type === CombatUnitType.Player),
+      ['reaction', 'name'],
+      ['desc', 'asc'],
+    );
     const mFriends = _.sortBy(
       mPlayers.filter((p) => p.reaction === CombatUnitReaction.Friendly),
       ['class', 'name'],
@@ -137,6 +137,14 @@ export const CombatReportContextProvider = (props: IProps) => {
       mPlayerInterrupts,
     ];
   }, [props.combat]);
+
+  useEffect(() => {
+    if (players && players.length > 0) {
+      setActivePlayerId(players[0].id);
+    } else {
+      setActivePlayerId(null);
+    }
+  }, [players]);
 
   return (
     <CombatReportContext.Provider

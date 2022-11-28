@@ -1,4 +1,3 @@
-import { CombatUnitType } from '@wowarenalogs/parser';
 import _ from 'lodash';
 
 import { useCombatReportContext } from '../CombatReportContext';
@@ -6,16 +5,7 @@ import { CombatUnitName } from '../CombatUnitName';
 import { CombatPlayer } from './CombatPlayer';
 
 export const CombatPlayers = () => {
-  const { combat, activePlayerId, navigateToPlayerView } = useCombatReportContext();
-
-  if (!combat) {
-    return null;
-  }
-
-  const players = _.sortBy(
-    _.values(combat.units).filter((u) => u.type === CombatUnitType.Player),
-    ['reaction', 'name'],
-  );
+  const { players, activePlayerId, navigateToPlayerView } = useCombatReportContext();
 
   return (
     <div className="flex flex-row flex-1">
