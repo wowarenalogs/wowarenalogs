@@ -4,7 +4,7 @@ import {
   ClientContextProvider,
   getAnalyticsDeviceId,
   initAnalyticsAsync,
-  MainLayout,
+  Maintenance,
 } from '@wowarenalogs/shared';
 import { env } from '@wowarenalogs/shared';
 import { appWithTranslation, useTranslation } from 'next-i18next';
@@ -112,9 +112,7 @@ function App({ Component, pageProps }: AppProps) {
               handle: '@WoWArenaLogs',
             }}
           />
-          <MainLayout>
-            <Component {...pageProps} />
-          </MainLayout>
+          <Maintenance />
           <CookieConsent
             location="bottom"
             buttonText={t('gotIt')}
