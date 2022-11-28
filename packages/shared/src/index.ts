@@ -15,6 +15,7 @@ export * from './components/combat-reporting/CombatReport';
 export * from './types/IAnalysisReport';
 export * from './components/common/Box';
 export * from './components/common/Maintenance';
+export * from './components/common/Migration';
 export { CombatDataStubList } from './components/common/CombatDataStubList';
 export { MatchList } from './components/common/MatchList';
 export { CombatReportFromStorage } from './components/common/CombatReportFromStorage';
