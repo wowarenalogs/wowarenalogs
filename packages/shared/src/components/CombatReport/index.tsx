@@ -7,6 +7,7 @@ import { TbArrowBigLeft, TbChevronLeft, TbChevronsLeft } from 'react-icons/tb';
 import { TimestampDisplay } from '../common/TimestampDisplay';
 import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
+import { CombatPlayers } from './CombatPlayers';
 import { CombatReportContextProvider } from './CombatReportContext';
 import { CombatSummary } from './CombatSummary';
 
@@ -89,6 +90,7 @@ export const CombatReport = ({ combat, anon }: IProps) => {
         <div className="mt-4 ml-2 flex-1 relative overflow-x-hidden overflow-y-scroll">
           <div className="pr-4">
             {activeTab === 'summary' && <CombatSummary />}
+            {activeTab === 'players' && <CombatPlayers />}
             {activeTab === 'death' && <CombatDeathReports />}
             {activeTab === 'curves' && <CombatCurves />}
             {activeTab === 'replay' && <CombatReplay />}
