@@ -1,10 +1,12 @@
 import { Session, User } from 'next-auth';
-import { useSession } from 'next-auth/react';
-import React, { useContext, useEffect } from 'react';
+import { signOut, useSession } from 'next-auth/react';
+import React, { useCallback, useContext, useEffect } from 'react';
 
 import { getAnalyticsDeviceId, getAnalyticsSessionId, setAnalyticsUserProperties } from '../../utils/analytics';
+import { useClientContext } from '../ClientContext';
 
 interface WALUser extends User {
+  battlenetId: string;
   battletag: string;
   id: string;
 }
@@ -53,16 +55,28 @@ export const AuthProvider = (props: IProps) => {
 
 export const useAuth = () => {
   const contextData = useContext(AuthContext);
+  const clientContext = useClientContext();
+
+  const signIn = useCallback(() => {
+    clientContext.showLoginModal('/login', () => {
+      window.location.reload();
+    });
+  }, [clientContext]);
 
   let userId = null;
   let battleTag = null;
+  let battlenetId = null;
   if (contextData.session?.user) {
     userId = contextData.session.user?.id;
     battleTag = contextData.session.user?.battletag;
+    battlenetId = contextData.session.user?.battlenetId;
   }
 
   if (!userId) {
     userId = `anonymous:${getAnalyticsDeviceId()}:${getAnalyticsSessionId()}`;
+  }
+  if (!battlenetId) {
+    battlenetId = userId;
   }
 
   return {
@@ -70,5 +84,8 @@ export const useAuth = () => {
     isAuthenticated: contextData.session?.user != null,
     userId,
     battleTag,
+    battlenetId,
+    signIn,
+    signOut,
   };
 };

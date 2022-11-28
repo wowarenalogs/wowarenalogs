@@ -1,18 +1,16 @@
-import { Button, useClientContext } from '@wowarenalogs/shared';
+import { useAuth } from '@wowarenalogs/shared';
 import React from 'react';
 
 export const LoginButton = () => {
-  const clientContext = useClientContext();
+  const auth = useAuth();
   return (
-    <Button
+    <button
+      className="btn"
       onClick={async () => {
-        await clientContext.saveWindowPosition();
-        clientContext.showLoginModalInSeparateWindow('/login', () => {
-          window.location.reload();
-        });
+        auth.signIn();
       }}
     >
       Login with Battle.net
-    </Button>
+    </button>
   );
 };

@@ -1,5 +1,12 @@
-import { ICombatData, WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
-import { BrowserWindow } from 'electron';
+import {
+  IArenaMatch,
+  IMalformedCombatData,
+  IShuffleMatch,
+  IShuffleRound,
+  WoWCombatLogParser,
+  WowVersion,
+} from '@wowarenalogs/parser';
+import { BrowserWindow, dialog } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
 
@@ -18,14 +25,14 @@ interface IBridge {
 }
 
 const bridgeState: {
-  shadowlands: IBridge;
-  tbc: IBridge;
+  retail: IBridge;
+  classic: IBridge;
 } = {
-  shadowlands: {
+  retail: {
     watcher: undefined,
     logParser: undefined,
   },
-  tbc: {
+  classic: {
     watcher: undefined,
     logParser: undefined,
   },
@@ -34,8 +41,49 @@ const bridgeState: {
 @nativeBridgeModule('logs')
 export class LogsModule extends NativeBridgeModule {
   @moduleFunction()
+  public async importLogFiles(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
+    dialog
+      .showOpenDialog({
+        defaultPath: wowDirectory,
+        title: 'Manually import log files',
+        buttonLabel: 'Confirm',
+        properties: ['openFile', 'multiSelections'],
+        filters: [
+          {
+            name: 'WoWCombatLog-*.txt',
+            extensions: ['txt'],
+          },
+        ],
+      })
+      .then((data) => {
+        if (!data.canceled && data.filePaths.length > 0) {
+          const logParser = new WoWCombatLogParser(wowVersion);
+          logParser.on('arena_match_ended', (combat: IArenaMatch) => {
+            this.handleNewCombat(mainWindow, combat);
+          });
+
+          logParser.on('solo_shuffle_round_ended', (combat: IShuffleRound) => {
+            this.handleSoloShuffleRoundEnded(mainWindow, combat);
+          });
+
+          logParser.on('solo_shuffle_ended', (combat: IShuffleMatch) => {
+            this.handleSoloShuffleEnded(mainWindow, combat);
+          });
+
+          logParser.on('malformed_arena_match_detected', (combat: IMalformedCombatData) => {
+            this.handleMalformedCombatDetected(mainWindow, combat);
+          });
+
+          data.filePaths.forEach((logFile) => {
+            DesktopUtils.parseLogFile(logParser, logFile);
+          });
+        }
+      });
+  }
+
+  @moduleFunction()
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
-    const bridge = bridgeState[wowVersion];
+    const bridge = bridgeState[wowVersion] as IBridge; // why can TS not figure this out?
     if (bridge.watcher) {
       bridge.watcher.close();
     }
@@ -51,8 +99,17 @@ export class LogsModule extends NativeBridgeModule {
     if (!logsExist) {
       mkdirSync(wowLogsDirectoryFullPath);
     }
-    bridge.logParser.on('arena_match_ended', (combat: ICombatData) => {
+    bridge.logParser.on('arena_match_ended', (combat: IArenaMatch) => {
       this.handleNewCombat(mainWindow, combat);
+    });
+    bridge.logParser.on('solo_shuffle_round_ended', (combat: IShuffleRound) => {
+      this.handleSoloShuffleRoundEnded(mainWindow, combat);
+    });
+    bridge.logParser.on('solo_shuffle_ended', (combat: IShuffleMatch) => {
+      this.handleSoloShuffleEnded(mainWindow, combat);
+    });
+    bridge.logParser.on('malformed_arena_match_detected', (combat: IMalformedCombatData) => {
+      this.handleMalformedCombatDetected(mainWindow, combat);
     });
 
     const lastKnownFileStats = new Map<string, ILastKnownCombatLogState>();
@@ -113,16 +170,25 @@ export class LogsModule extends NativeBridgeModule {
 
   @moduleFunction()
   public async stopLogWatcher(_mainWindow: BrowserWindow) {
-    bridgeState.shadowlands.watcher?.close();
-    bridgeState.shadowlands.logParser?.removeAllListeners();
-    bridgeState.shadowlands.logParser = undefined;
-    bridgeState.shadowlands.watcher = undefined;
-    bridgeState.tbc.watcher?.close();
-    bridgeState.tbc.logParser?.removeAllListeners();
-    bridgeState.tbc.logParser = undefined;
-    bridgeState.tbc.watcher = undefined;
+    bridgeState.retail.watcher?.close();
+    bridgeState.retail.logParser?.removeAllListeners();
+    bridgeState.retail.logParser = undefined;
+    bridgeState.retail.watcher = undefined;
+    bridgeState.classic.watcher?.close();
+    bridgeState.classic.logParser?.removeAllListeners();
+    bridgeState.classic.logParser = undefined;
+    bridgeState.classic.watcher = undefined;
   }
 
   @moduleEvent('on')
-  public handleNewCombat(_mainWindow: BrowserWindow, _combat: ICombatData) {}
+  public handleNewCombat(_mainWindow: BrowserWindow, _combat: IArenaMatch) {}
+
+  @moduleEvent('on')
+  public handleSoloShuffleRoundEnded(_mainWindow: BrowserWindow, _combat: IShuffleRound) {}
+
+  @moduleEvent('on')
+  public handleSoloShuffleEnded(_mainWindow: BrowserWindow, _combat: IShuffleMatch) {}
+
+  @moduleEvent('on')
+  public handleMalformedCombatDetected(_mainWindow: BrowserWindow, _combat: IMalformedCombatData) {}
 }

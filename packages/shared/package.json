@@ -7,7 +7,16 @@
   "engines": {
     "node": ">=16"
   },
+  "scripts": {
+    "codegen": "graphql-codegen --config codegen.yml",
+    "codegen:dev": "graphql-codegen --config codegen.dev.yml --verbose"
+  },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.13.8",
+    "@graphql-codegen/introspection": "^2.2.1",
+    "@graphql-codegen/typescript": "^2.8.0",
+    "@graphql-codegen/typescript-operations": "^2.5.5",
+    "@graphql-codegen/typescript-react-apollo": "^3.3.5",
     "@types/nprogress": "^0.2.0",
     "@types/react": "^17.0.43",
     "@types/react-dom": "^17.0.14",
@@ -28,10 +37,12 @@
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "@google-cloud/firestore": "^5.0.2",
-    "@headlessui/react": "^1.5.0",
-    "@wowarenalogs/parser": "^4.6.4",
-    "amplitude-js": "^8.18.5",
+    "@google-cloud/storage": "^6.7.0",
+    "@inlet/react-pixi": "^6.8.0",
+    "@tailwindcss/typography": "^0.5.7",
+    "@wowarenalogs/parser": "^5.0.0",
     "apollo-server-micro": "^3.9.0",
+    "daisyui": "^2.33.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
@@ -39,8 +50,13 @@
     "next-auth": "^4.9.0",
     "next-transpile-modules": "^9.0.0",
     "nprogress": "^0.2.0",
+    "pixi-viewport": "^4.37.0",
+    "pixi.js": "^6.5.8",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-icons": "^4.3.1"
+    "react-icons": "^4.3.1",
+    "react-query": "^3.39.2",
+    "recharts": "^2.1.16",
+    "rxjs": "^6.6.6"
   }
 }

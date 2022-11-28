@@ -1,17 +1,4 @@
-import {
-  ArenaMatchEndInfo,
-  ArenaMatchStartInfo,
-  CombatantInfo,
-  CombatResult,
-  CombatUnitClass,
-  CombatUnitReaction,
-  CombatUnitSpec,
-  CombatUnitType,
-  WowVersion,
-} from '@wowarenalogs/parser';
-import { gql } from 'apollo-server-micro';
-
-import { CombatDataStub } from '../../graphql/__generated__/graphql';
+import { CombatantInfo, IArenaMatch, ICombatUnit, IShuffleRound } from '@wowarenalogs/parser';
 
 export enum UserSubscriptionTier {
   Common = 'Common',
@@ -20,6 +7,7 @@ export enum UserSubscriptionTier {
 
 export interface User {
   id: string;
+  battlenetId: string | null;
   battletag: string | null;
   referrer: string | null;
   subscriptionTier: UserSubscriptionTier;
@@ -35,164 +23,95 @@ export interface ApolloContext {
   non-stub versions cleanly. If fields are removed in the definition
   of a stub from the base, leave them as commented out here.
 */
-interface ICombatUnitStub {
-  id: string;
-  name: string;
-  reaction: CombatUnitReaction;
-  type: CombatUnitType;
-  class: CombatUnitClass;
-  spec: CombatUnitSpec;
-  info?: CombatantInfo;
-  // damageIn: CombatHpUpdateAction[];
-  // damageOut: CombatHpUpdateAction[];
-  // healIn: CombatHpUpdateAction[];
-  // healOut: CombatHpUpdateAction[];
-  // actionIn: ILogLine[];
-  // actionOut: ILogLine[];
-  // auraEvents: CombatAction[];
-  // spellCastEvents: CombatAction[];
-  // deathRecords: ILogLine[];
-  // advancedActions: CombatAdvancedAction[];
+/**
+ * Stub of CombatantInfo for cloud storage
+ *
+ * Missing fields as of 11/10/2022:
+ * * strength: number;
+ * * agility: number;
+ * * stamina: number;
+ * * intelligence: number;
+ * * dodge: number;
+ * * parry: number;
+ * * block: number;
+ * * critMelee: number;
+ * * critRanged: number;
+ * * critSpell: number;
+ * * speed: number;
+ * * lifesteal: number;
+ * * hasteMelee: number;
+ * * hasteRanged: number;
+ * * hasteSpell: number;
+ * * avoidance: number;
+ * * mastery: number;
+ * * versatilityDamgeDone: number;
+ * * versatilityHealingDone: number;
+ * * versatilityDamageTaken: number;
+ * * armor: number;
+ * * equipment: EquippedItem[];
+ * * interestingAurasJSON: string;
+ * * item28: number;
+ * * item29: number;
+ */
+export interface ICombatantInfoStub
+  extends Pick<CombatantInfo, 'teamId' | 'specId' | 'talents' | 'pvpTalents' | 'personalRating' | 'highestPvpTier'> {}
+
+/**
+ * Stub of ICombatUnit for cloud storage
+ *
+ * Missing fields as of 11/10/2022:
+ * * isWellFormed: boolean;
+ * * damageIn: CombatHpUpdateAction[];
+ * * damageOut: CombatHpUpdateAction[];
+ * * healIn: CombatHpUpdateAction[];
+ * * healOut: CombatHpUpdateAction[];
+ * * absorbsIn: CombatAbsorbAction[];
+ * * absorbsOut: CombatAbsorbAction[];
+ * * absorbsDamaged: CombatAbsorbAction[];
+ * * actionIn: ILogLine[];
+ * * actionOut: ILogLine[];
+ * * auraEvents: CombatAction[];
+ * * spellCastEvents: CombatAction[];
+ * * deathRecords: ILogLine[];
+ * * consciousDeathRecords: ILogLine[];
+ * * advancedActions: CombatAdvancedAction[];
+ */
+export interface ICombatUnitStub
+  extends Pick<ICombatUnit, 'id' | 'name' | 'reaction' | 'affiliation' | 'type' | 'class' | 'spec'> {
+  info?: ICombatantInfoStub;
 }
-export interface ICombatDataStub {
+
+export interface IArenaMatchStub extends Omit<IArenaMatch, 'units' | 'events' | 'rawLines'> {}
+export interface IShuffleRoundStub extends Omit<IShuffleRound, 'units' | 'events' | 'rawLines'> {}
+
+interface IUnitsStub {
+  /**
+   * A copy of the units array from a parsed log output with
+   * some fields removed to save space when stored in the cloud
+   *
+   * Combat event mappings are notable all removed
+   * As is unit equipped items
+   */
+  units: ICombatUnitStub[];
+}
+
+/**
+ * These items are useful for the frontend but ultimately only present as part of an uploaded log
+ */
+interface IDTOPublicFeatures {
+  /**
+   * Battle.net ID of the log uploader
+   */
+  ownerId: string;
+  /**
+   * Cloud storage URL of the raw log file
+   */
   logObjectUrl: string;
-  wowVersion?: WowVersion;
-  ownerId: string | null;
-  units: ICombatUnitStub[]; // changed from original type
-  id: string;
-  startTime: number;
-  endTime: number;
-  playerTeamId: string;
-  playerTeamRating: number;
-  result: CombatResult;
-  hasAdvancedLogging: boolean;
-  // rawLines: string[];
-  // linesNotParsedCount: number;
-  startInfo?: ArenaMatchStartInfo;
-  endInfo?: ArenaMatchEndInfo;
-  utcCorrected: boolean;
 }
+
+export type ICombatDataStub = (IArenaMatchStub | IShuffleRoundStub) & IUnitsStub & IDTOPublicFeatures;
 
 export interface CombatQueryResult {
-  combats: CombatDataStub[];
+  combats: ICombatDataStub[];
   queryLimitReached: boolean;
 }
-
-export const typeDefs = gql`
-  type IUser {
-    id: String!
-    battletag: String
-    referrer: String
-    subscriptionTier: String!
-    tags: [String]
-  }
-  type ArenaMatchEndInfo {
-    timestamp: Float!
-    winningTeamId: String!
-    matchDurationInSeconds: Float!
-    team0MMR: Int!
-    team1MMR: Int!
-  }
-  type ArenaMatchStartInfo {
-    timestamp: Float!
-    zoneId: String!
-    item1: String!
-    bracket: String!
-    isRanked: Boolean!
-  }
-  type CombatDataStub {
-    id: String!
-    wowVersion: String
-    ownerId: String
-    units: [CombatUnitStub!]!
-    result: Int!
-    logObjectUrl: String!
-    startInfo: ArenaMatchStartInfo
-    endInfo: ArenaMatchEndInfo
-    startTime: Float!
-    endTime: Float!
-    playerTeamId: String!
-    playerTeamRating: Int!
-    hasAdvancedLogging: Boolean!
-    utcCorrected: Boolean
-  }
-  type EquippedItem {
-    bonuses: [String!]!
-    enchants: [String!]!
-    gems: [String!]!
-    id: String!
-    ilvl: Int!
-  }
-  type CovenantInfo {
-    covenantId: String
-    souldbindId: String
-    conduitIdsJSON: String!
-    item2: [Int]
-    item3JSON: String!
-  }
-  type CombatantInfo {
-    teamId: String!
-    strength: Int!
-    agility: Int!
-    stamina: Int!
-    intelligence: Int!
-    dodge: Int!
-    parry: Int!
-    block: Int!
-    critMelee: Int!
-    critRanged: Int!
-    critSpell: Int!
-    speed: Int!
-    lifesteal: Int!
-    hasteMelee: Int!
-    hasteRanged: Int!
-    hasteSpell: Int!
-    avoidance: Int!
-    mastery: Int!
-    versatilityDamgeDone: Int!
-    versatilityHealingDone: Int!
-    versatilityDamageTaken: Int!
-    armor: Int!
-    specId: String!
-    talents: [String!]!
-    pvpTalents: [String!]!
-    covenantInfo: CovenantInfo!
-    equipment: [EquippedItem!]!
-    interestingAurasJSON: String!
-    item29: Int!
-    item30: Int!
-    personalRating: Int!
-    highestPvpTier: Int!
-  }
-  type CombatUnitStub {
-    id: String!
-    name: String!
-    info: CombatantInfo
-    type: Int!
-    spec: String!
-    class: Int!
-    reaction: Int!
-  }
-  type CombatQueryResult {
-    combats: [CombatDataStub!]!
-    queryLimitReached: Boolean!
-  }
-  type Query {
-    me: IUser
-    latestMatches(
-      wowVersion: String!
-      bracket: String
-      minRating: Float
-      compQueryString: String
-      lhsShouldBeWinner: Boolean
-      offset: Int! = 0
-      count: Int! = 50
-    ): CombatQueryResult!
-    myMatches(anonymousUserId: String = null, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
-    userMatches(userId: String!, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
-    matchesWithCombatant(playerName: String!): [CombatDataStub!]!
-  }
-  type Mutation {
-    setUserReferrer(referrer: String): IUser
-  }
-`;

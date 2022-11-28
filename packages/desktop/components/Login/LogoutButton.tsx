@@ -1,19 +1,18 @@
-import { Button, useClientContext } from '@wowarenalogs/shared';
-import { signOut } from 'next-auth/react';
+import { useAuth } from '@wowarenalogs/shared';
 import React from 'react';
 
 // TODO: translate logout text
 
 export const LogoutButton = () => {
-  const clientContext = useClientContext();
+  const auth = useAuth();
   return (
-    <Button
+    <button
+      className="btn"
       onClick={async () => {
-        await clientContext.saveWindowPosition();
-        signOut();
+        auth.signOut();
       }}
     >
       Logout
-    </Button>
+    </button>
   );
 };

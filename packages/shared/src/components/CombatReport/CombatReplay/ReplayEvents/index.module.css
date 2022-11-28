@@ -1,0 +1,38 @@
+.combat-report-replay-events-root {
+  margin-top: 16px;
+  margin-right: 16px;
+  position: absolute;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.combat-report-replay-events {
+  min-width: 320px;
+}
+
+.combat-report-replay-highlight-event {
+  min-width: 100px;
+  height: 40px;
+  background-color: #1f1f1f;
+  margin-bottom: 16px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.combat-report-replay-events-filter-row {
+  min-width: 320px;
+}
+
+.combat-report-replay-event-mini-display {
+  cursor: default;
+  padding: 0 8px;
+}
+
+.combat-report-replay-event-mini-display:hover {
+  background-color: #1f1f1f;
+}

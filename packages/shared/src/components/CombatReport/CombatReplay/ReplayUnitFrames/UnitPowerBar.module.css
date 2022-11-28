@@ -1,0 +1,12 @@
+.unit-frame-power-bar-root {
+  position: absolute;
+  top: 43px;
+  left: 78px;
+  width: 120px;
+  height: 10px;
+}
+
+.unit-frame-power-bar-fill {
+  position: absolute;
+  height: 10px;
+}

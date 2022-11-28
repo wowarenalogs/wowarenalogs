@@ -6,6 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+testrun.log
+testreport.txt
 
 gcp_service_account.json
 
@@ -132,3 +134,6 @@ dist
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+# macos
+.DS_Store

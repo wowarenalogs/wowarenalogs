@@ -1,42 +1,45 @@
-// import { ICombatData, WowVersion } from '@wowarenalogs/parser';
-// import { useEffect, useState } from 'react';
+import { WowVersion } from '@wowarenalogs/parser';
+import { useQuery } from 'react-query';
 
-const temp = {};
-export default temp;
+import { useGetMatchByIdQuery } from '../graphql/__generated__/graphql';
+import { Utils } from '../utils/utils';
 
-// import { Utils } from '../utils';
+export function useCombatFromStorage(matchId: string, anon?: boolean) {
+  const queryCombat = useGetMatchByIdQuery({
+    variables: {
+      matchId,
+      anon: anon ?? false,
+    },
+  });
 
-// export function useCombatFromStorage(url: string): {
-//   data: ICombatData | undefined;
-//   loading: boolean;
-//   error: Error | undefined;
-// } {
-//   const [data, setData] = useState<ICombatData>();
-//   const [loading, setLoading] = useState<boolean>(false);
-//   const [error, setError] = useState<Error | undefined>(undefined);
-//   useEffect(() => {
-//     const abortController = new AbortController();
-//     const fetchData = async () => {
-//       setError(undefined);
-//       setLoading(true);
-//       try {
-//         const result = await fetch(url, abortController);
-//         const text = await result.text();
-//         const com = await Utils.parseFromStringArrayAsync(
-//           text.split('\n'),
-//           (result.headers.get('x-goog-meta-wow-version') || 'shadowlands') as WowVersion,
-//         );
-//         setData(com[0]);
-//       } catch (error) {
-//         setError(error as Error);
-//       }
-//       setLoading(false);
-//     };
-//     if (url) {
-//       fetchData();
-//     }
-//     return () => abortController.abort();
-//   }, [url]);
+  const queryParsedLog = useQuery(
+    ['log-file', matchId],
+    async () => {
+      const logObjectUrl = queryCombat.data?.matchById.logObjectUrl;
+      const wowVersion = queryCombat.data?.matchById.wowVersion as WowVersion;
+      if (!logObjectUrl) {
+        throw new Error('No log object url for query ' + matchId, {});
+      }
+      if (!wowVersion) {
+        throw new Error('No wow version for query ' + matchId);
+      }
+      const result = await fetch(logObjectUrl);
+      const text = await result.text();
+      const results = Utils.parseFromStringArray(text.split('\n'), wowVersion);
+      return results.arenaMatches.at(0) || results.shuffleMatches[0].rounds.find((i) => i.id === matchId);
+    },
+    {
+      cacheTime: 60 * 60 * 24,
+      staleTime: Infinity,
+      enabled: matchId != '' && !queryCombat.loading && Boolean(queryCombat.data?.matchById.logObjectUrl),
+    },
+  );
 
-//   return { data: data, loading, error };
-// }
+  const loading = queryCombat.loading || queryParsedLog.isLoading;
+
+  return {
+    combat: queryParsedLog.data,
+    loading,
+    error: queryParsedLog.error || queryCombat.error,
+  };
+}

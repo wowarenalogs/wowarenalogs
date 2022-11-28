@@ -12,8 +12,12 @@ export async function getUserProfileAsync(context: ApolloContext): Promise<User 
   }
 
   const userId = context.user.id;
-  const userProfileDocPath = `${userProfileCollection}/${userId}`;
-  const userProfile = await firestore.doc(userProfileDocPath).get();
+  const battlenetId = context.user.battlenetId;
+  const userProfileDocs = await firestore
+    .collection(userProfileCollection)
+    .where('battlenetId', '==', battlenetId)
+    .limit(1)
+    .get();
 
   let subscriptionTier = UserSubscriptionTier.Common;
   if (context.user.battletag) {
@@ -27,18 +31,19 @@ export async function getUserProfileAsync(context: ApolloContext): Promise<User 
 
   const userObject = {
     id: userId,
+    battlenetId,
     battletag: context.user.battletag ? context.user.battletag.toLowerCase() : null,
     referrer: null,
     subscriptionTier,
     tags: [],
   };
-  if (!userProfile.exists) {
+  if (userProfileDocs.size === 0) {
     await firestore.doc(`${userProfileCollection}/${userId}`).set(userObject);
     return userObject;
   } else {
     return {
       ...userObject,
-      ...userProfile.data(),
+      ...userProfileDocs.docs[0].data(),
       subscriptionTier,
     };
   }

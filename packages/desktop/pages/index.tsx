@@ -1,11 +1,23 @@
-import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
-const Index = () => {
-  return (
-    <div className="text-white">
-      <Link href="/debug">Goto Debug Page</Link>
-    </div>
-  );
+import { useAppConfig } from '../hooks/AppConfigContext';
+
+const Page = () => {
+  const router = useRouter();
+  const { isLoading, appConfig } = useAppConfig();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (appConfig.wowDirectory && appConfig.tosAccepted) {
+        router.push('/latest');
+      } else {
+        router.push('/first_time_setup');
+      }
+    }
+  }, [isLoading, appConfig, router]);
+
+  return <div />;
 };
 
-export default Index;
+export default Page;

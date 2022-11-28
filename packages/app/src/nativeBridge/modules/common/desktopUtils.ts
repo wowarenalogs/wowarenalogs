@@ -1,5 +1,5 @@
 import { WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
-import { closeSync, existsSync, openSync, readSync } from 'fs-extra';
+import { closeSync, existsSync, openSync, readFileSync, readSync } from 'fs-extra';
 import { join } from 'path';
 
 const chunkParitialsBuffer: Record<string, string> = {};
@@ -11,7 +11,7 @@ export class DesktopUtils {
 
     const METADATA = [
       {
-        version: 'shadowlands',
+        version: 'retail',
         dir: '_retail_',
         macAppFile: 'World of Warcraft.app',
         winAppFile: 'Wow.exe',
@@ -28,6 +28,28 @@ export class DesktopUtils {
       }
     });
     return Promise.resolve(results);
+  }
+
+  public static parseLogFile(parser: WoWCombatLogParser, path: string) {
+    try {
+      const fd = openSync(path, 'r');
+      const buffer = readFileSync(fd);
+      closeSync(fd);
+      let bufferString = buffer.toString('utf-8');
+
+      const lines = bufferString.split('\n');
+      lines.forEach((line) => {
+        parser.parseLine(line);
+      });
+    } catch (e) {
+      console.log(`parser error ${e}`);
+      // TODO: try to come up with some strategy to avoid these
+      // Can reproduce by copy+pasting a new log file into wow folder while logger is watching (win32)
+      // There are still some transient bugs
+      // https://stackoverflow.com/questions/1764809/filesystemwatcher-changed-event-is-raised-twice
+      return false;
+    }
+    return true;
   }
 
   public static parseLogFileChunk(parser: WoWCombatLogParser, path: string, start: number, size: number) {
@@ -55,6 +77,7 @@ export class DesktopUtils {
         }
       });
     } catch (e) {
+      console.log(`parser error ${e}`);
       // TODO: try to come up with some strategy to avoid these
       // Can reproduce by copy+pasting a new log file into wow folder while logger is watching (win32)
       // There are still some transient bugs

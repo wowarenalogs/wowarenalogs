@@ -1,9 +1,8 @@
 import * as firestore from '@google-cloud/firestore';
-import { Account } from 'next-auth';
-import { Adapter, AdapterSession, AdapterUser, VerificationToken } from 'next-auth/adapters';
+import { Adapter, AdapterAccount, AdapterSession, AdapterUser, VerificationToken } from 'next-auth/adapters';
 
-function docSnapshotToObject<T>(snapshot: firestore.DocumentSnapshot<firestore.DocumentData>): T | null {
-  if (!snapshot.exists) {
+function docSnapshotToObject<T>(snapshot?: firestore.DocumentSnapshot<firestore.DocumentData>): T | null {
+  if (!snapshot?.exists) {
     return null;
   }
   const data: any = snapshot.data();
@@ -105,7 +104,7 @@ export function FirestoreNextAuthAdapter(client: firestore.Firestore): Adapter {
     async linkAccount(account) {
       const accountRef = await Accounts.add(stripUndefined(account));
       const accountSnapshot = await accountRef.get();
-      return docSnapshotToObject<Account>(accountSnapshot);
+      return docSnapshotToObject<AdapterAccount>(accountSnapshot);
     },
 
     async unlinkAccount({ provider, providerAccountId }) {

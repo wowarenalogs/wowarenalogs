@@ -1,4 +1,4 @@
-import { Button, useClientContext } from '@wowarenalogs/shared';
+import { useClientContext } from '@wowarenalogs/shared';
 import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { FiMaximize2, FiMinimize2, FiMinus, FiX } from 'react-icons/fi';
@@ -22,14 +22,16 @@ function TitleBar() {
       <div className={styles['title-bar-logo']} />
       <div className="flex-1" />
       <div className={`flex flex-row text-white ${styles['title-bar-buttons']}`}>
-        <Button
+        <button
+          className="btn btn-ghost btn-square btn-sm"
           onClick={() => {
             window.wowarenalogs.win?.minimize();
           }}
         >
           <FiMinus size="16" />
-        </Button>
-        <Button
+        </button>
+        <button
+          className="btn btn-ghost btn-square btn-sm"
           onClick={() => {
             if (isMaximized) {
               window.wowarenalogs.win?.maximize(false);
@@ -41,15 +43,16 @@ function TitleBar() {
           }}
         >
           {isMaximized ? <FiMinimize2 size="16" /> : <FiMaximize2 size="16" />}
-        </Button>
-        <Button
+        </button>
+        <button
+          className="btn btn-ghost btn-square btn-sm"
           onClick={async () => {
             await clientContext.saveWindowPosition();
             flushSync(() => window.wowarenalogs.app?.quit());
           }}
         >
           <FiX size="16" />
-        </Button>
+        </button>
       </div>
     </div>
   );

@@ -11,22 +11,25 @@
     "build:desktop": "next build",
     "lint": "next lint",
     "test": "next test",
-    "release:desktop": "git checkout release/wowarenalogs/desktop && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
+    "release:desktop": "git checkout release/wowarenalogs/desktop && git pull && git merge --no-edit --no-ff features/rewrite_202203 && git push && git checkout features/rewrite_202203"
   },
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "@google-cloud/firestore": "^5.0.2",
-    "@headlessui/react": "^1.5.0",
-    "@sentry/react": "^7.3.1",
-    "@sentry/tracing": "^7.3.1",
-    "@wowarenalogs/parser": "^4.6.4",
+    "@sentry/react": "^7.19.0",
+    "@sentry/tracing": "^7.19.0",
+    "@tailwindcss/typography": "^0.5.7",
+    "@wowarenalogs/parser": "^5.0.0",
     "@wowarenalogs/shared": "^1.0.0",
+    "daisyui": "^2.33.0",
+    "lodash": "^4.17.21",
     "next": "^12.1.1",
     "next-auth": "^4.9.0",
     "next-transpile-modules": "^9.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-icons": "^4.3.1"
+    "react-icons": "^4.3.1",
+    "react-query": "^3.39.2"
   },
   "devDependencies": {
     "@types/gtag.js": "^0.0.10",

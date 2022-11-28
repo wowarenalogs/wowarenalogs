@@ -1,5 +1,5 @@
-export { Test } from './components/Test';
-export { Button } from './components/common/Button';
+export { CombatReport } from './components/CombatReport';
+export { LoadingScreen } from './components/LoadingScreen';
 export { MainLayout } from './components/MainLayout';
 export { ClientContextProvider, useClientContext } from './hooks/ClientContext';
 export { AuthProvider } from './hooks/AuthContext';
@@ -12,6 +12,14 @@ export {
   getAnalyticsDeviceId,
   getAnalyticsSessionId,
 } from './utils/analytics';
-export type { IAppConfig } from './hooks/ClientContext';
 export type { INativeBridge } from './types/nativeBridge';
 export { FirestoreNextAuthAdapter } from './utils/FirestoreNextAuthAdapter';
+export type { ICombatDataStub } from './graphql-server/types/index';
+export { PlayerIcon } from './components/common/PlayerIcon';
+export { zoneMetadata } from './data/zoneMetadata';
+export { TimestampDisplay } from './components/common/TimestampDisplay';
+export { CombatReportFromStorage } from './components/common/CombatReportFromStorage';
+export { CombatStubList } from './components/CombatStubList';
+export { SpecSelector } from './components/MatchSearch/SpecSelector';
+export { RatingSelector } from './components/MatchSearch/RatingSelector';
+export { BracketSelector } from './components/MatchSearch/BracketSelector';

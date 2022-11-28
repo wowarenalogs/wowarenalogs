@@ -16,6 +16,7 @@ export default NextAuth({
       async profile(profile, _tokens) {
         return {
           id: profile.sub,
+          battlenetId: parseInt(profile.sub),
           battletag: profile.battle_tag,
           name: profile.battle_tag,
         };
@@ -25,13 +26,7 @@ export default NextAuth({
     },
   ],
   adapter: FirestoreNextAuthAdapter(firestore),
-  jwt: {
-    maxAge: 90 * 24 * 60 * 60, // 90 days
-  },
   callbacks: {
-    jwt: async (params) => {
-      return Promise.resolve(params.profile ? params.profile : params.token);
-    },
     session: async (params) => {
       params.session.user = params.user;
       return Promise.resolve(params.session);
