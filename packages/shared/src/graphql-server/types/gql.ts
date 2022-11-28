@@ -38,9 +38,9 @@ export const typeDefs = gql`
     playerTeamId: String!
     playerTeamRating: Int!
     hasAdvancedLogging: Boolean!
-    utcCorrected: Boolean
     durationInSeconds: Float!
     winningTeamId: String!
+    timezone: String
   }
   type ScoreboardEntry {
     unitId: String!
@@ -60,7 +60,6 @@ export const typeDefs = gql`
     playerTeamId: String!
     playerTeamRating: Int!
     hasAdvancedLogging: Boolean!
-    utcCorrected: Boolean
     durationInSeconds: Float!
     winningTeamId: String!
     killedUnitId: String!
@@ -69,6 +68,7 @@ export const typeDefs = gql`
     shuffleMatchEndInfo: ArenaMatchEndInfo
     shuffleMatchResult: Int
     shuffleMatchId: String
+    timezone: String
   }
 
   union CombatDataStub = ShuffleRoundStub | ArenaMatchDataStub

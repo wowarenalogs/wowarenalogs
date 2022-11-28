@@ -99,13 +99,8 @@ const Page = () => {
   });
 
   return (
-    <div className="transition-all px-4 overflow-y-auto overflow-visible">
-      <div className="hero">
-        <div className="hero-content flex flex-col items-center">
-          <h1 className="text-5xl font-bold">Community Matches</h1>
-        </div>
-      </div>
-      <div className="p-4 rounded-2xl bg-base-300">
+    <div className="transition-all px-4 mt-4 overflow-y-auto overflow-visible">
+      <div className="p-4 rounded bg-base-300">
         <BracketSelector bracket={bracket} setBracket={setBracket} />
         <RatingSelector minRating={minRating} setMinRating={setMinRating} />
         <div>
@@ -164,15 +159,7 @@ const Page = () => {
       )}
       <QuerryError query={matchesQuery} />
       {!matchesQuery.loading && (
-        <div className="animate-fadein">
-          {matchesQuery.data?.latestMatches.combats.length === 0 && (
-            <div className="alert shadow-lg">
-              <div>
-                <TbRocketOff size={24} />
-                <span>No matches to display!</span>
-              </div>
-            </div>
-          )}
+        <div className="animate-fadein mt-2">
           <CombatStubList
             viewerIsOwner
             combats={matchesQuery.data?.latestMatches.combats || []}
@@ -189,6 +176,14 @@ const Page = () => {
               <div>
                 <TbArrowBigUpLines size={24} />
                 <span>Upgrade your user tier to see more matches!</span>
+              </div>
+            </div>
+          )}
+          {matchesQuery.data?.latestMatches.combats.length === 0 && (
+            <div className="alert shadow-lg">
+              <div>
+                <TbRocketOff size={24} />
+                <span>No matches to display!</span>
               </div>
             </div>
           )}

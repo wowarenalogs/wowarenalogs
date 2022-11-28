@@ -33,19 +33,14 @@ export async function handler(file: any, _context: any): Promise<unknown> {
 
   const ownerId = response.headers.get('x-goog-meta-ownerid') || 'unknown-uploader';
   const wowVersion = (response.headers.get('x-goog-meta-wow-version') || 'retail') as WowVersion;
-  const startTimeUTC = response.headers.get('x-goog-meta-starttime-utc');
+  const logTimezone = response.headers.get('x-goog-meta-client-timezone') || undefined;
 
   console.log(`Reading file: ${response.status} ${textBuffer.slice(0, 50)}`);
   const stringBuffer = textBuffer.split('\n');
-  const results = await parseFromStringArrayAsync(stringBuffer, wowVersion);
+  const results = await parseFromStringArrayAsync(stringBuffer, wowVersion, logTimezone);
   console.log(`Parsed ${results.arenaMatches.length} arenaMatches`);
   const logObjectUrl = fileUrl;
   const stub = createStubDTOFromArenaMatch(results.arenaMatches[0], ownerId, logObjectUrl);
-  if (startTimeUTC) {
-    // Write the start time based on client-side headers to account for timezone differences
-    stub.startTime = parseFloat(startTimeUTC);
-    stub.utcCorrected = true;
-  }
   const { anonymousStub, ciiMap } = anonymizeDTO(stub);
 
   // Create stream for the string buffer to land in

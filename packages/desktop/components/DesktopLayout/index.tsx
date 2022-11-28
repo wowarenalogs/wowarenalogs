@@ -100,7 +100,7 @@ export const DesktopLayout = !window.wowarenalogs
           >
             <AuthProvider>
               <LocalCombatsContextProvider>
-                <div className="w-screen h-screen flex flex-col bg-base-300">
+                <div className="w-screen h-screen flex flex-col bg-base-300 overflow-hidden">
                   <TitleBar />
                   <MainLayout>{isLoading ? <LoadingScreen /> : <Component {...pageProps} />}</MainLayout>
                 </div>

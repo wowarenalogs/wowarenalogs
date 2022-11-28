@@ -38,6 +38,7 @@
     "@apollo/client": "^3.6.9",
     "@google-cloud/firestore": "^5.0.2",
     "@google-cloud/storage": "^6.7.0",
+    "@inlet/react-pixi": "^6.8.0",
     "@tailwindcss/typography": "^0.5.7",
     "@wowarenalogs/parser": "^5.0.0",
     "apollo-server-micro": "^3.9.0",
@@ -49,9 +50,13 @@
     "next-auth": "^4.9.0",
     "next-transpile-modules": "^9.0.0",
     "nprogress": "^0.2.0",
+    "pixi-viewport": "^4.37.0",
+    "pixi.js": "^6.5.8",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
-    "react-query": "^3.39.2"
+    "react-query": "^3.39.2",
+    "recharts": "^2.1.16",
+    "rxjs": "^6.6.6"
   }
 }

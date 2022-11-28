@@ -2,16 +2,15 @@ import { GetSignedUrlConfig, Storage } from '@google-cloud/storage';
 import _ from 'lodash';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const isDev = process.env.NODE_ENV;
+const isDev = process.env.NODE_ENV === 'development';
 
 const logFilesBucket = isDev ? 'wowarenalogs-public-dev-log-files-dev' : 'wowarenalogs-log-files-prod';
 
 let storage = new Storage(
   isDev
     ? {
-        // This file is in gitignore so we can't import it normally without build errs
-        // TODO: fix issue with local dev using local service acct causing builds to fail
-        credentials: require('../../gcp_service_account.json'),
+        // encode your GCP service account key json into a base64 string and put in .env.local as GCP_KEY_JSON_BASE64
+        credentials: JSON.parse(Buffer.from(process.env.GCP_KEY_JSON_BASE64 || '', 'base64').toString('ascii')),
       }
     : {},
 );

@@ -4,12 +4,21 @@ import { createRetailParserPipeline } from './pipeline/retail';
 import { createClassicParserPipeline } from './pipeline/classic';
 import { WowVersion } from './types';
 import { PIPELINE_FLUSH_SIGNAL } from './utils';
+import moment from 'moment';
 
-export type { IArenaMatch, IMalformedCombatData, IShuffleMatch, IShuffleRound, IArenaCombat, AtomicArenaCombat } from './CombatData';
+export type {
+  IArenaMatch,
+  IMalformedCombatData,
+  IShuffleMatch,
+  IShuffleRound,
+  IArenaCombat,
+  AtomicArenaCombat,
+} from './CombatData';
 export type { ICombatUnit } from './CombatUnit';
 export * from './types';
 export * from './utils';
 export * from './actions/CombatAction';
+export * from './actions/CombatAdvancedAction';
 export * from './actions/ArenaMatchEnd';
 export * from './actions/ArenaMatchStart';
 export * from './actions/CombatHpUpdateAction';
@@ -27,6 +36,8 @@ export interface IParserContext {
 const WOW_VERSION_LINE_PARSER = /COMBAT_LOG_VERSION,(\d+),ADVANCED_LOG_ENABLED,\d,BUILD_VERSION,([^,]+),(.+)\s*$/;
 
 export class WoWCombatLogParser extends EventEmitter {
+  public readonly _timezone: string;
+
   private context: IParserContext = {
     wowVersion: null,
     pipeline: () => {
@@ -34,8 +45,18 @@ export class WoWCombatLogParser extends EventEmitter {
     },
   };
 
-  constructor(initialWowVersion: WowVersion | null = null) {
+  /**
+   * Build a WoWCombatLogParser to handle a log stream and emit events with information about parsed combat
+   * @param initialWowVersion WoWVersion the log files will use, defaults to retail
+   * @param timezone Timezone the log was recorded in, defaults to the system timezone
+   */
+  constructor(initialWowVersion: WowVersion | null = null, timezone?: string) {
     super();
+    if (timezone && moment.tz.names().includes(timezone)) {
+      this._timezone = timezone;
+    } else {
+      this._timezone = moment.tz.guess();
+    }
     this.resetParserStates(initialWowVersion);
   }
 
@@ -85,6 +106,7 @@ export class WoWCombatLogParser extends EventEmitter {
             (combat) => {
               this.emit('solo_shuffle_ended', combat);
             },
+            this._timezone,
           ),
         };
       }
@@ -93,23 +115,38 @@ export class WoWCombatLogParser extends EventEmitter {
   }
 
   private setWowVersion(wowVersion: WowVersion) {
-    const pipelineFactory = wowVersion === 'classic' ? createClassicParserPipeline : createRetailParserPipeline;
-    this.context = {
-      wowVersion,
-      pipeline: pipelineFactory(
-        (combat) => {
-          this.emit('arena_match_ended', combat);
-        },
-        (malformedCombat) => {
-          this.emit('malformed_arena_match_detected', malformedCombat);
-        },
-        (combat) => {
-          this.emit('solo_shuffle_round_ended', combat);
-        },
-        (combat) => {
-          this.emit('solo_shuffle_ended', combat);
-        },
-      ),
-    };
+    if (wowVersion === 'classic') {
+      this.context = {
+        wowVersion,
+        pipeline: createClassicParserPipeline(
+          (combat) => {
+            this.emit('arena_match_ended', combat);
+          },
+          (malformedCombat) => {
+            this.emit('malformed_arena_match_detected', malformedCombat);
+          },
+          this._timezone,
+        ),
+      };
+    } else {
+      this.context = {
+        wowVersion,
+        pipeline: createRetailParserPipeline(
+          (combat) => {
+            this.emit('arena_match_ended', combat);
+          },
+          (malformedCombat) => {
+            this.emit('malformed_arena_match_detected', malformedCombat);
+          },
+          (combat) => {
+            this.emit('solo_shuffle_round_ended', combat);
+          },
+          (combat) => {
+            this.emit('solo_shuffle_ended', combat);
+          },
+          this._timezone,
+        ),
+      };
+    }
   }
 }

@@ -7,8 +7,22 @@ import { stringToLogLine } from '../src/pipeline/common/stringToLogLine';
 import { dedup } from '../src/pipeline/classic/dedup';
 import { ILogLine } from '../src/types';
 import { PartyKill } from '../src/actions/PartyKill';
+import { WoWCombatLogParser } from '../src';
+import moment from 'moment-timezone';
 
 describe('pipeline component tests', () => {
+  describe('timezone on construction', () => {
+    it('should use moment default if an invalid tz string is passed', () => {
+      const parser = new WoWCombatLogParser('retail', 'America/Goldshire');
+      expect(parser._timezone).toBe(moment.tz.guess());
+    });
+
+    it('should set a normal timezone', () => {
+      const parser = new WoWCombatLogParser('retail', 'America/New_York');
+      expect(parser._timezone).toBe('America/New_York');
+    });
+  });
+
   describe('dedup', () => {
     it('should remove duplicate lines', () => {
       const inputLines = fs.readFileSync(path.join(__dirname, 'testlogs', 'test_dedup.txt')).toString().split('\n');
@@ -28,7 +42,7 @@ describe('pipeline component tests', () => {
         '2/6 00:39:34.038  SPELL_DAMAGE,Player-57-0ABB28BC,"Raikendk-Illidan",0x10548,0x0,Player-57-0BDDB09C,"Notórious-Illidan",0x512,0x0,253597,"Inexorable Assault",0x10,Player-57-0BDDB09C,0000000000000000,21506,22520,898,342,524,0,0,8513,8513,0,-2022.75,6669.33,0,4.8573,125,206,203,-1,16,0,0,0,nil,nil,nil';
       let logLine = null;
       from([log])
-        .pipe(stringToLogLine())
+        .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
 
       expect(logLine).not.toBeNull();
@@ -48,7 +62,7 @@ describe('pipeline component tests', () => {
         '11/1 20:35:25.646  PARTY_KILL,dd6dcc4e-fe9c-4485-84db-f5beb34b748a,"EarlyPanda",0x512,0x0,ce9434a7-b379-4919-b825-f94e1df6cbef,"BrokenPython",0x10548,0x0,0';
       let logLine = null;
       from([log])
-        .pipe(stringToLogLine())
+        .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
 
       expect(logLine).not.toBeNull();
@@ -62,7 +76,7 @@ describe('pipeline component tests', () => {
         '5/21 16:35:39.437  SPELL_DAMAGE,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4700-01A0750A,"Darshath-Kirtonos",0x10548,0x0,17348,"Hemorrhage",0x1,Player-4700-01A0750A,0000000000000000,89,100,28,327,957,0,4844,7239,0,4028.03,2925.57,0,4.7879,75,371,389,-1,1,0,0,0,nil,nil,nil';
       let logLine = null;
       from([log])
-        .pipe(stringToLogLine())
+        .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
 
       expect(logLine).not.toBeNull();

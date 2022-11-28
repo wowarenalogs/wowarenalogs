@@ -1,12 +1,22 @@
 import { AtomicArenaCombat } from '@wowarenalogs/parser';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { TbArrowBigLeft } from 'react-icons/tb';
+import { TbArrowBigLeft, TbChevronLeft, TbChevronsLeft } from 'react-icons/tb';
 
 import { TimestampDisplay } from '../common/TimestampDisplay';
+import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
 import { CombatReportContextProvider } from './CombatReportContext';
 import { CombatSummary } from './CombatSummary';
+
+const CombatReplay = dynamic(
+  () => {
+    const promise = import('./CombatReplay').then((mod) => mod.CombatReplay);
+    return promise;
+  },
+  { ssr: false },
+);
 
 interface IProps {
   combat: AtomicArenaCombat;
@@ -25,9 +35,11 @@ export const CombatReport = ({ combat, anon }: IProps) => {
     <CombatReportContextProvider combat={combat} isAnonymized={anon || false}>
       <div className="w-full h-full flex flex-col p-2 animate-fadein">
         <div className="flex flex-row items-center px-2">
+          <div className="pt-1 pr-2">
+            <TbChevronLeft className="text-2xl cursor-pointer hover:text-primary" onClick={() => router.back()} />
+          </div>
           <h2 className="text-2xl font-bold">
-            <TbArrowBigLeft className="inline mr-4" onClick={() => router.back()} />
-            <TimestampDisplay timestamp={combat.startTime} />
+            <TimestampDisplay timestamp={combat.startTime} timezone={combat.timezone} />
             {sequence && <div className="ml-4 inline">Round {sequence}</div>}
           </h2>
           <div className="flex flex-1" />
@@ -74,8 +86,14 @@ export const CombatReport = ({ combat, anon }: IProps) => {
             Replay
           </a>
         </div>
-        <div className="mt-4 mx-2">{activeTab === 'summary' && <CombatSummary />}</div>
-        <div className="mt-4 mx-2">{activeTab === 'death' && <CombatDeathReports />}</div>
+        <div className="mt-4 ml-2 flex-1 relative overflow-x-hidden overflow-y-scroll">
+          <div className="pr-4">
+            {activeTab === 'summary' && <CombatSummary />}
+            {activeTab === 'death' && <CombatDeathReports />}
+            {activeTab === 'curves' && <CombatCurves />}
+            {activeTab === 'replay' && <CombatReplay />}
+          </div>
+        </div>
       </div>
     </CombatReportContextProvider>
   );

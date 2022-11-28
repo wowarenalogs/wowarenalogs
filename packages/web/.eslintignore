@@ -3,3 +3,4 @@ dist
 build
 graphql/generated/graphql.tsx
 .eslintrc.js
+tailwind.config.js

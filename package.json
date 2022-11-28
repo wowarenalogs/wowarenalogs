@@ -41,6 +41,7 @@
     "release:desktop": "npm run release:desktop --workspaces --if-present",
     "dev:web": "npm run dev:web --workspaces --if-present",
     "build:web": "npm run build:web --workspaces --if-present",
+    "start:web": "npm run start:web --workspaces --if-present",
     "release:web": "npm run release:web --workspaces --if-present",
     "build:parser": "npm run build:parser --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",

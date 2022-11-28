@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -8,7 +8,7 @@ import { ILogLine, LogEvent } from '../../types';
 const LINE_PARSER = /^(\d+)\/(\d+)\s+(\d+):(\d+):(\d+)\.(\d+)\s+([A-Z_]+),(.+)\s*$/;
 let nextId = 0;
 
-export const stringToLogLine = () => {
+export const stringToLogLine = (timezone: string) => {
   return pipe(
     map((line: string): ILogLine | string => {
       const regex_matches = line.match(LINE_PARSER);
@@ -41,7 +41,7 @@ export const stringToLogLine = () => {
         m: minute,
         s: second,
       };
-      const timestampValue = moment(timestampValueObj);
+      const timestampValue = moment.tz(timestampValueObj, timezone);
       const timestamp = timestampValue.valueOf();
 
       const jsonParameters = parseWowToJSON(regex_matches[8]);
@@ -52,6 +52,7 @@ export const stringToLogLine = () => {
         event,
         parameters: jsonParameters.data,
         raw: line,
+        timezone,
       };
     }),
   );

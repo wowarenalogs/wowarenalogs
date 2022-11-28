@@ -30,6 +30,7 @@ export type FirebaseDTO = ICombatDataStub & {
   combatantGuids: string[];
   extra: QueryHelpers;
   expires: Timestamp; // Used to set object TTL for auto-delete
+  timezone: string;
 };
 
 interface SpecIndexFields {
@@ -191,7 +192,6 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
       wowVersion: round.wowVersion,
       id: round.id,
       units: roundUnits,
-      utcCorrected: false,
       startTime: round.startTime,
       endTime: round.endTime,
       playerTeamId: round.playerTeamId,
@@ -214,6 +214,7 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
       shuffleMatchId: match.id,
       shuffleMatchResult: match.result,
       shuffleMatchEndInfo: match.endInfo,
+      timezone: round.timezone,
     };
   });
 }
@@ -228,7 +229,6 @@ function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjec
     wowVersion: com.wowVersion,
     id: com.id,
     units: combatUnits,
-    utcCorrected: false,
     startTime: com.startTime,
     endTime: com.endTime,
     playerTeamId: com.playerTeamId,
@@ -245,6 +245,7 @@ function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjec
     combatantNames: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
     combatantGuids: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
     expires: Timestamp.fromDate(inThirtyDays.toDate()),
+    timezone: com.timezone,
   };
 }
 
