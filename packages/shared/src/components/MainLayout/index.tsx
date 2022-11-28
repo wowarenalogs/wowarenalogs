@@ -74,7 +74,7 @@ export function MainLayout(props: IProps) {
             </Link>
           </div>
         )}
-        {process.env.NODE_ENV === 'development' && !auth.isAuthenticated && (
+        {(process.env.NODE_ENV === 'development' || !auth.isAuthenticated) && (
           <div
             className={`p-2 ${
               selectedNavMenuKey === '/profile'
