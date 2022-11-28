@@ -9,6 +9,8 @@ interface ICombatReportContextData {
   combat: AtomicArenaCombat | null;
   activePlayerId: string | null;
   navigateToPlayerView: (playerId: string) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
   players: ICombatUnit[];
   friends: ICombatUnit[];
   enemies: ICombatUnit[];
@@ -24,6 +26,8 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
   isAnonymized: true,
   activePlayerId: null,
   navigateToPlayerView: (_playerId: string) => {},
+  activeTab: 'summary',
+  setActiveTab: (_tab: string) => {},
   players: [],
   friends: [],
   enemies: [],
@@ -42,6 +46,7 @@ interface IProps {
 
 export const CombatReportContextProvider = (props: IProps) => {
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('summary');
 
   const [
     players,
@@ -146,6 +151,10 @@ export const CombatReportContextProvider = (props: IProps) => {
     }
   }, [players]);
 
+  useEffect(() => {
+    setActiveTab('summary');
+  }, [props.combat]);
+
   return (
     <CombatReportContext.Provider
       value={{
@@ -153,7 +162,12 @@ export const CombatReportContextProvider = (props: IProps) => {
         friends,
         enemies,
         activePlayerId,
-        navigateToPlayerView: setActivePlayerId,
+        navigateToPlayerView: (playerId: string) => {
+          setActivePlayerId(playerId);
+          setActiveTab('players');
+        },
+        activeTab,
+        setActiveTab,
         maxOutputNumber,
         playerTotalDamageOut,
         playerTotalHealOut,
