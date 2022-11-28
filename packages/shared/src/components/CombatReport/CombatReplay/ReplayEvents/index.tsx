@@ -8,6 +8,7 @@ import {
   stringToLogLine,
 } from '@wowarenalogs/parser';
 import { useContext, useMemo, useState } from 'react';
+import moment from 'moment-timezone';
 import { from } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
@@ -70,7 +71,7 @@ export const ReplayEvents = (props: IProps) => {
 
     const items: CombatEvent[] = [];
     from(context.combat?.rawLines || [])
-      .pipe(stringToLogLine(context.combat.timezone), logLineToCombatEvent('retail'), filter(isCombatEvent))
+      .pipe(stringToLogLine(context.combat?.timezone || moment.tz.guess()), logLineToCombatEvent('retail'), filter(isCombatEvent))
       .subscribe((e) => {
         if (
           (isWantedDamageOrHeal(e) || isExtraSpellAction(e) || isPlayerDeath(e) || isWantedAura(e) || isAuraDose(e)) &&
