@@ -1,0 +1,85 @@
+name: release-app
+on:
+  push:
+    branches:
+      - release/wowarenalogs/app
+jobs:
+  build_on_win:
+    runs-on: windows-latest
+    env:
+      CI: false
+    steps:
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: gcloud auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+      - name: setup gcloud
+        uses: google-github-actions/setup-gcloud@v1
+        env:
+          CLOUDSDK_PYTHON: ${{env.pythonLocation}}\python.exe
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: install windows build tools
+        run: npm i -g windows-build-tools@4.0.0
+      - name: install node-gyp
+        run: npm i -g node-gyp@latest
+      - name: update path variables
+        run: set 'path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin'
+      - name: install dependencies
+        run: npm ci
+      - name: build for windows
+        run: npm run build:app:windows
+      - name: upload to google cloud storage
+        working-directory: ./dist
+        env:
+          CLOUDSDK_PYTHON: ${{env.pythonLocation}}\python.exe
+        run: gsutil cp *.exe gs://download.wowarenalogs.com/desktop-client/
+      - name: create latest-windows.zip
+        working-directory: ./dist
+        run: Compress-Archive *.exe latest-windows.zip
+        shell: powershell
+      - name: upload latest-windows.zip
+        working-directory: ./dist
+        env:
+          CLOUDSDK_PYTHON: ${{env.pythonLocation}}\python.exe
+        run: gsutil cp latest-windows.zip gs://download.wowarenalogs.com/desktop-client/
+  build_on_mac:
+    runs-on: macos-latest
+    env:
+      CI: false
+    steps:
+      - name: gcloud auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+      - name: setup gcloud
+        uses: google-github-actions/setup-gcloud@v1
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: install node-gyp
+        run: npm i -g node-gyp@latest
+      - name: install dependencies
+        run: npm ci
+      - name: build for mac
+        run: npm run build:app:mac
+      - name: upload to google cloud storage
+        working-directory: ./dist
+        run: gsutil cp *.dmg gs://download.wowarenalogs.com/desktop-client/
+      - name: create latest-mac.zip
+        working-directory: ./dist
+        run: zip latest-mac.zip *.dmg
+      - name: upload latest-mac.zip
+        working-directory: ./dist
+        run: gsutil cp latest-mac.zip gs://download.wowarenalogs.com/desktop-client/
