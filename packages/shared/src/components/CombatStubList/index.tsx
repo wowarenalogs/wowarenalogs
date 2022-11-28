@@ -9,7 +9,7 @@ export interface IProps {
 
 export const CombatStubList = (props: IProps) => {
   return (
-    <ul className="space-y-1 pb-10">
+    <ul className="space-y-1">
       {props.combats.map((c) => {
         if (c.__typename === 'ArenaMatchDataStub') {
           return (
