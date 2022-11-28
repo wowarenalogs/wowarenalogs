@@ -25,7 +25,7 @@ export function ArenaMatchRow({
         className="btn btn-ghost flex flex-row py-1 gap-1 w-full items-center transition-colors duration-200 rounded"
       >
         <TimestampDisplay timestamp={match.startTime} timezone={match.timezone} />
-        <div className="badge">{durationString(match.durationInSeconds)}</div>
+        <div className="badge">{match.durationInSeconds ? durationString(match.durationInSeconds) : '??'}</div>
         <div className="badge">{zoneMetadata[match.startInfo?.zoneId || '0']?.name}</div>
         <div className="flex flex-1" />
         <ResultBadge result={match.result} text={match.playerTeamRating || '???'} nocolor={!viewerIsOwner} />
@@ -82,7 +82,7 @@ export function ShuffleRoundRow({
         className="btn btn-ghost flex flex-row py-1 gap-1 w-full items-center transition-colors duration-200 rounded"
       >
         <TimestampDisplay timestamp={round.startTime} timezone={round.timezone} />
-        <div className="badge">{durationString(round.durationInSeconds)}</div>
+        <div className="badge">{round.durationInSeconds ? durationString(round.durationInSeconds) : '??'}</div>
         <div className={`badge`}>{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
         <div className="flex flex-1" />
         <ResultBadge nocolor={!viewerIsOwner} result={round.shuffleMatchResult} text={round.playerTeamRating} />

@@ -62,7 +62,7 @@ const Debug = () => {
                       <div>ArenaMatch</div>
                       <div>{c.playerTeamRating}</div>
                       <div>{CombatResult[c.result]}</div>
-                      <div>{Math.round(c.durationInSeconds)}s</div>
+                      <div>{c.durationInSeconds ? Math.round(c.durationInSeconds) : '??'}s</div>
                     </div>
                   );
                 }
@@ -72,7 +72,7 @@ const Debug = () => {
                       <div>ShuffleRound {c.sequenceNumber}</div>
                       <div>{c.playerTeamRating}</div>
                       <div>{CombatResult[c.result]}</div>
-                      <div>{Math.round(c.durationInSeconds)}s</div>
+                      <div>{c.durationInSeconds ? Math.round(c.durationInSeconds) : '??'}s</div>
                       <div>matchId={c.shuffleMatchId?.slice(0, 5)}</div>
                     </div>
                   );
