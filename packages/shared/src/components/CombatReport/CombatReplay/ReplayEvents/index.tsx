@@ -7,8 +7,8 @@ import {
   logLineToCombatEvent,
   stringToLogLine,
 } from '@wowarenalogs/parser';
-import { useContext, useMemo, useState } from 'react';
 import moment from 'moment-timezone';
+import { useContext, useMemo, useState } from 'react';
 import { from } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
@@ -71,7 +71,11 @@ export const ReplayEvents = (props: IProps) => {
 
     const items: CombatEvent[] = [];
     from(context.combat?.rawLines || [])
-      .pipe(stringToLogLine(context.combat?.timezone || moment.tz.guess()), logLineToCombatEvent('retail'), filter(isCombatEvent))
+      .pipe(
+        stringToLogLine(context.combat?.timezone || moment.tz.guess()),
+        logLineToCombatEvent('retail'),
+        filter(isCombatEvent),
+      )
       .subscribe((e) => {
         if (
           (isWantedDamageOrHeal(e) || isExtraSpellAction(e) || isPlayerDeath(e) || isWantedAura(e) || isAuraDose(e)) &&
@@ -100,7 +104,7 @@ export const ReplayEvents = (props: IProps) => {
       >
         {highlightEvent && <ReplayEventDisplay event={highlightEvent} expanded />}
       </div>
-      <div className={`${styles['combat-report-replay-events']} flex flex-col bg-base-300 rounded`}>
+      <div className={`${styles['combat-report-replay-events']} flex flex-col bg-base-100 rounded shadow-lg`}>
         {eventsToShow.map((e) => {
           return (
             <div
@@ -114,11 +118,10 @@ export const ReplayEvents = (props: IProps) => {
             </div>
           );
         })}
-      </div>
-      <div className={`styles['combat-report-replay-events-filter-row'] mt-1 flex flex-row`}>
-        <ReplayEventFilterByUnit unit={filterByUnit} setFilter={props.setUnitIdFilter} />
-        <div className="flex-1" />
-        <ReplayEventFilterDropdown filters={filters} setFilters={setFilters} />
+        <div className={`styles['combat-report-replay-events-filter-row'] m-2 flex flex-row justify-end`}>
+          <ReplayEventFilterByUnit unit={filterByUnit} setFilter={props.setUnitIdFilter} />
+          <ReplayEventFilterDropdown filters={filters} setFilters={setFilters} />
+        </div>
       </div>
     </div>
   );
