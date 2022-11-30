@@ -11,13 +11,15 @@ export interface ReplayEventFilters {
 interface IProps {
   setFilters: (filters: ReplayEventFilters) => void;
   filters: ReplayEventFilters;
+  placement?: 'top' | 'bottom';
 }
 
 export const ReplayEventFilterDropdown = React.memo(function ReplayEventFilterDropdown(props: IProps) {
   return (
     <Dropdown
       align="right"
-      placement="top"
+      placement={props.placement ?? 'top'}
+      keepOpenOnMenuClick={true}
       menuItems={[
         {
           key: 'significantDamageHealOnly',

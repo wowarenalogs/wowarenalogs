@@ -10,6 +10,7 @@ interface IProps {
   size?: 'sm' | 'md' | 'lg';
   align?: 'left' | 'right';
   placement?: 'top' | 'bottom';
+  keepOpenOnMenuClick?: boolean;
   className?: string;
   children: ReactNode;
   menuItems: IDropdownMenuItem[];
@@ -49,7 +50,16 @@ export const Dropdown = (props: IProps) => {
       >
         {props.menuItems.map((item) => (
           <li key={item.key}>
-            <a onClick={item.onClick}>{item.label}</a>
+            <a
+              onClick={() => {
+                item.onClick();
+                if (!props.keepOpenOnMenuClick) {
+                  setIsOpen(false);
+                }
+              }}
+            >
+              {item.label}
+            </a>
           </li>
         ))}
       </ul>

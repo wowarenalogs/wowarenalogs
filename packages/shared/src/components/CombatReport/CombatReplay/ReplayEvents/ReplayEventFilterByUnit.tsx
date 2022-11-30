@@ -9,6 +9,7 @@ import { CombatUnitName } from '../../CombatUnitName';
 interface IProps {
   unit: ICombatUnit | null;
   setFilter: (unitId: string | null) => void;
+  placement?: 'top' | 'bottom';
 }
 
 export const ReplayEventFilterByUnit = React.memo(function ReplayEventFilterByUnit(props: IProps) {
@@ -17,7 +18,7 @@ export const ReplayEventFilterByUnit = React.memo(function ReplayEventFilterByUn
   return (
     <Dropdown
       align="right"
-      placement="top"
+      placement={props.placement ?? 'top'}
       className="mr-2"
       menuItems={[
         {

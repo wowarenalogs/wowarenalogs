@@ -119,8 +119,16 @@ export const ReplayEvents = (props: IProps) => {
           );
         })}
         <div className={`styles['combat-report-replay-events-filter-row'] m-2 flex flex-row justify-end`}>
-          <ReplayEventFilterByUnit unit={filterByUnit} setFilter={props.setUnitIdFilter} />
-          <ReplayEventFilterDropdown filters={filters} setFilters={setFilters} />
+          <ReplayEventFilterByUnit
+            unit={filterByUnit}
+            setFilter={props.setUnitIdFilter}
+            placement={eventsToShow.length < 8 ? 'bottom' : 'top'}
+          />
+          <ReplayEventFilterDropdown
+            filters={filters}
+            setFilters={setFilters}
+            placement={eventsToShow.length < 8 ? 'bottom' : 'top'}
+          />
         </div>
       </div>
     </div>
