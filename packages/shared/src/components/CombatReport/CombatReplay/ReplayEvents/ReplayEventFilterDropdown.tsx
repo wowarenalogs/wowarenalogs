@@ -1,6 +1,8 @@
 import React from 'react';
 import { TbCaretDown } from 'react-icons/tb';
 
+import { Dropdown } from '../../../common/Dropdown';
+
 export interface ReplayEventFilters {
   significantDamageHealOnly: boolean;
   significantAurasOnly: boolean;
@@ -9,53 +11,66 @@ export interface ReplayEventFilters {
 interface IProps {
   setFilters: (filters: ReplayEventFilters) => void;
   filters: ReplayEventFilters;
+  placement?: 'top' | 'bottom';
 }
 
 export const ReplayEventFilterDropdown = React.memo(function ReplayEventFilterDropdown(props: IProps) {
   return (
-    <div className="dropdown">
-      <label className="btn btn-sm m-1" tabIndex={1}>
+    <Dropdown
+      align="right"
+      placement={props.placement ?? 'top'}
+      keepOpenOnMenuClick={true}
+      menuItems={[
+        {
+          key: 'significantDamageHealOnly',
+          label: (
+            <div className="form-control">
+              <label className="label cursor-pointer">
+                <span className="label-text">Hide insignificant damage/heal</span>
+                <input
+                  className="checkbox checkbox-sm"
+                  type="checkbox"
+                  checked={props.filters.significantDamageHealOnly}
+                  onChange={(e) => {
+                    props.setFilters({
+                      ...props.filters,
+                      significantDamageHealOnly: e.target.checked,
+                    });
+                  }}
+                />
+              </label>
+            </div>
+          ),
+          onClick: () => {},
+        },
+        {
+          key: 'significantAurasOnly',
+          label: (
+            <div className="form-control">
+              <label className="label cursor-pointer">
+                <span className="label-text">Hide insignificant buff/debuffs</span>
+                <input
+                  className="checkbox checkbox-sm"
+                  type="checkbox"
+                  checked={props.filters.significantAurasOnly}
+                  onChange={(e) => {
+                    props.setFilters({
+                      ...props.filters,
+                      significantAurasOnly: e.target.checked,
+                    });
+                  }}
+                />
+              </label>
+            </div>
+          ),
+          onClick: () => {},
+        },
+      ]}
+    >
+      <>
         Filters&nbsp;
         <TbCaretDown />
-      </label>
-      <ul className="dropdown-content menu menu-compact p-2 shadow bg-base-300 rounded-box w-52" tabIndex={1}>
-        <li>
-          <div className="form-control">
-            <label className="label cursor-pointer">
-              <span className="label-text">Hide insignificant damage/heal</span>
-              <input
-                className="checkbox"
-                type="checkbox"
-                checked={props.filters.significantDamageHealOnly}
-                onChange={(e) => {
-                  props.setFilters({
-                    ...props.filters,
-                    significantDamageHealOnly: e.target.checked,
-                  });
-                }}
-              />
-            </label>
-          </div>
-        </li>
-        <li>
-          <div className="form-control">
-            <label className="label cursor-pointer">
-              <span className="label-text">Hide insignificant buff/debuffs</span>
-              <input
-                className="checkbox"
-                type="checkbox"
-                checked={props.filters.significantAurasOnly}
-                onChange={(e) => {
-                  props.setFilters({
-                    ...props.filters,
-                    significantAurasOnly: e.target.checked,
-                  });
-                }}
-              />
-            </label>
-          </div>
-        </li>
-      </ul>
-    </div>
+      </>
+    </Dropdown>
   );
 });
