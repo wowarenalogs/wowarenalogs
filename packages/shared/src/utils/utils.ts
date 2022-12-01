@@ -71,7 +71,7 @@ export class Utils {
     // we should use that before trying to do our own calculations based on gear.
     const advancedActions = player.advancedActions.filter((action) => action.advancedActorItemLevel > 0);
     if (advancedActions.length > 0) {
-      return _.sum(advancedActions.map((a) => a.advancedActorItemLevel)) / advancedActions.length;
+      return Math.round(_.sum(advancedActions.map((a) => a.advancedActorItemLevel)) / advancedActions.length);
     }
 
     if (!(player.info?.equipment && player.info.equipment.length >= 16)) {
@@ -83,7 +83,7 @@ export class Utils {
       return Math.round(_.sumBy(player.info.equipment, 'ilvl') / 16);
     }
     // otherwise, the 2h weapon counts as 2 slots with the same ilvl
-    return (player.info.equipment[15].ilvl + Math.round(_.sumBy(player.info.equipment, 'ilvl'))) / 16;
+    return Math.round((player.info.equipment[15].ilvl + Math.round(_.sumBy(player.info.equipment, 'ilvl'))) / 16);
   }
 
   public static filterNulls<T>(items: (T | null | undefined)[]): T[] {
