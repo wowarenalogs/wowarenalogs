@@ -8,9 +8,7 @@ import { FaSkullCrossbones } from 'react-icons/fa';
 import { TbPlayerPause, TbPlayerPlay } from 'react-icons/tb';
 
 import { zoneMetadata } from '../../../data/zoneMetadata';
-import { useClientContext } from '../../../hooks/ClientContext';
 import { useCombatReportContext } from '../CombatReportContext';
-import styles from './index.module.css';
 import { ReplayCharacter } from './ReplayCharacter';
 import { ReplayDampeningTracker } from './ReplayDampeningTracker';
 import { ReplayEvents } from './ReplayEvents';
@@ -34,7 +32,6 @@ const debouncedSlide = _.debounce(
 );
 
 export function CombatReplay() {
-  const clientContext = useClientContext();
   const { combat } = useCombatReportContext();
 
   const [replayContainerRef, setReplayContainerRef] = useState<HTMLDivElement | null>(null);
@@ -142,11 +139,10 @@ export function CombatReplay() {
 
   return (
     <div
-      className={`flex flex-col ${
-        clientContext.isDesktop
-          ? `${styles['combat-report-replay-root']} ${styles.desktop}`
-          : styles['combat-report-replay-root']
-      }`}
+      className={`flex flex-col flex-1 h-full w-full`}
+      style={{
+        minHeight: '720px',
+      }}
     >
       <div className="flex flex-row mx-2 items-center mb-2">
         <div className="mr-1">
@@ -203,21 +199,8 @@ export function CombatReplay() {
         </div>
         <ReplayDampeningTracker players={players} currentSecond={Math.floor(currentTimeOffset / 1000)} />
       </div>
-      <div
-        className={`flex flex-row items-stretch rounded-box bg-base-200 ${styles['combat-report-replay-container']}`}
-      >
-        <ReplayUnitFrames
-          combat={combat}
-          players={players}
-          currentTimeOffset={currentTimeOffset}
-          onClickUnit={(id) => setFilterEventsByPlayerId(id)}
-        />
-        <ReplayEvents
-          currentTimeOffset={currentTimeOffset}
-          filterByUnitId={filterEventsByPlayerId}
-          setUnitIdFilter={setFilterEventsByPlayerId}
-        />
-        <div className={styles['combat-report-replay-area']} ref={initializeReplayContainerRef}>
+      <div className={`flex flex-col flex-1 rounded-box bg-base-200 overflow-hidden relative`}>
+        <div className="w-full h-full absolute" ref={initializeReplayContainerRef}>
           {replayContainerRef ? (
             <Stage
               width={replayContainerRef.clientWidth}
@@ -266,6 +249,19 @@ export function CombatReplay() {
               </ReplayViewport>
             </Stage>
           ) : null}
+        </div>
+        <div className="flex flex-row flex-1 items-start justify-between">
+          <ReplayUnitFrames
+            combat={combat}
+            players={players}
+            currentTimeOffset={currentTimeOffset}
+            onClickUnit={(id) => setFilterEventsByPlayerId(id)}
+          />
+          <ReplayEvents
+            currentTimeOffset={currentTimeOffset}
+            filterByUnitId={filterEventsByPlayerId}
+            setUnitIdFilter={setFilterEventsByPlayerId}
+          />
         </div>
       </div>
     </div>

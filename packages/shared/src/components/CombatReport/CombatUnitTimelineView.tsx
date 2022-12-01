@@ -80,7 +80,7 @@ export const CombatUnitTimelineView = (props: IProps) => {
   const maxAbsDamage =
     _.max(_.values(damageActionGroupsBySecondMark).map((ar) => _.sum(ar.map((e) => Math.abs(e.amount))))) || 1;
   const maxAbsHeal =
-    _.max(_.values(damageActionGroupsBySecondMark).map((ar) => _.sum(ar.map((e) => Math.abs(e.amount))))) || 1;
+    _.max(_.values(healActionGroupsBySecondMark).map((ar) => _.sum(ar.map((e) => Math.abs(e.amount))))) || 1;
   const maxAbs = Math.max(maxAbsDamage, maxAbsHeal);
 
   return (

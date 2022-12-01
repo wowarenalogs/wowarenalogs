@@ -87,7 +87,7 @@ export const CombatReportInternal = () => {
         </a>
       </div>
       <div className="mt-4 ml-2 flex-1 relative overflow-x-hidden overflow-y-scroll">
-        <div className="pr-4">
+        <div className="mr-4 min-h-full relative flex flex-col">
           {activeTab === 'summary' && <CombatSummary />}
           {activeTab === 'players' && <CombatPlayers />}
           {activeTab === 'death' && <CombatDeathReports />}
