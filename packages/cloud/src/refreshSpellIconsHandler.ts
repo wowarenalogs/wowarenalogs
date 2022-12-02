@@ -7,7 +7,7 @@ import superagent from 'superagent';
 
 import { AtomicArenaCombat } from '../../parser/dist/index';
 import { ICombatDataStub } from '../../shared/src/graphql-server/types';
-import { parseFromStringArrayAsync } from './writeMatchStubHandler';
+import { parseFromStringArrayAsync } from './utils';
 
 const isDev = process.env.NODE_ENV === 'development';
 if (isDev) {

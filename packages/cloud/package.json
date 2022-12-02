@@ -25,6 +25,7 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
+    "serverless": "^3.25.1",
     "serverless-google-cloudfunctions": "^3.1.1"
   },
   "dependencies": {

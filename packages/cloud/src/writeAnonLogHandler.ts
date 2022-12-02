@@ -7,7 +7,7 @@ import { Readable } from 'stream';
 import { WowVersion } from '../../parser/dist/index';
 import { anonymizeDTO, applyCIIMap } from './anonymizer';
 import { createStubDTOFromArenaMatch } from './createMatchStub';
-import { parseFromStringArrayAsync } from './writeMatchStubHandler';
+import { parseFromStringArrayAsync } from './utils';
 
 const anonFilesBucket = process.env.ENV_LOG_FILES_BUCKET || '';
 const projectId = process.env.ENV_GCP_PROJECT;
