@@ -23,7 +23,7 @@ const storage = new GoogleCloudStorage();
 const bucket = storage.bucket('images.wowarenalogs.com');
 
 const MATCH_STUBS_COLLECTION = isDev ? 'match-stubs-dev' : 'match-stubs-prod';
-const NUMBER_OF_MATCHES = 10000;
+const NUMBER_OF_MATCHES = 1000;
 
 const processSpellIdAsync = async (spellId: string): Promise<boolean> => {
   const exists = await bucket.file(`spells/${spellId}.jpg`).exists();
