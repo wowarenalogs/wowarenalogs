@@ -44,3 +44,11 @@ functions:
       - event:
           eventType: google.storage.object.finalize
           resource: projects/wowarenalogs/buckets/${self:provider.project}-log-files-${opt:stage}
+
+  refreshSpellIcons:
+    memorySize: 1024
+    handler: refreshSpellIconsHandler
+    events:
+      - event:
+          eventType: google.cloud.pubsub.topic.v1.messagePublished
+          resource: projects/${self:provider.project, ""}/topics/refresh-spell-icons-event

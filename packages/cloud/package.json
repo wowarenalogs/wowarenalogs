@@ -5,15 +5,24 @@
   "main": "index.js",
   "author": "prsauer",
   "scripts": {
-    "build": "tsc --build tsconfig.json",
-    "deploy:dev": "tsc && serverless deploy --stage dev",
-    "deploy:prod": "tsc && serverless deploy --stage prod"
+    "build": "shx rm -rf dist && tsc && cd ../.. && npm run build:parser && shx mkdir ./packages/cloud/dist/parser && shx cp -r ./packages/parser/dist ./packages/cloud/dist/parser/dist",
+    "deploy:dev": "npm run build && serverless deploy --stage dev",
+    "deploy:prod": "npm run build && serverless deploy --stage prod",
+    "test:refresh-spell-icons": "cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js"
   },
   "devDependencies": {
     "@types/node": "^14.14.31",
     "@types/node-fetch": "2.3.0",
+    "@types/superagent": "^4.1.16",
     "@types/uuid": "^8.3.0",
     "add": "^2.0.6",
+    "eslint": "^8.28.0",
+    "eslint-config-airbnb-typescript": "^16.1.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-node": "^0.3.6",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "serverless-google-cloudfunctions": "^3.1.1"
   },
   "dependencies": {
@@ -22,7 +31,9 @@
     "@google-cloud/storage": "^6.7.0",
     "aws-sdk": "^2.834.0",
     "class-transformer": "^0.5.0",
+    "dotenv": "^16.0.3",
     "eventemitter3": "^4.0.7",
+    "fs-extra": "^11.1.0",
     "graphql": "^15.5.0",
     "graphql-tag": "^2.11.0",
     "jsonwebtoken": "^8.5.1",
@@ -32,6 +43,7 @@
     "moment-timezone": "^0.5.33",
     "node-fetch": "2.3.0",
     "rxjs": "^6.6.6",
+    "superagent": "^8.0.4",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.5",
     "unique-names-generator": "^4.4.0",

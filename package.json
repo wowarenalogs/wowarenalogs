@@ -25,6 +25,7 @@
     }
   },
   "scripts": {
+    "add:cloud": "npm install -w @wowarenalogs/cloud-functions",
     "add:app": "npm install -w @wowarenalogs/app",
     "add:desktop": "npm install -w @wowarenalogs/desktop",
     "add:web": "npm install -w @wowarenalogs/web",
