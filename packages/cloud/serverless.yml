@@ -47,6 +47,7 @@ functions:
 
   refreshSpellIcons:
     memorySize: 1024
+    timeout: 540s
     handler: refreshSpellIconsHandler
     events:
       - event:
