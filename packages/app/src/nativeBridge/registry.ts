@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { BrowserWindow, ipcMain, ipcRenderer, IpcRendererEvent } from 'electron';
 
 import { getModuleEventKey, getModuleFunctionKey, MODULE_METADATA, NativeBridgeModule } from './module';
@@ -29,12 +30,14 @@ export class NativeBridgeRegistry {
         const moduleApi: Record<string, Object> = {};
 
         Object.values(moduleMetadata.functions).forEach((func) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           moduleApi[func.name] = (...args: any[]) => {
             return ipcRenderer.invoke(getModuleFunctionKey(moduleMetadata.name, func.name), ...args);
           };
         });
 
         Object.values(moduleMetadata.events).forEach((evt) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           moduleApi[evt.name] = (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
             evt.type === 'on'
               ? ipcRenderer.on(getModuleEventKey(moduleMetadata.name, evt.name), callback)
