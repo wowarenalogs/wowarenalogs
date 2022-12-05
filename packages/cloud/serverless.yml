@@ -47,8 +47,9 @@ functions:
 
   refreshSpellIcons:
     memorySize: 1024
+    timeout: 540s
     handler: refreshSpellIconsHandler
     events:
       - event:
-          eventType: google.cloud.pubsub.topic.v1.messagePublished
+          eventType: providers/cloud.pubsub/eventTypes/topic.publish
           resource: projects/${self:provider.project, ""}/topics/refresh-spell-icons-event

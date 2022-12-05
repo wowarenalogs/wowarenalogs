@@ -7,7 +7,7 @@ import superagent from 'superagent';
 
 import { AtomicArenaCombat } from '../../parser/dist/index';
 import { ICombatDataStub } from '../../shared/src/graphql-server/types';
-import { parseFromStringArrayAsync } from './writeMatchStubHandler';
+import { parseFromStringArrayAsync } from './utils';
 
 const isDev = process.env.NODE_ENV === 'development';
 if (isDev) {
@@ -26,10 +26,11 @@ const bucket = storage.bucket('images.wowarenalogs.com');
 const MATCH_STUBS_COLLECTION = isDev ? 'match-stubs-dev' : 'match-stubs-prod';
 const NUMBER_OF_MATCHES = 1000;
 
+// returns whether a new spell icon was created
 const processSpellIdAsync = async (spellId: string): Promise<boolean> => {
   const exists = await bucket.file(`spells/${spellId}.jpg`).exists();
   if (exists) {
-    return true;
+    return false;
   }
 
   const response = await superagent.get(`https://www.wowhead.com/spell=${spellId}`);
@@ -63,6 +64,7 @@ export async function handler(_event: unknown, _context: unknown, callback: () =
 
   const collectionReference = firestore.collection(MATCH_STUBS_COLLECTION);
   const matchDocs = await collectionReference.orderBy('startTime', 'desc').limit(NUMBER_OF_MATCHES).get();
+  console.log(`fetched ${matchDocs.size} latest matches from firestore. downloading logs...`);
 
   const totalMatches = matchDocs.size;
   let parsedMatches = 0;
@@ -101,6 +103,7 @@ export async function handler(_event: unknown, _context: unknown, callback: () =
         parsedMatches++;
       }
     } catch (e) {
+      console.log(`failed to parse match ${stub.id}`, e);
       failedMatches++;
     }
   };
@@ -111,19 +114,19 @@ export async function handler(_event: unknown, _context: unknown, callback: () =
   }
 
   console.log(`${parsedMatches}/${totalMatches} matches parsed. ${failedMatches} failed.`);
-  console.log(`Found a total of ${allSpellIds.size} unique spells.`);
+  console.log(`found a total of ${allSpellIds.size} unique spells.`);
 
-  let fetchedSpellIcons = 0;
+  let newSpellIcons = 0;
   const processAsync = async (spellId: string) => {
-    await processSpellIdAsync(spellId);
-    fetchedSpellIcons++;
+    const created = await processSpellIdAsync(spellId);
+    if (created) newSpellIcons++;
   };
 
   const spellIdChunks = _.chunk(Array.from(allSpellIds.values()), 8);
   for (const chunk of spellIdChunks) {
     await Promise.all(chunk.map(processAsync));
-    console.log(`${fetchedSpellIcons}/${allSpellIds.size} spells processed.`);
   }
+  console.log(`${newSpellIcons}/${allSpellIds.size} spell icons added.`);
 
   callback();
 }

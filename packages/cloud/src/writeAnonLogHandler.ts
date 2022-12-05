@@ -7,7 +7,7 @@ import { Readable } from 'stream';
 import { WowVersion } from '../../parser/dist/index';
 import { anonymizeDTO, applyCIIMap } from './anonymizer';
 import { createStubDTOFromArenaMatch } from './createMatchStub';
-import { parseFromStringArrayAsync } from './writeMatchStubHandler';
+import { parseFromStringArrayAsync } from './utils';
 
 const anonFilesBucket = process.env.ENV_LOG_FILES_BUCKET || '';
 const projectId = process.env.ENV_GCP_PROJECT;
@@ -21,11 +21,10 @@ const storage = new GoogleCloudStorage({
   projectId,
 });
 
-const bucket = storage.bucket(anonFilesBucket);
-
 // In the Google code they actually type file as `data:{}`
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handler(file: any, _context: any): Promise<unknown> {
+  const bucket = storage.bucket(anonFilesBucket);
   const fileUrl = `https://storage.googleapis.com/${file.bucket}/${file.name}`;
   console.log(`Opening ${fileUrl}`);
   const response = await fetch(fileUrl);
