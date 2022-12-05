@@ -3,6 +3,7 @@ import { me, setUserReferrer } from './profile';
 
 export const resolvers = {
   CombatDataStub: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     __resolveType(obj: any) {
       if (obj.dataType === 'ShuffleRound') {
         return 'ShuffleRoundStub';

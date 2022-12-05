@@ -6,7 +6,7 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const logFilesBucket = isDev ? 'wowarenalogs-public-dev-log-files-dev' : 'wowarenalogs-log-files-prod';
 
-let storage = new Storage(
+const storage = new Storage(
   isDev
     ? {
         // encode your GCP service account key json into a base64 string and put in .env.local as GCP_KEY_JSON_BASE64

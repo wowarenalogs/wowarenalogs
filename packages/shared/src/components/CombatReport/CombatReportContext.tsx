@@ -25,9 +25,13 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
   combat: null,
   isAnonymized: true,
   activePlayerId: null,
-  navigateToPlayerView: (_playerId: string) => {},
+  navigateToPlayerView: (_playerId: string) => {
+    return;
+  },
   activeTab: 'summary',
-  setActiveTab: (_tab: string) => {},
+  setActiveTab: (_tab: string) => {
+    return;
+  },
   players: [],
   friends: [],
   enemies: [],
