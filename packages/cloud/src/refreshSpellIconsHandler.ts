@@ -11,6 +11,7 @@ import { parseFromStringArrayAsync } from './writeMatchStubHandler';
 
 const isDev = process.env.NODE_ENV === 'development';
 if (isDev) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('dotenv').config();
 }
 const firestore = new Firestore({
@@ -57,7 +58,7 @@ const processSpellIdAsync = async (spellId: string): Promise<boolean> => {
   return true;
 };
 
-export async function handler(_event: any, _context: any, callback: () => void) {
+export async function handler(_event: unknown, _context: unknown, callback: () => void) {
   console.log('refreshSpellIconsHandler started');
 
   const collectionReference = firestore.collection(MATCH_STUBS_COLLECTION);
