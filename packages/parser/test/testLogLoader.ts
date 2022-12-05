@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { WoWCombatLogParser } from '../src';
-import { IMalformedCombatData, IShuffleRound, IShuffleMatch, IArenaMatch } from '../src/CombatData';
+import { IArenaMatch, IMalformedCombatData, IShuffleMatch, IShuffleRound } from '../src/CombatData';
 
 export type LoaderResults = {
   combats: IArenaMatch[];

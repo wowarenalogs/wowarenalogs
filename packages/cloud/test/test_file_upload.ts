@@ -1,5 +1,5 @@
-const fetch = require('node-fetch');
-const fs = require('fs');
+import fs from 'fs';
+import fetch from 'node-fetch';
 
 const STAGE = 'dev';
 
@@ -8,7 +8,7 @@ const functionURL = 'us-central1-wowarenalogs.cloudfunctions.net';
 /*
   Submits combat logs to the arena matches service
 */
-async function uploadFile(fullFilePath, hashedName) {
+async function uploadFile(fullFilePath: string, hashedName: string) {
   console.log('Uploading file', fullFilePath, hashedName);
   const s3_preflight = await fetch(
     `https://${functionURL}/gcp-wowarenalogs-${STAGE}-getUploadSignature?name=${hashedName}`,
@@ -35,9 +35,7 @@ async function uploadFile(fullFilePath, hashedName) {
   const signed_upload_url = json_response['url'];
   console.log(json_response);
 
-  const stats = fs.statSync(fullFilePath);
   const readStream = fs.createReadStream(fullFilePath);
-  const fileSizeInBytes = stats.size;
 
   const r = await fetch(signed_upload_url, {
     method: 'PUT',

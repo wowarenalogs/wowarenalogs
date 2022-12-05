@@ -1,4 +1,4 @@
-import { ILogLine, CombatantInfo, EquippedItem } from '../types';
+import { CombatantInfo, EquippedItem, ILogLine } from '../types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseEquippedItems(val: any[]): EquippedItem[] {

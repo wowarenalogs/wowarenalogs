@@ -1,9 +1,5 @@
 module.exports = {
-  "extends": [
-    "next/core-web-vitals",
-    "airbnb-typescript",
-    "plugin:prettier/recommended"
-  ],
+  "extends": ["next", "next/core-web-vitals", "eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
   "plugins": [
     "simple-import-sort"
   ],

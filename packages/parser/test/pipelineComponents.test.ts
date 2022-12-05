@@ -1,14 +1,14 @@
 import fs from 'fs';
+import moment from 'moment-timezone';
 import path from 'path';
 import { from } from 'rxjs';
 
-import { CombatHpUpdateAction } from '../src/actions/CombatHpUpdateAction';
-import { stringToLogLine } from '../src/pipeline/common/stringToLogLine';
-import { dedup } from '../src/pipeline/classic/dedup';
-import { ILogLine } from '../src/types';
-import { PartyKill } from '../src/actions/PartyKill';
 import { WoWCombatLogParser } from '../src';
-import moment from 'moment-timezone';
+import { CombatHpUpdateAction } from '../src/actions/CombatHpUpdateAction';
+import { PartyKill } from '../src/actions/PartyKill';
+import { dedup } from '../src/pipeline/classic/dedup';
+import { stringToLogLine } from '../src/pipeline/common/stringToLogLine';
+import { ILogLine } from '../src/types';
 
 describe('pipeline component tests', () => {
   describe('timezone on construction', () => {

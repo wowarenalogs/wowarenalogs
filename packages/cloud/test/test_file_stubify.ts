@@ -1,9 +1,6 @@
-import { classToPlain } from 'class-transformer';
-import md5 from 'md5';
 import fetch from 'node-fetch';
 
-import { anonymizeDTO } from '../src/anonymizer';
-import { createStubDTOFromShuffleMatch, createStubDTOFromArenaMatch } from '../src/createMatchStub';
+import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from '../src/createMatchStub';
 import { parseFromStringArrayAsync } from '../src/writeMatchStubHandler';
 
 const root_uri = 'https://storage.googleapis.com/wowarenalogs-public-dev-log-files-dev/WoWCombatLog-110422_233521.txt';

@@ -57,7 +57,7 @@ export async function handler(file: any, _context: any): Promise<unknown> {
   const promise = new Promise((res, rej) => {
     anonReadStream
       .pipe(anonStream)
-      .on('error', function (err: any) {
+      .on('error', function (err: unknown) {
         console.log(`Error writing: ${anonFileName}`);
         console.log(err);
         rej(err);

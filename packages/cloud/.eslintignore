@@ -2,3 +2,5 @@ node_modules
 dist
 build
 .eslintrc.js
+*.config.js
+index.js

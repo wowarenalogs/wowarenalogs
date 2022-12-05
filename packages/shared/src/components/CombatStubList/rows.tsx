@@ -50,7 +50,7 @@ export function ShuffleRoundRow({
   viewerIsOwner?: boolean;
   combatUrlFactory: (combatId: string, logId: string) => string;
 }) {
-  let roundTitle = `Round ${round.sequenceNumber + 1} ${round.result === CombatResult.Win ? 'win' : 'loss'}`;
+  const roundTitle = `Round ${round.sequenceNumber + 1} ${round.result === CombatResult.Win ? 'win' : 'loss'}`;
   let roundColor = round.result === CombatResult.Win ? 'green' : 'gray';
 
   if (!viewerIsOwner) {

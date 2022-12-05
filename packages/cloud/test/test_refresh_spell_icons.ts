@@ -1,7 +1,5 @@
 import { handler } from '../src/refreshSpellIconsHandler';
 
-handler(
-  {},
-  {},
-  () => {}
-);
+handler({}, {}, () => {
+  return;
+});
