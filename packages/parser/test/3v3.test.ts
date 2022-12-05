@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import { CombatResult, CombatUnitAffiliation, CombatUnitClass, CombatUnitSpec, CombatUnitType } from '../src/types';
 import { LoaderResults, loadLogFile } from './testLogLoader';
 
