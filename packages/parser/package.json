@@ -17,8 +17,8 @@
     "build": "npx tsdx build",
     "build:parser": "npx tsdx build",
     "test": "npx tsdx test",
-    "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "prepare": "npm run build",
     "size": "size-limit",
     "analyze": "size-limit --why"

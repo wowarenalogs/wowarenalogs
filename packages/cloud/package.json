@@ -6,7 +6,7 @@
   "author": "prsauer",
   "scripts": {
     "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint:fix": "eslint . --fix",
     "build": "shx rm -rf dist && tsc && cd ../.. && npm run build:parser && shx mkdir ./packages/cloud/dist/parser && shx cp -r ./packages/parser/dist ./packages/cloud/dist/parser/dist",
     "deploy:dev": "npm run build && serverless deploy --stage dev",
     "deploy:prod": "npm run build && serverless deploy --stage prod",
