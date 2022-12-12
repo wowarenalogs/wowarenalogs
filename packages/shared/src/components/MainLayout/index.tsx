@@ -74,40 +74,38 @@ export function MainLayout(props: IProps) {
             </Link>
           </div>
         )}
-        {(process.env.NODE_ENV === 'development' || !auth.isAuthenticated) && (
-          <div
-            className={`p-2 ${
-              selectedNavMenuKey === '/profile'
-                ? 'bg-base-100 text-primary'
-                : auth.isLoadingAuthData || auth.isAuthenticated
-                ? ''
-                : 'bg-error text-error-content'
-            }`}
-          >
-            {auth.isAuthenticated ? (
-              <Link href="/profile" aria-label="Profile">
-                <a className="hover:text-primary">
-                  <TbUser size="32" />
-                </a>
-              </Link>
-            ) : auth.isLoadingAuthData ? (
-              <a className="cursor-wait opacity-60" href="#">
+        <div
+          className={`p-2 ${
+            selectedNavMenuKey === '/profile'
+              ? 'bg-base-100 text-primary'
+              : auth.isLoadingAuthData || auth.isAuthenticated
+              ? ''
+              : 'bg-error text-error-content'
+          }`}
+        >
+          {auth.isAuthenticated ? (
+            <Link href="/profile" aria-label="Profile">
+              <a className="hover:text-primary">
                 <TbUser size="32" />
               </a>
-            ) : (
-              <a
-                className="hover:text-white"
-                href="#"
-                onClick={() => {
-                  auth.signIn();
-                }}
-              >
-                <TbUser size="32" />
-              </a>
-            )}
-          </div>
-        )}
-        {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
+            </Link>
+          ) : auth.isLoadingAuthData ? (
+            <a className="cursor-wait opacity-60" href="#">
+              <TbUser size="32" />
+            </a>
+          ) : (
+            <a
+              className="hover:text-white"
+              href="#"
+              onClick={() => {
+                auth.signIn();
+              }}
+            >
+              <TbUser size="32" />
+            </a>
+          )}
+        </div>
+        {clientContext.isDesktop && (
           <div
             className={`p-2 hover:text-primary ${selectedNavMenuKey === '/settings' ? 'bg-base-100 text-primary' : ''}`}
           >
