@@ -40,43 +40,30 @@ const maybeGetSpellIdFromTalentId = (talentId: number) => {
 
 const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14, 17, 3];
 
-// Shim to account for overhealing
-const getAmountForEvent = (action: CombatHpUpdateAction) => {
-  if (action.logLine.event === 'SPELL_PERIODIC_HEAL') {
-    // TODO: the parser needs to give us more info about overhealing
-    return action.logLine.parameters[28] - action.logLine.parameters[30];
-  }
-  if (action.logLine.event === 'SPELL_HEAL') {
-    // TODO: the parser needs to give us more info about overhealing
-    return action.logLine.parameters[28] - action.logLine.parameters[30];
-  }
-  return Math.abs(action.amount);
-};
-
 const compileDamageBySpell = (actions: CombatHpUpdateAction[]) => {
   const groups = _.groupBy(
-    actions.filter((a) => a.amount !== 0),
+    actions.filter((a) => a.effectiveAmount !== 0),
     (a) => a.spellId,
   );
   return _.map(groups, (actionsGroup, spellId) => {
     return {
       id: spellId,
       name: _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack',
-      value: _.sum(actionsGroup.map((a) => getAmountForEvent(a))),
+      value: _.sum(actionsGroup.map((a) => Math.abs(a.effectiveAmount))),
     };
   }).sort((a, b) => b.value - a.value);
 };
 
 const compileDamageByDest = (actions: CombatHpUpdateAction[]) => {
   const groups = _.groupBy(
-    actions.filter((a) => a.amount !== 0),
+    actions.filter((a) => a.effectiveAmount !== 0),
     (a) => a.destUnitId,
   );
   return _.map(groups, (actionsGroup, destUnitId) => {
     return {
       id: destUnitId,
       name: _.first(actionsGroup.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || 'Unknown',
-      value: _.sum(actionsGroup.map((a) => getAmountForEvent(a))),
+      value: _.sum(actionsGroup.map((a) => Math.abs(a.effectiveAmount))),
     };
   }).sort((a, b) => b.value - a.value);
 };
@@ -87,19 +74,19 @@ const compileHealsBySpell = (heals: CombatHpUpdateAction[], absorbs: CombatAbsor
       return {
         spellId: a.spellId,
         spellName: a.spellName,
-        amount: a.amount,
+        effectiveAmount: a.effectiveAmount,
       };
     }),
     absorbs.map((a) => {
       return {
         spellId: a.shieldSpellId,
         spellName: a.shieldSpellName,
-        amount: a.absorbedAmount,
+        effectiveAmount: a.effectiveAmount,
       };
     }),
   );
   const groups = _.groupBy(
-    actions.filter((a) => a.amount !== 0),
+    actions.filter((a) => a.effectiveAmount !== 0),
     (a) => a.spellId,
   );
 
@@ -108,7 +95,7 @@ const compileHealsBySpell = (heals: CombatHpUpdateAction[], absorbs: CombatAbsor
       id: spellId,
       count: actionsGroup.length,
       name: _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack',
-      value: _.sum(actionsGroup.map((a) => a.amount)),
+      value: _.sum(actionsGroup.map((a) => a.effectiveAmount)),
     };
   }).sort((a, b) => b.value - a.value);
 };
@@ -119,26 +106,26 @@ const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorb
       return {
         destUnitId: a.destUnitId,
         destUnitName: a.destUnitName,
-        amount: a.amount,
+        effectiveAmount: a.effectiveAmount,
       };
     }),
     absorbs.map((a) => {
       return {
         destUnitId: a.destUnitId,
         destUnitName: a.destUnitName,
-        amount: a.absorbedAmount,
+        effectiveAmount: a.effectiveAmount,
       };
     }),
   );
   const groups = _.groupBy(
-    actions.filter((a) => a.amount !== 0),
+    actions.filter((a) => a.effectiveAmount !== 0),
     (a) => a.destUnitId,
   );
   return _.map(groups, (actionsGroup, destUnitId) => {
     return {
       id: destUnitId,
       name: _.first(actionsGroup.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || 'Unknown',
-      value: _.sum(actionsGroup.map((a) => a.amount)),
+      value: _.sum(actionsGroup.map((a) => a.effectiveAmount)),
     };
   }).sort((a, b) => b.value - a.value);
 };

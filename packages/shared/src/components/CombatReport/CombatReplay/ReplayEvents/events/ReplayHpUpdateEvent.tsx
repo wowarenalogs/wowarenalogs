@@ -16,7 +16,7 @@ export function ReplayHpUpdateEvent(props: IProps) {
       <div className="ml-0.5">
         <div className={`${props.event.amount >= 0 ? 'text-success' : 'text-error'} font-bold`}>
           {props.event.amount > 0 ? '+' : ''}
-          {props.event.amount}
+          {props.event.effectiveAmount}
           {
             // TODO: implement isCrit in parser
             // {isCrit(props.event, context.combat.wowVersion) ? '*' : ''}
