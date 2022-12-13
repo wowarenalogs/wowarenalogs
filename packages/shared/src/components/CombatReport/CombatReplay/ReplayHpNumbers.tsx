@@ -30,7 +30,7 @@ const ReplayHpNumber = (props: { renderState: IHpNumberRenderState }) => {
 
   return (
     <Text
-      text={(isDamage ? '' : '+') + props.renderState.event.amount.toFixed()}
+      text={(isDamage ? '' : '+') + props.renderState.event.effectiveAmount.toFixed()}
       x={0}
       y={y}
       resolution={4}
@@ -63,7 +63,7 @@ export const ReplayHpNumbers = (props: IProps) => {
     .filter((e) => {
       const eventTimeOffset = e.timestamp - combat.startTime;
       return (
-        Math.abs(e.amount) >= MIN_NUMBER &&
+        Math.abs(e.effectiveAmount) >= MIN_NUMBER &&
         props.currentTimeOffset - eventTimeOffset >= 0 &&
         props.currentTimeOffset - eventTimeOffset < DURATION
       );

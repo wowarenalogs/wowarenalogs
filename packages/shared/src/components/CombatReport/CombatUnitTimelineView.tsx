@@ -21,7 +21,7 @@ const generateHpUpdateColumn = (
   maxAbs: number,
 ): React.ReactElement[] => {
   return _.map(actionGroupsBySecondMark, (group, secondMark) => {
-    const groupTotal = _.sumBy(group, (action) => Math.abs(action.amount));
+    const groupTotal = _.sumBy(group, (action) => Math.abs(action.effectiveAmount));
     return (
       <div
         key={secondMark}
@@ -78,9 +78,9 @@ export const CombatUnitTimelineView = (props: IProps) => {
 
   // Scale horizontal values such that 100% width maps to the highest per-row total
   const maxAbsDamage =
-    _.max(_.values(damageActionGroupsBySecondMark).map((ar) => _.sum(ar.map((e) => Math.abs(e.amount))))) || 1;
+    _.max(_.values(damageActionGroupsBySecondMark).map((ar) => _.sum(ar.map((e) => Math.abs(e.effectiveAmount))))) || 1;
   const maxAbsHeal =
-    _.max(_.values(healActionGroupsBySecondMark).map((ar) => _.sum(ar.map((e) => Math.abs(e.amount))))) || 1;
+    _.max(_.values(healActionGroupsBySecondMark).map((ar) => _.sum(ar.map((e) => Math.abs(e.effectiveAmount))))) || 1;
   const maxAbs = Math.max(maxAbsDamage, maxAbsHeal);
 
   return (

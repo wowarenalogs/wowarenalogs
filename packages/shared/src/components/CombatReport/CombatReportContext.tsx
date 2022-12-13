@@ -110,7 +110,7 @@ export const CombatReportContextProvider = (props: IProps) => {
       mPlayerTimeInCC.set(p.id, totalTimeInCC);
 
       const totalDamageOut = p.damageOut.reduce((sum, action) => {
-        return sum + Math.abs(action.amount);
+        return sum + Math.abs(action.effectiveAmount);
       }, 0);
       mPlayerTotalDamageOut.set(p.id, totalDamageOut);
 
@@ -123,10 +123,10 @@ export const CombatReportContextProvider = (props: IProps) => {
           // TODO: the parser needs to give us more info about overhealing
           return sum + (action.logLine.parameters[28] - action.logLine.parameters[30]);
         }
-        return sum + Math.abs(action.amount);
+        return sum + Math.abs(action.effectiveAmount);
       }, 0);
       const totalPrevented = p.absorbsOut.reduce((sum, action) => {
-        return sum + Math.abs(action.absorbedAmount);
+        return sum + Math.abs(action.effectiveAmount);
       }, 0);
       mPlayerTotalHealOut.set(p.id, totalHealOut + totalPrevented);
 
