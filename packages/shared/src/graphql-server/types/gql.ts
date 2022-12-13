@@ -83,7 +83,7 @@ export const typeDefs = gql`
     talents: [Talent]!
     pvpTalents: [String!]!
     personalRating: Int!
-    highestPvpTier: Int!
+    highestPvpTier: Int
   }
   type CombatUnitStub {
     id: String!
