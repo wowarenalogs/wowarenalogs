@@ -44,7 +44,7 @@ export const ReplayEvents = (props: IProps) => {
 
     const isWantedDamageOrHeal = (e: CombatEvent) =>
       e instanceof CombatHpUpdateAction &&
-      (Math.abs(e.amount) >= MIN_DAMAGE_HEAL_NUMBER || !filters.significantDamageHealOnly);
+      (Math.abs(e.effectiveAmount) >= MIN_DAMAGE_HEAL_NUMBER || !filters.significantDamageHealOnly);
     const isExtraSpellAction = (e: CombatEvent) => e instanceof CombatExtraSpellAction;
     const isPlayerDeath = (e: CombatEvent) =>
       e instanceof CombatAction &&

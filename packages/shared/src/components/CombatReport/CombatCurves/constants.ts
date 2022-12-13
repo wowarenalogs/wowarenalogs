@@ -10,6 +10,6 @@ export const getDataPoint = (timeMark: number, startTime: number, logs: CombatHp
         l.timestamp - startTime < timeMark * 1000 &&
         l.timestamp - startTime >= (timeMark - CHART_TIME_INTERVAL_S) * 1000,
     ),
-    (l) => Math.round(Math.abs(l.amount) / CHART_TIME_INTERVAL_S),
+    (l) => Math.round(Math.abs(l.effectiveAmount) / CHART_TIME_INTERVAL_S),
   );
 };
