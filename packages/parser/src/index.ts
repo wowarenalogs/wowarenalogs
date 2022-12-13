@@ -1,10 +1,10 @@
 import EventEmitter from 'eventemitter3';
+import moment from 'moment';
 
-import { createRetailParserPipeline } from './pipeline/retail';
 import { createClassicParserPipeline } from './pipeline/classic';
+import { createRetailParserPipeline } from './pipeline/retail';
 import { WowVersion } from './types';
 import { PIPELINE_FLUSH_SIGNAL } from './utils';
-import moment from 'moment';
 
 export type {
   IArenaMatch,

@@ -41,7 +41,9 @@ export const ReplayEventFilterDropdown = React.memo(function ReplayEventFilterDr
               </label>
             </div>
           ),
-          onClick: () => {},
+          onClick: () => {
+            return;
+          },
         },
         {
           key: 'significantAurasOnly',
@@ -63,7 +65,9 @@ export const ReplayEventFilterDropdown = React.memo(function ReplayEventFilterDr
               </label>
             </div>
           ),
-          onClick: () => {},
+          onClick: () => {
+            return;
+          },
         },
       ]}
     >

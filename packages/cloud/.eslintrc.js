@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['airbnb-typescript/base', 'plugin:prettier/recommended'],
+  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
   plugins: ['import', 'simple-import-sort'],
   parser: '@typescript-eslint/parser',
   parserOptions: {

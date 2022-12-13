@@ -103,7 +103,9 @@ const Debug = () => {
                     return { ...prev, wowDirectory: folder };
                   });
                 })
-                .catch(() => {});
+                .catch(() => {
+                  return;
+                });
             }}
           >
             Select WoW Folder (installs addon, starts loggers)

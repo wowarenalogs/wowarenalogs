@@ -1,9 +1,10 @@
-import { ICombatUnit } from '@wowarenalogs/parser';
+import { CombatAbsorbAction, CombatHpUpdateAction, CombatUnitType, ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import talentIdMap from '../../../data/talentIdMap.json';
 import { Utils } from '../../../utils/utils';
+import { useCombatReportContext } from '../CombatReportContext';
 import { CombatStatistic } from '../CombatStatistic';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
@@ -39,7 +40,7 @@ const maybeGetSpellIdFromTalentId = (talentId: number) => {
 
 const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14, 17, 3];
 
-/* // Shim to account for overhealing
+// Shim to account for overhealing
 const getAmountForEvent = (action: CombatHpUpdateAction) => {
   if (action.logLine.event === 'SPELL_PERIODIC_HEAL') {
     // TODO: the parser needs to give us more info about overhealing
@@ -52,7 +53,7 @@ const getAmountForEvent = (action: CombatHpUpdateAction) => {
   return Math.abs(action.amount);
 };
 
-const compileDataBySpell = (actions: CombatHpUpdateAction[]) => {
+const compileDamageBySpell = (actions: CombatHpUpdateAction[]) => {
   const groups = _.groupBy(
     actions.filter((a) => a.amount !== 0),
     (a) => a.spellId,
@@ -66,38 +67,7 @@ const compileDataBySpell = (actions: CombatHpUpdateAction[]) => {
   }).sort((a, b) => b.value - a.value);
 };
 
-const compileAbsorbsBySpell = (actions: CombatAbsorbAction[]) => {
-  const groups = _.groupBy(
-    actions.filter((a) => a.absorbedAmount !== 0),
-    (a) => a.shieldSpellId,
-  );
-
-  return _.map(groups, (actionsGroup, spellId) => {
-    return {
-      id: spellId,
-      count: actionsGroup.length,
-      name: _.first(actionsGroup.filter((a) => a.shieldSpellName).map((a) => a.shieldSpellName)) || 'Auto Attack',
-      value: _.sum(actionsGroup.map((a) => a.absorbedAmount)),
-    };
-  }).sort((a, b) => b.value - a.value);
-};
-
-//
-const compileAbsorbsByDest = (actions: CombatAbsorbAction[]) => {
-  const groups = _.groupBy(
-    actions.filter((a) => a.absorbedAmount !== 0),
-    (a) => a.destUnitId,
-  );
-  return _.map(groups, (actionsGroup, destUnitId) => {
-    return {
-      id: destUnitId,
-      name: _.first(actionsGroup.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || 'Unknown',
-      value: _.sum(actionsGroup.map((a) => a.absorbedAmount)),
-    };
-  }).sort((a, b) => b.value - a.value);
-};
-
-const compileDataByDest = (actions: CombatHpUpdateAction[]) => {
+const compileDamageByDest = (actions: CombatHpUpdateAction[]) => {
   const groups = _.groupBy(
     actions.filter((a) => a.amount !== 0),
     (a) => a.destUnitId,
@@ -109,9 +79,72 @@ const compileDataByDest = (actions: CombatHpUpdateAction[]) => {
       value: _.sum(actionsGroup.map((a) => getAmountForEvent(a))),
     };
   }).sort((a, b) => b.value - a.value);
-}; */
+};
+
+const compileHealsBySpell = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorbAction[]) => {
+  const actions = _.concat(
+    heals.map((a) => {
+      return {
+        spellId: a.spellId,
+        spellName: a.spellName,
+        amount: a.amount,
+      };
+    }),
+    absorbs.map((a) => {
+      return {
+        spellId: a.shieldSpellId,
+        spellName: a.shieldSpellName,
+        amount: a.absorbedAmount,
+      };
+    }),
+  );
+  const groups = _.groupBy(
+    actions.filter((a) => a.amount !== 0),
+    (a) => a.spellId,
+  );
+
+  return _.map(groups, (actionsGroup, spellId) => {
+    return {
+      id: spellId,
+      count: actionsGroup.length,
+      name: _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack',
+      value: _.sum(actionsGroup.map((a) => a.amount)),
+    };
+  }).sort((a, b) => b.value - a.value);
+};
+
+const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorbAction[]) => {
+  const actions = _.concat(
+    heals.map((a) => {
+      return {
+        destUnitId: a.destUnitId,
+        destUnitName: a.destUnitName,
+        amount: a.amount,
+      };
+    }),
+    absorbs.map((a) => {
+      return {
+        destUnitId: a.destUnitId,
+        destUnitName: a.destUnitName,
+        amount: a.absorbedAmount,
+      };
+    }),
+  );
+  const groups = _.groupBy(
+    actions.filter((a) => a.amount !== 0),
+    (a) => a.destUnitId,
+  );
+  return _.map(groups, (actionsGroup, destUnitId) => {
+    return {
+      id: destUnitId,
+      name: _.first(actionsGroup.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || 'Unknown',
+      value: _.sum(actionsGroup.map((a) => a.amount)),
+    };
+  }).sort((a, b) => b.value - a.value);
+};
 
 export function CombatPlayer(props: IProps) {
+  const { combat } = useCombatReportContext();
   useEffect(() => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,27 +154,35 @@ export function CombatPlayer(props: IProps) {
     }
   }, [props.player]);
 
-  /* const damageDoneBySpells = useMemo(() => {
-    return compileDataBySpell(props.player.damageOut);
+  const damageDoneBySpells = useMemo(() => {
+    return compileDamageBySpell(props.player.damageOut);
   }, [props.player]);
+  const damageDoneBySpellsMax = _.max(damageDoneBySpells.map((s) => s.value)) || 1;
+  const damageDoneBySpellsSum = _.sum(damageDoneBySpells.map((s) => s.value));
 
   const healsDoneBySpells = useMemo(() => {
-    return [...compileDataBySpell(props.player.healOut), ...compileAbsorbsBySpell(props.player.absorbsOut)].sort(
-      (a, b) => b.value - a.value,
-    );
+    return compileHealsBySpell(props.player.healOut, props.player.absorbsOut);
   }, [props.player]);
+  const healsDoneBySpellsMax = _.max(healsDoneBySpells.map((s) => s.value)) || 1;
+  const healsDoneBySpellsSum = _.sum(healsDoneBySpells.map((s) => s.value));
 
   const damageDoneByDest = useMemo(() => {
-    return compileDataByDest(props.player.damageOut);
-  }, [props.player]);
+    return compileDamageByDest(props.player.damageOut).filter((d) =>
+      combat ? combat.units[d.id].type === CombatUnitType.Player : false,
+    );
+  }, [props.player, combat]);
+  const damageDoneByDestMax = _.max(damageDoneByDest.map((s) => s.value)) || 1;
+  const damageDoneByDestSum = _.sum(damageDoneByDest.map((s) => s.value));
 
   const healsDoneByDest = useMemo(() => {
-    return [...compileDataByDest(props.player.healOut), ...compileAbsorbsByDest(props.player.absorbsOut)].sort(
-      (a, b) => b.value - a.value,
+    return compileHealsByDest(props.player.healOut, props.player.absorbsOut).filter((d) =>
+      combat ? combat.units[d.id].type === CombatUnitType.Player : false,
     );
-  }, [props.player]); */
+  }, [props.player, combat]);
+  const healsDoneByDestMax = _.max(healsDoneByDest.map((s) => s.value)) || 1;
+  const healsDoneByDestSum = _.sum(healsDoneByDest.map((s) => s.value));
 
-  if (!props.player.info) {
+  if (!props.player.info || !combat) {
     return null;
   }
 
@@ -230,27 +271,102 @@ export function CombatPlayer(props: IProps) {
             </div>
           </div>
         </div>
+        <div className="mt-2">
+          <div className="text-lg font-bold">Stats</div>
+          <table className="table table-compact mt-2 w-full">
+            <thead>
+              <tr>
+                <th colSpan={4} className="bg-base-300">
+                  DAMAGE SPELLS
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {damageDoneBySpells.map((d) => (
+                <tr key={d.id}>
+                  <td className="bg-base-200 flex flex-row items-center">
+                    <SpellIcon spellId={d.id} size={24} />
+                    <div className="ml-1">{d.name}</div>
+                  </td>
+                  <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneBySpellsSum).toFixed(1)}%</td>
+                  <td className="bg-base-200 w-full">
+                    <progress
+                      className="progress w-full progress-error"
+                      value={Math.floor(((d.value || 0) * 100) / damageDoneBySpellsMax)}
+                      max={100}
+                    />
+                  </td>
+                  <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
+                </tr>
+              ))}
+              <tr>
+                <th colSpan={4} className="bg-base-300">
+                  DAMAGE TARGETS
+                </th>
+              </tr>
+              {damageDoneByDest.map((d) => (
+                <tr key={d.id}>
+                  <td className="bg-base-200">
+                    <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
+                  </td>
+                  <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneByDestSum).toFixed(1)}%</td>
+                  <td className="bg-base-200 w-full">
+                    <progress
+                      className="progress w-full progress-error"
+                      value={Math.floor(((d.value || 0) * 100) / damageDoneByDestMax)}
+                      max={100}
+                    />
+                  </td>
+                  <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
+                </tr>
+              ))}
+              <tr>
+                <th colSpan={4} className="bg-base-300">
+                  HEALING SPELLS
+                </th>
+              </tr>
+              {healsDoneBySpells.map((d) => (
+                <tr key={d.id}>
+                  <td className="bg-base-200 flex flex-row items-center">
+                    <SpellIcon spellId={d.id} size={24} />
+                    <div className="ml-1">{d.name}</div>
+                  </td>
+                  <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneBySpellsSum).toFixed(1)}%</td>
+                  <td className="bg-base-200 w-full">
+                    <progress
+                      className="progress w-full progress-success"
+                      value={Math.floor(((d.value || 0) * 100) / healsDoneBySpellsMax)}
+                      max={100}
+                    />
+                  </td>
+                  <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
+                </tr>
+              ))}
+              <tr>
+                <th colSpan={4} className="bg-base-300">
+                  HEALING TARGETS
+                </th>
+              </tr>
+              {healsDoneByDest.map((d) => (
+                <tr key={d.id}>
+                  <td className="bg-base-200">
+                    <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
+                  </td>
+                  <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneByDestSum).toFixed(1)}%</td>
+                  <td className="bg-base-200 w-full">
+                    <progress
+                      className="progress w-full progress-success"
+                      value={Math.floor(((d.value || 0) * 100) / healsDoneByDestMax)}
+                      max={100}
+                    />
+                  </td>
+                  <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-      {/*
-      {damageDoneBySpells.length > 0 && (
-        <div className="mt-4">
-          <div className="text-lg font-bold">Damage Done</div>
-          <div className="flex flex-row">
-            <PlayerPieChart data={damageDoneBySpells} />
-            <PlayerPieChart data={damageDoneByDest} />
-          </div>
-        </div>
-      )}
-      {healsDoneBySpells.length > 0 && (
-        <div className="mt-4">
-          <div className="text-lg font-bold">Healing Done</div>
-          <div className="flex flex-row">
-            <PlayerPieChart data={healsDoneBySpells} />
-            <PlayerPieChart data={healsDoneByDest} />
-          </div>
-        </div>
-      )}
-      */}
     </div>
   );
 }

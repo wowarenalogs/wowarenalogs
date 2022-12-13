@@ -181,14 +181,22 @@ export class LogsModule extends NativeBridgeModule {
   }
 
   @moduleEvent('on')
-  public handleNewCombat(_mainWindow: BrowserWindow, _combat: IArenaMatch) {}
+  public handleNewCombat(_mainWindow: BrowserWindow, _combat: IArenaMatch) {
+    return;
+  }
 
   @moduleEvent('on')
-  public handleSoloShuffleRoundEnded(_mainWindow: BrowserWindow, _combat: IShuffleRound) {}
+  public handleSoloShuffleRoundEnded(_mainWindow: BrowserWindow, _combat: IShuffleRound) {
+    return;
+  }
 
   @moduleEvent('on')
-  public handleSoloShuffleEnded(_mainWindow: BrowserWindow, _combat: IShuffleMatch) {}
+  public handleSoloShuffleEnded(_mainWindow: BrowserWindow, _combat: IShuffleMatch) {
+    return;
+  }
 
   @moduleEvent('on')
-  public handleMalformedCombatDetected(_mainWindow: BrowserWindow, _combat: IMalformedCombatData) {}
+  public handleMalformedCombatDetected(_mainWindow: BrowserWindow, _combat: IMalformedCombatData) {
+    return;
+  }
 }

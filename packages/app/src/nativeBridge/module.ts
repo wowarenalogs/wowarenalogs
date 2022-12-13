@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-types */
 import { BrowserWindow } from 'electron';
 
 type ModuleFunction = {
@@ -99,5 +101,7 @@ export abstract class NativeBridgeModule {
    * Useful for mapping events on the mainWindow into module domain events.
    * @param _mainWindow BrowserWindow
    */
-  public onRegistered(_mainWindow: BrowserWindow): void {}
+  public onRegistered(_mainWindow: BrowserWindow): void {
+    return;
+  }
 }
