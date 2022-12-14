@@ -41,6 +41,7 @@ function roundsBelongToSameMatch(roundA: ArenaMatchStartInfo, roundB: ArenaMatch
 
 // Some sanity checks before we report this shuffle
 function validateRounds(rounds: IShuffleRound[]) {
+  console.log('VAL', rounds.length);
   // Must contain 6 rounds
   if (rounds.length !== 6) {
     logInfo(`validateRounds length != 6`);
@@ -211,6 +212,12 @@ export const segmentToCombat = () => {
             recentShuffleRoundsBuffer = [];
             recentScoreboardBuffer = [];
             return shuf;
+          } else {
+            // We hit a final round (ARENA_MATCH_END) but the Match itself wasn't a valid 6-round shuffle
+            // We want to emit the shuffle as a round but then reset the internal match aggregator
+            recentShuffleRoundsBuffer = [];
+            recentScoreboardBuffer = [];
+            return decoded.shuffle;
           }
           // Reset buffer also if rounds are invalid...
           recentShuffleRoundsBuffer = [];
