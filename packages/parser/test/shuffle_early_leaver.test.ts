@@ -1,7 +1,8 @@
-import { LoaderResults, loadLogFile } from './testLogLoader';
 import _ from 'lodash';
 
-describe('parsing a log with conscious death', () => {
+import { LoaderResults, loadLogFile } from './testLogLoader';
+
+describe('parsing a log where someone leaves a shuffle match early', () => {
   const results: LoaderResults = {
     combats: [],
     malformedCombats: [],
@@ -10,7 +11,7 @@ describe('parsing a log with conscious death', () => {
   };
 
   beforeAll(() => {
-    const loaded = loadLogFile('testlog.txt');
+    const loaded = loadLogFile('shuffle_early_leaver.txt');
     results.combats = loaded.combats;
     results.malformedCombats = loaded.malformedCombats;
     results.shuffleRounds = loaded.shuffleRounds;
@@ -18,9 +19,9 @@ describe('parsing a log with conscious death', () => {
   });
 
   it('should return a single match', () => {
-    _.values(results.combats[0].units).forEach(u => {
-      console.log(`${u.type} ${u.info?.specId}`);
-    });
-    expect(results.combats).toHaveLength(1);
+    expect(results.shuffles).toHaveLength(0);
+    expect(results.shuffleRounds).toHaveLength(2);
+    expect(results.malformedCombats).toHaveLength(0);
+    expect(results.combats).toHaveLength(0);
   });
 });
