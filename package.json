@@ -1,10 +1,14 @@
 {
   "name": "wowarenalogs",
   "license": "MIT",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wowarenalogs/wowarenalogs.git"
+  },
   "main": "packages/app/dist/main.bundle.js",
   "engines": {
     "node": ">=16",
@@ -36,6 +40,8 @@
     "build:app": "npm run build:app --workspaces --if-present",
     "build:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=never",
     "build:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=never",
+    "publish:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=always",
+    "publish:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=always",
     "release:app": "npm run release:app --workspaces --if-present",
     "dev:desktop": "npm run dev:desktop --workspaces --if-present",
     "build:desktop": "npm run build:desktop --workspaces --if-present",
