@@ -1,10 +1,10 @@
-name: lint
+name: test
 on:
   pull_request:
     branches:
       - main
 jobs:
-  lint:
+  test:
     runs-on: macos-latest
     env:
       CI: false
