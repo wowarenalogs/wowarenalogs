@@ -10,6 +10,17 @@ interface IZoneMetadata {
 }
 
 export const zoneMetadata: Record<string, IZoneMetadata> = {
+  '2563': {
+    // TODO: Fix values
+    id: '2547',
+    name: 'Nokhudon Proving Grounds',
+    imageWidth: 500,
+    imageHeight: 500,
+    minX: -2000,
+    minY: 7000,
+    maxX: -2000,
+    maxY: 7000,
+  },
   '2547': {
     // TODO: Fix values
     id: '2547',
