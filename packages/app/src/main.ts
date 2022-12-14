@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+import { autoUpdater } from 'electron-updater';
 import moment from 'moment';
 
 import { nativeBridgeRegistry } from './nativeBridge/registry';
@@ -45,16 +46,12 @@ function createWindow() {
   nativeBridgeRegistry.startListeners(win);
 }
 
-if (app.isPackaged) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('update-electron-app')({
-    repo: 'wowarenalogs/wowarenalogs',
-    notifyUser: false,
-  });
-}
-
 app.on('ready', () => {
   createWindow();
+
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdatesAndNotify();
+  }
 });
 
 app.on('window-all-closed', () => {
