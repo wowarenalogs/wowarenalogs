@@ -1,0 +1,32 @@
+{
+  "name": "@wowarenalogs/tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "WoW Arena Logs",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.31",
+    "@types/node-fetch": "2.3.0",
+    "eslint": "^8.28.0",
+    "eslint-config-airbnb-typescript": "^16.1.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-node": "^0.3.6",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "ts-node": "^10.9.1"
+  },
+  "dependencies": {
+    "fengari-web": "^0.1.4",
+    "fs-extra": "^11.1.0",
+    "lodash": "^4.17.21",
+    "lua-in-js": "^2.2.0",
+    "node-fetch": "2.3.0",
+    "typescript": "^4.1.5"
+  }
+}

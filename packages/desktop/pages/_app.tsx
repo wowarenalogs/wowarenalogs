@@ -40,7 +40,7 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       staleTime: 600,
-      retry: (_failureCount: any, error: any) => {
+      retry: (_failureCount: unknown, error: unknown) => {
         if ((error as Error)?.message === 'Fetch error 404') {
           return false;
         }

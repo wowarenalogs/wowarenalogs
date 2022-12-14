@@ -10,8 +10,9 @@
     "start:desktop": "next start",
     "build:desktop": "next build",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "test": "next test",
-    "release:desktop": "git checkout release/wowarenalogs/desktop && git pull && git merge --no-edit --no-ff features/rewrite_202203 && git push && git checkout features/rewrite_202203"
+    "release:desktop": "git checkout release/wowarenalogs/desktop && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "dependencies": {
     "@apollo/client": "^3.6.9",

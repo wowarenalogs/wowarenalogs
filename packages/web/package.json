@@ -10,22 +10,28 @@
     "start:web": "next start",
     "build:web": "next build",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "test": "next test",
-    "release:web": "git checkout release/web && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
+    "release:web": "git checkout release/wowarenalogs/web && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "dependencies": {
     "@sentry/react": "^7.19.0",
     "@sentry/tracing": "^7.19.0",
     "@tailwindcss/typography": "^0.5.7",
+    "@wowarenalogs/parser": "^5.0.0",
     "@wowarenalogs/shared": "^1.0.0",
     "daisyui": "^2.33.0",
+    "lodash": "^4.17.21",
     "next": "^12.1.1",
+    "next-auth": "^4.9.0",
     "next-transpile-modules": "^9.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-icons": "^4.3.1"
+    "react-icons": "^4.3.1",
+    "react-query": "^3.39.2"
   },
   "devDependencies": {
+    "@types/gtag.js": "^0.0.10",
     "@types/react": "^17.0.43",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",

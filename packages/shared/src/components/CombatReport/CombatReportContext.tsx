@@ -9,6 +9,8 @@ interface ICombatReportContextData {
   combat: AtomicArenaCombat | null;
   activePlayerId: string | null;
   navigateToPlayerView: (playerId: string) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
   players: ICombatUnit[];
   friends: ICombatUnit[];
   enemies: ICombatUnit[];
@@ -23,7 +25,13 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
   combat: null,
   isAnonymized: true,
   activePlayerId: null,
-  navigateToPlayerView: (_playerId: string) => {},
+  navigateToPlayerView: (_playerId: string) => {
+    return;
+  },
+  activeTab: 'summary',
+  setActiveTab: (_tab: string) => {
+    return;
+  },
   players: [],
   friends: [],
   enemies: [],
@@ -42,10 +50,7 @@ interface IProps {
 
 export const CombatReportContextProvider = (props: IProps) => {
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
-
-  useEffect(() => {
-    setActivePlayerId(null);
-  }, [props.combat]);
+  const [activeTab, setActiveTab] = useState<string>('summary');
 
   const [
     players,
@@ -57,7 +62,11 @@ export const CombatReportContextProvider = (props: IProps) => {
     playerTimeInCC,
     playerInterrupts,
   ] = useMemo(() => {
-    const mPlayers = _.values(props.combat.units).filter((u) => u.type === CombatUnitType.Player);
+    const mPlayers = _.orderBy(
+      _.values(props.combat.units).filter((u) => u.type === CombatUnitType.Player),
+      ['reaction', 'name'],
+      ['desc', 'asc'],
+    );
     const mFriends = _.sortBy(
       mPlayers.filter((p) => p.reaction === CombatUnitReaction.Friendly),
       ['class', 'name'],
@@ -101,7 +110,7 @@ export const CombatReportContextProvider = (props: IProps) => {
       mPlayerTimeInCC.set(p.id, totalTimeInCC);
 
       const totalDamageOut = p.damageOut.reduce((sum, action) => {
-        return sum + Math.abs(action.amount);
+        return sum + Math.abs(action.effectiveAmount);
       }, 0);
       mPlayerTotalDamageOut.set(p.id, totalDamageOut);
 
@@ -114,10 +123,10 @@ export const CombatReportContextProvider = (props: IProps) => {
           // TODO: the parser needs to give us more info about overhealing
           return sum + (action.logLine.parameters[28] - action.logLine.parameters[30]);
         }
-        return sum + Math.abs(action.amount);
+        return sum + Math.abs(action.effectiveAmount);
       }, 0);
       const totalPrevented = p.absorbsOut.reduce((sum, action) => {
-        return sum + Math.abs(action.absorbedAmount);
+        return sum + Math.abs(action.effectiveAmount);
       }, 0);
       mPlayerTotalHealOut.set(p.id, totalHealOut + totalPrevented);
 
@@ -138,6 +147,18 @@ export const CombatReportContextProvider = (props: IProps) => {
     ];
   }, [props.combat]);
 
+  useEffect(() => {
+    if (players && players.length > 0) {
+      setActivePlayerId(players[0].id);
+    } else {
+      setActivePlayerId(null);
+    }
+  }, [players]);
+
+  useEffect(() => {
+    setActiveTab('summary');
+  }, [props.combat]);
+
   return (
     <CombatReportContext.Provider
       value={{
@@ -145,7 +166,12 @@ export const CombatReportContextProvider = (props: IProps) => {
         friends,
         enemies,
         activePlayerId,
-        navigateToPlayerView: setActivePlayerId,
+        navigateToPlayerView: (playerId: string) => {
+          setActivePlayerId(playerId);
+          setActiveTab('players');
+        },
+        activeTab,
+        setActiveTab,
         maxOutputNumber,
         playerTotalDamageOut,
         playerTotalHealOut,

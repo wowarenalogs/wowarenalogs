@@ -49,7 +49,7 @@ interface MMRIndexFields {
 }
 interface QueryHelpers extends SpecIndexFields, MMRIndexFields {}
 
-function kCombinations(set: any[], k: number): any[] {
+function kCombinations<T>(set: T[], k: number): T[][] {
   // https://gist.github.com/axelpale/3118596
   let i, j, combs, head, tailcombs;
   if (k > set.length || k <= 0) {
@@ -76,8 +76,8 @@ function kCombinations(set: any[], k: number): any[] {
   return combs;
 }
 
-function allCombinations(set: any[]) {
-  let combs: any[] = [];
+function allCombinations<T>(set: T[]): T[][] {
+  let combs: T[][] = [];
   for (let i = 0; i < set.length; i++) {
     combs = combs.concat(kCombinations(set, i + 1));
   }

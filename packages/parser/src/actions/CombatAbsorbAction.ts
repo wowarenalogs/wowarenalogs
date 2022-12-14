@@ -1,5 +1,5 @@
-import { ILogLine, WowVersion } from '../types';
-import { parseQuotedName } from '../utils';
+import { CombatUnitType, ILogLine, WowVersion } from '../types';
+import { getUnitType, parseQuotedName } from '../utils';
 import { CombatAction } from './CombatAction';
 
 export class CombatAbsorbAction extends CombatAction {
@@ -8,6 +8,7 @@ export class CombatAbsorbAction extends CombatAction {
   }
 
   public readonly absorbedAmount: number;
+  public readonly effectiveAmount: number;
 
   public readonly shieldOwnerUnitName: string;
   public readonly shieldOwnerUnitId: string;
@@ -77,6 +78,11 @@ export class CombatAbsorbAction extends CombatAction {
     this.shieldSpellSchool = logLine.parameters[17 - meleeAbsorbOffset].toString();
 
     this.absorbedAmount = logLine.parameters[18 - meleeAbsorbOffset];
+    if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
+      this.effectiveAmount = this.absorbedAmount;
+    } else {
+      this.effectiveAmount = 0;
+    }
 
     if (wowVersion === 'retail') {
       this.critical = logLine.parameters[20 - meleeAbsorbOffset] === '1';

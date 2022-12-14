@@ -3,3 +3,4 @@ dist
 build
 graphql/__generated__/graphql.tsx
 .eslintrc.js
+*.config.js

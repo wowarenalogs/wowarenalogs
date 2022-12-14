@@ -1,5 +1,5 @@
 module.exports = {
-  "extends": ["next/core-web-vitals", "airbnb-typescript", "plugin:prettier/recommended"],
+  "extends": ["next", "next/core-web-vitals", "eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
   "plugins": ["simple-import-sort"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -10,6 +10,7 @@ module.exports = {
     "no-console": ["error", { "allow": ["warn", "error"] }],
     "react/react-in-jsx-scope": "off",
     "simple-import-sort/imports": "warn",
+    "@next/next/no-html-link-for-pages": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {

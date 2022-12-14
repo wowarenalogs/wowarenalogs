@@ -1,0 +1,1736 @@
+{
+  "66": {
+    "type": "buffs_offensive"
+  },
+  "99": {
+    "type": "cc"
+  },
+  "118": {
+    "type": "cc"
+  },
+  "122": {
+    "type": "roots"
+  },
+  "130": {
+    "type": "buffs_other"
+  },
+  "136": {
+    "type": "buffs_defensive"
+  },
+  "339": {
+    "type": "roots"
+  },
+  "408": {
+    "type": "cc"
+  },
+  "453": {
+    "type": "buffs_other",
+    "noraidFrames": true
+  },
+  "498": {
+    "type": "buffs_defensive"
+  },
+  "546": {
+    "type": "buffs_other"
+  },
+  "605": {
+    "type": "cc",
+    "priority": true
+  },
+  "642": {
+    "type": "immunities"
+  },
+  "710": {
+    "type": "cc"
+  },
+  "853": {
+    "type": "cc"
+  },
+  "871": {
+    "type": "buffs_defensive"
+  },
+  "1022": {
+    "type": "buffs_defensive"
+  },
+  "1044": {
+    "type": "buffs_defensive"
+  },
+  "1098": {
+    "type": "cc"
+  },
+  "1330": {
+    "type": "cc"
+  },
+  "1513": {
+    "type": "cc"
+  },
+  "1719": {
+    "type": "buffs_offensive"
+  },
+  "1766": {
+    "type": "interrupts",
+    "duration": 5
+  },
+  "1776": {
+    "type": "cc"
+  },
+  "1784": {
+    "type": "buffs_other"
+  },
+  "1833": {
+    "type": "cc"
+  },
+  "1850": {
+    "type": "buffs_speed_boost"
+  },
+  "1966": {
+    "type": "buffs_defensive"
+  },
+  "2094": {
+    "type": "cc"
+  },
+  "2139": {
+    "type": "interrupts",
+    "duration": 6
+  },
+  "2637": {
+    "type": "cc"
+  },
+  "2645": {
+    "type": "buffs_speed_boost",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "2983": {
+    "type": "buffs_speed_boost"
+  },
+  "3355": {
+    "type": "cc"
+  },
+  "3714": {
+    "type": "buffs_other"
+  },
+  "5211": {
+    "type": "cc"
+  },
+  "5215": {
+    "type": "buffs_other"
+  },
+  "5217": {
+    "type": "buffs_offensive"
+  },
+  "5246": {
+    "type": "cc"
+  },
+  "5277": {
+    "type": "buffs_defensive"
+  },
+  "5384": {
+    "type": "buffs_defensive"
+  },
+  "5484": {
+    "type": "cc"
+  },
+  "6358": {
+    "type": "cc"
+  },
+  "6552": {
+    "type": "interrupts",
+    "duration": 4
+  },
+  "6770": {
+    "type": "cc"
+  },
+  "6789": {
+    "type": "cc"
+  },
+  "6940": {
+    "type": "buffs_defensive"
+  },
+  "8122": {
+    "type": "cc"
+  },
+  "8178": {
+    "type": "immunities_spells"
+  },
+  "9484": {
+    "type": "cc"
+  },
+  "10060": {
+    "type": "buffs_offensive"
+  },
+  "10326": {
+    "type": "cc"
+  },
+  "11327": {
+    "type": "buffs_defensive"
+  },
+  "12042": {
+    "type": "buffs_offensive"
+  },
+  "12051": {
+    "type": "buffs_offensive"
+  },
+  "12472": {
+    "type": "buffs_offensive"
+  },
+  "12975": {
+    "type": "buffs_defensive"
+  },
+  "13750": {
+    "type": "buffs_offensive"
+  },
+  "15286": {
+    "type": "buffs_defensive"
+  },
+  "15487": {
+    "type": "cc"
+  },
+  "18499": {
+    "type": "buffs_other"
+  },
+  "19236": {
+    "type": "buffs_defensive"
+  },
+  "19574": {
+    "type": "buffs_offensive"
+  },
+  "19647": {
+    "type": "interrupts",
+    "duration": 6
+  },
+  "20066": {
+    "type": "cc"
+  },
+  "20549": {
+    "type": "cc"
+  },
+  "20707": {
+    "type": "buffs_other"
+  },
+  "22703": {
+    "type": "cc"
+  },
+  "22812": {
+    "type": "buffs_defensive"
+  },
+  "22842": {
+    "type": "buffs_defensive"
+  },
+  "23920": {
+    "type": "immunities_spells"
+  },
+  "24394": {
+    "type": "cc"
+  },
+  "25771": {
+    "type": "buffs_other"
+  },
+  "28271": {
+    "type": "cc",
+    "parent": 118
+  },
+  "28272": {
+    "type": "cc",
+    "parent": 118
+  },
+  "29166": {
+    "type": "buffs_offensive"
+  },
+  "30213": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "30283": {
+    "type": "cc"
+  },
+  "31224": {
+    "type": "immunities_spells"
+  },
+  "31661": {
+    "type": "cc"
+  },
+  "31821": {
+    "type": "buffs_defensive"
+  },
+  "31850": {
+    "type": "buffs_defensive"
+  },
+  "31884": {
+    "type": "buffs_offensive"
+  },
+  "31935": {
+    "type": "interrupts",
+    "duration": 3
+  },
+  "32612": {
+    "type": "buffs_offensive",
+    "parent": 66
+  },
+  "33206": {
+    "type": "buffs_defensive"
+  },
+  "33395": {
+    "type": "roots"
+  },
+  "33786": {
+    "type": "cc"
+  },
+  "33891": {
+    "type": "buffs_offensive"
+  },
+  "34709": {
+    "type": "buffs_other"
+  },
+  "34914": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "36554": {
+    "type": "buffs_speed_boost"
+  },
+  "41425": {
+    "type": "buffs_other"
+  },
+  "45182": {
+    "type": "buffs_defensive"
+  },
+  "45334": {
+    "type": "roots"
+  },
+  "45438": {
+    "type": "immunities"
+  },
+  "46924": {
+    "type": "immunities",
+    "parent": 227847
+  },
+  "47476": {
+    "type": "cc"
+  },
+  "47528": {
+    "type": "interrupts",
+    "duration": 3
+  },
+  "47536": {
+    "type": "buffs_defensive"
+  },
+  "47568": {
+    "type": "buffs_offensive"
+  },
+  "47585": {
+    "type": "buffs_defensive"
+  },
+  "47788": {
+    "type": "buffs_defensive"
+  },
+  "48265": {
+    "type": "buffs_speed_boost"
+  },
+  "48707": {
+    "type": "immunities_spells"
+  },
+  "48792": {
+    "type": "buffs_defensive"
+  },
+  "49039": {
+    "type": "buffs_other"
+  },
+  "50334": {
+    "type": "buffs_defensive"
+  },
+  "51271": {
+    "type": "buffs_offensive"
+  },
+  "51514": {
+    "type": "cc"
+  },
+  "51690": {
+    "type": "buffs_offensive"
+  },
+  "52437": {
+    "type": "buffs_offensive"
+  },
+  "53480": {
+    "type": "buffs_defensive"
+  },
+  "54216": {
+    "type": "buffs_defensive"
+  },
+  "55233": {
+    "type": "buffs_defensive"
+  },
+  "57994": {
+    "type": "interrupts",
+    "duration": 3
+  },
+  "58875": {
+    "type": "buffs_speed_boost"
+  },
+  "58984": {
+    "type": "buffs_defensive"
+  },
+  "61025": {
+    "type": "cc",
+    "parent": 118
+  },
+  "61305": {
+    "type": "cc",
+    "parent": 118
+  },
+  "61336": {
+    "type": "buffs_defensive"
+  },
+  "61721": {
+    "type": "cc",
+    "parent": 118
+  },
+  "61780": {
+    "type": "cc",
+    "parent": 118
+  },
+  "63560": {
+    "type": "buffs_offensive"
+  },
+  "64044": {
+    "type": "cc"
+  },
+  "64695": {
+    "type": "roots"
+  },
+  "64843": {
+    "type": "buffs_defensive"
+  },
+  "65081": {
+    "type": "buffs_speed_boost"
+  },
+  "65116": {
+    "type": "buffs_defensive"
+  },
+  "77505": {
+    "type": "cc"
+  },
+  "77606": {
+    "type": "debuffs_offensive"
+  },
+  "77761": {
+    "type": "buffs_speed_boost",
+    "parent": 106898
+  },
+  "77764": {
+    "type": "buffs_speed_boost",
+    "parent": 106898
+  },
+  "79140": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "79206": {
+    "type": "buffs_other"
+  },
+  "80240": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "81256": {
+    "type": "buffs_defensive"
+  },
+  "81261": {
+    "type": "cc"
+  },
+  "81782": {
+    "type": "buffs_defensive"
+  },
+  "82691": {
+    "type": "cc"
+  },
+  "86659": {
+    "type": "buffs_defensive"
+  },
+  "87023": {
+    "type": "buffs_other"
+  },
+  "87204": {
+    "type": "cc"
+  },
+  "89766": {
+    "type": "cc"
+  },
+  "91797": {
+    "type": "cc",
+    "parent": 91800
+  },
+  "91800": {
+    "type": "cc"
+  },
+  "91807": {
+    "type": "interrupts",
+    "duration": 2
+  },
+  "93985": {
+    "type": "interrupts",
+    "duration": 4
+  },
+  "96231": {
+    "type": "interrupts",
+    "duration": 4
+  },
+  "97463": {
+    "type": "buffs_defensive"
+  },
+  "102342": {
+    "type": "buffs_defensive"
+  },
+  "102359": {
+    "type": "roots"
+  },
+  "102543": {
+    "type": "buffs_offensive"
+  },
+  "102558": {
+    "type": "buffs_offensive"
+  },
+  "102560": {
+    "type": "buffs_offensive"
+  },
+  "104773": {
+    "type": "buffs_defensive"
+  },
+  "105421": {
+    "type": "cc"
+  },
+  "105771": {
+    "type": "roots"
+  },
+  "105809": {
+    "type": "buffs_offensive"
+  },
+  "106898": {
+    "type": "buffs_speed_boost"
+  },
+  "106951": {
+    "type": "buffs_offensive"
+  },
+  "107079": {
+    "type": "cc"
+  },
+  "107574": {
+    "type": "buffs_offensive"
+  },
+  "108194": {
+    "type": "cc"
+  },
+  "108271": {
+    "type": "buffs_defensive"
+  },
+  "108281": {
+    "type": "buffs_defensive"
+  },
+  "108291": {
+    "type": "buffs_offensive",
+    "parent": 319454
+  },
+  "108292": {
+    "type": "buffs_offensive",
+    "parent": 319454
+  },
+  "108293": {
+    "type": "buffs_offensive",
+    "parent": 319454
+  },
+  "108294": {
+    "type": "buffs_offensive",
+    "parent": 319454
+  },
+  "108416": {
+    "type": "buffs_defensive"
+  },
+  "108839": {
+    "type": "buffs_other"
+  },
+  "109964": {
+    "type": "buffs_defensive",
+    "parent": 47536
+  },
+  "110909": {
+    "type": "buffs_defensive",
+    "parent": 342246
+  },
+  "111400": {
+    "type": "buffs_speed_boost"
+  },
+  "111759": {
+    "type": "buffs_other"
+  },
+  "113858": {
+    "type": "buffs_offensive"
+  },
+  "113860": {
+    "type": "buffs_offensive"
+  },
+  "113862": {
+    "type": "buffs_offensive",
+    "parent": 66
+  },
+  "114049": {
+    "type": "buffs_offensive"
+  },
+  "114050": {
+    "type": "buffs_offensive",
+    "parent": 114049
+  },
+  "114051": {
+    "type": "buffs_offensive",
+    "parent": 114049
+  },
+  "114052": {
+    "type": "buffs_defensive",
+    "parent": 114049
+  },
+  "115078": {
+    "type": "cc"
+  },
+  "115176": {
+    "type": "buffs_defensive"
+  },
+  "115191": {
+    "type": "buffs_other",
+    "parent": 1784
+  },
+  "115192": {
+    "type": "buffs_offensive"
+  },
+  "115804": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "116705": {
+    "type": "interrupts",
+    "duration": 4
+  },
+  "116706": {
+    "type": "roots"
+  },
+  "116841": {
+    "type": "buffs_speed_boost"
+  },
+  "116849": {
+    "type": "buffs_defensive"
+  },
+  "117405": {
+    "type": "roots",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "117526": {
+    "type": "roots"
+  },
+  "117679": {
+    "type": "buffs_offensive",
+    "parent": 33891
+  },
+  "118038": {
+    "type": "buffs_defensive"
+  },
+  "118337": {
+    "type": "buffs_defensive"
+  },
+  "118345": {
+    "type": "cc"
+  },
+  "118699": {
+    "type": "cc"
+  },
+  "118905": {
+    "type": "cc"
+  },
+  "118922": {
+    "type": "buffs_speed_boost"
+  },
+  "119381": {
+    "type": "cc"
+  },
+  "120954": {
+    "type": "buffs_defensive"
+  },
+  "121471": {
+    "type": "buffs_offensive"
+  },
+  "121557": {
+    "type": "buffs_speed_boost"
+  },
+  "122278": {
+    "type": "buffs_defensive"
+  },
+  "122470": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "122783": {
+    "type": "buffs_defensive"
+  },
+  "125174": {
+    "type": "buffs_defensive"
+  },
+  "126819": {
+    "type": "cc",
+    "parent": 118
+  },
+  "127797": {
+    "type": "cc",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "131894": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "132158": {
+    "type": "buffs_offensive"
+  },
+  "132168": {
+    "type": "cc"
+  },
+  "132169": {
+    "type": "cc"
+  },
+  "132409": {
+    "type": "interrupts",
+    "duration": 6,
+    "parent": 19647
+  },
+  "132578": {
+    "type": "buffs_defensive"
+  },
+  "137639": {
+    "type": "buffs_offensive"
+  },
+  "145629": {
+    "type": "buffs_defensive"
+  },
+  "147362": {
+    "type": "interrupts",
+    "duration": 3
+  },
+  "147833": {
+    "type": "buffs_defensive"
+  },
+  "152173": {
+    "type": "buffs_offensive"
+  },
+  "152262": {
+    "type": "buffs_offensive"
+  },
+  "152279": {
+    "type": "buffs_offensive"
+  },
+  "155835": {
+    "type": "buffs_defensive"
+  },
+  "157128": {
+    "type": "buffs_defensive"
+  },
+  "157997": {
+    "type": "roots"
+  },
+  "161353": {
+    "type": "cc",
+    "parent": 118
+  },
+  "161354": {
+    "type": "cc",
+    "parent": 118
+  },
+  "161355": {
+    "type": "cc",
+    "parent": 118
+  },
+  "161372": {
+    "type": "cc",
+    "parent": 118
+  },
+  "162264": {
+    "type": "buffs_offensive"
+  },
+  "162480": {
+    "type": "roots"
+  },
+  "163505": {
+    "type": "cc"
+  },
+  "167152": {
+    "type": "buffs_other",
+    "parent": 314646
+  },
+  "170855": {
+    "type": "roots",
+    "parent": 339
+  },
+  "179057": {
+    "type": "cc"
+  },
+  "183752": {
+    "type": "interrupts",
+    "duration": 3
+  },
+  "184364": {
+    "type": "buffs_defensive"
+  },
+  "184662": {
+    "type": "buffs_defensive"
+  },
+  "185422": {
+    "type": "buffs_offensive"
+  },
+  "186254": {
+    "type": "buffs_offensive",
+    "parent": 19574
+  },
+  "186257": {
+    "type": "buffs_speed_boost"
+  },
+  "186265": {
+    "type": "immunities"
+  },
+  "186289": {
+    "type": "buffs_offensive"
+  },
+  "187707": {
+    "type": "interrupts",
+    "duration": 3
+  },
+  "187827": {
+    "type": "buffs_defensive"
+  },
+  "188501": {
+    "type": "buffs_offensive"
+  },
+  "190319": {
+    "type": "buffs_offensive"
+  },
+  "190925": {
+    "type": "roots"
+  },
+  "191634": {
+    "type": "buffs_offensive"
+  },
+  "192082": {
+    "type": "buffs_speed_boost"
+  },
+  "193357": {
+    "type": "buffs_offensive"
+  },
+  "193359": {
+    "type": "buffs_offensive"
+  },
+  "193530": {
+    "type": "buffs_offensive"
+  },
+  "194223": {
+    "type": "buffs_offensive"
+  },
+  "194249": {
+    "type": "buffs_offensive"
+  },
+  "194679": {
+    "type": "buffs_defensive"
+  },
+  "194844": {
+    "type": "buffs_defensive"
+  },
+  "196364": {
+    "type": "cc"
+  },
+  "196555": {
+    "type": "immunities"
+  },
+  "197003": {
+    "type": "buffs_defensive"
+  },
+  "197214": {
+    "type": "cc"
+  },
+  "197690": {
+    "type": "buffs_defensive"
+  },
+  "197721": {
+    "type": "buffs_defensive"
+  },
+  "197862": {
+    "type": "buffs_defensive"
+  },
+  "197871": {
+    "type": "buffs_offensive"
+  },
+  "197874": {
+    "type": "buffs_offensive",
+    "parent": 197871
+  },
+  "198065": {
+    "type": "buffs_defensive"
+  },
+  "198111": {
+    "type": "buffs_defensive"
+  },
+  "198121": {
+    "type": "roots"
+  },
+  "198144": {
+    "type": "buffs_offensive"
+  },
+  "198158": {
+    "type": "buffs_offensive"
+  },
+  "198817": {
+    "type": "debuffs_offensive"
+  },
+  "198819": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "198909": {
+    "type": "cc"
+  },
+  "199027": {
+    "type": "buffs_defensive"
+  },
+  "199042": {
+    "type": "roots"
+  },
+  "199085": {
+    "type": "cc"
+  },
+  "199448": {
+    "type": "buffs_defensive"
+  },
+  "199450": {
+    "type": "buffs_defensive",
+    "parent": 199448
+  },
+  "199483": {
+    "type": "buffs_other"
+  },
+  "199545": {
+    "type": "buffs_defensive"
+  },
+  "199845": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "199890": {
+    "type": "roots"
+  },
+  "200183": {
+    "type": "buffs_defensive"
+  },
+  "200196": {
+    "type": "cc"
+  },
+  "200200": {
+    "type": "cc",
+    "parent": 200196
+  },
+  "200548": {
+    "type": "debuffs_offensive",
+    "parent": 80240
+  },
+  "200587": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "201633": {
+    "type": "buffs_defensive"
+  },
+  "202162": {
+    "type": "buffs_defensive"
+  },
+  "202164": {
+    "type": "buffs_speed_boost"
+  },
+  "202244": {
+    "type": "cc"
+  },
+  "202248": {
+    "type": "immunities_spells"
+  },
+  "202274": {
+    "type": "cc"
+  },
+  "202335": {
+    "type": "buffs_offensive"
+  },
+  "202346": {
+    "type": "cc"
+  },
+  "202425": {
+    "type": "buffs_offensive"
+  },
+  "202748": {
+    "type": "buffs_defensive"
+  },
+  "202914": {
+    "type": "cc"
+  },
+  "202933": {
+    "type": "cc",
+    "parent": 202914
+  },
+  "203123": {
+    "type": "cc"
+  },
+  "203233": {
+    "type": "buffs_speed_boost",
+    "parent": 186257
+  },
+  "203337": {
+    "type": "cc",
+    "parent": 3355
+  },
+  "203704": {
+    "type": "debuffs_offensive"
+  },
+  "204018": {
+    "type": "buffs_defensive"
+  },
+  "204080": {
+    "type": "roots"
+  },
+  "204085": {
+    "type": "roots",
+    "parent": 204080
+  },
+  "204293": {
+    "type": "buffs_defensive",
+    "parent": 325174
+  },
+  "204361": {
+    "type": "buffs_offensive"
+  },
+  "204362": {
+    "type": "buffs_offensive",
+    "parent": 204361
+  },
+  "204366": {
+    "type": "buffs_offensive"
+  },
+  "204490": {
+    "type": "cc"
+  },
+  "205025": {
+    "type": "buffs_offensive"
+  },
+  "205191": {
+    "type": "buffs_defensive"
+  },
+  "205369": {
+    "type": "cc"
+  },
+  "205629": {
+    "type": "buffs_defensive"
+  },
+  "205630": {
+    "type": "cc"
+  },
+  "206649": {
+    "type": "debuffs_offensive"
+  },
+  "206803": {
+    "type": "immunities",
+    "parent": 206804
+  },
+  "206804": {
+    "type": "buffs_offensive"
+  },
+  "206961": {
+    "type": "cc"
+  },
+  "207167": {
+    "type": "cc"
+  },
+  "207289": {
+    "type": "buffs_offensive"
+  },
+  "207495": {
+    "type": "buffs_defensive"
+  },
+  "207498": {
+    "type": "buffs_defensive",
+    "parent": 207495
+  },
+  "207685": {
+    "type": "cc"
+  },
+  "207736": {
+    "type": "buffs_offensive"
+  },
+  "207777": {
+    "type": "cc"
+  },
+  "208086": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "208618": {
+    "type": "cc",
+    "parent": 205630
+  },
+  "208997": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "209426": {
+    "type": "buffs_defensive"
+  },
+  "209584": {
+    "type": "buffs_defensive"
+  },
+  "209749": {
+    "type": "cc"
+  },
+  "209997": {
+    "type": "buffs_defensive"
+  },
+  "210141": {
+    "type": "cc"
+  },
+  "210256": {
+    "type": "buffs_defensive"
+  },
+  "210294": {
+    "type": "buffs_defensive"
+  },
+  "210873": {
+    "type": "cc",
+    "parent": 51514
+  },
+  "210918": {
+    "type": "buffs_defensive",
+    "parent": 108271
+  },
+  "211004": {
+    "type": "cc",
+    "parent": 51514
+  },
+  "211010": {
+    "type": "cc",
+    "parent": 51514
+  },
+  "211015": {
+    "type": "cc",
+    "parent": 51514
+  },
+  "211319": {
+    "type": "buffs_defensive"
+  },
+  "211336": {
+    "type": "buffs_defensive"
+  },
+  "211881": {
+    "type": "cc"
+  },
+  "212150": {
+    "type": "cc"
+  },
+  "212183": {
+    "type": "cc"
+  },
+  "212283": {
+    "type": "buffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "212295": {
+    "type": "immunities_spells"
+  },
+  "212431": {
+    "type": "debuffs_offensive"
+  },
+  "212552": {
+    "type": "buffs_speed_boost"
+  },
+  "212619": {
+    "type": "interrupts",
+    "duration": 6
+  },
+  "212638": {
+    "type": "roots"
+  },
+  "212641": {
+    "type": "buffs_defensive",
+    "parent": 86659
+  },
+  "212800": {
+    "type": "buffs_defensive"
+  },
+  "213491": {
+    "type": "cc"
+  },
+  "213602": {
+    "type": "immunities"
+  },
+  "213610": {
+    "type": "immunities_spells"
+  },
+  "213664": {
+    "type": "buffs_defensive"
+  },
+  "213688": {
+    "type": "cc"
+  },
+  "213691": {
+    "type": "cc"
+  },
+  "213871": {
+    "type": "buffs_defensive"
+  },
+  "215652": {
+    "type": "buffs_offensive"
+  },
+  "215769": {
+    "type": "buffs_defensive"
+  },
+  "216331": {
+    "type": "buffs_offensive",
+    "parent": 31884
+  },
+  "217824": {
+    "type": "interrupts",
+    "duration": 4
+  },
+  "217832": {
+    "type": "cc"
+  },
+  "219809": {
+    "type": "buffs_defensive"
+  },
+  "221527": {
+    "type": "cc",
+    "parent": 217832
+  },
+  "221562": {
+    "type": "cc",
+    "parent": 108194
+  },
+  "221705": {
+    "type": "buffs_defensive"
+  },
+  "221883": {
+    "type": "buffs_speed_boost"
+  },
+  "221885": {
+    "type": "buffs_speed_boost",
+    "parent": 221883
+  },
+  "221886": {
+    "type": "buffs_speed_boost",
+    "parent": 221883
+  },
+  "221887": {
+    "type": "buffs_speed_boost",
+    "parent": 221883
+  },
+  "223929": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "226943": {
+    "type": "cc",
+    "parent": 205369
+  },
+  "227847": {
+    "type": "immunities"
+  },
+  "228050": {
+    "type": "immunities"
+  },
+  "228358": {
+    "type": "debuffs_offensive"
+  },
+  "228600": {
+    "type": "roots"
+  },
+  "231895": {
+    "type": "buffs_offensive",
+    "parent": 31884
+  },
+  "232707": {
+    "type": "buffs_defensive"
+  },
+  "233395": {
+    "type": "roots",
+    "parent": 204080
+  },
+  "233759": {
+    "type": "cc"
+  },
+  "234877": {
+    "type": "debuffs_offensive"
+  },
+  "236077": {
+    "type": "cc"
+  },
+  "236273": {
+    "type": "cc"
+  },
+  "236321": {
+    "type": "buffs_defensive"
+  },
+  "243435": {
+    "type": "buffs_defensive",
+    "parent": 120954
+  },
+  "247563": {
+    "type": "buffs_defensive"
+  },
+  "248519": {
+    "type": "immunities_spells"
+  },
+  "252216": {
+    "type": "buffs_speed_boost",
+    "parent": 1850
+  },
+  "254471": {
+    "type": "buffs_speed_boost",
+    "parent": 221883
+  },
+  "254472": {
+    "type": "buffs_speed_boost",
+    "parent": 221883
+  },
+  "254473": {
+    "type": "buffs_speed_boost",
+    "parent": 221883
+  },
+  "254474": {
+    "type": "buffs_speed_boost",
+    "parent": 221883
+  },
+  "255723": {
+    "type": "cc"
+  },
+  "255941": {
+    "type": "cc"
+  },
+  "256735": {
+    "type": "buffs_offensive"
+  },
+  "256948": {
+    "type": "buffs_other"
+  },
+  "260402": {
+    "type": "buffs_offensive"
+  },
+  "260881": {
+    "type": "buffs_defensive"
+  },
+  "262228": {
+    "type": "buffs_offensive"
+  },
+  "265273": {
+    "type": "buffs_offensive"
+  },
+  "266779": {
+    "type": "buffs_offensive"
+  },
+  "267171": {
+    "type": "buffs_offensive"
+  },
+  "267218": {
+    "type": "buffs_offensive"
+  },
+  "269352": {
+    "type": "cc",
+    "parent": 51514
+  },
+  "273104": {
+    "type": "buffs_defensive"
+  },
+  "274837": {
+    "type": "debuffs_offensive"
+  },
+  "276111": {
+    "type": "buffs_speed_boost",
+    "parent": 221883
+  },
+  "276112": {
+    "type": "buffs_speed_boost",
+    "parent": 221883
+  },
+  "277778": {
+    "type": "cc",
+    "parent": 51514
+  },
+  "277784": {
+    "type": "cc",
+    "parent": 51514
+  },
+  "277787": {
+    "type": "cc",
+    "parent": 118
+  },
+  "277792": {
+    "type": "cc",
+    "parent": 118
+  },
+  "287254": {
+    "type": "cc"
+  },
+  "287712": {
+    "type": "cc"
+  },
+  "288613": {
+    "type": "buffs_offensive"
+  },
+  "288849": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "289655": {
+    "type": "buffs_defensive"
+  },
+  "290641": {
+    "type": "buffs_defensive"
+  },
+  "305395": {
+    "type": "buffs_defensive",
+    "parent": 1044
+  },
+  "305484": {
+    "type": "cc",
+    "parent": 305485
+  },
+  "305485": {
+    "type": "cc"
+  },
+  "305497": {
+    "type": "buffs_defensive"
+  },
+  "307871": {
+    "type": "cc",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "309328": {
+    "type": "cc",
+    "parent": 51514
+  },
+  "310143": {
+    "type": "buffs_speed_boost"
+  },
+  "310454": {
+    "type": "buffs_offensive"
+  },
+  "311648": {
+    "type": "buffs_offensive"
+  },
+  "314646": {
+    "type": "buffs_other"
+  },
+  "315443": {
+    "type": "buffs_offensive"
+  },
+  "316099": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "316593": {
+    "type": "cc",
+    "parent": 5246
+  },
+  "316595": {
+    "type": "cc",
+    "parent": 5246
+  },
+  "317589": {
+    "type": "cc"
+  },
+  "319439": {
+    "type": "buffs_offensive"
+  },
+  "319454": {
+    "type": "buffs_offensive"
+  },
+  "319952": {
+    "type": "buffs_offensive"
+  },
+  "320125": {
+    "type": "buffs_offensive"
+  },
+  "320137": {
+    "type": "buffs_offensive"
+  },
+  "320224": {
+    "type": "buffs_defensive"
+  },
+  "321995": {
+    "type": "buffs_offensive"
+  },
+  "322431": {
+    "type": "buffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "322442": {
+    "type": "debuffs_offensive",
+    "parent": 322459
+  },
+  "322457": {
+    "type": "debuffs_offensive",
+    "parent": 322459
+  },
+  "322458": {
+    "type": "debuffs_offensive",
+    "parent": 322459
+  },
+  "322459": {
+    "type": "debuffs_offensive"
+  },
+  "322460": {
+    "type": "debuffs_offensive",
+    "parent": 322459
+  },
+  "322461": {
+    "type": "debuffs_offensive",
+    "parent": 322459
+  },
+  "322462": {
+    "type": "debuffs_offensive",
+    "parent": 322459
+  },
+  "322463": {
+    "type": "debuffs_offensive",
+    "parent": 322459
+  },
+  "322464": {
+    "type": "debuffs_offensive",
+    "parent": 322459
+  },
+  "323524": {
+    "type": "immunities"
+  },
+  "323546": {
+    "type": "buffs_offensive"
+  },
+  "323673": {
+    "type": "debuffs_offensive"
+  },
+  "323764": {
+    "type": "buffs_offensive"
+  },
+  "323996": {
+    "type": "cc"
+  },
+  "324143": {
+    "type": "buffs_offensive"
+  },
+  "324149": {
+    "type": "debuffs_offensive"
+  },
+  "324220": {
+    "type": "buffs_offensive"
+  },
+  "324263": {
+    "type": "cc"
+  },
+  "324382": {
+    "type": "cc"
+  },
+  "325013": {
+    "type": "buffs_offensive"
+  },
+  "325174": {
+    "type": "buffs_defensive"
+  },
+  "325640": {
+    "type": "debuffs_offensive"
+  },
+  "325862": {
+    "type": "buffs_offensive",
+    "parent": 324143
+  },
+  "325886": {
+    "type": "cc"
+  },
+  "326062": {
+    "type": "cc",
+    "parent": 325886
+  },
+  "327037": {
+    "type": "buffs_defensive"
+  },
+  "327140": {
+    "type": "buffs_other"
+  },
+  "327164": {
+    "type": "buffs_offensive"
+  },
+  "327661": {
+    "type": "buffs_defensive"
+  },
+  "328305": {
+    "type": "debuffs_offensive",
+    "priority": true
+  },
+  "328530": {
+    "type": "immunities",
+    "parent": 329543
+  },
+  "329543": {
+    "type": "buffs_defensive"
+  },
+  "330279": {
+    "type": "immunities_spells",
+    "parent": 23920
+  },
+  "330752": {
+    "type": "buffs_defensive"
+  },
+  "331866": {
+    "type": "cc"
+  },
+  "332423": {
+    "type": "cc"
+  },
+  "332505": {
+    "type": "buffs_other"
+  },
+  "332506": {
+    "type": "buffs_other",
+    "parent": 332505
+  },
+  "333100": {
+    "type": "buffs_offensive"
+  },
+  "333889": {
+    "type": "buffs_defensive"
+  },
+  "333957": {
+    "type": "buffs_offensive"
+  },
+  "334693": {
+    "type": "cc"
+  },
+  "335255": {
+    "type": "immunities_spells",
+    "parent": 23920
+  },
+  "335467": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "335903": {
+    "type": "buffs_offensive"
+  },
+  "337294": {
+    "type": "buffs_defensive"
+  },
+  "337567": {
+    "type": "buffs_offensive"
+  },
+  "337661": {
+    "type": "buffs_defensive"
+  },
+  "338036": {
+    "type": "buffs_speed_boost"
+  },
+  "338142": {
+    "type": "buffs_offensive"
+  },
+  "339412": {
+    "type": "buffs_speed_boost"
+  },
+  "340094": {
+    "type": "buffs_offensive"
+  },
+  "342242": {
+    "type": "buffs_offensive"
+  },
+  "342246": {
+    "type": "buffs_defensive"
+  },
+  "342938": {
+    "type": "debuffs_offensive",
+    "parent": 316099
+  },
+  "343249": {
+    "type": "buffs_defensive"
+  },
+  "343294": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "343721": {
+    "type": "debuffs_offensive",
+    "nounitFrames": true,
+    "nonameplates": true
+  },
+  "344021": {
+    "type": "debuffs_offensive"
+  },
+  "344566": {
+    "type": "buffs_offensive"
+  },
+  "345231": {
+    "type": "buffs_defensive"
+  },
+  "345569": {
+    "type": "buffs_offensive"
+  },
+  "347037": {
+    "type": "buffs_offensive"
+  },
+  "348436": {
+    "type": "buffs_other",
+    "parent": 314646
+  },
+  "353319": {
+    "type": "immunities_spells"
+  },
+  "354051": {
+    "type": "roots"
+  },
+  "356567": {
+    "type": "cc"
+  },
+  "356723": {
+    "type": "cc"
+  },
+  "356727": {
+    "type": "cc"
+  },
+  "357021": {
+    "type": "cc"
+  },
+  "358259": {
+    "type": "cc"
+  },
+  "362486": {
+    "type": "immunities"
+  },
+  "362699": {
+    "type": "immunities_spells"
+  },
+  "363498": {
+    "type": "debuffs_offensive"
+  },
+  "363522": {
+    "type": "buffs_defensive"
+  }
+}

@@ -14,8 +14,8 @@ export function QuerryError({ query }: { query: { error?: ApolloError } }) {
       return null;
     }
   }
-  return (
-    <div className="flex pt-4">
+  return query.error ? (
+    <div className="flex flex-col mt-4">
       {query.error?.graphQLErrors.map((e) => (
         <div className="card w-full bg-error text-error-content animate-fadein" key={e.message}>
           <div className="card-body break-words">{e.message}</div>
@@ -27,5 +27,5 @@ export function QuerryError({ query }: { query: { error?: ApolloError } }) {
         </div>
       ))}
     </div>
-  );
+  ) : null;
 }

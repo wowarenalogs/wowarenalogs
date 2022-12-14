@@ -21,12 +21,15 @@ export function SpecSelector({
   spec,
   addCallback,
   removeCallback,
+  modalKey,
 }: {
   spec: CombatUnitSpec;
   addCallback: (s: CombatUnitSpec) => void;
   removeCallback: (s: CombatUnitSpec) => void;
+  modalKey: string;
 }) {
   const [isShowing, setIsShowing] = useState(false);
+  const modalId = `modal-${modalKey}`;
 
   if (spec) {
     return (
@@ -54,13 +57,13 @@ export function SpecSelector({
         onBlur={() => {
           setIsShowing(false);
         }}
-        htmlFor="my-modal-4"
+        htmlFor={modalId}
         className="btn bg-primary-focus/50 hover:border-accent-focus hover:border-2 w-[48px] border rounded"
       >
         ?
       </label>
-      <input type="checkbox" id="my-modal-4" className="modal-toggle" />
-      <label htmlFor="my-modal-4" className="modal cursor-pointer">
+      <input type="checkbox" id={modalId} className="modal-toggle" />
+      <label htmlFor={modalId} className="modal cursor-pointer">
         <div className="modal-box w-[340px] max-w-5xl">
           <div className="grid grid-cols-2 gap-y-2 gap-x-9">
             {/* Druid is the only class with 4 specs, this handles putting all the other classes */}

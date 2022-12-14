@@ -22,10 +22,10 @@ export function ArenaMatchRow({
       <div
         key={match.id}
         title={match.id}
-        className="flex flex-row py-1 gap-1 w-full items-center hover:bg-base-200 transition-colors duration-200 rounded"
+        className="btn btn-ghost flex flex-row py-1 gap-1 w-full items-center transition-colors duration-200 rounded"
       >
         <TimestampDisplay timestamp={match.startTime} timezone={match.timezone} />
-        <div className="badge">{durationString(match.durationInSeconds)}</div>
+        <div className="badge">{match.durationInSeconds ? durationString(match.durationInSeconds) : '??'}</div>
         <div className="badge">{zoneMetadata[match.startInfo?.zoneId || '0']?.name}</div>
         <div className="flex flex-1" />
         <ResultBadge result={match.result} text={match.playerTeamRating || '???'} nocolor={!viewerIsOwner} />
@@ -50,7 +50,7 @@ export function ShuffleRoundRow({
   viewerIsOwner?: boolean;
   combatUrlFactory: (combatId: string, logId: string) => string;
 }) {
-  let roundTitle = `Round ${round.sequenceNumber + 1} ${round.result === CombatResult.Win ? 'win' : 'loss'}`;
+  const roundTitle = `Round ${round.sequenceNumber + 1} ${round.result === CombatResult.Win ? 'win' : 'loss'}`;
   let roundColor = round.result === CombatResult.Win ? 'green' : 'gray';
 
   if (!viewerIsOwner) {
@@ -79,10 +79,10 @@ export function ShuffleRoundRow({
     <Link href={combatUrlFactory(round.id, round.startInfo?.bracket || '')}>
       <div
         title={roundTitle}
-        className="flex py-1 flex-row gap-1 w-full items-center hover:bg-base-200 transition-colors duration-200 rounded"
+        className="btn btn-ghost flex flex-row py-1 gap-1 w-full items-center transition-colors duration-200 rounded"
       >
         <TimestampDisplay timestamp={round.startTime} timezone={round.timezone} />
-        <div className="badge">{durationString(round.durationInSeconds)}</div>
+        <div className="badge">{round.durationInSeconds ? durationString(round.durationInSeconds) : '??'}</div>
         <div className={`badge`}>{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
         <div className="flex flex-1" />
         <ResultBadge nocolor={!viewerIsOwner} result={round.shuffleMatchResult} text={round.playerTeamRating} />

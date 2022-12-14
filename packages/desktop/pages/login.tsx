@@ -1,3 +1,4 @@
+import { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { getCsrfToken, signIn } from 'next-auth/react';
 import { useEffect } from 'react';
@@ -17,11 +18,11 @@ const Login = ({ csrfToken }: { csrfToken: string }) => {
 
 export default Login;
 
-export async function getServerSideProps(context: any) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const csrfToken = await getCsrfToken(context);
   return {
     props: {
       csrfToken,
     },
   };
-}
+};

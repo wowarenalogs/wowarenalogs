@@ -17,7 +17,6 @@ export function MainLayout(props: IProps) {
   const router = useRouter();
   const auth = useAuth();
   const clientContext = useClientContext();
-  // const [loginModalShown, setLoginModalShown] = useState(false);
 
   useEffect(() => {
     NProgress.configure({
@@ -35,7 +34,7 @@ export function MainLayout(props: IProps) {
 
   return (
     <div className={`flex flex-1 flex-row items-stretch relative`}>
-      <div className="flex flex-col text-base-content">
+      <div className="flex flex-col text-base-content pb-1">
         {clientContext.isDesktop && (
           <div
             className={`p-2 hover:text-primary ${selectedNavMenuKey === '/latest' ? 'bg-base-100 text-primary' : ''}`}
@@ -64,13 +63,17 @@ export function MainLayout(props: IProps) {
           </Link>
         </div>
         <div className="flex-1" />
-        <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/debug' ? 'bg-base-100 text-primary' : ''}`}>
-          <Link href="/debug">
-            <a>
-              <TbBug size="32" />
-            </a>
-          </Link>
-        </div>
+        {process.env.NODE_ENV === 'development' && (
+          <div
+            className={`p-2 hover:text-primary ${selectedNavMenuKey === '/debug' ? 'bg-base-100 text-primary' : ''}`}
+          >
+            <Link href="/debug">
+              <a>
+                <TbBug size="32" />
+              </a>
+            </Link>
+          </div>
+        )}
         <div
           className={`p-2 ${
             selectedNavMenuKey === '/profile'

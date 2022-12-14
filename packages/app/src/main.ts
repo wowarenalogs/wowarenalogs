@@ -46,6 +46,7 @@ function createWindow() {
 }
 
 if (app.isPackaged) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('update-electron-app')({
     repo: 'wowarenalogs/wowarenalogs',
     notifyUser: false,

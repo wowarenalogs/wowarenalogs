@@ -37,7 +37,9 @@ export const FirstTimeSetup = () => {
                     });
                     setStep(1);
                   })
-                  .catch(() => {});
+                  .catch(() => {
+                    return;
+                  });
               }}
             >
               Select
