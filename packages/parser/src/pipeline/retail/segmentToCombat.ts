@@ -41,7 +41,6 @@ function roundsBelongToSameMatch(roundA: ArenaMatchStartInfo, roundB: ArenaMatch
 
 // Some sanity checks before we report this shuffle
 function validateRounds(rounds: IShuffleRound[]) {
-  console.log('VAL', rounds.length);
   // Must contain 6 rounds
   if (rounds.length !== 6) {
     logInfo(`validateRounds length != 6`);
