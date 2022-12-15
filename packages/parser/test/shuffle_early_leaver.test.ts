@@ -18,7 +18,7 @@ describe('parsing a log where someone leaves a shuffle match early', () => {
     results.shuffles = loaded.shuffles;
   });
 
-  it('should return a single match', () => {
+  it('should return the rounds before the leaver left and no matches', () => {
     expect(results.shuffles).toHaveLength(0);
     expect(results.shuffleRounds).toHaveLength(2);
     expect(results.malformedCombats).toHaveLength(0);
