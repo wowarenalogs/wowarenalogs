@@ -8,6 +8,7 @@ jobs:
     runs-on: windows-latest
     env:
       CI: false
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: setup python
         uses: actions/setup-python@v2
@@ -38,7 +39,7 @@ jobs:
       - name: install dependencies
         run: npm ci
       - name: build for windows
-        run: npm run build:app:windows
+        run: npm run publish:app:windows
       - name: upload to google cloud storage
         working-directory: ./dist
         env:
@@ -57,6 +58,7 @@ jobs:
     runs-on: macos-latest
     env:
       CI: false
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: gcloud auth
         uses: google-github-actions/auth@v1
@@ -79,7 +81,7 @@ jobs:
       - name: install dmg-license
         run: npm i dmg-license
       - name: build for mac
-        run: npm run build:app:mac
+        run: npm run publish:app:mac
       - name: upload to google cloud storage
         working-directory: ./dist
         run: gsutil cp *.dmg gs://download.wowarenalogs.com/desktop-client/

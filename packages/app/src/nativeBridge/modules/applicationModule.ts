@@ -24,4 +24,9 @@ export class ApplicationModule extends NativeBridgeModule {
   public async getIsPackaged(_mainWindow: Electron.BrowserWindow) {
     return app.isPackaged;
   }
+
+  @moduleFunction()
+  public async getVersion(_mainWindow: Electron.BrowserWindow) {
+    return app.getVersion();
+  }
 }
