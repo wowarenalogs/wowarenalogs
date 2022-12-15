@@ -16,7 +16,6 @@ if (isDev) {
 }
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
-  projectId: 'wowarenalogs',
   credentials: isDev
     ? JSON.parse(Buffer.from(process.env.GCP_KEY_JSON_BASE64 || '', 'base64').toString('ascii'))
     : undefined,
@@ -24,7 +23,7 @@ const firestore = new Firestore({
 const storage = new GoogleCloudStorage();
 const bucket = storage.bucket('images.wowarenalogs.com');
 
-const MATCH_STUBS_COLLECTION = 'match-stubs-prod';
+const MATCH_STUBS_COLLECTION = isDev ? 'match-stubs-dev' : 'match-stubs-prod';
 const NUMBER_OF_MATCHES = 100;
 
 // returns whether a new spell icon was created
