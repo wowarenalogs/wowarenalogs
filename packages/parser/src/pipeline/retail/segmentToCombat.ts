@@ -211,6 +211,12 @@ export const segmentToCombat = () => {
             recentShuffleRoundsBuffer = [];
             recentScoreboardBuffer = [];
             return shuf;
+          } else {
+            // We hit a final round (ARENA_MATCH_END) but the Match itself wasn't a valid 6-round shuffle
+            // We want to emit the shuffle as a round but then reset the internal match aggregator
+            recentShuffleRoundsBuffer = [];
+            recentScoreboardBuffer = [];
+            return decoded.shuffle;
           }
           // Reset buffer also if rounds are invalid...
           recentShuffleRoundsBuffer = [];
