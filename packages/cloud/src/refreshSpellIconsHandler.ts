@@ -16,6 +16,7 @@ if (isDev) {
 }
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
+  projectId: 'wowarenalogs',
   credentials: isDev
     ? JSON.parse(Buffer.from(process.env.GCP_KEY_JSON_BASE64 || '', 'base64').toString('ascii'))
     : undefined,
@@ -23,13 +24,14 @@ const firestore = new Firestore({
 const storage = new GoogleCloudStorage();
 const bucket = storage.bucket('images.wowarenalogs.com');
 
-const MATCH_STUBS_COLLECTION = isDev ? 'match-stubs-dev' : 'match-stubs-prod';
-const NUMBER_OF_MATCHES = 1000;
+const MATCH_STUBS_COLLECTION = 'match-stubs-prod';
+const NUMBER_OF_MATCHES = 100;
 
 // returns whether a new spell icon was created
 const processSpellIdAsync = async (spellId: string): Promise<boolean> => {
   const exists = await bucket.file(`spells/${spellId}.jpg`).exists();
-  if (exists) {
+  // google api design decides that file.exists() returns an array of a single boolean FML
+  if (exists && exists[0]) {
     return false;
   }
 
@@ -63,7 +65,11 @@ export async function handler(_event: unknown, _context: unknown, callback: () =
   console.log('refreshSpellIconsHandler started');
 
   const collectionReference = firestore.collection(MATCH_STUBS_COLLECTION);
-  const matchDocs = await collectionReference.orderBy('startTime', 'desc').limit(NUMBER_OF_MATCHES).get();
+  const matchDocs = await collectionReference
+    .where('wowVersion', '==', 'retail')
+    .orderBy('startTime', 'desc')
+    .limit(NUMBER_OF_MATCHES)
+    .get();
   console.log(`fetched ${matchDocs.size} latest matches from firestore. downloading logs...`);
 
   const totalMatches = matchDocs.size;
@@ -86,6 +92,14 @@ export async function handler(_event: unknown, _context: unknown, callback: () =
                 return unit.spellCastEvents
                   .map((e) => e.spellId)
                   .concat(
+                    unit.absorbsIn.map((e) => e.spellId),
+                    unit.absorbsIn.map((e) => e.shieldSpellId),
+                    unit.absorbsOut.map((e) => e.spellId),
+                    unit.absorbsOut.map((e) => e.shieldSpellId),
+                    unit.damageIn.map((e) => e.spellId),
+                    unit.damageOut.map((e) => e.spellId),
+                    unit.healIn.map((e) => e.spellId),
+                    unit.healOut.map((e) => e.spellId),
                     unit.auraEvents.map((e) => e.spellId),
                     unit.advancedActions.map((e) => e.spellId),
                   )
@@ -103,7 +117,7 @@ export async function handler(_event: unknown, _context: unknown, callback: () =
         parsedMatches++;
       }
     } catch (e) {
-      console.log(`failed to parse match ${stub.id}`, e);
+      console.log(`failed to parse match ${stub.id}`, JSON.stringify(e));
       failedMatches++;
     }
   };
