@@ -37,11 +37,13 @@ export async function handler(file: any, _context: any): Promise<unknown> {
   console.log(`Reading file: ${response.status} ${textBuffer.slice(0, 50)}`);
   const stringBuffer = textBuffer.split('\n');
   const results = await parseFromStringArrayAsync(stringBuffer, wowVersion, logTimezone);
+  console.log(`Parsed arenaMatches=${results.arenaMatches.length} shuffleMatches=${results.shuffleMatches.length}`);
+
   if (results.arenaMatches.length === 0 && results.shuffleMatches.length > 0) {
     console.log('Match is a shuffle, skipping');
     return;
   }
-  console.log(`Parsed ${results.arenaMatches.length} arenaMatches`);
+
   const logObjectUrl = fileUrl;
   const stub = createStubDTOFromArenaMatch(results.arenaMatches[0], ownerId, logObjectUrl);
   const { anonymousStub, ciiMap } = anonymizeDTO(stub);
