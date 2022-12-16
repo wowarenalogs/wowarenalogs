@@ -38,7 +38,6 @@ const client = new ApolloClient({
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
       staleTime: 600,
       retry: (_failureCount: unknown, error: unknown) => {
         if ((error as Error)?.message === 'Fetch error 404') {
