@@ -26,7 +26,7 @@ export function useCombatFromStorage(matchId: string, anon?: boolean) {
       const result = await fetch(logObjectUrl);
       const text = await result.text();
       const results = Utils.parseFromStringArray(text.split('\n'), wowVersion);
-      return results.arenaMatches.at(0) || results.shuffleMatches[0].rounds.find((i) => i.id === matchId);
+      return results.arenaMatches.at(0) || results.shuffleMatches[0]?.rounds?.find((i) => i.id === matchId);
     },
     {
       cacheTime: 60 * 60 * 24,
