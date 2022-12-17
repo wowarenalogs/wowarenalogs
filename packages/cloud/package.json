@@ -11,6 +11,7 @@
     "deploy:dev": "npm run build && serverless deploy --stage dev",
     "deploy:prod": "npm run build && serverless deploy --stage prod",
     "test:write-match-handler": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_write_anon_file.js",
+    "start:generate-map-image": "npm run build && node ./dist/cloud/src/operations/generateMapImage.js",
     "test:refresh-spell-icons": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js"
   },
   "devDependencies": {
@@ -34,6 +35,7 @@
     "@google-cloud/functions-framework": "^3.1.2",
     "@google-cloud/storage": "^6.7.0",
     "aws-sdk": "^2.834.0",
+    "canvas": "^2.10.2",
     "class-transformer": "^0.5.0",
     "dotenv": "^16.0.3",
     "eventemitter3": "^4.0.7",

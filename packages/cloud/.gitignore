@@ -1,6 +1,7 @@
 .env
 *.pyc
 node_modules
+out
 .serverless
 gcp_service_account.json
 wowarenalogs-public-dev.json
