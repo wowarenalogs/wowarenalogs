@@ -30,17 +30,17 @@ describe('solo shuffle tests', () => {
       const firstRound = results.shuffleRounds[0];
       const lastRound = results.shuffleRounds[5];
 
-      expect(shuffle.startTime).toBe(1667429644514);
+      expect(shuffle.startTime).toBe(1670981589259);
       expect(shuffle.startTime).toBe(firstRound.startTime);
-      expect(shuffle.endTime).toBe(1667430187514);
+      expect(shuffle.endTime).toBe(1670981983080);
       expect(shuffle.endTime).toBe(lastRound.endTime);
       expect(shuffle.timezone).toBe('America/New_York');
 
-      expect(shuffle.endInfo.matchDurationInSeconds).toBe(100);
-      expect(shuffle.durationInSeconds).toBe(543);
-      expect(shuffle.endInfo.team0MMR).toBe(0);
-      expect(shuffle.endInfo.team1MMR).toBe(0);
-      expect(shuffle.endInfo.winningTeamId).toBe('0');
+      expect(shuffle.endInfo.matchDurationInSeconds).toBe(25);
+      expect(shuffle.durationInSeconds).toBe(393.821);
+      expect(shuffle.endInfo.team0MMR).toBe(1500);
+      expect(shuffle.endInfo.team1MMR).toBe(1500);
+      expect(shuffle.endInfo.winningTeamId).toBe('1');
 
       expect(shuffle.rounds.length).toBe(6);
       expect(shuffle.dataType).toBe('ShuffleMatch');
@@ -50,41 +50,41 @@ describe('solo shuffle tests', () => {
     it('should parse round 0', () => {
       const round = results.shuffleRounds[0];
 
-      const totem = round.units['Creature-0-3111-980-18621-59764-000062BCF6'];
-      expect(totem.name).toBe('Healing Tide Totem');
+      const totem = round.units['Creature-0-3884-1505-12983-60561-00001927DB'];
+      expect(totem.name).toBe('Earthgrab Totem');
       expect(totem.type).toBe(CombatUnitType.Guardian);
 
-      const team0Ids = ['Player-580-0A594065', 'Player-2073-094DF239', 'Player-1335-09D86B90'];
-      const team1Ids = ['Player-1084-0979C1C5', 'Player-1098-0A781F24', 'Player-1929-0675D6C6'];
+      const team0Ids = ['Player-11-0E3E33C2', 'Player-60-0EBDD42A', 'Player-3684-0DF0B4B2'];
+      const team1Ids = ['Player-54-0B7EB8E0', 'Player-1168-0A98486C', 'Player-162-09F354CE'];
 
-      expect(round.units['Player-580-0A594065'].affiliation).toBe(CombatUnitAffiliation.Outsider);
-      expect(round.units['Player-2073-094DF239'].affiliation).toBe(CombatUnitAffiliation.Outsider);
-      expect(round.units['Player-1335-09D86B90'].affiliation).toBe(CombatUnitAffiliation.Outsider);
+      expect(round.units['Player-11-0E3E33C2'].affiliation).toBe(CombatUnitAffiliation.Party);
+      expect(round.units['Player-60-0EBDD42A'].affiliation).toBe(CombatUnitAffiliation.Mine);
+      expect(round.units['Player-3684-0DF0B4B2'].affiliation).toBe(CombatUnitAffiliation.Party);
 
-      expect(round.units['Player-1084-0979C1C5'].affiliation).toBe(CombatUnitAffiliation.Mine);
-      expect(round.units['Player-1098-0A781F24'].affiliation).toBe(CombatUnitAffiliation.Party);
-      expect(round.units['Player-1929-0675D6C6'].affiliation).toBe(CombatUnitAffiliation.Party);
+      expect(round.units['Player-54-0B7EB8E0'].affiliation).toBe(CombatUnitAffiliation.Outsider);
+      expect(round.units['Player-1168-0A98486C'].affiliation).toBe(CombatUnitAffiliation.Outsider);
+      expect(round.units['Player-162-09F354CE'].affiliation).toBe(CombatUnitAffiliation.Outsider);
 
-      expect(round.playerId).toBe('Player-1084-0979C1C5');
+      expect(round.playerId).toBe('Player-60-0EBDD42A');
 
       team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('1'));
       team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('0'));
 
-      expect(round.id).toBe('68bd3de521023a67016dc234d2473558');
+      expect(round.id).toBe('436260d16e3a82acd6bced6523c8c910');
       expect(round.dataType).toBe('ShuffleRound');
       expect(round.sequenceNumber).toBe(0);
-      expect(round.winningTeamId).toBe('0');
-      expect(round.killedUnitId).toBe('Player-1098-0A781F24');
+      expect(round.winningTeamId).toBe('1');
+      expect(round.killedUnitId).toBe('Player-3684-0DF0B4B2');
 
       expect(round.timezone).toBe('America/New_York');
-      expect(round.startTime).toBe(1667429644514);
-      expect(round.endTime).toBe(1667429692521);
+      expect(round.startTime).toBe(1670981589259);
+      expect(round.endTime).toBe(1670981624027);
       expect(round.hasAdvancedLogging).toBe(true);
-      expect(round.playerTeamId).toBe('1');
+      expect(round.playerTeamId).toBe('0');
       expect(round.playerTeamRating).toBe(0);
       expect(round.result).toBe(CombatResult.Lose);
 
-      expect(Math.round(round.durationInSeconds)).toBe(48);
+      expect(Math.round(round.durationInSeconds)).toBe(35);
       expect(round.durationInSeconds).toBe((round.endTime - round.startTime) / 1000);
 
       expect(round.shuffleMatchEndInfo).toBeFalsy();
@@ -92,12 +92,12 @@ describe('solo shuffle tests', () => {
 
       // Check the scoreboard after round 1
       const scores = [
-        ['Player-580-0A594065', 1],
-        ['Player-2073-094DF239', 1],
-        ['Player-1335-09D86B90', 1],
-        ['Player-1084-0979C1C5', 0],
-        ['Player-1098-0A781F24', 0],
-        ['Player-1929-0675D6C6', 0],
+        ['Player-54-0B7EB8E0', 1],
+        ['Player-1168-0A98486C', 1],
+        ['Player-162-09F354CE', 1],
+        ['Player-11-0E3E33C2', 0],
+        ['Player-60-0EBDD42A', 0],
+        ['Player-3684-0DF0B4B2', 0],
       ];
       scores.forEach((score) => {
         expect(round.scoreboard.find((u) => u.unitId === score[0])?.wins).toBe(score[1]);
@@ -107,19 +107,19 @@ describe('solo shuffle tests', () => {
     it('should parse round 1', () => {
       const round = results.shuffleRounds[1];
       expect(round.sequenceNumber).toBe(1);
-      expect(round.winningTeamId).toBe('1');
+      expect(round.winningTeamId).toBe('0');
     });
 
     it('should parse round 2', () => {
       const round = results.shuffleRounds[2];
       expect(round.sequenceNumber).toBe(2);
-      expect(round.winningTeamId).toBe('1');
+      expect(round.winningTeamId).toBe('0');
     });
 
     it('should parse round 3', () => {
       const round = results.shuffleRounds[3];
       expect(round.sequenceNumber).toBe(3);
-      expect(round.winningTeamId).toBe('1');
+      expect(round.winningTeamId).toBe('0');
     });
 
     it('should parse round 4', () => {
@@ -130,28 +130,30 @@ describe('solo shuffle tests', () => {
 
     it('should parse round 5', () => {
       const round = results.shuffleRounds[5];
-      const team0Ids = ['Player-2073-094DF239', 'Player-580-0A594065', 'Player-1929-0675D6C6'];
-      const team1Ids = ['Player-1335-09D86B90', 'Player-1084-0979C1C5', 'Player-1098-0A781F24'];
+      const team0Ids = ['Player-11-0E3E33C2', 'Player-60-0EBDD42A', 'Player-1168-0A98486C'];
+      const team1Ids = ['Player-3684-0DF0B4B2', 'Player-54-0B7EB8E0', 'Player-162-09F354CE'];
 
-      team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('0'));
+      team0Ids.forEach((id) => {
+        expect(round.units[id].info?.teamId).toBe('0');
+      });
       team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('1'));
 
       expect(round.sequenceNumber).toBe(5);
 
-      expect(round.winningTeamId).toBe('0');
-      expect(round.killedUnitId).toBe('Player-1098-0A781F24');
+      expect(round.winningTeamId).toBe('1');
+      expect(round.killedUnitId).toBe('Player-60-0EBDD42A');
 
-      expect(Math.round(round.durationInSeconds)).toBe(100);
+      expect(Math.round(round.durationInSeconds)).toBe(26);
       expect(round.durationInSeconds).toBe((round.endTime - round.startTime) / 1000);
 
       // Check the scoreboard after round 6
       const scores = [
-        ['Player-1098-0A781F24', 1],
-        ['Player-1084-0979C1C5', 2],
-        ['Player-1335-09D86B90', 5],
-        ['Player-1929-0675D6C6', 3],
-        ['Player-580-0A594065', 3],
-        ['Player-2073-094DF239', 4],
+        ['Player-54-0B7EB8E0', 4],
+        ['Player-1168-0A98486C', 2],
+        ['Player-162-09F354CE', 5],
+        ['Player-11-0E3E33C2', 1],
+        ['Player-60-0EBDD42A', 4],
+        ['Player-3684-0DF0B4B2', 2],
       ];
       scores.forEach((score) => {
         expect(round.scoreboard.find((u) => u.unitId === score[0])?.wins).toBe(score[1]);
