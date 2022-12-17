@@ -52,23 +52,24 @@ const processSpellIdAsync = async (spellId: string): Promise<boolean> => {
   const fileWritten = await writeToBucket(`spells/${spellId}.jpg`, imgResponse.body);
   if (!fileWritten) {
     console.log(`Unable to write ${spellId}`);
+  } else {
+    console.log(`Wrote ${spellId}`);
   }
   return true;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function writeToBucket(fileName: string, fileData: any) {
-  return new Promise((res, rej) => {
-    bucket
-      .file(fileName)
-      .createWriteStream()
-      .write(fileData, (error) => {
-        if (error) {
-          rej(error);
-        } else {
-          res(true);
-        }
-      });
+  return new Promise((res) => {
+    const stream = bucket.file(fileName).createWriteStream();
+    stream.on('error', (err) => {
+      console.log(err);
+      res(false);
+    });
+    stream.on('finish', () => {
+      res(true);
+    });
+    stream.end(fileData);
   });
 }
 
