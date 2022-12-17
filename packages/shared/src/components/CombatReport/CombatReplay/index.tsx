@@ -106,9 +106,6 @@ export function CombatReplay() {
   }, []);
 
   const zone = zoneMetadata[combat?.startInfo?.zoneId || ''];
-  if (!zone) {
-    console.log(`No zone metadata for zoneId ${combat?.startInfo?.zoneId}`);
-  }
 
   const [worldWidth, worldHeight, worldMinX, worldMinY] = useMemo(() => {
     if (!combat) {
