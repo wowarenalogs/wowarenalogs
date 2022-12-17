@@ -1,8 +1,6 @@
 import { Firestore } from '@google-cloud/firestore';
 import { Storage as GoogleCloudStorage } from '@google-cloud/storage';
-import { writeFileSync } from 'fs-extra';
 import _ from 'lodash';
-import path from 'path';
 import superagent from 'superagent';
 
 import { AtomicArenaCombat } from '../../parser/dist/index';
@@ -51,14 +49,29 @@ const processSpellIdAsync = async (spellId: string): Promise<boolean> => {
     return false;
   }
 
-  const writeFilePath = path.join(__dirname, `${spellId}.jpg`);
-  writeFileSync(writeFilePath, imgResponse.body);
-  await bucket.upload(writeFilePath, {
-    destination: `spells/${spellId}.jpg`,
-    contentType: 'image/jpeg',
-  });
+  const fileWritten = await writeToBucket(`spells/${spellId}.jpg`, imgResponse.body);
+  if (!fileWritten) {
+    console.log(`Unable to write ${spellId}`);
+  } else {
+    console.log(`Wrote ${spellId}`);
+  }
   return true;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function writeToBucket(fileName: string, fileData: any) {
+  return new Promise((res) => {
+    const stream = bucket.file(fileName).createWriteStream();
+    stream.on('error', (err) => {
+      console.log(err);
+      res(false);
+    });
+    stream.on('finish', () => {
+      res(true);
+    });
+    stream.end(fileData);
+  });
+}
 
 export async function handler(_event: unknown, _context: unknown, callback: () => void) {
   console.log('refreshSpellIconsHandler started');
