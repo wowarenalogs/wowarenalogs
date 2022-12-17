@@ -10,6 +10,7 @@
     "build": "shx rm -rf dist && tsc && cd ../.. && npm run build:parser && shx mkdir ./packages/cloud/dist/parser && shx cp -r ./packages/parser/dist ./packages/cloud/dist/parser/dist",
     "deploy:dev": "npm run build && serverless deploy --stage dev",
     "deploy:prod": "npm run build && serverless deploy --stage prod",
+    "test:write-match-handler": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_write_anon_file.js",
     "start:generate-map-image": "npm run build && node ./dist/cloud/src/operations/generateMapImage.js",
     "test:refresh-spell-icons": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js"
   },
