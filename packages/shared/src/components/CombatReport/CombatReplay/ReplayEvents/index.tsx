@@ -13,6 +13,7 @@ import { from } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 import { spellIdToPriority } from '../../../../data/spellTags';
+import { SIGNIFICANT_DAMAGE_HEAL_THRESHOLD } from '../../../../utils/utils';
 import { CombatReportContext } from '../../CombatReportContext';
 import styles from './index.module.css';
 import { ReplayEventDisplay } from './ReplayEventDisplay';
@@ -40,7 +41,7 @@ export const ReplayEvents = (props: IProps) => {
   });
 
   const qualifiedEvents = useMemo(() => {
-    const MIN_DAMAGE_HEAL_NUMBER = context.combat?.wowVersion === 'retail' ? 3000 : 300;
+    const MIN_DAMAGE_HEAL_NUMBER = context.combat?.wowVersion === 'retail' ? SIGNIFICANT_DAMAGE_HEAL_THRESHOLD : 300;
 
     const isWantedDamageOrHeal = (e: CombatEvent) =>
       e instanceof CombatHpUpdateAction &&
