@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { useEffect, useMemo } from 'react';
 
 import talentIdMap from '../../../data/talentIdMap.json';
-import { useClientContext } from '../../../hooks/ClientContext';
 import { Utils } from '../../../utils/utils';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatStatistic } from '../CombatStatistic';
