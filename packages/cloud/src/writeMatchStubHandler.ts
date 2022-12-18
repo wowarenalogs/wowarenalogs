@@ -25,7 +25,7 @@ export async function handler(file: any, _context: any) {
   const wowVersion = (response.headers.get('x-goog-meta-wow-version') || 'retail') as WowVersion;
   const logTimezone = response.headers.get('x-goog-meta-client-timezone') || undefined;
 
-  console.log(`Reading file: ${response.status} ${textBuffer.slice(0, 50)}`);
+  console.log(`Reading file: ${response.status} ${textBuffer.slice(0, 80)}`);
   console.log(`Parsed timezone ${logTimezone}`);
 
   const parseResults = await parseFromStringArrayAsync(textBuffer.split('\n'), wowVersion, logTimezone);
@@ -43,8 +43,9 @@ export async function handler(file: any, _context: any) {
     }
     const stub = createStubDTOFromArenaMatch(arenaMatch, ownerId, logObjectUrl);
     const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
-    console.log(`writing ${matchStubsFirestore}/${stub.id}`);
+    console.log(`writing arena stub ${matchStubsFirestore}/${stub.id}`);
     await document.set(instanceToPlain(stub));
+    console.log(`${stub.id} written`);
     return;
   }
 
@@ -52,9 +53,10 @@ export async function handler(file: any, _context: any) {
     const shuffleMatch = parseResults.shuffleMatches[0];
     const stubs = createStubDTOFromShuffleMatch(shuffleMatch, ownerId, logObjectUrl);
     stubs.forEach(async (stub) => {
-      console.log(`processing stub ${stub.id}`);
+      console.log(`writing shuffle stub ${stub.id}`);
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
       await document.set(instanceToPlain(stub));
+      console.log(`${stub.id} written`);
     });
     return;
   }
