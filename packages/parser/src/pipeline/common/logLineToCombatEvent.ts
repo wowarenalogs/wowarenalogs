@@ -6,13 +6,13 @@ import { ArenaMatchStart } from '../../actions/ArenaMatchStart';
 import { CombatAbsorbAction } from '../../actions/CombatAbsorbAction';
 import { CombatAction } from '../../actions/CombatAction';
 import { CombatAdvancedAction } from '../../actions/CombatAdvancedAction';
+import { CombatantInfoAction } from '../../actions/CombatantInfoAction';
 import { CombatExtraSpellAction } from '../../actions/CombatExtraSpellAction';
 import { CombatHpUpdateAction } from '../../actions/CombatHpUpdateAction';
-import { CombatantInfoAction } from '../../actions/CombatantInfoAction';
-import { CombatEvent, ILogLine, LogEvent, WowVersion } from '../../types';
 import { PartyKill } from '../../actions/PartyKill';
 import { SpellAuraBrokenSpell } from '../../actions/SpellAuraBrokenSpell';
 import { logInfo } from '../../logger';
+import { CombatEvent, ILogLine, LogEvent, WowVersion } from '../../types';
 
 export const logLineToCombatEvent = (wowVersion: WowVersion) => {
   return pipe(

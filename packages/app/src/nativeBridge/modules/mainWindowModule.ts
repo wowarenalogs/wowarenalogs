@@ -64,8 +64,12 @@ export class MainWindowModule extends NativeBridgeModule {
   }
 
   @moduleEvent('on')
-  public onWindowResized(_mainWindow: BrowserWindow, _w: number, _h: number): void {}
+  public onWindowResized(_mainWindow: BrowserWindow, _w: number, _h: number): void {
+    return;
+  }
 
   @moduleEvent('on')
-  public onWindowMoved(_mainWindow: BrowserWindow, _x: number, _y: number): void {}
+  public onWindowMoved(_mainWindow: BrowserWindow, _x: number, _y: number): void {
+    return;
+  }
 }

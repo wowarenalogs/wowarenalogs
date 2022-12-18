@@ -1,4 +1,4 @@
-import { ILogLine, CombatantInfo, EquippedItem } from '../types';
+import { CombatantInfo, EquippedItem, ILogLine } from '../types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseEquippedItems(val: any[]): EquippedItem[] {
@@ -52,12 +52,12 @@ export class CombatantInfoAction {
       specId: logLine.parameters[23].toString(),
       talents: logLine.parameters[24].map((v: number[]) => ({ id1: v[0], id2: v[1], count: v[2] })),
       pvpTalents: logLine.parameters[25].map((v: number) => v.toString()),
-      equipment: parseEquippedItems(logLine.parameters[27]),
-      interestingAurasJSON: JSON.stringify(logLine.parameters[28]),
-      item28: logLine.parameters[29],
-      item29: logLine.parameters[30],
-      personalRating: logLine.parameters[31],
-      highestPvpTier: logLine.parameters[32],
+      equipment: parseEquippedItems(logLine.parameters[26]),
+      interestingAurasJSON: JSON.stringify(logLine.parameters[27]),
+      item28: logLine.parameters[28],
+      item29: logLine.parameters[29],
+      personalRating: logLine.parameters[30],
+      highestPvpTier: logLine.parameters[31],
     };
   }
 }

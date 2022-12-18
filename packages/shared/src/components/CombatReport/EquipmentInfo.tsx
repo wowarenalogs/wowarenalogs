@@ -42,7 +42,7 @@ export const EquipmentInfo = ({ item, size = 'large', notext = false, bonusOnly 
   item.enchants.map((b) => {
     if (b !== '0') {
       if (b in enchantsMap) {
-        enchantAnnotation = enchantsMap[b];
+        enchantAnnotation = enchantsMap[b].itemName || enchantsMap[b].displayName;
       } else {
         enchantAnnotation = `Enchant ${b}`;
       }

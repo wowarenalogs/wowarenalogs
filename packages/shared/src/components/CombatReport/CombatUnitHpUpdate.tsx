@@ -22,13 +22,13 @@ export const CombatUnitHpUpdate = (props: IProps) => {
   const colorSourceUnit = props.combat.units[colorSourceUnitId];
   const colorSourceUnitClass = colorSourceUnit ? colorSourceUnit.class : CombatUnitClass.None;
 
-  const widthPercentage = (Math.abs(props.action.amount) / props.groupTotal) * 100;
-  const widthPercentageAbsolute = (Math.abs(props.action.amount) / props.timelineMax) * 100;
+  const widthPercentage = (Math.abs(props.action.effectiveAmount) / props.groupTotal) * 100;
+  const widthPercentageAbsolute = (Math.abs(props.action.effectiveAmount) / props.timelineMax) * 100;
 
   return (
     <div
       className="tooltip flex flex-row"
-      data-tip={`${props.action.spellName || 'Auto Attack'}: ${Math.abs(props.action.amount).toFixed()}`}
+      data-tip={`${props.action.spellName || 'Auto Attack'}: ${Math.abs(props.action.effectiveAmount).toFixed()}`}
       style={{
         minWidth: '4px',
         width: widthPercentage.toFixed(2) + '%',

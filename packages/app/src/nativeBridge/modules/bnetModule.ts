@@ -8,7 +8,7 @@ export class BnetModule extends NativeBridgeModule {
   public login(mainWindow: Electron.BrowserWindow, absoluteAuthUrl: string, windowTitle: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const mainWindowPosition = mainWindow.getPosition();
-      let resolved: boolean = false;
+      let resolved = false;
 
       const loginModalWindow = new BrowserWindow({
         backgroundColor: '#000000',

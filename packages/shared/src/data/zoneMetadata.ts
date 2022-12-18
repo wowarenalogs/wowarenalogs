@@ -10,16 +10,35 @@ interface IZoneMetadata {
 }
 
 export const zoneMetadata: Record<string, IZoneMetadata> = {
+  '2563': {
+    id: '2563',
+    name: 'Nokhudon Proving Grounds',
+    imageWidth: 610,
+    imageHeight: 550,
+    minX: -595,
+    minY: 4120,
+    maxX: -473,
+    maxY: 4230,
+  },
   '2547': {
-    // TODO: Fix values
     id: '2547',
     name: 'Enigma Crucible',
-    imageWidth: 500,
-    imageHeight: 500,
-    minX: -2000,
-    minY: 7000,
-    maxX: -2000,
-    maxY: 7000,
+    imageWidth: 1055,
+    imageHeight: 710,
+    minX: 156,
+    minY: 196,
+    maxX: 367,
+    maxY: 338,
+  },
+  '2509': {
+    id: '2509',
+    name: 'Maldraxxus Coliseum',
+    imageWidth: 605,
+    imageHeight: 755,
+    minX: 2772,
+    minY: 2180,
+    maxX: 2893,
+    maxY: 2331,
   },
   '1505': {
     id: '1505',

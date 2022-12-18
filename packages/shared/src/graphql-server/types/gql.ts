@@ -34,12 +34,12 @@ export const typeDefs = gql`
     endInfo: ArenaMatchEndInfo
     startTime: Float!
     endTime: Float!
-    playerId: String!
+    playerId: String
     playerTeamId: String!
     playerTeamRating: Int!
     hasAdvancedLogging: Boolean!
-    durationInSeconds: Float!
-    winningTeamId: String!
+    durationInSeconds: Float
+    winningTeamId: String
     timezone: String
   }
   type ScoreboardEntry {
@@ -56,12 +56,12 @@ export const typeDefs = gql`
     startInfo: ArenaMatchStartInfo
     startTime: Float!
     endTime: Float!
-    playerId: String!
+    playerId: String
     playerTeamId: String!
     playerTeamRating: Int!
     hasAdvancedLogging: Boolean!
-    durationInSeconds: Float!
-    winningTeamId: String!
+    durationInSeconds: Float
+    winningTeamId: String
     killedUnitId: String!
     scoreboard: [ScoreboardEntry]
     sequenceNumber: Int!
@@ -83,7 +83,7 @@ export const typeDefs = gql`
     talents: [Talent]!
     pvpTalents: [String!]!
     personalRating: Int!
-    highestPvpTier: Int!
+    highestPvpTier: Int
   }
   type CombatUnitStub {
     id: String!
@@ -93,7 +93,7 @@ export const typeDefs = gql`
     spec: String!
     class: Int!
     reaction: Int!
-    affiliation: Int!
+    affiliation: Int
   }
   type CombatQueryResult {
     combats: [CombatDataStub!]!

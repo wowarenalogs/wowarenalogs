@@ -62,7 +62,7 @@ export const CombatSummary = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td className="bg-base-200">
+                  <td className="bg-base-200 align-top">
                     <CombatUnitTimelineView
                       unit={allPlayerDeath[0].unit}
                       startTime={allPlayerDeath[0].deathRecord.timestamp - 20 * 1000}

@@ -1,5 +1,7 @@
 node_modules
 dist
 build
-graphql/__generated__/graphql.tsx
+src/graphql/__generated__/graphql.ts
+src/graphql/__generated__/graphql.tsx
 .eslintrc.js
+*.config.js

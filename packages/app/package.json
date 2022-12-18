@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "build:app": "shx rm -rf dist && tsc -p . && webpack --config webpack.config.js && webpack --config webpack.preload.config.js",
-    "release:app": "git checkout release/wowarenalogs/app && git pull && git merge --no-edit --no-ff features/rewrite_202203 && git push && git checkout features/rewrite_202203"
+    "release:app": "git checkout release/wowarenalogs/app && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",
@@ -33,6 +35,7 @@
     "chokidar": "^3.5.3",
     "electron": "17.1.0",
     "electron-devtools-installer": "^3.2.0",
+    "electron-updater": "^5.3.0",
     "fs-extra": "^10.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",

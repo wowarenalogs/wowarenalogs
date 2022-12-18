@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import { CombatResult, CombatUnitAffiliation, CombatUnitClass, CombatUnitSpec, CombatUnitType } from '../src/types';
 import { LoaderResults, loadLogFile } from './testLogLoader';
 
@@ -29,7 +30,7 @@ describe('3v3 match parsing', () => {
 
     it('should compute the correct hash id', () => {
       const combat = results.combats[0];
-      expect(combat.id).toEqual('f972d3d639ddb2f048b2f21ec137462c');
+      expect(combat.id).toEqual('d32880eeff2927a20fd3f6433a8720a3');
       expect(combat.dataType).toBe('ArenaMatch');
       expect(combat.timezone).toBe('America/New_York');
     });

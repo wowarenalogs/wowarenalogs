@@ -53,8 +53,10 @@ export interface ApolloContext {
  * * item28: number;
  * * item29: number;
  */
-export interface ICombatantInfoStub
-  extends Pick<CombatantInfo, 'teamId' | 'specId' | 'talents' | 'pvpTalents' | 'personalRating' | 'highestPvpTier'> {}
+export type ICombatantInfoStub = Pick<
+  CombatantInfo,
+  'teamId' | 'specId' | 'talents' | 'pvpTalents' | 'personalRating' | 'highestPvpTier'
+>;
 
 /**
  * Stub of ICombatUnit for cloud storage
@@ -81,8 +83,8 @@ export interface ICombatUnitStub
   info?: ICombatantInfoStub;
 }
 
-export interface IArenaMatchStub extends Omit<IArenaMatch, 'units' | 'events' | 'rawLines'> {}
-export interface IShuffleRoundStub extends Omit<IShuffleRound, 'units' | 'events' | 'rawLines'> {}
+export type IArenaMatchStub = Omit<IArenaMatch, 'units' | 'events' | 'rawLines'>;
+export type IShuffleRoundStub = Omit<IShuffleRound, 'units' | 'events' | 'rawLines'>;
 
 interface IUnitsStub {
   /**

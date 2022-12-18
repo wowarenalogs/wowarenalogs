@@ -1,14 +1,14 @@
+import _ from 'lodash';
 import { pipe } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import _ from 'lodash';
 
-import { CombatData, IArenaMatch, IMalformedCombatData, IShuffleMatch, IShuffleRound } from '../../CombatData';
 import { ArenaMatchEnd } from '../../actions/ArenaMatchEnd';
 import { ArenaMatchStart, ArenaMatchStartInfo } from '../../actions/ArenaMatchStart';
+import { CombatData, IArenaMatch, IMalformedCombatData, IShuffleMatch, IShuffleRound } from '../../CombatData';
+import { logInfo } from '../../logger';
 import { CombatResult, CombatUnitType, ICombatEventSegment } from '../../types';
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
-import { logInfo } from '../../logger';
 
 // Global buffer to hold recent shuffle rounds
 // once a shuffle-ending is detected this is reset
@@ -184,37 +184,46 @@ export const segmentToCombat = () => {
 
       if (metadataLooksGood) {
         if (segment.events[0] instanceof ArenaMatchStart && segment.events[0].bracket.endsWith('Solo Shuffle')) {
-          logInfo(`final shuffle round decode starting`);
-          const decoded = decodeShuffleRound(
-            segment,
-            recentShuffleRoundsBuffer,
-            recentScoreboardBuffer,
-            segment.events[0].logLine.timezone,
-          );
-          const validRounds = validateRounds(recentShuffleRoundsBuffer);
+          try {
+            logInfo(`final shuffle round decode starting`);
+            const decoded = decodeShuffleRound(
+              segment,
+              recentShuffleRoundsBuffer,
+              recentScoreboardBuffer,
+              segment.events[0].logLine.timezone,
+            );
+            const validRounds = validateRounds(recentShuffleRoundsBuffer);
 
-          logInfo(`final shuffle round validRounds=${validRounds}`);
-          if (validRounds) {
-            const shuf: IShuffleMatch = {
-              wowVersion: 'retail',
-              dataType: 'ShuffleMatch',
-              id: decoded.shuffle.id, // Using id of last round
-              startTime: recentShuffleRoundsBuffer[0].startTime,
-              endTime: decoded.combat.endTime,
-              result: decoded.combat.result,
-              startInfo: nullthrows(decoded.combat.startInfo),
-              endInfo: nullthrows(decoded.combat.endInfo),
-              rounds: [...recentShuffleRoundsBuffer],
-              durationInSeconds: (decoded.combat.endTime - recentShuffleRoundsBuffer[0].startTime) / 1000,
-              timezone: decoded.combat.timezone,
-            };
+            logInfo(`final shuffle round validRounds=${validRounds}`);
+            if (validRounds) {
+              const shuf: IShuffleMatch = {
+                wowVersion: 'retail',
+                dataType: 'ShuffleMatch',
+                id: decoded.shuffle.id, // Using id of last round
+                startTime: recentShuffleRoundsBuffer[0].startTime,
+                endTime: decoded.combat.endTime,
+                result: decoded.combat.result,
+                startInfo: nullthrows(decoded.combat.startInfo),
+                endInfo: nullthrows(decoded.combat.endInfo),
+                rounds: [...recentShuffleRoundsBuffer],
+                durationInSeconds: (decoded.combat.endTime - recentShuffleRoundsBuffer[0].startTime) / 1000,
+                timezone: decoded.combat.timezone,
+              };
+              recentShuffleRoundsBuffer = [];
+              recentScoreboardBuffer = [];
+              return shuf;
+            } else {
+              // We hit a final round (ARENA_MATCH_END) but the Match itself wasn't a valid 6-round shuffle
+              // We want to emit the shuffle as a round but then reset the internal match aggregator
+              recentShuffleRoundsBuffer = [];
+              recentScoreboardBuffer = [];
+              return decoded.shuffle;
+            }
+          } catch (e) {
+            // Reset buffer also if rounds are invalid...
             recentShuffleRoundsBuffer = [];
             recentScoreboardBuffer = [];
-            return shuf;
           }
-          // Reset buffer also if rounds are invalid...
-          recentShuffleRoundsBuffer = [];
-          recentScoreboardBuffer = [];
         } else {
           const combat = new CombatData('retail', segment.events[0].logLine.timezone);
           combat.startTime = segment.events[0].timestamp || 0;

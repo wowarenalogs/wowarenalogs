@@ -1,21 +1,24 @@
-import { useAuth } from '@wowarenalogs/shared';
+import { LoadingScreen, useAuth } from '@wowarenalogs/shared';
 
-import { LoginButton } from '../components/Login/LoginButton';
 import { LogoutButton } from '../components/Login/LogoutButton';
 
 const Page = () => {
   const auth = useAuth();
 
+  if (auth.isLoadingAuthData) {
+    return <LoadingScreen />;
+  }
+
+  if (!auth.isAuthenticated) {
+    // the profile page should only be visible to authenticated users
+    return null;
+  }
+
   return (
-    <div className="mt-8 text-base-content">
-      <div className="flex flex-row justify-between">
-        <div className="flex flex-col">
-          <div>Logged in as: {auth.isLoadingAuthData ? 'loading' : auth.battleTag || 'not-logged-in'}</div>
-        </div>
-        <div className="flex flex-col">
-          <LoginButton />
-          <LogoutButton />
-        </div>
+    <div className="flex flex-col m-2">
+      <div className="text-2xl font-bold mb-2">{auth.battleTag}</div>
+      <div className="flex flex-row">
+        <LogoutButton />
       </div>
     </div>
   );

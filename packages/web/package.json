@@ -10,8 +10,8 @@
     "start:web": "next start",
     "build:web": "next build",
     "lint": "next lint",
-    "test": "next test",
-    "release:web": "git checkout release/wowarenalogs/web && git pull && git merge --no-edit --no-ff features/rewrite_202203 && git push && git checkout features/rewrite_202203"
+    "lint:fix": "next lint --fix",
+    "release:web": "git checkout release/wowarenalogs/web && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "dependencies": {
     "@sentry/react": "^7.19.0",

@@ -5,13 +5,13 @@ import { CombatAction } from './actions/CombatAction';
 import { CombatAdvancedAction } from './actions/CombatAdvancedAction';
 import { CombatHpUpdateAction } from './actions/CombatHpUpdateAction';
 import {
+  CombatantInfo,
+  CombatUnitAffiliation,
   CombatUnitClass,
   CombatUnitReaction,
   CombatUnitSpec,
   CombatUnitType,
-  CombatantInfo,
   ILogLine,
-  CombatUnitAffiliation,
 } from './types';
 import { getUnitAffiliation } from './utils';
 

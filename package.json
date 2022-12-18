@@ -1,10 +1,14 @@
 {
   "name": "wowarenalogs",
   "license": "MIT",
-  "version": "4.0.0",
+  "version": "4.0.2",
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wowarenalogs/wowarenalogs.git"
+  },
   "main": "packages/app/dist/main.bundle.js",
   "engines": {
     "node": ">=16",
@@ -25,15 +29,19 @@
     }
   },
   "scripts": {
+    "add:cloud": "npm install -w @wowarenalogs/cloud-functions",
     "add:app": "npm install -w @wowarenalogs/app",
     "add:desktop": "npm install -w @wowarenalogs/desktop",
     "add:web": "npm install -w @wowarenalogs/web",
     "add:shared": "npm install -w @wowarenalogs/shared",
     "add:parser": "npm install -w @wowarenalogs/parser",
+    "add:tools": "npm install -w @wowarenalogs/tools",
     "dev:app": "cross-env NODE_ENV=development BROWSER=none concurrently -k \"cd packages/desktop && npm run dev:desktop\" \"wait-on -d 3000 -i 5000 http://localhost:3000 && npm run build:app && electron .\"",
     "build:app": "npm run build:app --workspaces --if-present",
     "build:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=never",
     "build:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=never",
+    "publish:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=always",
+    "publish:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=always",
     "release:app": "npm run release:app --workspaces --if-present",
     "dev:desktop": "npm run dev:desktop --workspaces --if-present",
     "build:desktop": "npm run build:desktop --workspaces --if-present",
@@ -44,7 +52,9 @@
     "start:web": "npm run start:web --workspaces --if-present",
     "release:web": "npm run release:web --workspaces --if-present",
     "build:parser": "npm run build:parser --workspaces --if-present",
+    "start:refreshSpellMetadata": "npm run start:refreshSpellMetadata --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
