@@ -9,7 +9,7 @@ import { anonymizeDTO, applyCIIMap } from './anonymizer';
 import { createStubDTOFromArenaMatch } from './createMatchStub';
 import { parseFromStringArrayAsync } from './utils';
 
-const anonFilesBucket = process.env.ENV_LOG_FILES_BUCKET || '';
+const anonFilesBucket = process.env.ENV_LOG_FILES_BUCKET || 'wowarenalogs-anon-log-files-prod';
 const projectId = process.env.ENV_GCP_PROJECT;
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
 
@@ -20,6 +20,8 @@ const firestore = new Firestore({
 const storage = new GoogleCloudStorage({
   projectId,
 });
+
+const DF_S1_LAUNCH_DATE = 1670734800000;
 
 // In the Google code they actually type file as `data:{}`
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,6 +35,18 @@ export async function handler(file: any, _context: any): Promise<unknown> {
   const ownerId = response.headers.get('x-goog-meta-ownerid') || 'unknown-uploader';
   const wowVersion = (response.headers.get('x-goog-meta-wow-version') || 'retail') as WowVersion;
   const logTimezone = response.headers.get('x-goog-meta-client-timezone') || undefined;
+  let utcStartTime = Infinity;
+  try {
+    utcStartTime = parseInt(response.headers.get('x-goog-meta-starttime-utc') || '') || Infinity;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.log(`Failed to parse utc time header ${error.message}`);
+  }
+
+  if (utcStartTime < DF_S1_LAUNCH_DATE) {
+    console.log(`Log file too old, skipping ${utcStartTime}`);
+    return;
+  }
 
   console.log(`Reading file: ${response.status} ${textBuffer.slice(0, 50)}`);
   const stringBuffer = textBuffer.split('\n');
