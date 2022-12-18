@@ -30,7 +30,7 @@ export const TalentExport = ({ player }: { player: ICombatUnit }) => {
   return (
     <div className="flex flex-row gap-2">
       <button
-        className="btn btn-outline btn-primary btn-sm gap-2"
+        className="btn btn-outline btn-sm gap-2"
         onClick={() => {
           navigator.clipboard.writeText(exportString);
         }}
@@ -39,12 +39,12 @@ export const TalentExport = ({ player }: { player: ICombatUnit }) => {
         Export String
       </button>
       <button
-        className="btn btn-outline btn-primary btn-sm gap-2"
+        className="btn btn-outline btn-sm gap-2"
         onClick={() => {
           clientContext.openExternalURL(`https://www.wowhead.com/talent-calc/blizzard/${exportString}`);
         }}
       >
-        View this tree on WoWHead{' '}
+        View this build on Wowhead
       </button>
     </div>
   );
