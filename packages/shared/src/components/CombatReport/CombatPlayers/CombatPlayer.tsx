@@ -10,7 +10,7 @@ import { CombatStatistic } from '../CombatStatistic';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
-import { createExportString } from './talentStrings';
+import { TalentExport } from './TalentExport';
 
 interface IProps {
   player: ICombatUnit;
@@ -134,7 +134,6 @@ const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorb
 
 export function CombatPlayer(props: IProps) {
   const { combat } = useCombatReportContext();
-  const clientContext = useClientContext();
 
   useEffect(() => {
     try {
@@ -246,31 +245,8 @@ export function CombatPlayer(props: IProps) {
                 </div>
               ))}
           </div>
-          <div className="flex flex-col">
-            <div
-              onClick={() => {
-                navigator.clipboard.writeText(
-                  createExportString(parseInt(props.player.info?.specId || '0'), props.player.info.talents),
-                );
-              }}
-            >
-              Export String (click to copy):{' '}
-              {createExportString(parseInt(props.player.info?.specId), props.player.info.talents)}
-            </div>
-            <div
-              onClick={() => {
-                clientContext.openExternalURL(
-                  `https://www.wowhead.com/talent-calc/blizzard/${createExportString(
-                    parseInt(props.player.info?.specId),
-                    props.player.info.talents,
-                  )}`,
-                );
-              }}
-            >
-              View this tree on WoWHead{' '}
-            </div>
-          </div>
         </div>
+        <TalentExport player={props.player} />
         <div className="mt-2">
           <div className="text-lg font-bold">Gear</div>
           <div className="flex flex-row mt-2">

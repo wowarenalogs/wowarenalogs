@@ -72,72 +72,10 @@ type ExportStream = {
 
 const talentIdMap = talentIdMapData as RaidBotsTalentData;
 
-const emptyTreeHash: ExportStream = [
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-  {
-    value: 0,
-    bitWidth: 8,
-  },
-];
+const emptyTreeHash: ExportStream = Array(128 / 8).fill({
+  value: 0,
+  bitWidth: 8,
+});
 
 type MappedRaidbotsSpec = RaidbotsTalentSpec & {
   specNodeMap: Record<number, SpecNode>;
@@ -159,7 +97,6 @@ talentIdMap.forEach((spec) => {
     }, {} as Record<number, SpecNode>),
   };
 });
-console.log({ nodeMaps });
 
 const BitsPerChar = 6;
 const bitWidthRanksPurchased = 6;
@@ -222,7 +159,10 @@ function writeLoadoutContent(
   for (let i = 0; i < treeNodes.length; i++) {
     const treeNode = treeNodes[i];
 
-    if (!treeNode) continue;
+    if (!treeNode) {
+      addValue(exportStream, 1, 0);
+      continue;
+    }
 
     const talentSelection = talentsPicked.find((i) => i.id1 === treeNode?.id);
 
@@ -231,19 +171,13 @@ function writeLoadoutContent(
     const isPartiallyRanked = talentSelection && talentSelection.count < treeNode.maxRanks;
     const isChoiceNode = treeNode?.type === 'choice';
 
+    if (treeNode.freeNode) {
+      addValue(exportStream, 1, 0);
+      continue;
+    }
     addValue(exportStream, 1, isNodeSelected ? 1 : 0);
 
-    // if (treeNode.maxRanks > 1) {
-    //   console.log('maxR', treeNode.name, treeNode.id, {
-    //     treeNode,
-    //     isNodeSelected,
-    //     isPartiallyRanked,
-    //     isChoiceNode,
-    //     talentSelection,
-    //   });
-    // }
     if (isNodeSelected) {
-      console.log('selected', treeNode.name, { treeNode });
       addValue(exportStream, 1, isPartiallyRanked ? 1 : 0);
 
       if (isPartiallyRanked) {
@@ -259,30 +193,20 @@ function writeLoadoutContent(
         }
         //-- store entry index as zero-index
         addValue(exportStream, 2, entryIndex);
-        // console.log('isChoice', treeNode.name, treeNode.id, {
-        //   isNodeSelected,
-        //   isPartiallyRanked,
-        //   isChoiceNode,
-        //   talentSelection,
-        //   entryIndex,
-        // });
       }
     }
   }
   return exportStream;
 }
 
-export const createExportString = (specId: number, talents: [{ id1: number; id2: number; count: number }]) => {
+export const createExportString = (specId: number, talents: { id1: number; id2: number; count: number }[]) => {
   const specData = nodeMaps[specId];
 
   const treeNodes: (ClassNode | SpecNode)[] = specData.fullNodeOrder.map((n) => {
     return specData.specNodeMap[n] || specData.classNodeMap[n];
   });
-  console.log('specNodes', specData);
-  console.log('tal', { talents });
 
   const loadout = writeLoadoutContent(treeNodes, talents);
-  console.log('lodout', { loadout });
   return wowExportTo64([
     {
       value: 1,
