@@ -2,7 +2,6 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { TbInfoCircle } from 'react-icons/tb';
 
 const Home: NextPage = () => {
   const [isMac, setIsMac] = useState(false);
@@ -22,12 +21,6 @@ const Home: NextPage = () => {
         <script key="wowhead0">{'window.whTooltips = { colorLinks: true, iconSize: true };'}</script>
         <script key="wowhead1" async src="https://wow.zamimg.com/widgets/power.js" />
       </Head>
-      <div className="alert alert-info shadow-lg">
-        <div>
-          <TbInfoCircle />
-          <span>We are getting ready for Dragonflight Ranked Season Start! Stay tuned for more updates.</span>
-        </div>
-      </div>
       <div className="flex-1 flex flex-col items-center justify-center">
         <div className="hero">
           <div className="hero-content flex-row">
