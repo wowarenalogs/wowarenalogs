@@ -103,7 +103,6 @@ const bitWidthRanksPurchased = 6;
 
 const b64Table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function wowExportTo64(dataEntries: ExportStream) {
   let exportString = '';
   let currentValue = 0;
