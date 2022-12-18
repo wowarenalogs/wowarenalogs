@@ -3,12 +3,14 @@ import _ from 'lodash';
 import { useEffect, useMemo } from 'react';
 
 import talentIdMap from '../../../data/talentIdMap.json';
+import { useClientContext } from '../../../hooks/ClientContext';
 import { Utils } from '../../../utils/utils';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatStatistic } from '../CombatStatistic';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
+import { createExportString } from './talentStrings';
 
 interface IProps {
   player: ICombatUnit;
@@ -132,6 +134,8 @@ const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorb
 
 export function CombatPlayer(props: IProps) {
   const { combat } = useCombatReportContext();
+  const clientContext = useClientContext();
+
   useEffect(() => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -241,6 +245,30 @@ export function CombatPlayer(props: IProps) {
                   <SpellIcon spellId={t} size={32} />
                 </div>
               ))}
+          </div>
+          <div className="flex flex-col">
+            <div
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  createExportString(parseInt(props.player.info?.specId || '0'), props.player.info.talents),
+                );
+              }}
+            >
+              Export String (click to copy):{' '}
+              {createExportString(parseInt(props.player.info?.specId), props.player.info.talents)}
+            </div>
+            <div
+              onClick={() => {
+                clientContext.openExternalURL(
+                  `https://www.wowhead.com/talent-calc/blizzard/${createExportString(
+                    parseInt(props.player.info?.specId),
+                    props.player.info.talents,
+                  )}`,
+                );
+              }}
+            >
+              View this tree on WoWHead{' '}
+            </div>
           </div>
         </div>
         <div className="mt-2">
