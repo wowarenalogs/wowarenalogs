@@ -26,6 +26,22 @@ Create buckets
 
 set cors using cors.json
 
+## Debugging failed log processors
+
+# Edit the input
+
+Change the file /src/operations/reprocessAnonHandler.ts
+to reference the log file you are debugging
+
+# Set logging
+
+Change /parser/src/logger.ts
+LOG_LEVEL to 1
+
+# Execute the function locally
+
+`npm run start:reprocess-anon`
+
 ## TODO / Random notes:
 
 -Front end must submit year as combat log timestamp format omits this
