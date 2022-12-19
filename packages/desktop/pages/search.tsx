@@ -1,5 +1,6 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import { BracketSelector, CombatStubList, RatingSelector, SpecSelector } from '@wowarenalogs/shared';
+import { LocalRemoteHybridCombat } from '@wowarenalogs/shared/src/components/CombatStubList/rows';
 import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryError';
 import { useGetPublicMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
@@ -161,15 +162,14 @@ const Page = () => {
       {!matchesQuery.loading && (
         <div className="animate-fadein mt-2">
           <CombatStubList
-            viewerIsOwner
-            combats={matchesQuery.data?.latestMatches.combats || []}
-            combatUrlFactory={(combatId: string, combatBracket: string) => {
-              if (combatBracket === 'Rated Solo Shuffle') {
-                return `/match?id=${combatId}`;
-              } else {
-                return `/match?id=${combatId}&anon=true`;
-              }
-            }}
+            viewerIsOwner={false}
+            combats={
+              (matchesQuery.data?.latestMatches.combats.map((c) => ({
+                isLocal: false,
+                isShuffle: c.__typename === 'ShuffleRoundStub',
+                match: c,
+              })) as LocalRemoteHybridCombat[]) || []
+            }
           />
           {matchesQuery.data?.latestMatches.queryLimitReached && (
             <div className="alert alert-info shadow-lg">
