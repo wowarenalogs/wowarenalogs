@@ -9,6 +9,7 @@ import { CombatStatistic } from '../CombatStatistic';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
+import { TalentExport } from './TalentExport';
 
 interface IProps {
   player: ICombatUnit;
@@ -132,6 +133,7 @@ const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorb
 
 export function CombatPlayer(props: IProps) {
   const { combat } = useCombatReportContext();
+
   useEffect(() => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -243,6 +245,7 @@ export function CombatPlayer(props: IProps) {
               ))}
           </div>
         </div>
+        <TalentExport player={props.player} />
         <div className="mt-2">
           <div className="text-lg font-bold">Gear</div>
           <div className="flex flex-row mt-2">
