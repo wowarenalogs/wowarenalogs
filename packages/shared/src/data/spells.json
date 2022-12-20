@@ -591,6 +591,9 @@
     "type": "buffs_defensive",
     "parent": 114049
   },
+  "114415": {
+    "type": "roots"
+  },
   "115078": {
     "type": "cc"
   },
@@ -1700,6 +1703,10 @@
     "type": "buffs_other",
     "parent": 314646
   },
+  "351338": {
+    "type": "interrupts",
+    "duration": 4
+  },
   "353319": {
     "type": "immunities_spells"
   },
@@ -1721,6 +1728,15 @@
   "358259": {
     "type": "cc"
   },
+  "358385": {
+    "type": "roots"
+  },
+  "358861": {
+    "type": "cc"
+  },
+  "360806": {
+    "type": "cc"
+  },
   "362486": {
     "type": "immunities"
   },
@@ -1732,5 +1748,14 @@
   },
   "363522": {
     "type": "buffs_defensive"
+  },
+  "375087": {
+    "type": "buffs_offensive"
+  },
+  "388380": {
+    "type": "buffs_speed_boost"
+  },
+  "388673": {
+    "type": "cc"
   }
 }

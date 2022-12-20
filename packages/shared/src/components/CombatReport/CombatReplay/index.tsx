@@ -137,6 +137,22 @@ export function CombatReplay() {
     return null;
   }
 
+  if (!combat.hasAdvancedLogging) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <div className="hero">
+          <div className="hero-content text-center flex flex-col">
+            <h1 className="text-5xl font-bold">Turn on Advanced Combat Logging</h1>
+            <p className="py-6">
+              Replay is only available for matches logged with advanced combat logging. Please enable it in the Network
+              tab in your World of Warcraft settings.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`flex flex-col flex-1 h-full w-full`}
