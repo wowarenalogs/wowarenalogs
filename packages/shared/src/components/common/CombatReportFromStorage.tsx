@@ -4,7 +4,6 @@ import { ErrorPage } from './ErrorPage';
 import { LoadingPage } from './LoadingPage';
 
 interface IProps {
-  stage: string;
   anon?: boolean;
   id: string;
 }
