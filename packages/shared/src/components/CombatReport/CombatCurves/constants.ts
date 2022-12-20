@@ -1,7 +1,7 @@
 import { CombatHpUpdateAction } from '@wowarenalogs/parser';
 import _ from 'lodash';
 
-export const CHART_TIME_INTERVAL_S = 5;
+export const CHART_TIME_INTERVAL_S = 2;
 
 export const getDataPoint = (timeMark: number, startTime: number, logs: CombatHpUpdateAction[]) => {
   return _.sumBy(
