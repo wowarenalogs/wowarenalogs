@@ -10,6 +10,7 @@ import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
 import { TalentExport } from './TalentExport';
+import { TalentTree } from './TalentTreeDisplay';
 
 interface IProps {
   player: ICombatUnit;
@@ -35,7 +36,7 @@ const classTalentEntryToSpellId = talentIdMap
     return prev;
   }, {} as Record<number, number>);
 
-const maybeGetSpellIdFromTalentId = (talentId: number) => {
+export const maybeGetSpellIdFromTalentId = (talentId: number) => {
   return classTalentEntryToSpellId[talentId] ?? specTalentEntryToSpellId[talentId] ?? 0;
 };
 
@@ -229,13 +230,8 @@ export function CombatPlayer(props: IProps) {
         </div>
         <div className="mt-4">
           <div className="text-lg font-bold">Talents</div>
-          <div className="flex flex-row flex-wrap items-center mt-2">
-            {props.player.info?.talents.map((t, i) => (
-              <div className="mr-1" key={i}>
-                <SpellIcon spellId={maybeGetSpellIdFromTalentId(t?.id2 || 0)} size={32} />
-              </div>
-            ))}
-            <div className="divider divier-vertical" />
+          <TalentTree specId={props.player.info.specId} chosenTalents={props.player.info.talents} />
+          <div className="flex flex-row flex-wrap items-center mt-2 mb-2">
             {props.player.info?.pvpTalents
               .filter((t) => t && t !== '0')
               .map((t, i) => (
