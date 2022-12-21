@@ -1,13 +1,9 @@
 import { ICombatUnit } from '@wowarenalogs/parser';
-import { TbCopy } from 'react-icons/tb';
 
-import { useClientContext } from '../../../hooks/ClientContext';
 import { SpellIcon } from '../SpellIcon';
 import { createExportString } from './talentStrings';
 
 export const TalentDisplay = ({ player }: { player: ICombatUnit }) => {
-  const clientContext = useClientContext();
-
   let exportString = '';
 
   try {
