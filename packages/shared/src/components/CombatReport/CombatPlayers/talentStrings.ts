@@ -82,7 +82,7 @@ type MappedRaidbotsSpec = RaidbotsTalentSpec & {
   classNodeMap: Record<number, ClassNode>;
 };
 
-const nodeMaps: Record<number, MappedRaidbotsSpec> = {};
+export const nodeMaps: Record<number, MappedRaidbotsSpec> = {};
 
 talentIdMap.forEach((spec) => {
   nodeMaps[spec.specId] = {
