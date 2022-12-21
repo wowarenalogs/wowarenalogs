@@ -9,8 +9,7 @@ import { CombatStatistic } from '../CombatStatistic';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
-import { TalentExport } from './TalentExport';
-import { TalentTree } from './TalentTreeDisplay';
+import { TalentDisplay } from './TalentDisplay';
 
 interface IProps {
   player: ICombatUnit;
@@ -229,19 +228,8 @@ export function CombatPlayer(props: IProps) {
           />
         </div>
         <div className="mt-4">
-          <div className="text-lg font-bold">Talents</div>
-          <TalentTree specId={props.player.info.specId} chosenTalents={props.player.info.talents} />
-          <div className="flex flex-row flex-wrap items-center mt-2 mb-2">
-            {props.player.info?.pvpTalents
-              .filter((t) => t && t !== '0')
-              .map((t, i) => (
-                <div className="ml-1" key={i}>
-                  <SpellIcon spellId={t} size={32} />
-                </div>
-              ))}
-          </div>
+          <TalentDisplay player={props.player} />
         </div>
-        <TalentExport player={props.player} />
         <div className="mt-2">
           <div className="text-lg font-bold">Gear</div>
           <div className="flex flex-row mt-2">
