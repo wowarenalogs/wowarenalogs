@@ -1,7 +1,25 @@
-import { ICombatUnit } from '@wowarenalogs/parser';
+import { CombatUnitClass, ICombatUnit } from '@wowarenalogs/parser';
+import { TbCopy } from 'react-icons/tb';
 
 import { SpellIcon } from '../SpellIcon';
 import { createExportString } from './talentStrings';
+
+const classHeight = {
+  [CombatUnitClass.None]: 500,
+  [CombatUnitClass.Warrior]: 390,
+  [CombatUnitClass.Evoker]: 490,
+  [CombatUnitClass.Hunter]: 480,
+  [CombatUnitClass.Shaman]: 390,
+  [CombatUnitClass.Paladin]: 430,
+  [CombatUnitClass.Warlock]: 490,
+  [CombatUnitClass.Priest]: 430,
+  [CombatUnitClass.Rogue]: 480,
+  [CombatUnitClass.Mage]: 480,
+  [CombatUnitClass.Druid]: 390,
+  [CombatUnitClass.DeathKnight]: 390,
+  [CombatUnitClass.DemonHunter]: 490,
+  [CombatUnitClass.Monk]: 430,
+};
 
 export const TalentDisplay = ({ player }: { player: ICombatUnit }) => {
   let exportString = '';
@@ -28,14 +46,11 @@ export const TalentDisplay = ({ player }: { player: ICombatUnit }) => {
     <div>
       <div className="text-lg font-bold">Talents</div>
       <iframe
-        width={750}
-        height={530}
-        src={`https://www.raidbots.com/simbot/render/talents/${exportString}?width=700&level=70`}
+        width={700}
+        height={classHeight[player.class]}
+        src={`https://www.raidbots.com/simbot/render/talents/${exportString}?&width=700&level=70&hideexport=off&hideheader=true`}
       />
-      {
-        // REMOVED BELOW CODE UNTIL THE hideExport prop on raidbots iframe is working!
-      }
-      {/* <div className="flex flex-row gap-2">
+      <div className="flex flex-row gap-2">
         <button
           className="btn btn-outline btn-sm gap-2"
           onClick={() => {
@@ -45,15 +60,7 @@ export const TalentDisplay = ({ player }: { player: ICombatUnit }) => {
           <TbCopy size={24} />
           Export String
         </button>
-        <button
-          className="btn btn-outline btn-sm gap-2"
-          onClick={() => {
-            clientContext.openExternalURL(`https://www.wowhead.com/talent-calc/blizzard/${exportString}`);
-          }}
-        >
-          View this build on Wowhead
-        </button>
-      </div> */}
+      </div>
       <div className="text-lg font-bold mt-2">PvP Talents</div>
       <div className="flex flex-row flex-wrap items-center mt-2 mb-2">
         {player.info?.pvpTalents
