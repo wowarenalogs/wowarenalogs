@@ -34,9 +34,12 @@ export const TalentDisplay = ({ player }: { player: ICombatUnit }) => {
       <iframe
         width={750}
         height={530}
-        src={`https://www.raidbots.com/simbot/render/talents/${exportString}?width=700&level=70&hideExport=off`}
+        src={`https://www.raidbots.com/simbot/render/talents/${exportString}?width=700&level=70`}
       />
-      <div className="flex flex-row gap-2">
+      {
+        // REMOVED BELOW CODE UNTIL THE hideExport prop on raidbots iframe is working!
+      }
+      {/* <div className="flex flex-row gap-2">
         <button
           className="btn btn-outline btn-sm gap-2"
           onClick={() => {
@@ -54,7 +57,7 @@ export const TalentDisplay = ({ player }: { player: ICombatUnit }) => {
         >
           View this build on Wowhead
         </button>
-      </div>
+      </div> */}
       <div className="text-lg font-bold mt-2">PvP Talents</div>
       <div className="flex flex-row flex-wrap items-center mt-2 mb-2">
         {player.info?.pvpTalents
