@@ -14,29 +14,43 @@ interface IProps {
 
 export const CurveChart = (props: IProps) => {
   return (
-    <ResponsiveContainer>
-      <LineChart data={props.data}>
-        <XAxis dataKey="timeMark" tickFormatter={(v) => moment.utc(v * 1000).format('mm:ss')} />
-        <YAxis />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: '#1a1a1a',
-          }}
-          labelFormatter={(v) => moment.utc(v * 1000).format('mm:ss')}
-        />
-        <Legend />
-        {props.series.map((s) => (
-          <Line
-            key={s.key}
-            type="monotone"
-            legendType="rect"
-            dataKey={s.key}
-            name={s.displayName}
-            stroke={s.color}
-            dot={false}
-          />
-        ))}
-      </LineChart>
-    </ResponsiveContainer>
+    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      >
+        <ResponsiveContainer debounce={25}>
+          <LineChart data={props.data}>
+            <XAxis dataKey="timeMark" tickFormatter={(v) => moment.utc(v * 1000).format('mm:ss')} />
+            <YAxis />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: '#1a1a1a',
+              }}
+              // animationDuration={5}
+              labelFormatter={(v) => moment.utc(v * 1000).format('mm:ss')}
+            />
+            <Legend />
+            {props.series.map((s) => (
+              <Line
+                // animationDuration={5}
+                key={s.key}
+                type="monotone"
+                legendType="rect"
+                dataKey={s.key}
+                name={s.displayName}
+                stroke={s.color}
+                dot={false}
+              />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 };

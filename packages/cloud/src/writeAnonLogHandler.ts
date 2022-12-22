@@ -1,7 +1,9 @@
 import { Firestore } from '@google-cloud/firestore';
 import { Storage as GoogleCloudStorage } from '@google-cloud/storage';
 import { instanceToPlain } from 'class-transformer';
+import fs from 'fs';
 import fetch from 'node-fetch';
+import path from 'path';
 import { Readable } from 'stream';
 
 import { WowVersion } from '../../parser/dist/index';
@@ -10,15 +12,20 @@ import { createStubDTOFromArenaMatch } from './createMatchStub';
 import { parseFromStringArrayAsync } from './utils';
 
 const anonFilesBucket = process.env.ENV_LOG_FILES_BUCKET || 'wowarenalogs-anon-log-files-prod';
-const projectId = process.env.ENV_GCP_PROJECT;
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
+
+const gcpCredentials =
+  process.env.NODE_ENV === 'development'
+    ? JSON.parse(fs.readFileSync(path.join(__dirname, '../../wowarenalogs-public-dev.json'), 'utf8'))
+    : undefined;
 
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
+  credentials: gcpCredentials,
 });
 
 const storage = new GoogleCloudStorage({
-  projectId,
+  credentials: gcpCredentials,
 });
 
 const DF_S1_LAUNCH_DATE = 1670734800000;

@@ -3,9 +3,11 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { TbChevronLeft } from 'react-icons/tb';
 
+import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
 import { TimestampDisplay } from '../common/TimestampDisplay';
 import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
+import { CombatLogView } from './CombatLogView';
 import { CombatPlayers } from './CombatPlayers';
 import { CombatReportContextProvider, useCombatReportContext } from './CombatReportContext';
 import { CombatSummary } from './CombatSummary';
@@ -26,6 +28,7 @@ interface IProps {
 
 export const CombatReportInternal = () => {
   const router = useRouter();
+  const { data: user } = useGetProfileQuery();
   const { combat, activeTab, setActiveTab } = useCombatReportContext();
 
   if (!combat) return null;
@@ -85,6 +88,16 @@ export const CombatReportInternal = () => {
         >
           Replay
         </a>
+        {user?.me?.tags?.includes('rawlogs') && (
+          <a
+            className={`tab ${activeTab === 'logview' ? 'tab-active' : ''}`}
+            onClick={() => {
+              setActiveTab('logview');
+            }}
+          >
+            Log file
+          </a>
+        )}
       </div>
       <div className="mt-4 ml-2 flex-1 relative overflow-x-hidden overflow-y-scroll">
         <div className="mr-4 min-h-full relative flex flex-col">
@@ -93,6 +106,7 @@ export const CombatReportInternal = () => {
           {activeTab === 'death' && <CombatDeathReports />}
           {activeTab === 'curves' && <CombatCurves />}
           {activeTab === 'replay' && <CombatReplay />}
+          {activeTab === 'logview' && <CombatLogView />}
         </div>
       </div>
     </div>

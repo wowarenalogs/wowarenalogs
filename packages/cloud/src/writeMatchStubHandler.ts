@@ -1,6 +1,8 @@
 import { Firestore } from '@google-cloud/firestore';
 import { instanceToPlain } from 'class-transformer';
+import fs from 'fs';
 import fetch from 'node-fetch';
+import path from 'path';
 
 import { WowVersion } from '../../parser/dist/index';
 import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from './createMatchStub';
@@ -8,8 +10,14 @@ import { parseFromStringArrayAsync } from './utils';
 
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
 
+const gcpCredentials =
+  process.env.NODE_ENV === 'development'
+    ? JSON.parse(fs.readFileSync(path.join(__dirname, '../../wowarenalogs-public-dev.json'), 'utf8'))
+    : undefined;
+
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
+  credentials: gcpCredentials,
 });
 
 // In the Google code they actually type file as `data:{}`
