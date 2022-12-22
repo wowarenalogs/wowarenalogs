@@ -1,14 +1,23 @@
 import { Firestore } from '@google-cloud/firestore';
 import { WowVersion } from '@wowarenalogs/parser';
+import fs from 'fs';
 import moment from 'moment';
+import path from 'path';
 
 import { ApolloContext, CombatQueryResult, ICombatDataStub, UserSubscriptionTier } from '../types';
 import { Constants } from '../utils/constants';
 import { getUserProfileAsync } from '../utils/getUserProfileAsync';
 
-const matchStubsCollection = process.env.NODE_ENV === 'development' ? 'match-stubs-dev' : 'match-stubs-prod';
 
-const firestore = new Firestore();
+const matchStubsCollection = 'match-stubs-prod';
+
+
+const firestore = new Firestore({
+  credentials:
+    process.env.NODE_ENV === 'development'
+      ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
+      : undefined,
+});
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function firestoreDocToMatchStub(stub: ICombatDataStub): ICombatDataStub {

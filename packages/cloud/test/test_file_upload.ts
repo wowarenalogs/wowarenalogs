@@ -1,8 +1,6 @@
 import fs from 'fs';
 import fetch from 'node-fetch';
 
-const STAGE = 'dev';
-
 const functionURL = 'us-central1-wowarenalogs.cloudfunctions.net';
 
 /*
@@ -11,7 +9,7 @@ const functionURL = 'us-central1-wowarenalogs.cloudfunctions.net';
 async function uploadFile(fullFilePath: string, hashedName: string) {
   console.log('Uploading file', fullFilePath, hashedName);
   const s3_preflight = await fetch(
-    `https://${functionURL}/gcp-wowarenalogs-${STAGE}-getUploadSignature?name=${hashedName}`,
+    `https://${functionURL}/gcp-wowarenalogs-prod-getUploadSignature?name=${hashedName}`,
     {
       method: 'OPTIONS',
       headers: {
@@ -23,7 +21,7 @@ async function uploadFile(fullFilePath: string, hashedName: string) {
   console.log(s3_preflight.headers);
 
   const s3_signed_response = await fetch(
-    `https://${functionURL}/gcp-wowarenalogs-${STAGE}-getUploadSignature?name=${hashedName}`,
+    `https://${functionURL}/gcp-wowarenalogs-prod-getUploadSignature?name=${hashedName}`,
     {
       headers: {
         'content-type': 'text/plain;charset=UTF-8',

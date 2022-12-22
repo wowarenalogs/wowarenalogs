@@ -2,11 +2,11 @@ service: gcp-wowarenalogs
 
 provider:
   name: google
-  stage: ${opt:stage}
+  stage: prod
   runtime: nodejs14
   region: us-central1
   project: wowarenalogs
-  credentials: ${self:provider.project}.json
+  credentials: wowarenalogs.json
 
 plugins:
   - serverless-google-cloudfunctions
@@ -21,29 +21,27 @@ functions:
     memorySize: 1024
     handler: writeMatchStubHandler
     environment:
-      ENV_STAGE: ${opt:stage}
-      ENV_MATCH_STUBS_FIRESTORE: match-stubs-${opt:stage}
-      ENV_LOG_FILES_BUCKET: ${self:provider.project}-log-files-${opt:stage}
+      ENV_MATCH_STUBS_FIRESTORE: match-stubs-prod
+      ENV_LOG_FILES_BUCKET: ${self:provider.project}-log-files-prod
       ENV_GCP_PROJECT: ${self:provider.project}
       ENV_SERVICE_NAME: ${self:service}
     events:
       - event:
           eventType: google.storage.object.finalize
-          resource: projects/wowarenalogs/buckets/${self:provider.project}-log-files-${opt:stage}
+          resource: projects/wowarenalogs/buckets/${self:provider.project}-log-files-prod
 
   writeAnonLog:
     memorySize: 1024
     handler: writeAnonLogHandler
     environment:
-      ENV_STAGE: ${opt:stage}
-      ENV_MATCH_STUBS_FIRESTORE: match-anon-stubs-${opt:stage}
-      ENV_LOG_FILES_BUCKET: ${self:provider.project}-anon-log-files-${opt:stage}
+      ENV_MATCH_STUBS_FIRESTORE: match-anon-stubs-prod
+      ENV_LOG_FILES_BUCKET: ${self:provider.project}-anon-log-files-prod
       ENV_GCP_PROJECT: ${self:provider.project}
       ENV_SERVICE_NAME: ${self:service}
     events:
       - event:
           eventType: google.storage.object.finalize
-          resource: projects/wowarenalogs/buckets/${self:provider.project}-log-files-${opt:stage}
+          resource: projects/wowarenalogs/buckets/${self:provider.project}-log-files-prod
 
   refreshSpellIcons:
     memorySize: 1024

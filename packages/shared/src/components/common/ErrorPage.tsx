@@ -16,8 +16,8 @@ export function ErrorPage({ message }: { message: string }) {
       </div>
       <div className="w-4/12 px-2 mt-4 space-y-4">
         Report this error at{' '}
-        <a href="https://discord.gg/jXrH5ZEan3" target="_blank" rel="noreferrer">
-          https://discord.gg/jXrH5ZEan3
+        <a href="https://discord.gg/NFTPK9tmJK" target="_blank" rel="noreferrer">
+          https://discord.gg/NFTPK9tmJK
         </a>
         <div
           className="btn"
