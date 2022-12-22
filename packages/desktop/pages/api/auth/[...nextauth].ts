@@ -1,9 +1,15 @@
 import { Firestore } from '@google-cloud/firestore';
 import { FirestoreNextAuthAdapter } from '@wowarenalogs/shared';
+import fs from 'fs';
 import NextAuth from 'next-auth';
+import path from 'path';
 
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
+  credentials:
+    process.env.NODE_ENV === 'development'
+      ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
+      : undefined,
 });
 
 export default NextAuth({
