@@ -6,8 +6,7 @@ import { ApolloContext, CombatQueryResult, ICombatDataStub, UserSubscriptionTier
 import { Constants } from '../utils/constants';
 import { getUserProfileAsync } from '../utils/getUserProfileAsync';
 
-const matchStubsCollection = 'match-stubs-prod';
-// process.env.NODE_ENV === 'development' ? 'match-stubs-dev' : 'match-stubs-prod';
+const matchStubsCollection = process.env.NODE_ENV === 'development' ? 'match-stubs-dev' : 'match-stubs-prod';
 
 const firestore = new Firestore();
 
