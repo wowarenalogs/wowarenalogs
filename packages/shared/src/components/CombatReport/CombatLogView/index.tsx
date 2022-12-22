@@ -25,10 +25,8 @@ export const CombatLogView = () => {
           debouncedUpdate(evt.target.value);
         }}
       />
-      <div className="text-xs mt-2">
-        {lines.map((e, i) => (
-          <div key={i}>{e}</div>
-        ))}
+      <div className="mt-4">
+        <textarea className="textarea textarea-bordered w-full h-full text-xs" value={lines.join('\n')} />
       </div>
     </div>
   );
