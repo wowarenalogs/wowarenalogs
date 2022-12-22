@@ -6,9 +6,8 @@ import { ApolloContext, CombatQueryResult, ICombatDataStub, UserSubscriptionTier
 import { Constants } from '../utils/constants';
 import { getUserProfileAsync } from '../utils/getUserProfileAsync';
 
-const matchStubsCollection = process.env.NODE_ENV === 'development' ? 'match-stubs-dev' : 'match-stubs-prod';
-const matchAnonStubsCollection =
-  process.env.NODE_ENV === 'development' ? 'match-anon-stubs-dev' : 'match-anon-stubs-prod';
+const matchStubsCollection = 'match-stubs-prod';
+// process.env.NODE_ENV === 'development' ? 'match-stubs-dev' : 'match-stubs-prod';
 
 const firestore = new Firestore();
 
@@ -40,10 +39,7 @@ export async function latestMatches(
     };
   }
 
-  const collectionReference =
-    args.bracket === 'Rated Solo Shuffle'
-      ? firestore.collection(matchStubsCollection)
-      : firestore.collection(matchAnonStubsCollection);
+  const collectionReference = firestore.collection(matchStubsCollection);
 
   const now = moment().valueOf();
   let docsQuery = collectionReference
@@ -208,8 +204,8 @@ export async function userMatches(
   };
 }
 
-export async function matchById(parent: unknown, args: { matchId: string; anon: boolean }) {
-  const collection = args.anon ? matchAnonStubsCollection : matchStubsCollection;
+export async function matchById(parent: unknown, args: { matchId: string }) {
+  const collection = matchStubsCollection;
   const collectionReference = firestore.collection(collection);
   const matchDocs = await collectionReference.where('id', '==', `${args.matchId}`).limit(1).get();
   const match = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub))[0];
