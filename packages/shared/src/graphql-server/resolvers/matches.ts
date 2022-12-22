@@ -8,9 +8,7 @@ import { ApolloContext, CombatQueryResult, ICombatDataStub, UserSubscriptionTier
 import { Constants } from '../utils/constants';
 import { getUserProfileAsync } from '../utils/getUserProfileAsync';
 
-
 const matchStubsCollection = 'match-stubs-prod';
-
 
 const firestore = new Firestore({
   credentials:
