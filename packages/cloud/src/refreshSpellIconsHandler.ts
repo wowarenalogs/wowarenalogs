@@ -1,27 +1,30 @@
 import { Firestore } from '@google-cloud/firestore';
 import { Storage as GoogleCloudStorage } from '@google-cloud/storage';
+import fs from 'fs';
 import _ from 'lodash';
+import path from 'path';
 import superagent from 'superagent';
 
 import { AtomicArenaCombat } from '../../parser/dist/index';
 import { ICombatDataStub } from '../../shared/src/graphql-server/types';
 import { parseFromStringArrayAsync } from './utils';
 
-const isDev = process.env.NODE_ENV === 'development';
-if (isDev) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('dotenv').config();
-}
+const gcpCredentials =
+  process.env.NODE_ENV === 'development'
+    ? // intentionally requiring production credentials because this tool is designed to work with production data
+      JSON.parse(fs.readFileSync(path.join(__dirname, '../../wowarenalogs.json'), 'utf8'))
+    : undefined;
+
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
-  credentials: isDev
-    ? JSON.parse(Buffer.from(process.env.GCP_KEY_JSON_BASE64 || '', 'base64').toString('ascii'))
-    : undefined,
+  credentials: gcpCredentials,
 });
-const storage = new GoogleCloudStorage();
+const storage = new GoogleCloudStorage({
+  credentials: gcpCredentials,
+});
 const bucket = storage.bucket('images.wowarenalogs.com');
 
-const MATCH_STUBS_COLLECTION = isDev ? 'match-stubs-dev' : 'match-stubs-prod';
+const MATCH_STUBS_COLLECTION = 'match-stubs-prod';
 const NUMBER_OF_MATCHES = 100;
 
 // returns whether a new spell icon was created

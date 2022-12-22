@@ -1,10 +1,19 @@
 import { Firestore } from '@google-cloud/firestore';
+import fs from 'fs';
+import path from 'path';
 
 const MAX_RESULTS_PER_QUERY = 1;
 
-const matchAnonStubsCollection = 'match-anon-stubs-dev';
+const matchAnonStubsCollection = 'match-anon-stubs-prod';
 
-const firestore = new Firestore();
+const gcpCredentials =
+  process.env.NODE_ENV === 'development'
+    ? JSON.parse(fs.readFileSync(path.join(__dirname, '../../wowarenalogs-public-dev.json'), 'utf8'))
+    : undefined;
+
+const firestore = new Firestore({
+  credentials: gcpCredentials,
+});
 
 const collectionReference = firestore.collection(matchAnonStubsCollection);
 const docsQuery = collectionReference.orderBy('startTime', 'desc').limit(MAX_RESULTS_PER_QUERY);
