@@ -1,4 +1,10 @@
-import { AtomicArenaCombat, buildQueryHelpers, CombatUnitSpec, CombatUnitType } from '@wowarenalogs/parser';
+import {
+  AtomicArenaCombat,
+  buildQueryHelpers,
+  CombatResult,
+  CombatUnitSpec,
+  CombatUnitType,
+} from '@wowarenalogs/parser';
 import { logAnalyticsEvent, uploadCombatAsync, useAuth } from '@wowarenalogs/shared';
 import _ from 'lodash';
 import moment from 'moment';
@@ -23,10 +29,10 @@ interface IProps {
 }
 
 const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
-  // const isPackaged = await window.wowarenalogs.app?.getIsPackaged();
-  // if (!isPackaged) {
-  //   return;
-  // }
+  const isPackaged = await window.wowarenalogs.app?.getIsPackaged();
+  if (!isPackaged) {
+    return;
+  }
 
   const averageMMR =
     combat.dataType === 'ArenaMatch'
@@ -55,6 +61,8 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
   const indices = buildQueryHelpers(combat, true);
 
   const commonProperties = {
+    // increment this version whenever the schema has breaking changes
+    eventSchemaVersion: 0,
     wowVersion: combat.wowVersion,
     combatId: combat.id,
     date: moment(combat.startTime).format('YYYY-MM-DD'),
@@ -62,6 +70,9 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     zoneId: combat.startInfo.zoneId,
     durationInSeconds: combat.durationInSeconds,
     averageMMR,
+    playerId: combat.playerId,
+    playerTeamId: combat.playerTeamId,
+    winningTeamId: combat.winningTeamId,
   };
 
   // google analytics limitations:
@@ -76,14 +87,24 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     singleSidedSpecIndices: `|${indices.singleSidedSpecs.join('|')}|`,
   });
 
+  // following events are only meaningful if the match has a winner
+  if (
+    (combat.result !== CombatResult.Win && combat.result !== CombatResult.Lose) ||
+    (combat.winningTeamId !== '0' && combat.winningTeamId !== '1')
+  ) {
+    return;
+  }
+
   logAnalyticsEvent('event_NewCompRecord', {
     ...commonProperties,
     specs: combat.winningTeamId === '0' ? team0specs : team1specs,
+    teamId: combat.winningTeamId === '0' ? '0' : '1',
     result: 'win',
   });
   logAnalyticsEvent('event_NewCompRecord', {
     ...commonProperties,
     specs: combat.winningTeamId === '1' ? team0specs : team1specs,
+    teamId: combat.winningTeamId === '0' ? '0' : '1',
     result: 'lose',
   });
 
@@ -94,6 +115,7 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
       rating: p.info?.personalRating ?? 0,
       highestRating: p.info?.highestPvpTier ?? 0,
       spec: p.spec,
+      teamId: p.info?.teamId ?? '',
       result: p.info?.teamId === combat.winningTeamId ? 'win' : 'lose',
     });
   });
