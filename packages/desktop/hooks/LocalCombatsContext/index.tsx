@@ -134,8 +134,11 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
-          uploadCombatAsync(combat, auth.battlenetId);
-          logCombatAnalyticsAsync(combat);
+          uploadCombatAsync(combat, auth.battlenetId).then((r) => {
+            if (!r.matchExists) {
+              logCombatAnalyticsAsync(combat);
+            }
+          });
 
           setCombats((prev) => {
             return prev.concat([combat]);
@@ -145,7 +148,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleSoloShuffleRoundEnded((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
-          logCombatAnalyticsAsync(combat);
           setCombats((prev) => {
             return prev.concat([combat]);
           });
@@ -154,7 +156,13 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleSoloShuffleEnded((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
-          uploadCombatAsync(combat, auth.battlenetId);
+          uploadCombatAsync(combat, auth.battlenetId).then((r) => {
+            if (!r.matchExists) {
+              combat.rounds.forEach((round) => {
+                logCombatAnalyticsAsync(round);
+              });
+            }
+          });
         }
       });
 
