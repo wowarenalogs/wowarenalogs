@@ -113,7 +113,7 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
       ...commonProperties,
       name: p.name,
       rating: p.info?.personalRating ?? 0,
-      highestRating: p.info?.highestPvpTier ?? 0,
+      highestPvpTier: p.info?.highestPvpTier ?? 0,
       spec: p.spec,
       teamId: p.info?.teamId ?? '',
       result: p.info?.teamId === combat.winningTeamId ? 'win' : 'lose',
