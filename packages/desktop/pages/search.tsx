@@ -1,11 +1,11 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
-import { BracketSelector, CombatStubList, RatingSelector, SpecSelector } from '@wowarenalogs/shared';
+import { BracketSelector, CombatStubList, logAnalyticsEvent, RatingSelector, SpecSelector } from '@wowarenalogs/shared';
 import { LocalRemoteHybridCombat } from '@wowarenalogs/shared/src/components/CombatStubList/rows';
 import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryError';
 import { useGetPublicMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TbArrowBigUpLines, TbLoader, TbRocketOff } from 'react-icons/tb';
 
 const PAGE_SIZE = 50;
@@ -39,6 +39,15 @@ const Page = () => {
     team1SpecIds: [],
     team2SpecIds: [],
   });
+
+  useEffect(() => {
+    // following predefined schema by google analytics convention.
+    // see https://developers.google.com/analytics/devguides/collection/ga4/reference/events?client_type=gtag#search
+    logAnalyticsEvent('search', {
+      search_term: filters.bracket,
+    });
+  }, [filters]);
+
   const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
   // const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
 

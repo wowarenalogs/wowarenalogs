@@ -1,6 +1,6 @@
-import { LoadingScreen, useClientContext } from '@wowarenalogs/shared';
+import { LoadingScreen, logAnalyticsEvent, useClientContext } from '@wowarenalogs/shared';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 
@@ -11,6 +11,12 @@ export const FirstTimeSetup = () => {
   const [acceptTos, setAcceptTos] = useState(true);
   const [launchAtStartup, setLaunchAtStartup] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    if (step === 0) {
+      logAnalyticsEvent('tutorial_begin');
+    }
+  }, [step]);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -102,6 +108,7 @@ export const FirstTimeSetup = () => {
                       tosAccepted: acceptTos,
                     };
                   });
+                  logAnalyticsEvent('tutorial_complete');
                   router.push('/latest');
                 }}
               >
