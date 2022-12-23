@@ -70,6 +70,7 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     zoneId: combat.startInfo.zoneId,
     durationInSeconds: combat.durationInSeconds,
     averageMMR,
+    playerResult: combat.result,
     playerId: combat.playerId,
     playerTeamId: combat.playerTeamId,
     winningTeamId: combat.winningTeamId,
@@ -104,7 +105,7 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
   logAnalyticsEvent('event_NewCompRecord', {
     ...commonProperties,
     specs: combat.winningTeamId === '1' ? team0specs : team1specs,
-    teamId: combat.winningTeamId === '0' ? '0' : '1',
+    teamId: combat.winningTeamId === '1' ? '0' : '1',
     result: 'lose',
   });
 
