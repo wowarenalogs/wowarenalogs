@@ -1,9 +1,11 @@
 import { AtomicArenaCombat } from '@wowarenalogs/parser';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { TbChevronLeft } from 'react-icons/tb';
 
 import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
+import { logAnalyticsEvent } from '../../utils/analytics';
 import { TimestampDisplay } from '../common/TimestampDisplay';
 import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
@@ -30,6 +32,17 @@ export const CombatReportInternal = () => {
   const router = useRouter();
   const { data: user } = useGetProfileQuery();
   const { combat, activeTab, setActiveTab } = useCombatReportContext();
+
+  useEffect(() => {
+    if (combat) {
+      // following predefined schema by google analytics convention.
+      // see https://developers.google.com/analytics/devguides/collection/ga4/reference/events?client_type=gtag#select_content
+      logAnalyticsEvent('select_content', {
+        content_type: combat.startInfo.bracket,
+        item_id: combat.id,
+      });
+    }
+  }, [combat]);
 
   if (!combat) return null;
 
