@@ -44,15 +44,10 @@ export const TalentDisplay = ({ player }: { player: ICombatUnit }) => {
 
   return (
     <div>
-      <div className="text-lg font-bold">Talents</div>
-      <iframe
-        width={700}
-        height={classHeight[player.class]}
-        src={`https://www.raidbots.com/simbot/render/talents/${exportString}?&width=700&level=70&hideexport=off&hideheader=true`}
-      />
       <div className="flex flex-row gap-2">
+        <div className="text-lg font-bold">Talents</div>
         <button
-          className="btn btn-outline btn-sm gap-2"
+          className="btn btn-link btn-sm text-base-content"
           onClick={() => {
             navigator.clipboard.writeText(exportString);
           }}
@@ -61,6 +56,11 @@ export const TalentDisplay = ({ player }: { player: ICombatUnit }) => {
           Export String
         </button>
       </div>
+      <iframe
+        width={700}
+        height={classHeight[player.class]}
+        src={`https://www.raidbots.com/simbot/render/talents/${exportString}?&width=700&level=70&hideexport=off&hideheader=true`}
+      />
       <div className="text-lg font-bold mt-2">PvP Talents</div>
       <div className="flex flex-row flex-wrap items-center mt-2 mb-2">
         {player.info?.pvpTalents

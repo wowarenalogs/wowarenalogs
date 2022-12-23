@@ -188,45 +188,53 @@ export function CombatPlayer(props: IProps) {
   return (
     <div className="flex flex-row pb-4 flex-1 flex-wrap">
       <div>
-        <div className="flex flex-row items-center">
-          <CombatUnitName unit={props.player} isTitle />
-          {
-            // <ArmoryLink player={props.player} />
-            // <CheckPvPLink player={props.player} />
-          }
-        </div>
+        <CombatUnitName unit={props.player} isTitle />
         {
+          // TODO: look into recovering these functionality
+          // <ArmoryLink player={props.player} />
+          // <CheckPvPLink player={props.player} />
           // <div className="flex flex-row items-center mt-1">{<AchievementBadge player={props.player} />}</div>
         }
-        <div className="stats bg-base-300 rounded-box mt-4">
-          <CombatStatistic title="Rating" value={props.player.info?.personalRating || 0} />
-          <CombatStatistic title="Item Level" value={Math.trunc(Utils.getAverageItemLevel(props.player)).toFixed(0)} />
-          <CombatStatistic
-            title="Crit"
-            value={Math.max(
-              props.player.info?.critMelee || 0,
-              props.player.info?.critRanged || 0,
-              props.player.info?.critSpell || 0,
-            )}
-          />
-          <CombatStatistic
-            title="Haste"
-            value={Math.max(
-              props.player.info?.hasteMelee || 0,
-              props.player.info?.hasteRanged || 0,
-              props.player.info?.hasteSpell || 0,
-            )}
-          />
-          <CombatStatistic title="Mastery" value={props.player.info?.mastery || 0} />
-          <CombatStatistic
-            title="Versatility"
-            value={Math.max(
-              props.player.info?.versatilityDamageTaken || 0,
-              props.player.info?.versatilityDamgeDone || 0,
-              props.player.info?.versatilityHealingDone || 0,
-            )}
-          />
-        </div>
+        <table className="table rounded-box mt-4">
+          <thead>
+            <tr>
+              <th className="bg-base-300">Rating</th>
+              <th className="bg-base-300">Item Level</th>
+              <th className="bg-base-300">Crit</th>
+              <th className="bg-base-300">Haste</th>
+              <th className="bg-base-300">Mastery</th>
+              <th className="bg-base-300">Versatility</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="bg-base-200">{props.player.info?.personalRating || 0}</td>
+              <td className="bg-base-200">{Math.trunc(Utils.getAverageItemLevel(props.player)).toFixed(0)}</td>
+              <td className="bg-base-200">
+                {Math.max(
+                  props.player.info?.critMelee || 0,
+                  props.player.info?.critRanged || 0,
+                  props.player.info?.critSpell || 0,
+                )}
+              </td>
+              <td className="bg-base-200">
+                {Math.max(
+                  props.player.info?.hasteMelee || 0,
+                  props.player.info?.hasteRanged || 0,
+                  props.player.info?.hasteSpell || 0,
+                )}
+              </td>
+              <td className="bg-base-200">{props.player.info?.mastery || 0}</td>
+              <td className="bg-base-200">
+                {Math.max(
+                  props.player.info?.versatilityDamageTaken || 0,
+                  props.player.info?.versatilityDamgeDone || 0,
+                  props.player.info?.versatilityHealingDone || 0,
+                )}
+              </td>
+            </tr>
+          </tbody>
+        </table>
         <div className="mt-4">
           <TalentDisplay player={props.player} />
         </div>
