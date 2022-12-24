@@ -8,6 +8,8 @@ import { ArenaMatchDataStub, ShuffleRoundStub } from '../../graphql/__generated_
 import { TimestampDisplay } from '../common/TimestampDisplay';
 import { durationString, RatingBadge, ResultBadge, TeamSpecs } from './bits';
 
+export type CombatStubListSource = 'history' | 'search';
+
 export type LocalRemoteHybridArenaMatch =
   | {
       isLocal: true;
@@ -36,13 +38,15 @@ export type LocalRemoteHybridCombat = LocalRemoteHybridArenaMatch | LocalRemoteH
 export function ArenaMatchRow({
   combat,
   viewerIsOwner,
+  source,
 }: {
   combat: LocalRemoteHybridArenaMatch;
   viewerIsOwner?: boolean;
+  source: CombatStubListSource;
 }) {
   const match = combat.match;
   return (
-    <Link href={`/match?id=${match.id}&anon=${viewerIsOwner ? 'false' : 'true'}`}>
+    <Link href={`/match?id=${match.id}&anon=${viewerIsOwner ? 'false' : 'true'}&source=${source}`}>
       <div
         key={match.id}
         title={match.id}
@@ -73,9 +77,11 @@ export function ArenaMatchRow({
 export function ShuffleRoundRow({
   combat,
   viewerIsOwner,
+  source,
 }: {
   combat: LocalRemoteHybridShuffleRound;
   viewerIsOwner?: boolean;
+  source: CombatStubListSource;
 }) {
   const round = combat.match;
   const roundTitle = `Round ${round.sequenceNumber + 1} ${round.result === CombatResult.Win ? 'win' : 'loss'}`;
@@ -99,7 +105,7 @@ export function ShuffleRoundRow({
       break;
   }
   return (
-    <Link href={`/match?id=${round.id}`}>
+    <Link href={`/match?id=${round.id}&source=${source}`}>
       <div
         title={roundTitle}
         className="btn btn-ghost flex flex-row py-1 gap-2 w-full items-center transition-colors duration-200 rounded"

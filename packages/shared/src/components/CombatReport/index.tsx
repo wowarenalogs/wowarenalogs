@@ -25,7 +25,6 @@ const CombatReplay = dynamic(
 interface IProps {
   combat: AtomicArenaCombat;
   anon?: boolean;
-  search?: string;
 }
 
 export const CombatReportInternal = () => {
@@ -51,9 +50,11 @@ export const CombatReportInternal = () => {
   return (
     <div className="w-full h-full flex flex-col p-2 animate-fadein">
       <div className="flex flex-row items-center px-2">
-        <div className="pt-1 pr-2">
-          <TbChevronLeft className="text-2xl cursor-pointer hover:text-primary" onClick={() => router.back()} />
-        </div>
+        {router.query.source ? (
+          <div className="pt-1 pr-2">
+            <TbChevronLeft className="text-2xl cursor-pointer hover:text-primary" onClick={() => router.back()} />
+          </div>
+        ) : null}
         <h2 className="text-2xl font-bold">
           <TimestampDisplay timestamp={combat.startTime} timezone={combat.timezone} />
           {sequence && <div className="ml-4 inline">Round {sequence}</div>}
