@@ -41,7 +41,7 @@ const Page = () => {
   return (
     <div className="transition-all px-2 overflow-y-auto">
       <div className="animate-fadein mt-2">
-        <CombatStubList viewerIsOwner={true} combats={hybridCombats} />
+        <CombatStubList viewerIsOwner={true} combats={hybridCombats} source="history" />
       </div>
       {matchesQuery.loading && (
         <div className="flex flex-row items-center justify-center animate-loader h-[300px]">
