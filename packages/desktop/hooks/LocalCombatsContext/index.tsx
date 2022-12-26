@@ -98,15 +98,17 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
 
   logAnalyticsEvent('event_NewCompRecord', {
     ...commonProperties,
-    specs: combat.winningTeamId === '0' ? team0specs : team1specs,
-    teamId: combat.winningTeamId === '0' ? '0' : '1',
-    result: 'win',
+    specs: team0specs,
+    teamId: '0',
+    isPlayerTeam: combat.playerTeamId === '0',
+    result: combat.winningTeamId === '0' ? 'win' : 'lose',
   });
   logAnalyticsEvent('event_NewCompRecord', {
     ...commonProperties,
-    specs: combat.winningTeamId === '1' ? team0specs : team1specs,
-    teamId: combat.winningTeamId === '1' ? '0' : '1',
-    result: 'lose',
+    specs: team1specs,
+    teamId: '1',
+    isPlayerTeam: combat.playerTeamId === '1',
+    result: combat.winningTeamId === '1' ? 'win' : 'lose',
   });
 
   players.forEach((p) => {
@@ -117,6 +119,7 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
       highestPvpTier: p.info?.highestPvpTier ?? 0,
       spec: p.spec,
       teamId: p.info?.teamId ?? '',
+      isPlayerTeam: p.info?.teamId === combat.playerTeamId,
       result: p.info?.teamId === combat.winningTeamId ? 'win' : 'lose',
     });
   });
