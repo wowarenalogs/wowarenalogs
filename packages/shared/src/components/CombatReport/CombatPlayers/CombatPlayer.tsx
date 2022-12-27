@@ -5,10 +5,10 @@ import { useEffect, useMemo } from 'react';
 import talentIdMap from '../../../data/talentIdMap.json';
 import { Utils } from '../../../utils/utils';
 import { useCombatReportContext } from '../CombatReportContext';
-import { CombatStatistic } from '../CombatStatistic';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
+import { TalentDisplay } from './TalentDisplay';
 
 interface IProps {
   player: ICombatUnit;
@@ -34,7 +34,7 @@ const classTalentEntryToSpellId = talentIdMap
     return prev;
   }, {} as Record<number, number>);
 
-const maybeGetSpellIdFromTalentId = (talentId: number) => {
+export const maybeGetSpellIdFromTalentId = (talentId: number) => {
   return classTalentEntryToSpellId[talentId] ?? specTalentEntryToSpellId[talentId] ?? 0;
 };
 
@@ -132,6 +132,7 @@ const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorb
 
 export function CombatPlayer(props: IProps) {
   const { combat } = useCombatReportContext();
+
   useEffect(() => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -184,175 +185,166 @@ export function CombatPlayer(props: IProps) {
   const orderedEquipmentHalfwayPoint = Math.ceil(orderedEquipment.length / 2);
 
   return (
-    <div className="flex flex-row pb-4 flex-1 flex-wrap">
-      <div>
-        <div className="flex flex-row items-center">
-          <CombatUnitName unit={props.player} isTitle />
-          {
-            // <ArmoryLink player={props.player} />
-            // <CheckPvPLink player={props.player} />
-          }
-        </div>
-        {
-          // <div className="flex flex-row items-center mt-1">{<AchievementBadge player={props.player} />}</div>
-        }
-        <div className="stats bg-base-300 rounded-box mt-4">
-          <CombatStatistic title="Rating" value={props.player.info?.personalRating || 0} />
-          <CombatStatistic title="Item Level" value={Math.trunc(Utils.getAverageItemLevel(props.player)).toFixed(0)} />
-          <CombatStatistic
-            title="Crit"
-            value={Math.max(
-              props.player.info?.critMelee || 0,
-              props.player.info?.critRanged || 0,
-              props.player.info?.critSpell || 0,
-            )}
-          />
-          <CombatStatistic
-            title="Haste"
-            value={Math.max(
-              props.player.info?.hasteMelee || 0,
-              props.player.info?.hasteRanged || 0,
-              props.player.info?.hasteSpell || 0,
-            )}
-          />
-          <CombatStatistic title="Mastery" value={props.player.info?.mastery || 0} />
-          <CombatStatistic
-            title="Versatility"
-            value={Math.max(
-              props.player.info?.versatilityDamageTaken || 0,
-              props.player.info?.versatilityDamgeDone || 0,
-              props.player.info?.versatilityHealingDone || 0,
-            )}
-          />
-        </div>
-        <div className="mt-4">
-          <div className="text-lg font-bold">Talents</div>
-          <div className="flex flex-row flex-wrap items-center mt-2">
-            {props.player.info?.talents.map((t, i) => (
-              <div className="mr-1" key={i}>
-                <SpellIcon spellId={maybeGetSpellIdFromTalentId(t?.id2 || 0)} size={32} />
-              </div>
+    <div className="flex flex-col flex-1 pb-4">
+      <CombatUnitName unit={props.player} isTitle />
+      {
+        // TODO: look into recovering these functionality
+        // <ArmoryLink player={props.player} />
+        // <CheckPvPLink player={props.player} />
+        // <div className="flex flex-row items-center mt-1">{<AchievementBadge player={props.player} />}</div>
+      }
+      <table className="table rounded-box mt-4 self-start">
+        <thead>
+          <tr>
+            <th className="bg-base-300">Rating</th>
+            <th className="bg-base-300">Item Level</th>
+            <th className="bg-base-300">Crit</th>
+            <th className="bg-base-300">Haste</th>
+            <th className="bg-base-300">Mastery</th>
+            <th className="bg-base-300">Versatility</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="bg-base-200">{props.player.info?.personalRating || 0}</td>
+            <td className="bg-base-200">{Math.trunc(Utils.getAverageItemLevel(props.player)).toFixed(0)}</td>
+            <td className="bg-base-200">
+              {Math.max(
+                props.player.info?.critMelee || 0,
+                props.player.info?.critRanged || 0,
+                props.player.info?.critSpell || 0,
+              )}
+            </td>
+            <td className="bg-base-200">
+              {Math.max(
+                props.player.info?.hasteMelee || 0,
+                props.player.info?.hasteRanged || 0,
+                props.player.info?.hasteSpell || 0,
+              )}
+            </td>
+            <td className="bg-base-200">{props.player.info?.mastery || 0}</td>
+            <td className="bg-base-200">
+              {Math.max(
+                props.player.info?.versatilityDamageTaken || 0,
+                props.player.info?.versatilityDamgeDone || 0,
+                props.player.info?.versatilityHealingDone || 0,
+              )}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div className="mt-4">
+        <TalentDisplay player={props.player} />
+      </div>
+      <div className="mt-4">
+        <div className="text-lg font-bold">Gear</div>
+        <div className="flex flex-row mt-2">
+          <div className="flex flex-col mr-4">
+            {orderedEquipment.slice(0, orderedEquipmentHalfwayPoint).map((d) => (
+              <EquipmentInfo key={d.slot} item={d.item} />
             ))}
-            <div className="divider divier-vertical" />
-            {props.player.info?.pvpTalents
-              .filter((t) => t && t !== '0')
-              .map((t, i) => (
-                <div className="ml-1" key={i}>
-                  <SpellIcon spellId={t} size={32} />
-                </div>
-              ))}
+          </div>
+          <div className="flex flex-col">
+            {orderedEquipment.slice(orderedEquipmentHalfwayPoint, 18).map((d) => (
+              <EquipmentInfo key={d.slot} item={d.item} />
+            ))}
           </div>
         </div>
-        <div className="mt-2">
-          <div className="text-lg font-bold">Gear</div>
-          <div className="flex flex-row mt-2">
-            <div className="flex flex-col mr-4">
-              {orderedEquipment.slice(0, orderedEquipmentHalfwayPoint).map((d) => (
-                <EquipmentInfo key={d.slot} item={d.item} />
-              ))}
-            </div>
-            <div className="flex flex-col">
-              {orderedEquipment.slice(orderedEquipmentHalfwayPoint, 18).map((d) => (
-                <EquipmentInfo key={d.slot} item={d.item} />
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="mt-2">
-          <div className="text-lg font-bold">Stats</div>
-          <table className="table table-compact mt-2 w-full">
-            <thead>
-              <tr>
-                <th colSpan={4} className="bg-base-300">
-                  DAMAGE SPELLS
-                </th>
+      </div>
+      <div className="mt-4">
+        <div className="text-lg font-bold">Stats</div>
+        <table className="table table-compact mt-2 max-w-3xl">
+          <thead>
+            <tr>
+              <th colSpan={4} className="bg-base-300">
+                DAMAGE SPELLS
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {damageDoneBySpells.map((d) => (
+              <tr key={d.id}>
+                <td className="bg-base-200 flex flex-row items-center">
+                  <SpellIcon spellId={d.id} size={24} />
+                  <div className="ml-1">{d.name}</div>
+                </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneBySpellsSum).toFixed(1)}%</td>
+                <td className="bg-base-200 w-full">
+                  <progress
+                    className="progress w-full progress-error"
+                    value={Math.floor(((d.value || 0) * 100) / damageDoneBySpellsMax)}
+                    max={100}
+                  />
+                </td>
+                <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
-            </thead>
-            <tbody>
-              {damageDoneBySpells.map((d) => (
-                <tr key={d.id}>
-                  <td className="bg-base-200 flex flex-row items-center">
-                    <SpellIcon spellId={d.id} size={24} />
-                    <div className="ml-1">{d.name}</div>
-                  </td>
-                  <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneBySpellsSum).toFixed(1)}%</td>
-                  <td className="bg-base-200 w-full">
-                    <progress
-                      className="progress w-full progress-error"
-                      value={Math.floor(((d.value || 0) * 100) / damageDoneBySpellsMax)}
-                      max={100}
-                    />
-                  </td>
-                  <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
-                </tr>
-              ))}
-              <tr>
-                <th colSpan={4} className="bg-base-300">
-                  DAMAGE TARGETS
-                </th>
+            ))}
+            <tr>
+              <th colSpan={4} className="bg-base-300">
+                DAMAGE TARGETS
+              </th>
+            </tr>
+            {damageDoneByDest.map((d) => (
+              <tr key={d.id}>
+                <td className="bg-base-200">
+                  <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
+                </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneByDestSum).toFixed(1)}%</td>
+                <td className="bg-base-200 w-full">
+                  <progress
+                    className="progress w-full progress-error"
+                    value={Math.floor(((d.value || 0) * 100) / damageDoneByDestMax)}
+                    max={100}
+                  />
+                </td>
+                <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
-              {damageDoneByDest.map((d) => (
-                <tr key={d.id}>
-                  <td className="bg-base-200">
-                    <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
-                  </td>
-                  <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneByDestSum).toFixed(1)}%</td>
-                  <td className="bg-base-200 w-full">
-                    <progress
-                      className="progress w-full progress-error"
-                      value={Math.floor(((d.value || 0) * 100) / damageDoneByDestMax)}
-                      max={100}
-                    />
-                  </td>
-                  <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
-                </tr>
-              ))}
-              <tr>
-                <th colSpan={4} className="bg-base-300">
-                  HEALING SPELLS
-                </th>
+            ))}
+            <tr>
+              <th colSpan={4} className="bg-base-300">
+                HEALING SPELLS
+              </th>
+            </tr>
+            {healsDoneBySpells.map((d) => (
+              <tr key={d.id}>
+                <td className="bg-base-200 flex flex-row items-center">
+                  <SpellIcon spellId={d.id} size={24} />
+                  <div className="ml-1">{d.name}</div>
+                </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneBySpellsSum).toFixed(1)}%</td>
+                <td className="bg-base-200 w-full">
+                  <progress
+                    className="progress w-full progress-success"
+                    value={Math.floor(((d.value || 0) * 100) / healsDoneBySpellsMax)}
+                    max={100}
+                  />
+                </td>
+                <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
-              {healsDoneBySpells.map((d) => (
-                <tr key={d.id}>
-                  <td className="bg-base-200 flex flex-row items-center">
-                    <SpellIcon spellId={d.id} size={24} />
-                    <div className="ml-1">{d.name}</div>
-                  </td>
-                  <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneBySpellsSum).toFixed(1)}%</td>
-                  <td className="bg-base-200 w-full">
-                    <progress
-                      className="progress w-full progress-success"
-                      value={Math.floor(((d.value || 0) * 100) / healsDoneBySpellsMax)}
-                      max={100}
-                    />
-                  </td>
-                  <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
-                </tr>
-              ))}
-              <tr>
-                <th colSpan={4} className="bg-base-300">
-                  HEALING TARGETS
-                </th>
+            ))}
+            <tr>
+              <th colSpan={4} className="bg-base-300">
+                HEALING TARGETS
+              </th>
+            </tr>
+            {healsDoneByDest.map((d) => (
+              <tr key={d.id}>
+                <td className="bg-base-200">
+                  <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
+                </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneByDestSum).toFixed(1)}%</td>
+                <td className="bg-base-200 w-full">
+                  <progress
+                    className="progress w-full progress-success"
+                    value={Math.floor(((d.value || 0) * 100) / healsDoneByDestMax)}
+                    max={100}
+                  />
+                </td>
+                <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
-              {healsDoneByDest.map((d) => (
-                <tr key={d.id}>
-                  <td className="bg-base-200">
-                    <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
-                  </td>
-                  <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneByDestSum).toFixed(1)}%</td>
-                  <td className="bg-base-200 w-full">
-                    <progress
-                      className="progress w-full progress-success"
-                      value={Math.floor(((d.value || 0) * 100) / healsDoneByDestMax)}
-                      max={100}
-                    />
-                  </td>
-                  <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

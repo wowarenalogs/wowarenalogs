@@ -1,16 +1,21 @@
 import { Firestore } from '@google-cloud/firestore';
 import { WowVersion } from '@wowarenalogs/parser';
+import fs from 'fs';
 import moment from 'moment';
+import path from 'path';
 
 import { ApolloContext, CombatQueryResult, ICombatDataStub, UserSubscriptionTier } from '../types';
 import { Constants } from '../utils/constants';
 import { getUserProfileAsync } from '../utils/getUserProfileAsync';
 
-const matchStubsCollection = process.env.NODE_ENV === 'development' ? 'match-stubs-dev' : 'match-stubs-prod';
-const matchAnonStubsCollection =
-  process.env.NODE_ENV === 'development' ? 'match-anon-stubs-dev' : 'match-anon-stubs-prod';
+const matchStubsCollection = 'match-stubs-prod';
 
-const firestore = new Firestore();
+const firestore = new Firestore({
+  credentials:
+    process.env.NODE_ENV === 'development'
+      ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
+      : undefined,
+});
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function firestoreDocToMatchStub(stub: ICombatDataStub): ICombatDataStub {
@@ -40,10 +45,7 @@ export async function latestMatches(
     };
   }
 
-  const collectionReference =
-    args.bracket === 'Rated Solo Shuffle'
-      ? firestore.collection(matchStubsCollection)
-      : firestore.collection(matchAnonStubsCollection);
+  const collectionReference = firestore.collection(matchStubsCollection);
 
   const now = moment().valueOf();
   let docsQuery = collectionReference
@@ -208,8 +210,8 @@ export async function userMatches(
   };
 }
 
-export async function matchById(parent: unknown, args: { matchId: string; anon: boolean }) {
-  const collection = args.anon ? matchAnonStubsCollection : matchStubsCollection;
+export async function matchById(parent: unknown, args: { matchId: string }) {
+  const collection = matchStubsCollection;
   const collectionReference = firestore.collection(collection);
   const matchDocs = await collectionReference.where('id', '==', `${args.matchId}`).limit(1).get();
   const match = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub))[0];

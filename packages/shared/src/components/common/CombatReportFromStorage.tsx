@@ -4,7 +4,6 @@ import { ErrorPage } from './ErrorPage';
 import { LoadingPage } from './LoadingPage';
 
 interface IProps {
-  stage: string;
   anon?: boolean;
   id: string;
 }
@@ -19,15 +18,7 @@ export function CombatReportFromStorage(props: IProps) {
     return <LoadingPage />;
   }
   if (combatQuery.combat) {
-    return (
-      <CombatReport
-        anon={props.anon}
-        combat={combatQuery.combat}
-        // TODO: repair args
-        // id={id as string}
-        // search={(search && search.length && search[0]) as string}
-      />
-    );
+    return <CombatReport anon={props.anon} combat={combatQuery.combat} />;
   } else {
     return <ErrorPage message={JSON.stringify(combatQuery.error) || defaultErrorMessage} />;
   }

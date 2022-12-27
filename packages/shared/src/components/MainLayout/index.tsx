@@ -47,7 +47,11 @@ export function MainLayout(props: IProps) {
           </div>
         )}
         <div
-          className={`p-2 hover:text-primary ${selectedNavMenuKey === '/history' ? 'bg-base-100 text-primary' : ''}`}
+          className={`p-2 hover:text-primary ${
+            selectedNavMenuKey === '/history' || (router.pathname === '/match' && router.query.source === 'history')
+              ? 'bg-base-100 text-primary'
+              : ''
+          }`}
         >
           <Link href="/history" aria-label="History">
             <a>
@@ -55,7 +59,13 @@ export function MainLayout(props: IProps) {
             </a>
           </Link>
         </div>
-        <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/search' ? 'bg-base-100 text-primary' : ''}`}>
+        <div
+          className={`p-2 hover:text-primary ${
+            selectedNavMenuKey === '/search' || (router.pathname === '/match' && router.query.source === 'search')
+              ? 'bg-base-100 text-primary'
+              : ''
+          }`}
+        >
           <Link href="/search" aria-label="Search matches">
             <a>
               <TbSearch size="32" />

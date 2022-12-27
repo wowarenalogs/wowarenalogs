@@ -80,9 +80,15 @@ export const DesktopLayout = !window.wowarenalogs
               window.wowarenalogs.links?.openExternalURL(url);
             }}
             showLoginModal={(authUrl, callback) => {
-              window.wowarenalogs.bnet?.login(getAbsoluteAuthUrl(authUrl), 'Login').then(() => {
-                callback();
-              });
+              window.wowarenalogs.bnet
+                ?.login(getAbsoluteAuthUrl(authUrl), 'Login')
+                .then(() => {
+                  callback();
+                })
+                .catch(() => {
+                  // catching this promise rejection is necessary to not crash the app.
+                  // but there's nothing we need to do here.
+                });
             }}
             saveWindowPosition={async () => {
               const pos = await window.wowarenalogs.win?.getWindowPosition();

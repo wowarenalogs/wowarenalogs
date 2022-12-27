@@ -3,12 +3,14 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import {
-  CombatUnitSpec,
+  buildMMRHelpers,
+  buildQueryHelpers,
   CombatUnitType,
   IArenaCombat,
   IArenaMatch,
   IShuffleMatch,
-  IShuffleRound,
+  MMRIndexFields,
+  SpecIndexFields,
 } from '../../parser/dist/index';
 // Do not reference with @shared here -- this ref style is needed to preserve tsconfig settings
 // for the application build in @shared
@@ -33,119 +35,7 @@ export type FirebaseDTO = ICombatDataStub & {
   timezone: string;
 };
 
-interface SpecIndexFields {
-  singleSidedSpecs: string[];
-  doubleSidedSpecs: string[];
-  singleSidedSpecsWinners: string[];
-  doubleSidedSpecsWLHS: string[];
-}
-
-interface MMRIndexFields {
-  matchAverageMMR: number;
-  gte1400: boolean;
-  gte1800: boolean;
-  gte2100: boolean;
-  gte2400: boolean;
-}
 interface QueryHelpers extends SpecIndexFields, MMRIndexFields {}
-
-function kCombinations<T>(set: T[], k: number): T[][] {
-  // https://gist.github.com/axelpale/3118596
-  let i, j, combs, head, tailcombs;
-  if (k > set.length || k <= 0) {
-    return [];
-  }
-  if (k === set.length) {
-    return [set];
-  }
-  if (k === 1) {
-    combs = [];
-    for (i = 0; i < set.length; i++) {
-      combs.push([set[i]]);
-    }
-    return combs;
-  }
-  combs = [];
-  for (i = 0; i < set.length - k + 1; i++) {
-    head = set.slice(i, i + 1);
-    tailcombs = kCombinations(set.slice(i + 1), k - 1);
-    for (j = 0; j < tailcombs.length; j++) {
-      combs.push(head.concat(tailcombs[j]));
-    }
-  }
-  return combs;
-}
-
-function allCombinations<T>(set: T[]): T[][] {
-  let combs: T[][] = [];
-  for (let i = 0; i < set.length; i++) {
-    combs = combs.concat(kCombinations(set, i + 1));
-  }
-  return combs;
-}
-
-function buildMMRHelpers(com: IArenaMatch | IShuffleRound): MMRIndexFields {
-  const averageMMR =
-    com.dataType === 'ArenaMatch'
-      ? ((com.endInfo?.team0MMR || 0) + (com.endInfo?.team1MMR || 0)) / 2
-      : ((com.shuffleMatchEndInfo?.team0MMR || 0) + (com.shuffleMatchEndInfo?.team1MMR || 0)) / 2;
-  return {
-    matchAverageMMR: averageMMR,
-    gte1400: nullthrows(averageMMR) >= 1400,
-    gte1800: nullthrows(averageMMR) >= 1800,
-    gte2100: nullthrows(averageMMR) >= 2100,
-    gte2400: nullthrows(averageMMR) >= 2400,
-  };
-}
-
-function buildQueryHelpers(com: IArenaMatch | IShuffleRound): SpecIndexFields {
-  const unitsList = _.values(com.units).map((c) => ({
-    id: c.id,
-    name: c.name,
-    info: c.info,
-    type: c.type,
-    class: c.class,
-    spec: c.spec,
-    reaction: c.reaction,
-  }));
-  const team0specs = unitsList
-    .filter((u) => u.type === CombatUnitType.Player)
-    .filter((u) => u.info?.teamId === '0')
-    .map((u) => (u.spec === CombatUnitSpec.None ? `c${u.class}` : u.spec))
-    .sort();
-  const team1specs = unitsList
-    .filter((u) => u.type === CombatUnitType.Player)
-    .filter((u) => u.info?.teamId === '1')
-    .map((u) => (u.spec === CombatUnitSpec.None ? `c${u.class}` : u.spec))
-    .sort();
-  const team0sss = allCombinations(team0specs).map((s: string[]) => s.join('_'));
-  const team1sss = allCombinations(team1specs).map((s: string[]) => s.join('_'));
-  let singleSidedSpecsWinners = [];
-  if (com.winningTeamId === '0') {
-    singleSidedSpecsWinners = team0sss;
-  } else {
-    singleSidedSpecsWinners = team1sss;
-  }
-  const doubleSided = new Set<string>();
-  const doubleSidedWinnersLHS = new Set<string>();
-  for (const t0 of team0sss) {
-    for (const t1 of team1sss) {
-      doubleSided.add(`${t0}x${t1}`);
-      doubleSided.add(`${t1}x${t0}`);
-      if (com.winningTeamId === '0') {
-        doubleSidedWinnersLHS.add(`${t0}x${t1}`);
-      } else {
-        doubleSidedWinnersLHS.add(`${t1}x${t0}`);
-      }
-    }
-  }
-  return {
-    singleSidedSpecs: team0sss.concat(team1sss),
-    singleSidedSpecsWinners,
-    doubleSidedSpecs: Array.from(doubleSided),
-    doubleSidedSpecsWLHS: Array.from(doubleSidedWinnersLHS),
-  };
-}
 
 function createUnitsList(units: IArenaCombat['units']) {
   return _.values(units).map((c) => {

@@ -1,6 +1,8 @@
-const bracketOptions = ['2v2', '3v3', 'Rated Solo Shuffle'];
+export type Bracket = '2v2' | '3v3' | 'Rated Solo Shuffle';
 
-export function BracketSelector({ bracket, setBracket }: { bracket: string; setBracket: (b: string) => void }) {
+const bracketOptions: Bracket[] = ['2v2', '3v3', 'Rated Solo Shuffle'];
+
+export function BracketSelector({ bracket, setBracket }: { bracket: Bracket; setBracket: (b: Bracket) => void }) {
   return (
     <div className="flex flex-row space-x-8 mb-2">
       <div className="flex flex-col">

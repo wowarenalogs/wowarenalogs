@@ -11,7 +11,8 @@ import { parseFromStringArrayAsync } from '../utils';
 
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
-  projectId: 'wowarenalogs',
+  // always read production credentials because this tool is designed to work on production data
+  credentials: JSON.parse(fs.readFileSync(path.join(__dirname, '../../wowarenalogs.json'), 'utf8')),
 });
 const zoneIdField = new FieldPath('startInfo', 'zoneId');
 

@@ -1,10 +1,13 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
-import { BracketSelector, CombatStubList, RatingSelector, SpecSelector } from '@wowarenalogs/shared';
+import { BracketSelector, CombatStubList, logAnalyticsEvent, RatingSelector, SpecSelector } from '@wowarenalogs/shared';
+import { LocalRemoteHybridCombat } from '@wowarenalogs/shared/src/components/CombatStubList/rows';
 import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryError';
+import { Bracket } from '@wowarenalogs/shared/src/components/MatchSearch/BracketSelector';
 import { useGetPublicMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
+import base64url from 'base64url';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { TbArrowBigUpLines, TbLoader, TbRocketOff } from 'react-icons/tb';
 
 const PAGE_SIZE = 50;
@@ -12,7 +15,7 @@ const PAGE_SIZE = 50;
 interface IPublicMatchesFilters {
   minRating: number;
   winsOnly: boolean;
-  bracket: '2v2' | '3v3' | 'Rated Solo Shuffle';
+  bracket: Bracket;
   team1SpecIds: CombatUnitSpec[];
   team2SpecIds: CombatUnitSpec[];
 }
@@ -25,32 +28,60 @@ function computeCompQueryString(team1specs: CombatUnitSpec[], team2specs: Combat
   }
 }
 
+const DEFAULT_FILTERS: IPublicMatchesFilters = {
+  minRating: 0,
+  winsOnly: false,
+  bracket: 'Rated Solo Shuffle',
+  team1SpecIds: [],
+  team2SpecIds: [],
+};
+
 const Page = () => {
   const router = useRouter();
-  const { page } = router.query;
+  const { page, search } = router.query;
   const pageNum = parseInt(page?.toString() || '0');
-  const [bracket, setBracket] = useState('Rated Solo Shuffle');
-  const [minRating, setMinRating] = useState<number>(0);
-  const [filters, setFiltersImpl] = useState<IPublicMatchesFilters>({
-    minRating: 0,
-    winsOnly: false,
-    bracket: '3v3',
-    team1SpecIds: [],
-    team2SpecIds: [],
-  });
+
+  const filters = useMemo(() => {
+    return search ? (JSON.parse(base64url.decode(search as string)) as IPublicMatchesFilters) : DEFAULT_FILTERS;
+  }, [search]);
+
+  // log analytics events whenever the filters change
+  useEffect(() => {
+    if (!router.isReady) {
+      return;
+    }
+
+    // following predefined schema by google analytics convention.
+    // see https://developers.google.com/analytics/devguides/collection/ga4/reference/events?client_type=gtag#search
+    logAnalyticsEvent('search', {
+      search_term: filters.bracket,
+    });
+  }, [filters, router.isReady]);
+
   const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
-  // const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
-
+  const matchesQuery = useGetPublicMatchesQuery({
+    variables: {
+      wowVersion: 'retail',
+      bracket: filters.bracket,
+      minRating: filters.minRating,
+      compQueryString,
+      lhsShouldBeWinner: filters.winsOnly,
+      offset: PAGE_SIZE * pageNum,
+    },
+  });
   const setFilters = (newFilters: IPublicMatchesFilters) => {
-    setFiltersImpl(newFilters);
-    // const encoded = btoa(JSON.stringify(filters));
-    // router.push(`/community-matches/shadowlands/${encoded}`, undefined, { shallow: true });
-
-    // setLoading(false);
-    // setAllCombats([]);
-    // setHasNextPage(true);
-    // setQueryLimitReached(false);
-    // setQueryId(++nextQueryId);
+    const newSearchParams = base64url.encode(JSON.stringify(newFilters));
+    router.push(
+      {
+        pathname: router.pathname,
+        query: {
+          page: '0',
+          search: newSearchParams,
+        },
+      },
+      undefined,
+      { shallow: true },
+    );
   };
 
   function addToOne(s: CombatUnitSpec): void {
@@ -78,31 +109,28 @@ const Page = () => {
     });
   }
   function clearAllFilters() {
-    setFilters({
-      minRating: 0,
-      bracket: '3v3',
-      winsOnly: false,
-      team1SpecIds: [],
-      team2SpecIds: [],
-    });
+    setFilters(DEFAULT_FILTERS);
   }
 
-  const matchesQuery = useGetPublicMatchesQuery({
-    variables: {
-      wowVersion: 'retail',
-      bracket,
-      minRating,
-      compQueryString,
-      lhsShouldBeWinner: filters.winsOnly,
-      offset: PAGE_SIZE * pageNum,
-    },
-  });
+  if (!router.isReady) {
+    return null;
+  }
 
   return (
     <div className="transition-all px-4 mt-4 overflow-y-auto overflow-visible">
       <div className="p-4 rounded bg-base-300">
-        <BracketSelector bracket={bracket} setBracket={setBracket} />
-        <RatingSelector minRating={minRating} setMinRating={setMinRating} />
+        <BracketSelector
+          bracket={filters.bracket}
+          setBracket={(b) => {
+            setFilters({ ...filters, bracket: b });
+          }}
+        />
+        <RatingSelector
+          minRating={filters.minRating}
+          setMinRating={(r) => {
+            setFilters({ ...filters, minRating: r });
+          }}
+        />
         <div>
           <div className="font-semibold text-info-content opacity-50 mt-[5px]">COMPOSITION</div>
           <div className="flex flex-row items-center">
@@ -161,15 +189,15 @@ const Page = () => {
       {!matchesQuery.loading && (
         <div className="animate-fadein mt-2">
           <CombatStubList
-            viewerIsOwner
-            combats={matchesQuery.data?.latestMatches.combats || []}
-            combatUrlFactory={(combatId: string, combatBracket: string) => {
-              if (combatBracket === 'Rated Solo Shuffle') {
-                return `/match?id=${combatId}`;
-              } else {
-                return `/match?id=${combatId}&anon=true`;
-              }
-            }}
+            viewerIsOwner={false}
+            combats={
+              (matchesQuery.data?.latestMatches.combats.map((c) => ({
+                isLocal: false,
+                isShuffle: c.__typename === 'ShuffleRoundStub',
+                match: c,
+              })) as LocalRemoteHybridCombat[]) || []
+            }
+            source="search"
           />
           {matchesQuery.data?.latestMatches.queryLimitReached && (
             <div className="alert alert-info shadow-lg">
@@ -196,6 +224,7 @@ const Page = () => {
                     pathname: router.pathname,
                     query: {
                       page: 0,
+                      search,
                     },
                   });
                 }}
@@ -211,6 +240,7 @@ const Page = () => {
                     pathname: router.pathname,
                     query: {
                       page: pageNum - 1,
+                      search,
                     },
                   });
                 }}
@@ -225,6 +255,7 @@ const Page = () => {
                   pathname: router.pathname,
                   query: {
                     page: pageNum + 1,
+                    search,
                   },
                 });
               }}
