@@ -1,8 +1,9 @@
 import { AtomicArenaCombat } from '@wowarenalogs/parser';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { TbChevronLeft } from 'react-icons/tb';
+import { useEffect, useMemo, useState } from 'react';
+import { FaShare } from 'react-icons/fa';
+import { TbChevronLeft, TbCopy } from 'react-icons/tb';
 
 import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
 import { logAnalyticsEvent } from '../../utils/analytics';
@@ -32,6 +33,12 @@ export const CombatReportInternal = () => {
   const { data: user } = useGetProfileQuery();
   const { combat, activeTab, setActiveTab } = useCombatReportContext();
 
+  const [urlCopied, setUrlCopied] = useState(false);
+  const reportUrl = useMemo(() => {
+    const url = `https://wowarenalogs.com/match?id=${combat?.id}`;
+    return url;
+  }, [combat]);
+
   useEffect(() => {
     if (combat) {
       // following predefined schema by google analytics convention.
@@ -60,6 +67,10 @@ export const CombatReportInternal = () => {
           {sequence && <div className="ml-4 inline">Round {sequence}</div>}
         </h2>
         <div className="flex flex-1" />
+        <label htmlFor="toggle-share" className="btn btn-ghost btn-sm">
+          <FaShare className="mr-2" />
+          Share
+        </label>
       </div>
       <div className="tabs tabs-boxed mt-2">
         <a
@@ -123,6 +134,36 @@ export const CombatReportInternal = () => {
           {activeTab === 'logview' && <CombatLogView />}
         </div>
       </div>
+      <input type="checkbox" id="toggle-share" className="modal-toggle" />
+      <label htmlFor="toggle-share" className="modal">
+        <label className="modal-box relative" htmlFor="">
+          <div className="flex flex-row">
+            <input
+              type="text"
+              className="input input-bordered flex-1 mr-2"
+              readOnly
+              value={reportUrl}
+              onFocus={(e) => {
+                e.target.select();
+              }}
+            />
+            <button
+              className={`btn ${urlCopied ? 'btn-success' : 'btn-primary'}`}
+              onClick={() => {
+                navigator.clipboard.writeText(reportUrl).then(() => {
+                  setUrlCopied(true);
+                  setTimeout(() => {
+                    setUrlCopied(false);
+                  }, 3000);
+                });
+              }}
+            >
+              <TbCopy className="text-lg mr-2" />
+              {urlCopied ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+        </label>
+      </label>
     </div>
   );
 };
