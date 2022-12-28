@@ -64,7 +64,6 @@ const compileDamageBySpell = (actions: CombatHpUpdateAction[]) => {
 // no effectiveAmount required
 // heals or damage are allowed
 const compileCastsBySpell = (actions: CombatAction[]) => {
-  console.log('input', { actions });
   const groups = _.groupBy(actions, (a) => a.spellId);
   return _.map(groups, (actionsGroup, spellId) => {
     return {
@@ -166,7 +165,6 @@ export function CombatPlayer(props: IProps) {
   const castsDoneBySpells = useMemo(() => {
     return compileCastsBySpell(props.player.spellCastEvents);
   }, [props.player]);
-  console.log({ castsDoneBySpells });
 
   const damageDoneBySpells = useMemo(() => {
     return compileDamageBySpell(props.player.damageOut);
