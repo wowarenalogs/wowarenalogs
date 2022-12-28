@@ -1,4 +1,10 @@
-import { CombatAbsorbAction, CombatHpUpdateAction, CombatUnitType, ICombatUnit } from '@wowarenalogs/parser';
+import {
+  CombatAbsorbAction,
+  CombatAction,
+  CombatHpUpdateAction,
+  CombatUnitType,
+  ICombatUnit,
+} from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useEffect, useMemo } from 'react';
 
@@ -50,6 +56,21 @@ const compileDamageBySpell = (actions: CombatHpUpdateAction[]) => {
       id: spellId,
       name: _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack',
       value: _.sum(actionsGroup.map((a) => Math.abs(a.effectiveAmount))),
+    };
+  }).sort((a, b) => b.value - a.value);
+};
+
+// vs compileDamageBySpell:
+// no effectiveAmount required
+// heals or damage are allowed
+const compileCastsBySpell = (actions: CombatAction[]) => {
+  console.log('input', { actions });
+  const groups = _.groupBy(actions, (a) => a.spellId);
+  return _.map(groups, (actionsGroup, spellId) => {
+    return {
+      id: spellId,
+      name: _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack',
+      value: actionsGroup.filter((a) => a.logLine.event === 'SPELL_CAST_SUCCESS').length,
     };
   }).sort((a, b) => b.value - a.value);
 };
@@ -141,6 +162,11 @@ export function CombatPlayer(props: IProps) {
       // oh well
     }
   }, [props.player]);
+
+  const castsDoneBySpells = useMemo(() => {
+    return compileCastsBySpell(props.player.spellCastEvents);
+  }, [props.player]);
+  console.log({ castsDoneBySpells });
 
   const damageDoneBySpells = useMemo(() => {
     return compileDamageBySpell(props.player.damageOut);
@@ -341,6 +367,24 @@ export function CombatPlayer(props: IProps) {
                   />
                 </td>
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
+              </tr>
+            ))}
+            <tr>
+              <th colSpan={4} className="bg-base-300">
+                CAST FREQUENCY
+              </th>
+            </tr>
+            {castsDoneBySpells.map((d) => (
+              <tr key={d.id}>
+                <td className="bg-base-200 flex flex-row items-center">
+                  <SpellIcon spellId={d.id} size={24} />
+                  <div className="ml-1">{d.name}</div>
+                </td>
+                <td className="bg-base-200 w-full"></td>
+                <td className="bg-base-200">{Utils.printCombatNumber(d.value)} casts</td>
+                <td className="bg-base-200">
+                  {Utils.printCombatNumber((60 * d.value) / combat.durationInSeconds)}/min
+                </td>
               </tr>
             ))}
           </tbody>
