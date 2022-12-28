@@ -213,7 +213,11 @@ export function CombatReplay() {
           &nbsp;
           {'/ ' + moment.utc(combat.endTime - combat.startTime).format('mm:ss')}
         </div>
-        <ReplayDampeningTracker players={players} currentSecond={Math.floor(currentTimeOffset / 1000)} />
+        <ReplayDampeningTracker
+          players={players}
+          bracket={combat.startInfo.bracket}
+          currentTimestamp={currentTimeOffset + combat.startInfo.timestamp}
+        />
       </div>
       <div className={`flex flex-col flex-1 rounded-box bg-base-200 overflow-hidden relative`}>
         <div className="w-full h-full absolute" ref={initializeReplayContainerRef}>
