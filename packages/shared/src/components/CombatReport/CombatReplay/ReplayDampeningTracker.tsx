@@ -1,9 +1,10 @@
 import { CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
-import React, { useMemo } from 'react';
+import React from 'react';
 
 interface IProps {
   players: ICombatUnit[];
-  currentSecond: number;
+  currentTimestamp: number;
+  bracket: string;
 }
 
 const tanksOrHealers = [
@@ -21,26 +22,30 @@ const tanksOrHealers = [
   CombatUnitSpec.Monk_Mistweaver,
 ];
 
-// Rules of dampening
-// Starts at 0%
-// At 5 minutes it increases to 1%
-// Every 10 seconds after it goes up 1%
-//
-// 2v2 changes:
-// per - https://us.forums.blizzard.com/en/wow/t/pvp-tuning-changes-for-january-26/841816
-// In 2v2 Arenas, Dampening will begin at 20% when both teams have either a tank or healer.
-// TODO: check the rules for DF
-function computeDampening(rules: string, currentSecond: number): number {
+// DF RULES https://www.icy-veins.com/forums/topic/69530-dampening-and-healing-changes-in-dragonflight-pre-patch-phase-2-arenas/
+// Solo Shuffle - Start at 10% Dampening and after 1 minute, ramp up at a pace of 25% per minute
+// 2v2 (double DPS) - Start at 10% Dampening and immediately ramp up at a pace of 6% per minute
+// 2v2 (with a healer) - Start at 30% Dampening (up from 20%) and immediately ramp up at a pace of 6% per minute
+// 3v3 - Start at 10% Dampening and after 3 minutes (down from 5 minutes), ramp up at a pace of 6% per minute
+function getInitialDampening(bracket: string, players: ICombatUnit[]) {
+  const rules = computeRules(bracket, players);
+  if (rules === 'Rated Solo Shuffle') {
+    return 10;
+  }
+  if (rules === '2v2_dps') {
+    return 10;
+  }
   if (rules === '2v2') {
-    return Math.floor(currentSecond / 10) + 20;
+    return 30;
   }
-  if (currentSecond < 60 * 5) {
-    return 0;
-  }
-  return Math.floor((currentSecond - 60 * 5) / 10) + 1;
+  // 3v3
+  return 10;
 }
 
-function computeRules(players: ICombatUnit[]): '2v2' | '2v2_dps' | '3v3' {
+function computeRules(bracket: string, players: ICombatUnit[]): '2v2' | '2v2_dps' | '3v3' | 'Rated Solo Shuffle' {
+  if (bracket === 'Rated Solo Shuffle') {
+    return 'Rated Solo Shuffle';
+  }
   if (players.length > 4) {
     return '3v3';
   }
@@ -52,9 +57,17 @@ function computeRules(players: ICombatUnit[]): '2v2' | '2v2_dps' | '3v3' {
   return '2v2_dps';
 }
 
-export const ReplayDampeningTracker = React.memo(function ReplayDampeningTracker({ players, currentSecond }: IProps) {
-  const rules = useMemo(() => computeRules(players), [players]);
-  const dampening = computeDampening(rules, currentSecond);
+export const ReplayDampeningTracker = React.memo(function ReplayDampeningTracker({
+  bracket,
+  players,
+  currentTimestamp,
+}: IProps) {
+  const lastDampUpdate = players[0].auraEvents.filter(
+    (a) => a.spellId === '110310' && a.logLine.event === 'SPELL_AURA_APPLIED_DOSE' && a.timestamp <= currentTimestamp,
+  );
+  const stacks =
+    lastDampUpdate.length > 0 && (lastDampUpdate[lastDampUpdate.length - 1].logLine.parameters[12] as number);
+  const dampening = stacks || getInitialDampening(bracket, players);
   return (
     <div
       className={`font-bold cursor-default ${dampening > 0 ? 'text-error' : 'opacity-60'}`}
