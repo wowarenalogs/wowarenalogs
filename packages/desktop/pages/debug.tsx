@@ -120,14 +120,6 @@ const Debug = () => {
           >
             Clear WoW Folder Setting
           </button>
-          <button
-            className="btn"
-            onClick={() => {
-              client.saveWindowPosition();
-            }}
-          >
-            Save Window Pos
-          </button>
         </div>
       </div>
     </div>

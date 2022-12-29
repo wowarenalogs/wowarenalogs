@@ -90,19 +90,6 @@ export const DesktopLayout = !window.wowarenalogs
                   // but there's nothing we need to do here.
                 });
             }}
-            saveWindowPosition={async () => {
-              const pos = await window.wowarenalogs.win?.getWindowPosition();
-              const size = await window.wowarenalogs.win?.getWindowSize();
-              if (pos && size) {
-                updateAppConfig((prev) => ({
-                  ...prev,
-                  lastWindowX: pos[0],
-                  lastWindowY: pos[1],
-                  lastWindowWidth: size[0],
-                  lastWindowHeight: size[1],
-                }));
-              }
-            }}
           >
             <AuthProvider>
               <LocalCombatsContextProvider>
