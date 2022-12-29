@@ -31,7 +31,7 @@ export const DesktopLayout = !window.wowarenalogs
       return null;
     }
   : ({ Component, pageProps }: AppProps) => {
-      const { isLoading, updateAppConfig } = useAppConfig();
+      const { isLoading } = useAppConfig();
 
       useEffect(() => {
         initAnalyticsAsync('G-Z6E8QS4ENW').then(() => {
