@@ -41,7 +41,7 @@ const Page = (props: { combat?: ICombatDataStub }) => {
         title="Combat Report"
         description={desc}
         openGraph={{
-          title: 'Combat Report',
+          title: 'Combat Report | WoW Arena Logs',
           description: desc,
         }}
       />
