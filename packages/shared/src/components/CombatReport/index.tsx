@@ -10,7 +10,6 @@ import { zoneMetadata } from '../../data/zoneMetadata';
 import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
 import { useClientContext } from '../../hooks/ClientContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
-import { TimestampDisplay } from '../common/TimestampDisplay';
 import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
 import { CombatLogView } from './CombatLogView';
