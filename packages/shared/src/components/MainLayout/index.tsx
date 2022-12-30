@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import Router from 'next/router';
 import NProgress from 'nprogress';
 import React, { useEffect } from 'react';
-import { TbBug, TbHistory, TbSearch, TbSettings, TbSwords, TbUser } from 'react-icons/tb';
+import { TbBug, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbUser } from 'react-icons/tb';
 
 import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
@@ -35,12 +35,21 @@ export function MainLayout(props: IProps) {
   return (
     <div className={`flex flex-1 flex-row items-stretch relative`}>
       <div className="flex flex-col text-base-content pb-1">
+        {!clientContext.isDesktop && (
+          <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/' ? 'bg-base-100 text-primary' : ''}`}>
+            <Link href="/" aria-label="Home">
+              <a title="Home">
+                <TbHome size="32" />
+              </a>
+            </Link>
+          </div>
+        )}
         {clientContext.isDesktop && (
           <div
             className={`p-2 hover:text-primary ${selectedNavMenuKey === '/latest' ? 'bg-base-100 text-primary' : ''}`}
           >
             <Link href="/latest" aria-label="Latest match">
-              <a>
+              <a title="Latest match">
                 <TbSwords size="32" />
               </a>
             </Link>
@@ -54,7 +63,7 @@ export function MainLayout(props: IProps) {
           }`}
         >
           <Link href="/history" aria-label="History">
-            <a>
+            <a title="History">
               <TbHistory size="32" />
             </a>
           </Link>
@@ -67,13 +76,13 @@ export function MainLayout(props: IProps) {
           }`}
         >
           <Link href="/search" aria-label="Search matches">
-            <a>
+            <a title="Search matches">
               <TbSearch size="32" />
             </a>
           </Link>
         </div>
         <div className="flex-1" />
-        {process.env.NODE_ENV === 'development' && (
+        {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
           <div
             className={`p-2 hover:text-primary ${selectedNavMenuKey === '/debug' ? 'bg-base-100 text-primary' : ''}`}
           >
@@ -95,12 +104,12 @@ export function MainLayout(props: IProps) {
         >
           {auth.isAuthenticated ? (
             <Link href="/profile" aria-label="Profile">
-              <a className="hover:text-primary">
+              <a className="hover:text-primary" title="Profile">
                 <TbUser size="32" />
               </a>
             </Link>
           ) : auth.isLoadingAuthData ? (
-            <a className="cursor-wait opacity-60" href="#">
+            <a className="cursor-wait opacity-60" href="#" title="Loading...">
               <TbUser size="32" />
             </a>
           ) : (
@@ -110,6 +119,7 @@ export function MainLayout(props: IProps) {
               onClick={() => {
                 auth.signIn();
               }}
+              title="Sign in"
             >
               <TbUser size="32" />
             </a>
@@ -120,7 +130,7 @@ export function MainLayout(props: IProps) {
             className={`p-2 hover:text-primary ${selectedNavMenuKey === '/settings' ? 'bg-base-100 text-primary' : ''}`}
           >
             <Link href="/settings" aria-label="Settings">
-              <a>
+              <a title="Settings">
                 <TbSettings size="32" />
               </a>
             </Link>

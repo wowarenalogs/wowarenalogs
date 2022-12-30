@@ -1,6 +1,7 @@
 import '../styles/globals.css';
 
 import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client';
+import { AuthProvider } from '@wowarenalogs/shared/src';
 import type { AppProps } from 'next/app';
 import { SessionProvider, SessionProviderProps } from 'next-auth/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -44,9 +45,11 @@ function App(props: AppProps<SessionProviderProps>) {
     <SessionProvider session={props.pageProps.session}>
       <QueryClientProvider client={queryClient}>
         <ApolloProvider client={client}>
-          <WebLayout>
-            <props.Component {...props.pageProps} />
-          </WebLayout>
+          <AuthProvider>
+            <WebLayout>
+              <props.Component {...props.pageProps} />
+            </WebLayout>
+          </AuthProvider>
         </ApolloProvider>
       </QueryClientProvider>
     </SessionProvider>

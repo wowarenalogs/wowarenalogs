@@ -63,9 +63,9 @@ export const useAuth = () => {
   const clientContext = useClientContext();
 
   const signIn = useCallback(() => {
-    // following predefined schema by google analytics convention.
-    // see https://developers.google.com/analytics/devguides/collection/ga4/reference/events?client_type=gtag#login
     clientContext.showLoginModal('/login', () => {
+      // following predefined schema by google analytics convention.
+      // see https://developers.google.com/analytics/devguides/collection/ga4/reference/events?client_type=gtag#login
       logAnalyticsEvent('login', {
         method: 'bnet',
       });
