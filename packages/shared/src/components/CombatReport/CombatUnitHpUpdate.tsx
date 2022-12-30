@@ -5,6 +5,7 @@ import {
   getClassColor,
   ICombatUnit,
 } from '@wowarenalogs/parser';
+import Image from 'next/image';
 
 import { Utils } from '../../utils/utils';
 
@@ -41,14 +42,15 @@ export const CombatUnitHpUpdate = (props: IProps) => {
         }}
       >
         {widthPercentageAbsolute >= 10 && props.action.spellId ? (
-          <div
-            className="rounded w-4 h-4 bg-cover ml-1"
-            style={{
-              backgroundImage: `url(${Utils.getSpellIcon(
-                props.action.spellId,
-              )}), url(https://images.wowarenalogs.com/spells/0.jpg)`,
-            }}
-          />
+          <div className="pl-1 pt-1">
+            <Image
+              className="rounded"
+              src={Utils.getSpellIcon(props.action.spellId) ?? 'https://images.wowarenalogs.com/spells/0.jpg'}
+              width={16}
+              height={16}
+              alt=""
+            />
+          </div>
         ) : null}
       </div>
     </div>
