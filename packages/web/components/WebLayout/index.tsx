@@ -5,7 +5,7 @@ import { signIn } from 'next-auth/react';
 import { DefaultSeo } from 'next-seo';
 import { ReactNode, useEffect } from 'react';
 
-const TITLE = 'Wow Arena Logs | World of Warcraft PvP Data Analytics';
+const TITLE = 'WoW Arena Logs | World of Warcraft PvP Data Analytics';
 const DESCRIPTION =
   'WoW Arena Logs is the best tool available to help you analyze your own arena matches and learn from the community.';
 
@@ -53,7 +53,7 @@ const Page = (props: { children: ReactNode | ReactNode[] }) => {
             description={DESCRIPTION}
             openGraph={{
               type: 'website',
-              title: 'WoW Arena Logs',
+              title: TITLE,
               description: DESCRIPTION,
             }}
           />
