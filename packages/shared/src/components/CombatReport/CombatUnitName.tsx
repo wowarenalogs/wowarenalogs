@@ -36,7 +36,7 @@ export const CombatUnitName = ({ unit, navigateToPlayerView, isTitle, onClick, s
             className="rounded"
             src={
               (unit.spec === CombatUnitSpec.None ? Utils.getClassIcon(unit.class) : Utils.getSpecIcon(unit.spec)) ??
-              'https://images.wowarenalogs.com/spells/0.jpg'
+              'https://images.wowarenalogs.com/common/question_mark.jpeg'
             }
             alt={unit.spec === CombatUnitSpec.None ? Utils.getClassName(unit.class) : Utils.getSpecName(unit.spec)}
             width={isTitle ? 36 : 20}
