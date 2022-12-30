@@ -48,7 +48,7 @@ export const CombatUnitHpUpdate = (props: IProps) => {
               src={Utils.getSpellIcon(props.action.spellId) ?? 'https://images.wowarenalogs.com/spells/0.jpg'}
               width={16}
               height={16}
-              alt=""
+              alt={props.action.spellName ?? ''}
             />
           </div>
         ) : null}
