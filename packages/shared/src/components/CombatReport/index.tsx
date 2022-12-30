@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { FaShare } from 'react-icons/fa';
 import { TbChevronLeft, TbCopy, TbDownload, TbX } from 'react-icons/tb';
 
+import { zoneMetadata } from '../../data/zoneMetadata';
 import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
 import { useClientContext } from '../../hooks/ClientContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
@@ -96,8 +97,8 @@ export const CombatReportInternal = () => {
           </div>
         ) : null}
         <h2 className="text-2xl font-bold">
-          <TimestampDisplay timestamp={combat.startTime} timezone={combat.timezone} />
-          {sequence && <div className="ml-4 inline">Round {sequence}</div>}
+          {sequence && <span className="mr-2">Round {sequence} of</span>}
+          {`${combat.startInfo.bracket} at ${zoneMetadata[combat.startInfo.zoneId ?? '0'].name}`}
         </h2>
         <div className="flex flex-1" />
         <label htmlFor="toggle-share" className="btn btn-ghost btn-sm">
