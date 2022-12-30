@@ -1,4 +1,3 @@
-import { useClientContext } from '@wowarenalogs/shared';
 import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { FiMaximize2, FiMinimize2, FiMinus, FiX } from 'react-icons/fi';
@@ -6,7 +5,6 @@ import { FiMaximize2, FiMinimize2, FiMinus, FiX } from 'react-icons/fi';
 import styles from './index.module.css';
 
 function TitleBar() {
-  const clientContext = useClientContext();
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
@@ -47,7 +45,6 @@ function TitleBar() {
         <button
           className="btn btn-ghost btn-square btn-sm"
           onClick={async () => {
-            await clientContext.saveWindowPosition();
             flushSync(() => window.wowarenalogs.app?.quit());
           }}
         >
