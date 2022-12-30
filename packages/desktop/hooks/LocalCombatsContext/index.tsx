@@ -46,6 +46,9 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     class: c.class,
     spec: c.spec,
     reaction: c.reaction,
+    damageOut: c.damageOut,
+    healOut: c.healOut,
+    absorbsOut: c.absorbsOut,
   }));
   const players = unitsList.filter((u) => u.type === CombatUnitType.Player);
   const team0specs = players
@@ -60,6 +63,17 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     .join('_');
   const indices = buildQueryHelpers(combat, true);
 
+  const damageEvents = combat.events.filter((e) => e.logLine.event.endsWith('_DAMAGE'));
+  const effectiveStartTime = damageEvents.length > 0 ? damageEvents[0].logLine.timestamp : combat.startTime;
+  const effectiveEndTime =
+    damageEvents.length > 0 ? damageEvents[damageEvents.length - 1].logLine.timestamp : combat.endTime;
+  const effectiveDuration = (effectiveEndTime - effectiveStartTime) / 1000;
+
+  // google analytics limitations:
+  // - event names can be up to 40 characters long
+  // - property names must be 40 characters or less
+  // - property values must be 100 characters or less
+  // - less than 25 properties
   const commonProperties = {
     // increment this version whenever the schema has breaking changes
     eventSchemaVersion: 0,
@@ -69,6 +83,7 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     bracket: combat.startInfo.bracket,
     zoneId: combat.startInfo.zoneId,
     durationInSeconds: combat.durationInSeconds,
+    effectiveDurationInSeconds: effectiveDuration,
     averageMMR,
     playerResult: combat.result,
     playerId: combat.playerId,
@@ -76,11 +91,6 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     winningTeamId: combat.winningTeamId,
   };
 
-  // google analytics limitations:
-  // - event names can be up to 40 characters long
-  // - property names must be 40 characters or less
-  // - property values must be 100 characters or less
-  // - less than 25 properties
   logAnalyticsEvent('event_NewMatchProcessed', {
     ...commonProperties,
     winningTeamSpecs: combat.winningTeamId === '0' ? team0specs : team1specs,
@@ -112,6 +122,11 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
   });
 
   players.forEach((p) => {
+    const effectiveDps = _.sum(p.damageOut.map((d) => d.effectiveAmount)) / effectiveDuration;
+    const effectiveHps =
+      (_.sum(p.healOut.map((d) => d.effectiveAmount)) + _.sum(p.absorbsOut.map((d) => d.effectiveAmount))) /
+      effectiveDuration;
+
     logAnalyticsEvent('event_NewPlayerRecord', {
       ...commonProperties,
       name: p.name,
@@ -119,8 +134,11 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
       highestPvpTier: p.info?.highestPvpTier ?? 0,
       spec: p.spec,
       teamId: p.info?.teamId ?? '',
+      isPlayer: p.id === combat.playerId,
       isPlayerTeam: p.info?.teamId === combat.playerTeamId,
       result: p.info?.teamId === combat.winningTeamId ? 'win' : 'lose',
+      effectiveDps,
+      effectiveHps,
     });
   });
 };
