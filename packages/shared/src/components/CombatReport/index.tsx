@@ -2,7 +2,7 @@ import { AtomicArenaCombat } from '@wowarenalogs/parser';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FaShare } from 'react-icons/fa';
 import { TbChevronLeft, TbCopy, TbDownload, TbX } from 'react-icons/tb';
 
@@ -33,7 +33,7 @@ interface IProps {
 export const CombatReportInternal = () => {
   const router = useRouter();
   const { data: user } = useGetProfileQuery();
-  const { combat, activeTab, setActiveTab } = useCombatReportContext();
+  const { combat, activeTab, setActiveTab, activePlayerId } = useCombatReportContext();
   const clientContext = useClientContext();
 
   const [urlCopied, setUrlCopied] = useState(false);
@@ -58,6 +58,11 @@ export const CombatReportInternal = () => {
       });
     }
   }, [combat]);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    scrollRef.current?.scrollTo(0, 0);
+  }, [activePlayerId]);
 
   if (!combat) return null;
 
@@ -157,7 +162,7 @@ export const CombatReportInternal = () => {
           </a>
         )}
       </div>
-      <div className="mt-4 ml-2 flex-1 relative overflow-x-hidden overflow-y-scroll">
+      <div ref={scrollRef} className="mt-4 ml-2 flex-1 relative overflow-x-hidden overflow-y-scroll">
         <div className="mr-4 min-h-full relative flex flex-col">
           {activeTab === 'summary' && <CombatSummary />}
           {activeTab === 'players' && <CombatPlayers />}
