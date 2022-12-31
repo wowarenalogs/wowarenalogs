@@ -150,6 +150,45 @@ const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorb
   }).sort((a, b) => b.value - a.value);
 };
 
+function compileAuraApplicationsBySpell(player: ICombatUnit) {
+  const aurasUpdated = _.groupBy(
+    player.auraEvents.filter((a) => ['SPELL_AURA_REMOVED', 'SPELL_AURA_APPLIED'].includes(a.logLine.event)),
+    (a) => a.spellId,
+  );
+  const applications: Record<
+    string,
+    {
+      spellName: string | null;
+      spellId: string;
+      spellSchoolId: string | null;
+      durationInSeconds: number;
+    }[]
+  > = {};
+  _.keys(aurasUpdated).forEach((spellId) => {
+    const updates = aurasUpdated[spellId];
+    let isActive = false;
+    let timeApplied = 0;
+    updates.forEach((update) => {
+      if (!isActive && update.logLine.event === 'SPELL_AURA_APPLIED') {
+        isActive = true;
+        timeApplied = update.timestamp;
+      }
+      if (isActive && update.logLine.event === 'SPELL_AURA_REMOVED') {
+        isActive = false;
+        if (!applications[spellId]) {
+          applications[spellId] = [];
+        }
+        applications[spellId].push({
+          spellName: update.spellName,
+          spellId,
+          spellSchoolId: update.spellSchoolId,
+          durationInSeconds: (update.timestamp - timeApplied) / 1000,
+        });
+      }
+    });
+  });
+  return applications;
+}
 export function CombatPlayer(props: IProps) {
   const { combat } = useCombatReportContext();
 
@@ -160,6 +199,24 @@ export function CombatPlayer(props: IProps) {
     } catch (e) {
       // oh well
     }
+  }, [props.player]);
+
+  const auraUptimes = useMemo(() => {
+    const applications = compileAuraApplicationsBySpell(props.player);
+    const updates = _.keys(applications)
+      .map((spellId) => {
+        const auraUpdates = applications[spellId];
+        const totalTimeInSeconds = _.sum(auraUpdates.map((u) => u.durationInSeconds));
+        return {
+          spellId,
+          spellName: auraUpdates[0].spellName,
+          spellSchoolId: auraUpdates[0].spellSchoolId,
+          totalTimeInSeconds,
+          uptime: (100 * totalTimeInSeconds) / (combat?.durationInSeconds || 1),
+        };
+      })
+      .sort((a, b) => b.uptime - a.uptime);
+    return updates;
   }, [props.player]);
 
   const castsDoneBySpells = useMemo(() => {
@@ -381,6 +438,22 @@ export function CombatPlayer(props: IProps) {
                 <td className="bg-base-200 w-full"></td>
                 <td className="bg-base-200">{d.value} casts</td>
                 <td className="bg-base-200">{((60 * d.value) / combat.durationInSeconds).toFixed(1)}/min</td>
+              </tr>
+            ))}
+            <tr>
+              <th colSpan={4} className="bg-base-300">
+                AURA UPTIMES
+              </th>
+            </tr>
+            {auraUptimes.map((a) => (
+              <tr key={a.spellId}>
+                <td className="bg-base-200 flex flex-row items-center">
+                  <SpellIcon spellId={a.spellId} size={24} />
+                  <div className="ml-1">{a.spellName}</div>
+                </td>
+                <td className="bg-base-200 w-full"></td>
+                <td className="bg-base-200 w-full">{a.totalTimeInSeconds.toFixed(1)}s</td>
+                <td className="bg-base-200">{a.uptime.toFixed(1)}%</td>
               </tr>
             ))}
           </tbody>
