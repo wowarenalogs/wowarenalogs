@@ -28,14 +28,16 @@ export const CombatUnitHpUpdate = (props: IProps) => {
   return (
     <div
       className="tooltip flex flex-row"
-      data-tip={`${props.action.spellName || 'Auto Attack'}: ${Math.abs(props.action.effectiveAmount).toFixed()}`}
+      data-tip={`${props.action.spellName || 'Auto Attack'}: ${Utils.printCombatNumber(
+        Math.abs(props.action.effectiveAmount),
+      )}`}
       style={{
         minWidth: '4px',
         width: widthPercentage.toFixed(2) + '%',
       }}
     >
       <div
-        className="border border-solid border-black flex-1 flex flex-row items-center relative"
+        className="border border-solid border-black flex-1 flex flex-row items-center relative overflow-hidden"
         style={{
           backgroundColor: getClassColor(colorSourceUnitClass),
         }}
@@ -49,6 +51,11 @@ export const CombatUnitHpUpdate = (props: IProps) => {
               )}), url(https://images.wowarenalogs.com/spells/0.jpg)`,
             }}
           />
+        ) : null}
+        {widthPercentageAbsolute >= 30 && props.action.spellId ? (
+          <div className="ml-1 text-black font-medium">
+            {Utils.printCombatNumber(Math.abs(props.action.effectiveAmount))}
+          </div>
         ) : null}
       </div>
     </div>
