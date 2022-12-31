@@ -31,6 +31,7 @@ module.exports = {
   ],
   theme: {
     colors: {
+      black: '#000',
       deathknight: '#C41E3A',
       demonhunter: '#A330C9',
       evoker: '33937F',
