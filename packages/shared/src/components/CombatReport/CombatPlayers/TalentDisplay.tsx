@@ -16,7 +16,7 @@ const classHeight = {
   [CombatUnitClass.Rogue]: 480,
   [CombatUnitClass.Mage]: 480,
   [CombatUnitClass.Druid]: 390,
-  [CombatUnitClass.DeathKnight]: 390,
+  [CombatUnitClass.DeathKnight]: 420,
   [CombatUnitClass.DemonHunter]: 490,
   [CombatUnitClass.Monk]: 430,
 };
@@ -60,6 +60,11 @@ export const TalentDisplay = ({ player }: { player: ICombatUnit }) => {
         width={700}
         height={classHeight[player.class]}
         src={`https://www.raidbots.com/simbot/render/talents/${exportString}?&width=700&level=70&hideexport=off&hideheader=true`}
+      />
+      <iframe
+        width={700}
+        height={classHeight[player.class]}
+        src={`https://www.raidbots.com/simbot/render/talents/BwPAAAAAAAAAAAAAAAAAAAAAAAAkISSSgEESSEiIJSkAAAAAAAAAAKJJhIAAgEpItEJJJSC?&width=700&level=70&hideexport=off&hideheader=true`}
       />
       <div className="text-lg font-bold mt-2">PvP Talents</div>
       <div className="flex flex-row flex-wrap items-center mt-2 mb-2">
