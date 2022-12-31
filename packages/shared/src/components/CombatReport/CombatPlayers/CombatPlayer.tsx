@@ -379,10 +379,8 @@ export function CombatPlayer(props: IProps) {
                   <div className="ml-1">{d.name}</div>
                 </td>
                 <td className="bg-base-200 w-full"></td>
-                <td className="bg-base-200">{Utils.printCombatNumber(d.value)} casts</td>
-                <td className="bg-base-200">
-                  {Utils.printCombatNumber((60 * d.value) / combat.durationInSeconds)}/min
-                </td>
+                <td className="bg-base-200">{d.value} casts</td>
+                <td className="bg-base-200">{((60 * d.value) / combat.durationInSeconds).toFixed(1)}/min</td>
               </tr>
             ))}
           </tbody>
