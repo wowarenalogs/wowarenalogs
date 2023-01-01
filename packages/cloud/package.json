@@ -28,7 +28,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "serverless": "^3.25.1",
-    "serverless-google-cloudfunctions": "^3.1.1"
+    "serverless-google-cloudfunctions": "^4.3.1"
   },
   "dependencies": {
     "@google-cloud/firestore": "^6.4.1",
