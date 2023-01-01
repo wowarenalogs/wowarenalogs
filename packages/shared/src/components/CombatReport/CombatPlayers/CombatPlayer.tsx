@@ -217,7 +217,7 @@ export function CombatPlayer(props: IProps) {
       })
       .sort((a, b) => b.uptime - a.uptime);
     return updates;
-  }, [props.player]);
+  }, [props.player, combat?.durationInSeconds]);
 
   const castsDoneBySpells = useMemo(() => {
     return compileCastsBySpell(props.player.spellCastEvents);
