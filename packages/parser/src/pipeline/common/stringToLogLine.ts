@@ -1,19 +1,12 @@
-import moment from 'moment-timezone';
 import { pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { parseWowToJSON } from '../../jsonparse';
 import { ILogLine, LogEvent } from '../../types';
+import { getTimestamp } from './utils';
 
 const LINE_PARSER = /^(\d+)\/(\d+)\s+(\d+):(\d+):(\d+)\.(\d+)\s+([A-Z_]+),(.+)\s*$/;
 let nextId = 0;
-
-function guessYear(month: number) {
-  if (month > 10) {
-    return 2022;
-  }
-  return 2023;
-}
 
 export const stringToLogLine = (timezone: string) => {
   return pipe(
@@ -38,21 +31,10 @@ export const stringToLogLine = (timezone: string) => {
       if (!(eventName in LogEvent)) {
         return line;
       }
+
       const event = LogEvent[eventName as keyof typeof LogEvent];
-
-      const timestampValueObj = {
-        ms,
-        M: month - 1,
-        d: day,
-        h: hour,
-        m: minute,
-        s: second,
-        y: guessYear(month),
-      };
-      const timestampValue = moment.tz(timestampValueObj, timezone);
-      const timestamp = timestampValue.valueOf();
-
       const jsonParameters = parseWowToJSON(regex_matches[8]);
+      const timestamp = getTimestamp(month, day, hour, minute, second, ms, timezone);
 
       return {
         id: (nextId++).toFixed(),
