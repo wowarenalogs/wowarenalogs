@@ -9,7 +9,7 @@
     "dev:desktop": "cross-env NODE_ENV=development next dev",
     "start:desktop": "next start",
     "build:desktop": "next build",
-    "lint": "next lint",
+    "lint": "next lint --max-warnings 0",
     "lint:fix": "next lint --fix",
     "release:desktop": "git checkout release/wowarenalogs/desktop && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },

@@ -5,7 +5,7 @@
   "main": "index.js",
   "author": "prsauer",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "build": "shx rm -rf dist && tsc && cd ../.. && npm run build:parser && shx mkdir ./packages/cloud/dist/parser && shx cp -r ./packages/parser/dist ./packages/cloud/dist/parser/dist",
     "deploy:dev": "npm run build && serverless deploy --config serverless.dev.yml",
