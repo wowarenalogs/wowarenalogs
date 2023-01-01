@@ -8,6 +8,13 @@ import { ILogLine, LogEvent } from '../../types';
 const LINE_PARSER = /^(\d+)\/(\d+)\s+(\d+):(\d+):(\d+)\.(\d+)\s+([A-Z_]+),(.+)\s*$/;
 let nextId = 0;
 
+function guessYear(month: number) {
+  if (month > 10) {
+    return 2022;
+  }
+  return 2023;
+}
+
 export const stringToLogLine = (timezone: string) => {
   return pipe(
     map((line: string): ILogLine | string => {
@@ -40,6 +47,7 @@ export const stringToLogLine = (timezone: string) => {
         h: hour,
         m: minute,
         s: second,
+        y: guessYear(month),
       };
       const timestampValue = moment.tz(timestampValueObj, timezone);
       const timestamp = timestampValue.valueOf();
