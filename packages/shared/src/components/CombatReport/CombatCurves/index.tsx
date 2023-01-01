@@ -1,89 +1,136 @@
-import { CombatResult, CombatUnitReaction, CombatUnitType } from '@wowarenalogs/parser';
+import { CombatResult, CombatUnitReaction, CombatUnitType, ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
-import { PlayerCurves } from './PlayerCurves';
 import { TeamCurves } from './TeamCurves';
 
 export const CombatCurves = () => {
   const { combat, isAnonymized } = useCombatReportContext();
-  const [activeTabID, setActiveTabID] = useState<string | null>(null);
+  const [activeCombatants, setActiveCombatants] = useState<ICombatUnit[]>([]);
+
+  const players = useMemo(() => {
+    return _.sortBy(
+      _.values(combat?.units ?? []).filter((u) => u.type === CombatUnitType.Player),
+      ['reaction', 'name'],
+    );
+  }, [combat]);
+  const enemies = useMemo(() => {
+    return players.filter((p) => p.reaction === CombatUnitReaction.Hostile);
+  }, [players]);
+  const friends = useMemo(() => {
+    return players.filter((p) => p.reaction === CombatUnitReaction.Friendly);
+  }, [players]);
 
   useEffect(() => {
-    setActiveTabID('ttab-1');
-  }, [combat]);
+    setActiveCombatants(enemies);
+  }, [enemies]);
 
   if (!combat) {
     return null;
   }
 
-  const players = _.sortBy(
-    _.values(combat.units).filter((u) => u.type === CombatUnitType.Player),
-    ['reaction', 'name'],
-  );
-
-  const enemies = players.filter((p) => p.reaction === CombatUnitReaction.Hostile);
-  const friends = players.filter((p) => p.reaction === CombatUnitReaction.Friendly);
+  const toggleActiveCombatants = (combatants: ICombatUnit[]) => {
+    setActiveCombatants((prev) => {
+      if (combatants.every((c) => prev.includes(c))) {
+        return prev.filter((c) => !combatants.includes(c));
+      }
+      const toAdd: ICombatUnit[] = [];
+      combatants.forEach((c) => {
+        if (!prev.includes(c)) {
+          toAdd.push(c);
+        }
+      });
+      return [...prev, ...toAdd];
+    });
+  };
 
   return (
     <div className="flex flex-row flex-1">
-      <ul className="menu mr-2 min-w-fit">
-        <li key="ttab-1" className={`${activeTabID === 'ttab-1' ? 'bordered' : ''}`}>
-          <a
-            className="flex flex-row"
-            onClick={() => {
-              setActiveTabID('ttab-1');
-            }}
-          >
-            <div>{isAnonymized ? 'Team 1' : 'Enemy Team'}</div>
-            {combat.result === CombatResult.Lose && (
-              <div className="ml-2 badge badge-success">{CombatResult[CombatResult.Win]}</div>
-            )}
-          </a>
-        </li>
-        {enemies.map((u) => (
-          <li key={u.id} className={`${activeTabID === u.id ? 'bordered' : ''}`}>
+      <div className="top-0 flex flex-col">
+        <ul className="menu mr-2 min-w-fit sticky top-0">
+          <li key="ttab-1">
             <a
               className="flex flex-row"
               onClick={() => {
-                setActiveTabID(u.id);
+                toggleActiveCombatants(enemies);
               }}
             >
-              <CombatUnitName unit={u} />
+              <input
+                readOnly
+                type="checkbox"
+                checked={enemies.every((u) => {
+                  return activeCombatants.includes(u);
+                })}
+                className="checkbox checkbox-sm"
+              />
+              <div>{isAnonymized ? 'Team 1' : 'Enemy Team'}</div>
+              {combat.result === CombatResult.Lose && (
+                <div className="ml-2 badge badge-success">{CombatResult[CombatResult.Win]}</div>
+              )}
             </a>
           </li>
-        ))}
-        <li key="ttab-2" className={`${activeTabID === 'ttab-2' ? 'bordered' : ''}`}>
-          <a
-            className="flex flex-row"
-            onClick={() => {
-              setActiveTabID('ttab-2');
-            }}
-          >
-            <div>{isAnonymized ? 'Team 2' : 'My Team'}</div>
-            {combat.result === CombatResult.Win && (
-              <div className="ml-2 badge badge-success">{CombatResult[CombatResult.Win]}</div>
-            )}
-          </a>
-        </li>
-        {friends.map((u) => (
-          <li key={u.id} className={`${activeTabID === u.id ? 'bordered' : ''}`}>
+          {enemies.map((u) => (
+            <li key={u.id}>
+              <a
+                className="flex flex-row"
+                onClick={() => {
+                  toggleActiveCombatants([u]);
+                }}
+              >
+                <input
+                  readOnly
+                  type="checkbox"
+                  checked={activeCombatants.includes(u)}
+                  className="checkbox checkbox-sm"
+                />
+                <CombatUnitName unit={u} />
+              </a>
+            </li>
+          ))}
+          <li key="ttab-2">
             <a
               className="flex flex-row"
               onClick={() => {
-                setActiveTabID(u.id);
+                toggleActiveCombatants(friends);
               }}
             >
-              <CombatUnitName unit={u} />
+              <input
+                readOnly
+                type="checkbox"
+                checked={friends.every((u) => {
+                  return activeCombatants.includes(u);
+                })}
+                className="checkbox checkbox-sm"
+              />
+              <div>{isAnonymized ? 'Team 2' : 'My Team'}</div>
+              {combat.result === CombatResult.Win && (
+                <div className="ml-2 badge badge-success">{CombatResult[CombatResult.Win]}</div>
+              )}
             </a>
           </li>
-        ))}
-      </ul>
-      {activeTabID === 'ttab-1' ? <TeamCurves combatants={enemies} /> : null}
-      {activeTabID === 'ttab-2' ? <TeamCurves combatants={friends} /> : null}
-      {activeTabID && combat.units[activeTabID] ? <PlayerCurves unit={combat.units[activeTabID]} /> : null}
+          {friends.map((u) => (
+            <li key={u.id}>
+              <a
+                className="flex flex-row"
+                onClick={() => {
+                  toggleActiveCombatants([u]);
+                }}
+              >
+                <input
+                  readOnly
+                  type="checkbox"
+                  checked={activeCombatants.includes(u)}
+                  className="checkbox checkbox-sm"
+                />
+                <CombatUnitName unit={u} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <TeamCurves combatants={activeCombatants} />
     </div>
   );
 };
