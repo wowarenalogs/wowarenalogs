@@ -11,12 +11,12 @@
     "build:web": "next build",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "test": "next test",
     "release:web": "git checkout release/wowarenalogs/web && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "dependencies": {
-    "@sentry/react": "^7.19.0",
-    "@sentry/tracing": "^7.19.0",
+    "@apollo/client": "^3.7.3",
+    "@sentry/react": "^7.28.1",
+    "@sentry/tracing": "^7.28.1",
     "@tailwindcss/typography": "^0.5.7",
     "@wowarenalogs/parser": "^5.0.0",
     "@wowarenalogs/shared": "^1.0.0",
@@ -24,6 +24,7 @@
     "lodash": "^4.17.21",
     "next": "^12.1.1",
     "next-auth": "^4.9.0",
+    "next-seo": "^5.15.0",
     "next-transpile-modules": "^9.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

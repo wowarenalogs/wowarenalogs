@@ -1,6 +1,8 @@
 import { Firestore } from '@google-cloud/firestore';
 import { instanceToPlain } from 'class-transformer';
+import fs from 'fs';
 import fetch from 'node-fetch';
+import path from 'path';
 
 import { WowVersion } from '../../parser/dist/index';
 import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from './createMatchStub';
@@ -8,13 +10,19 @@ import { parseFromStringArrayAsync } from './utils';
 
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
 
+const gcpCredentials =
+  process.env.NODE_ENV === 'development'
+    ? JSON.parse(fs.readFileSync(path.join(__dirname, '../../wowarenalogs-public-dev.json'), 'utf8'))
+    : undefined;
+
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
+  credentials: gcpCredentials,
 });
 
 // In the Google code they actually type file as `data:{}`
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function handler(file: any, _context: any) {
+export async function handler(file: any, _context: any) {
   const fileUrl = `https://storage.googleapis.com/${file.bucket}/${file.name}`;
 
   console.log(`Opening ${fileUrl}`);
@@ -36,6 +44,11 @@ async function handler(file: any, _context: any) {
 
   if (parseResults.arenaMatches.length > 0) {
     const arenaMatch = parseResults.arenaMatches[0];
+    console.log(arenaMatch.startInfo.bracket);
+    if (arenaMatch.startInfo.bracket === 'Rated BG') {
+      console.log('RBG detected, skipping');
+      return;
+    }
     const stub = createStubDTOFromArenaMatch(arenaMatch, ownerId, logObjectUrl);
     const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
     console.log(`writing ${matchStubsFirestore}/${stub.id}`);

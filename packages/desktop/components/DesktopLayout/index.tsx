@@ -31,7 +31,7 @@ export const DesktopLayout = !window.wowarenalogs
       return null;
     }
   : ({ Component, pageProps }: AppProps) => {
-      const { isLoading, updateAppConfig } = useAppConfig();
+      const { isLoading } = useAppConfig();
 
       useEffect(() => {
         initAnalyticsAsync('G-Z6E8QS4ENW').then(() => {
@@ -80,22 +80,15 @@ export const DesktopLayout = !window.wowarenalogs
               window.wowarenalogs.links?.openExternalURL(url);
             }}
             showLoginModal={(authUrl, callback) => {
-              window.wowarenalogs.bnet?.login(getAbsoluteAuthUrl(authUrl), 'Login').then(() => {
-                callback();
-              });
-            }}
-            saveWindowPosition={async () => {
-              const pos = await window.wowarenalogs.win?.getWindowPosition();
-              const size = await window.wowarenalogs.win?.getWindowSize();
-              if (pos && size) {
-                updateAppConfig((prev) => ({
-                  ...prev,
-                  lastWindowX: pos[0],
-                  lastWindowY: pos[1],
-                  lastWindowWidth: size[0],
-                  lastWindowHeight: size[1],
-                }));
-              }
+              window.wowarenalogs.bnet
+                ?.login(getAbsoluteAuthUrl(authUrl), 'Login')
+                .then(() => {
+                  callback();
+                })
+                .catch(() => {
+                  // catching this promise rejection is necessary to not crash the app.
+                  // but there's nothing we need to do here.
+                });
             }}
           >
             <AuthProvider>

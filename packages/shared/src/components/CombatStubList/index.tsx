@@ -1,37 +1,25 @@
-import { CombatDataStub } from '../../graphql/__generated__/graphql';
-import { ArenaMatchRow, ShuffleRoundRow } from './rows';
+import { ArenaMatchRow, CombatStubListSource, LocalRemoteHybridCombat, ShuffleRoundRow } from './rows';
 
 export interface IProps {
   viewerIsOwner?: boolean;
-  combats: CombatDataStub[];
-  combatUrlFactory: (combatId: string, combatBracket: string) => string;
+  combats: LocalRemoteHybridCombat[];
+  source: CombatStubListSource;
 }
 
 export const CombatStubList = (props: IProps) => {
   return (
     <ul className="space-y-1">
       {props.combats.map((c) => {
-        if (c.__typename === 'ArenaMatchDataStub') {
+        if (!c.isShuffle) {
           return (
-            <ArenaMatchRow
-              match={c}
-              key={c.id}
-              viewerIsOwner={props.viewerIsOwner}
-              combatUrlFactory={props.combatUrlFactory}
-            />
+            <ArenaMatchRow combat={c} key={c.match.id} viewerIsOwner={props.viewerIsOwner} source={props.source} />
           );
         }
-        if (c.__typename === 'ShuffleRoundStub') {
+        if (c.isShuffle) {
           return (
-            <ShuffleRoundRow
-              round={c}
-              key={c.id}
-              viewerIsOwner={props.viewerIsOwner}
-              combatUrlFactory={props.combatUrlFactory}
-            />
+            <ShuffleRoundRow combat={c} key={c.match.id} viewerIsOwner={props.viewerIsOwner} source={props.source} />
           );
         }
-        return <div key={c.id}>Error loading {c.id}</div>;
       })}
     </ul>
   );

@@ -1,10 +1,9 @@
 import { CombatResult } from '@wowarenalogs/parser';
 import { useAuth } from '@wowarenalogs/shared';
-import { useClientContext } from '@wowarenalogs/shared';
+import { LogoutButton } from '@wowarenalogs/shared/src/components/common/LogoutButton';
 import { useGetMyMatchesQuery, useGetProfileQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 
 import { LoginButton } from '../components/Login/LoginButton';
-import { LogoutButton } from '../components/Login/LogoutButton';
 import { useAppConfig } from '../hooks/AppConfigContext';
 import { useLocalCombats } from '../hooks/LocalCombatsContext';
 
@@ -13,7 +12,6 @@ const Debug = () => {
 
   const platform = typeof window !== 'undefined' ? window.wowarenalogs.platform : '';
 
-  const client = useClientContext();
   const { updateAppConfig, wowInstallations } = useAppConfig();
   const combats = useLocalCombats();
 
@@ -119,14 +117,6 @@ const Debug = () => {
             }}
           >
             Clear WoW Folder Setting
-          </button>
-          <button
-            className="btn"
-            onClick={() => {
-              client.saveWindowPosition();
-            }}
-          >
-            Save Window Pos
           </button>
         </div>
       </div>

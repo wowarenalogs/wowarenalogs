@@ -2,7 +2,12 @@ import { Session, User } from 'next-auth';
 import { signOut, useSession } from 'next-auth/react';
 import React, { useCallback, useContext, useEffect } from 'react';
 
-import { getAnalyticsDeviceId, getAnalyticsSessionId, setAnalyticsUserProperties } from '../../utils/analytics';
+import {
+  getAnalyticsDeviceId,
+  getAnalyticsSessionId,
+  logAnalyticsEvent,
+  setAnalyticsUserProperties,
+} from '../../utils/analytics';
 import { useClientContext } from '../ClientContext';
 
 interface WALUser extends User {
@@ -59,6 +64,11 @@ export const useAuth = () => {
 
   const signIn = useCallback(() => {
     clientContext.showLoginModal('/login', () => {
+      // following predefined schema by google analytics convention.
+      // see https://developers.google.com/analytics/devguides/collection/ga4/reference/events?client_type=gtag#login
+      logAnalyticsEvent('login', {
+        method: 'bnet',
+      });
       window.location.reload();
     });
   }, [clientContext]);

@@ -2,6 +2,7 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import { Utils } from '../../../utils/utils';
+import { TimestampDisplay } from '../../common/TimestampDisplay';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 
@@ -45,6 +46,14 @@ export const Meters = () => {
               <th colSpan={4} className="bg-base-300">
                 STATS
               </th>
+            </tr>
+            <tr>
+              <td colSpan={3} className="bg-base-200">
+                Start Time
+              </td>
+              <td className="text-right bg-base-200">
+                <TimestampDisplay timestamp={combat.startTime} timezone={combat.timezone} />
+              </td>
             </tr>
             <tr>
               <td colSpan={3} className="bg-base-200">

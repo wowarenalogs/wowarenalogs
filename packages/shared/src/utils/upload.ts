@@ -27,12 +27,14 @@ export async function uploadCombatAsync(
   }
 
   const storageSignerResponse = await fetch(`/api/getCombatUploadSignature/${combat.id}`, { headers });
-  const jsonResponse = await storageSignerResponse.json();
+  const jsonResponse = (await storageSignerResponse.json()) as { id: string; url: string; matchExists: boolean };
   const signedUploadUrl = jsonResponse.url;
 
-  return fetch(signedUploadUrl, {
+  await fetch(signedUploadUrl, {
     method: 'PUT',
     body: buffer,
     headers,
   });
+
+  return jsonResponse;
 }

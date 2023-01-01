@@ -1,0 +1,23 @@
+name: test
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: macos-latest
+    env:
+      CI: false
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: clean npm cache
+        run: npm cache clean -f
+      - name: install dependencies
+        run: npm ci
+      - name: tests
+        run: npm run test

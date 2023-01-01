@@ -7,6 +7,7 @@ interface IProps {
   charges?: number;
   cooldownPercent?: number;
   circular?: boolean;
+  opacity?: number;
 }
 
 export function SpellIcon(props: IProps) {
@@ -23,6 +24,7 @@ export function SpellIcon(props: IProps) {
         width: props.size,
         height: props.size,
         borderRadius: props.circular ? props.size / 2 : 4,
+        opacity: props.opacity || 1,
       }}
     >
       <a

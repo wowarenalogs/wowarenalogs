@@ -33,9 +33,11 @@ type ParseResult = {
   shuffleMatches: IShuffleMatch[];
 };
 
+export const SIGNIFICANT_DAMAGE_HEAL_THRESHOLD = 10000;
+
 export class Utils {
-  public static parseFromStringArray(buffer: string[], wowVersion: WowVersion): ParseResult {
-    const logParser = new WoWCombatLogParser(wowVersion);
+  public static parseFromStringArray(buffer: string[], wowVersion: WowVersion, timezone?: string): ParseResult {
+    const logParser = new WoWCombatLogParser(wowVersion, timezone);
 
     const results: ParseResult = {
       arenaMatches: [],
