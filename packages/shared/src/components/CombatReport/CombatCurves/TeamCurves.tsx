@@ -53,7 +53,7 @@ export const TeamCurves = (props: IProps) => {
                   series={props.combatants.map((c) => {
                     return {
                       key: `damage-out-${c.id}`,
-                      displayName: c.name,
+                      displayName: c.name.split('-')[0],
                       color: getClassColor(c.class),
                     };
                   })}
@@ -78,7 +78,7 @@ export const TeamCurves = (props: IProps) => {
                   series={props.combatants.map((c) => {
                     return {
                       key: `heal-out-${c.id}`,
-                      displayName: c.name,
+                      displayName: c.name.split('-')[0],
                       color: getClassColor(c.class),
                     };
                   })}
@@ -103,7 +103,7 @@ export const TeamCurves = (props: IProps) => {
                   series={props.combatants.map((c) => {
                     return {
                       key: `damage-in-${c.id}`,
-                      displayName: c.name,
+                      displayName: c.name.split('-')[0],
                       color: getClassColor(c.class),
                     };
                   })}
@@ -128,7 +128,7 @@ export const TeamCurves = (props: IProps) => {
                   series={props.combatants.map((c) => {
                     return {
                       key: `heal-in-${c.id}`,
-                      displayName: c.name,
+                      displayName: c.name.split('-')[0],
                       color: getClassColor(c.class),
                     };
                   })}
