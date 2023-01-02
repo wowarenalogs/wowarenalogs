@@ -21,6 +21,5 @@ fetch(rootUri).then((response) => {
       const stub = createStubDTOFromShuffleMatch(shuffleMatch, 'test-owner', 'someStorageUrl');
       console.log('Shuffle:', JSON.stringify(stub, null, 2));
     }
-    // const anonStubInfo = anonymizeDTO(stub2);
   });
 });
