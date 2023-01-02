@@ -322,12 +322,12 @@ export function CombatPlayer(props: IProps) {
         <div className="flex flex-row mt-2">
           <div className="flex flex-col mr-4">
             {orderedEquipment.slice(0, orderedEquipmentHalfwayPoint).map((d) => (
-              <EquipmentInfo key={d.slot} item={d.item} />
+              <EquipmentInfo key={d.slot} item={d.item} size="medium" />
             ))}
           </div>
           <div className="flex flex-col">
             {orderedEquipment.slice(orderedEquipmentHalfwayPoint, 18).map((d) => (
-              <EquipmentInfo key={d.slot} item={d.item} />
+              <EquipmentInfo key={d.slot} item={d.item} size="medium" />
             ))}
           </div>
         </div>
