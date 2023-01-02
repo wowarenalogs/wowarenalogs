@@ -1,4 +1,4 @@
-const ratingOptions = [1400, 1800, 2100, 2400];
+const ratingOptions = [1400, 1800, 2100];
 
 export function RatingSelector({ minRating, setMinRating }: { minRating: number; setMinRating: (r: number) => void }) {
   return (
