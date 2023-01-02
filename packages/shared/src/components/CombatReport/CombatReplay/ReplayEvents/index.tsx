@@ -38,6 +38,7 @@ export const ReplayEvents = (props: IProps) => {
   const [filters, setFilters] = useState<ReplayEventFilters>({
     significantAurasOnly: true,
     significantDamageHealOnly: true,
+    gcdsOnly: false,
   });
 
   const qualifiedEvents = useMemo(() => {
@@ -69,6 +70,20 @@ export const ReplayEvents = (props: IProps) => {
       }
       return e.srcUnitId === props.filterByUnitId || e.destUnitId === props.filterByUnitId;
     };
+    const wantedUnitIsCaster = (e: CombatEvent) => {
+      if (!props.filterByUnitId) {
+        return true;
+      }
+      if (!(e instanceof CombatAction)) {
+        return false;
+      }
+      return e.srcUnitId === props.filterByUnitId;
+    };
+    const isGCDsModeEvent = (e: CombatEvent) => {
+      return ['SPELL_CAST_SUCCESS', 'SPELL_DISPEL', 'SPELL_INTERRUPT', 'SPELL_STOLEN', 'UNIT_DIED'].includes(
+        e.logLine.event,
+      );
+    };
 
     const items: CombatEvent[] = [];
     from(context.combat?.rawLines || [])
@@ -78,7 +93,11 @@ export const ReplayEvents = (props: IProps) => {
         filter(isCombatEvent),
       )
       .subscribe((e) => {
-        if (
+        if (filters.gcdsOnly) {
+          if (wantedUnitIsCaster(e) && isGCDsModeEvent(e)) {
+            items.push(e);
+          }
+        } else if (
           (isWantedDamageOrHeal(e) || isExtraSpellAction(e) || isPlayerDeath(e) || isWantedAura(e) || isAuraDose(e)) &&
           isWantedUnit(e)
         ) {
