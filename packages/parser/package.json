@@ -17,7 +17,7 @@
     "build": "npx tsdx build",
     "build:parser": "npx tsdx build",
     "test": "npx tsdx test",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "prepare": "npm run build",
     "size": "size-limit",
