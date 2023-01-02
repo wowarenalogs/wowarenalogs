@@ -3,6 +3,8 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import {
+  AggregationFields,
+  buildAggregationHelpers,
   buildMMRHelpers,
   buildQueryHelpers,
   CombatUnitType,
@@ -35,7 +37,7 @@ export type FirebaseDTO = ICombatDataStub & {
   timezone: string;
 };
 
-interface QueryHelpers extends SpecIndexFields, MMRIndexFields {}
+interface QueryHelpers extends SpecIndexFields, MMRIndexFields, AggregationFields {}
 
 function createUnitsList(units: IArenaCombat['units']) {
   return _.values(units).map((c) => {
@@ -97,7 +99,7 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
       sequenceNumber: round.sequenceNumber,
       // endInfo: UNDEFINED HERE!
       result: round.result,
-      extra: { ...buildQueryHelpers(round), ...buildMMRHelpers(round) },
+      extra: { ...buildQueryHelpers(round), ...buildMMRHelpers(round), ...buildAggregationHelpers(round) },
       combatantNames: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
       combatantGuids: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
       expires: Timestamp.fromDate(inThirtyDays.toDate()),
@@ -131,7 +133,7 @@ function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjec
     playerId: com.playerId,
     durationInSeconds: com.durationInSeconds,
     winningTeamId: com.winningTeamId,
-    extra: { ...buildQueryHelpers(com), ...buildMMRHelpers(com) },
+    extra: { ...buildQueryHelpers(com), ...buildMMRHelpers(com), ...buildAggregationHelpers(com) },
     combatantNames: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
     combatantGuids: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
     expires: Timestamp.fromDate(inThirtyDays.toDate()),

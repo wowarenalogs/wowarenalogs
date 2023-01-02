@@ -163,6 +163,19 @@ export interface MMRIndexFields {
   gte2400: boolean;
 }
 
+export interface AggregationFields {
+  /**
+   * Array of spec ids for players not on the observer/uploader's team
+   *
+   * Useful if you want to aggregate stats that are a 'random' sample of players, not WAL users
+   */
+  enemyTeamSpecs?: string[];
+  /**
+   * Array of spec ids for players on the observer/uploader's team
+   */
+  playerTeamSpecs?: string[];
+}
+
 function kCombinations<T>(set: T[], k: number): T[][] {
   // https://gist.github.com/axelpale/3118596
   let i, j, combs, head, tailcombs;
@@ -196,6 +209,32 @@ function allCombinations<T>(set: T[]): T[][] {
     combs = combs.concat(kCombinations(set, i + 1));
   }
   return combs;
+}
+
+export function buildAggregationHelpers(com: IArenaMatch | IShuffleRound): AggregationFields {
+  const unitsList = _.values(com.units).map((c) => ({
+    id: c.id,
+    name: c.name,
+    info: c.info,
+    type: c.type,
+    class: c.class,
+    spec: c.spec,
+    reaction: c.reaction,
+  }));
+  const playerTeamSpecs = unitsList
+    .filter((u) => u.type === CombatUnitType.Player)
+    .filter((u) => u.info?.teamId === com.playerTeamId)
+    .map((u) => (u.spec === CombatUnitSpec.None ? `c${u.class}` : u.spec))
+    .sort();
+  const enemyTeamSpecs = unitsList
+    .filter((u) => u.type === CombatUnitType.Player)
+    .filter((u) => u.info?.teamId !== com.playerTeamId)
+    .map((u) => (u.spec === CombatUnitSpec.None ? `c${u.class}` : u.spec))
+    .sort();
+  return {
+    playerTeamSpecs,
+    enemyTeamSpecs,
+  };
 }
 
 export function buildMMRHelpers(com: IArenaMatch | IShuffleRound): MMRIndexFields {
