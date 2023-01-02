@@ -349,7 +349,6 @@ export function CombatPlayer(props: IProps) {
                   <SpellIcon spellId={d.id} size={24} />
                   <div className="ml-1">{d.name}</div>
                 </td>
-                <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneBySpellsSum).toFixed(1)}%</td>
                 <td className="bg-base-200 w-full">
                   <progress
                     className="progress w-full progress-error"
@@ -357,6 +356,7 @@ export function CombatPlayer(props: IProps) {
                     max={100}
                   />
                 </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneBySpellsSum).toFixed(1)}%</td>
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
             ))}
@@ -370,7 +370,6 @@ export function CombatPlayer(props: IProps) {
                 <td className="bg-base-200">
                   <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
                 </td>
-                <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneByDestSum).toFixed(1)}%</td>
                 <td className="bg-base-200 w-full">
                   <progress
                     className="progress w-full progress-error"
@@ -378,6 +377,7 @@ export function CombatPlayer(props: IProps) {
                     max={100}
                   />
                 </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneByDestSum).toFixed(1)}%</td>
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
             ))}
@@ -392,7 +392,6 @@ export function CombatPlayer(props: IProps) {
                   <SpellIcon spellId={d.id} size={24} />
                   <div className="ml-1">{d.name}</div>
                 </td>
-                <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneBySpellsSum).toFixed(1)}%</td>
                 <td className="bg-base-200 w-full">
                   <progress
                     className="progress w-full progress-success"
@@ -400,6 +399,7 @@ export function CombatPlayer(props: IProps) {
                     max={100}
                   />
                 </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneBySpellsSum).toFixed(1)}%</td>
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
             ))}
@@ -413,7 +413,6 @@ export function CombatPlayer(props: IProps) {
                 <td className="bg-base-200">
                   <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
                 </td>
-                <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneByDestSum).toFixed(1)}%</td>
                 <td className="bg-base-200 w-full">
                   <progress
                     className="progress w-full progress-success"
@@ -421,6 +420,7 @@ export function CombatPlayer(props: IProps) {
                     max={100}
                   />
                 </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneByDestSum).toFixed(1)}%</td>
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
             ))}
@@ -452,7 +452,7 @@ export function CombatPlayer(props: IProps) {
                   <div className="ml-1">{a.spellName}</div>
                 </td>
                 <td className="bg-base-200 w-full"></td>
-                <td className="bg-base-200 w-full">{a.totalTimeInSeconds.toFixed(1)}s</td>
+                <td className="bg-base-200">{a.totalTimeInSeconds.toFixed(1)}s</td>
                 <td className="bg-base-200">{a.uptime.toFixed(1)}%</td>
               </tr>
             ))}
