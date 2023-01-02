@@ -9,7 +9,9 @@ const Page = () => {
 
   useEffect(() => {
     if (!isLoading) {
-      if (appConfig.wowDirectory && appConfig.tosAccepted) {
+      if (!window.wowarenalogs.app?.getVersion) {
+        router.push('/upgrade');
+      } else if (appConfig.wowDirectory && appConfig.tosAccepted) {
         router.push('/latest');
       } else {
         router.push('/first_time_setup');
