@@ -4,10 +4,8 @@ import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
 
-import { ApolloContext, CombatQueryResult, ICombatDataStub, UserSubscriptionTier } from '../types';
+import { ApolloContext, CombatQueryResult, ICombatDataStub } from '../types';
 import { Constants } from '../utils/constants';
-import { getUserProfileAsync } from '../utils/getUserProfileAsync';
-
 const matchStubsCollection = 'match-stubs-prod';
 
 const firestore = new Firestore({
@@ -23,7 +21,7 @@ function firestoreDocToMatchStub(stub: ICombatDataStub): ICombatDataStub {
 }
 
 export async function latestMatches(
-  parent: unknown,
+  _parent: unknown,
   args: {
     wowVersion: WowVersion;
     bracket?: string;
@@ -33,18 +31,7 @@ export async function latestMatches(
     offset: number;
     count: number;
   },
-  context: ApolloContext,
 ): Promise<CombatQueryResult> {
-  const userProfile = await getUserProfileAsync(context);
-  const subscriptionTier = userProfile ? userProfile.subscriptionTier : UserSubscriptionTier.Common;
-
-  if (args.minRating && args.minRating >= 2100 && userProfile?.subscriptionTier !== UserSubscriptionTier.Rare) {
-    return {
-      combats: [],
-      queryLimitReached: true,
-    };
-  }
-
   const collectionReference = firestore.collection(matchStubsCollection);
 
   const now = moment().valueOf();
@@ -105,21 +92,13 @@ export async function latestMatches(
     .get();
   const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
 
-  // users without a subscription can only query the first page of results
-  if (matches.length > 0 && subscriptionTier === UserSubscriptionTier.Common && args.offset > 0) {
-    return {
-      combats: [],
-      queryLimitReached: true,
-    };
-  }
-
   return {
     combats: matches,
     queryLimitReached: false,
   };
 }
 
-export async function matchesWithCombatant(parent: unknown, args: { playerName: string }) {
+export async function matchesWithCombatant(_parent: unknown, args: { playerName: string }) {
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
     .where('ownerId', '==', args.playerName)
@@ -131,7 +110,7 @@ export async function matchesWithCombatant(parent: unknown, args: { playerName: 
 }
 
 export async function myMatches(
-  parent: unknown,
+  _parent: unknown,
   args: { anonymousUserId: string | null; offset: number; count: number },
   context: ApolloContext,
 ): Promise<CombatQueryResult> {
@@ -152,9 +131,7 @@ export async function myMatches(
     };
   }
 
-  const userProfile = await getUserProfileAsync(context);
   const userId = context.user ? context.user.battlenetId : args.anonymousUserId;
-  const subscriptionTier = userProfile ? userProfile.subscriptionTier : UserSubscriptionTier.Common;
 
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
@@ -165,14 +142,6 @@ export async function myMatches(
     .get();
   const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
 
-  // users without a subscription can only query the first page of results
-  if (matches.length > 0 && subscriptionTier === UserSubscriptionTier.Common && args.offset > 0) {
-    return {
-      combats: [],
-      queryLimitReached: true,
-    };
-  }
-
   return {
     combats: matches,
     queryLimitReached: false,
@@ -180,13 +149,9 @@ export async function myMatches(
 }
 
 export async function userMatches(
-  parent: unknown,
+  _parent: unknown,
   args: { userId: string; offset: number; count: number },
-  context: ApolloContext,
 ): Promise<CombatQueryResult> {
-  const viewerUserProfile = await getUserProfileAsync(context);
-  const subscriptionTier = viewerUserProfile ? viewerUserProfile.subscriptionTier : UserSubscriptionTier.Common;
-
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
     .where('ownerId', '==', `${args.userId}`)
@@ -196,21 +161,13 @@ export async function userMatches(
     .get();
   const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
 
-  // users without a subscription can only query the first page of results
-  if (matches.length > 0 && subscriptionTier === UserSubscriptionTier.Common && args.offset > 0) {
-    return {
-      combats: [],
-      queryLimitReached: true,
-    };
-  }
-
   return {
     combats: matches,
     queryLimitReached: false,
   };
 }
 
-export async function matchById(parent: unknown, args: { matchId: string }) {
+export async function matchById(_parent: unknown, args: { matchId: string }) {
   const collection = matchStubsCollection;
   const collectionReference = firestore.collection(collection);
   const matchDocs = await collectionReference.where('id', '==', `${args.matchId}`).limit(1).get();
