@@ -1,4 +1,5 @@
 import { LoadingScreen, useClientContext } from '@wowarenalogs/shared';
+import { useEffect, useState } from 'react';
 import { FaDiscord, FaPatreon } from 'react-icons/fa';
 
 import { useAppConfig } from '../hooks/AppConfigContext';
@@ -6,6 +7,15 @@ import { useAppConfig } from '../hooks/AppConfigContext';
 const Page = () => {
   const { isLoading, appConfig, updateAppConfig } = useAppConfig();
   const clientContext = useClientContext();
+  const [appVersion, setAppVersion] = useState('');
+
+  useEffect(() => {
+    if (window.wowarenalogs.app?.getVersion) {
+      window.wowarenalogs.app.getVersion().then((version) => {
+        setAppVersion(version);
+      });
+    }
+  }, []);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -13,6 +23,16 @@ const Page = () => {
 
   return (
     <div className="flex flex-col m-2">
+      {appVersion ? (
+        <div className="fixed bottom-4 right-4 rounded-box table table-compact">
+          <thead>
+            <tr>
+              <th className="bg-base-300">Version</th>
+              <td className="bg-base-200">{appVersion}</td>
+            </tr>
+          </thead>
+        </div>
+      ) : null}
       <div className="text-2xl font-bold mb-2">Settings</div>
       <div className="flex flex-row form-control">
         <label className="label">
@@ -58,6 +78,7 @@ const Page = () => {
           Set WoW Directory
         </button>
       </div>
+
       <div className="text-2xl font-bold my-4">Feedback and Support</div>
       <div className="flex flex-row">
         <button

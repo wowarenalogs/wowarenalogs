@@ -15,7 +15,7 @@ const classHeight = {
   [CombatUnitClass.Priest]: 430,
   [CombatUnitClass.Rogue]: 480,
   [CombatUnitClass.Mage]: 480,
-  [CombatUnitClass.Druid]: 390,
+  [CombatUnitClass.Druid]: 420,
   [CombatUnitClass.DeathKnight]: 420,
   [CombatUnitClass.DemonHunter]: 490,
   [CombatUnitClass.Monk]: 430,
