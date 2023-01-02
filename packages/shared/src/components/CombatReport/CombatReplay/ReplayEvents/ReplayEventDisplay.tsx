@@ -41,6 +41,8 @@ export const ReplayEventDisplay = React.memo(function ReplayEventDisplay(props: 
         return <ReplayUnitDiedEvent event={e} expanded={props.expanded} />;
       case LogEvent.SPELL_AURA_APPLIED:
         return <ReplayAuraAppliedEvent event={e} expanded={props.expanded} />;
+      case LogEvent.SPELL_CAST_SUCCESS:
+        return <ReplayAuraAppliedEvent event={e} expanded={props.expanded} />;
       case LogEvent.SPELL_AURA_REMOVED:
         return <ReplayAuraRemovedEvent event={e} expanded={props.expanded} />;
       case LogEvent.SPELL_AURA_APPLIED_DOSE:
