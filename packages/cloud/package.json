@@ -11,6 +11,7 @@
     "deploy:dev": "npm run build && serverless deploy --config serverless.dev.yml",
     "deploy:prod": "npm run build && serverless deploy --config serverless.prod.yml",
     "start:fix-cross-year-timestamps": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/src/operations/fixCrossYearTimestamps.js",
+    "start:aggregations": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/src/operations/aggregateQueries.js",
     "start:generate-map-image": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/src/operations/generateMapImage.js",
     "test:refresh-spell-icons": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js"
   },
