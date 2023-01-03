@@ -40,3 +40,12 @@ functions:
       - event:
           eventType: providers/cloud.pubsub/eventTypes/topic.publish
           resource: projects/${self:provider.project, ""}/topics/refresh-spell-icons-event
+
+  refreshCompetitiveStats:
+    memorySize: 1024
+    timeout: 540s
+    handler: refreshCompetitiveStatsHandler
+    events:
+      - event:
+          eventType: providers/cloud.pubsub/eventTypes/topic.publish
+          resource: projects/${self:provider.project, ""}/topics/refresh-competitive-stats-event
