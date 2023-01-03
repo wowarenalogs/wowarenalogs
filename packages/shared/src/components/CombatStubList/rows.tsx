@@ -49,6 +49,7 @@ export function ArenaMatchRow({
     <Link href={`/match?id=${match.id}&anon=${viewerIsOwner ? 'false' : 'true'}&source=${source}`}>
       <div
         key={match.id}
+        title={match.startInfo?.bracket}
         className="btn btn-ghost flex flex-row py-1 gap-1 w-full items-center transition-colors duration-200 rounded"
       >
         {viewerIsOwner ? (
