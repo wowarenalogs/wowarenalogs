@@ -111,10 +111,10 @@ async function generateSpecStatsAsync() {
   });
 
   const content = JSON.stringify(resultObject, null, 2);
-  await bucket.file('spec-stats.json').save(content, {
+  await bucket.file('data/spec-stats.json').save(content, {
     contentType: 'application/json',
   });
-  await bucket.file(`spec-stats.${moment().format('YYYY-MM-DD')}.json`).save(content, {
+  await bucket.file(`data/spec-stats.${moment().format('YYYY-MM-DD')}.json`).save(content, {
     contentType: 'application/json',
   });
 
@@ -214,10 +214,10 @@ async function generateCompStatsAsync() {
   });
 
   const content = JSON.stringify(resultObject, null, 2);
-  await bucket.file('comp-stats.json').save(content, {
+  await bucket.file('data/comp-stats.json').save(content, {
     contentType: 'application/json',
   });
-  await bucket.file(`comp-stats.${moment().format('YYYY-MM-DD')}.json`).save(content, {
+  await bucket.file(`data/comp-stats.${moment().format('YYYY-MM-DD')}.json`).save(content, {
     contentType: 'application/json',
   });
 
