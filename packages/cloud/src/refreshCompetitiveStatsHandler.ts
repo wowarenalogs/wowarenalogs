@@ -1,22 +1,23 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
-import { Firestore } from '@google-cloud/firestore';
+import { Storage as GoogleCloudStorage } from '@google-cloud/storage';
 import fs from 'fs';
 import _ from 'lodash';
+import moment from 'moment';
 import path from 'path';
 
-const gcpCredentials =
-  process.env.NODE_ENV === 'development'
-    ? JSON.parse(fs.readFileSync(path.join(process.cwd(), './wowarenalogs-public-dev.json'), 'utf8'))
-    : undefined;
+const isDev = process.env.NODE_ENV === 'development';
+const gcpCredentials = isDev
+  ? JSON.parse(fs.readFileSync(path.join(process.cwd(), './wowarenalogs-public-dev.json'), 'utf8'))
+  : undefined;
 
 const analytics = new BetaAnalyticsDataClient({
   credentials: gcpCredentials,
 });
 
-const firestore = new Firestore({
-  ignoreUndefinedProperties: true,
+const storage = new GoogleCloudStorage({
   credentials: gcpCredentials,
 });
+const bucket = storage.bucket(isDev ? 'data.public-dev.wowarenalogs.com' : 'data.wowarenalogs.com');
 
 const ALLOWED_BRACKETS = new Set<string>(['2v2', '3v3', 'Rated Solo Shuffle']);
 
@@ -64,7 +65,7 @@ async function generateSpecStatsAsync() {
           },
           {
             filter: {
-              fieldName: 'customEvent:isPlayer',
+              fieldName: 'customEvent:isPlayerTeam',
               stringFilter: {
                 matchType: 'EXACT',
                 value: 'false',
@@ -109,9 +110,13 @@ async function generateSpecStatsAsync() {
     resultObject = _.merge(resultObject, newEntry);
   });
 
-  const collectionReference = firestore.collection('competitive-stats');
-  const documentReference = collectionReference.doc('spec-stats');
-  await documentReference.set(resultObject, { merge: false });
+  const content = JSON.stringify(resultObject, null, 2);
+  await bucket.file('spec-stats.json').save(content, {
+    contentType: 'application/json',
+  });
+  await bucket.file(`spec-stats.${moment().format('YYYY-MM-DD')}.json`).save(content, {
+    contentType: 'application/json',
+  });
 
   console.log('Spec stats updated');
 }
@@ -208,9 +213,13 @@ async function generateCompStatsAsync() {
     resultObject = _.merge(resultObject, newEntry);
   });
 
-  const collectionReference = firestore.collection('competitive-stats');
-  const documentReference = collectionReference.doc('comp-stats');
-  await documentReference.set(resultObject, { merge: false });
+  const content = JSON.stringify(resultObject, null, 2);
+  await bucket.file('comp-stats.json').save(content, {
+    contentType: 'application/json',
+  });
+  await bucket.file(`comp-stats.${moment().format('YYYY-MM-DD')}.json`).save(content, {
+    contentType: 'application/json',
+  });
 
   console.log('Comp stats updated');
 }
