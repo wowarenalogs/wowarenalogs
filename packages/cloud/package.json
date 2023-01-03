@@ -12,6 +12,7 @@
     "deploy:prod": "npm run build && serverless deploy --config serverless.prod.yml",
     "start:fix-cross-year-timestamps": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/src/operations/fixCrossYearTimestamps.js",
     "start:generate-map-image": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/src/operations/generateMapImage.js",
+    "test:refresh-competitive-stats": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_competitive_stats.js",
     "test:refresh-spell-icons": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js"
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
     "serverless-google-cloudfunctions": "^4.3.1"
   },
   "dependencies": {
+    "@google-analytics/data": "^3.1.2",
     "@google-cloud/firestore": "^6.4.1",
     "@google-cloud/functions-framework": "^3.1.2",
     "@google-cloud/storage": "^6.7.0",
