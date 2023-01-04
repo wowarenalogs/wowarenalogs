@@ -12,6 +12,17 @@ interface IProps {
   }[];
 }
 
+const shortNum = (n: number, fixed?: number) => {
+  if (Math.abs(n) > 1000000) {
+    return (n / 1000000).toFixed(2) + 'M';
+  }
+  if (Math.abs(n) > 1000) {
+    return (n / 1000).toFixed(fixed ?? 2) + 'K';
+  }
+
+  return n.toFixed(fixed ?? 1);
+};
+
 export const CurveChart = (props: IProps) => {
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -34,6 +45,7 @@ export const CurveChart = (props: IProps) => {
               }}
               // animationDuration={5}
               labelFormatter={(v) => moment.utc(v * 1000).format('mm:ss')}
+              formatter={(v) => shortNum(v)}
             />
             <Legend />
             {props.series.map((s) => (
