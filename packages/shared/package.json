@@ -42,7 +42,7 @@
     "@google-cloud/storage": "^6.7.0",
     "@inlet/react-pixi": "^6.8.0",
     "@tailwindcss/typography": "^0.5.7",
-    "@wowarenalogs/parser": "^5.0.0",
+    "@wowarenalogs/parser": "^5.1.0",
     "apollo-server-micro": "^3.9.0",
     "base64url": "^3.0.1",
     "daisyui": "^2.33.0",
