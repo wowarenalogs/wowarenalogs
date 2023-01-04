@@ -45,7 +45,7 @@ export const CurveChart = (props: IProps) => {
               }}
               // animationDuration={5}
               labelFormatter={(v) => moment.utc(v * 1000).format('mm:ss')}
-              formatter={(v) => shortNum(v)}
+              formatter={(v) => shortNum(v as number)}
             />
             <Legend />
             {props.series.map((s) => (
