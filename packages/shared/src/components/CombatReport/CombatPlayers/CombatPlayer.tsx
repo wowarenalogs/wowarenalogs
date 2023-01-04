@@ -269,7 +269,9 @@ export function CombatPlayer(props: IProps) {
   return (
     <div className="flex flex-col flex-1 pb-4">
       <CombatUnitName unit={props.player} isTitle />
-      <AchievementBadge player={props.player} />
+      <div className="mt-2">
+        <AchievementBadge player={props.player} />
+      </div>
       {
         // TODO: look into recovering these functionality
         // <ArmoryLink player={props.player} />

@@ -1,6 +1,7 @@
 import { ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useQuery } from 'react-query';
+
 import { bnetLocales, realmIdToRegion } from '../../../utils/realms';
 
 interface BlizApiAchievement {
@@ -134,7 +135,7 @@ export function AchievementBadge({ player }: IProps) {
   const historical = _.flatMap(grouping, (a) => a[0]).slice(0, DISPLAY_LIMIT);
 
   return (
-    <div className="flex flex-row gap-1 mt-1 animate-fadein">
+    <div className="flex flex-row gap-1 animate-fadein">
       {historical?.map((a) => {
         if (a.achievement.name.includes('Gladiator')) {
           <div className="badge badge-sm badge-primary" key={a.id}>
