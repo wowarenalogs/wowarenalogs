@@ -30,8 +30,6 @@ export function SpellIcon(props: IProps) {
       <a
         className="relative"
         style={{
-          top: -1,
-          left: -1,
           width: props.size,
           height: props.size,
         }}
@@ -54,7 +52,7 @@ export function SpellIcon(props: IProps) {
         )}
         {props.cooldownPercent && (
           <div
-            className="absolute inline-block float-left bg-black opacity-80"
+            className="absolute inline-block float-left bg-black opacity-[80%] z-10"
             style={{
               height: props.size,
               width: props.size,
