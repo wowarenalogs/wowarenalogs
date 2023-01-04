@@ -1273,5 +1273,46 @@
     "charges": {},
     "durationSeconds": 4,
     "cooldown": null
+  },
+  "357170": {
+    "spellId": "357170",
+    "name": "Time Dilation",
+    "charges": {}
+  },
+  "363534": {
+    "spellId": "363534",
+    "name": "Rewind",
+    "charges": {
+      "charges": 1,
+      "chargesCooldown": 240
+    },
+    "cooldown": null
+  },
+  "363916": {
+    "spellId": "363916",
+    "name": "Obsidian Scales",
+    "charges": {
+      "charges": 1,
+      "chargesCooldown": 90
+    },
+    "cooldown": 1
+  },
+  "370553": {
+    "spellId": "370553",
+    "name": "Tip the Scales",
+    "charges": {},
+    "cooldown": 120
+  },
+  "370960": {
+    "spellId": "370960",
+    "name": "Emerald Communion",
+    "charges": {},
+    "cooldown": 180
+  },
+  "374348": {
+    "spellId": "374348",
+    "name": "Renewing Blaze",
+    "charges": {},
+    "cooldown": 90
   }
 }

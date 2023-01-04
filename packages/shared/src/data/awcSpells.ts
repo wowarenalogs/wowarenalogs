@@ -170,11 +170,11 @@ export const awcSpells: Record<CombatUnitSpec, string[]> = {
 
   //   Evoker_Preservation = "1468",
   '1468': [
+    '357170', // time dilation
+    '363534', // rewind
     '363916', // obsidian scales
     '370553', // tip the scales
-    '374348', // renewing blaze
-    '363534', // rewind
-    '357170', // time dilation
     '370960', // emerald communion
+    '374348', // renewing blaze
   ],
 };
