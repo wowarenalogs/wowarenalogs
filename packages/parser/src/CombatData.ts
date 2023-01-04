@@ -649,6 +649,21 @@ export class CombatData {
       unit.end();
     });
 
+    // In very rare circumstances, the combat log will include a player that's not actually in the match
+    // this is referred to as the outsider bug
+    // See test/testlogs/test_outside_bug.txt for an example log
+    // To resolve it we will inspect the units of the match and any 'Player' units who weren't represented
+    // in the COMBATANT_INFO events are downgraded to NPCs ;)
+    if (this.wowVersion === 'retail') {
+      _.forEach(this.units, (unit) => {
+        if (unit.type === CombatUnitType.Player) {
+          if (!unit.info) {
+            unit.type = CombatUnitType.NPC;
+          }
+        }
+      });
+    }
+
     if (this.wowVersion === 'classic') {
       this.inferMatchMetadata();
     }

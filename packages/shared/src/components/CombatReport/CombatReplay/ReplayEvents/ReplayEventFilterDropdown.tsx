@@ -6,6 +6,7 @@ import { Dropdown } from '../../../common/Dropdown';
 export interface ReplayEventFilters {
   significantDamageHealOnly: boolean;
   significantAurasOnly: boolean;
+  gcdsOnly: boolean;
 }
 
 interface IProps {
@@ -59,6 +60,30 @@ export const ReplayEventFilterDropdown = React.memo(function ReplayEventFilterDr
                     props.setFilters({
                       ...props.filters,
                       significantAurasOnly: e.target.checked,
+                    });
+                  }}
+                />
+              </label>
+            </div>
+          ),
+          onClick: () => {
+            return;
+          },
+        },
+        {
+          key: 'gcdsOnly',
+          label: (
+            <div className="form-control">
+              <label className="label cursor-pointer">
+                <span className="label-text min-w-[150px]">GCDs Mode</span>
+                <input
+                  className="checkbox checkbox-sm"
+                  type="checkbox"
+                  checked={props.filters.gcdsOnly}
+                  onChange={(e) => {
+                    props.setFilters({
+                      ...props.filters,
+                      gcdsOnly: e.target.checked,
                     });
                   }}
                 />

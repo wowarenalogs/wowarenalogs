@@ -5,13 +5,14 @@
   "main": "index.js",
   "author": "prsauer",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "build": "shx rm -rf dist && tsc && cd ../.. && npm run build:parser && shx mkdir ./packages/cloud/dist/parser && shx cp -r ./packages/parser/dist ./packages/cloud/dist/parser/dist",
     "deploy:dev": "npm run build && serverless deploy --config serverless.dev.yml",
     "deploy:prod": "npm run build && serverless deploy --config serverless.prod.yml",
-    "start:reprocess-anon": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/src/operations/reprocessAnonHandler.js",
+    "start:fix-cross-year-timestamps": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/src/operations/fixCrossYearTimestamps.js",
     "start:generate-map-image": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/src/operations/generateMapImage.js",
+    "test:refresh-competitive-stats": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_competitive_stats.js",
     "test:refresh-spell-icons": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js"
   },
   "devDependencies": {
@@ -28,9 +29,10 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "serverless": "^3.25.1",
-    "serverless-google-cloudfunctions": "^3.1.1"
+    "serverless-google-cloudfunctions": "^4.3.1"
   },
   "dependencies": {
+    "@google-analytics/data": "^3.1.2",
     "@google-cloud/firestore": "^6.4.1",
     "@google-cloud/functions-framework": "^3.1.2",
     "@google-cloud/storage": "^6.7.0",
@@ -52,7 +54,6 @@
     "superagent": "^8.0.4",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.5",
-    "unique-names-generator": "^4.4.0",
     "uuid": "^8.3.2"
   }
 }

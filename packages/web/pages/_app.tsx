@@ -16,6 +16,12 @@ const link = createHttpLink({
 });
 
 const client = new ApolloClient({
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-and-network',
+    },
+  },
   cache: new InMemoryCache({
     typePolicies: {
       CombatUnitStub: {

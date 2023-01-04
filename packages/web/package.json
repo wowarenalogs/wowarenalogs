@@ -9,7 +9,7 @@
     "dev:web": "cross-env NODE_ENV=development next dev",
     "start:web": "next start",
     "build:web": "next build",
-    "lint": "next lint",
+    "lint": "next lint --max-warnings 0",
     "lint:fix": "next lint --fix",
     "release:web": "git checkout release/wowarenalogs/web && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
@@ -18,7 +18,7 @@
     "@sentry/react": "^7.28.1",
     "@sentry/tracing": "^7.28.1",
     "@tailwindcss/typography": "^0.5.7",
-    "@wowarenalogs/parser": "^5.0.0",
+    "@wowarenalogs/parser": "^5.1.0",
     "@wowarenalogs/shared": "^1.0.0",
     "daisyui": "^2.33.0",
     "lodash": "^4.17.21",

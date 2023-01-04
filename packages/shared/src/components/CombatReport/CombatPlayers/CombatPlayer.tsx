@@ -10,6 +10,7 @@ import { useEffect, useMemo } from 'react';
 
 import talentIdMap from '../../../data/talentIdMap.json';
 import { Utils } from '../../../utils/utils';
+import { AchievementBadge } from '../AchievementBadge';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
@@ -150,6 +151,45 @@ const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorb
   }).sort((a, b) => b.value - a.value);
 };
 
+function compileAuraApplicationsBySpell(player: ICombatUnit) {
+  const aurasUpdated = _.groupBy(
+    player.auraEvents.filter((a) => ['SPELL_AURA_REMOVED', 'SPELL_AURA_APPLIED'].includes(a.logLine.event)),
+    (a) => a.spellId,
+  );
+  const applications: Record<
+    string,
+    {
+      spellName: string | null;
+      spellId: string;
+      spellSchoolId: string | null;
+      durationInSeconds: number;
+    }[]
+  > = {};
+  _.keys(aurasUpdated).forEach((spellId) => {
+    const updates = aurasUpdated[spellId];
+    let isActive = false;
+    let timeApplied = 0;
+    updates.forEach((update) => {
+      if (!isActive && update.logLine.event === 'SPELL_AURA_APPLIED') {
+        isActive = true;
+        timeApplied = update.timestamp;
+      }
+      if (isActive && update.logLine.event === 'SPELL_AURA_REMOVED') {
+        isActive = false;
+        if (!applications[spellId]) {
+          applications[spellId] = [];
+        }
+        applications[spellId].push({
+          spellName: update.spellName,
+          spellId,
+          spellSchoolId: update.spellSchoolId,
+          durationInSeconds: (update.timestamp - timeApplied) / 1000,
+        });
+      }
+    });
+  });
+  return applications;
+}
 export function CombatPlayer(props: IProps) {
   const { combat } = useCombatReportContext();
 
@@ -161,6 +201,24 @@ export function CombatPlayer(props: IProps) {
       // oh well
     }
   }, [props.player]);
+
+  const auraUptimes = useMemo(() => {
+    const applications = compileAuraApplicationsBySpell(props.player);
+    const updates = _.keys(applications)
+      .map((spellId) => {
+        const auraUpdates = applications[spellId];
+        const totalTimeInSeconds = _.sum(auraUpdates.map((u) => u.durationInSeconds));
+        return {
+          spellId,
+          spellName: auraUpdates[0].spellName,
+          spellSchoolId: auraUpdates[0].spellSchoolId,
+          totalTimeInSeconds,
+          uptime: (100 * totalTimeInSeconds) / (combat?.durationInSeconds || 1),
+        };
+      })
+      .sort((a, b) => b.uptime - a.uptime);
+    return updates;
+  }, [props.player, combat?.durationInSeconds]);
 
   const castsDoneBySpells = useMemo(() => {
     return compileCastsBySpell(props.player.spellCastEvents);
@@ -211,6 +269,9 @@ export function CombatPlayer(props: IProps) {
   return (
     <div className="flex flex-col flex-1 pb-4">
       <CombatUnitName unit={props.player} isTitle />
+      <div className="mt-2">
+        <AchievementBadge player={props.player} />
+      </div>
       {
         // TODO: look into recovering these functionality
         // <ArmoryLink player={props.player} />
@@ -265,12 +326,12 @@ export function CombatPlayer(props: IProps) {
         <div className="flex flex-row mt-2">
           <div className="flex flex-col mr-4">
             {orderedEquipment.slice(0, orderedEquipmentHalfwayPoint).map((d) => (
-              <EquipmentInfo key={d.slot} item={d.item} />
+              <EquipmentInfo key={d.slot} item={d.item} size="medium" />
             ))}
           </div>
           <div className="flex flex-col">
             {orderedEquipment.slice(orderedEquipmentHalfwayPoint, 18).map((d) => (
-              <EquipmentInfo key={d.slot} item={d.item} />
+              <EquipmentInfo key={d.slot} item={d.item} size="medium" />
             ))}
           </div>
         </div>
@@ -292,7 +353,6 @@ export function CombatPlayer(props: IProps) {
                   <SpellIcon spellId={d.id} size={24} />
                   <div className="ml-1">{d.name}</div>
                 </td>
-                <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneBySpellsSum).toFixed(1)}%</td>
                 <td className="bg-base-200 w-full">
                   <progress
                     className="progress w-full progress-error"
@@ -300,6 +360,7 @@ export function CombatPlayer(props: IProps) {
                     max={100}
                   />
                 </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneBySpellsSum).toFixed(1)}%</td>
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
             ))}
@@ -313,7 +374,6 @@ export function CombatPlayer(props: IProps) {
                 <td className="bg-base-200">
                   <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
                 </td>
-                <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneByDestSum).toFixed(1)}%</td>
                 <td className="bg-base-200 w-full">
                   <progress
                     className="progress w-full progress-error"
@@ -321,6 +381,7 @@ export function CombatPlayer(props: IProps) {
                     max={100}
                   />
                 </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / damageDoneByDestSum).toFixed(1)}%</td>
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
             ))}
@@ -335,7 +396,6 @@ export function CombatPlayer(props: IProps) {
                   <SpellIcon spellId={d.id} size={24} />
                   <div className="ml-1">{d.name}</div>
                 </td>
-                <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneBySpellsSum).toFixed(1)}%</td>
                 <td className="bg-base-200 w-full">
                   <progress
                     className="progress w-full progress-success"
@@ -343,6 +403,7 @@ export function CombatPlayer(props: IProps) {
                     max={100}
                   />
                 </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneBySpellsSum).toFixed(1)}%</td>
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
             ))}
@@ -356,7 +417,6 @@ export function CombatPlayer(props: IProps) {
                 <td className="bg-base-200">
                   <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
                 </td>
-                <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneByDestSum).toFixed(1)}%</td>
                 <td className="bg-base-200 w-full">
                   <progress
                     className="progress w-full progress-success"
@@ -364,6 +424,7 @@ export function CombatPlayer(props: IProps) {
                     max={100}
                   />
                 </td>
+                <td className="bg-base-200">{(((d.value || 0) * 100) / healsDoneByDestSum).toFixed(1)}%</td>
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
             ))}
@@ -381,6 +442,22 @@ export function CombatPlayer(props: IProps) {
                 <td className="bg-base-200 w-full"></td>
                 <td className="bg-base-200">{d.value} casts</td>
                 <td className="bg-base-200">{((60 * d.value) / combat.durationInSeconds).toFixed(1)}/min</td>
+              </tr>
+            ))}
+            <tr>
+              <th colSpan={4} className="bg-base-300">
+                AURA UPTIMES
+              </th>
+            </tr>
+            {auraUptimes.map((a) => (
+              <tr key={a.spellId}>
+                <td className="bg-base-200 flex flex-row items-center">
+                  <SpellIcon spellId={a.spellId} size={24} />
+                  <div className="ml-1">{a.spellName}</div>
+                </td>
+                <td className="bg-base-200 w-full"></td>
+                <td className="bg-base-200">{a.totalTimeInSeconds.toFixed(1)}s</td>
+                <td className="bg-base-200">{a.uptime.toFixed(1)}%</td>
               </tr>
             ))}
           </tbody>

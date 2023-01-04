@@ -29,19 +29,8 @@ functions:
       - event:
           eventType: google.storage.object.finalize
           resource: projects/wowarenalogs/buckets/${self:provider.project}-log-files-prod
-
-  writeAnonLog:
-    memorySize: 1024
-    handler: writeAnonLogHandler
-    environment:
-      ENV_MATCH_STUBS_FIRESTORE: match-anon-stubs-prod
-      ENV_LOG_FILES_BUCKET: ${self:provider.project}-anon-log-files-prod
-      ENV_GCP_PROJECT: ${self:provider.project}
-      ENV_SERVICE_NAME: ${self:service}
-    events:
-      - event:
-          eventType: google.storage.object.finalize
-          resource: projects/wowarenalogs/buckets/${self:provider.project}-log-files-prod
+          failurePolicy:
+            retry: {}
 
   refreshSpellIcons:
     memorySize: 1024
@@ -51,3 +40,12 @@ functions:
       - event:
           eventType: providers/cloud.pubsub/eventTypes/topic.publish
           resource: projects/${self:provider.project, ""}/topics/refresh-spell-icons-event
+
+  refreshCompetitiveStats:
+    memorySize: 1024
+    timeout: 540s
+    handler: refreshCompetitiveStatsHandler
+    events:
+      - event:
+          eventType: providers/cloud.pubsub/eventTypes/topic.publish
+          resource: projects/${self:provider.project, ""}/topics/refresh-competitive-stats-event

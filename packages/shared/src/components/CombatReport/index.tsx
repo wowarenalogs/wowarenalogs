@@ -15,6 +15,7 @@ import { CombatDeathReports } from './CombatDeathReports';
 import { CombatLogView } from './CombatLogView';
 import { CombatPlayers } from './CombatPlayers';
 import { CombatReportContextProvider, useCombatReportContext } from './CombatReportContext';
+import { CombatScoreboard } from './CombatScoreboard';
 import { CombatSummary } from './CombatSummary';
 
 const CombatReplay = dynamic(
@@ -67,6 +68,7 @@ export const CombatReportInternal = () => {
   if (!combat) return null;
 
   const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber + 1 : null;
+  const isShuffle = combat.dataType === 'ShuffleRound';
 
   return (
     <div className="w-full h-full flex flex-col p-2 animate-fadein">
@@ -151,6 +153,16 @@ export const CombatReportInternal = () => {
         >
           Replay
         </a>
+        {isShuffle && (
+          <a
+            className={`tab ${activeTab === 'scoreboard' ? 'tab-active' : ''}`}
+            onClick={() => {
+              setActiveTab('scoreboard');
+            }}
+          >
+            Scoreboard
+          </a>
+        )}
         {user?.me?.tags?.includes('rawlogs') && (
           <a
             className={`tab ${activeTab === 'logview' ? 'tab-active' : ''}`}
@@ -169,6 +181,7 @@ export const CombatReportInternal = () => {
           {activeTab === 'death' && <CombatDeathReports />}
           {activeTab === 'curves' && <CombatCurves />}
           {activeTab === 'replay' && <CombatReplay />}
+          {activeTab === 'scoreboard' && <CombatScoreboard />}
           {activeTab === 'logview' && <CombatLogView />}
         </div>
       </div>

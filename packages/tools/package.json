@@ -5,8 +5,9 @@
   "main": "index.js",
   "author": "WoW Arena Logs",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
+    "start:generateSpellsData": "ts-node --files ./src/generateSpellsData.ts",
     "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts"
   },
   "devDependencies": {

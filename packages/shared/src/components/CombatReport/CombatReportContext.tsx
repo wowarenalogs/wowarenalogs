@@ -63,7 +63,11 @@ export const CombatReportContextProvider = (props: IProps) => {
     playerInterrupts,
   ] = useMemo(() => {
     const mPlayers = _.orderBy(
-      _.values(props.combat.units).filter((u) => u.type === CombatUnitType.Player),
+      _.values(props.combat.units).filter(
+        (u) =>
+          u.type === CombatUnitType.Player &&
+          (u.reaction === CombatUnitReaction.Friendly || u.reaction === CombatUnitReaction.Hostile),
+      ),
       ['reaction', 'name'],
       ['desc', 'asc'],
     );
