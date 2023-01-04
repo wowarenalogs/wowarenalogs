@@ -52,7 +52,7 @@ export function SpellIcon(props: IProps) {
         )}
         {props.cooldownPercent && (
           <div
-            className="absolute inline-block float-left bg-black opacity-[80%] z-10"
+            className="absolute inline-block float-left bg-black opacity-80 z-10"
             style={{
               height: props.size,
               width: props.size,
