@@ -96,7 +96,7 @@ export function AchievementBadge({ player }: IProps) {
 
   if (achievementsQuery.isLoading) {
     return (
-      <div className="flex flex-row mt-1 gap-1 animate-fadein">
+      <div className="flex flex-row gap-1 animate-fadein">
         <div className="badge badge-sm badge-secondary w-[200px] animate-pulse"></div>
         <div className="badge badge-sm badge-secondary w-[200px] animate-pulse"></div>
         <div className="badge badge-sm badge-secondary w-[200px] animate-pulse"></div>
@@ -109,7 +109,7 @@ export function AchievementBadge({ player }: IProps) {
   // prevent layout shift
   if (data.length === 0) {
     return (
-      <div className="flex flex-row mt-1 animate-fadein">
+      <div className="flex flex-row animate-fadein">
         <div className="badge badge-sm badge-info opacity-80">No achievements!</div>
       </div>
     );
