@@ -11,8 +11,9 @@ const tokens: Record<string, string> = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const apiCache = new LRUCache<string, any>({
-  max: 100 * 1024 * 1024 /* cache size will be 100 MB using `return n.length` as length() function */,
   maxAge: 1000 * 60 * 60, // 60m
+  maxSize: 100 * 1024 * 1024,
+  sizeCalculation: (e) => JSON.stringify(e).length,
 });
 
 const clientId = process.env.BLIZZARD_CLIENT_ID;
@@ -22,7 +23,6 @@ function createBlizzardFetch(route: string[], namespace: string, locale: string)
   const froute = `https://${route[0]}.api.blizzard.com/${route
     .slice(1)
     .join('/')}?namespace=${namespace}&locale=${locale}`;
-  console.log(froute);
   return (token: string) =>
     fetch(encodeURI(froute + `&access_token=${token}`), {
       headers: {
@@ -51,21 +51,17 @@ async function refreshToken(region: string): Promise<string> {
 
 export async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { route, namespace, locale } = req.query;
-  console.log('handler', { route, namespace, locale });
   if (!route) {
     res.status(400);
     return;
   }
   const region = route[0];
   const key = JSON.stringify(route);
-  console.log('cachekey', key);
   if (apiCache.has(key)) {
     res.status(200).json(apiCache.get(key));
     return;
   }
-  console.log('CALL');
   const apiCall = createBlizzardFetch(route as string[], namespace as string, locale as string);
-  console.log('RES');
   let apiResult = await apiCall(tokens[region]);
   if (apiResult.status === 401) {
     // If we 401, refresh the token and try again
@@ -73,7 +69,6 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
     apiResult = await apiCall(tokens[region]);
   }
   const jsonResponse = await apiResult.json();
-  console.log('lru-set', key);
   apiCache.set(key, jsonResponse);
   res.status(200).json(jsonResponse);
 }
