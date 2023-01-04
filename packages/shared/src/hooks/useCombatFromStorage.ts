@@ -33,7 +33,7 @@ export function useCombatFromStorage(matchId: string, anon?: boolean) {
       return results.arenaMatches.at(0) || results.shuffleMatches[0]?.rounds?.find((i) => i.id === matchId);
     },
     {
-      cacheTime: 60 * 60 * 24,
+      cacheTime: 60 * 60 * 24 * 1000,
       staleTime: Infinity,
       enabled: matchId != '' && !queryCombat.loading && Boolean(queryCombat.data?.matchById.logObjectUrl),
     },
