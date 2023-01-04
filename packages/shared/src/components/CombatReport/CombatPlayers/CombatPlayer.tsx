@@ -10,6 +10,7 @@ import { useEffect, useMemo } from 'react';
 
 import talentIdMap from '../../../data/talentIdMap.json';
 import { Utils } from '../../../utils/utils';
+import { AchievementBadge } from '../AchievementBadge';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
@@ -268,6 +269,9 @@ export function CombatPlayer(props: IProps) {
   return (
     <div className="flex flex-col flex-1 pb-4">
       <CombatUnitName unit={props.player} isTitle />
+      <div className="mt-2">
+        <AchievementBadge player={props.player} />
+      </div>
       {
         // TODO: look into recovering these functionality
         // <ArmoryLink player={props.player} />
