@@ -1,3 +1,4 @@
+/* eslint-disable */
 import fs from 'fs-extra';
 import path from 'path';
 
@@ -77,47 +78,55 @@ import spellTags from '../../shared/src/data/spells.json';
 // "durationSeconds": 15
 
 async function main() {
-  console.log("Comparing SL->DF effects data");
+  console.log('Comparing SL->DF effects data');
   Object.keys(spellEffects).forEach((k) => {
     const e = (spellEffects as any)[k];
     const spellDbEntry = (spellDBInfo as any).find((s: any) => s.spellId.toString() === e.spellId);
-  
+
     if (!spellDbEntry) {
       console.log(`No entry for ${e.spellId} in DB?`);
       return;
     }
-  
+
     if (spellDbEntry.cooldown !== e.cooldownSeconds) {
       console.log(`spell ${e.spellId} changed cooldown. ${e.cooldownSeconds} => ${spellDbEntry.cooldown}`);
       e.cooldown = spellDbEntry.cooldown;
     }
-  
-    if ((spellDbEntry.charges !== null || Object.keys(e.charges).length !== 0) && spellDbEntry.charges !== e.charges?.charges) {
+
+    if (
+      (spellDbEntry.charges !== null || Object.keys(e.charges).length !== 0) &&
+      spellDbEntry.charges !== e.charges?.charges
+    ) {
       console.log(`spell ${e.spellId} changed charges. ${e.charges?.charges} => ${spellDbEntry.charges}`);
       e.charges = { charges: spellDbEntry.charges, chargesCooldown: spellDbEntry.chargesCooldown };
     }
-  
-    if ((spellDbEntry.charges !== null || Object.keys(e.charges).length !== 0) && spellDbEntry.chargesCooldown !== e.charges?.chargesCooldownSeconds) {
-      console.log(`spell ${e.spellId} changed chargesCooldown. ${e.charges?.chargesCooldown} => ${spellDbEntry.chargesCooldown}`);
+
+    if (
+      (spellDbEntry.charges !== null || Object.keys(e.charges).length !== 0) &&
+      spellDbEntry.chargesCooldown !== e.charges?.chargesCooldownSeconds
+    ) {
+      console.log(
+        `spell ${e.spellId} changed chargesCooldown. ${e.charges?.chargesCooldown} => ${spellDbEntry.chargesCooldown}`,
+      );
       e.charges = { charges: spellDbEntry.charges, chargesCooldown: spellDbEntry.chargesCooldown };
     }
   });
-  
-  console.log("Writing updated spell effects data");
+
+  console.log('Writing updated spell effects data');
   const outputPath = path.resolve(__dirname, '../../shared/src/data/spellEffects.json');
   await fs.writeFile(outputPath, JSON.stringify(spellEffects, null, 2));
-  
-  console.log("Resolving spell info from tags dump");
-  Object.keys(spellTags).forEach(spellId => {
+
+  console.log('Resolving spell info from tags dump');
+  Object.keys(spellTags).forEach((spellId) => {
     const spellDbEntry = (spellDBInfo as any).find((s: any) => s.spellId.toString() === spellId);
-  
+
     if (!spellDbEntry) {
       console.log(`No entry for ${spellId} in DB?`);
       return;
     }
   });
-  
 }
 
-
 main();
+
+/* eslint-enable */
