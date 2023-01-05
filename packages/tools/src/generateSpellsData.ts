@@ -90,7 +90,7 @@ async function main() {
 
     if (spellDbEntry.cooldown !== e.cooldownSeconds) {
       console.log(`spell ${e.spellId} changed cooldown. ${e.cooldownSeconds} => ${spellDbEntry.cooldown}`);
-      e.cooldown = spellDbEntry.cooldown;
+      e.cooldownSeconds = spellDbEntry.cooldown;
     }
 
     if (
