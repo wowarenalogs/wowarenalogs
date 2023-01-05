@@ -1287,7 +1287,8 @@
       "charges": 1,
       "chargeCooldownSeconds": 240
     },
-    "cooldownSeconds": 240
+    "cooldownSeconds": 240,
+    "cooldown": null
   },
   "363916": {
     "spellId": "363916",
