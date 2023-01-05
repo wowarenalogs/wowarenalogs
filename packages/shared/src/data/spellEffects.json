@@ -75,9 +75,7 @@
     "charges": {
       "charges": 1,
       "chargeCooldownSeconds": 60
-    },
-    "cooldown": null,
-    "cooldownSeconds": null
+    }
   },
   "2094": {
     "spellId": "2094",
@@ -128,9 +126,7 @@
       "charges": 0,
       "chargeCooldownSeconds": 30
     },
-    "durationSeconds": 15,
-    "cooldown": null,
-    "cooldownSeconds": null
+    "durationSeconds": 15
   },
   "6552": {
     "spellId": "6552",
@@ -183,9 +179,7 @@
     "spellId": "11327",
     "name": "Vanish",
     "charges": {},
-    "cooldownSeconds": null,
-    "durationSeconds": 3,
-    "cooldown": null
+    "durationSeconds": 3
   },
   "12042": {
     "spellId": "12042",
@@ -201,9 +195,7 @@
       "charges": 1,
       "chargeCooldownSeconds": 90
     },
-    "durationSeconds": 6,
-    "cooldown": null,
-    "cooldownSeconds": null
+    "durationSeconds": 6
   },
   "12472": {
     "spellId": "12472",
@@ -361,9 +353,7 @@
       "charges": 0,
       "chargeCooldownSeconds": 120
     },
-    "durationSeconds": 20,
-    "cooldown": null,
-    "cooldownSeconds": null
+    "durationSeconds": 20
   },
   "47585": {
     "spellId": "47585",
@@ -539,10 +529,8 @@
   "86949": {
     "spellId": "86949",
     "name": "Cauterize",
-    "cooldownSeconds": null,
     "durationSeconds": 6,
-    "charges": {},
-    "cooldown": null
+    "charges": {}
   },
   "88625": {
     "spellId": "88625",
@@ -562,16 +550,12 @@
     "spellId": "97463",
     "name": "Rallying Cry",
     "charges": {},
-    "cooldownSeconds": null,
-    "durationSeconds": 10,
-    "cooldown": null
+    "durationSeconds": 10
   },
   "98008": {
     "spellId": "98008",
     "name": "Spirit Link Totem",
-    "cooldownSeconds": null,
     "durationSeconds": 6,
-    "cooldown": null,
     "charges": {
       "charges": 1,
       "chargeCooldownSeconds": 180
@@ -836,10 +820,8 @@
   "145629": {
     "spellId": "145629",
     "name": "Anti-Magic Zone",
-    "cooldownSeconds": null,
     "charges": {},
-    "durationSeconds": 10,
-    "cooldown": null
+    "durationSeconds": 10
   },
   "147362": {
     "spellId": "147362",
@@ -864,10 +846,8 @@
   "157982": {
     "spellId": "157982",
     "name": "Tranquility",
-    "cooldownSeconds": null,
     "charges": {},
-    "durationSeconds": 8,
-    "cooldown": null
+    "durationSeconds": 8
   },
   "184662": {
     "spellId": "184662",
@@ -906,13 +886,11 @@
   "191634": {
     "spellId": "191634",
     "name": "Stormkeeper",
-    "cooldownSeconds": null,
     "charges": {
       "charges": 0,
       "chargeCooldownSeconds": 60
     },
-    "durationSeconds": 15,
-    "cooldown": null
+    "durationSeconds": 15
   },
   "193530": {
     "spellId": "193530",
@@ -962,9 +940,7 @@
     "charges": {
       "charges": 1,
       "chargeCooldownSeconds": 150
-    },
-    "cooldown": null,
-    "cooldownSeconds": null
+    }
   },
   "198103": {
     "spellId": "198103",
@@ -1275,10 +1251,8 @@
   "356567": {
     "spellId": "356567",
     "name": "Shackles of Malediction",
-    "cooldownSeconds": null,
     "charges": {},
-    "durationSeconds": 4,
-    "cooldown": null
+    "durationSeconds": 4
   },
   "357170": {
     "spellId": "357170",
@@ -1292,9 +1266,7 @@
     "charges": {
       "charges": 1,
       "chargeCooldownSeconds": 240
-    },
-    "cooldownSeconds": null,
-    "cooldown": null
+    }
   },
   "363916": {
     "spellId": "363916",
