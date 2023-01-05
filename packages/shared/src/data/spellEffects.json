@@ -32,7 +32,7 @@
     "name": "Blessing of Protection",
     "charges": {
       "charges": 1,
-      "chargesCooldown": 300
+      "chargeCooldownSeconds": 300
     },
     "durationSeconds": 10,
     "cooldown": 1.5
@@ -57,7 +57,7 @@
     "cooldownSeconds": 120,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 120
+      "chargeCooldownSeconds": 120
     },
     "cooldown": 1
   },
@@ -73,7 +73,7 @@
     "name": "Holy Word: Serenity",
     "charges": {
       "charges": 1,
-      "chargesCooldown": 60
+      "chargeCooldownSeconds": 60
     },
     "cooldown": null
   },
@@ -124,7 +124,7 @@
     "name": "Healing Stream Totem",
     "charges": {
       "charges": 0,
-      "chargesCooldown": 30
+      "chargeCooldownSeconds": 30
     },
     "durationSeconds": 15,
     "cooldown": null
@@ -150,7 +150,7 @@
     "durationSeconds": 12,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 120
+      "chargeCooldownSeconds": 120
     },
     "cooldown": 1
   },
@@ -196,7 +196,7 @@
     "name": "Evocation",
     "charges": {
       "charges": 1,
-      "chargesCooldown": 90
+      "chargeCooldownSeconds": 90
     },
     "durationSeconds": 6,
     "cooldown": null
@@ -269,7 +269,7 @@
     "cooldownSeconds": 1,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 36
+      "chargeCooldownSeconds": 36
     },
     "durationSeconds": 3
   },
@@ -355,7 +355,7 @@
     "name": "Empower Rune Weapon",
     "charges": {
       "charges": 0,
-      "chargesCooldown": 120
+      "chargeCooldownSeconds": 120
     },
     "durationSeconds": 20,
     "cooldown": null
@@ -470,7 +470,7 @@
     "cooldownSeconds": 6,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 180
+      "chargeCooldownSeconds": 180
     },
     "durationSeconds": 6
   },
@@ -569,7 +569,7 @@
     "cooldown": null,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 180
+      "chargeCooldownSeconds": 180
     }
   },
   "102342": {
@@ -676,7 +676,7 @@
     "cooldownSeconds": 120,
     "charges": {
       "charges": 0,
-      "chargesCooldown": 120
+      "chargeCooldownSeconds": 120
     },
     "durationSeconds": 20
   },
@@ -714,7 +714,7 @@
     "cooldownSeconds": 180,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 180
+      "chargeCooldownSeconds": 180
     },
     "cooldown": 1
   },
@@ -724,7 +724,7 @@
     "cooldownSeconds": 10,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 45
+      "chargeCooldownSeconds": 45
     },
     "durationSeconds": 12
   },
@@ -824,7 +824,7 @@
     "cooldownSeconds": 16,
     "charges": {
       "charges": 2,
-      "chargesCooldown": 90
+      "chargeCooldownSeconds": 90
     },
     "durationSeconds": 15
   },
@@ -904,7 +904,7 @@
     "cooldownSeconds": 60,
     "charges": {
       "charges": 0,
-      "chargesCooldown": 60
+      "chargeCooldownSeconds": 60
     },
     "durationSeconds": 15,
     "cooldown": null
@@ -956,7 +956,7 @@
     "name": "Fire Elemental",
     "charges": {
       "charges": 1,
-      "chargesCooldown": 150
+      "chargeCooldownSeconds": 150
     },
     "cooldown": null
   },
