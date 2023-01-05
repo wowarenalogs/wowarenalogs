@@ -98,7 +98,7 @@ async function main() {
       spellDbEntry.charges !== e.charges?.charges
     ) {
       console.log(`spell ${e.spellId} changed charges. ${e.charges?.charges} => ${spellDbEntry.charges}`);
-      e.charges = { charges: spellDbEntry.charges, chargesCooldown: spellDbEntry.chargesCooldown };
+      e.charges = { charges: spellDbEntry.charges, chargeCooldownSeconds: spellDbEntry.chargesCooldown };
     }
 
     if (
@@ -108,7 +108,7 @@ async function main() {
       console.log(
         `spell ${e.spellId} changed chargesCooldown. ${e.charges?.chargesCooldown} => ${spellDbEntry.chargesCooldown}`,
       );
-      e.charges = { charges: spellDbEntry.charges, chargesCooldown: spellDbEntry.chargesCooldown };
+      e.charges = { charges: spellDbEntry.charges, chargeCooldownSeconds: spellDbEntry.chargesCooldown };
     }
   });
 
