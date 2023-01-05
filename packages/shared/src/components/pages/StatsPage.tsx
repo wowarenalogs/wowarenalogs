@@ -82,7 +82,7 @@ export const StatsPage = () => {
           className="tooltip tooltip-bottom tooltip-info z-50"
           data-tip="Based on ranked matches at all ratings uploaded during the past 7 days, excluding the uploader's own teams to minimize bias."
         >
-          <TbInfoCircle className="text-xl ml-2 cursor-pointer" />
+          <TbInfoCircle className="text-xl ml-2 cursor-pointer opacity-50 hover:opacity-100" />
         </div>
       </div>
       <CompetitiveStats statsFileName={tab} activeBracket={bracket} />
