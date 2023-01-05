@@ -5,12 +5,18 @@ export function SpecImage({ specId, circle, size }: { specId?: string | number; 
 
   const style = circle
     ? {
+        height,
+        width: height,
         borderRadius: height / 2,
         border: '1px solid #6b7280',
         overflow: 'hidden',
         display: 'flex',
       }
-    : { display: 'flex' };
+    : {
+        height,
+        width: height,
+        display: 'flex',
+      };
 
   return (
     <div style={style}>
