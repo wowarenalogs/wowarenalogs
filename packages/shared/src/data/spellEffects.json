@@ -1284,7 +1284,7 @@
     "name": "Rewind",
     "charges": {
       "charges": 1,
-      "chargesCooldown": 240
+      "chargeCooldownSeconds": 240
     },
     "cooldown": null
   },
@@ -1293,7 +1293,7 @@
     "name": "Obsidian Scales",
     "charges": {
       "charges": 1,
-      "chargesCooldown": 90
+      "chargeCooldownSeconds": 90
     },
     "cooldown": 1
   },
