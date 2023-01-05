@@ -1,6 +1,8 @@
 import moment from 'moment';
 import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
+import { Utils } from '../../../utils/utils';
+
 interface IProps {
   data: ({
     timeMark: number;
@@ -11,17 +13,6 @@ interface IProps {
     color: string;
   }[];
 }
-
-const shortNum = (n: number, fixed?: number) => {
-  if (Math.abs(n) > 1000000) {
-    return (n / 1000000).toFixed(2) + 'M';
-  }
-  if (Math.abs(n) > 1000) {
-    return (n / 1000).toFixed(fixed ?? 2) + 'K';
-  }
-
-  return n.toFixed(fixed ?? 1);
-};
 
 export const CurveChart = (props: IProps) => {
   return (
@@ -45,7 +36,7 @@ export const CurveChart = (props: IProps) => {
               }}
               // animationDuration={5}
               labelFormatter={(v) => moment.utc(v * 1000).format('mm:ss')}
-              formatter={(v) => shortNum(v as number)}
+              formatter={(v) => Utils.printCombatNumber(v as number)}
             />
             <Legend />
             {props.series.map((s) => (
