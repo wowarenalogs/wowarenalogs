@@ -7,6 +7,7 @@ import { ApolloContext, User, UserSubscriptionTier } from '../types';
 const userProfileCollection = process.env.NODE_ENV === 'development' ? 'user-profile-dev' : 'user-profile-prod';
 
 const firestore = new Firestore({
+  projectId: process.env.NODE_ENV === 'development' ? 'wowarenalogs-public-dev' : 'wowarenalogs',
   credentials:
     process.env.NODE_ENV === 'development'
       ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))

@@ -32,10 +32,11 @@
     "name": "Blessing of Protection",
     "charges": {
       "charges": 1,
-      "chargesCooldown": 300
+      "chargeCooldownSeconds": 300
     },
     "durationSeconds": 10,
-    "cooldown": 1.5
+    "cooldown": 1.5,
+    "cooldownSeconds": 1.5
   },
   "1122": {
     "spellId": "1122",
@@ -54,10 +55,10 @@
   "1856": {
     "spellId": "1856",
     "name": "Vanish",
-    "cooldownSeconds": 120,
+    "cooldownSeconds": 1,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 120
+      "chargeCooldownSeconds": 120
     },
     "cooldown": 1
   },
@@ -73,9 +74,10 @@
     "name": "Holy Word: Serenity",
     "charges": {
       "charges": 1,
-      "chargesCooldown": 60
+      "chargeCooldownSeconds": 60
     },
-    "cooldown": null
+    "cooldown": null,
+    "cooldownSeconds": null
   },
   "2094": {
     "spellId": "2094",
@@ -124,10 +126,11 @@
     "name": "Healing Stream Totem",
     "charges": {
       "charges": 0,
-      "chargesCooldown": 30
+      "chargeCooldownSeconds": 30
     },
     "durationSeconds": 15,
-    "cooldown": null
+    "cooldown": null,
+    "cooldownSeconds": null
   },
   "6552": {
     "spellId": "6552",
@@ -146,18 +149,18 @@
   "6940": {
     "spellId": "6940",
     "name": "Blessing of Sacrifice",
-    "cooldownSeconds": 120,
+    "cooldownSeconds": 1,
     "durationSeconds": 12,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 120
+      "chargeCooldownSeconds": 120
     },
     "cooldown": 1
   },
   "8122": {
     "spellId": "8122",
     "name": "Psychic Scream",
-    "cooldownSeconds": 60,
+    "cooldownSeconds": 45,
     "charges": {},
     "durationSeconds": 8,
     "cooldown": 45
@@ -180,7 +183,7 @@
     "spellId": "11327",
     "name": "Vanish",
     "charges": {},
-    "cooldownSeconds": 120,
+    "cooldownSeconds": null,
     "durationSeconds": 3,
     "cooldown": null
   },
@@ -196,10 +199,11 @@
     "name": "Evocation",
     "charges": {
       "charges": 1,
-      "chargesCooldown": 90
+      "chargeCooldownSeconds": 90
     },
     "durationSeconds": 6,
-    "cooldown": null
+    "cooldown": null,
+    "cooldownSeconds": null
   },
   "12472": {
     "spellId": "12472",
@@ -269,7 +273,7 @@
     "cooldownSeconds": 1,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 36
+      "chargeCooldownSeconds": 36
     },
     "durationSeconds": 3
   },
@@ -304,7 +308,7 @@
   "31884": {
     "spellId": "31884",
     "name": "Avenging Wrath",
-    "cooldownSeconds": 180,
+    "cooldownSeconds": 120,
     "charges": {},
     "durationSeconds": 20,
     "cooldown": 120
@@ -355,10 +359,11 @@
     "name": "Empower Rune Weapon",
     "charges": {
       "charges": 0,
-      "chargesCooldown": 120
+      "chargeCooldownSeconds": 120
     },
     "durationSeconds": 20,
-    "cooldown": null
+    "cooldown": null,
+    "cooldownSeconds": null
   },
   "47585": {
     "spellId": "47585",
@@ -432,7 +437,7 @@
   "51533": {
     "spellId": "51533",
     "name": "Feral Spirit",
-    "cooldownSeconds": 120,
+    "cooldownSeconds": 90,
     "charges": {},
     "cooldown": 90
   },
@@ -470,7 +475,7 @@
     "cooldownSeconds": 6,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 180
+      "chargeCooldownSeconds": 180
     },
     "durationSeconds": 6
   },
@@ -498,7 +503,7 @@
   "64901": {
     "spellId": "64901",
     "name": "Symbol of Hope",
-    "cooldownSeconds": 300,
+    "cooldownSeconds": 180,
     "charges": {},
     "durationSeconds": 5,
     "cooldown": 180
@@ -534,7 +539,7 @@
   "86949": {
     "spellId": "86949",
     "name": "Cauterize",
-    "cooldownSeconds": 300,
+    "cooldownSeconds": null,
     "durationSeconds": 6,
     "charges": {},
     "cooldown": null
@@ -557,19 +562,19 @@
     "spellId": "97463",
     "name": "Rallying Cry",
     "charges": {},
-    "cooldownSeconds": 180,
+    "cooldownSeconds": null,
     "durationSeconds": 10,
     "cooldown": null
   },
   "98008": {
     "spellId": "98008",
     "name": "Spirit Link Totem",
-    "cooldownSeconds": 180,
+    "cooldownSeconds": null,
     "durationSeconds": 6,
     "cooldown": null,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 180
+      "chargeCooldownSeconds": 180
     }
   },
   "102342": {
@@ -630,7 +635,7 @@
   "108271": {
     "spellId": "108271",
     "name": "Astral Shift",
-    "cooldownSeconds": 90,
+    "cooldownSeconds": 120,
     "charges": {},
     "durationSeconds": 8,
     "cooldown": 120
@@ -658,7 +663,7 @@
   "109964": {
     "spellId": "109964",
     "name": "Spirit Shell",
-    "cooldownSeconds": 60,
+    "cooldownSeconds": 90,
     "charges": {},
     "durationSeconds": 10,
     "cooldown": 90
@@ -676,7 +681,7 @@
     "cooldownSeconds": 120,
     "charges": {
       "charges": 0,
-      "chargesCooldown": 120
+      "chargeCooldownSeconds": 120
     },
     "durationSeconds": 20
   },
@@ -711,10 +716,10 @@
   "115310": {
     "spellId": "115310",
     "name": "Revival",
-    "cooldownSeconds": 180,
+    "cooldownSeconds": 1,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 180
+      "chargeCooldownSeconds": 180
     },
     "cooldown": 1
   },
@@ -724,7 +729,7 @@
     "cooldownSeconds": 10,
     "charges": {
       "charges": 1,
-      "chargesCooldown": 45
+      "chargeCooldownSeconds": 45
     },
     "durationSeconds": 12
   },
@@ -752,7 +757,7 @@
   "118038": {
     "spellId": "118038",
     "name": "Die by the Sword",
-    "cooldownSeconds": 180,
+    "cooldownSeconds": 120,
     "charges": {},
     "durationSeconds": 8,
     "cooldown": 120
@@ -773,7 +778,7 @@
   "121471": {
     "spellId": "121471",
     "name": "Shadow Blades",
-    "cooldownSeconds": 180,
+    "cooldownSeconds": 120,
     "charges": {},
     "durationSeconds": 20,
     "cooldown": 120
@@ -824,14 +829,14 @@
     "cooldownSeconds": 16,
     "charges": {
       "charges": 2,
-      "chargesCooldown": 90
+      "chargeCooldownSeconds": 90
     },
     "durationSeconds": 15
   },
   "145629": {
     "spellId": "145629",
     "name": "Anti-Magic Zone",
-    "cooldownSeconds": 120,
+    "cooldownSeconds": null,
     "charges": {},
     "durationSeconds": 10,
     "cooldown": null
@@ -859,7 +864,7 @@
   "157982": {
     "spellId": "157982",
     "name": "Tranquility",
-    "cooldownSeconds": 180,
+    "cooldownSeconds": null,
     "charges": {},
     "durationSeconds": 8,
     "cooldown": null
@@ -894,17 +899,17 @@
   "191427": {
     "spellId": "191427",
     "name": "Metamorphosis",
-    "cooldownSeconds": 300,
+    "cooldownSeconds": 240,
     "charges": {},
     "cooldown": 240
   },
   "191634": {
     "spellId": "191634",
     "name": "Stormkeeper",
-    "cooldownSeconds": 60,
+    "cooldownSeconds": null,
     "charges": {
       "charges": 0,
-      "chargesCooldown": 60
+      "chargeCooldownSeconds": 60
     },
     "durationSeconds": 15,
     "cooldown": null
@@ -956,9 +961,10 @@
     "name": "Fire Elemental",
     "charges": {
       "charges": 1,
-      "chargesCooldown": 150
+      "chargeCooldownSeconds": 150
     },
-    "cooldown": null
+    "cooldown": null,
+    "cooldownSeconds": null
   },
   "198103": {
     "spellId": "198103",
@@ -1057,7 +1063,7 @@
   "205180": {
     "spellId": "205180",
     "name": "Summon Darkglare",
-    "cooldownSeconds": 180,
+    "cooldownSeconds": 120,
     "charges": {},
     "durationSeconds": 20,
     "cooldown": 120
@@ -1269,9 +1275,52 @@
   "356567": {
     "spellId": "356567",
     "name": "Shackles of Malediction",
-    "cooldownSeconds": 180,
+    "cooldownSeconds": null,
     "charges": {},
     "durationSeconds": 4,
     "cooldown": null
+  },
+  "357170": {
+    "spellId": "357170",
+    "name": "Time Dilation",
+    "charges": {},
+    "cooldownSeconds": 60
+  },
+  "363534": {
+    "spellId": "363534",
+    "name": "Rewind",
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 240
+    },
+    "cooldownSeconds": null,
+    "cooldown": null
+  },
+  "363916": {
+    "spellId": "363916",
+    "name": "Obsidian Scales",
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 90
+    },
+    "cooldownSeconds": 1
+  },
+  "370553": {
+    "spellId": "370553",
+    "name": "Tip the Scales",
+    "charges": {},
+    "cooldownSeconds": 120
+  },
+  "370960": {
+    "spellId": "370960",
+    "name": "Emerald Communion",
+    "charges": {},
+    "cooldownSeconds": 180
+  },
+  "374348": {
+    "spellId": "374348",
+    "name": "Renewing Blaze",
+    "charges": {},
+    "cooldownSeconds": 90
   }
 }

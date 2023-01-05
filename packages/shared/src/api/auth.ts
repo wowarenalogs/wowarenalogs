@@ -6,6 +6,7 @@ import path from 'path';
 import { FirestoreNextAuthAdapter } from '../utils/FirestoreNextAuthAdapter';
 
 const firestore = new Firestore({
+  projectId: process.env.NODE_ENV === 'development' ? 'wowarenalogs-public-dev' : 'wowarenalogs',
   ignoreUndefinedProperties: true,
   credentials:
     process.env.NODE_ENV === 'development'

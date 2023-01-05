@@ -9,6 +9,7 @@ import { Constants } from '../utils/constants';
 const matchStubsCollection = 'match-stubs-prod';
 
 const firestore = new Firestore({
+  projectId: process.env.NODE_ENV === 'development' ? 'wowarenalogs-public-dev' : 'wowarenalogs',
   credentials:
     process.env.NODE_ENV === 'development'
       ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
