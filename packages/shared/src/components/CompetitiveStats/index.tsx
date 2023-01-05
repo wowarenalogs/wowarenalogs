@@ -67,43 +67,45 @@ export default function CompetitiveStats(props: { activeBracket: string; statsFi
   const maxSpecTotal = _.maxBy(bracketStatsSorted, (stats) => stats.total)?.total ?? 0;
 
   return (
-    <div className="mt-4 flex-1 flex flex-col items-center relative overflow-x-hidden overflow-y-scroll">
-      <table className="table table-compact relative rounded-box">
-        <thead>
-          <tr>
-            <th className="bg-base-300">Spec</th>
-            <th className="bg-base-300" colSpan={2}>
-              Match Representation
-            </th>
-            <th className="bg-base-300">Win Rate</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bracketStatsSorted
-            .filter((stats) => stats.total >= 10)
-            .map((stats) => (
-              <tr key={stats.spec}>
-                <td className="bg-base-200">
-                  <div className="flex flex-row gap-2">
-                    {stats.spec.split('_').map((spec) => (
-                      <SpecImage key={spec} specId={spec} />
-                    ))}
-                  </div>
-                </td>
-                <td className="bg-base-200">{((stats.total * 100) / totalMatches).toFixed(1)}%</td>
-                <td className="bg-base-200">
-                  <progress
-                    className="progress progress-info sm:w-32 md:w-64 lg:w-96"
-                    value={Math.floor((stats.total * 100) / maxSpecTotal)}
-                    max={100}
-                  />
-                </td>
-                <td className="bg-base-200">{((stats.win * 100) / stats.total).toFixed(1)}%</td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
-      <div className="opacity-50 mt-2">Specs and comps with less than 10 recorded matches are hidden.</div>
+    <div className="mt-4 flex-1 flex flex-row justify-center items-start relative overflow-x-hidden overflow-y-scroll">
+      <div className="flex flex-col items-center">
+        <table className="table table-compact relative rounded-box">
+          <thead>
+            <tr>
+              <th className="bg-base-300">Spec</th>
+              <th className="bg-base-300" colSpan={2}>
+                Match Representation
+              </th>
+              <th className="bg-base-300">Win Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bracketStatsSorted
+              .filter((stats) => stats.total >= 10)
+              .map((stats) => (
+                <tr key={stats.spec}>
+                  <td className="bg-base-200">
+                    <div className="flex flex-row gap-2">
+                      {stats.spec.split('_').map((spec) => (
+                        <SpecImage key={spec} specId={spec} />
+                      ))}
+                    </div>
+                  </td>
+                  <td className="bg-base-200">{((stats.total * 100) / totalMatches).toFixed(1)}%</td>
+                  <td className="bg-base-200">
+                    <progress
+                      className="progress progress-info sm:w-32 md:w-64 lg:w-96"
+                      value={Math.floor((stats.total * 100) / maxSpecTotal)}
+                      max={100}
+                    />
+                  </td>
+                  <td className="bg-base-200 text-right">{((stats.win * 100) / stats.total).toFixed(1)}%</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+        <div className="opacity-50 mt-2">Specs and comps with less than 10 recorded matches are hidden.</div>
+      </div>
     </div>
   );
 }

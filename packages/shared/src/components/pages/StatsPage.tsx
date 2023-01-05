@@ -1,23 +1,31 @@
 import _ from 'lodash';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { TbCaretDown, TbInfoCircle, TbX } from 'react-icons/tb';
 
 import { Dropdown } from '../common/Dropdown';
 import CompetitiveStats from '../CompetitiveStats';
+import { LoadingScreen } from '../LoadingScreen';
 
 const SUPPORTED_BRACKETS = ['2v2', '3v3', 'Rated Solo Shuffle'];
 
 export const StatsPage = () => {
-  const [activeTab, setActiveTab] = useState('spec-stats');
-  const [activeBracket, setActiveBracket] = useState('2v2');
+  const router = useRouter();
   const [dismissedExperimentalInfo, setDismissedExperimentalInfo] = useState(false);
 
   useEffect(() => {
     setDismissedExperimentalInfo(localStorage.getItem('dismissedExperimentalInfo') === 'true');
   }, []);
 
+  if (!router.isReady) {
+    return <LoadingScreen />;
+  }
+
+  const bracket = (router.query.bracket as string) ?? '2v2';
+  const tab = (router.query.tab as string) ?? 'spec-stats';
+
   return (
-    <div className="flex flex-col p-2 w-full h-full">
+    <div className="flex flex-col p-2 w-full h-full items-stretch">
       {!dismissedExperimentalInfo && (
         <div className="mb-2 relative">
           <div className="alert alert-info shadow-lg">
@@ -41,30 +49,30 @@ export const StatsPage = () => {
       )}
       <div className="flex flex-row gap-2 items-center justify-center">
         <Dropdown
-          menuItems={SUPPORTED_BRACKETS.map((bracket) => ({
-            key: bracket,
-            label: bracket,
-            onClick: () => setActiveBracket(bracket),
+          menuItems={SUPPORTED_BRACKETS.map((b) => ({
+            key: b,
+            label: b,
+            onClick: () => router.push(`/stats?tab=${tab}&bracket=${b}`, undefined, { shallow: true }),
           }))}
         >
           <>
-            {activeBracket}&nbsp;
+            {bracket}&nbsp;
             <TbCaretDown />
           </>
         </Dropdown>
         <div className="tabs tabs-boxed">
           <a
-            className={`tab ${activeTab === 'spec-stats' ? 'tab-active' : ''}`}
+            className={`tab ${tab === 'spec-stats' ? 'tab-active' : ''}`}
             onClick={() => {
-              setActiveTab('spec-stats');
+              router.push(`/stats?tab=spec-stats&bracket=${bracket}`, undefined, { shallow: true });
             }}
           >
             Spec Performance
           </a>
           <a
-            className={`tab ${activeTab === 'comp-stats' ? 'tab-active' : ''}`}
+            className={`tab ${tab === 'comp-stats' ? 'tab-active' : ''}`}
             onClick={() => {
-              setActiveTab('comp-stats');
+              router.push(`/stats?tab=comp-stats&bracket=${bracket}`, undefined, { shallow: true });
             }}
           >
             Comp Performance
@@ -77,7 +85,7 @@ export const StatsPage = () => {
           <TbInfoCircle className="text-xl ml-2 cursor-pointer" />
         </div>
       </div>
-      <CompetitiveStats statsFileName={activeTab} activeBracket={activeBracket} />
+      <CompetitiveStats statsFileName={tab} activeBracket={bracket} />
     </div>
   );
 };
