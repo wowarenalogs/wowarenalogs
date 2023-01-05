@@ -1277,7 +1277,8 @@
   "357170": {
     "spellId": "357170",
     "name": "Time Dilation",
-    "charges": {}
+    "charges": {},
+    "cooldownSeconds": 60
   },
   "363534": {
     "spellId": "363534",
@@ -1286,7 +1287,7 @@
       "charges": 1,
       "chargeCooldownSeconds": 240
     },
-    "cooldown": null
+    "cooldownSeconds": 240
   },
   "363916": {
     "spellId": "363916",
@@ -1295,24 +1296,24 @@
       "charges": 1,
       "chargeCooldownSeconds": 90
     },
-    "cooldown": 1
+    "cooldownSeconds": 1
   },
   "370553": {
     "spellId": "370553",
     "name": "Tip the Scales",
     "charges": {},
-    "cooldown": 120
+    "cooldownSeconds": 120
   },
   "370960": {
     "spellId": "370960",
     "name": "Emerald Communion",
     "charges": {},
-    "cooldown": 180
+    "cooldownSeconds": 180
   },
   "374348": {
     "spellId": "374348",
     "name": "Renewing Blaze",
     "charges": {},
-    "cooldown": 90
+    "cooldownSeconds": 90
   }
 }
