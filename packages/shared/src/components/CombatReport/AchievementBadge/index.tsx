@@ -118,10 +118,12 @@ export function AchievementBadge({ player }: IProps) {
   // Filter for pvp relevant achievements
   // sorting by .id is a strong proxy for sorting by xpac
   const achievementsToShow = data
+    .filter((a) => a.criteria?.is_completed) // api result includes 'in-progress' achievements
     .filter((a) => a.achievement.name.includes(' Season '))
     .filter((a) => !a.achievement.name.includes(' Keystone '))
     .filter((a) => !a.achievement.name.includes('Hero'))
     .sort((a, b) => b.id - a.id)
+    .sort((a, b) => b.completed_timestamp - a.completed_timestamp)
     .slice(0, 50);
 
   // Groups by season + xpac
