@@ -270,13 +270,14 @@ export function CombatPlayer(props: IProps) {
 
   return (
     <div className="flex flex-col flex-1 pb-4">
-      <CombatUnitName unit={props.player} isTitle />
-      <div className="mt-2">
-        <AchievementBadge player={props.player} />
-      </div>
-      <div className="flex flex-row mt-2">
+      <div className="flex flex-row items-start gap-2">
+        <CombatUnitName unit={props.player} isTitle />
+        <div className="flex-1" />
         <ArmoryLink player={props.player} />
         <CheckPvPLink player={props.player} />
+      </div>
+      <div className="mt-2">
+        <AchievementBadge player={props.player} />
       </div>
       <table className="table rounded-box mt-4 self-start">
         <thead>

@@ -34,12 +34,11 @@ export function CheckPvPLink({ player }: IProps) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <button
-      className="btn gap-2 btn-sm"
+      className="btn gap-2 btn-xs"
       onClick={() => {
         clientContext.openExternalURL(`https://check-pvp.fr/${realmIdToRegion(realmId)}/${serverName}/${playerName}`);
       }}
     >
-      Check PvP
       <img
         height={22}
         width={22}
@@ -47,6 +46,7 @@ export function CheckPvPLink({ player }: IProps) {
         title="check-pvp.fr Link"
         src={'https://check-tbc.fr/assets/images/logo-pvp.png'}
       />
+      Check PvP
     </button>
   );
 }
