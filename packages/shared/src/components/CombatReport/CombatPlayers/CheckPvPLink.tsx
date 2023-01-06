@@ -34,7 +34,7 @@ export function CheckPvPLink({ player }: IProps) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <button
-      className="btn gap-2 btn-xs"
+      className="btn btn-xs gap-1"
       onClick={() => {
         clientContext.openExternalURL(`https://check-pvp.fr/${realmIdToRegion(realmId)}/${serverName}/${playerName}`);
       }}

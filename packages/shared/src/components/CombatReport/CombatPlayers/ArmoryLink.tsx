@@ -35,7 +35,7 @@ export function ArmoryLink({ player }: IProps) {
   const locale = bnetLocales.includes(window.navigator.language.toLowerCase()) ? window.navigator.language : 'en-us';
   return (
     <button
-      className="btn btn-xs"
+      className="btn btn-xs gap-1"
       onClick={() => {
         clientContext.openExternalURL(
           `https://worldofwarcraft.com/${locale}/character/${realmIdToRegion(realmId)}/${serverName}/${playerName}`,
