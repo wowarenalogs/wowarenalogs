@@ -1,5 +1,8 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import _ from 'lodash';
+import { useRouter } from 'next/router';
+import { useCallback } from 'react';
+import { TbArrowDown } from 'react-icons/tb';
 import { useQuery } from 'react-query';
 
 import { ErrorPage } from '../common/ErrorPage';
@@ -15,7 +18,8 @@ type TCompetitiveStats = {
   };
 };
 
-export default function CompetitiveStats(props: { activeBracket: string; statsFileName: string }) {
+export default function CompetitiveStats(props: { activeBracket: string; statsFileName: string; sortKey: string }) {
+  const router = useRouter();
   const specStatsQuery = useQuery(
     ['competitive-stats', props.statsFileName],
     async () => {
@@ -33,7 +37,16 @@ export default function CompetitiveStats(props: { activeBracket: string; statsFi
     },
   );
 
-  if (specStatsQuery.isLoading) {
+  const setSortKey = useCallback(
+    (key: string) => {
+      router.push(`/stats?tab=${props.statsFileName}&bracket=${props.activeBracket}&sortKey=${key}`, undefined, {
+        shallow: true,
+      });
+    },
+    [props.activeBracket, props.statsFileName, router],
+  );
+
+  if (specStatsQuery.isLoading || !router.isReady) {
     return <LoadingScreen />;
   }
 
@@ -58,9 +71,10 @@ export default function CompetitiveStats(props: { activeBracket: string; statsFi
           win: stats.win ?? 0,
           loses: stats.lose ?? 0,
           total: (stats.win ?? 0) + (stats.lose ?? 0),
+          winRate: (stats.win ?? 0) / ((stats.win ?? 0) + (stats.lose ?? 0)),
         };
       }),
-    (stats) => stats.total,
+    props.sortKey ?? 'total',
     'desc',
   );
   const totalMatches = bracketStatsSorted.reduce((acc, stats) => acc + stats.total, 0);
@@ -74,9 +88,31 @@ export default function CompetitiveStats(props: { activeBracket: string; statsFi
             <tr>
               <th className="bg-base-300">Spec</th>
               <th className="bg-base-300" colSpan={2}>
-                Match Representation
+                <div className="flex flex-row items-center gap-1">
+                  Match Representation
+                  <button
+                    className={`btn btn-xs btn-ghost ${props.sortKey === 'total' ? 'text-primary' : ''}`}
+                    onClick={() => {
+                      setSortKey('total');
+                    }}
+                  >
+                    <TbArrowDown />
+                  </button>
+                </div>
               </th>
-              <th className="bg-base-300">Win Rate</th>
+              <th className="bg-base-300">
+                <div className="flex flex-row items-center gap-1">
+                  Win Rate
+                  <button
+                    className={`btn btn-xs btn-ghost ${props.sortKey === 'winRate' ? 'text-primary' : ''}`}
+                    onClick={() => {
+                      setSortKey('winRate');
+                    }}
+                  >
+                    <TbArrowDown />
+                  </button>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -86,8 +122,8 @@ export default function CompetitiveStats(props: { activeBracket: string; statsFi
                 <tr key={stats.spec}>
                   <td className="bg-base-200">
                     <div className="flex flex-row gap-2">
-                      {stats.spec.split('_').map((spec) => (
-                        <SpecImage key={spec} specId={spec} />
+                      {stats.spec.split('_').map((spec, i) => (
+                        <SpecImage key={`${spec}_${i}`} specId={spec} />
                       ))}
                     </div>
                   </td>
