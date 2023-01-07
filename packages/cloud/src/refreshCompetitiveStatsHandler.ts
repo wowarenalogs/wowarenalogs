@@ -20,6 +20,7 @@ const storage = new GoogleCloudStorage({
 const bucket = storage.bucket(isDev ? 'data.public-dev.wowarenalogs.com' : 'data.wowarenalogs.com');
 
 const ALLOWED_BRACKETS = new Set<string>(['2v2', '3v3', 'Rated Solo Shuffle']);
+const STATS_SCHEMA_VERSION = 1;
 
 async function generateSpecStatsAsync() {
   console.log('generating spec stats...');
@@ -48,6 +49,12 @@ async function generateSpecStatsAsync() {
     metrics: [
       {
         name: 'eventCount',
+      },
+      {
+        name: 'averageCustomEvent:effectiveDps',
+      },
+      {
+        name: 'averageCustomEvent:effectiveHps',
       },
     ],
     dimensionFilter: {
@@ -103,7 +110,11 @@ async function generateSpecStatsAsync() {
     const newEntry = {
       [bracket]: {
         [spec]: {
-          [result]: parseInt(row.metricValues[0].value as string) ?? 0,
+          [result]: {
+            matches: parseInt(row.metricValues[0].value as string) ?? 0,
+            effectiveDps: Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0),
+            effectiveHps: Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0),
+          },
         },
       },
     };
@@ -111,7 +122,7 @@ async function generateSpecStatsAsync() {
   });
 
   const content = JSON.stringify(resultObject, null, 2);
-  await bucket.file('data/spec-stats.json').save(content, {
+  await bucket.file(`data/spec-stats.v${STATS_SCHEMA_VERSION.toFixed()}.json`).save(content, {
     contentType: 'application/json',
   });
   await bucket.file(`data/spec-stats.${moment().format('YYYY-MM-DD')}.json`).save(content, {
@@ -214,7 +225,7 @@ async function generateCompStatsAsync() {
   });
 
   const content = JSON.stringify(resultObject, null, 2);
-  await bucket.file('data/comp-stats.json').save(content, {
+  await bucket.file(`data/comp-stats.v${STATS_SCHEMA_VERSION}.json`).save(content, {
     contentType: 'application/json',
   });
   await bucket.file(`data/comp-stats.${moment().format('YYYY-MM-DD')}.json`).save(content, {
