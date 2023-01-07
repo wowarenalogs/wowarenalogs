@@ -3,17 +3,13 @@ import { useRouter } from 'next/router';
 import { TbCaretDown, TbInfoCircle } from 'react-icons/tb';
 
 import { Dropdown } from '../common/Dropdown';
-import CompetitiveStats from '../CompetitiveStats';
-import { LoadingScreen } from '../LoadingScreen';
+import CompStats from '../CompetitiveStats/CompStats';
+import SpecStats from '../CompetitiveStats/SpecStats';
 
 const SUPPORTED_BRACKETS = ['2v2', '3v3', 'Rated Solo Shuffle'];
 
 export const StatsPage = () => {
   const router = useRouter();
-
-  if (!router.isReady) {
-    return <LoadingScreen />;
-  }
 
   const bracket = (router.query.bracket as string) ?? '2v2';
   const tab = (router.query.tab as string) ?? 'spec-stats';
@@ -61,7 +57,8 @@ export const StatsPage = () => {
           <TbInfoCircle className="text-xl ml-2 cursor-pointer opacity-50 hover:opacity-100" />
         </div>
       </div>
-      <CompetitiveStats statsFileName={tab} activeBracket={bracket} sortKey={sortKey} />
+      {tab === 'spec-stats' && <SpecStats activeBracket={bracket} sortKey={sortKey} />}
+      {tab === 'comp-stats' && <CompStats activeBracket={bracket} sortKey={sortKey} />}
     </div>
   );
 };
