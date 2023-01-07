@@ -26,10 +26,6 @@ export function SpecImage({ specId, circle, size }: { specId?: string | number; 
             ? `https://images.wowarenalogs.com/specs/${specId}.jpg`
             : 'data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAQAAAAnZu5uAAAAEElEQVR42mNk+M8ABYwkMAGbQQUBEvGWBAAAAABJRU5ErkJggg=='
         }
-        blurDataURL={
-          'data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAQAAAAnZu5uAAAAEElEQVR42mNk+M8ABYwkMAGbQQUBEvGWBAAAAABJRU5ErkJggg=='
-        }
-        placeholder={'blur'}
         width={height}
         height={height}
         alt={'specimage'}
