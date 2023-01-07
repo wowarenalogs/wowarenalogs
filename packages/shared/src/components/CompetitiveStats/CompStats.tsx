@@ -8,8 +8,9 @@ import { useQuery } from 'react-query';
 import { ErrorPage } from '../common/ErrorPage';
 import { SpecImage } from '../common/SpecImage';
 import { LoadingScreen } from '../LoadingScreen';
+import { STATS_SCHEMA_VERSION } from './common';
 
-type TCompetitiveStats = {
+type StatsData = {
   [bracket: string]: {
     [specs: string]: {
       win?: number;
@@ -18,13 +19,15 @@ type TCompetitiveStats = {
   };
 };
 
-export default function CompetitiveStats(props: { activeBracket: string; statsFileName: string; sortKey: string }) {
+const SUPPORTED_SORT_KEYS = new Set(['total', 'winRate']);
+
+export default function CompStats(props: { activeBracket: string; sortKey: string }) {
   const router = useRouter();
   const specStatsQuery = useQuery(
-    ['competitive-stats', props.statsFileName],
+    ['competitive-stats', 'comp-stats'],
     async () => {
-      const result = await fetch(`https://images.wowarenalogs.com/data/${props.statsFileName}.json`);
-      return (await result.json()) as TCompetitiveStats;
+      const result = await fetch(`https://images.wowarenalogs.com/data/comp-stats.v${STATS_SCHEMA_VERSION}.json`);
+      return (await result.json()) as StatsData;
     },
     {
       // locally cache for one hour to avoid people spamming refresh.
@@ -37,16 +40,17 @@ export default function CompetitiveStats(props: { activeBracket: string; statsFi
     },
   );
 
+  const sortKey = SUPPORTED_SORT_KEYS.has(props.sortKey) ? props.sortKey : 'total';
   const setSortKey = useCallback(
     (key: string) => {
-      router.push(`/stats?tab=${props.statsFileName}&bracket=${props.activeBracket}&sortKey=${key}`, undefined, {
+      router.push(`/stats?tab=comp-stats&bracket=${props.activeBracket}&sortKey=${key}`, undefined, {
         shallow: true,
       });
     },
-    [props.activeBracket, props.statsFileName, router],
+    [props.activeBracket, router],
   );
 
-  if (specStatsQuery.isLoading || !router.isReady) {
+  if (specStatsQuery.isLoading) {
     return <LoadingScreen />;
   }
 
@@ -69,15 +73,14 @@ export default function CompetitiveStats(props: { activeBracket: string; statsFi
         return {
           spec,
           win: stats.win ?? 0,
-          loses: stats.lose ?? 0,
+          lose: stats.lose ?? 0,
           total: (stats.win ?? 0) + (stats.lose ?? 0),
           winRate: (stats.win ?? 0) / ((stats.win ?? 0) + (stats.lose ?? 0)),
         };
       }),
-    props.sortKey ?? 'total',
+    sortKey,
     'desc',
   );
-  const totalMatches = bracketStatsSorted.reduce((acc, stats) => acc + stats.total, 0);
   const maxSpecTotal = _.maxBy(bracketStatsSorted, (stats) => stats.total)?.total ?? 0;
 
   return (
@@ -89,9 +92,9 @@ export default function CompetitiveStats(props: { activeBracket: string; statsFi
               <th className="bg-base-300">Spec</th>
               <th className="bg-base-300" colSpan={2}>
                 <div className="flex flex-row items-center gap-1">
-                  Match Representation
+                  Matches
                   <button
-                    className={`btn btn-xs btn-ghost ${props.sortKey === 'total' ? 'text-primary' : ''}`}
+                    className={`btn btn-xs btn-ghost ${sortKey === 'total' ? 'text-primary' : ''}`}
                     onClick={() => {
                       setSortKey('total');
                     }}
@@ -104,7 +107,7 @@ export default function CompetitiveStats(props: { activeBracket: string; statsFi
                 <div className="flex flex-row items-center gap-1">
                   Win Rate
                   <button
-                    className={`btn btn-xs btn-ghost ${props.sortKey === 'winRate' ? 'text-primary' : ''}`}
+                    className={`btn btn-xs btn-ghost ${sortKey === 'winRate' ? 'text-primary' : ''}`}
                     onClick={() => {
                       setSortKey('winRate');
                     }}
@@ -127,7 +130,7 @@ export default function CompetitiveStats(props: { activeBracket: string; statsFi
                       ))}
                     </div>
                   </td>
-                  <td className="bg-base-200">{((stats.total * 100) / totalMatches).toFixed(1)}%</td>
+                  <td className="bg-base-200">{stats.total}</td>
                   <td className="bg-base-200">
                     <progress
                       className="progress progress-info sm:w-32 md:w-64 lg:w-96"
