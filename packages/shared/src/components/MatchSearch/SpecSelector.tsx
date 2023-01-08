@@ -37,7 +37,7 @@ export function SpecSelector({
         className={`inline-block w-[48px] h-[48px] border-${SPEC_TO_CLASS[spec]} border-2 rounded hover:opacity-20 hover:border-red-600 hover:border-2`}
         onClick={() => removeCallback(spec)}
       >
-        <SpecImage specId={spec} size={48} />
+        <SpecImage specId={spec} size={44} />
       </div>
     );
   }
