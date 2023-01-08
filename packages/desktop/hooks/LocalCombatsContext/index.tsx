@@ -38,18 +38,7 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     combat.dataType === 'ArenaMatch'
       ? ((combat.endInfo?.team0MMR || 0) + (combat.endInfo?.team1MMR || 0)) / 2
       : ((combat.shuffleMatchEndInfo?.team0MMR || 0) + (combat.shuffleMatchEndInfo?.team1MMR || 0)) / 2;
-  const unitsList = _.values(combat.units).map((c) => ({
-    id: c.id,
-    name: c.name,
-    info: c.info,
-    type: c.type,
-    class: c.class,
-    spec: c.spec,
-    reaction: c.reaction,
-    damageOut: c.damageOut,
-    healOut: c.healOut,
-    absorbsOut: c.absorbsOut,
-  }));
+  const unitsList = _.values(combat.units);
   const players = unitsList.filter((u) => u.type === CombatUnitType.Player);
   const team0specs = players
     .filter((u) => u.info?.teamId === '0')
@@ -61,7 +50,20 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     .map((u) => (u.spec === CombatUnitSpec.None ? `c${u.class}` : u.spec))
     .sort()
     .join('_');
+  const teamSpecs = [team0specs, team1specs];
   const indices = buildQueryHelpers(combat, true);
+  const allPlayerDeath = _.sortBy(
+    _.flatMap(players, (p) => {
+      return p.deathRecords.map((r) => {
+        return {
+          unit: p,
+          deathRecord: r,
+        };
+      });
+    }),
+    (r) => r.deathRecord.timestamp,
+  );
+  const firstBloodUnitId = allPlayerDeath[0]?.unit.id;
 
   const damageEvents = combat.events.filter((e) => e.logLine.event.endsWith('_DAMAGE'));
   const effectiveStartTime = damageEvents.length > 0 ? damageEvents[0].logLine.timestamp : combat.startTime;
@@ -106,19 +108,29 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     return;
   }
 
-  logAnalyticsEvent('event_NewCompRecord', {
-    ...commonProperties,
-    specs: team0specs,
-    teamId: '0',
-    isPlayerTeam: combat.playerTeamId === '0',
-    result: combat.winningTeamId === '0' ? 'win' : 'lose',
-  });
-  logAnalyticsEvent('event_NewCompRecord', {
-    ...commonProperties,
-    specs: team1specs,
-    teamId: '1',
-    isPlayerTeam: combat.playerTeamId === '1',
-    result: combat.winningTeamId === '1' ? 'win' : 'lose',
+  ['0', '1'].forEach((teamId) => {
+    const teamPlayers = players.filter((u) => u.info?.teamId === teamId);
+    const effectiveDps =
+      _.sum(teamPlayers.map((p) => _.sum(p.damageOut.map((d) => d.effectiveAmount)))) / effectiveDuration;
+    const effectiveHps =
+      _.sum(
+        teamPlayers.map(
+          (p) => _.sum(p.healOut.map((d) => d.effectiveAmount)) + _.sum(p.absorbsOut.map((d) => d.effectiveAmount)),
+        ),
+      ) / effectiveDuration;
+
+    const killTargetSpec = teamPlayers.find((p) => p.id === firstBloodUnitId)?.spec ?? '';
+
+    logAnalyticsEvent('event_NewCompRecord', {
+      ...commonProperties,
+      specs: teamSpecs[parseInt(teamId)],
+      teamId,
+      isPlayerTeam: combat.playerTeamId === teamId,
+      result: combat.winningTeamId === teamId ? 'win' : 'lose',
+      effectiveDps,
+      effectiveHps,
+      killTargetSpec,
+    });
   });
 
   players.forEach((p) => {
@@ -126,6 +138,8 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     const effectiveHps =
       (_.sum(p.healOut.map((d) => d.effectiveAmount)) + _.sum(p.absorbsOut.map((d) => d.effectiveAmount))) /
       effectiveDuration;
+
+    const isKillTarget = p.id === firstBloodUnitId;
 
     logAnalyticsEvent('event_NewPlayerRecord', {
       ...commonProperties,
@@ -139,6 +153,7 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
       result: p.info?.teamId === combat.winningTeamId ? 'win' : 'lose',
       effectiveDps,
       effectiveHps,
+      isKillTarget: isKillTarget ? 1 : 0,
     });
   });
 };
