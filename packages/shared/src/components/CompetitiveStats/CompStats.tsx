@@ -84,8 +84,8 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
   const maxSpecTotal = _.maxBy(bracketStatsSorted, (stats) => stats.total)?.total ?? 0;
 
   return (
-    <div className="mt-4 flex-1 flex flex-row justify-center items-start relative overflow-x-hidden overflow-y-scroll">
-      <div className="flex flex-col items-center">
+    <div className="mt-2 flex-1 flex flex-row items-start relative overflow-x-auto overflow-y-scroll">
+      <div className="flex flex-col">
         <table className="table table-compact relative rounded-box">
           <thead>
             <tr>
@@ -123,13 +123,13 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
               .filter((stats) => stats.total >= 10)
               .map((stats) => (
                 <tr key={stats.spec}>
-                  <td className="bg-base-200">
+                  <th className="bg-base-200">
                     <div className="flex flex-row gap-2">
                       {stats.spec.split('_').map((spec, i) => (
                         <SpecImage key={`${spec}_${i}`} specId={spec} />
                       ))}
                     </div>
-                  </td>
+                  </th>
                   <td className="bg-base-200">{stats.total}</td>
                   <td className="bg-base-200">
                     <progress
