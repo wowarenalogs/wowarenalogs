@@ -104,8 +104,8 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
   );
 
   return (
-    <div className="mt-4 flex-1 flex flex-row justify-center items-start relative overflow-x-hidden overflow-y-scroll">
-      <div className="flex flex-col items-center">
+    <div className="mt-2 flex-1 flex flex-row items-start relative overflow-x-auto overflow-y-scroll">
+      <div className="flex flex-col">
         <table className="table table-compact relative rounded-box">
           <thead>
             <tr>
@@ -169,13 +169,13 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
               .filter((stats) => stats.total >= 10)
               .map((stats) => (
                 <tr key={stats.spec}>
-                  <td className="bg-base-200">
+                  <th className="bg-base-200">
                     <div className="flex flex-row gap-2">
                       {stats.spec.split('_').map((spec, i) => (
                         <SpecImage key={`${spec}_${i}`} specId={spec} />
                       ))}
                     </div>
-                  </td>
+                  </th>
                   <td className="bg-base-200 text-right">{stats.total}</td>
                   <td className="bg-base-200 text-right">{(stats.winRate * 100).toFixed(1)}%</td>
                   <td className="bg-base-200 text-right">{Utils.printCombatNumber(stats.dps)}</td>
