@@ -16,8 +16,8 @@ export const StatsPage = () => {
   const sortKey = (router.query.sortKey as string) ?? 'total';
 
   return (
-    <div className="flex flex-col p-2 w-full h-full items-stretch">
-      <div className="flex flex-row gap-2 items-center justify-center">
+    <div className="flex flex-col px-4 py-2 w-full h-full items-stretch">
+      <div className="flex flex-col md:flex-row gap-2 items-center z-50">
         <Dropdown
           menuItems={SUPPORTED_BRACKETS.map((b) => ({
             key: b,
@@ -51,7 +51,7 @@ export const StatsPage = () => {
           </a>
         </div>
         <div
-          className="tooltip tooltip-bottom tooltip-info z-50"
+          className="tooltip tooltip-bottom tooltip-info"
           data-tip="Based on ranked matches at all ratings uploaded during the past 7 days, excluding the uploader's own teams to minimize bias."
         >
           <TbInfoCircle className="text-xl ml-2 cursor-pointer opacity-50 hover:opacity-100" />
