@@ -1,10 +1,10 @@
-import { CombatUnitSpec } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
 import { TbArrowDown } from 'react-icons/tb';
 import { useQuery } from 'react-query';
 
+import { Utils } from '../../utils/utils';
 import { ErrorPage } from '../common/ErrorPage';
 import { SpecImage } from '../common/SpecImage';
 import { LoadingScreen } from '../LoadingScreen';
@@ -13,13 +13,24 @@ import { STATS_SCHEMA_VERSION } from './common';
 type StatsData = {
   [bracket: string]: {
     [specs: string]: {
-      win?: number;
-      lose?: number;
+      win?: {
+        matches: number;
+        effectiveDps: number;
+        effectiveHps: number;
+      };
+      lose?: {
+        matches: number;
+        effectiveDps: number;
+        effectiveHps: number;
+        killTargetSpec: {
+          [spec: string]: number;
+        };
+      };
     };
   };
 };
 
-const SUPPORTED_SORT_KEYS = new Set(['total', 'winRate']);
+const SUPPORTED_SORT_KEYS = new Set(['total', 'winRate', 'dps', 'hps']);
 
 export default function CompStats(props: { activeBracket: string; sortKey: string }) {
   const router = useRouter();
@@ -68,20 +79,35 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
     Object.keys(bracketStats)
       .filter((rawSpec) => rawSpec !== '0' && rawSpec !== '(not set)')
       .map((rawSpec) => {
-        const spec = rawSpec as CombatUnitSpec;
+        const spec = rawSpec;
         const stats = bracketStats[spec];
+        const win = {
+          matches: 0,
+          effectiveDps: 0,
+          effectiveHps: 0,
+          ...stats.win,
+        };
+        const lose = {
+          matches: 0,
+          effectiveDps: 0,
+          effectiveHps: 0,
+          killTargetSpec: {},
+          ...stats.lose,
+        };
         return {
           spec,
-          win: stats.win ?? 0,
-          lose: stats.lose ?? 0,
-          total: (stats.win ?? 0) + (stats.lose ?? 0),
-          winRate: (stats.win ?? 0) / ((stats.win ?? 0) + (stats.lose ?? 0)),
+          win,
+          lose,
+          dps: (win.effectiveDps * win.matches + lose.effectiveDps * lose.matches) / (win.matches + lose.matches),
+          hps: (win.effectiveHps * win.matches + lose.effectiveHps * lose.matches) / (win.matches + lose.matches),
+          total: win.matches + lose.matches,
+          winRate: win.matches / (win.matches + lose.matches),
+          killTargetSpec: lose.killTargetSpec,
         };
       }),
     sortKey,
     'desc',
   );
-  const maxSpecTotal = _.maxBy(bracketStatsSorted, (stats) => stats.total)?.total ?? 0;
 
   return (
     <div className="mt-2 flex-1 flex flex-row items-start relative overflow-x-auto overflow-y-scroll">
@@ -89,8 +115,8 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
         <table className="table table-compact relative rounded-box">
           <thead>
             <tr>
-              <th className="bg-base-300">Spec</th>
-              <th className="bg-base-300" colSpan={2}>
+              <th className="bg-base-300">Comp</th>
+              <th className="bg-base-300">
                 <div className="flex flex-row items-center gap-1">
                   Matches
                   <button
@@ -116,31 +142,79 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
                   </button>
                 </div>
               </th>
+              <th className="bg-base-300">
+                <div
+                  className="flex flex-row items-center gap-1"
+                  title="Average damage per second, including damage done by pets but excluding damage done to pets."
+                >
+                  DPS
+                  <button
+                    className={`btn btn-xs btn-ghost ${sortKey === 'dps' ? 'text-primary' : ''}`}
+                    onClick={() => {
+                      setSortKey('dps');
+                    }}
+                  >
+                    <TbArrowDown />
+                  </button>
+                </div>
+              </th>
+              <th className="bg-base-300">
+                <div
+                  className="flex flex-row items-center gap-1"
+                  title="Average healing per second, including absorbs and excluding overheals."
+                >
+                  HPS
+                  <button
+                    className={`btn btn-xs btn-ghost ${sortKey === 'hps' ? 'text-primary' : ''}`}
+                    onClick={() => {
+                      setSortKey('hps');
+                    }}
+                  >
+                    <TbArrowDown />
+                  </button>
+                </div>
+              </th>
+              <th className="bg-base-300">
+                <div
+                  className="flex flex-row items-center gap-1"
+                  title="Among all the matches when this comp lost, how many times each spec ended up being the first blood."
+                >
+                  First Blood
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
             {bracketStatsSorted
               .filter((stats) => stats.total >= 10)
-              .map((stats) => (
-                <tr key={stats.spec}>
-                  <th className="bg-base-200">
-                    <div className="flex flex-row gap-2">
-                      {stats.spec.split('_').map((spec, i) => (
-                        <SpecImage key={`${spec}_${i}`} specId={spec} />
-                      ))}
-                    </div>
-                  </th>
-                  <td className="bg-base-200">{stats.total}</td>
-                  <td className="bg-base-200">
-                    <progress
-                      className="progress progress-info sm:w-32 md:w-64 lg:w-96"
-                      value={Math.floor((stats.total * 100) / maxSpecTotal)}
-                      max={100}
-                    />
-                  </td>
-                  <td className="bg-base-200 text-right">{((stats.win * 100) / stats.total).toFixed(1)}%</td>
-                </tr>
-              ))}
+              .map((stats) => {
+                const killTargetTotal = Object.values(stats.killTargetSpec).reduce((a, b) => a + b, 0);
+                return (
+                  <tr key={stats.spec}>
+                    <th className="bg-base-200">
+                      <div className="flex flex-row gap-2">
+                        {stats.spec.split('_').map((spec, i) => (
+                          <SpecImage key={`${spec}_${i}`} specId={spec} />
+                        ))}
+                      </div>
+                    </th>
+                    <td className="bg-base-200 text-right">{stats.total}</td>
+                    <td className="bg-base-200 text-right">{(stats.winRate * 100).toFixed(1)}%</td>
+                    <td className="bg-base-200 text-right">{Utils.printCombatNumber(stats.dps)}</td>
+                    <td className="bg-base-200 text-right">{Utils.printCombatNumber(stats.hps)}</td>
+                    <td className="bg-base-200 text-right">
+                      <div className="flex flex-row items-center gap-4">
+                        {Object.keys(stats.killTargetSpec).map((spec) => (
+                          <div key={spec} className="flex flex-row items-center gap-1">
+                            <SpecImage key={spec} specId={spec} />
+                            <div>{((stats.killTargetSpec[spec] * 100) / killTargetTotal).toFixed(1)}%</div>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
         <div className="opacity-50 mt-2">Specs and comps with less than 10 recorded matches are hidden.</div>
