@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { TbCaretDown, TbInfoCircle } from 'react-icons/tb';
 
+import { DownloadPromotion } from '../common/DownloadPromotion';
 import { Dropdown } from '../common/Dropdown';
 import CompStats from '../CompetitiveStats/CompStats';
 import SpecStats from '../CompetitiveStats/SpecStats';
@@ -17,6 +18,7 @@ export const StatsPage = () => {
 
   return (
     <div className="flex flex-col px-4 py-2 w-full h-full items-stretch">
+      <DownloadPromotion />
       <div className="flex flex-col md:flex-row gap-2 items-center z-50">
         <Dropdown
           menuItems={SUPPORTED_BRACKETS.map((b) => ({
