@@ -4,6 +4,10 @@ let googleAnalyticsClientId: string;
 let googleAnalyticsSessionId: string;
 
 export const initAnalyticsAsync = (gaPropertyId: string): Promise<void> => {
+  if (process.env.NODE_ENV === 'development') {
+    return Promise.resolve();
+  }
+
   return new Promise((resolve) => {
     googleAnalyticsPropertyId = gaPropertyId;
     if (typeof window !== 'undefined' && window.gtag) {
@@ -22,12 +26,21 @@ export const initAnalyticsAsync = (gaPropertyId: string): Promise<void> => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const logAnalyticsEvent = (event: string, params?: any) => {
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.log('Analytics event', event, params);
+    return;
+  }
   if (window.gtag) {
     window.gtag('event', event, params);
   }
 };
 
 export const setAnalyticsUserProperties = (userProperties: Record<string, unknown>) => {
+  if (process.env.NODE_ENV === 'development') {
+    return;
+  }
+
   if (window.gtag) {
     window.gtag('set', 'user_properties', userProperties);
     if (userProperties.id) {
