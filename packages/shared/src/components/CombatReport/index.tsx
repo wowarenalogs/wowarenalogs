@@ -1,15 +1,14 @@
 import { AtomicArenaCombat } from '@wowarenalogs/parser';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FaShare } from 'react-icons/fa';
-import { TbChevronLeft, TbCopy, TbDownload, TbX } from 'react-icons/tb';
+import { TbChevronLeft, TbCopy } from 'react-icons/tb';
 
 import { zoneMetadata } from '../../data/zoneMetadata';
 import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
-import { useClientContext } from '../../hooks/ClientContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
+import { DownloadPromotion } from '../common/DownloadPromotion';
 import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
 import { CombatLogView } from './CombatLogView';
@@ -35,19 +34,12 @@ export const CombatReportInternal = () => {
   const router = useRouter();
   const { data: user } = useGetProfileQuery();
   const { combat, activeTab, setActiveTab, activePlayerId } = useCombatReportContext();
-  const clientContext = useClientContext();
 
   const [urlCopied, setUrlCopied] = useState(false);
   const reportUrl = useMemo(() => {
     const url = `https://wowarenalogs.com/match?id=${combat?.id}`;
     return url;
   }, [combat]);
-
-  const [dismissedDownloadPromo, setDismissedDownloadPromo] = useState(false);
-
-  useEffect(() => {
-    setDismissedDownloadPromo(localStorage.getItem('dismissedDownloadPromo') === 'true');
-  }, []);
 
   useEffect(() => {
     if (combat) {
@@ -72,30 +64,7 @@ export const CombatReportInternal = () => {
 
   return (
     <div className="w-full h-full flex flex-col p-2 animate-fadein">
-      {!clientContext.isDesktop && !dismissedDownloadPromo && (
-        <div className="mb-2 relative">
-          <div className="alert alert-info shadow-lg">
-            <div>
-              <TbDownload className="text-xl" />
-              Get WoW Arena Logs and start analyzing your own arena matches today!
-            </div>
-            <div className="flex-none">
-              <Link href="/">
-                <a className="btn btn-sm btn-outline">Download</a>
-              </Link>
-              <button
-                className="btn btn-sm btn-ghost"
-                onClick={() => {
-                  setDismissedDownloadPromo(true);
-                  localStorage.setItem('dismissedDownloadPromo', 'true');
-                }}
-              >
-                <TbX />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DownloadPromotion />
       <div className="flex flex-row items-center px-2">
         {router.query.source ? (
           <div className="pt-1 pr-2">

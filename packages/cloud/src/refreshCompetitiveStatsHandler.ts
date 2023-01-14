@@ -33,6 +33,7 @@ async function generateSpecStatsAsync() {
           effectiveDps: number;
           effectiveHps: number;
           isKillTarget: number;
+          burstDps: number;
         };
       };
     };
@@ -72,6 +73,9 @@ async function generateSpecStatsAsync() {
       },
       {
         name: 'countCustomEvent:isKillTarget',
+      },
+      {
+        name: 'averageCustomEvent:burstDps',
       },
     ],
     dimensionFilter: {
@@ -136,6 +140,7 @@ async function generateSpecStatsAsync() {
             effectiveDps: Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0),
             effectiveHps: Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0),
             isKillTarget: isKillTargetAvg,
+            burstDps: Math.abs(parseFloat(row.metricValues[5].value as string) ?? 0),
           },
         },
       },
@@ -162,6 +167,7 @@ async function generateCompStatsAsync() {
       [specs: string]: {
         [result: string]: {
           matches: number;
+          burstDps: number;
           effectiveDps: number;
           effectiveHps: number;
           killTargetSpec: {
@@ -200,6 +206,9 @@ async function generateCompStatsAsync() {
       },
       {
         name: 'averageCustomEvent:effectiveHps',
+      },
+      {
+        name: 'averageCustomEvent:burstDps',
       },
     ],
     dimensionFilter: {
@@ -262,6 +271,7 @@ async function generateCompStatsAsync() {
             matches: parseInt(row.metricValues[0].value as string) ?? 0,
             effectiveDps: Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0),
             effectiveHps: Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0),
+            burstDps: Math.abs(parseFloat(row.metricValues[3].value as string) ?? 0),
           },
         },
       },
