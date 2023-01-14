@@ -28,7 +28,7 @@
       "buildResources": "packages/app/assets"
     },
     "win": {
-      "certificateSha1": "Alotof Technology LLC"
+      "certificateSha1": "E7B019CC482D601A0BB62729539F02990D6AA4FB"
     }
   },
   "scripts": {
