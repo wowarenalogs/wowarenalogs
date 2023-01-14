@@ -9,6 +9,7 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const logFilesBucket = isDev ? 'wowarenalogs-public-dev-log-files-prod' : 'wowarenalogs-log-files-prod';
 const storage = new Storage({
+  projectId: process.env.NODE_ENV === 'development' ? 'wowarenalogs-public-dev' : 'wowarenalogs',
   credentials:
     process.env.NODE_ENV === 'development'
       ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
@@ -18,6 +19,7 @@ const bucket = storage.bucket(logFilesBucket);
 
 const matchStubsCollection = 'match-stubs-prod';
 const firestore = new Firestore({
+  projectId: process.env.NODE_ENV === 'development' ? 'wowarenalogs-public-dev' : 'wowarenalogs',
   credentials: isDev
     ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
     : undefined,

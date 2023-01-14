@@ -36,6 +36,7 @@ export const Meters = () => {
     ? _.sumBy(friends, (u) => Utils.getAverageItemLevel(u)) / friends.length
     : 0;
   const iLvlAdvantage = friendsAvgItemLevel - enemyAvgItemLevel;
+  const effectiveDuration = Utils.getEffectiveCombatDuration(combat);
 
   return (
     <div className="flex flex-col">
@@ -100,9 +101,7 @@ export const Meters = () => {
                 </td>
                 <td className="bg-base-200">{`${Utils.printCombatNumber(playerTotalDamageOut.get(u.id) || 0)}`}</td>
                 <td className="bg-base-200">
-                  {`${Utils.printCombatNumber(
-                    (playerTotalDamageOut.get(u.id) || 0) / (combat?.durationInSeconds || 1),
-                  )}/s`}
+                  {`${Utils.printCombatNumber((playerTotalDamageOut.get(u.id) || 0) / (effectiveDuration || 1))}/s`}
                 </td>
                 <td className="bg-base-200">
                   <progress
@@ -125,9 +124,7 @@ export const Meters = () => {
                 </td>
                 <td className="bg-base-200">{`${Utils.printCombatNumber(playerTotalHealOut.get(u.id) || 0)}`}</td>
                 <td className="bg-base-200">
-                  {`${Utils.printCombatNumber(
-                    (playerTotalHealOut.get(u.id) || 0) / (combat?.durationInSeconds || 1),
-                  )}/s`}
+                  {`${Utils.printCombatNumber((playerTotalHealOut.get(u.id) || 0) / (effectiveDuration || 1))}/s`}
                 </td>
                 <td className="bg-base-200">
                   <progress

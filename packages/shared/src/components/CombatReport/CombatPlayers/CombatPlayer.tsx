@@ -15,6 +15,8 @@ import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
+import { ArmoryLink } from './ArmoryLink';
+import { CheckPvPLink } from './CheckPvPLink';
 import { TalentDisplay } from './TalentDisplay';
 
 interface IProps {
@@ -268,16 +270,15 @@ export function CombatPlayer(props: IProps) {
 
   return (
     <div className="flex flex-col flex-1 pb-4">
-      <CombatUnitName unit={props.player} isTitle />
+      <div className="flex flex-row items-start gap-2">
+        <CombatUnitName unit={props.player} isTitle />
+        <div className="flex-1" />
+        <ArmoryLink player={props.player} />
+        <CheckPvPLink player={props.player} />
+      </div>
       <div className="mt-2">
         <AchievementBadge player={props.player} />
       </div>
-      {
-        // TODO: look into recovering these functionality
-        // <ArmoryLink player={props.player} />
-        // <CheckPvPLink player={props.player} />
-        // <div className="flex flex-row items-center mt-1">{<AchievementBadge player={props.player} />}</div>
-      }
       <table className="table rounded-box mt-4 self-start">
         <thead>
           <tr>

@@ -11,9 +11,9 @@ const Home: NextPage = () => {
   return (
     <div className="flex-1 flex flex-col items-center justify-center">
       <div className="hero">
-        <div className="hero-content flex-row">
+        <div className="hero-content flex-col md:flex-row gap-4">
           <Image alt="WoW Arena Logs" src="/logo512.png" width={256} height={256} />
-          <div className="ml-4 flex flex-col items-start">
+          <div className="flex flex-col items-start">
             <h1 className="text-5xl font-bold">Learn from every match.</h1>
             <p className="py-6">
               WoW Arena Logs is the best tool available to help you analyze your own arena matches and learn from the
