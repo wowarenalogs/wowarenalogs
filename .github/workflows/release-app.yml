@@ -9,8 +9,8 @@ jobs:
     env:
       CI: false
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      WIN_CSC_LINK: ${{ secrets.CODESIGN_CERT_BASE64 }}
-      WIN_CSC_KEY_PASSWORD: ${{ secrets.CODESIGN_CERT_PASSWORD }}
+      CSC_LINK: ${{ secrets.CODESIGN_CERT_BASE64 }}
+      CSC_KEY_PASSWORD: ${{ secrets.CODESIGN_CERT_PASSWORD }}
     steps:
       - name: setup python
         uses: actions/setup-python@v2
@@ -62,6 +62,10 @@ jobs:
       CI: false
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
       - name: gcloud auth
         uses: google-github-actions/auth@v1
         with:
