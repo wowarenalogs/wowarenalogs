@@ -26,9 +26,6 @@
     ],
     "directories": {
       "buildResources": "packages/app/assets"
-    },
-    "win": {
-      "certificateSubjectName": "Alotof Technology LLC"
     }
   },
   "scripts": {
