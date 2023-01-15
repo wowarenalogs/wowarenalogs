@@ -112,6 +112,7 @@ export const typeDefs = gql`
     ): CombatQueryResult!
     myMatches(anonymousUserId: String = null, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
     userMatches(userId: String!, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
+    characterMatches(realm: String!, characterName: String!, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
     matchesWithCombatant(playerName: String!): [CombatDataStub!]!
     matchById(matchId: String!, anon: Boolean!): CombatDataStub!
   }
