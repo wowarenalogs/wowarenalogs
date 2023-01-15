@@ -21,6 +21,7 @@ const bucket = storage.bucket(isDev ? 'data.public-dev.wowarenalogs.com' : 'data
 
 const ALLOWED_BRACKETS = new Set<string>(['2v2', '3v3', 'Rated Solo Shuffle']);
 const STATS_SCHEMA_VERSION = 2;
+const LOOKBACK_DAYS = 28;
 
 async function generateSpecStatsAsync() {
   console.log('generating spec stats...');
@@ -43,7 +44,7 @@ async function generateSpecStatsAsync() {
     property: 'properties/259314484',
     dateRanges: [
       {
-        startDate: '8daysAgo',
+        startDate: `${(LOOKBACK_DAYS + 1).toFixed()}daysAgo`,
         endDate: 'yesterday',
       },
     ],
@@ -182,7 +183,7 @@ async function generateCompStatsAsync() {
     property: 'properties/259314484',
     dateRanges: [
       {
-        startDate: '8daysAgo',
+        startDate: `${(LOOKBACK_DAYS + 1).toFixed()}daysAgo`,
         endDate: 'yesterday',
       },
     ],
@@ -283,7 +284,7 @@ async function generateCompStatsAsync() {
     property: 'properties/259314484',
     dateRanges: [
       {
-        startDate: '8daysAgo',
+        startDate: `${(LOOKBACK_DAYS + 1).toFixed()}daysAgo`,
         endDate: 'yesterday',
       },
     ],
