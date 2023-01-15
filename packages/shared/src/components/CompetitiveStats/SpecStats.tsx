@@ -16,12 +16,14 @@ type StatsData = {
     [specs: string]: {
       win?: {
         matches: number;
+        burstDps: number;
         effectiveDps: number;
         effectiveHps: number;
         isKillTarget: number;
       };
       lose?: {
         matches: number;
+        burstDps: number;
         effectiveDps: number;
         effectiveHps: number;
         isKillTarget: number;
@@ -30,7 +32,7 @@ type StatsData = {
   };
 };
 
-const SUPPORTED_SORT_KEYS = new Set(['total', 'winRate', 'dps', 'hps', 'target']);
+const SUPPORTED_SORT_KEYS = new Set(['total', 'winRate', 'burst', 'dps', 'hps', 'target']);
 
 export default function SpecStats(props: { activeBracket: string; sortKey: string }) {
   const router = useRouter();
@@ -83,12 +85,14 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
         const stats = bracketStats[spec];
         const win = stats.win ?? {
           matches: 0,
+          burstDps: 0,
           effectiveDps: 0,
           effectiveHps: 0,
           isKillTarget: 0,
         };
         const lose = stats.lose ?? {
           matches: 0,
+          burstDps: 0,
           effectiveDps: 0,
           effectiveHps: 0,
           isKillTarget: 0,
@@ -97,6 +101,7 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
           spec,
           win,
           lose,
+          burst: win.burstDps,
           dps: (win.effectiveDps * win.matches + lose.effectiveDps * lose.matches) / (win.matches + lose.matches),
           hps: (win.effectiveHps * win.matches + lose.effectiveHps * lose.matches) / (win.matches + lose.matches),
           total: win.matches + lose.matches,
@@ -146,7 +151,7 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
                   className="flex flex-row items-center gap-1"
                   title="Average damage per second, including damage done by pets but excluding damage done to pets."
                 >
-                  DPS
+                  Avg DPS
                   <button
                     className={`btn btn-xs btn-ghost ${sortKey === 'dps' ? 'text-primary' : ''}`}
                     onClick={() => {
@@ -160,9 +165,25 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
               <th className="bg-base-300">
                 <div
                   className="flex flex-row items-center gap-1"
+                  title="Average damage per second during burst windows, including damage done by pets but excluding damage done to pets."
+                >
+                  Burst DPS
+                  <button
+                    className={`btn btn-xs btn-ghost ${sortKey === 'burst' ? 'text-primary' : ''}`}
+                    onClick={() => {
+                      setSortKey('burst');
+                    }}
+                  >
+                    <TbArrowDown />
+                  </button>
+                </div>
+              </th>
+              <th className="bg-base-300">
+                <div
+                  className="flex flex-row items-center gap-1"
                   title="Average healing per second, including absorbs and excluding overheals."
                 >
-                  HPS
+                  Avg HPS
                   <button
                     className={`btn btn-xs btn-ghost ${sortKey === 'hps' ? 'text-primary' : ''}`}
                     onClick={() => {
@@ -204,6 +225,9 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
                   <td className="bg-base-200 text-right">{stats.total}</td>
                   <td className="bg-base-200 text-right">{(stats.winRate * 100).toFixed(1)}%</td>
                   <td className="bg-base-200 text-right">{Utils.printCombatNumber(stats.dps)}</td>
+                  <td className="bg-base-200 text-right">
+                    {stats.burst ? Utils.printCombatNumber(stats.burst) : 'Pending'}
+                  </td>
                   <td className="bg-base-200 text-right">{Utils.printCombatNumber(stats.hps)}</td>
                   <td className="bg-base-200 text-right">{(stats.target * 100).toFixed(1)}%</td>
                 </tr>
