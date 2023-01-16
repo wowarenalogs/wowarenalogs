@@ -16,7 +16,6 @@ export function ReplayHpUpdateEvent(props: IProps) {
       {props.expanded && <div className="ml-0.5">and dealt</div>}
       <div className="ml-0.5">
         <div className={`${props.event.amount >= 0 ? 'text-success' : 'text-error'} font-bold`}>
-          {isCrit ? '*' : ''}
           {props.event.amount > 0 ? '+' : ''}
           {props.event.effectiveAmount}
           {isCrit ? '*' : ''}
