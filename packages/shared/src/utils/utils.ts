@@ -121,19 +121,21 @@ export class Utils {
     }
   }
 
-  public static printCombatNumber(num: number, isCritical = false, criticalMarker = '*'): string {
+  public static printCombatNumber(num: number, isCritical = false): string {
+    const criticalMarker = '*';
+
     if (num < 1000) {
-      return `${isCritical ? criticalMarker : ''}${num.toFixed()}${isCritical ? criticalMarker : ''}}`;
+      return `${num.toFixed()}${isCritical ? criticalMarker : ''}}`;
     }
     if (num < 10000) {
-      return `${isCritical ? criticalMarker : ''}${(num / 1000).toFixed(1)}k${isCritical ? criticalMarker : ''}`;
+      return `${(num / 1000).toFixed(1)}k${isCritical ? criticalMarker : ''}`;
     }
 
     if (num >= 1000000) {
-      return `${isCritical ? criticalMarker : ''}${(num / 1000000).toFixed(2)}m${isCritical ? criticalMarker : ''}`;
+      return `${(num / 1000000).toFixed(2)}m${isCritical ? criticalMarker : ''}`;
     }
 
-    return `${isCritical ? criticalMarker : ''}${(num / 1000).toFixed()}k${isCritical ? criticalMarker : ''}`;
+    return `${(num / 1000).toFixed()}k${isCritical ? criticalMarker : ''}`;
   }
 
   public static getEffectiveCombatDuration(combat: AtomicArenaCombat) {

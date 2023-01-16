@@ -57,7 +57,7 @@ export const CombatUnitHpUpdate = (props: IProps) => {
         ) : null}
         {widthPercentageAbsolute >= 30 && props.action.spellId ? (
           <div className="ml-1 text-black font-medium">
-            {Utils.printCombatNumber(Math.abs(props.action.effectiveAmount))}
+            {Utils.printCombatNumber(Math.abs(props.action.effectiveAmount), props.action.isCritical)}
           </div>
         ) : null}
       </div>

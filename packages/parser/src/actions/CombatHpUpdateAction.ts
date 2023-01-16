@@ -27,7 +27,7 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
 
     if (logLine.event === 'SWING_DAMAGE') {
       this.amount = -1 * logLine.parameters[25 + wowVersionOffset];
-      this.isCritical = logLine.parameters[35 + wowVersionOffset] === 1;
+      this.isCritical = logLine.parameters[32 + wowVersionOffset] === 1;
 
       if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
         this.effectiveAmount = this.amount;
@@ -46,7 +46,7 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
     } else {
       this.amount = logLine.parameters[28 + wowVersionOffset];
       const overheal = logLine.parameters[30 + wowVersionOffset] ?? 0;
-      this.isCritical = logLine.parameters[35 + wowVersionOffset] === 1;
+      this.isCritical = logLine.parameters[32 + wowVersionOffset] === 1;
 
       if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
         this.effectiveAmount = this.amount - overheal;
