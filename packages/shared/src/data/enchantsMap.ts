@@ -39,7 +39,26 @@ export type RaidbotsEnchant = {
   baseDisplayName?: string;
 };
 
+/** These are not in the raidbots dump */
+const manualAdditions: RaidbotsEnchant[] = [
+  {
+    id: 5401,
+    displayName: 'Windfury Weapon',
+    tokenizedName: 'windfury_weapon',
+    spellIcon: 'spell_windfury_weapon',
+    spellId: 334302,
+  },
+  {
+    id: 5400,
+    displayName: 'Flametongue Weapon',
+    tokenizedName: 'flametongue_weapon',
+    spellIcon: 'spell_flametongue_weapon',
+    spellId: 334294,
+  },
+];
+
 export const enchantsData: RaidbotsEnchantsData = [
+  ...manualAdditions,
   {
     id: 3368,
     displayName: 'Rune of the Fallen Crusader',
