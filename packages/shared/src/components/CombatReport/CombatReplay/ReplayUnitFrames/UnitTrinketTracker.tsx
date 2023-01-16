@@ -25,10 +25,8 @@ function computePercentCDRemaining(casts: ISpellCast[], spellId: string, current
 
 export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
   const relentlessTrinkets = ['181335', '184053', '186870', '185305', '186967', '185310', '184059', '184056']; // Spell: 196029
-  const gladiatorTrinkets = ['185309', '181333', '184052', '186869', '185304', '186966', '185309']; // Spell: 336126
-  const adaptationTrinkets = ['181816', '184054', '186871', '185306', '185311', '186968']; // Spell: 195756
-  const echoingResolveTrinkets = ['188691']; // Spell: 363121
-  const fastidiousResolveTrinkets = ['188524']; // Spell: 363117
+  const gladiatorTrinkets = ['185309', '181333', '184052', '186869', '185304', '186966', '185309', '201810', '201450']; // Spell: 336126
+  const adaptationTrinkets = ['181816', '184054', '186871', '185306', '185311', '186968', '201453', '201811']; // Spell: 195756
 
   if (props.unit.info?.equipment.some((e) => relentlessTrinkets.includes(e.id))) {
     return (
@@ -40,25 +38,6 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     return (
       <div className={styles['unit-frame-trinkettracker']}>
         <SpellIcon circular className={styles['unit-frame-trinket-ready']} size={28} spellId={'336135'} />
-      </div>
-    );
-  } else if (props.unit.info?.equipment.some((e) => echoingResolveTrinkets.includes(e.id))) {
-    return (
-      <div className={styles['unit-frame-trinkettracker']}>
-        <SpellIcon circular className={styles['unit-frame-trinket-ready']} size={28} spellId={'363121'} />
-      </div>
-    );
-  } else if (props.unit.info?.equipment.some((e) => fastidiousResolveTrinkets.includes(e.id))) {
-    const cooldownPercent = computePercentCDRemaining(props.trinketSpellCasts, '336126', props.currentTimeOffset, 180);
-    return (
-      <div className={styles['unit-frame-trinkettracker']}>
-        <SpellIcon
-          cooldownPercent={cooldownPercent}
-          circular
-          className={styles['unit-frame-trinket-ready']}
-          size={28}
-          spellId={'363117'}
-        />
       </div>
     );
   } else if (props.unit.info?.equipment.some((e) => gladiatorTrinkets.includes(e.id))) {
@@ -76,5 +55,8 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     );
   }
   // They dont have a trinket equipped
+  if (process.env.NODE_ENV === 'development') {
+    console.error(`Player ${props.unit.id} ${props.unit.name} has no trinket?`);
+  }
   return null;
 };

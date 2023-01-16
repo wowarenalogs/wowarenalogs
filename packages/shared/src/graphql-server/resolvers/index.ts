@@ -1,4 +1,4 @@
-import { latestMatches, matchById, matchesWithCombatant, myMatches, userMatches } from './matches';
+import { characterMatches, latestMatches, matchById, matchesWithCombatant, myMatches, userMatches } from './matches';
 import { me, setUserReferrer } from './profile';
 
 export const resolvers = {
@@ -19,6 +19,7 @@ export const resolvers = {
     latestMatches,
     myMatches,
     userMatches,
+    characterMatches,
     matchesWithCombatant,
     matchById,
   },
