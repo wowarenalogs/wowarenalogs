@@ -1,16 +1,18 @@
 import { LoadingScreen, useAuth } from '@wowarenalogs/shared';
+import { useRouter } from 'next/router';
 
 import { LogoutButton } from '../common/LogoutButton';
 
 export const ProfilePage = () => {
   const auth = useAuth();
+  const router = useRouter();
 
   if (auth.isLoadingAuthData) {
     return <LoadingScreen />;
   }
 
   if (!auth.isAuthenticated) {
-    // the profile page should only be visible to authenticated users
+    router.push('/');
     return null;
   }
 
