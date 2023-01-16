@@ -77,7 +77,7 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
   }
 
   const bracketStats = specStats[props.activeBracket];
-  const bracketStatsSorted = _.orderBy(
+  let bracketStatsSorted = _.orderBy(
     Object.keys(bracketStats)
       .filter((rawSpec) => rawSpec !== '0' && rawSpec !== '(not set)')
       .map((rawSpec) => {
@@ -117,6 +117,18 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
     _.sum(bracketStatsSorted.map((v) => v.win.matches)),
     _.sum(bracketStatsSorted.map((v) => v.lose.matches)),
   );
+
+  if (props.activeBracket === 'Rated Solo Shuffle') {
+    // in solo shuffles, protection paladins always fight against protection paladins
+    // so their overall win rate should be strictly at 50%. we do this correction to avoid
+    // reporting a number biased by uploader's win rate.
+    bracketStatsSorted
+      .filter((s) => s.spec === CombatUnitSpec.Paladin_Protection)
+      .forEach((s) => {
+        s.winRate = 0.5 / winRateCorrectionFactor;
+      });
+    bracketStatsSorted = _.orderBy(bracketStatsSorted, sortKey ?? 'total', 'desc');
+  }
 
   return (
     <div className="mt-2 flex-1 flex flex-row items-start relative overflow-x-auto overflow-y-scroll">
