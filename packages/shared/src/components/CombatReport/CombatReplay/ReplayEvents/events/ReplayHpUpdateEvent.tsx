@@ -9,6 +9,7 @@ interface IProps {
 }
 
 export function ReplayHpUpdateEvent(props: IProps) {
+  const isCrit = props.event.isCritical;
   return (
     <ReplayEventContainer {...props}>
       <ReplayEventSpellInfo event={props.event} direction="right" expanded={props.expanded} />
@@ -17,10 +18,7 @@ export function ReplayHpUpdateEvent(props: IProps) {
         <div className={`${props.event.amount >= 0 ? 'text-success' : 'text-error'} font-bold`}>
           {props.event.amount > 0 ? '+' : ''}
           {props.event.effectiveAmount}
-          {
-            // TODO: implement isCrit in parser
-            // {isCrit(props.event, context.combat.wowVersion) ? '*' : ''}
-          }
+          {isCrit ? '*' : ''}
         </div>
       </div>
     </ReplayEventContainer>
