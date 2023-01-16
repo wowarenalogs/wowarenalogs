@@ -142,6 +142,16 @@ query GetUserMatches($userId: String!, $offset: Int = 0, $count: Int = 50) {
   }
 }
 
+query GetCharacterMatches($realm: String!, $characterName: String!, $offset: Int = 0, $count: Int = 50) {
+  characterMatches(realm: $realm, characterName: $characterName, offset: $offset, count: $count) {
+    combats {
+      ...arenaInfos
+      ...shuffleInfos
+    }
+    queryLimitReached
+  }
+}
+
 query GetMatchesWithCombatant($playerName: String!) {
   matchesWithCombatant(playerName: $playerName) {
     ...arenaInfos

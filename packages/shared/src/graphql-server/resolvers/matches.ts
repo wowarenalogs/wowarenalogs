@@ -168,6 +168,25 @@ export async function userMatches(
   };
 }
 
+export async function characterMatches(
+  _parent: unknown,
+  args: { realm: string; characterName: string; offset: number; count: number },
+): Promise<CombatQueryResult> {
+  const collectionReference = firestore.collection(matchStubsCollection);
+  const matchDocs = await collectionReference
+    .where('combatantNames', 'array-contains', `${args.characterName}-${args.realm}`)
+    .orderBy('startTime', 'desc')
+    .offset(args.offset)
+    .limit(Math.min(args.count, Constants.MAX_RESULTS_PER_QUERY))
+    .get();
+  const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
+
+  return {
+    combats: matches,
+    queryLimitReached: false,
+  };
+}
+
 export async function matchById(_parent: unknown, args: { matchId: string }) {
   const collection = matchStubsCollection;
   const collectionReference = firestore.collection(collection);

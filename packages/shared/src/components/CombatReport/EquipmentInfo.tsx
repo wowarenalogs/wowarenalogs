@@ -38,17 +38,7 @@ export const EquipmentInfo = ({ item, size = 'large', notext = false, bonusOnly 
     return null;
   }
 
-  let enchantAnnotation = '';
-  item.enchants.map((b) => {
-    if (b !== '0') {
-      if (b in enchantsMap) {
-        enchantAnnotation = enchantsMap[b].itemName || enchantsMap[b].displayName;
-      } else {
-        enchantAnnotation = `Enchant ${b}`;
-      }
-    }
-    return null;
-  });
+  const enchants = item.enchants.filter((b) => b !== '0');
 
   const fontMap = {
     small: 10,
@@ -90,19 +80,37 @@ export const EquipmentInfo = ({ item, size = 'large', notext = false, bonusOnly 
               color: '#1eff00',
             }}
           >
-            {enchantAnnotation}
+            {enchants.map((enchantId, idx) => {
+              if (enchantId in enchantsMap) {
+                return (
+                  <a
+                    className="mr-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                    }}
+                    key={`${enchantId}-${idx}`}
+                    href={`https://www.wowhead.com/spell=${enchantsMap[enchantId].spellId}`}
+                  >
+                    {enchantsMap[enchantId].itemName || enchantsMap[enchantId].displayName}{' '}
+                    {enchantsMap[enchantId].craftingQuality}
+                  </a>
+                );
+              }
+              return <div key={`${enchantId}-${idx}`}>Enchant ${enchantId}</div>;
+            })}
           </div>
         )}
         {!notext &&
           !bonusOnly &&
           item.gems
             .filter((_g, i) => i % 2 === 0)
-            .map((b) => (
+            .map((b, idx) => (
               <a
-                key={`${b}`}
+                key={`${b}-${idx}`}
                 style={{
                   fontSize,
                 }}
+                className="mr-2"
                 data-wh-rename-link="true"
                 onClick={(e) => {
                   e.preventDefault();
