@@ -11,6 +11,7 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
   }
 
   public readonly amount: number;
+  public readonly isCritical: boolean;
 
   // for damage events, "effective" means damage done to a player.
   // for heal events, "effective" means healing done to a player, excluding overheal.
@@ -26,6 +27,8 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
 
     if (logLine.event === 'SWING_DAMAGE') {
       this.amount = -1 * logLine.parameters[25 + wowVersionOffset];
+      this.isCritical = logLine.parameters[32 + wowVersionOffset] === 1;
+
       if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
         this.effectiveAmount = this.amount;
       } else {
@@ -33,6 +36,8 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
       }
     } else if (logLine.event.endsWith('_DAMAGE')) {
       this.amount = -1 * logLine.parameters[28 + wowVersionOffset];
+      this.isCritical = logLine.parameters[35 + wowVersionOffset] === 1;
+
       if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
         this.effectiveAmount = this.amount;
       } else {
@@ -41,6 +46,8 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
     } else {
       this.amount = logLine.parameters[28 + wowVersionOffset];
       const overheal = logLine.parameters[30 + wowVersionOffset] ?? 0;
+      this.isCritical = logLine.parameters[32 + wowVersionOffset] === 1;
+
       if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
         this.effectiveAmount = this.amount - overheal;
       } else {
