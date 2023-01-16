@@ -8,7 +8,7 @@ import { Utils } from '../../utils/utils';
 import { ErrorPage } from '../common/ErrorPage';
 import { SpecImage } from '../common/SpecImage';
 import { LoadingScreen } from '../LoadingScreen';
-import { STATS_SCHEMA_VERSION } from './common';
+import { getWinRateCorrectionFactor, STATS_SCHEMA_VERSION } from './common';
 
 type StatsData = {
   [bracket: string]: {
@@ -112,6 +112,11 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
       }),
     sortKey,
     'desc',
+  );
+
+  const winRateCorrectionFactor = getWinRateCorrectionFactor(
+    _.sum(bracketStatsSorted.map((v) => v.win.matches)),
+    _.sum(bracketStatsSorted.map((v) => v.lose.matches)),
   );
 
   return (
@@ -220,7 +225,9 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
                       </div>
                     </th>
                     <td className="bg-base-200 text-right">{stats.total}</td>
-                    <td className="bg-base-200 text-right">{(stats.winRate * 100).toFixed(1)}%</td>
+                    <td className="bg-base-200 text-right">
+                      {(stats.winRate * winRateCorrectionFactor * 100).toFixed(1)}%
+                    </td>
                     <td className="bg-base-200 text-right">{Utils.printCombatNumber(stats.dps)}</td>
                     <td className="bg-base-200 text-right">
                       {stats.burst ? Utils.printCombatNumber(stats.burst) : 'Pending'}
