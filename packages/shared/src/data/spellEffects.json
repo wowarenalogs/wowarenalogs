@@ -20,6 +20,13 @@
     "charges": {},
     "durationSeconds": 8
   },
+  "740": {
+    "spellId": "740",
+    "name": "Tranquility",
+    "charges": {},
+    "durationSeconds": 8,
+    "cooldownSeconds": 180
+  },
   "853": {
     "spellId": "853",
     "name": "Hammer of Justice",
@@ -174,12 +181,6 @@
     "cooldownSeconds": 120,
     "charges": {},
     "durationSeconds": 20
-  },
-  "11327": {
-    "spellId": "11327",
-    "name": "Vanish",
-    "charges": {},
-    "durationSeconds": 3
   },
   "12042": {
     "spellId": "12042",
@@ -530,6 +531,7 @@
     "spellId": "86949",
     "name": "Cauterize",
     "durationSeconds": 6,
+    "cooldownSeconds": 300,
     "charges": {}
   },
   "88625": {
@@ -546,11 +548,12 @@
     "charges": {},
     "durationSeconds": 4
   },
-  "97463": {
-    "spellId": "97463",
+  "97462": {
+    "spellId": "97462",
     "name": "Rallying Cry",
     "charges": {},
-    "durationSeconds": 10
+    "durationSeconds": 10,
+    "cooldownSeconds": 180
   },
   "98008": {
     "spellId": "98008",
@@ -820,6 +823,7 @@
   "145629": {
     "spellId": "145629",
     "name": "Anti-Magic Zone",
+    "cooldownSeconds": 120,
     "charges": {},
     "durationSeconds": 10
   },
@@ -842,12 +846,6 @@
     "name": "Breath of Sindragosa",
     "cooldownSeconds": 120,
     "charges": {}
-  },
-  "157982": {
-    "spellId": "157982",
-    "name": "Tranquility",
-    "charges": {},
-    "durationSeconds": 8
   },
   "184662": {
     "spellId": "184662",
@@ -1247,12 +1245,6 @@
     "cooldownSeconds": 60,
     "charges": {},
     "durationSeconds": 8
-  },
-  "356567": {
-    "spellId": "356567",
-    "name": "Shackles of Malediction",
-    "charges": {},
-    "durationSeconds": 4
   },
   "357170": {
     "spellId": "357170",

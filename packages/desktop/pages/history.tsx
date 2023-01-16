@@ -1,6 +1,7 @@
-import { CombatStubList } from '@wowarenalogs/shared';
+import { CombatStubList, LoadingScreen, useAuth } from '@wowarenalogs/shared';
 import { LocalRemoteHybridCombat } from '@wowarenalogs/shared/src/components/CombatStubList/rows';
 import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryError';
+import { SignInPromotion } from '@wowarenalogs/shared/src/components/common/SignInPromotion';
 import { useGetMyMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -9,10 +10,15 @@ import { TbLoader } from 'react-icons/tb';
 import { useLocalCombats } from '../hooks/LocalCombatsContext';
 
 const Page = () => {
+  const { isLoadingAuthData, isAuthenticated } = useAuth();
   const { localCombats } = useLocalCombats();
   const matchesQuery = useGetMyMatchesQuery();
 
   const hybridCombats = useMemo(() => {
+    if (isLoadingAuthData) {
+      return [];
+    }
+
     const remoteCombats = matchesQuery.data?.myMatches?.combats || [];
     const remoteCombatIds = new Set(remoteCombats.map((c) => c.id));
 
@@ -36,7 +42,15 @@ const Page = () => {
       (c) => c.match.startTime,
       ['desc'],
     );
-  }, [localCombats, matchesQuery.data]);
+  }, [localCombats, matchesQuery.data, isLoadingAuthData]);
+
+  if (isLoadingAuthData) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    return <SignInPromotion />;
+  }
 
   return (
     <div className="transition-all px-2 overflow-y-auto">

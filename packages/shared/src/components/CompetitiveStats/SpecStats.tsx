@@ -9,7 +9,7 @@ import { Utils } from '../../utils/utils';
 import { ErrorPage } from '../common/ErrorPage';
 import { SpecImage } from '../common/SpecImage';
 import { LoadingScreen } from '../LoadingScreen';
-import { STATS_SCHEMA_VERSION } from './common';
+import { getWinRateCorrectionFactor, STATS_SCHEMA_VERSION } from './common';
 
 type StatsData = {
   [bracket: string]: {
@@ -77,7 +77,7 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
   }
 
   const bracketStats = specStats[props.activeBracket];
-  const bracketStatsSorted = _.orderBy(
+  let bracketStatsSorted = _.orderBy(
     Object.keys(bracketStats)
       .filter((rawSpec) => rawSpec !== '0' && rawSpec !== '(not set)')
       .map((rawSpec) => {
@@ -112,6 +112,23 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
     sortKey ?? 'total',
     'desc',
   );
+
+  const winRateCorrectionFactor = getWinRateCorrectionFactor(
+    _.sum(bracketStatsSorted.map((v) => v.win.matches)),
+    _.sum(bracketStatsSorted.map((v) => v.lose.matches)),
+  );
+
+  if (props.activeBracket === 'Rated Solo Shuffle') {
+    // in solo shuffles, protection paladins always fight against protection paladins
+    // so their overall win rate should be strictly at 50%. we do this correction to avoid
+    // reporting a number biased by uploader's win rate.
+    bracketStatsSorted
+      .filter((s) => s.spec === CombatUnitSpec.Paladin_Protection)
+      .forEach((s) => {
+        s.winRate = 0.5 / winRateCorrectionFactor;
+      });
+    bracketStatsSorted = _.orderBy(bracketStatsSorted, sortKey ?? 'total', 'desc');
+  }
 
   return (
     <div className="mt-2 flex-1 flex flex-row items-start relative overflow-x-auto overflow-y-scroll">
@@ -223,7 +240,9 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
                     </div>
                   </th>
                   <td className="bg-base-200 text-right">{stats.total}</td>
-                  <td className="bg-base-200 text-right">{(stats.winRate * 100).toFixed(1)}%</td>
+                  <td className="bg-base-200 text-right">
+                    {(stats.winRate * winRateCorrectionFactor * 100).toFixed(1)}%
+                  </td>
                   <td className="bg-base-200 text-right">{Utils.printCombatNumber(stats.dps)}</td>
                   <td className="bg-base-200 text-right">
                     {stats.burst ? Utils.printCombatNumber(stats.burst) : 'Pending'}

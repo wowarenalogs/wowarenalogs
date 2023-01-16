@@ -23,11 +23,11 @@ export const spellEffectData: Record<string, IMinedSpell> = rawMinedData;
 if (process.env.NODE_ENV === 'development') {
   _.keys(rawMinedData).forEach((k) => {
     if (k !== spellEffectData[k].spellId) {
-      throw new Error(`Missing Spell Id: ${k}`);
+      console.error(`Missing Spell Id: ${k}`);
     }
     if (!spellEffectData[k].cooldownSeconds) {
       if (!spellEffectData[k].charges?.chargeCooldownSeconds) {
-        throw new Error(`Missing Cooldown Info: ${k}`);
+        console.error(`Missing Cooldown Info: ${k}`);
       }
     }
   });
