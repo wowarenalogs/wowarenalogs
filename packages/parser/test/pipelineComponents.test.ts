@@ -49,12 +49,28 @@ describe('pipeline component tests', () => {
 
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
       expect(action.amount).toEqual(-206);
+      expect(action.isCritical).toEqual(false);
       expect(action.advanced).toEqual(true);
       expect(action.advancedActorCurrentHp).toEqual(21506);
       expect(action.advancedActorMaxHp).toEqual(22520);
       expect(action.advancedActorPositionX).toEqual(-2022.75);
       expect(action.advancedActorPositionY).toEqual(6669.33);
       expect(action.advancedActorItemLevel).toEqual(125);
+    });
+
+    it('should parse crits', () => {
+      const log =
+        '2/6 00:39:34.038  SPELL_DAMAGE,Player-57-0ABB28BC,"Raikendk-Illidan",0x10548,0x0,Player-57-0BDDB09C,"Notórious-Illidan",0x512,0x0,253597,"Inexorable Assault",0x10,Player-57-0BDDB09C,0000000000000000,21506,22520,898,342,524,0,0,8513,8513,0,-2022.75,6669.33,0,4.8573,125,206,203,-1,16,5,4,2,1,3,nil';
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+
+      expect(logLine).not.toBeNull();
+
+      const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.amount).toEqual(-206);
+      expect(action.isCritical).toEqual(true);
     });
 
     it('should parse party kill events', () => {

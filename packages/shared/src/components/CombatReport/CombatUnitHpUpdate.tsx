@@ -31,6 +31,7 @@ export const CombatUnitHpUpdate = (props: IProps) => {
       className="tooltip flex flex-row"
       data-tip={`${props.action.spellName || 'Auto Attack'}: ${Utils.printCombatNumber(
         Math.abs(props.action.effectiveAmount),
+        props.action.isCritical,
       )}`}
       style={{
         minWidth: '4px',
