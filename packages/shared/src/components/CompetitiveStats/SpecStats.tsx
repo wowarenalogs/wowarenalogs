@@ -163,7 +163,7 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
                   </button>
                 </div>
               </th>
-              <th className="bg-base-300">
+              {/* <th className="bg-base-300">
                 <div
                   className="flex flex-row items-center gap-1"
                   title="Average damage per second, including damage done by pets but excluding damage done to pets."
@@ -178,7 +178,7 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
                     <TbArrowDown />
                   </button>
                 </div>
-              </th>
+              </th> */}
               <th className="bg-base-300">
                 <div
                   className="flex flex-row items-center gap-1"
@@ -243,7 +243,7 @@ export default function SpecStats(props: { activeBracket: string; sortKey: strin
                   <td className="bg-base-200 text-right">
                     {(stats.winRate * winRateCorrectionFactor * 100).toFixed(1)}%
                   </td>
-                  <td className="bg-base-200 text-right">{Utils.printCombatNumber(stats.dps)}</td>
+                  {/* <td className="bg-base-200 text-right">{Utils.printCombatNumber(stats.dps)}</td> */}
                   <td className="bg-base-200 text-right">
                     {stats.burst ? Utils.printCombatNumber(stats.burst) : 'Pending'}
                   </td>
