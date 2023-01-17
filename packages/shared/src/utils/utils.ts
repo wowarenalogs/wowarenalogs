@@ -125,7 +125,7 @@ export class Utils {
     const criticalMarker = '*';
 
     if (num < 1000) {
-      return `${num.toFixed()}${isCritical ? criticalMarker : ''}}`;
+      return `${num.toFixed()}${isCritical ? criticalMarker : ''}`;
     }
     if (num < 10000) {
       return `${(num / 1000).toFixed(1)}k${isCritical ? criticalMarker : ''}`;
