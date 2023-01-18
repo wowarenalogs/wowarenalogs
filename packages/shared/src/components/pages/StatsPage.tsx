@@ -54,7 +54,7 @@ export const StatsPage = () => {
         </div>
         <div
           className="tooltip tooltip-bottom tooltip-info"
-          data-tip="Based on ranked matches at all ratings uploaded during the past 28 days, excluding the uploader's own teams to minimize bias."
+          data-tip="Based on ranked matches at all ratings uploaded during the past 3 days, excluding the uploader's own teams to minimize bias."
         >
           <TbInfoCircle className="text-xl ml-2 cursor-pointer opacity-50 hover:opacity-100" />
         </div>
