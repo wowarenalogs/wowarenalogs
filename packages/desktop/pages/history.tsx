@@ -48,7 +48,7 @@ const Page = () => {
     return <LoadingScreen />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && hybridCombats.length === 0) {
     return <SignInPromotion />;
   }
 
