@@ -156,7 +156,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
           uploadCombatAsync(combat, auth.battlenetId).then((r) => {
-            if (!r.matchExists) {
+            if (!r.matchExists || process.env.NODE_ENV === 'development') {
               logCombatAnalyticsAsync(combat);
             }
           });
@@ -178,8 +178,10 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       window.wowarenalogs.logs?.handleSoloShuffleEnded((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
           uploadCombatAsync(combat, auth.battlenetId).then((r) => {
-            if (!r.matchExists) {
+            if (!r.matchExists || process.env.NODE_ENV === 'development') {
               combat.rounds.forEach((round) => {
+                round.shuffleMatchEndInfo = combat.endInfo;
+                round.shuffleMatchResult = combat.result;
                 logCombatAnalyticsAsync(round);
               });
             }
