@@ -57,7 +57,7 @@ const generateHpUpdateColumn = (
           return (
             <div
               key={secondMark}
-              className="flex flex-row absolute"
+              className={`flex ${align === 'LEFT' ? 'flex-row' : 'flex-row-reverse'} absolute`}
               style={{
                 top: parseInt(secondMark, 10) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
                 left: align === 'LEFT' ? 0 : undefined,
