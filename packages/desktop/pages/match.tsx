@@ -17,17 +17,17 @@ const Page = () => {
     return lookup;
   }, [localCombats]);
 
-  const { id, anon } = router.query;
+  const { id, viewerIsOwner } = router.query;
   if (!id || typeof id !== 'string') {
     return null;
   }
 
   const localCombat = localCombatsLookup.get(id);
   if (localCombat) {
-    return <CombatReport anon={false} combat={localCombat} />;
+    return <CombatReport viewerIsOwner={false} combat={localCombat} />;
   }
 
-  return <CombatReportFromStorage id={id} anon={anon === 'true'} />;
+  return <CombatReportFromStorage id={id} viewerIsOwner={viewerIsOwner === 'true'} />;
 };
 
 export default Page;

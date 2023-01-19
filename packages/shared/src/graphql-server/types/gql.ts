@@ -114,7 +114,7 @@ export const typeDefs = gql`
     userMatches(userId: String!, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
     characterMatches(realm: String!, characterName: String!, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
     matchesWithCombatant(playerName: String!): [CombatDataStub!]!
-    matchById(matchId: String!, anon: Boolean!): CombatDataStub!
+    matchById(matchId: String!): CombatDataStub!
   }
   type Mutation {
     setUserReferrer(referrer: String): IUser
