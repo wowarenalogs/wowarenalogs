@@ -62,9 +62,9 @@ function computePercentCDRemaining(
   currentTimeOffset: number,
   spellData: Record<string, IMinedSpell>,
 ): CooldownInfo {
-  const cooldown = spellData[spellId]?.cooldownSeconds || 30;
+  const cooldown = spellData[spellId]?.cooldownSeconds || spellData[spellId]?.charges?.chargeCooldownSeconds || 30;
   const charges = spellData[spellId]?.charges?.charges;
-  if (charges) {
+  if (charges && charges > 1) {
     return computeChargeInfo(casts, spellId, currentTimeOffset, spellData);
   }
   const castsOfThis = casts.filter((c) => c.spellId === spellId);
@@ -99,32 +99,26 @@ export const UnitSpellTracker = (props: IUnitFrameRenderData) => {
           props.currentTimeOffset,
           props.spellData,
         );
+        const spellMaxCharges = props.spellData[spellId]?.charges?.charges || 0;
+        const shouldShowCharges = spellMaxCharges > 1;
+
         if (activeAura) {
           if (props.currentTimeOffset - activeAura.startTimeOffset < 500) {
             return (
               <SpellIcon
                 key={spellId}
-                charges={cooldownInfo.charges}
+                charges={shouldShowCharges ? cooldownInfo.charges : undefined}
                 className={styles['unit-frame-auraicon-casting']}
                 size={24}
                 spellId={spellId}
               />
             );
           }
-          return (
-            <SpellIcon
-              charges={cooldownInfo.charges}
-              key={spellId}
-              className={styles['unit-frame-auraicon']}
-              size={24}
-              spellId={spellId}
-            />
-          );
         }
         return (
           <SpellIcon
             key={spellId}
-            charges={cooldownInfo.charges}
+            charges={shouldShowCharges ? cooldownInfo.charges : undefined}
             cooldownPercent={cooldownInfo.cooldownPercent}
             className={
               cooldownInfo.cooldownPercent
