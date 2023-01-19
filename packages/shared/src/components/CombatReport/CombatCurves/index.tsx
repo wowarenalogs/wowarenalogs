@@ -24,8 +24,8 @@ export const CombatCurves = () => {
   }, [players]);
 
   useEffect(() => {
-    setActiveCombatants(enemies);
-  }, [enemies]);
+    setActiveCombatants(friends);
+  }, [friends]);
 
   if (!combat) {
     return null;
