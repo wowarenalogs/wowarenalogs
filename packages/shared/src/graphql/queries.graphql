@@ -159,8 +159,8 @@ query GetMatchesWithCombatant($playerName: String!) {
   }
 }
 
-query GetMatchById($matchId: String!, $anon: Boolean!) {
-  matchById(matchId: $matchId, anon: $anon) {
+query GetMatchById($matchId: String!) {
+  matchById(matchId: $matchId) {
     ...arenaInfos
     ...shuffleInfos
   }

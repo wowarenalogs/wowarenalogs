@@ -7,7 +7,7 @@ import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 
 export const Meters = () => {
-  const { isAnonymized, combat, enemies, friends, players, playerTotalDamageOut, playerTotalHealOut } =
+  const { viewerIsOwner, combat, enemies, friends, players, playerTotalDamageOut, playerTotalHealOut } =
     useCombatReportContext();
 
   if (!combat) {
@@ -72,7 +72,7 @@ export const Meters = () => {
                 <td className="text-right bg-base-200">{combat.playerTeamRating?.toFixed()}</td>
               </tr>
             ) : null}
-            {isAnonymized ? (
+            {!viewerIsOwner ? (
               <tr>
                 <td colSpan={3} className="bg-base-200">
                   Item Level Difference

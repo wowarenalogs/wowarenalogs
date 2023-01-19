@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { ccSpellIds } from '../../data/spellTags';
 
 interface ICombatReportContextData {
-  isAnonymized: boolean;
+  viewerIsOwner: boolean;
   combat: AtomicArenaCombat | null;
   activePlayerId: string | null;
   navigateToPlayerView: (playerId: string) => void;
@@ -23,7 +23,7 @@ interface ICombatReportContextData {
 
 export const CombatReportContext = React.createContext<ICombatReportContextData>({
   combat: null,
-  isAnonymized: true,
+  viewerIsOwner: true,
   activePlayerId: null,
   navigateToPlayerView: (_playerId: string) => {
     return;
@@ -44,7 +44,7 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
 
 interface IProps {
   combat: AtomicArenaCombat;
-  isAnonymized: boolean;
+  viewerIsOwner: boolean;
   children: React.ReactNode | React.ReactNode[];
 }
 
@@ -182,7 +182,7 @@ export const CombatReportContextProvider = (props: IProps) => {
         playerTimeInCC,
         playerInterrupts,
         combat: props.combat,
-        isAnonymized: props.isAnonymized,
+        viewerIsOwner: props.viewerIsOwner,
       }}
     >
       {props.children}
