@@ -1,13 +1,14 @@
 import _ from 'lodash';
 import moment from 'moment';
 
+import { getDampeningPercentage } from '../../../utils/dampening';
 import { Utils } from '../../../utils/utils';
 import { TimestampDisplay } from '../../common/TimestampDisplay';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 
 export const Meters = () => {
-  const { isAnonymized, combat, enemies, friends, players, playerTotalDamageOut, playerTotalHealOut } =
+  const { viewerIsOwner, combat, enemies, friends, players, playerTotalDamageOut, playerTotalHealOut } =
     useCombatReportContext();
 
   if (!combat) {
@@ -37,6 +38,7 @@ export const Meters = () => {
     : 0;
   const iLvlAdvantage = friendsAvgItemLevel - enemyAvgItemLevel;
   const effectiveDuration = Utils.getEffectiveCombatDuration(combat);
+  const latestDampening = getDampeningPercentage(combat.startInfo.bracket, players, combat.endTime);
 
   return (
     <div className="flex flex-col">
@@ -64,6 +66,12 @@ export const Meters = () => {
                 {moment.utc(combat.endTime - combat.startTime).format('mm:ss')}
               </td>
             </tr>
+            <tr>
+              <td colSpan={3} className="bg-base-200">
+                Dampening
+              </td>
+              <td className="text-right bg-base-200">{latestDampening.toFixed()}%</td>
+            </tr>
             {combat.playerTeamRating ? (
               <tr>
                 <td colSpan={3} className="bg-base-200">
@@ -72,7 +80,7 @@ export const Meters = () => {
                 <td className="text-right bg-base-200">{combat.playerTeamRating?.toFixed()}</td>
               </tr>
             ) : null}
-            {isAnonymized ? (
+            {!viewerIsOwner ? (
               <tr>
                 <td colSpan={3} className="bg-base-200">
                   Item Level Difference
