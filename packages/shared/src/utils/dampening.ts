@@ -13,6 +13,7 @@ const tanksOrHealers = [
   CombatUnitSpec.Shaman_Restoration,
   CombatUnitSpec.Druid_Restoration,
   CombatUnitSpec.Monk_Mistweaver,
+  CombatUnitSpec.Evoker_Preservation,
 ];
 
 // DF RULES https://www.icy-veins.com/forums/topic/69530-dampening-and-healing-changes-in-dragonflight-pre-patch-phase-2-arenas/
