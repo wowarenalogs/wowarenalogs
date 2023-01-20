@@ -35,8 +35,9 @@ async function installAddonToPath(path: string, version: WowVersion) {
 export class FilesModule extends NativeBridgeModule {
   @moduleFunction()
   public async selectFolder(_mainWindow: BrowserWindow) {
+    const executableName = process.platform === 'darwin' ? 'World of Warcraft.app' : 'Wow.exe';
     const dialogResult = await dialog.showOpenDialog({
-      title: process.platform === 'darwin' ? 'Locate your World of Warcraft game' : 'Locate your WoW.exe',
+      title: `Locate your ${executableName}`,
       buttonLabel: 'Select',
       properties: ['openFile'],
       filters: [
@@ -56,7 +57,7 @@ export class FilesModule extends NativeBridgeModule {
 
       dialog.showMessageBox({
         title: 'Invalid Location',
-        message: 'The path you selected did not contain a valid WoW installation. Please try again.',
+        message: `Please select "${executableName}" in a valid World of Warcraft installation.`,
         type: 'error',
       });
     }
