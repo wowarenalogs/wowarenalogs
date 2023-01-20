@@ -4,11 +4,10 @@ import { useQuery } from 'react-query';
 import { useGetMatchByIdQuery } from '../graphql/__generated__/graphql';
 import { Utils } from '../utils/utils';
 
-export function useCombatFromStorage(matchId: string, anon?: boolean) {
+export function useCombatFromStorage(matchId: string) {
   const queryCombat = useGetMatchByIdQuery({
     variables: {
       matchId,
-      anon: anon ?? false,
     },
   });
 

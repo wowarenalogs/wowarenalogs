@@ -136,7 +136,6 @@ export type QueryLatestMatchesArgs = {
 
 
 export type QueryMatchByIdArgs = {
-  anon: Scalars['Boolean'];
   matchId: Scalars['String'];
 };
 
@@ -260,7 +259,6 @@ export type GetMatchesWithCombatantQuery = { __typename?: 'Query', matchesWithCo
 
 export type GetMatchByIdQueryVariables = Exact<{
   matchId: Scalars['String'];
-  anon: Scalars['Boolean'];
 }>;
 
 
@@ -614,8 +612,8 @@ export type GetMatchesWithCombatantQueryHookResult = ReturnType<typeof useGetMat
 export type GetMatchesWithCombatantLazyQueryHookResult = ReturnType<typeof useGetMatchesWithCombatantLazyQuery>;
 export type GetMatchesWithCombatantQueryResult = Apollo.QueryResult<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>;
 export const GetMatchByIdDocument = gql`
-    query GetMatchById($matchId: String!, $anon: Boolean!) {
-  matchById(matchId: $matchId, anon: $anon) {
+    query GetMatchById($matchId: String!) {
+  matchById(matchId: $matchId) {
     ...arenaInfos
     ...shuffleInfos
   }
@@ -636,7 +634,6 @@ ${ShuffleInfosFragmentDoc}`;
  * const { data, loading, error } = useGetMatchByIdQuery({
  *   variables: {
  *      matchId: // value for 'matchId'
- *      anon: // value for 'anon'
  *   },
  * });
  */

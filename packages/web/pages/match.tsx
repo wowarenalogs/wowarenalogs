@@ -28,7 +28,7 @@ const generateDescription = (combat: ICombatDataStub) => {
 const Page = (props: { combat?: ICombatDataStub }) => {
   const router = useRouter();
 
-  const { id, anon } = router.query;
+  const { id, viewerIsOwner } = router.query;
   if (!id || typeof id !== 'string' || !props.combat) {
     return null;
   }
@@ -45,7 +45,7 @@ const Page = (props: { combat?: ICombatDataStub }) => {
           description: desc,
         }}
       />
-      <CombatReportFromStorage id={id} anon={anon === 'true'} />
+      <CombatReportFromStorage id={id} viewerIsOwner={viewerIsOwner === 'true'} />
     </>
   );
 };
