@@ -114,7 +114,7 @@ async function generateSpecStatsAsync(bracket: string, minRating: number, maxRat
             filter: {
               fieldName: 'customEvent:averageMMR',
               numericFilter: {
-                operation: 'LESS_THAN',
+                operation: 'LESS_THAN_OR_EQUAL',
                 value: { int64Value: maxRating.toFixed() },
               },
             },
@@ -269,7 +269,7 @@ async function generateCompStatsAsync(bracket: string, minRating: number, maxRat
             filter: {
               fieldName: 'customEvent:averageMMR',
               numericFilter: {
-                operation: 'LESS_THAN',
+                operation: 'LESS_THAN_OR_EQUAL',
                 value: { int64Value: maxRating.toFixed() },
               },
             },
@@ -383,7 +383,7 @@ async function generateCompStatsAsync(bracket: string, minRating: number, maxRat
             filter: {
               fieldName: 'customEvent:averageMMR',
               numericFilter: {
-                operation: 'LESS_THAN',
+                operation: 'LESS_THAN_OR_EQUAL',
                 value: { int64Value: maxRating.toFixed() },
               },
             },
