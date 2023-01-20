@@ -7,7 +7,7 @@ import {
 } from '@wowarenalogs/parser';
 import Image from 'next/image';
 
-import { Utils } from '../../utils/utils';
+import { Utils } from '../../../utils/utils';
 
 interface IProps {
   action: CombatHpUpdateAction;

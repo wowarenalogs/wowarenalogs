@@ -2,17 +2,18 @@ import { AtomicArenaCombat, CombatHpUpdateAction, ICombatUnit } from '@wowarenal
 import _ from 'lodash';
 import React from 'react';
 
-import { SIGNIFICANT_DAMAGE_HEAL_THRESHOLD, Utils } from '../../utils/utils';
-import { useCombatReportContext } from './CombatReportContext';
+import { SIGNIFICANT_DAMAGE_HEAL_THRESHOLD, Utils } from '../../../utils/utils';
+import { SpecImage } from '../../common/SpecImage';
+import { useCombatReportContext } from '../CombatReportContext';
+import { CombatUnitAuraTimeline } from './CombatUnitAuraTimeline';
 import { CombatUnitHpUpdate } from './CombatUnitHpUpdate';
+import { REPORT_TIMELINE_HEIGHT_PER_SECOND } from './common';
 
 interface IProps {
   unit: ICombatUnit;
   startTime: number;
   endTime: number;
 }
-
-const REPORT_TIMELINE_HEIGHT_PER_SECOND = 24;
 
 const generateHpUpdateColumn = (
   combat: AtomicArenaCombat,
@@ -103,7 +104,7 @@ const generateHpColumn = (unit: ICombatUnit, hpBySecondMark: _.Dictionary<number
   });
 };
 export const CombatUnitTimelineView = (props: IProps) => {
-  const { combat } = useCombatReportContext();
+  const { combat, players } = useCombatReportContext();
   if (!combat) {
     return null;
   }
@@ -143,6 +144,9 @@ export const CombatUnitTimelineView = (props: IProps) => {
     _.max(_.values(healActionGroupsBySecondMark).map((ar) => _.sum(ar.map((e) => Math.abs(e.effectiveAmount))))) || 1;
   const maxAbs = Math.max(maxAbsDamage, maxAbsHeal);
 
+  const friends = players.filter((p) => p.reaction === props.unit.reaction);
+  const enemies = players.filter((p) => p.reaction !== props.unit.reaction);
+
   return (
     <div className="flex flex-row">
       <div className="flex flex-col justify-between">
@@ -154,6 +158,13 @@ export const CombatUnitTimelineView = (props: IProps) => {
       </div>
       <div className="flex flex-col flex-1">
         <div className="flex flex-row mb-1">
+          <div className="flex flex-row items-center">
+            {enemies.map((p) => (
+              <div key={p.id} className="p-1">
+                <SpecImage specId={p.spec} size={16} />
+              </div>
+            ))}
+          </div>
           <div className="flex flex-col flex-1 items-center">
             <div className="text-error">Damage Taken</div>
           </div>
@@ -161,8 +172,18 @@ export const CombatUnitTimelineView = (props: IProps) => {
           <div className="flex flex-col flex-1 items-center">
             <div className="text-success">Healing Taken</div>
           </div>
+          <div className="flex flex-row items-center">
+            {friends.map((p) => (
+              <div key={p.id} className="p-1">
+                <SpecImage specId={p.spec} size={16} />
+              </div>
+            ))}
+          </div>
         </div>
         <div className="flex flex-row">
+          {enemies.map((p) => (
+            <CombatUnitAuraTimeline key={p.id} unit={p} startTime={props.startTime} endTime={props.endTime} />
+          ))}
           {generateHpUpdateColumn(
             combat,
             props.unit,
@@ -195,6 +216,9 @@ export const CombatUnitTimelineView = (props: IProps) => {
             props.startTime,
             props.endTime,
           )}
+          {friends.map((p) => (
+            <CombatUnitAuraTimeline key={p.id} unit={p} startTime={props.startTime} endTime={props.endTime} />
+          ))}
         </div>
       </div>
     </div>
