@@ -19,12 +19,12 @@ export function SpellIcon(props: IProps) {
 
   return (
     <div
-      className="props.className bg-black overflow-hidden border-solid border border-opacity-60"
+      className={`${props.className} bg-black overflow-hidden border-solid border border-opacity-60`}
       style={{
         width: props.size,
         height: props.size,
         borderRadius: props.circular ? props.size / 2 : 4,
-        opacity: props.opacity || 1,
+        opacity: props.className ? undefined : props.opacity || 1,
       }}
     >
       <a

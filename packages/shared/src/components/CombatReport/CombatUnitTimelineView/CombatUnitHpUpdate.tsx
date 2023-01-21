@@ -7,7 +7,7 @@ import {
 } from '@wowarenalogs/parser';
 import Image from 'next/image';
 
-import { Utils } from '../../utils/utils';
+import { Utils } from '../../../utils/utils';
 
 interface IProps {
   action: CombatHpUpdateAction;
@@ -45,7 +45,7 @@ export const CombatUnitHpUpdate = (props: IProps) => {
         }}
       >
         {widthPercentageAbsolute >= 10 && props.action.spellId ? (
-          <div className="pl-1 pt-1">
+          <div className="ml-1 w-4 h-4" style={{ minWidth: 16, minHeight: 16 }}>
             <Image
               className="rounded"
               src={Utils.getSpellIcon(props.action.spellId) ?? 'https://images.wowarenalogs.com/spells/0.jpg'}
@@ -56,7 +56,7 @@ export const CombatUnitHpUpdate = (props: IProps) => {
           </div>
         ) : null}
         {widthPercentageAbsolute >= 30 && props.action.spellId ? (
-          <div className="ml-1 text-black font-medium">
+          <div className="ml-1 text-black font-medium text-xs">
             {Utils.printCombatNumber(Math.abs(props.action.effectiveAmount), props.action.isCritical)}
           </div>
         ) : null}

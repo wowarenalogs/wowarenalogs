@@ -14,6 +14,8 @@ interface ISpellMetadata {
     | 'interrupts';
   duration?: number;
   priority?: boolean;
+  nounitFrames?: boolean;
+  nonameplates?: boolean;
 }
 
 const PRIORITY_MAP = {
@@ -29,12 +31,15 @@ const PRIORITY_MAP = {
   debuffs_other: 10,
 };
 
-const spells = rawSpellsData as Record<string, ISpellMetadata>;
+export const spells = rawSpellsData as Record<string, ISpellMetadata>;
 
 export const ccSpellIds = new Set<string>(Object.keys(spells).filter((spellId) => spells[spellId].type === 'cc'));
 
 export const trinketSpellIds = ['336126']; // TODO: Add adaptation spell id here
 
 export const spellIdToPriority = new Map<string, number>(
-  Object.keys(spells).map((spellId) => [spellId, PRIORITY_MAP[spells[spellId].type]]),
+  Object.keys(spells)
+    // exclude spells marked as "nounitFrames" or "nonameplates" which are basically insignificant
+    .filter((spellId) => !spells[spellId].nounitFrames && !spells[spellId].nonameplates)
+    .map((spellId) => [spellId, PRIORITY_MAP[spells[spellId].type]]),
 );

@@ -20,8 +20,8 @@ const storage = new GoogleCloudStorage({
 const bucket = storage.bucket(isDev ? 'data.public-dev.wowarenalogs.com' : 'data.wowarenalogs.com');
 
 const ALLOWED_BRACKETS = new Set<string>(['2v2', '3v3', 'Rated Solo Shuffle']);
-const STATS_SCHEMA_VERSION = 2;
-const LOOKBACK_DAYS = 28;
+const STATS_SCHEMA_VERSION = 3;
+const LOOKBACK_DAYS = 3;
 
 async function generateSpecStatsAsync() {
   console.log('generating spec stats...');

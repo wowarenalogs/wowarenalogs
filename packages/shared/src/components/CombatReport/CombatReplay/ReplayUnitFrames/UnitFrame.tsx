@@ -10,6 +10,7 @@ import { useMemo } from 'react';
 
 import { IMinedSpell, spellEffectData } from '../../../../data/spellEffectData';
 import { spellIdToPriority, trinketSpellIds } from '../../../../data/spellTags';
+import { computeAuraDurations, IAuraDuration } from '../../../../utils/auras';
 import { UnitCastBar } from './UnitCastBar';
 import { UnitClassIcon } from './UnitClassIcon';
 import styles from './UnitFrame.module.css';
@@ -24,21 +25,6 @@ interface IProps {
   unit: ICombatUnit;
   currentTimeOffset: number;
   onClick: () => void;
-}
-
-export interface IAuraDuration {
-  spellId: string;
-  spellName: string;
-  startTimeOffset: number;
-  endTimeOffset: number;
-  auraOwnerId: string;
-}
-
-export interface IAuraState {
-  spellName: string;
-  count: number;
-  startTimeOffset: number;
-  auraOwnerId: string;
 }
 
 const PRIMARY_POWER_TYPES = new Set<CombatUnitPowerType>([
@@ -167,62 +153,7 @@ export const UnitFrame = (props: IProps) => {
   }, [props.combat, props.unit]);
 
   const auras = useMemo(() => {
-    const durations: IAuraDuration[] = [];
-    const auraStates = new Map<string, IAuraState>();
-
-    for (let i = 0; i < props.unit.auraEvents.length; ++i) {
-      const event = props.unit.auraEvents[i];
-      const spellId = event.spellId || '';
-      switch (event.logLine.event) {
-        case LogEvent.SPELL_AURA_APPLIED:
-          {
-            const currentState = auraStates.get(spellId) || {
-              spellName: event.spellName || '',
-              count: 0,
-              startTimeOffset: event.logLine.timestamp - props.combat.startTime,
-              auraOwnerId: event.srcUnitId,
-            };
-            if (event.spellName) {
-              currentState.spellName = event.spellName;
-            }
-            currentState.count += 1;
-            auraStates.set(spellId, currentState);
-          }
-          break;
-        case LogEvent.SPELL_AURA_REMOVED:
-          {
-            const currentAuraState = auraStates.get(spellId) || {
-              spellName: event.spellName || '',
-              count: 0,
-              startTimeOffset: 0,
-              auraOwnerId: '',
-            };
-            if (currentAuraState.count > 0) {
-              const newAuraState = {
-                spellName: event.spellName || currentAuraState.spellName,
-                count: currentAuraState.count - 1,
-                startTimeOffset: currentAuraState.startTimeOffset,
-                auraOwnerId: currentAuraState.auraOwnerId,
-              };
-              if (newAuraState.count === 0) {
-                durations.push({
-                  spellId,
-                  spellName: newAuraState.spellName,
-                  startTimeOffset: newAuraState.startTimeOffset,
-                  endTimeOffset: event.timestamp - props.combat.startTime,
-                  auraOwnerId: currentAuraState.auraOwnerId,
-                });
-                auraStates.delete(spellId);
-              } else {
-                auraStates.set(spellId, newAuraState);
-              }
-            }
-          }
-          break;
-      }
-    }
-
-    return durations;
+    return computeAuraDurations(props.combat, props.unit);
   }, [props.combat, props.unit]);
 
   const spellData = useMemo(() => {

@@ -7,7 +7,7 @@ import { CombatUnitName } from '../CombatUnitName';
 import { TeamCurves } from './TeamCurves';
 
 export const CombatCurves = () => {
-  const { combat, isAnonymized } = useCombatReportContext();
+  const { combat, viewerIsOwner } = useCombatReportContext();
   const [activeCombatants, setActiveCombatants] = useState<ICombatUnit[]>([]);
 
   const players = useMemo(() => {
@@ -24,8 +24,8 @@ export const CombatCurves = () => {
   }, [players]);
 
   useEffect(() => {
-    setActiveCombatants(enemies);
-  }, [enemies]);
+    setActiveCombatants(friends);
+  }, [friends]);
 
   if (!combat) {
     return null;
@@ -65,7 +65,7 @@ export const CombatCurves = () => {
                 })}
                 className="checkbox checkbox-sm"
               />
-              <div>{isAnonymized ? 'Team 1' : 'Enemy Team'}</div>
+              <div>{viewerIsOwner ? 'Enemy Team' : 'Team 1'}</div>
               {combat.result === CombatResult.Lose && (
                 <div className="ml-2 badge badge-success">{CombatResult[CombatResult.Win]}</div>
               )}
@@ -104,7 +104,7 @@ export const CombatCurves = () => {
                 })}
                 className="checkbox checkbox-sm"
               />
-              <div>{isAnonymized ? 'Team 2' : 'My Team'}</div>
+              <div>{viewerIsOwner ? 'My Team' : 'Team 2'}</div>
               {combat.result === CombatResult.Win && (
                 <div className="ml-2 badge badge-success">{CombatResult[CombatResult.Win]}</div>
               )}

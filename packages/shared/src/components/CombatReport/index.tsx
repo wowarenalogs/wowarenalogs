@@ -27,7 +27,7 @@ const CombatReplay = dynamic(
 
 interface IProps {
   combat: AtomicArenaCombat;
-  anon?: boolean;
+  viewerIsOwner?: boolean;
 }
 
 export const CombatReportInternal = () => {
@@ -188,9 +188,9 @@ export const CombatReportInternal = () => {
   );
 };
 
-export const CombatReport = ({ combat, anon }: IProps) => {
+export const CombatReport = ({ combat, viewerIsOwner }: IProps) => {
   return (
-    <CombatReportContextProvider combat={combat} isAnonymized={anon || false}>
+    <CombatReportContextProvider combat={combat} viewerIsOwner={viewerIsOwner || false}>
       <CombatReportInternal />
     </CombatReportContextProvider>
   );

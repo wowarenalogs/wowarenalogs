@@ -1,4 +1,4 @@
-export const STATS_SCHEMA_VERSION = 2;
+export const STATS_SCHEMA_VERSION = 3;
 
 export const getWinRateCorrectionFactor = (totalWin: number, totalLose: number) => {
   const actualWinRate = totalWin / (totalWin + totalLose);

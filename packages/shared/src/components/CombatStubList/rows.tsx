@@ -46,7 +46,7 @@ export function ArenaMatchRow({
 }) {
   const match = combat.match;
   return (
-    <Link href={`/match?id=${match.id}&anon=${viewerIsOwner ? 'false' : 'true'}&source=${source}`}>
+    <Link href={`/match?id=${match.id}&viewerIsOwner=${viewerIsOwner ? 'true' : 'false'}&source=${source}`}>
       <div
         key={match.id}
         title={match.startInfo?.bracket}
@@ -105,7 +105,7 @@ export function ShuffleRoundRow({
       break;
   }
   return (
-    <Link href={`/match?id=${round.id}&source=${source}`}>
+    <Link href={`/match?id=${round.id}&viewerIsOwner=${viewerIsOwner ? 'true' : 'false'}&source=${source}`}>
       <div
         title={roundTitle}
         className="btn btn-ghost flex flex-row py-1 gap-2 w-full items-center transition-colors duration-200 rounded"
