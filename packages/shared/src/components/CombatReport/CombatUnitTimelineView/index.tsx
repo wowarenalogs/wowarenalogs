@@ -31,13 +31,13 @@ const generateHpUpdateColumn = (
         height: ((endTime - startTime) / 1000) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
       }}
     >
-      <div className="relative w-12">
+      <div className="relative w-8">
         {_.map(actionGroupsBySecondMark, (group, secondMark) => {
           const groupTotal = _.sumBy(group, (action) => action.effectiveAmount);
           return (
             <div
               key={secondMark}
-              className={`flex flex-row w-12 absolute items-center ${
+              className={`flex flex-row text-xs w-8 absolute items-center ${
                 align === 'LEFT' ? 'justify-start' : 'justify-end'
               } ${groupTotal >= 0 ? 'text-success' : 'text-error'}`}
               style={{
@@ -193,7 +193,7 @@ export const CombatUnitTimelineView = (props: IProps) => {
             props.startTime,
             props.endTime,
           )}
-          <div className="divider divider-horizontal" />
+          <div className="divider divider-horizontal mx-1" />
           {combat.hasAdvancedLogging ? (
             <>
               <div
@@ -204,7 +204,7 @@ export const CombatUnitTimelineView = (props: IProps) => {
               >
                 {generateHpColumn(props.unit, hpBySecondMark)}
               </div>
-              <div className="divider divider-horizontal" />
+              <div className="divider divider-horizontal mx-1" />
             </>
           ) : null}
           {generateHpUpdateColumn(
