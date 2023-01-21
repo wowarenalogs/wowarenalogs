@@ -49,7 +49,7 @@ export const CombatUnitAuraTimeline = (props: { unit: ICombatUnit; startTime: nu
         <div
           className={`flex flex-col-reverse border border-black absolute items-center overflow-hidden ${getAuraColor(
             a,
-          )}`}
+          )} hover:!z-50 hover:border-base-content`}
           title={`${a.spellName} from ${combat?.units[a.auraOwnerId].name} - ${(
             (a.endTimeOffset - a.startTimeOffset) /
             1000
@@ -60,7 +60,7 @@ export const CombatUnitAuraTimeline = (props: { unit: ICombatUnit; startTime: nu
             top: ((endTimeOffset - a.endTimeOffset) / 1000) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
             left: 0,
             right: 0,
-            zIndex: 1000 - (spellIdToPriority.get(a.spellId) ?? 1000),
+            zIndex: 50 - (spellIdToPriority.get(a.spellId) ?? 50),
           }}
         >
           <div className="mb-1 w-4 h-4" style={{ minWidth: 16, minHeight: 16 }}>

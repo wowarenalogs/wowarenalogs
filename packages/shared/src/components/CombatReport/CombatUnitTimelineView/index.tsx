@@ -158,9 +158,9 @@ export const CombatUnitTimelineView = (props: IProps) => {
       </div>
       <div className="flex flex-col flex-1">
         <div className="flex flex-row mb-1">
-          <div className="flex flex-row items-center">
+          <div className="flex flex-row items-center border-t-2 border-base-content">
             {enemies.map((p) => (
-              <div key={p.id} className="p-1">
+              <div key={p.id} className="pt-1 px-1" title={p.name}>
                 <SpecImage specId={p.spec} size={16} />
               </div>
             ))}
@@ -172,9 +172,9 @@ export const CombatUnitTimelineView = (props: IProps) => {
           <div className="flex flex-col flex-1 items-center">
             <div className="text-success">Healing Taken</div>
           </div>
-          <div className="flex flex-row items-center">
+          <div className="flex flex-row items-center border-t-2 border-base-content">
             {friends.map((p) => (
-              <div key={p.id} className="p-1">
+              <div key={p.id} className="pt-1 px-1" title={p.name}>
                 <SpecImage specId={p.spec} size={16} />
               </div>
             ))}
