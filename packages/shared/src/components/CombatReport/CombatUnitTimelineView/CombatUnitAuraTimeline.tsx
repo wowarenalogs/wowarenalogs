@@ -8,6 +8,26 @@ import { Utils } from '../../../utils/utils';
 import { useCombatReportContext } from '../CombatReportContext';
 import { REPORT_TIMELINE_HEIGHT_PER_SECOND } from './common';
 
+const SIGNIFICANT_AURA_TYPES = new Set([
+  'cc',
+  'interrupts',
+  'roots',
+  'immunities',
+  'buffs_offensive',
+  'buffs_defensive',
+]);
+
+const SIGNIFICANT_AURA_IDS = new Set([
+  '375901', // Mindgames
+]);
+
+const isSignificantAura = (a: IAuraDuration): boolean => {
+  return (
+    spellIdToPriority.has(a.spellId) &&
+    (SIGNIFICANT_AURA_TYPES.has(spells[a.spellId].type) || SIGNIFICANT_AURA_IDS.has(a.spellId))
+  );
+};
+
 export const CombatUnitAuraTimeline = (props: { unit: ICombatUnit; startTime: number; endTime: number }) => {
   const { unit, startTime, endTime } = props;
   const { combat } = useCombatReportContext();
@@ -20,8 +40,7 @@ export const CombatUnitAuraTimeline = (props: { unit: ICombatUnit; startTime: nu
       const allAuras = computeAuraDurations(combat, unit);
       // only look at auras that were active during the specified time range
       const relevantAuras = allAuras.filter(
-        (a) =>
-          spellIdToPriority.has(a.spellId) && a.endTimeOffset > startTimeOffset && a.startTimeOffset < endTimeOffset,
+        (a) => isSignificantAura(a) && a.endTimeOffset > startTimeOffset && a.startTimeOffset < endTimeOffset,
       );
       // cap start time and end time for relevant auras
       relevantAuras.forEach((a) => {
