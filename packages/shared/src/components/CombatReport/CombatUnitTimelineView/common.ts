@@ -1,0 +1,1 @@
+export const REPORT_TIMELINE_HEIGHT_PER_SECOND = 24;
