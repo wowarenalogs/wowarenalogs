@@ -18,7 +18,9 @@ interface ICombatReportContextData {
   playerTotalDamageOut: Map<string, number>;
   playerTotalHealOut: Map<string, number>;
   playerTimeInCC: Map<string, number>;
-  playerInterrupts: Map<string, number>;
+  playerCCOutput: Map<string, number>;
+  playerInterruptsDone: Map<string, number>;
+  playerInterruptsTaken: Map<string, number>;
 }
 
 export const CombatReportContext = React.createContext<ICombatReportContextData>({
@@ -39,7 +41,9 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
   playerTotalDamageOut: new Map<string, number>(),
   playerTotalHealOut: new Map<string, number>(),
   playerTimeInCC: new Map<string, number>(),
-  playerInterrupts: new Map<string, number>(),
+  playerCCOutput: new Map<string, number>(),
+  playerInterruptsDone: new Map<string, number>(),
+  playerInterruptsTaken: new Map<string, number>(),
 });
 
 interface IProps {
@@ -60,7 +64,9 @@ export const CombatReportContextProvider = (props: IProps) => {
     playerTotalDamageOut,
     playerTotalHealOut,
     playerTimeInCC,
-    playerInterrupts,
+    playerCCOutput,
+    playerInterruptsDone,
+    playerInterruptsTaken,
   ] = useMemo(() => {
     const mPlayers = _.orderBy(
       _.values(props.combat.units).filter(
@@ -82,7 +88,9 @@ export const CombatReportContextProvider = (props: IProps) => {
     const mPlayerTotalDamageOut = new Map<string, number>();
     const mPlayerTotalHealOut = new Map<string, number>();
     const mPlayerTimeInCC = new Map<string, number>();
-    const mPlayerInterrupts = new Map<string, number>();
+    const mPlayerCCOutput = new Map<string, number>();
+    const mPlayerInterruptsDone = new Map<string, number>();
+    const mPlayerInterruptsTaken = new Map<string, number>();
 
     let mMaxOutputNumber = 0;
     mPlayers.forEach((p) => {
@@ -113,6 +121,37 @@ export const CombatReportContextProvider = (props: IProps) => {
       }
       mPlayerTimeInCC.set(p.id, totalTimeInCC);
 
+      let totalCCOutput = 0;
+      mPlayers.forEach((target) => {
+        ccStartTime = -1;
+        ccStack = 0;
+        let targetTimeInCC = 0;
+        for (let i = 0; i < target.auraEvents.length; ++i) {
+          const event = target.auraEvents[i];
+          const spellId = event.spellId || '';
+          if (!ccSpellIds.has(spellId) || event.srcUnitId !== p.id) {
+            continue;
+          }
+          switch (event.logLine.event) {
+            case LogEvent.SPELL_AURA_APPLIED:
+              if (ccStartTime < 0) {
+                ccStartTime = event.logLine.timestamp;
+              }
+              ccStack++;
+              break;
+            case LogEvent.SPELL_AURA_REMOVED:
+              ccStack--;
+              if (ccStack === 0) {
+                targetTimeInCC += event.logLine.timestamp - ccStartTime;
+                ccStartTime = -1;
+              }
+              break;
+          }
+        }
+        totalCCOutput += targetTimeInCC;
+      });
+      mPlayerCCOutput.set(p.id, totalCCOutput);
+
       const totalDamageOut = p.damageOut.reduce((sum, action) => {
         return sum + Math.abs(action.effectiveAmount);
       }, 0);
@@ -136,8 +175,11 @@ export const CombatReportContextProvider = (props: IProps) => {
 
       mMaxOutputNumber = Math.max(mMaxOutputNumber, totalDamageOut, totalHealOut);
 
-      const totalInterrupts = p.actionOut.filter((l) => l.event === LogEvent.SPELL_INTERRUPT).length;
-      mPlayerInterrupts.set(p.id, totalInterrupts);
+      const totalInterruptsDone = p.actionOut.filter((l) => l.event === LogEvent.SPELL_INTERRUPT).length;
+      mPlayerInterruptsDone.set(p.id, totalInterruptsDone);
+
+      const totalInterruptsTaken = p.actionIn.filter((l) => l.event === LogEvent.SPELL_INTERRUPT).length;
+      mPlayerInterruptsTaken.set(p.id, totalInterruptsTaken);
     });
     return [
       mPlayers,
@@ -147,7 +189,9 @@ export const CombatReportContextProvider = (props: IProps) => {
       mPlayerTotalDamageOut,
       mPlayerTotalHealOut,
       mPlayerTimeInCC,
-      mPlayerInterrupts,
+      mPlayerCCOutput,
+      mPlayerInterruptsDone,
+      mPlayerInterruptsTaken,
     ];
   }, [props.combat]);
 
@@ -180,7 +224,9 @@ export const CombatReportContextProvider = (props: IProps) => {
         playerTotalDamageOut,
         playerTotalHealOut,
         playerTimeInCC,
-        playerInterrupts,
+        playerCCOutput,
+        playerInterruptsDone,
+        playerInterruptsTaken,
         combat: props.combat,
         viewerIsOwner: props.viewerIsOwner,
       }}
