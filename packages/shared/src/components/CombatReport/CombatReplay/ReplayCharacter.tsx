@@ -206,8 +206,8 @@ export function ReplayCharacter(props: IProps) {
       ) : null}
       <ReplayHealthBar current={hp.current} max={hp.max} reaction={props.unit.reaction} />
       <ReplayCastBar unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
-      <ReplaySpellCasts unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
-      <ReplayHpNumbers unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
+      {/* <ReplaySpellCasts unit={props.unit} currentTimeOffset={props.currentTimeOffset} /> */}
+      {/* <ReplayHpNumbers unit={props.unit} currentTimeOffset={props.currentTimeOffset} /> */}
     </Container>
   );
 }
