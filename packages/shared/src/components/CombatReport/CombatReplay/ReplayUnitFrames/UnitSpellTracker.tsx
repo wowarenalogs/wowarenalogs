@@ -105,7 +105,6 @@ export const UnitSpellTracker = (props: IUnitFrameRenderData) => {
         const cooldownInfo = cdrInfo.cooldown;
         const spellMaxCharges = props.spellData[spellId]?.charges?.charges || 0;
         const shouldShowCharges = spellMaxCharges > 1;
-
         if (props.currentTimeOffset - (cdrInfo.lastCastTimestampOffset || -5000) < 500) {
           return (
             <SpellIcon
@@ -118,17 +117,6 @@ export const UnitSpellTracker = (props: IUnitFrameRenderData) => {
           );
         }
         if (activeAura) {
-          if (props.currentTimeOffset - activeAura.startTimeOffset < 500) {
-            return (
-              <SpellIcon
-                key={spellId}
-                charges={shouldShowCharges ? cooldownInfo.charges : undefined}
-                className={styles['unit-frame-auraicon-casting']}
-                size={24}
-                spellId={spellId}
-              />
-            );
-          }
           return (
             <SpellIcon
               key={spellId}
