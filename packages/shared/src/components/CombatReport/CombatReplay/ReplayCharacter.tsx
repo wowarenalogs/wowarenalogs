@@ -7,8 +7,8 @@ import { spellIdToPriority } from '../../../data/spellTags';
 import { Utils } from '../../../utils/utils';
 import { ReplayCastBar } from './ReplayCastBar';
 import { ReplayHealthBar } from './ReplayHealthBar';
-import { ReplayHpNumbers } from './ReplayHpNumbers';
-import { ReplaySpellCasts } from './ReplaySpellCasts';
+// import { ReplayHpNumbers } from './ReplayHpNumbers';
+// import { ReplaySpellCasts } from './ReplaySpellCasts';
 
 interface IProps {
   combat: AtomicArenaCombat;
