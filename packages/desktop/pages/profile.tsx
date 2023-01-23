@@ -5,8 +5,9 @@ export default function Page() {
     <ProfilePage
       onLogout={() => {
         if (window.wowarenalogs?.app?.clearStorage) {
-          window.wowarenalogs.app.clearStorage();
+          return window.wowarenalogs.app.clearStorage();
         }
+        return Promise.resolve();
       }}
     />
   );

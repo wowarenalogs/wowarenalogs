@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 
 import { LogoutButton } from '../common/LogoutButton';
 
-export const ProfilePage = (props: { onLogout: () => void }) => {
+export const ProfilePage = (props: { onLogout?: () => Promise<void> }) => {
   const auth = useAuth();
   const router = useRouter();
 
