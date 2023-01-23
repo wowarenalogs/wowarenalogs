@@ -149,13 +149,14 @@ export const CombatUnitTimelineView = (props: IProps) => {
 
   return (
     <div className="flex flex-row">
-      <div className="flex flex-col justify-between">
+      <div className="flex flex-col justify-between pt-7">
         {timeMarks.map((t, _i) => (
           <div key={t} className="opacity-60">
             t-{Math.round((props.endTime - t) / 1000).toFixed()}s
           </div>
         ))}
       </div>
+      <div className="divider divider-horizontal mx-1 mt-6" />
       <div className="flex flex-col flex-1">
         <div className="flex flex-row mb-1">
           <div className="flex flex-row items-center border-t-2 border-base-content">
@@ -165,11 +166,11 @@ export const CombatUnitTimelineView = (props: IProps) => {
               </div>
             ))}
           </div>
-          <div className="flex flex-col flex-1 items-center">
+          <div className="flex flex-col flex-1 items-end">
             <div className="text-error">Damage Taken</div>
           </div>
-          {combat.hasAdvancedLogging ? <div className="w-8 flex flex-row justify-center">HP</div> : null}
-          <div className="flex flex-col flex-1 items-center">
+          {combat.hasAdvancedLogging ? <div className="w-20 flex flex-row justify-center">HP</div> : null}
+          <div className="flex flex-col flex-1 items-start">
             <div className="text-success">Healing Taken</div>
           </div>
           <div className="flex flex-row items-center border-t-2 border-base-content">

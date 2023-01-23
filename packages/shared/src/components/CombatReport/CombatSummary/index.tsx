@@ -56,7 +56,10 @@ export const CombatSummary = () => {
               <thead>
                 <tr>
                   <th className="bg-base-300">
-                    <CombatUnitName unit={allPlayerDeath[0].unit} navigateToPlayerView />
+                    <div className="flex flex-row">
+                      <span className="mr-2">Death Timeline</span>
+                      <CombatUnitName unit={allPlayerDeath[0].unit} navigateToPlayerView />
+                    </div>
                   </th>
                 </tr>
               </thead>
