@@ -56,7 +56,7 @@ export function SpellIcon(props: IProps) {
             style={{
               height: props.size,
               width: props.size,
-              top: props.cooldownPercent * props.size,
+              top: props.cooldownPercent * props.size - 8,
             }}
           />
         )}

@@ -9,6 +9,7 @@ import { zoneMetadata } from '../../data/zoneMetadata';
 import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
 import { logAnalyticsEvent } from '../../utils/analytics';
 import { DownloadPromotion } from '../common/DownloadPromotion';
+import { CombatCC } from './CombatCC';
 import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
 import { CombatLogView } from './CombatLogView';
@@ -99,6 +100,14 @@ export const CombatReportInternal = () => {
           Players
         </a>
         <a
+          className={`tab ${activeTab === 'cc' ? 'tab-active' : ''}`}
+          onClick={() => {
+            setActiveTab('cc');
+          }}
+        >
+          CC & Kicks
+        </a>
+        <a
           className={`tab ${activeTab === 'death' ? 'tab-active' : ''}`}
           onClick={() => {
             setActiveTab('death');
@@ -147,6 +156,7 @@ export const CombatReportInternal = () => {
         <div className="mr-4 min-h-full relative flex flex-col">
           {activeTab === 'summary' && <CombatSummary />}
           {activeTab === 'players' && <CombatPlayers />}
+          {activeTab === 'cc' && <CombatCC />}
           {activeTab === 'death' && <CombatDeathReports />}
           {activeTab === 'curves' && <CombatCurves />}
           {activeTab === 'replay' && <CombatReplay />}
