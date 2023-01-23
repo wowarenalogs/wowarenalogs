@@ -56,6 +56,61 @@ interface ISpellCastState {
   startTimeOffset: number;
 }
 
+const POWER_BY_SPEC: Record<CombatUnitSpec, CombatUnitPowerType> = {
+  [CombatUnitSpec.None]: CombatUnitPowerType.None,
+
+  [CombatUnitSpec.DeathKnight_Blood]: CombatUnitPowerType.RunicPower,
+  [CombatUnitSpec.DeathKnight_Frost]: CombatUnitPowerType.RunicPower,
+  [CombatUnitSpec.DeathKnight_Unholy]: CombatUnitPowerType.RunicPower,
+
+  [CombatUnitSpec.DemonHunter_Havoc]: CombatUnitPowerType.Fury,
+  [CombatUnitSpec.DemonHunter_Vengeance]: CombatUnitPowerType.Fury,
+
+  [CombatUnitSpec.Druid_Restoration]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Druid_Balance]: CombatUnitPowerType.LunarPower,
+  [CombatUnitSpec.Druid_Feral]: CombatUnitPowerType.Energy,
+  [CombatUnitSpec.Druid_Guardian]: CombatUnitPowerType.Rage,
+
+  [CombatUnitSpec.Hunter_BeastMastery]: CombatUnitPowerType.Focus,
+  [CombatUnitSpec.Hunter_Marksmanship]: CombatUnitPowerType.Focus,
+  [CombatUnitSpec.Hunter_Survival]: CombatUnitPowerType.Focus,
+
+  [CombatUnitSpec.Mage_Arcane]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Mage_Fire]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Mage_Frost]: CombatUnitPowerType.Mana,
+
+  [CombatUnitSpec.Monk_Windwalker]: CombatUnitPowerType.Energy,
+  [CombatUnitSpec.Monk_BrewMaster]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Monk_Mistweaver]: CombatUnitPowerType.Mana,
+
+  [CombatUnitSpec.Paladin_Holy]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Paladin_Protection]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Paladin_Retribution]: CombatUnitPowerType.Mana,
+
+  [CombatUnitSpec.Priest_Discipline]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Priest_Holy]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Priest_Shadow]: CombatUnitPowerType.Insanity,
+
+  [CombatUnitSpec.Rogue_Assassination]: CombatUnitPowerType.Energy,
+  [CombatUnitSpec.Rogue_Outlaw]: CombatUnitPowerType.Energy,
+  [CombatUnitSpec.Rogue_Subtlety]: CombatUnitPowerType.Energy,
+
+  [CombatUnitSpec.Shaman_Elemental]: CombatUnitPowerType.Maelstrom,
+  [CombatUnitSpec.Shaman_Enhancement]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Shaman_Restoration]: CombatUnitPowerType.Mana,
+
+  [CombatUnitSpec.Warlock_Affliction]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Warlock_Demonology]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Warlock_Destruction]: CombatUnitPowerType.Mana,
+
+  [CombatUnitSpec.Warrior_Arms]: CombatUnitPowerType.Rage,
+  [CombatUnitSpec.Warrior_Fury]: CombatUnitPowerType.Rage,
+  [CombatUnitSpec.Warrior_Protection]: CombatUnitPowerType.Rage,
+
+  [CombatUnitSpec.Evoker_Devastation]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Evoker_Preservation]: CombatUnitPowerType.Mana,
+};
+
 const MINIMUM_VALID_CAST_DURATION = 200;
 const FINISHED_CAST_RENDER_DURATION = 600;
 
@@ -201,62 +256,7 @@ export const UnitFrame = (props: IProps) => {
   })();
 
   const mp = (() => {
-    const powerTypeForSpec: Record<CombatUnitSpec, CombatUnitPowerType> = {
-      [CombatUnitSpec.None]: CombatUnitPowerType.None,
-
-      [CombatUnitSpec.DeathKnight_Blood]: CombatUnitPowerType.RunicPower,
-      [CombatUnitSpec.DeathKnight_Frost]: CombatUnitPowerType.RunicPower,
-      [CombatUnitSpec.DeathKnight_Unholy]: CombatUnitPowerType.RunicPower,
-
-      [CombatUnitSpec.DemonHunter_Havoc]: CombatUnitPowerType.Fury,
-      [CombatUnitSpec.DemonHunter_Vengeance]: CombatUnitPowerType.Fury,
-
-      [CombatUnitSpec.Druid_Restoration]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Druid_Balance]: CombatUnitPowerType.LunarPower,
-      [CombatUnitSpec.Druid_Feral]: CombatUnitPowerType.Energy,
-      [CombatUnitSpec.Druid_Guardian]: CombatUnitPowerType.Rage,
-
-      [CombatUnitSpec.Hunter_BeastMastery]: CombatUnitPowerType.Focus,
-      [CombatUnitSpec.Hunter_Marksmanship]: CombatUnitPowerType.Focus,
-      [CombatUnitSpec.Hunter_Survival]: CombatUnitPowerType.Focus,
-
-      [CombatUnitSpec.Mage_Arcane]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Mage_Fire]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Mage_Frost]: CombatUnitPowerType.Mana,
-
-      [CombatUnitSpec.Monk_Windwalker]: CombatUnitPowerType.Energy,
-      [CombatUnitSpec.Monk_BrewMaster]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Monk_Mistweaver]: CombatUnitPowerType.Mana,
-
-      [CombatUnitSpec.Paladin_Holy]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Paladin_Protection]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Paladin_Retribution]: CombatUnitPowerType.Mana,
-
-      [CombatUnitSpec.Priest_Discipline]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Priest_Holy]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Priest_Shadow]: CombatUnitPowerType.Insanity,
-
-      [CombatUnitSpec.Rogue_Assassination]: CombatUnitPowerType.Energy,
-      [CombatUnitSpec.Rogue_Outlaw]: CombatUnitPowerType.Energy,
-      [CombatUnitSpec.Rogue_Subtlety]: CombatUnitPowerType.Energy,
-
-      [CombatUnitSpec.Shaman_Elemental]: CombatUnitPowerType.Maelstrom,
-      [CombatUnitSpec.Shaman_Enhancement]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Shaman_Restoration]: CombatUnitPowerType.Mana,
-
-      [CombatUnitSpec.Warlock_Affliction]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Warlock_Demonology]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Warlock_Destruction]: CombatUnitPowerType.Mana,
-
-      [CombatUnitSpec.Warrior_Arms]: CombatUnitPowerType.Rage,
-      [CombatUnitSpec.Warrior_Fury]: CombatUnitPowerType.Rage,
-      [CombatUnitSpec.Warrior_Protection]: CombatUnitPowerType.Rage,
-
-      [CombatUnitSpec.Evoker_Devastation]: CombatUnitPowerType.Mana,
-      [CombatUnitSpec.Evoker_Preservation]: CombatUnitPowerType.Mana,
-    };
-
-    const powerType = powerTypeForSpec[props.unit.spec];
+    const powerType = POWER_BY_SPEC[props.unit.spec];
     const actionsForPower = props.unit.advancedActions
       .map((a) => ({
         action: a,
