@@ -2,6 +2,7 @@ import {
   AtomicArenaCombat,
   CombatAdvancedAction,
   CombatUnitPowerType,
+  CombatUnitSpec,
   ICombatUnit,
   LogEvent,
 } from '@wowarenalogs/parser';
@@ -26,24 +27,6 @@ interface IProps {
   currentTimeOffset: number;
   onClick: () => void;
 }
-
-const PRIMARY_POWER_TYPES = new Set<CombatUnitPowerType>([
-  CombatUnitPowerType.Mana,
-  CombatUnitPowerType.Rage,
-  CombatUnitPowerType.Focus,
-  CombatUnitPowerType.Energy,
-  CombatUnitPowerType.RunicPower,
-  CombatUnitPowerType.Insanity,
-]);
-
-const getMpValues = (action: CombatAdvancedAction) => {
-  return _.first(
-    _.sortBy(
-      action.advancedActorPowers.filter((p) => PRIMARY_POWER_TYPES.has(p.type)),
-      ['type'],
-    ),
-  );
-};
 
 interface ISpellCastRenderState {
   spellId: string;
@@ -218,9 +201,81 @@ export const UnitFrame = (props: IProps) => {
   })();
 
   const mp = (() => {
+    const powerTypeForSpec: Record<CombatUnitSpec, CombatUnitPowerType> = {
+      [CombatUnitSpec.None]: CombatUnitPowerType.None,
+
+      [CombatUnitSpec.DeathKnight_Blood]: CombatUnitPowerType.RunicPower,
+      [CombatUnitSpec.DeathKnight_Frost]: CombatUnitPowerType.RunicPower,
+      [CombatUnitSpec.DeathKnight_Unholy]: CombatUnitPowerType.RunicPower,
+
+      [CombatUnitSpec.DemonHunter_Havoc]: CombatUnitPowerType.Fury,
+      [CombatUnitSpec.DemonHunter_Vengeance]: CombatUnitPowerType.Fury,
+
+      [CombatUnitSpec.Druid_Restoration]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Druid_Balance]: CombatUnitPowerType.LunarPower,
+      [CombatUnitSpec.Druid_Feral]: CombatUnitPowerType.Energy,
+      [CombatUnitSpec.Druid_Guardian]: CombatUnitPowerType.Rage,
+
+      [CombatUnitSpec.Hunter_BeastMastery]: CombatUnitPowerType.Focus,
+      [CombatUnitSpec.Hunter_Marksmanship]: CombatUnitPowerType.Focus,
+      [CombatUnitSpec.Hunter_Survival]: CombatUnitPowerType.Focus,
+
+      [CombatUnitSpec.Mage_Arcane]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Mage_Fire]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Mage_Frost]: CombatUnitPowerType.Mana,
+
+      [CombatUnitSpec.Monk_Windwalker]: CombatUnitPowerType.Energy,
+      [CombatUnitSpec.Monk_BrewMaster]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Monk_Mistweaver]: CombatUnitPowerType.Mana,
+
+      [CombatUnitSpec.Paladin_Holy]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Paladin_Protection]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Paladin_Retribution]: CombatUnitPowerType.Mana,
+
+      [CombatUnitSpec.Priest_Discipline]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Priest_Holy]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Priest_Shadow]: CombatUnitPowerType.Insanity,
+
+      [CombatUnitSpec.Rogue_Assassination]: CombatUnitPowerType.Energy,
+      [CombatUnitSpec.Rogue_Outlaw]: CombatUnitPowerType.Energy,
+      [CombatUnitSpec.Rogue_Subtlety]: CombatUnitPowerType.Energy,
+
+      [CombatUnitSpec.Shaman_Elemental]: CombatUnitPowerType.Maelstrom,
+      [CombatUnitSpec.Shaman_Enhancement]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Shaman_Restoration]: CombatUnitPowerType.Mana,
+
+      [CombatUnitSpec.Warlock_Affliction]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Warlock_Demonology]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Warlock_Destruction]: CombatUnitPowerType.Mana,
+
+      [CombatUnitSpec.Warrior_Arms]: CombatUnitPowerType.Rage,
+      [CombatUnitSpec.Warrior_Fury]: CombatUnitPowerType.Rage,
+      [CombatUnitSpec.Warrior_Protection]: CombatUnitPowerType.Rage,
+
+      [CombatUnitSpec.Evoker_Devastation]: CombatUnitPowerType.Mana,
+      [CombatUnitSpec.Evoker_Preservation]: CombatUnitPowerType.Mana,
+    };
+
+    const powerType = powerTypeForSpec[props.unit.spec];
+    const actionsForPower = props.unit.advancedActions
+      .map((a) => ({
+        action: a,
+        mp: a.advancedActorPowers.find((p) => p.type === powerType),
+      }))
+      .filter((a) => a.mp) as {
+      // This cast fixes an issue where TS emitted `| undefined` when it could not happen
+      // it is safe because the .filter call ensures the .mp field exists
+      action: CombatAdvancedAction;
+      mp: {
+        type: CombatUnitPowerType;
+        current: number;
+        max: number;
+      };
+    }[];
+
     if (
-      props.unit.advancedActions.length === 0 ||
-      props.currentTimeOffset < props.unit.advancedActions[0].timestamp - props.combat.startTime
+      actionsForPower.length === 0 ||
+      props.currentTimeOffset < actionsForPower[0].action.timestamp - props.combat.startTime
     ) {
       return {
         type: CombatUnitPowerType.None,
@@ -228,27 +283,15 @@ export const UnitFrame = (props: IProps) => {
         max: 1,
       };
     }
-    for (let i = 0; i < props.unit.advancedActions.length; ++i) {
-      if (i === props.unit.advancedActions.length - 1) {
-        return (
-          getMpValues(props.unit.advancedActions[i]) || {
-            type: CombatUnitPowerType.None,
-            current: 0,
-            max: 1,
-          }
-        );
+    for (let i = 0; i < actionsForPower.length; ++i) {
+      if (i === actionsForPower.length - 1) {
+        return actionsForPower[i].mp;
       }
 
-      const currentActionTimeOffset = props.unit.advancedActions[i].timestamp - props.combat.startTime;
-      const nextActionTimeOffset = props.unit.advancedActions[i + 1].timestamp - props.combat.startTime;
+      const currentActionTimeOffset = actionsForPower[i].action.timestamp - props.combat.startTime;
+      const nextActionTimeOffset = actionsForPower[i + 1].action.timestamp - props.combat.startTime;
       if (currentActionTimeOffset <= props.currentTimeOffset && nextActionTimeOffset > props.currentTimeOffset) {
-        return (
-          getMpValues(props.unit.advancedActions[i]) || {
-            type: CombatUnitPowerType.None,
-            current: 0,
-            max: 1,
-          }
-        );
+        return actionsForPower[i].mp;
       }
     }
     return {
