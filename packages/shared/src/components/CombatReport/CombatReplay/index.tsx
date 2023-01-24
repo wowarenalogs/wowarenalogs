@@ -3,12 +3,12 @@ import { CombatUnitType } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
 import PIXI from 'pixi.js';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { FaSkullCrossbones } from 'react-icons/fa';
 import { TbPlayerPause, TbPlayerPlay } from 'react-icons/tb';
 
 import { zoneMetadata } from '../../../data/zoneMetadata';
-import { useCombatReportContext } from '../CombatReportContext';
+import { CombatReportContext, useCombatReportContext } from '../CombatReportContext';
 import { ReplayCharacter } from './ReplayCharacter';
 import { ReplayDampeningTracker } from './ReplayDampeningTracker';
 import { ReplayEvents } from './ReplayEvents';
@@ -30,6 +30,24 @@ const debouncedSlide = _.debounce(
   },
   1,
 );
+
+// See https://reactpixi.org/context-bridge
+// pixi needs the context injected because it uses a custom renderer
+const ContextBridge = ({
+  children,
+  Context,
+  render,
+}: {
+  children: ReactElement;
+  Context: typeof CombatReportContext;
+  render: (children: ReactElement) => ReactElement;
+}) => {
+  return (
+    <Context.Consumer>
+      {(value) => render(<Context.Provider value={value}>{children}</Context.Provider>)}
+    </Context.Consumer>
+  );
+};
 
 export function CombatReplay() {
   const { combat } = useCombatReportContext();
@@ -222,18 +240,25 @@ export function CombatReplay() {
       <div className={`flex flex-col flex-1 rounded-box bg-base-200 overflow-hidden relative`}>
         <div className="w-full h-full absolute" ref={initializeReplayContainerRef}>
           {replayContainerRef ? (
-            <Stage
-              width={replayContainerRef.clientWidth}
-              height={replayContainerRef.clientHeight}
-              options={{
-                antialias: true,
-                autoDensity: true,
-                backgroundAlpha: 0,
-              }}
-              onMount={setPixiApp}
-              onUnmount={() => {
-                setPixiApp(null);
-              }}
+            <ContextBridge
+              Context={CombatReportContext}
+              render={(children) => (
+                <Stage
+                  width={replayContainerRef.clientWidth}
+                  height={replayContainerRef.clientHeight}
+                  options={{
+                    antialias: true,
+                    autoDensity: true,
+                    backgroundAlpha: 0,
+                  }}
+                  onMount={setPixiApp}
+                  onUnmount={() => {
+                    setPixiApp(null);
+                  }}
+                >
+                  {children}
+                </Stage>
+              )}
             >
               <ReplayViewport
                 key={combat.id}
@@ -267,7 +292,7 @@ export function CombatReplay() {
                   );
                 })}
               </ReplayViewport>
-            </Stage>
+            </ContextBridge>
           ) : null}
         </div>
         <div className="flex flex-row flex-1 items-start justify-between">
