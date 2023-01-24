@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import { app, session } from 'electron';
 
 import { moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
 
@@ -28,5 +28,10 @@ export class ApplicationModule extends NativeBridgeModule {
   @moduleFunction()
   public async getVersion(_mainWindow: Electron.BrowserWindow) {
     return app.getVersion();
+  }
+
+  @moduleFunction()
+  public async clearStorage(_mainWindow: Electron.BrowserWindow) {
+    await session.defaultSession.clearStorageData();
   }
 }

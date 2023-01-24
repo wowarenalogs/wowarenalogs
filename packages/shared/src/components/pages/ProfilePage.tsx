@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 
 import { LogoutButton } from '../common/LogoutButton';
 
-export const ProfilePage = () => {
+export const ProfilePage = (props: { onLogout?: () => Promise<void> }) => {
   const auth = useAuth();
   const router = useRouter();
 
@@ -20,7 +20,7 @@ export const ProfilePage = () => {
     <div className="flex flex-col m-2">
       <div className="text-2xl font-bold mb-2">{auth.battleTag}</div>
       <div className="flex flex-row">
-        <LogoutButton />
+        <LogoutButton onLogout={props.onLogout} />
       </div>
     </div>
   );
