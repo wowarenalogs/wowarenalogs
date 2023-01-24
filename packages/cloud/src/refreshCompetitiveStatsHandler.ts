@@ -19,25 +19,23 @@ const storage = new GoogleCloudStorage({
 });
 const bucket = storage.bucket(isDev ? 'data.public-dev.wowarenalogs.com' : 'data.wowarenalogs.com');
 
-const ALLOWED_BRACKETS = ['2v2', '3v3', 'Rated Solo Shuffle'];
-const STATS_SCHEMA_VERSION = 4;
+const ALLOWED_BRACKETS = new Set<string>(['2v2', '3v3', 'Rated Solo Shuffle']);
+const STATS_SCHEMA_VERSION = 3;
 const LOOKBACK_DAYS = 7;
-const RATING_RANGES = [
-  [0, 5000],
-  [0, 1399],
-  [1400, 1799],
-  [1800, 5000],
-];
 
-async function generateSpecStatsAsync(bracket: string, minRating: number, maxRating: number) {
+async function generateSpecStatsAsync() {
+  console.log('generating spec stats...');
+
   let resultObject: {
-    [spec: string]: {
-      [result: string]: {
-        matches: number;
-        effectiveDps: number;
-        effectiveHps: number;
-        isKillTarget: number;
-        burstDps: number;
+    [bracket: string]: {
+      [spec: string]: {
+        [result: string]: {
+          matches: number;
+          effectiveDps: number;
+          effectiveHps: number;
+          isKillTarget: number;
+          burstDps: number;
+        };
       };
     };
   } = {};
@@ -51,6 +49,9 @@ async function generateSpecStatsAsync(bracket: string, minRating: number, maxRat
       },
     ],
     dimensions: [
+      {
+        name: 'customEvent:bracket',
+      },
       {
         name: 'customEvent:spec',
       },
@@ -93,34 +94,6 @@ async function generateSpecStatsAsync(bracket: string, minRating: number, maxRat
           },
           {
             filter: {
-              fieldName: 'customEvent:bracket',
-              stringFilter: {
-                matchType: 'EXACT',
-                value: bracket,
-                caseSensitive: true,
-              },
-            },
-          },
-          {
-            filter: {
-              fieldName: 'customEvent:averageMMR',
-              numericFilter: {
-                operation: 'GREATER_THAN_OR_EQUAL',
-                value: { int64Value: minRating.toFixed() },
-              },
-            },
-          },
-          {
-            filter: {
-              fieldName: 'customEvent:averageMMR',
-              numericFilter: {
-                operation: 'LESS_THAN_OR_EQUAL',
-                value: { int64Value: maxRating.toFixed() },
-              },
-            },
-          },
-          {
-            filter: {
               fieldName: 'customEvent:isPlayerTeam',
               stringFilter: {
                 matchType: 'EXACT',
@@ -148,21 +121,28 @@ async function generateSpecStatsAsync(bracket: string, minRating: number, maxRat
       return;
     }
 
-    const spec = row.dimensionValues[0].value as string;
-    const result = row.dimensionValues[1].value as string;
+    const bracket = row.dimensionValues[0].value as string;
+    const spec = row.dimensionValues[1].value as string;
+    const result = row.dimensionValues[2].value as string;
+
+    if (!ALLOWED_BRACKETS.has(bracket)) {
+      return;
+    }
 
     const killTargetSum = parseFloat(row.metricValues[3].value as string);
     const killTargetCount = parseFloat(row.metricValues[4].value as string);
     const isKillTargetAvg = (killTargetSum ? killTargetSum : 0) / (killTargetCount ? killTargetCount : 1);
 
     const newEntry = {
-      [spec]: {
-        [result]: {
-          matches: parseInt(row.metricValues[0].value as string) ?? 0,
-          effectiveDps: Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0),
-          effectiveHps: Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0),
-          isKillTarget: isKillTargetAvg,
-          burstDps: Math.abs(parseFloat(row.metricValues[5].value as string) ?? 0),
+      [bracket]: {
+        [spec]: {
+          [result]: {
+            matches: parseInt(row.metricValues[0].value as string) ?? 0,
+            effectiveDps: Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0),
+            effectiveHps: Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0),
+            isKillTarget: isKillTargetAvg,
+            burstDps: Math.abs(parseFloat(row.metricValues[5].value as string) ?? 0),
+          },
         },
       },
     };
@@ -170,34 +150,30 @@ async function generateSpecStatsAsync(bracket: string, minRating: number, maxRat
   });
 
   const content = JSON.stringify(resultObject, null, 2);
-  await bucket
-    .file(`data/spec-stats/v${STATS_SCHEMA_VERSION.toFixed()}/${bracket}/${minRating}-${maxRating}/latest.json`)
-    .save(content, {
-      contentType: 'application/json',
-    });
-  await bucket
-    .file(
-      `data/spec-stats/v${STATS_SCHEMA_VERSION.toFixed()}/${bracket}/${minRating}-${maxRating}/${moment().format(
-        'YYYY-MM-DD',
-      )}.json`,
-    )
-    .save(content, {
-      contentType: 'application/json',
-    });
+  await bucket.file(`data/spec-stats.v${STATS_SCHEMA_VERSION.toFixed()}.json`).save(content, {
+    contentType: 'application/json',
+  });
+  await bucket.file(`data/spec-stats.${moment().format('YYYY-MM-DD')}.json`).save(content, {
+    contentType: 'application/json',
+  });
 
-  console.log('Spec stats updated', bracket, minRating, maxRating);
+  console.log('Spec stats updated');
 }
 
-async function generateCompStatsAsync(bracket: string, minRating: number, maxRating: number) {
+async function generateCompStatsAsync() {
+  console.log('generating comp stats...');
+
   let resultObject: {
-    [specs: string]: {
-      [result: string]: {
-        matches: number;
-        burstDps: number;
-        effectiveDps: number;
-        effectiveHps: number;
-        killTargetSpec: {
-          [spec: string]: number;
+    [bracket: string]: {
+      [specs: string]: {
+        [result: string]: {
+          matches: number;
+          burstDps: number;
+          effectiveDps: number;
+          effectiveHps: number;
+          killTargetSpec: {
+            [spec: string]: number;
+          };
         };
       };
     };
@@ -212,6 +188,9 @@ async function generateCompStatsAsync(bracket: string, minRating: number, maxRat
       },
     ],
     dimensions: [
+      {
+        name: 'customEvent:bracket',
+      },
       {
         name: 'customEvent:specs',
       },
@@ -248,34 +227,6 @@ async function generateCompStatsAsync(bracket: string, minRating: number, maxRat
           },
           {
             filter: {
-              fieldName: 'customEvent:bracket',
-              stringFilter: {
-                matchType: 'EXACT',
-                value: bracket,
-                caseSensitive: true,
-              },
-            },
-          },
-          {
-            filter: {
-              fieldName: 'customEvent:averageMMR',
-              numericFilter: {
-                operation: 'GREATER_THAN_OR_EQUAL',
-                value: { int64Value: minRating.toFixed() },
-              },
-            },
-          },
-          {
-            filter: {
-              fieldName: 'customEvent:averageMMR',
-              numericFilter: {
-                operation: 'LESS_THAN_OR_EQUAL',
-                value: { int64Value: maxRating.toFixed() },
-              },
-            },
-          },
-          {
-            filter: {
               fieldName: 'customEvent:isPlayerTeam',
               stringFilter: {
                 matchType: 'EXACT',
@@ -303,20 +254,26 @@ async function generateCompStatsAsync(bracket: string, minRating: number, maxRat
       return;
     }
 
-    const specs = row.dimensionValues[0].value as string;
-    const result = row.dimensionValues[1].value as string;
+    const bracket = row.dimensionValues[0].value as string;
+    const specs = row.dimensionValues[1].value as string;
+    const result = row.dimensionValues[2].value as string;
 
+    if (!ALLOWED_BRACKETS.has(bracket)) {
+      return;
+    }
     if (!specs.includes('_')) {
       return;
     }
 
     const newEntry = {
-      [specs]: {
-        [result]: {
-          matches: parseInt(row.metricValues[0].value as string) ?? 0,
-          effectiveDps: Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0),
-          effectiveHps: Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0),
-          burstDps: Math.abs(parseFloat(row.metricValues[3].value as string) ?? 0),
+      [bracket]: {
+        [specs]: {
+          [result]: {
+            matches: parseInt(row.metricValues[0].value as string) ?? 0,
+            effectiveDps: Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0),
+            effectiveHps: Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0),
+            burstDps: Math.abs(parseFloat(row.metricValues[3].value as string) ?? 0),
+          },
         },
       },
     };
@@ -332,6 +289,9 @@ async function generateCompStatsAsync(bracket: string, minRating: number, maxRat
       },
     ],
     dimensions: [
+      {
+        name: 'customEvent:bracket',
+      },
       {
         name: 'customEvent:specs',
       },
@@ -357,34 +317,6 @@ async function generateCompStatsAsync(bracket: string, minRating: number, maxRat
                 matchType: 'EXACT',
                 value: 'event_NewCompRecord',
                 caseSensitive: true,
-              },
-            },
-          },
-          {
-            filter: {
-              fieldName: 'customEvent:bracket',
-              stringFilter: {
-                matchType: 'EXACT',
-                value: bracket,
-                caseSensitive: true,
-              },
-            },
-          },
-          {
-            filter: {
-              fieldName: 'customEvent:averageMMR',
-              numericFilter: {
-                operation: 'GREATER_THAN_OR_EQUAL',
-                value: { int64Value: minRating.toFixed() },
-              },
-            },
-          },
-          {
-            filter: {
-              fieldName: 'customEvent:averageMMR',
-              numericFilter: {
-                operation: 'LESS_THAN_OR_EQUAL',
-                value: { int64Value: maxRating.toFixed() },
               },
             },
           },
@@ -418,10 +350,14 @@ async function generateCompStatsAsync(bracket: string, minRating: number, maxRat
       return;
     }
 
-    const specs = row.dimensionValues[0].value as string;
-    const result = row.dimensionValues[1].value as string;
-    const killTargetSpec = row.dimensionValues[2].value as string;
+    const bracket = row.dimensionValues[0].value as string;
+    const specs = row.dimensionValues[1].value as string;
+    const result = row.dimensionValues[2].value as string;
+    const killTargetSpec = row.dimensionValues[3].value as string;
 
+    if (!ALLOWED_BRACKETS.has(bracket)) {
+      return;
+    }
     if (!specs.includes('_')) {
       return;
     }
@@ -430,10 +366,12 @@ async function generateCompStatsAsync(bracket: string, minRating: number, maxRat
     }
 
     const newEntry = {
-      [specs]: {
-        [result]: {
-          killTargetSpec: {
-            [killTargetSpec]: parseInt(row.metricValues[0].value as string) ?? 0,
+      [bracket]: {
+        [specs]: {
+          [result]: {
+            killTargetSpec: {
+              [killTargetSpec]: parseInt(row.metricValues[0].value as string) ?? 0,
+            },
           },
         },
       },
@@ -442,48 +380,30 @@ async function generateCompStatsAsync(bracket: string, minRating: number, maxRat
   });
 
   // delete specs that have less than 10 matches to optimize the size of the file
-  Object.keys(resultObject).forEach((specs) => {
-    if ((resultObject[specs]['win']?.matches ?? 0) + (resultObject[specs]['lose']?.matches ?? 0) < 10) {
-      delete resultObject[specs];
-    }
+  Object.values(resultObject).forEach((bracket) => {
+    Object.keys(bracket).forEach((specs) => {
+      if ((bracket[specs]['win']?.matches ?? 0) + (bracket[specs]['lose']?.matches ?? 0) < 10) {
+        delete bracket[specs];
+      }
+    });
   });
 
   const content = JSON.stringify(resultObject, null, 2);
-  await bucket
-    .file(`data/comp-stats/v${STATS_SCHEMA_VERSION.toFixed()}/${bracket}/${minRating}-${maxRating}/latest.json`)
-    .save(content, {
-      contentType: 'application/json',
-    });
-  await bucket
-    .file(
-      `data/comp-stats/v${STATS_SCHEMA_VERSION.toFixed()}/${bracket}/${minRating}-${maxRating}/${moment().format(
-        'YYYY-MM-DD',
-      )}.json`,
-    )
-    .save(content, {
-      contentType: 'application/json',
-    });
+  await bucket.file(`data/comp-stats.v${STATS_SCHEMA_VERSION}.json`).save(content, {
+    contentType: 'application/json',
+  });
+  await bucket.file(`data/comp-stats.${moment().format('YYYY-MM-DD')}.json`).save(content, {
+    contentType: 'application/json',
+  });
 
-  console.log('Comp stats updated', bracket, minRating, maxRating);
+  console.log('Comp stats updated');
 }
 
 export async function handler(_event: unknown, _context: unknown, callback: () => void) {
   console.log('refreshCompetitiveStats started');
 
-  const allTaskParameters = ALLOWED_BRACKETS.flatMap((bracket) => {
-    return RATING_RANGES.flatMap((range) => {
-      return {
-        bracket,
-        minRating: range[0],
-        maxRating: range[1],
-      };
-    });
-  });
-
-  for (const params of allTaskParameters) {
-    await generateSpecStatsAsync(params.bracket, params.minRating, params.maxRating);
-    await generateCompStatsAsync(params.bracket, params.minRating, params.maxRating);
-  }
+  await generateSpecStatsAsync();
+  await generateCompStatsAsync();
 
   callback();
 }
