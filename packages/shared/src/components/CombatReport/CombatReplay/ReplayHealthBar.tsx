@@ -9,7 +9,7 @@ interface IProps {
 
 const BAR_WIDTH = 4;
 const BAR_HEIGHT = 1.2;
-const BAR_Y_OFFSET = -3;
+const BAR_Y_OFFSET = -2.2;
 const BAR_INNER_PADDING = 0.2;
 
 export const ReplayHealthBar = (props: IProps) => {
