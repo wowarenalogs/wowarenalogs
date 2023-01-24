@@ -7,8 +7,8 @@ import { spellIdToPriority } from '../../../data/spellTags';
 import { Utils } from '../../../utils/utils';
 import { ReplayCastBar } from './ReplayCastBar';
 import { ReplayHealthBar } from './ReplayHealthBar';
-import { ReplayHpNumbers } from './ReplayHpNumbers';
-import { ReplaySpellCasts } from './ReplaySpellCasts';
+// import { ReplayHpNumbers } from './ReplayHpNumbers';
+// import { ReplaySpellCasts } from './ReplaySpellCasts';
 
 interface IProps {
   combat: AtomicArenaCombat;
@@ -184,30 +184,30 @@ export function ReplayCharacter(props: IProps) {
 
   return (
     <Container key={props.unit.id} x={pos.x} y={pos.y}>
-      {!highlightAura ? (
-        <Sprite
-          image={
-            props.unit.spec === CombatUnitSpec.None
-              ? Utils.getClassIcon(props.unit.class)
-              : Utils.getSpecIcon(props.unit.spec) || ''
-          }
-          width={PLAYER_UNIT_SIZE}
-          height={PLAYER_UNIT_SIZE}
-          anchor={{ x: 0.5, y: 0.5 }}
-        />
-      ) : null}
+      <Sprite
+        image={
+          props.unit.spec === CombatUnitSpec.None
+            ? Utils.getClassIcon(props.unit.class)
+            : Utils.getSpecIcon(props.unit.spec) || ''
+        }
+        width={PLAYER_UNIT_SIZE}
+        height={PLAYER_UNIT_SIZE}
+        anchor={{ x: 0.5, y: 0.5 }}
+      />
       {highlightAura ? (
         <Sprite
           image={`https://images.wowarenalogs.com/spells/${highlightAura.aura.spellId}.jpg`}
-          width={PLAYER_UNIT_SIZE}
-          height={PLAYER_UNIT_SIZE}
+          width={PLAYER_UNIT_SIZE * 0.8}
+          height={PLAYER_UNIT_SIZE * 0.8}
           anchor={{ x: 0.5, y: 0.5 }}
+          x={-3.4}
+          y={-3.0}
         />
       ) : null}
       <ReplayHealthBar current={hp.current} max={hp.max} reaction={props.unit.reaction} />
       <ReplayCastBar unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
-      <ReplaySpellCasts unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
-      <ReplayHpNumbers unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
+      {/* <ReplaySpellCasts unit={props.unit} currentTimeOffset={props.currentTimeOffset} /> */}
+      {/* <ReplayHpNumbers unit={props.unit} currentTimeOffset={props.currentTimeOffset} /> */}
     </Container>
   );
 }

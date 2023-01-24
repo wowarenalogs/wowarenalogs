@@ -1,13 +1,16 @@
 import { useAuth } from '@wowarenalogs/shared';
 import React from 'react';
 
-export const LogoutButton = () => {
+export const LogoutButton = (props: { onLogout?: () => Promise<void> }) => {
   const auth = useAuth();
   return (
     <button
       className="btn btn-sm btn-error"
       onClick={async () => {
-        auth.signOut();
+        if (props.onLogout) {
+          await props.onLogout();
+        }
+        await auth.signOut();
       }}
     >
       Logout
