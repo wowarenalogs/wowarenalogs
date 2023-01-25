@@ -1,4 +1,4 @@
-import { ICombatUnit } from '@wowarenalogs/parser';
+import { getClassColor, ICombatUnit } from '@wowarenalogs/parser';
 import Image from 'next/image';
 import { useMemo } from 'react';
 
@@ -64,6 +64,13 @@ export const CombatUnitAuraTimeline = (props: { unit: ICombatUnit; startTime: nu
         height: ((endTime - startTime) / 1000) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
       }}
     >
+      <div
+        className="w-0.5 h-full absolute"
+        style={{
+          left: 11,
+          backgroundColor: getClassColor(unit.class),
+        }}
+      />
       {auras.map((a) => (
         <div
           className={`flex flex-col-reverse border border-black absolute items-center overflow-hidden ${getAuraColor(
