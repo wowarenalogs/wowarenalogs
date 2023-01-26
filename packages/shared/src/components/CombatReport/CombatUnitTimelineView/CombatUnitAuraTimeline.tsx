@@ -65,7 +65,7 @@ export const CombatUnitAuraTimeline = (props: { unit: ICombatUnit; startTime: nu
       }}
     >
       <div
-        className="w-0.5 h-full absolute"
+        className="w-0.5 h-full absolute opacity-20"
         style={{
           left: 11,
           backgroundColor: getClassColor(unit.class),
