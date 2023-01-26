@@ -8,11 +8,19 @@ interface IProps {
   unit: ICombatUnit;
   navigateToPlayerView?: boolean;
   isTitle?: boolean;
+  noEllipsis?: boolean;
   onClick?: () => void;
   showSpec?: boolean;
 }
 
-export const CombatUnitName = ({ unit, navigateToPlayerView, isTitle, onClick, showSpec = true }: IProps) => {
+export const CombatUnitName = ({
+  unit,
+  navigateToPlayerView,
+  isTitle,
+  noEllipsis,
+  onClick,
+  showSpec = true,
+}: IProps) => {
   const combatReportContext = useCombatReportContext();
 
   return (
@@ -46,7 +54,7 @@ export const CombatUnitName = ({ unit, navigateToPlayerView, isTitle, onClick, s
       )}
       <span
         className={`font-bold flex-1 text-ellipsis overflow-hidden whitespace-nowrap ${isTitle ? 'text-2xl' : ''}`}
-        style={{ color: getClassColor(unit.class), maxWidth: isTitle ? 'unset' : 110 }}
+        style={{ color: getClassColor(unit.class), maxWidth: isTitle || noEllipsis ? 'unset' : 100 }}
       >
         {unit.name.split('-')[0]}
       </span>
