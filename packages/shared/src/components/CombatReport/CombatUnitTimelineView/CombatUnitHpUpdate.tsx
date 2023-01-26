@@ -39,7 +39,7 @@ export const CombatUnitHpUpdate = (props: IProps) => {
       }}
     >
       <div
-        className="border border-solid border-black flex-1 flex flex-row items-center relative overflow-hidden"
+        className="border border-solid border-black hover:border-base-content flex-1 flex flex-row items-center relative overflow-hidden"
         style={{
           backgroundColor: getClassColor(colorSourceUnitClass),
         }}
