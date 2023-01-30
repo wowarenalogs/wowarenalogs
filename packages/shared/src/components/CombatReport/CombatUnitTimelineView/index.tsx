@@ -56,6 +56,14 @@ const generateHpUpdateColumn = (
       <div className="flex-1 relative">
         {_.map(actionGroupsBySecondMark, (group, secondMark) => {
           const groupTotal = _.sumBy(group, (action) => Math.abs(action.effectiveAmount));
+          const actionGroups = _.groupBy(group, (action) =>
+            JSON.stringify({
+              srcUnitId: action.srcUnitId,
+              destUnitId: action.destUnitId,
+              spellId: action.spellId,
+              spellName: action.spellName,
+            }),
+          );
           return (
             <div
               key={secondMark}
@@ -69,10 +77,13 @@ const generateHpUpdateColumn = (
                 height: REPORT_TIMELINE_HEIGHT_PER_SECOND,
               }}
             >
-              {group.map((action) => (
+              {_.map(actionGroups, (actions, key) => (
                 <CombatUnitHpUpdate
-                  key={action.logLine.id}
-                  action={action}
+                  key={key}
+                  actionGroup={{
+                    ...JSON.parse(key),
+                    actions,
+                  }}
                   unit={unit}
                   combat={combat}
                   groupTotal={groupTotal}
