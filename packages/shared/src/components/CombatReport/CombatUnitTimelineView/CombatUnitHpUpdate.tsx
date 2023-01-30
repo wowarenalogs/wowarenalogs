@@ -34,11 +34,11 @@ export const CombatUnitHpUpdate = (props: IProps) => {
     () => _.sum(props.actionGroup.actions.map((a) => a.effectiveAmount)),
     [props.actionGroup.actions],
   );
-  const hasCrit = useMemo(() => props.actionGroup.actions.some((a) => a.isCritical), [props.actionGroup.actions]);
+  const isAllCrit = useMemo(() => props.actionGroup.actions.every((a) => a.isCritical), [props.actionGroup.actions]);
   const tooltip = useMemo(() => {
     const spellName = props.actionGroup.spellName || 'Auto Attack';
     if (props.actionGroup.actions.length === 1) {
-      return `${spellName}: ${Utils.printCombatNumber(Math.abs(totalEffectiveAmount), hasCrit)}`;
+      return `${spellName}: ${Utils.printCombatNumber(Math.abs(totalEffectiveAmount), isAllCrit)}`;
     }
 
     const normalHits = props.actionGroup.actions.filter((a) => !a.isCritical);
@@ -48,25 +48,29 @@ export const CombatUnitHpUpdate = (props: IProps) => {
       normalHits.length > 0
         ? `
 
-${normalHits.length} normal hits x ${Utils.printCombatNumber(
-            _.sum(normalHits.map((a) => Math.abs(a.effectiveAmount))) / normalHits.length,
-          )} per hit = ${Utils.printCombatNumber(_.sum(normalHits.map((a) => Math.abs(a.effectiveAmount))))} total`
+${normalHits.length} normal hits, total = ${Utils.printCombatNumber(
+            _.sum(normalHits.map((a) => Math.abs(a.effectiveAmount))),
+          )}, max = ${Utils.printCombatNumber(
+            Math.abs(_.maxBy(normalHits, (h) => Math.abs(h.effectiveAmount))?.effectiveAmount ?? 0),
+          )}`
         : '';
 
     const critHitsText =
       critHits.length > 0
         ? `
 
-${critHits.length} crit hits x ${Utils.printCombatNumber(
-            _.sum(critHits.map((a) => Math.abs(a.effectiveAmount))) / critHits.length,
-          )} per hit = ${Utils.printCombatNumber(_.sum(critHits.map((a) => Math.abs(a.effectiveAmount))))} total`
+${critHits.length} crit hits, total = ${Utils.printCombatNumber(
+            _.sum(critHits.map((a) => Math.abs(a.effectiveAmount))),
+          )}, max = ${Utils.printCombatNumber(
+            Math.abs(_.maxBy(critHits, (h) => Math.abs(h.effectiveAmount))?.effectiveAmount ?? 0),
+          )}`
         : '';
 
     return `${spellName}: ${Utils.printCombatNumber(
       Math.abs(totalEffectiveAmount),
-      hasCrit,
+      false,
     )}${normalHitsText}${critHitsText}`;
-  }, [props.actionGroup.actions, props.actionGroup.spellName, totalEffectiveAmount, hasCrit]);
+  }, [props.actionGroup.actions, props.actionGroup.spellName, totalEffectiveAmount, isAllCrit]);
 
   const widthPercentage = (Math.abs(totalEffectiveAmount) / props.groupTotal) * 100;
   const widthPercentageAbsolute = (Math.abs(totalEffectiveAmount) / props.timelineMax) * 100;
@@ -99,7 +103,7 @@ ${critHits.length} crit hits x ${Utils.printCombatNumber(
         ) : null}
         {widthPercentageAbsolute >= 30 && props.actionGroup.spellId ? (
           <div className="ml-1 text-black font-medium text-xs">
-            {Utils.printCombatNumber(Math.abs(totalEffectiveAmount), hasCrit)}
+            {Utils.printCombatNumber(Math.abs(totalEffectiveAmount), isAllCrit)}
           </div>
         ) : null}
       </div>
