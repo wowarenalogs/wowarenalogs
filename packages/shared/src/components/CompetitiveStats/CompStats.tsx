@@ -8,7 +8,7 @@ import { Utils } from '../../utils/utils';
 import { ErrorPage } from '../common/ErrorPage';
 import { SpecImage } from '../common/SpecImage';
 import { LoadingScreen } from '../LoadingScreen';
-import { getWinRateCorrectionFactor, STATS_SCHEMA_VERSION } from './common';
+import { getWinRateCorrectionFactor } from './common';
 
 type StatsData = {
   [bracket: string]: {
@@ -39,7 +39,7 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
   const specStatsQuery = useQuery(
     ['competitive-stats', 'comp-stats'],
     async () => {
-      const result = await fetch(`https://images.wowarenalogs.com/data/comp-stats.v${STATS_SCHEMA_VERSION}.json`);
+      const result = await fetch(`https://images.wowarenalogs.com/data/comp-stats.2023-01-29.json`);
       return (await result.json()) as StatsData;
     },
     {
