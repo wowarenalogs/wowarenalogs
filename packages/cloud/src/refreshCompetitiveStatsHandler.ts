@@ -44,7 +44,7 @@ async function generateSpecStatsAsync() {
     property: 'properties/259314484',
     dateRanges: [
       {
-        startDate: `${(LOOKBACK_DAYS + 1).toFixed()}daysAgo`,
+        startDate: `${LOOKBACK_DAYS.toFixed()}daysAgo`,
         endDate: 'yesterday',
       },
     ],
@@ -64,10 +64,10 @@ async function generateSpecStatsAsync() {
         name: 'eventCount',
       },
       {
-        name: 'averageCustomEvent:effectiveDps',
+        name: 'customEvent:effectiveDps',
       },
       {
-        name: 'averageCustomEvent:effectiveHps',
+        name: 'customEvent:effectiveHps',
       },
       {
         name: 'customEvent:isKillTarget',
@@ -76,7 +76,7 @@ async function generateSpecStatsAsync() {
         name: 'countCustomEvent:isKillTarget',
       },
       {
-        name: 'averageCustomEvent:burstDps',
+        name: 'customEvent:burstDps',
       },
     ],
     dimensionFilter: {
@@ -133,15 +133,25 @@ async function generateSpecStatsAsync() {
     const killTargetCount = parseFloat(row.metricValues[4].value as string);
     const isKillTargetAvg = (killTargetSum ? killTargetSum : 0) / (killTargetCount ? killTargetCount : 1);
 
+    const effectiveDps =
+      Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0) /
+      (parseInt(row.metricValues[0].value as string) ?? 1);
+    const effectiveHps =
+      Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0) /
+      (parseInt(row.metricValues[0].value as string) ?? 1);
+    const burstDps =
+      Math.abs(parseFloat(row.metricValues[5].value as string) ?? 0) /
+      (parseInt(row.metricValues[0].value as string) ?? 1);
+
     const newEntry = {
       [bracket]: {
         [spec]: {
           [result]: {
             matches: parseInt(row.metricValues[0].value as string) ?? 0,
-            effectiveDps: Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0),
-            effectiveHps: Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0),
+            effectiveDps,
+            effectiveHps,
             isKillTarget: isKillTargetAvg,
-            burstDps: Math.abs(parseFloat(row.metricValues[5].value as string) ?? 0),
+            burstDps,
           },
         },
       },
@@ -183,7 +193,7 @@ async function generateCompStatsAsync() {
     property: 'properties/259314484',
     dateRanges: [
       {
-        startDate: `${(LOOKBACK_DAYS + 1).toFixed()}daysAgo`,
+        startDate: `${LOOKBACK_DAYS.toFixed()}daysAgo`,
         endDate: 'yesterday',
       },
     ],
@@ -203,13 +213,13 @@ async function generateCompStatsAsync() {
         name: 'eventCount',
       },
       {
-        name: 'averageCustomEvent:effectiveDps',
+        name: 'customEvent:effectiveDps',
       },
       {
-        name: 'averageCustomEvent:effectiveHps',
+        name: 'customEvent:effectiveHps',
       },
       {
-        name: 'averageCustomEvent:burstDps',
+        name: 'customEvent:burstDps',
       },
     ],
     dimensionFilter: {
@@ -265,14 +275,24 @@ async function generateCompStatsAsync() {
       return;
     }
 
+    const effectiveDps =
+      Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0) /
+      (parseInt(row.metricValues[0].value as string) ?? 1);
+    const effectiveHps =
+      Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0) /
+      (parseInt(row.metricValues[0].value as string) ?? 1);
+    const burstDps =
+      Math.abs(parseFloat(row.metricValues[3].value as string) ?? 0) /
+      (parseInt(row.metricValues[0].value as string) ?? 1);
+
     const newEntry = {
       [bracket]: {
         [specs]: {
           [result]: {
             matches: parseInt(row.metricValues[0].value as string) ?? 0,
-            effectiveDps: Math.abs(parseFloat(row.metricValues[1].value as string) ?? 0),
-            effectiveHps: Math.abs(parseFloat(row.metricValues[2].value as string) ?? 0),
-            burstDps: Math.abs(parseFloat(row.metricValues[3].value as string) ?? 0),
+            effectiveDps,
+            effectiveHps,
+            burstDps,
           },
         },
       },
@@ -284,7 +304,7 @@ async function generateCompStatsAsync() {
     property: 'properties/259314484',
     dateRanges: [
       {
-        startDate: `${(LOOKBACK_DAYS + 1).toFixed()}daysAgo`,
+        startDate: `${LOOKBACK_DAYS.toFixed()}daysAgo`,
         endDate: 'yesterday',
       },
     ],
