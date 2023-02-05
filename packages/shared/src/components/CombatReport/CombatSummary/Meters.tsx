@@ -1,3 +1,4 @@
+import { getEffectiveCombatDuration } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -37,7 +38,7 @@ export const Meters = () => {
     ? _.sumBy(friends, (u) => Utils.getAverageItemLevel(u)) / friends.length
     : 0;
   const iLvlAdvantage = friendsAvgItemLevel - enemyAvgItemLevel;
-  const effectiveDuration = Utils.getEffectiveCombatDuration(combat);
+  const effectiveDuration = getEffectiveCombatDuration(combat);
   const latestDampening = getDampeningPercentage(combat.startInfo.bracket, players, combat.endTime);
 
   return (

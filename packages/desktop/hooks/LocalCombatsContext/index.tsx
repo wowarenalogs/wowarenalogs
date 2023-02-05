@@ -4,9 +4,12 @@ import {
   CombatResult,
   CombatUnitSpec,
   CombatUnitType,
+  getBurstDps,
+  getEffectiveCombatDuration,
+  getEffectiveDps,
+  getEffectiveHps,
 } from '@wowarenalogs/parser';
 import { logAnalyticsEvent, uploadCombatAsync, useAuth } from '@wowarenalogs/shared';
-import { Utils } from '@wowarenalogs/shared/src/utils/utils';
 import _ from 'lodash';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
@@ -59,7 +62,7 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     (r) => r.deathRecord.timestamp,
   );
   const firstBloodUnitId = allPlayerDeath[0]?.unit.id;
-  const effectiveDuration = Utils.getEffectiveCombatDuration(combat);
+  const effectiveDuration = getEffectiveCombatDuration(combat);
 
   // google analytics limitations:
   // - event names can be up to 40 characters long
@@ -100,9 +103,9 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
 
   ['0', '1'].forEach((teamId) => {
     const teamPlayers = players.filter((u) => u.info?.teamId === teamId);
-    const burstDps = Utils.getBurstDps(teamPlayers);
-    const effectiveDps = Utils.getEffectiveDps(teamPlayers, effectiveDuration);
-    const effectiveHps = Utils.getEffectiveHps(teamPlayers, effectiveDuration);
+    const burstDps = getBurstDps(teamPlayers);
+    const effectiveDps = getEffectiveDps(teamPlayers, effectiveDuration);
+    const effectiveHps = getEffectiveHps(teamPlayers, effectiveDuration);
 
     const killTargetSpec = teamPlayers.find((p) => p.id === firstBloodUnitId)?.spec ?? '';
 
@@ -120,9 +123,9 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
   });
 
   players.forEach((p) => {
-    const burstDps = Utils.getBurstDps([p]);
-    const effectiveDps = Utils.getEffectiveDps([p], effectiveDuration);
-    const effectiveHps = Utils.getEffectiveHps([p], effectiveDuration);
+    const burstDps = getBurstDps([p]);
+    const effectiveDps = getEffectiveDps([p], effectiveDuration);
+    const effectiveHps = getEffectiveHps([p], effectiveDuration);
     const isKillTarget = p.id === firstBloodUnitId;
 
     logAnalyticsEvent('event_NewPlayerRecord', {
