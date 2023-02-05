@@ -53,7 +53,11 @@ export async function handler(file: any, _context: any) {
     const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
     console.log(`writing ${matchStubsFirestore}/${stub.id}`);
     await document.set(instanceToPlain(stub));
-    await logCombatStatsAsync(arenaMatch, stub);
+    try {
+      await logCombatStatsAsync(arenaMatch, stub);
+    } catch (e) {
+      console.error(e);
+    }
     return;
   }
 
@@ -64,7 +68,11 @@ export async function handler(file: any, _context: any) {
       console.log(`processing stub ${stub.id}`);
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
       await document.set(instanceToPlain(stub));
-      await logCombatStatsAsync(round, stub);
+      try {
+        await logCombatStatsAsync(round, stub);
+      } catch (e) {
+        console.error(e);
+      }
     });
     return;
   }
