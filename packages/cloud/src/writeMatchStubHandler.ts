@@ -53,22 +53,18 @@ export async function handler(file: any, _context: any) {
     const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
     console.log(`writing ${matchStubsFirestore}/${stub.id}`);
     await document.set(instanceToPlain(stub));
-    await logCombatStatsAsync(arenaMatch);
+    await logCombatStatsAsync(arenaMatch, stub);
     return;
   }
 
   if (parseResults.shuffleMatches.length > 0) {
     const shuffleMatch = parseResults.shuffleMatches[0];
     const stubs = createStubDTOFromShuffleMatch(shuffleMatch, ownerId, logObjectUrl);
-    stubs.forEach(async (stub) => {
+    stubs.forEach(async ([stub, round]) => {
       console.log(`processing stub ${stub.id}`);
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
       await document.set(instanceToPlain(stub));
-    });
-    shuffleMatch.rounds.forEach(async (round) => {
-      round.shuffleMatchEndInfo = shuffleMatch.endInfo;
-      round.shuffleMatchResult = shuffleMatch.result;
-      await logCombatStatsAsync(round);
+      await logCombatStatsAsync(round, stub);
     });
     return;
   }

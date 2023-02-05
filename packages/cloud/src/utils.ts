@@ -14,6 +14,7 @@ import {
   WoWCombatLogParser,
   WowVersion,
 } from '../../parser/dist/index';
+import { FirebaseDTO } from './createMatchStub';
 import { CombatStatRecord } from './schema/combat';
 import { SQLDB } from './schema/connection';
 import { PlayerStatRecord } from './schema/player';
@@ -58,15 +59,12 @@ export function parseFromStringArrayAsync(
   });
 }
 
-export const logCombatStatsAsync = async (combat: AtomicArenaCombat) => {
+export const logCombatStatsAsync = async (combat: AtomicArenaCombat, stub: FirebaseDTO) => {
   if (!SQLDB.isInitialized) {
     await SQLDB.initialize();
   }
 
-  const averageMMR =
-    combat.dataType === 'ArenaMatch'
-      ? ((combat.endInfo?.team0MMR || 0) + (combat.endInfo?.team1MMR || 0)) / 2
-      : ((combat.shuffleMatchEndInfo?.team0MMR || 0) + (combat.shuffleMatchEndInfo?.team1MMR || 0)) / 2;
+  const averageMMR = stub.extra.matchAverageMMR;
   const players = _.values(combat.units).filter((u) => u.type === CombatUnitType.Player);
   const team0specs = players
     .filter((u) => u.info?.teamId === '0')
