@@ -6,7 +6,7 @@ import path from 'path';
 
 import { WowVersion } from '../../parser/dist/index';
 import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from './createMatchStub';
-import { parseFromStringArrayAsync } from './utils';
+import { logCombatStatsAsync, parseFromStringArrayAsync } from './utils';
 
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
 
@@ -53,16 +53,18 @@ export async function handler(file: any, _context: any) {
     const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
     console.log(`writing ${matchStubsFirestore}/${stub.id}`);
     await document.set(instanceToPlain(stub));
+    await logCombatStatsAsync(arenaMatch, stub);
     return;
   }
 
   if (parseResults.shuffleMatches.length > 0) {
     const shuffleMatch = parseResults.shuffleMatches[0];
     const stubs = createStubDTOFromShuffleMatch(shuffleMatch, ownerId, logObjectUrl);
-    stubs.forEach(async (stub) => {
+    stubs.forEach(async ([stub, round]) => {
       console.log(`processing stub ${stub.id}`);
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
       await document.set(instanceToPlain(stub));
+      await logCombatStatsAsync(round, stub);
     });
     return;
   }

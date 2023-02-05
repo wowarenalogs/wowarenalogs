@@ -1,5 +1,4 @@
 import {
-  AtomicArenaCombat,
   CombatUnitClass,
   CombatUnitSpec,
   IArenaMatch,
@@ -136,48 +135,5 @@ export class Utils {
     }
 
     return `${(num / 1000).toFixed()}k${isCritical ? criticalMarker : ''}`;
-  }
-
-  public static getEffectiveCombatDuration(combat: AtomicArenaCombat) {
-    const damageEvents = combat.events.filter((e) => e.logLine.event.endsWith('_DAMAGE'));
-    const effectiveStartTime = damageEvents.length > 0 ? damageEvents[0].logLine.timestamp : combat.startTime;
-    const effectiveEndTime =
-      damageEvents.length > 0 ? damageEvents[damageEvents.length - 1].logLine.timestamp : combat.endTime;
-    return (effectiveEndTime - effectiveStartTime) / 1000;
-  }
-
-  public static getEffectiveDps(units: ICombatUnit[], effectiveDuration: number) {
-    return _.sum(units.map((p) => _.sum(p.damageOut.map((d) => Math.abs(d.effectiveAmount))))) / effectiveDuration;
-  }
-
-  public static getBurstDps(units: ICombatUnit[], burstWindow = 3000) {
-    const allDamageOut = _.sortBy(
-      units.flatMap((p) => p.damageOut),
-      (d) => d.timestamp,
-    );
-
-    let l = 0;
-    let r = 0;
-    let burstDps = 0;
-    while (r < allDamageOut.length) {
-      while (r < allDamageOut.length && allDamageOut[r].timestamp - allDamageOut[l].timestamp <= burstWindow) {
-        r++;
-      }
-      const eventsInWindow = allDamageOut.slice(l, r);
-      const totalDamageInWindow = _.sum(eventsInWindow.map((d) => Math.abs(d.effectiveAmount)));
-      burstDps = Math.max(burstDps, totalDamageInWindow / (burstWindow / 1000));
-      l++;
-    }
-    return burstDps;
-  }
-
-  public static getEffectiveHps(units: ICombatUnit[], effectiveDuration: number) {
-    return (
-      _.sum(
-        units.map(
-          (p) => _.sum(p.healOut.map((d) => d.effectiveAmount)) + _.sum(p.absorbsOut.map((d) => d.effectiveAmount)),
-        ),
-      ) / effectiveDuration
-    );
   }
 }
