@@ -18,7 +18,7 @@ export const SQLDB = new DataSource({
     rejectUnauthorized: process.env.NODE_ENV === 'development' ? false : true,
   },
   synchronize: false,
-  logging: true,
+  logging: false,
   entities: [CombatStatRecord, TeamStatRecord, PlayerStatRecord],
   subscribers: [],
   migrations: [],
