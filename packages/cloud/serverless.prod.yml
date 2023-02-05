@@ -25,6 +25,7 @@ functions:
       ENV_LOG_FILES_BUCKET: ${self:provider.project}-log-files-prod
       ENV_GCP_PROJECT: ${self:provider.project}
       ENV_SERVICE_NAME: ${self:service}
+      ENV_SQL_URL: ${env:ENV_SQL_URL}
     events:
       - event:
           eventType: google.storage.object.finalize
