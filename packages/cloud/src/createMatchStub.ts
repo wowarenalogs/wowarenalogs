@@ -9,6 +9,7 @@ import {
   IArenaCombat,
   IArenaMatch,
   IShuffleMatch,
+  IShuffleRound,
   MMRIndexFields,
   SpecIndexFields,
 } from '../../parser/dist/index';
@@ -61,7 +62,11 @@ function createUnitsList(units: IArenaCombat['units']) {
   });
 }
 
-function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, logObjectUrl: string): FirebaseDTO[] {
+function createStubDTOFromShuffleMatch(
+  match: IShuffleMatch,
+  ownerId: string,
+  logObjectUrl: string,
+): [FirebaseDTO, IShuffleRound][] {
   const rounds = match.rounds;
   const lastRound = rounds[5];
 
@@ -75,37 +80,40 @@ function createStubDTOFromShuffleMatch(match: IShuffleMatch, ownerId: string, lo
   return rounds.map((round) => {
     const roundUnits = createUnitsList(round.units);
 
-    return {
-      dataType: 'ShuffleRound',
-      logObjectUrl,
-      ownerId,
-      wowVersion: round.wowVersion,
-      id: round.id,
-      units: roundUnits,
-      startTime: round.startTime,
-      endTime: round.endTime,
-      playerTeamId: round.playerTeamId,
-      playerTeamRating: lastRound.playerTeamRating,
-      hasAdvancedLogging: round.hasAdvancedLogging,
-      startInfo: round.startInfo,
-      linesNotParsedCount: round.linesNotParsedCount,
-      durationInSeconds: round.durationInSeconds,
-      playerId: round.playerId,
-      winningTeamId: round.winningTeamId,
-      killedUnitId: round.killedUnitId,
-      scoreboard: round.scoreboard,
-      sequenceNumber: round.sequenceNumber,
-      // endInfo: UNDEFINED HERE!
-      result: round.result,
-      extra: { ...buildQueryHelpers(round), ...buildMMRHelpers(round) },
-      combatantNames: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
-      combatantGuids: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
-      expires: Timestamp.fromDate(inThirtyDays.toDate()),
-      shuffleMatchId: match.id,
-      shuffleMatchResult: match.result,
-      shuffleMatchEndInfo: match.endInfo,
-      timezone: round.timezone,
-    };
+    return [
+      {
+        dataType: 'ShuffleRound',
+        logObjectUrl,
+        ownerId,
+        wowVersion: round.wowVersion,
+        id: round.id,
+        units: roundUnits,
+        startTime: round.startTime,
+        endTime: round.endTime,
+        playerTeamId: round.playerTeamId,
+        playerTeamRating: lastRound.playerTeamRating,
+        hasAdvancedLogging: round.hasAdvancedLogging,
+        startInfo: round.startInfo,
+        linesNotParsedCount: round.linesNotParsedCount,
+        durationInSeconds: round.durationInSeconds,
+        playerId: round.playerId,
+        winningTeamId: round.winningTeamId,
+        killedUnitId: round.killedUnitId,
+        scoreboard: round.scoreboard,
+        sequenceNumber: round.sequenceNumber,
+        // endInfo: UNDEFINED HERE!
+        result: round.result,
+        extra: { ...buildQueryHelpers(round), ...buildMMRHelpers(round) },
+        combatantNames: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
+        combatantGuids: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
+        expires: Timestamp.fromDate(inThirtyDays.toDate()),
+        shuffleMatchId: match.id,
+        shuffleMatchResult: match.result,
+        shuffleMatchEndInfo: match.endInfo,
+        timezone: round.timezone,
+      },
+      round,
+    ];
   });
 }
 
