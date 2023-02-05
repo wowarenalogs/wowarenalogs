@@ -21,7 +21,7 @@ const bucket = storage.bucket(isDev ? 'data.public-dev.wowarenalogs.com' : 'data
 
 const ALLOWED_BRACKETS = new Set<string>(['2v2', '3v3', 'Rated Solo Shuffle']);
 const STATS_SCHEMA_VERSION = 3;
-const LOOKBACK_DAYS = 7;
+const LOOKBACK_DAYS = 14;
 
 async function generateSpecStatsAsync() {
   console.log('generating spec stats...');
