@@ -1,3 +1,4 @@
+import { PrismaClient } from '@prisma/client';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -15,10 +16,6 @@ import {
   WowVersion,
 } from '../../parser/dist/index';
 import { FirebaseDTO } from './createMatchStub';
-import { CombatStatRecord } from './schema/combat';
-import { SQLDB } from './schema/connection';
-import { PlayerStatRecord } from './schema/player';
-import { TeamStatRecord } from './schema/team';
 
 type ParseResult = {
   arenaMatches: IArenaMatch[];
@@ -60,9 +57,7 @@ export function parseFromStringArrayAsync(
 }
 
 export const logCombatStatsAsync = async (combat: AtomicArenaCombat, stub: FirebaseDTO) => {
-  if (!SQLDB.isInitialized) {
-    await SQLDB.initialize();
-  }
+  const prisma = new PrismaClient();
 
   const averageMMR = stub.extra.matchAverageMMR;
   const players = _.values(combat.units).filter((u) => u.type === CombatUnitType.Player);
@@ -91,54 +86,59 @@ export const logCombatStatsAsync = async (combat: AtomicArenaCombat, stub: Fireb
   const firstBloodUnitId = allPlayerDeath[0]?.unit.id;
   const effectiveDuration = getEffectiveCombatDuration(combat);
 
-  const combatStatRecord = new CombatStatRecord();
-  combatStatRecord.combatId = combat.id;
-  combatStatRecord.date = moment(combat.startTime).format('YYYY-MM-DD');
-  combatStatRecord.bracket = combat.startInfo.bracket;
-  combatStatRecord.zoneId = combat.startInfo.zoneId;
-  combatStatRecord.durationInSeconds = combat.durationInSeconds;
-  combatStatRecord.effectiveDurationInSeconds = effectiveDuration;
-  combatStatRecord.averageMMR = averageMMR;
-  combatStatRecord.logOwnerUnitId = combat.playerId;
-  combatStatRecord.logOwnerTeamId = parseInt(combat.playerTeamId);
-  combatStatRecord.logOwnerResult = combat.result;
-  combatStatRecord.winningTeamId = parseInt(combat.winningTeamId);
-  combatStatRecord.teamRecords = ['0', '1'].map((teamId) => {
-    const teamPlayers = players.filter((u) => u.info?.teamId === teamId);
-    const burstDps = getBurstDps(teamPlayers);
-    const effectiveDps = getEffectiveDps(teamPlayers, effectiveDuration);
-    const effectiveHps = getEffectiveHps(teamPlayers, effectiveDuration);
+  await prisma.combatStatRecord.create({
+    data: {
+      combatId: combat.id,
+      date: moment(combat.startTime).format('YYYY-MM-DD'),
+      bracket: combat.startInfo.bracket,
+      zoneId: combat.startInfo.zoneId,
+      durationInSeconds: combat.durationInSeconds,
+      effectiveDurationInSeconds: effectiveDuration,
+      averageMMR: averageMMR,
+      logOwnerUnitId: combat.playerId,
+      logOwnerTeamId: parseInt(combat.playerTeamId),
+      logOwnerResult: combat.result,
+      winningTeamId: parseInt(combat.winningTeamId),
+      teamRecords: {
+        create: ['0', '1'].map((teamId) => {
+          const teamPlayers = players.filter((u) => u.info?.teamId === teamId);
+          const burstDps = getBurstDps(teamPlayers);
+          const effectiveDps = getEffectiveDps(teamPlayers, effectiveDuration);
+          const effectiveHps = getEffectiveHps(teamPlayers, effectiveDuration);
 
-    const killTargetSpec = teamPlayers.find((p) => p.id === firstBloodUnitId)?.spec ?? CombatUnitSpec.None;
+          const killTargetSpec = teamPlayers.find((p) => p.id === firstBloodUnitId)?.spec ?? CombatUnitSpec.None;
 
-    const teamRecord = new TeamStatRecord();
-    teamRecord.specs = teamSpecs[parseInt(teamId)];
-    teamRecord.teamId = parseInt(teamId);
-    teamRecord.burstDps = burstDps;
-    teamRecord.effectiveDps = effectiveDps;
-    teamRecord.effectiveHps = effectiveHps;
-    teamRecord.killTargetSpec = killTargetSpec;
-    teamRecord.playerRecords = teamPlayers.map((p) => {
-      const burstDps = getBurstDps([p]);
-      const effectiveDps = getEffectiveDps([p], effectiveDuration);
-      const effectiveHps = getEffectiveHps([p], effectiveDuration);
-      const isKillTarget = p.id === firstBloodUnitId;
+          return {
+            specs: teamSpecs[parseInt(teamId)],
+            teamId: parseInt(teamId),
+            burstDps: burstDps,
+            effectiveDps: effectiveDps,
+            effectiveHps: effectiveHps,
+            killTargetSpec: killTargetSpec,
+            playerRecords: {
+              create: teamPlayers.map((p) => {
+                const burstDps = getBurstDps([p]);
+                const effectiveDps = getEffectiveDps([p], effectiveDuration);
+                const effectiveHps = getEffectiveHps([p], effectiveDuration);
+                const isKillTarget = p.id === firstBloodUnitId;
 
-      const playerRecord = new PlayerStatRecord();
-      playerRecord.unitId = p.id;
-      playerRecord.name = p.name;
-      playerRecord.rating = p.info?.personalRating ?? 0;
-      playerRecord.spec = p.spec;
-      playerRecord.burstDps = burstDps;
-      playerRecord.effectiveDps = effectiveDps;
-      playerRecord.effectiveHps = effectiveHps;
-      playerRecord.isKillTarget = isKillTarget;
-
-      return playerRecord;
-    });
-
-    return teamRecord;
+                return {
+                  unitId: p.id,
+                  name: p.name,
+                  rating: p.info?.personalRating ?? 0,
+                  spec: p.spec,
+                  burstDps: burstDps,
+                  effectiveDps: effectiveDps,
+                  effectiveHps: effectiveHps,
+                  isKillTarget: isKillTarget,
+                };
+              }),
+            },
+          };
+        }),
+      },
+    },
   });
 
-  await SQLDB.manager.save(combatStatRecord);
+  prisma.$disconnect();
 };
