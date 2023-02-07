@@ -41,6 +41,7 @@ export const DesktopLayout = !window.wowarenalogs
                 dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
                 integrations: [new Integrations.BrowserTracing()],
                 tracesSampleRate: 1.0,
+                ignoreErrors: ['Non-Error promise rejection captured'],
               });
               const userId = getAnalyticsDeviceId();
               if (userId) {
