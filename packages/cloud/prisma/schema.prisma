@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("ENV_SQL_URL")
+}
+
+model CombatStatRecord {
+  combatId                   String @id @db.String(64)
+  date                       String @db.Char(10)
+  bracket                    String @db.String(32)
+  zoneId                     String @db.String(16)
+  durationInSeconds          Float
+  effectiveDurationInSeconds Float
+  averageMMR                 Float
+  logOwnerResult             Int    @db.Int2
+  logOwnerUnitId             String @db.String(64)
+  logOwnerTeamId             Int    @db.Int2
+  winningTeamId              Int    @db.Int2
+
+  teamRecords TeamStatRecord[]
+}
+
+model TeamStatRecord {
+  rowId          BigInt @id @default(autoincrement())
+  specs          String @db.String(32)
+  teamId         Int    @db.Int2
+  burstDps       Float
+  effectiveDps   Float
+  effectiveHps   Float
+  killTargetSpec String @db.String(8)
+
+  combatId     String           @db.String(64)
+  combatRecord CombatStatRecord @relation(fields: [combatId], references: [combatId])
+
+  playerRecords PlayerStatRecord[]
+}
+
+model PlayerStatRecord {
+  rowId        BigInt  @id @default(autoincrement())
+  unitId       String  @db.String(64)
+  name         String  @db.String(64)
+  rating       Int     @db.Int2
+  spec         String  @db.String(8)
+  burstDps     Float
+  effectiveDps Float
+  effectiveHps Float
+  isKillTarget Boolean
+
+  teamId     BigInt
+  teamRecord TeamStatRecord @relation(fields: [teamId], references: [rowId])
+}
