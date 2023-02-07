@@ -1,5 +1,6 @@
 import { AtomicArenaCombat, CombatHpUpdateAction, ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
+import moment from 'moment';
 import React from 'react';
 import { FaSkullCrossbones } from 'react-icons/fa';
 
@@ -98,9 +99,14 @@ const generateHpUpdateColumn = (
   );
 };
 
-const generateHpColumn = (unit: ICombatUnit, hpBySecondMark: _.Dictionary<number>): React.ReactElement[] => {
+const generateHpColumn = (
+  unit: ICombatUnit,
+  hpBySecondMark: _.Dictionary<number>,
+  combatEndTime: number,
+): React.ReactElement[] => {
   const max = _.max(unit.advancedActions.map((a) => a.advancedActorMaxHp)) ?? 1;
   return _.map(hpBySecondMark, (hp, secondMark) => {
+    const absoluteTime = combatEndTime - parseInt(secondMark) * 1000;
     return (
       <div
         key={secondMark}
@@ -118,7 +124,9 @@ const generateHpColumn = (unit: ICombatUnit, hpBySecondMark: _.Dictionary<number
           </div>
         ) : (
           <>
-            <div className="opacity-50">-{secondMark}s</div>
+            <div className="tooltip tooltip-left" data-tip={moment.utc(absoluteTime).format('mm:ss')}>
+              <div className="opacity-50">-{secondMark}s</div>
+            </div>
             <div>{hp / max >= 0.99 ? null : ((hp * 100) / max).toFixed(0) + '%'}</div>
           </>
         )}
@@ -127,8 +135,9 @@ const generateHpColumn = (unit: ICombatUnit, hpBySecondMark: _.Dictionary<number
   });
 };
 
-const generateTimeMarksColumn = (secondMarks: string[]): React.ReactElement[] => {
+const generateTimeMarksColumn = (secondMarks: string[], combatEndTime: number): React.ReactElement[] => {
   return _.map(secondMarks, (secondMark) => {
+    const absoluteTime = combatEndTime - parseInt(secondMark) * 1000;
     return (
       <div
         key={secondMark}
@@ -143,7 +152,9 @@ const generateTimeMarksColumn = (secondMarks: string[]): React.ReactElement[] =>
             <FaSkullCrossbones />
           </div>
         ) : (
-          <div className="opacity-50">-{secondMark}s</div>
+          <div className="opacity-50" title={moment.utc(absoluteTime).format('mm:ss')}>
+            -{secondMark}s
+          </div>
         )}
       </div>
     );
@@ -241,8 +252,8 @@ export const CombatUnitTimelineView = (props: IProps) => {
           }}
         >
           {combat.hasAdvancedLogging
-            ? generateHpColumn(props.unit, hpBySecondMark)
-            : generateTimeMarksColumn(secondMarks)}
+            ? generateHpColumn(props.unit, hpBySecondMark, props.endTime - combat.startTime)
+            : generateTimeMarksColumn(secondMarks, props.endTime - combat.startTime)}
         </div>
         <div className="divider divider-horizontal mx-1" />
         {generateHpUpdateColumn(
