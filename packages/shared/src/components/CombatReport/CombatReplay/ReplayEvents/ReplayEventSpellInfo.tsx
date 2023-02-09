@@ -86,7 +86,7 @@ export function ReplayEventSpellInfo(props: IProps) {
         <SpellIcon spellId={props.event.spellId || '0'} size={24} />
       </div>
       {props.expanded && <div className="ml-0.5">{props.event.spellName}</div>}
-      {srcUnit.id !== destUnit.id || props.direction !== 'right' || props.expanded ? (
+      {srcUnit?.id !== destUnit?.id || props.direction !== 'right' || props.expanded ? (
         <>
           {props.expanded && (
             <div className="mx-0.5">
