@@ -40,14 +40,25 @@ async function generateSpecStatsAsync(bracket: string, ratingRange: [number, num
   const startDate = moment().subtract(LOOKBACK_DAYS, 'days').format('YYYY-MM-DD');
   const endDate = moment().subtract(1, 'days').format('YYYY-MM-DD');
 
-  const resultRows = await prisma.$queryRaw<PlayerStatRecord[]>`
+  const resultRows = await prisma.$queryRaw<
+    {
+      date: string;
+      spec: string;
+      result: 'win' | 'lose';
+      effectiveDps: number;
+      effectiveHps: number;
+      isKillTarget: number;
+      burstDps: number;
+      matches: number;
+    }[]
+  >`
     SELECT 
       c.date,
       p.spec,
       IF(t."teamId" = c."winningTeamId", 'win', 'lose') AS result,
       AVG(p."effectiveDps") AS "effectiveDps",
       AVG(p."effectiveHps") AS "effectiveHps",
-      AVG(IF(p."isKillTarget", 1.0, 0.0)) AS "isKillTarget",
+      CAST(AVG(IF(p."isKillTarget", 1.0, 0.0)) AS FLOAT) AS "isKillTarget",
       AVG(p."burstDps") AS "burstDps",
       CAST(COUNT(1) AS INT4) AS "matches"
     FROM public."PlayerStatRecord" p
