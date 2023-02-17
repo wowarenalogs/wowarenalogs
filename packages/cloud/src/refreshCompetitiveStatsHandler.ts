@@ -80,13 +80,13 @@ async function generateSpecStatsAsync(bracket: string, ratingRange: [number, num
   const content = JSON.stringify(resultRows, null, 2);
   await bucket
     .file(
-      `data/spec-stats/${bracket}/${ratingRange[0]}-${ratingRange[1]}.v${STATS_SCHEMA_VERSION.toFixed()}.latest.json`,
+      `data/spec-stats/${bracket}/${ratingRange[0]}-${ratingRange[1]}/v${STATS_SCHEMA_VERSION.toFixed()}.latest.json`,
     )
     .save(content, {
       contentType: 'application/json',
     });
   await bucket
-    .file(`data/spec-stats/${bracket}/${ratingRange[0]}-${ratingRange[1]}.${moment().format('YYYY-MM-DD')}.json`)
+    .file(`data/spec-stats/${bracket}/${ratingRange[0]}-${ratingRange[1]}/${moment().format('YYYY-MM-DD')}.json`)
     .save(content, {
       contentType: 'application/json',
     });
