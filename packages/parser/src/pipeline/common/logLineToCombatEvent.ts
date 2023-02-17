@@ -11,6 +11,7 @@ import { CombatExtraSpellAction } from '../../actions/CombatExtraSpellAction';
 import { CombatHpUpdateAction } from '../../actions/CombatHpUpdateAction';
 import { PartyKill } from '../../actions/PartyKill';
 import { SpellAuraBrokenSpell } from '../../actions/SpellAuraBrokenSpell';
+import { ZoneChange } from '../../actions/ZoneChange';
 import { logInfo } from '../../logger';
 import { CombatEvent, ILogLine, LogEvent, WowVersion } from '../../types';
 
@@ -69,6 +70,8 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
             return new CombatAdvancedAction(logLine, wowVersion);
           case LogEvent.PARTY_KILL:
             return new PartyKill(logLine);
+          case LogEvent.ZONE_CHANGE:
+            return new ZoneChange(logLine);
           default:
             return logLine.raw;
         }
