@@ -88,20 +88,52 @@ export default function SpecStats(props: {
       (rows, spec) => {
         const winRows = rows.filter((row) => row.result === 'win');
         const loseRows = rows.filter((row) => row.result === 'lose');
-        const win = {
-          matches: _.sum(winRows.map((row) => row.matches)),
-          burstDps: _.sum(winRows.map((row) => row.burstDps)),
-          effectiveDps: _.sum(winRows.map((row) => row.effectiveDps)),
-          effectiveHps: _.sum(winRows.map((row) => row.effectiveHps)),
-          isKillTarget: _.sum(winRows.map((row) => row.isKillTarget)),
-        };
-        const lose = {
-          matches: _.sum(loseRows.map((row) => row.matches)),
-          burstDps: _.sum(loseRows.map((row) => row.burstDps)),
-          effectiveDps: _.sum(loseRows.map((row) => row.effectiveDps)),
-          effectiveHps: _.sum(loseRows.map((row) => row.effectiveHps)),
-          isKillTarget: _.sum(loseRows.map((row) => row.isKillTarget)),
-        };
+        const win =
+          winRows.length === 0
+            ? {
+                matches: 0,
+                burstDps: 0,
+                effectiveDps: 0,
+                effectiveHps: 0,
+                isKillTarget: 0,
+              }
+            : {
+                matches: _.sum(winRows.map((row) => row.matches)),
+                burstDps:
+                  _.sum(winRows.map((row) => row.burstDps * row.matches)) / _.sum(winRows.map((row) => row.matches)),
+                effectiveDps:
+                  _.sum(winRows.map((row) => row.effectiveDps * row.matches)) /
+                  _.sum(winRows.map((row) => row.matches)),
+                effectiveHps:
+                  _.sum(winRows.map((row) => row.effectiveHps * row.matches)) /
+                  _.sum(winRows.map((row) => row.matches)),
+                isKillTarget:
+                  _.sum(winRows.map((row) => row.isKillTarget * row.matches)) /
+                  _.sum(winRows.map((row) => row.matches)),
+              };
+        const lose =
+          loseRows.length === 0
+            ? {
+                matches: 0,
+                burstDps: 0,
+                effectiveDps: 0,
+                effectiveHps: 0,
+                isKillTarget: 0,
+              }
+            : {
+                matches: _.sum(loseRows.map((row) => row.matches)),
+                burstDps:
+                  _.sum(loseRows.map((row) => row.burstDps * row.matches)) / _.sum(loseRows.map((row) => row.matches)),
+                effectiveDps:
+                  _.sum(loseRows.map((row) => row.effectiveDps * row.matches)) /
+                  _.sum(loseRows.map((row) => row.matches)),
+                effectiveHps:
+                  _.sum(loseRows.map((row) => row.effectiveHps * row.matches)) /
+                  _.sum(loseRows.map((row) => row.matches)),
+                isKillTarget:
+                  _.sum(loseRows.map((row) => row.isKillTarget * row.matches)) /
+                  _.sum(loseRows.map((row) => row.matches)),
+              };
 
         return {
           spec: spec as CombatUnitSpec,
@@ -110,7 +142,7 @@ export default function SpecStats(props: {
           burst: win.burstDps,
           dps: (win.effectiveDps * win.matches + lose.effectiveDps * lose.matches) / (win.matches + lose.matches),
           hps: (win.effectiveHps * win.matches + lose.effectiveHps * lose.matches) / (win.matches + lose.matches),
-          target: win.isKillTarget / (win.matches + lose.matches),
+          target: lose.isKillTarget,
           total: win.matches + lose.matches,
           winRate: win.matches / (win.matches + lose.matches),
         };
