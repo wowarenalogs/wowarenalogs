@@ -55,11 +55,15 @@ export default function SpecStats(props: {
   const sortKey = SUPPORTED_SORT_KEYS.has(props.sortKey) ? props.sortKey : 'total';
   const setSortKey = useCallback(
     (key: string) => {
-      router.push(`/stats?tab=spec-stats&bracket=${props.activeBracket}&sortKey=${key}`, undefined, {
-        shallow: true,
-      });
+      router.push(
+        `/stats?tab=spec-stats&bracket=${props.activeBracket}&sortKey=${key}&minRating=${props.minRating}&maxRating=${props.maxRating}`,
+        undefined,
+        {
+          shallow: true,
+        },
+      );
     },
-    [props.activeBracket, router],
+    [props.activeBracket, props.minRating, props.maxRating, router],
   );
 
   if (specStatsQuery.isLoading) {
