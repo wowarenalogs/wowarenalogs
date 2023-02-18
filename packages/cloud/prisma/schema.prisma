@@ -24,6 +24,8 @@ model CombatStatRecord {
   winningTeamId              Int    @db.Int2
 
   teamRecords TeamStatRecord[]
+
+  @@index([date, bracket], name: "date_bracket")
 }
 
 model TeamStatRecord {
