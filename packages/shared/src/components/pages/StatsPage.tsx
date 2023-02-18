@@ -26,7 +26,7 @@ const printRatingRange = (min: number, max: number) => {
 export const StatsPage = () => {
   const router = useRouter();
 
-  const bracket = (router.query.bracket as string) ?? '2v2';
+  const bracket = (router.query.bracket as string) ?? 'Rated Solo Shuffle';
   const tab = (router.query.tab as string) ?? 'spec-stats';
   const sortKey = (router.query.sortKey as string) ?? 'total';
   const minRating = parseInt((router.query.minRating as string) ?? '0');
