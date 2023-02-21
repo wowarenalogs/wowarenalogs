@@ -45,7 +45,13 @@ function TitleBar() {
         <button
           className="btn btn-ghost btn-square btn-sm"
           onClick={async () => {
-            flushSync(() => window.wowarenalogs.app?.quit());
+            flushSync(() => {
+              if (window.wowarenalogs.win?.hideToSystemTray) {
+                window.wowarenalogs.win.hideToSystemTray();
+              } else {
+                window.wowarenalogs.app?.quit();
+              }
+            });
           }}
         >
           <FiX size="16" />
