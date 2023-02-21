@@ -29,6 +29,7 @@ export type INativeBridge = {
     maximize: (maximize?: boolean) => Promise<void>;
     isMinimized: () => Promise<boolean>;
     isMaximized: () => Promise<boolean>;
+    hideToSystemTray?: () => Promise<void>;
   };
   app?: {
     quit: () => Promise<void>;
