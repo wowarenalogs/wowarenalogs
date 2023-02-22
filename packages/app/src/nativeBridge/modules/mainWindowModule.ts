@@ -1,9 +1,12 @@
-import { BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu, Tray } from 'electron';
+import path from 'path';
 
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
 
 @nativeBridgeModule('win')
 export class MainWindowModule extends NativeBridgeModule {
+  private trayIcon: Tray | null = null;
+
   @moduleFunction()
   public async isMaximized(mainWindow: BrowserWindow): Promise<boolean> {
     return mainWindow.isMaximized();
@@ -30,6 +33,11 @@ export class MainWindowModule extends NativeBridgeModule {
     } else {
       mainWindow.unmaximize();
     }
+  }
+
+  @moduleFunction()
+  public async hideToSystemTray(mainWindow: BrowserWindow): Promise<void> {
+    mainWindow.hide();
   }
 
   @moduleFunction()
@@ -61,6 +69,31 @@ export class MainWindowModule extends NativeBridgeModule {
       const [x, y] = mainWindow.getPosition();
       this.onWindowMoved(mainWindow, x, y);
     });
+
+    try {
+      this.trayIcon = new Tray(path.resolve(__dirname, 'assets/icon.ico'));
+      const trayMenu = Menu.buildFromTemplate([
+        {
+          label: 'Show',
+          click: () => {
+            mainWindow.show();
+          },
+        },
+        {
+          label: 'Quit',
+          click: () => {
+            app.quit();
+          },
+        },
+      ]);
+      this.trayIcon.setContextMenu(trayMenu);
+      this.trayIcon.setToolTip('WoW Arena Logs');
+      this.trayIcon.on('click', () => {
+        mainWindow.show();
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   @moduleEvent('on')

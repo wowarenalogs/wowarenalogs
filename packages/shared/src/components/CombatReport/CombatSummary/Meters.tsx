@@ -1,3 +1,4 @@
+import { getEffectiveCombatDuration } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -37,7 +38,7 @@ export const Meters = () => {
     ? _.sumBy(friends, (u) => Utils.getAverageItemLevel(u)) / friends.length
     : 0;
   const iLvlAdvantage = friendsAvgItemLevel - enemyAvgItemLevel;
-  const effectiveDuration = Utils.getEffectiveCombatDuration(combat);
+  const effectiveDuration = getEffectiveCombatDuration(combat);
   const latestDampening = getDampeningPercentage(combat.startInfo.bracket, players, combat.endTime);
 
   return (
@@ -122,7 +123,7 @@ export const Meters = () => {
                 </td>
                 <td className="bg-base-200">
                   <progress
-                    className="progress w-24 progress-error"
+                    className="progress w-20 progress-error"
                     value={Math.floor(((playerTotalDamageOut.get(u.id) || 0) * 100) / maxDam)}
                     max={100}
                   />
@@ -145,7 +146,7 @@ export const Meters = () => {
                 </td>
                 <td className="bg-base-200">
                   <progress
-                    className="progress w-24 progress-success"
+                    className="progress w-20 progress-success"
                     value={Math.floor(((playerTotalHealOut.get(u.id) || 0) * 100) / maxHeal)}
                     max={100}
                   />

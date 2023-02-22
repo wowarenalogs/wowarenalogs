@@ -1,6 +1,8 @@
 import { AtomicArenaCombat, CombatHpUpdateAction, ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
+import moment from 'moment';
 import React from 'react';
+import { FaSkullCrossbones } from 'react-icons/fa';
 
 import { SIGNIFICANT_DAMAGE_HEAL_THRESHOLD, Utils } from '../../../utils/utils';
 import { SpecImage } from '../../common/SpecImage';
@@ -55,6 +57,14 @@ const generateHpUpdateColumn = (
       <div className="flex-1 relative">
         {_.map(actionGroupsBySecondMark, (group, secondMark) => {
           const groupTotal = _.sumBy(group, (action) => Math.abs(action.effectiveAmount));
+          const actionGroups = _.groupBy(group, (action) =>
+            JSON.stringify({
+              srcUnitId: action.srcUnitId,
+              destUnitId: action.destUnitId,
+              spellId: action.spellId,
+              spellName: action.spellName,
+            }),
+          );
           return (
             <div
               key={secondMark}
@@ -68,10 +78,13 @@ const generateHpUpdateColumn = (
                 height: REPORT_TIMELINE_HEIGHT_PER_SECOND,
               }}
             >
-              {group.map((action) => (
+              {_.map(actionGroups, (actions, key) => (
                 <CombatUnitHpUpdate
-                  key={action.logLine.id}
-                  action={action}
+                  key={key}
+                  actionGroup={{
+                    ...JSON.parse(key),
+                    actions,
+                  }}
                   unit={unit}
                   combat={combat}
                   groupTotal={groupTotal}
@@ -86,35 +99,77 @@ const generateHpUpdateColumn = (
   );
 };
 
-const generateHpColumn = (unit: ICombatUnit, hpBySecondMark: _.Dictionary<number>): React.ReactElement[] => {
+const generateHpColumn = (
+  unit: ICombatUnit,
+  hpBySecondMark: _.Dictionary<number>,
+  combatEndTime: number,
+): React.ReactElement[] => {
   const max = _.max(unit.advancedActions.map((a) => a.advancedActorMaxHp)) ?? 1;
   return _.map(hpBySecondMark, (hp, secondMark) => {
+    const absoluteTime = combatEndTime - parseInt(secondMark) * 1000;
     return (
       <div
         key={secondMark}
-        className="flex flex-row w-8 absolute justify-center items-center"
+        className={`flex flex-row w-16 absolute items-center ${
+          secondMark === '0' ? 'justify-center' : 'justify-between'
+        }`}
         style={{
           top: parseInt(secondMark, 10) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
           height: REPORT_TIMELINE_HEIGHT_PER_SECOND,
         }}
       >
-        {hp / max >= 0.99 ? null : ((hp * 100) / max).toFixed(0) + '%'}
+        {secondMark === '0' ? (
+          <div>
+            <FaSkullCrossbones />
+          </div>
+        ) : (
+          <>
+            <div className="tooltip tooltip-left" data-tip={moment.utc(absoluteTime).format('mm:ss')}>
+              <div className="opacity-50">-{secondMark}s</div>
+            </div>
+            <div>{hp / max >= 0.99 ? null : ((hp * 100) / max).toFixed(0) + '%'}</div>
+          </>
+        )}
       </div>
     );
   });
 };
+
+const generateTimeMarksColumn = (secondMarks: string[], combatEndTime: number): React.ReactElement[] => {
+  return _.map(secondMarks, (secondMark) => {
+    const absoluteTime = combatEndTime - parseInt(secondMark) * 1000;
+    return (
+      <div
+        key={secondMark}
+        className={`flex flex-row w-16 absolute items-center justify-center`}
+        style={{
+          top: parseInt(secondMark, 10) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
+          height: REPORT_TIMELINE_HEIGHT_PER_SECOND,
+        }}
+      >
+        {secondMark === '0' ? (
+          <div>
+            <FaSkullCrossbones />
+          </div>
+        ) : (
+          <div className="opacity-50" title={moment.utc(absoluteTime).format('mm:ss')}>
+            -{secondMark}s
+          </div>
+        )}
+      </div>
+    );
+  });
+};
+
 export const CombatUnitTimelineView = (props: IProps) => {
   const { combat, players } = useCombatReportContext();
   if (!combat) {
     return null;
   }
 
-  const timeMarkCount = Math.round((props.endTime - props.startTime) / 5000);
-  const timeMarks = [];
-  let currentMark = props.endTime;
-  while (currentMark >= props.startTime) {
-    timeMarks.push(currentMark);
-    currentMark -= (props.endTime - props.startTime) / timeMarkCount;
+  const secondMarks = [];
+  for (let i = 0; i < Math.floor((props.endTime - props.startTime) / 1000); i++) {
+    secondMarks.push(i.toString());
   }
 
   // Group damage/healing actions and hp numbers into 1 second chunks
@@ -148,78 +203,71 @@ export const CombatUnitTimelineView = (props: IProps) => {
   const enemies = players.filter((p) => p.reaction !== props.unit.reaction);
 
   return (
-    <div className="flex flex-row">
-      <div className="flex flex-col justify-between">
-        {timeMarks.map((t, _i) => (
-          <div key={t} className="opacity-60">
-            t-{Math.round((props.endTime - t) / 1000).toFixed()}s
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-col flex-1">
-        <div className="flex flex-row mb-1">
-          <div className="flex flex-row items-center border-t-2 border-base-content">
-            {enemies.map((p) => (
-              <div key={p.id} className="pt-1 px-1" title={p.name}>
-                <SpecImage specId={p.spec} size={16} />
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-col flex-1 items-center">
-            <div className="text-error">Damage Taken</div>
-          </div>
-          {combat.hasAdvancedLogging ? <div className="w-8 flex flex-row justify-center">HP</div> : null}
-          <div className="flex flex-col flex-1 items-center">
-            <div className="text-success">Healing Taken</div>
-          </div>
-          <div className="flex flex-row items-center border-t-2 border-base-content">
-            {friends.map((p) => (
-              <div key={p.id} className="pt-1 px-1" title={p.name}>
-                <SpecImage specId={p.spec} size={16} />
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-row">
+    <div className="flex flex-col flex-1 text-sm">
+      <div className="flex flex-row mb-1 font-bold uppercase pb-2 items-end">
+        <div className="flex flex-row items-start border-t pt-2 pr-2 mr-2 border-base-content">
           {enemies.map((p) => (
-            <CombatUnitAuraTimeline key={p.id} unit={p} startTime={props.startTime} endTime={props.endTime} />
+            <div key={p.id} className="px-0.5" title={p.name}>
+              <SpecImage specId={p.spec} size={20} />
+            </div>
           ))}
-          {generateHpUpdateColumn(
-            combat,
-            props.unit,
-            damageActionGroupsBySecondMark,
-            'RIGHT',
-            maxAbs,
-            props.startTime,
-            props.endTime,
-          )}
-          <div className="divider divider-horizontal mx-1" />
-          {combat.hasAdvancedLogging ? (
-            <>
-              <div
-                className="w-8 flex relative"
-                style={{
-                  height: ((props.endTime - props.startTime) / 1000) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
-                }}
-              >
-                {generateHpColumn(props.unit, hpBySecondMark)}
-              </div>
-              <div className="divider divider-horizontal mx-1" />
-            </>
-          ) : null}
-          {generateHpUpdateColumn(
-            combat,
-            props.unit,
-            healActionGroupsBySecondMark,
-            'LEFT',
-            maxAbs,
-            props.startTime,
-            props.endTime,
-          )}
+          <div className="ml-1">Offense</div>
+        </div>
+        <div className="flex flex-col flex-1 items-end">
+          <div className="text-error border-t border-base-content pt-2 pl-2">Damage Taken</div>
+        </div>
+        <div className="w-28 flex flex-row justify-center border-t border-base-content pt-2">
+          <SpecImage specId={props.unit.spec} size={20} />
+        </div>
+        <div className="flex flex-col flex-1 items-start">
+          <div className="text-success border-t border-base-content pt-2 pr-2">Healing Taken</div>
+        </div>
+        <div className="flex flex-row items-start border-t pt-2 pl-2 ml-2 border-base-content">
+          <div className="mr-1">Defense</div>
           {friends.map((p) => (
-            <CombatUnitAuraTimeline key={p.id} unit={p} startTime={props.startTime} endTime={props.endTime} />
+            <div key={p.id} className="px-0.5" title={p.name}>
+              <SpecImage specId={p.spec} size={20} />
+            </div>
           ))}
         </div>
+      </div>
+      <div className="flex flex-row">
+        {enemies.map((p) => (
+          <CombatUnitAuraTimeline key={p.id} unit={p} startTime={props.startTime} endTime={props.endTime} />
+        ))}
+        {generateHpUpdateColumn(
+          combat,
+          props.unit,
+          damageActionGroupsBySecondMark,
+          'RIGHT',
+          maxAbs,
+          props.startTime,
+          props.endTime,
+        )}
+        <div className="divider divider-horizontal mx-1" />
+        <div
+          className="w-16 flex relative"
+          style={{
+            height: ((props.endTime - props.startTime) / 1000) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
+          }}
+        >
+          {combat.hasAdvancedLogging
+            ? generateHpColumn(props.unit, hpBySecondMark, props.endTime - combat.startTime)
+            : generateTimeMarksColumn(secondMarks, props.endTime - combat.startTime)}
+        </div>
+        <div className="divider divider-horizontal mx-1" />
+        {generateHpUpdateColumn(
+          combat,
+          props.unit,
+          healActionGroupsBySecondMark,
+          'LEFT',
+          maxAbs,
+          props.startTime,
+          props.endTime,
+        )}
+        {friends.map((p) => (
+          <CombatUnitAuraTimeline key={p.id} unit={p} startTime={props.startTime} endTime={props.endTime} />
+        ))}
       </div>
     </div>
   );
