@@ -71,7 +71,7 @@ export class MainWindowModule extends NativeBridgeModule {
     });
 
     try {
-      this.trayIcon = new Tray(path.resolve(__dirname, 'assets/icon.ico'));
+      this.trayIcon = new Tray(path.resolve(__dirname, 'public/icon.ico'));
       const trayMenu = Menu.buildFromTemplate([
         {
           label: 'Show',
