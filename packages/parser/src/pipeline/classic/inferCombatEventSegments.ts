@@ -5,12 +5,12 @@ import { ZoneChange } from '../../actions/ZoneChange';
 import { CombatEvent, CombatUnitType, ICombatEventSegment, LogEvent } from '../../types';
 import { getUnitReaction, getUnitType, PIPELINE_FLUSH_SIGNAL } from '../../utils';
 
-const ARENA_ZONE_NAMES = [
-  'Nagrand Arena',
-  'Ruins of Lordaeron',
-  'Dalaran Arena',
-  "Blade's Edge Arena",
-  'The Ring of Valor',
+const ARENA_ZONE_IDS = [
+  559, // Nagrand Arena
+  562, // Blade's Edge Arena
+  572, // Ruins of Lordaeron
+  617, // Dalaran Arena
+  618, // The Ring of Valor
 ];
 
 type State = 'MATCH_NOT_STARTED' | 'MATCH_STARTED';
@@ -18,12 +18,12 @@ type State = 'MATCH_NOT_STARTED' | 'MATCH_STARTED';
 function isMatchStartEvent(event: CombatEvent): boolean {
   // combat log is not showing the arena preparation buff, so we have to infer start by
   // looking for the zone changes
-  return event instanceof ZoneChange && ARENA_ZONE_NAMES.includes(event.zoneName);
+  return event instanceof ZoneChange && ARENA_ZONE_IDS.includes(event.instanceId);
 }
 
 function isMatchEndEvent(event: CombatEvent): boolean {
   // arena end is inferred by zone changeing into a non-arena zone
-  return event instanceof ZoneChange && !ARENA_ZONE_NAMES.includes(event.zoneName);
+  return event instanceof ZoneChange && !ARENA_ZONE_IDS.includes(event.instanceId);
 }
 
 export const inferCombatEventSegments = () => {
