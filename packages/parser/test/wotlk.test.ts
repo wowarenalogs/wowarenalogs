@@ -15,7 +15,6 @@ describe('parsing a wotlk log file', () => {
   beforeAll(() => {
     const loaded = loadLogFile('wotlk.txt');
 
-    require('fs').writeFileSync('/tmp/wotlk.json', JSON.stringify(loaded, null, 2), 'utf8');
     results.combats = loaded.combats;
     results.malformedCombats = loaded.malformedCombats;
     results.shuffleRounds = loaded.shuffleRounds;
