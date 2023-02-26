@@ -1,28 +1,16 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import { useCallback } from 'react';
-import { TbArrowDown } from 'react-icons/tb';
+import { useCallback, useRef } from 'react';
+import { TbArrowDown, TbChartLine } from 'react-icons/tb';
 import { useQuery } from 'react-query';
 
 import { Utils } from '../../utils/utils';
 import { ErrorPage } from '../common/ErrorPage';
 import { SpecImage } from '../common/SpecImage';
 import { LoadingScreen } from '../LoadingScreen';
-import { getWinRateCorrectionFactor, STATS_SCHEMA_VERSION } from './common';
-
-type StatsData = [
-  {
-    date: string;
-    spec: string;
-    result: 'win' | 'lose';
-    matches: number;
-    burstDps: number;
-    effectiveDps: number;
-    effectiveHps: number;
-    isKillTarget: number;
-  },
-];
+import { ChartableStat, getWinRateCorrectionFactor, SpecStatsData, STATS_SCHEMA_VERSION } from './common';
+import SpecTrendChart from './SpecTrendChart';
 
 const SUPPORTED_SORT_KEYS = new Set(['total', 'winRate', 'burst', 'dps', 'hps', 'target']);
 
@@ -31,15 +19,19 @@ export default function SpecStats(props: {
   minRating: number;
   maxRating: number;
   sortKey: string;
+  trendChartSpecs: CombatUnitSpec[];
+  trendChartStat: ChartableStat;
 }) {
   const router = useRouter();
+  const rootRef = useRef<HTMLDivElement>(null);
+
   const specStatsQuery = useQuery(
     ['competitive-stats', 'spec-stats', props.activeBracket, props.minRating, props.maxRating],
     async () => {
       const result = await fetch(
         `https://images.wowarenalogs.com/data/spec-stats/${props.activeBracket}/${props.minRating}-${props.maxRating}/v${STATS_SCHEMA_VERSION}.latest.json`,
       );
-      return (await result.json()) as StatsData;
+      return (await result.json()) as SpecStatsData;
     },
     {
       // locally cache for one hour to avoid people spamming refresh.
@@ -56,14 +48,47 @@ export default function SpecStats(props: {
   const setSortKey = useCallback(
     (key: string) => {
       router.push(
-        `/stats?tab=spec-stats&bracket=${props.activeBracket}&sortKey=${key}&minRating=${props.minRating}&maxRating=${props.maxRating}`,
+        `/stats?tab=spec-stats&bracket=${props.activeBracket}&sortKey=${key}&minRating=${props.minRating}&maxRating=${
+          props.maxRating
+        }&trendChartSpecs=${props.trendChartSpecs.join(`,`)}&trendChartStat=${props.trendChartStat}`,
         undefined,
         {
           shallow: true,
         },
       );
     },
-    [props.activeBracket, props.minRating, props.maxRating, router],
+    [props.activeBracket, props.minRating, props.maxRating, router, props.trendChartSpecs, props.trendChartStat],
+  );
+  const setTrendChartSpecs = useCallback(
+    (specs: CombatUnitSpec[]) => {
+      if (rootRef.current) {
+        rootRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      router.push(
+        `/stats?tab=spec-stats&bracket=${props.activeBracket}&sortKey=${sortKey}&minRating=${
+          props.minRating
+        }&maxRating=${props.maxRating}&trendChartSpecs=${specs.join(`,`)}&trendChartStat=${props.trendChartStat}`,
+        undefined,
+        {
+          shallow: true,
+        },
+      );
+    },
+    [props.activeBracket, props.minRating, props.maxRating, router, props.trendChartStat, sortKey],
+  );
+  const setTrendChartStat = useCallback(
+    (stat: ChartableStat) => {
+      router.push(
+        `/stats?tab=spec-stats&bracket=${props.activeBracket}&sortKey=${sortKey}&minRating=${
+          props.minRating
+        }&maxRating=${props.maxRating}&trendChartSpecs=${props.trendChartSpecs.join(`,`)}&trendChartStat=${stat}`,
+        undefined,
+        {
+          shallow: true,
+        },
+      );
+    },
+    [props.activeBracket, props.minRating, props.maxRating, router, props.trendChartSpecs, sortKey],
   );
 
   if (specStatsQuery.isLoading) {
@@ -170,12 +195,27 @@ export default function SpecStats(props: {
   }
 
   return (
-    <div className="mt-2 flex-1 flex flex-row items-start relative overflow-x-auto overflow-y-scroll">
-      <div className="flex flex-col">
+    <div className="mt-2 flex-1 flex flex-row items-start relative overflow-x-auto overflow-y-scroll" ref={rootRef}>
+      <div className="flex flex-col gap-2">
+        {props.trendChartSpecs.length > 0 && (
+          <div className="w-full">
+            <SpecTrendChart
+              data={specStats}
+              specs={props.trendChartSpecs}
+              stat={props.trendChartStat}
+              setTrendChartStat={setTrendChartStat}
+            />
+          </div>
+        )}
         <table className="table table-compact relative rounded-box">
           <thead>
             <tr>
               <th className="bg-base-300">Spec</th>
+              <th className="bg-base-300">
+                <div className="flex flex-row items-center gap-1">
+                  <TbChartLine className="text-lg" />
+                </div>
+              </th>
               <th className="bg-base-300">
                 <div className="flex flex-row items-center gap-1">
                   Matches
@@ -278,6 +318,22 @@ export default function SpecStats(props: {
                       <SpecImage specId={stats.spec} />
                     </div>
                   </th>
+                  <td className="bg-base-200 text-right">
+                    <div className="flex items-center justify-center">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-xs"
+                        checked={props.trendChartSpecs.includes(stats.spec)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setTrendChartSpecs([...props.trendChartSpecs, stats.spec]);
+                          } else {
+                            setTrendChartSpecs(props.trendChartSpecs.filter((s) => s !== stats.spec));
+                          }
+                        }}
+                      />
+                    </div>
+                  </td>
                   <td className="bg-base-200 text-right">{stats.total}</td>
                   <td className="bg-base-200 text-right">
                     {(stats.winRate * winRateCorrectionFactor * 100).toFixed(1)}%
@@ -292,7 +348,7 @@ export default function SpecStats(props: {
               ))}
           </tbody>
         </table>
-        <div className="opacity-50 mt-2">Specs and comps with less than 10 recorded matches are hidden.</div>
+        <div className="opacity-50">Specs and comps with less than 10 recorded matches are hidden.</div>
       </div>
     </div>
   );
