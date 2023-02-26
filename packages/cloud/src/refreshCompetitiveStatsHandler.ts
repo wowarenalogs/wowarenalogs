@@ -30,7 +30,7 @@ const RATING_RANGES = [
 ];
 
 const STATS_SCHEMA_VERSION = 3;
-const LOOKBACK_DAYS = 14;
+const LOOKBACK_DAYS = 28;
 
 const prisma = new PrismaClient();
 

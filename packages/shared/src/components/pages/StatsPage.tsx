@@ -1,9 +1,11 @@
+import { CombatUnitSpec } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { TbCaretDown, TbInfoCircle } from 'react-icons/tb';
 
 import { DownloadPromotion } from '../common/DownloadPromotion';
 import { Dropdown } from '../common/Dropdown';
+import { ChartableStat } from '../CompetitiveStats/common';
 import CompStats from '../CompetitiveStats/CompStats';
 import SpecStats from '../CompetitiveStats/SpecStats';
 
@@ -31,6 +33,11 @@ export const StatsPage = () => {
   const sortKey = (router.query.sortKey as string) ?? 'total';
   const minRating = parseInt((router.query.minRating as string) ?? '0');
   const maxRating = parseInt((router.query.maxRating as string) ?? '4999');
+  const trendChartStat = (router.query.trendChartStat as ChartableStat) ?? 'representation';
+  const trendChartSpecs = ((router.query.trendChartSpecs as string) ?? '')
+    .split(',')
+    .filter((s) => s)
+    .map((s) => s as CombatUnitSpec);
 
   return (
     <div className="flex flex-col px-4 py-2 w-full h-full items-stretch">
@@ -42,7 +49,9 @@ export const StatsPage = () => {
             label: b,
             onClick: () => {
               router.push(
-                `/stats?tab=${tab}&bracket=${b}&sortKey=${sortKey}&minRating=${minRating}&maxRating=${maxRating}`,
+                `/stats?tab=${tab}&bracket=${b}&sortKey=${sortKey}&minRating=${minRating}&maxRating=${maxRating}&trendChartStat=${trendChartStat}&trendChartSpecs=${trendChartSpecs.join(
+                  `,`,
+                )}`,
                 undefined,
                 { shallow: true },
               );
@@ -60,7 +69,9 @@ export const StatsPage = () => {
             label: printRatingRange(r[0], r[1]),
             onClick: () => {
               router.push(
-                `/stats?tab=${tab}&bracket=${bracket}&sortKey=${sortKey}&minRating=${r[0]}&maxRating=${r[1]}`,
+                `/stats?tab=${tab}&bracket=${bracket}&sortKey=${sortKey}&minRating=${r[0]}&maxRating=${
+                  r[1]
+                }&trendChartStat=${trendChartStat}&trendChartSpecs=${trendChartSpecs.join(`,`)}`,
                 undefined,
                 { shallow: true },
               );
@@ -77,7 +88,9 @@ export const StatsPage = () => {
             className={`tab ${tab === 'spec-stats' ? 'tab-active' : ''}`}
             onClick={() => {
               router.push(
-                `/stats?tab=spec-stats&bracket=${bracket}&sortKey=${sortKey}&minRating=${minRating}&maxRating=${maxRating}`,
+                `/stats?tab=spec-stats&bracket=${bracket}&sortKey=${sortKey}&minRating=${minRating}&maxRating=${maxRating}&trendChartStat=${trendChartStat}&trendChartSpecs=${trendChartSpecs.join(
+                  `,`,
+                )}`,
                 undefined,
                 { shallow: true },
               );
@@ -89,7 +102,9 @@ export const StatsPage = () => {
             className={`tab ${tab === 'comp-stats' ? 'tab-active' : ''}`}
             onClick={() => {
               router.push(
-                `/stats?tab=comp-stats&bracket=${bracket}&sortKey=${sortKey}&minRating=0&maxRating=4999`,
+                `/stats?tab=comp-stats&bracket=${bracket}&sortKey=${sortKey}&minRating=0&maxRating=4999&trendChartStat=${trendChartStat}&trendChartSpecs=${trendChartSpecs.join(
+                  `,`,
+                )}`,
                 undefined,
                 { shallow: true },
               );
@@ -106,7 +121,14 @@ export const StatsPage = () => {
         </div>
       </div>
       {tab === 'spec-stats' && (
-        <SpecStats activeBracket={bracket} sortKey={sortKey} minRating={minRating} maxRating={maxRating} />
+        <SpecStats
+          activeBracket={bracket}
+          sortKey={sortKey}
+          minRating={minRating}
+          maxRating={maxRating}
+          trendChartStat={trendChartStat}
+          trendChartSpecs={trendChartSpecs}
+        />
       )}
       {tab === 'comp-stats' && <CompStats activeBracket={bracket} sortKey={sortKey} />}
     </div>
