@@ -1,7 +1,7 @@
 import { AtomicArenaCombat, CombatHpUpdateAction, ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaSkullCrossbones } from 'react-icons/fa';
 
 import { SIGNIFICANT_DAMAGE_HEAL_THRESHOLD, Utils } from '../../../utils/utils';
@@ -182,6 +182,10 @@ export const CombatUnitTimelineView = (props: IProps) => {
   const viewportDuration = props.endTime - props.startTime;
   const deathTime = props.endTime;
   const startTime = endTime - viewportDuration;
+
+  useEffect(() => {
+    setEndTime(props.endTime);
+  }, [props.endTime]);
 
   const { combat, players } = useCombatReportContext();
   if (!combat) {
