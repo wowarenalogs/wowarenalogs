@@ -41,6 +41,8 @@ const STAT_INFO: Record<
   },
 };
 
+const MIN_VALID_DATE = '2023-02-07';
+
 const SpecTrendChart = (props: {
   data: SpecStatsData;
   specs: CombatUnitSpec[];
@@ -52,7 +54,7 @@ const SpecTrendChart = (props: {
   }, [props.specs]);
 
   const dataFiltered = useMemo(() => {
-    return props.data.filter((row) => row.spec !== '0' && row.spec !== '(not set)');
+    return props.data.filter((row) => row.spec !== '0' && row.spec !== '(not set)' && row.date >= MIN_VALID_DATE);
   }, [props.data]);
 
   const matchesCountByDate = useMemo(() => {
@@ -183,7 +185,7 @@ const SpecTrendChart = (props: {
               <ResponsiveContainer debounce={25}>
                 <LineChart>
                   <CartesianGrid stroke="#6a6a6a" strokeDasharray="4 8" />
-                  <XAxis dataKey="date" allowDuplicatedCategory={false} />
+                  <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} />
                   <YAxis tickFormatter={STAT_INFO[props.stat].formatter} />
                   <Tooltip
                     contentStyle={{
@@ -194,6 +196,15 @@ const SpecTrendChart = (props: {
                     }}
                   />
                   <Legend />
+                  <Line
+                    data={_.uniq(specStats.flatMap((s) => s.data.map((d) => d.date)))
+                      .sort()
+                      .map((d) => {
+                        return { date: d };
+                      })}
+                    legendType="none"
+                    hide={true}
+                  />
                   {specStats.map((s) => (
                     <Line
                       key={s.spec}
