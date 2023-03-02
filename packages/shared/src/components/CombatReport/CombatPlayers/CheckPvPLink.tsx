@@ -28,7 +28,7 @@ export function CheckPvPLink({ player }: IProps) {
     }
   }
   if (slashsplit) {
-    serverName = serverName.slice(0, slashsplit) + '-' + serverName.slice(slashsplit);
+    serverName = serverName.slice(0, slashsplit) + ' ' + serverName.slice(slashsplit);
   }
 
   return (
@@ -36,7 +36,11 @@ export function CheckPvPLink({ player }: IProps) {
     <button
       className="btn btn-xs gap-1"
       onClick={() => {
-        clientContext.openExternalURL(`https://check-pvp.fr/${realmIdToRegion(realmId)}/${serverName}/${playerName}`);
+        clientContext.openExternalURL(
+          `https://check-pvp.fr/${encodeURIComponent(realmIdToRegion(realmId))}/${encodeURIComponent(
+            serverName,
+          )}/${encodeURIComponent(playerName)}`,
+        );
       }}
     >
       <img
