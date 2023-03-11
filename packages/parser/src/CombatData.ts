@@ -9,6 +9,7 @@ import { CombatAction } from './actions/CombatAction';
 import { CombatAdvancedAction } from './actions/CombatAdvancedAction';
 import { CombatantInfoAction } from './actions/CombatantInfoAction';
 import { CombatHpUpdateAction } from './actions/CombatHpUpdateAction';
+import { ZoneChange } from './actions/ZoneChange';
 import { classMetadata } from './classMetadata';
 import { CombatUnit, ICombatUnit } from './CombatUnit';
 import { logInfo } from './logger';
@@ -299,6 +300,9 @@ export class CombatData {
       };
       return;
     }
+    if (event instanceof ZoneChange) {
+      return;
+    }
 
     if (event.logLine.parameters.length < 8) {
       return;
@@ -420,24 +424,22 @@ export class CombatData {
     destUnit.proveReaction(getUnitReaction(destFlag));
 
     if (this.wowVersion === 'classic') {
-      const isMatchStartEvent =
-        event.logLine.event === LogEvent.SPELL_AURA_REMOVED &&
-        getUnitType(event.destUnitFlags) === CombatUnitType.Player &&
-        event instanceof CombatAction &&
-        event.spellId === '32727'; // arena preparation buff
-      if (isMatchStartEvent) {
+      // We cannot currently tell known combatants at the start of the arena because
+      // arena preparation buff is not showing up in combat logs. So we just record
+      // all cambatants. this is not ideal because it could include other
+      // combatants (some other events arrive before ZONE_CHANGE involving players in the loading map).
+      // This is mitigated by parser trimming the events until the last death event,
+      // it remains to be seen if we could finish the arena and get another UNIT_DIED
+      // event (from a player in the loading map) before the ZONE_CHANGE event.
+      const isSignificantEvent =
+        event.srcUnitId !== event.destUnitId &&
+        getUnitReaction(event.srcUnitFlags) !== getUnitReaction(event.destUnitFlags) &&
+        getUnitType(event.srcUnitFlags) === CombatUnitType.Player &&
+        getUnitType(event.destUnitFlags) === CombatUnitType.Player;
+
+      if (isSignificantEvent) {
+        this.inferredCombatantIds.add(event.srcUnitId);
         this.inferredCombatantIds.add(event.destUnitId);
-      } else {
-        const isSignificantEvent =
-          event.srcUnitId !== event.destUnitId &&
-          getUnitReaction(event.srcUnitFlags) !== getUnitReaction(event.destUnitFlags) &&
-          getUnitType(event.srcUnitFlags) === CombatUnitType.Player &&
-          getUnitType(event.destUnitFlags) === CombatUnitType.Player &&
-          (this.inferredCombatantIds.has(event.srcUnitId) || this.inferredCombatantIds.has(event.destUnitId));
-        if (isSignificantEvent) {
-          this.inferredCombatantIds.add(event.srcUnitId);
-          this.inferredCombatantIds.add(event.destUnitId);
-        }
       }
     }
 
