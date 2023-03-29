@@ -3,10 +3,12 @@ import { ArenaMatchStart } from './actions/ArenaMatchStart';
 import { CombatAction } from './actions/CombatAction';
 import { CombatantInfoAction } from './actions/CombatantInfoAction';
 import { PartyKill } from './actions/PartyKill';
+import { ZoneChange } from './actions/ZoneChange';
 
 export type WowVersion = 'classic' | 'retail';
 
 export enum LogEvent {
+  ZONE_CHANGE = 'ZONE_CHANGE',
   ARENA_MATCH_START = 'ARENA_MATCH_START',
   ARENA_MATCH_END = 'ARENA_MATCH_END',
   COMBATANT_INFO = 'COMBATANT_INFO',
@@ -52,7 +54,7 @@ export enum LogEvent {
   PARTY_KILL = 'PARTY_KILL',
 }
 
-export type CombatEvent = ArenaMatchStart | ArenaMatchEnd | CombatAction | CombatantInfoAction | PartyKill;
+export type CombatEvent = ArenaMatchStart | ArenaMatchEnd | CombatAction | CombatantInfoAction | PartyKill | ZoneChange;
 
 export interface ICombatEventSegment {
   events: CombatEvent[];
