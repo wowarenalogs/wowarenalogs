@@ -25,4 +25,6 @@ local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 eventFrame:SetScript("OnEvent", OnEvent)
 
-SetCVar("nameplatePlayerMaxDistance", 60)
+if not GetCVar("nameplatePlayerMaxDistance") then
+  SetCVar("nameplatePlayerMaxDistance", 60)
+end
