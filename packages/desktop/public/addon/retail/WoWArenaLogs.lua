@@ -1,16 +1,16 @@
-﻿local instanceType
+local instanceType
 
 local function OnEvent(self, event, ...)
-  if(event == "ZONE_CHANGED_NEW_AREA") then
-		local type = select(2, IsInInstance())
-		
-		if (type == "arena") then
-			LoggingCombat(true)
-			print("WoWArenaLogs: Combat logging has been enabled. Good luck!")
-		end
+  if event == "ZONE_CHANGED_NEW_AREA" then
+    local type = select(2, IsInInstance())
 
-		instanceType = type
-	end
+    if type == "arena" then
+      LoggingCombat(true)
+      print("WoWArenaLogs: Combat logging has been enabled. Good luck!")
+    end
+
+    instanceType = type
+  end
 end
 
 local function OnInitialize()
@@ -24,3 +24,7 @@ loadFrame:SetScript("OnEvent", OnInitialize)
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 eventFrame:SetScript("OnEvent", OnEvent)
+
+if not GetCVar("nameplatePlayerMaxDistance") then
+  SetCVar("nameplatePlayerMaxDistance", 60)
+end
