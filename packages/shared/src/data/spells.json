@@ -727,9 +727,6 @@
   "152173": {
     "type": "buffs_offensive"
   },
-  "152262": {
-    "type": "buffs_offensive"
-  },
   "152279": {
     "type": "buffs_offensive"
   },
@@ -858,9 +855,6 @@
   "196555": {
     "type": "immunities"
   },
-  "197003": {
-    "type": "buffs_defensive"
-  },
   "197214": {
     "type": "cc"
   },
@@ -900,9 +894,6 @@
   "198909": {
     "type": "cc"
   },
-  "199027": {
-    "type": "buffs_defensive"
-  },
   "199042": {
     "type": "roots"
   },
@@ -923,11 +914,6 @@
     "type": "buffs_defensive"
   },
   "199845": {
-    "type": "debuffs_offensive",
-    "nounitFrames": true,
-    "nonameplates": true
-  },
-  "199954": {
     "type": "debuffs_offensive",
     "nounitFrames": true,
     "nonameplates": true
@@ -1012,17 +998,11 @@
     "type": "buffs_offensive",
     "parent": 204361
   },
-  "204366": {
-    "type": "buffs_offensive"
-  },
   "204490": {
     "type": "cc"
   },
   "205025": {
     "type": "buffs_offensive"
-  },
-  "205191": {
-    "type": "buffs_defensive"
   },
   "205369": {
     "type": "cc"
@@ -1105,10 +1085,6 @@
   "210873": {
     "type": "cc",
     "parent": 51514
-  },
-  "210918": {
-    "type": "buffs_defensive",
-    "parent": 108271
   },
   "211004": {
     "type": "cc",
@@ -1211,9 +1187,6 @@
   "221562": {
     "type": "cc"
   },
-  "221705": {
-    "type": "buffs_defensive"
-  },
   "221883": {
     "type": "buffs_speed_boost"
   },
@@ -1258,9 +1231,6 @@
   },
   "233759": {
     "type": "cc"
-  },
-  "234877": {
-    "type": "debuffs_offensive"
   },
   "236077": {
     "type": "cc"
@@ -1317,9 +1287,6 @@
     "type": "buffs_defensive"
   },
   "265273": {
-    "type": "buffs_offensive"
-  },
-  "266779": {
     "type": "buffs_offensive"
   },
   "267171": {
@@ -1644,6 +1611,9 @@
   "360806": {
     "type": "cc"
   },
+  "360952": {
+    "type": "buffs_offensive"
+  },
   "360966": {
     "type": "buffs_offensive"
   },
@@ -1825,5 +1795,25 @@
   "403876": {
     "type": "buffs_defensive",
     "parent": 498
+  },
+  "407031": {
+    "type": "cc",
+    "parent": 407032
+  },
+  "407032": {
+    "type": "cc"
+  },
+  "408558": {
+    "type": "immunities"
+  },
+  "409293": {
+    "type": "immunities"
+  },
+  "410406": {
+    "type": "buffs_offensive"
+  },
+  "410598": {
+    "type": "debuffs_offensive",
+    "nonameplates": true
   }
 }
