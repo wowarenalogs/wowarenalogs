@@ -73,7 +73,6 @@ export const ReplaySettingsProvider = (props: IProps) => {
         awcSpellIds: newSpellIds,
       };
 
-      console.log(`addSpell ${specId} ${spellId}`, newSettings);
       localStorage.setItem(REPLAY_SETTINGS_STORAGE_KEY, JSON.stringify(newSettings));
       setReplaySettings(newSettings);
     },
