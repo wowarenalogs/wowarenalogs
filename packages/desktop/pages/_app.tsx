@@ -1,6 +1,7 @@
 import '../styles/globals.css';
 
 import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client';
+import { ReplaySettingsProvider } from '@wowarenalogs/shared';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -68,7 +69,9 @@ function App(props: AppProps<SessionProviderProps>) {
       <QueryClientProvider client={queryClient}>
         <ApolloProvider client={client}>
           <AppConfigContextProvider>
-            <DesktopLayout {...props} />
+            <ReplaySettingsProvider>
+              <DesktopLayout {...props} />
+            </ReplaySettingsProvider>
           </AppConfigContextProvider>
         </ApolloProvider>
       </QueryClientProvider>

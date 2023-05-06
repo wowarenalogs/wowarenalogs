@@ -1,7 +1,6 @@
-import { ICombatUnit } from '@wowarenalogs/parser';
+import { CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
 
-import { awcSpells } from '../../../../data/awcSpells';
 import { IMinedSpell } from '../../../../data/spellEffectData';
 import { SpellIcon } from '../../SpellIcon';
 import { IUnitFrameRenderData } from './UnitFrame';
@@ -13,8 +12,8 @@ type CooldownInfo = {
   cooldownPercent?: number;
 };
 
-export function computeTrackableSpellsForUnit(unit: ICombatUnit) {
-  return awcSpells[unit.spec].concat(awcSpells['0']);
+export function computeTrackableSpellsForUnit(spellData: Record<CombatUnitSpec, string[]>, unit: ICombatUnit) {
+  return spellData[unit.spec].concat(spellData['0']);
 }
 
 function computeChargeInfo(

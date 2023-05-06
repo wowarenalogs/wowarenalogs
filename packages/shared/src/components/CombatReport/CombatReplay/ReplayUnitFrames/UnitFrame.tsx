@@ -11,6 +11,7 @@ import { useMemo } from 'react';
 
 import { IMinedSpell, spellEffectData } from '../../../../data/spellEffectData';
 import { spellIdToPriority, trinketSpellIds } from '../../../../data/spellTags';
+import { useReplaySettings } from '../../../../hooks/ReplaySettingsContext';
 import { computeAuraDurations, IAuraDuration } from '../../../../utils/auras';
 import { UnitCastBar } from './UnitCastBar';
 import { UnitClassIcon } from './UnitClassIcon';
@@ -347,8 +348,16 @@ export const UnitFrame = (props: IProps) => {
     );
   })();
 
+  const replaySettings = useReplaySettings();
+
   // Build list of trackable spells
-  const trackableSpells = useMemo(() => computeTrackableSpellsForUnit(props.unit), [props.unit]);
+  const trackableSpells = useMemo(
+    () =>
+      replaySettings.replaySettings.awcSpellIds
+        ? computeTrackableSpellsForUnit(replaySettings.replaySettings.awcSpellIds, props.unit)
+        : [],
+    [props.unit, replaySettings.replaySettings.awcSpellIds],
+  );
 
   // Spell casts to track cooldowns for the Spell Tracker (AWC frame)
   const trackedSpellCasts = useMemo(() => {

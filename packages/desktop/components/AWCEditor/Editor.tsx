@@ -1,59 +1,37 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
+import { useReplaySettings } from '@wowarenalogs/shared';
+import { SpellIcon } from '@wowarenalogs/shared/src/components/CombatReport/SpellIcon';
+import { SpecImage } from '@wowarenalogs/shared/src/components/common/SpecImage';
+import { awcSpells } from '@wowarenalogs/shared/src/data/awcSpells';
+import { Utils } from '@wowarenalogs/shared/src/utils/utils';
 import { useCallback, useState } from 'react';
-
-import { awcSpells } from '../../data/awcSpells';
-import { Utils } from '../../utils/utils';
-import { SpellIcon } from '../CombatReport/SpellIcon';
-import { SpecImage } from '../common/SpecImage';
 
 const specIds = Object.keys(awcSpells).filter((a) => a != '0');
 
-/**
- * mock impl until storage decided
- */
-const useAWCProvider = () => {
-  const [spellIds, setSpellIds] = useState(awcSpells);
-  return {
-    spellIds,
-    removeSpellId: (specId: CombatUnitSpec, spellId: string) => {
-      const newSpellIds = { ...spellIds };
-      newSpellIds[specId] = newSpellIds[specId].filter((a) => a != spellId);
-      setSpellIds(newSpellIds);
-    },
-    addSpellId: (specId: CombatUnitSpec, spellId: string) => {
-      const newSpellIds = { ...spellIds };
-      if (!newSpellIds[specId].includes(spellId)) {
-        newSpellIds[specId] = [...newSpellIds[specId], spellId];
-      }
-      setSpellIds(newSpellIds);
-    },
-  };
-};
-
 export const Editor = () => {
-  const awcProvider = useAWCProvider();
-  const allAWCS = awcProvider.spellIds;
+  const awcProvider = useReplaySettings();
+  const allAWCS = awcProvider.replaySettings.awcSpellIds;
 
   const [spellIdForModal, setSpellIdForModal] = useState('');
   const [spellIdToAdd, setSpellIdToAdd] = useState('0');
 
   const [selectedSpecId, setSelectedSpecId] = useState('65');
-  const awcs = allAWCS[selectedSpecId as CombatUnitSpec];
+  const awcs = allAWCS ? allAWCS[selectedSpecId as CombatUnitSpec] : [];
 
   const removeSpell = useCallback(() => {
-    awcProvider.removeSpellId(selectedSpecId as CombatUnitSpec, spellIdForModal.trim());
+    awcProvider.removeSpell(selectedSpecId as CombatUnitSpec, spellIdForModal.trim());
   }, [awcProvider, selectedSpecId, spellIdForModal]);
 
   const addSpell = useCallback(() => {
-    awcProvider.addSpellId(selectedSpecId as CombatUnitSpec, spellIdToAdd.trim());
+    awcProvider.addSpell(selectedSpecId as CombatUnitSpec, spellIdToAdd.trim());
   }, [awcProvider, selectedSpecId, spellIdToAdd]);
 
   return (
-    <div className="p-4">
+    <div className="p-4 max-w-3xl">
       <div className="text-xl font-bold">Replay Spell Cooldown Display Editor</div>
       <div>This page allows you to edit which spells appear as cooldowns on replays for each spec.</div>
       <div className=" ml-2 mt-4">
-        <div className="flex flex-row flex-wrap max-w-xl gap-1">
+        <div className="flex flex-row flex-wrap gap-1">
           {specIds.map((specId) => (
             <div
               key={specId}
@@ -70,12 +48,12 @@ export const Editor = () => {
           <SpecImage specId={selectedSpecId} size={44} />
           <div className="text-lg font-bold">{Utils.getSpecName(selectedSpecId as CombatUnitSpec)}</div>
         </div>
-        <div className="flex flex-row gap-1 mt-4 flex-wrap max-w-xl">
+        <div className="flex flex-row gap-1 mt-4 flex-wrap gap-y-3">
           {awcs.map((a) => (
             <div className="flex items-center flex-col" key={a}>
               <SpellIcon spellId={a} size={32} />
               <label
-                htmlFor="my-modal"
+                htmlFor="confirm-edit-modal"
                 className="btn"
                 onClick={() => {
                   setSpellIdForModal(a);
@@ -86,7 +64,7 @@ export const Editor = () => {
             </div>
           ))}
         </div>
-        <div className="flex flex-row items-center gap-2 max-w-xl">
+        <div className="flex flex-row items-center gap-2 mt-4">
           <div>Add Spell:</div>
           <SpellIcon spellId={spellIdToAdd} size={32} />
           <input
@@ -100,7 +78,37 @@ export const Editor = () => {
           </button>
         </div>
       </div>
-      <input type="checkbox" id="my-modal" className="modal-toggle" />
+
+      <div className="mt-4">
+        <label htmlFor="confirm-reset-modal" className="btn btn-outline btn-error">
+          Reset to defaults
+        </label>
+      </div>
+
+      <input type="checkbox" id="confirm-reset-modal" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">
+            Reset ALL spell display settings to defaults?
+            <br />
+            This cannot be undone!
+          </h3>
+          <div className="modal-action">
+            <label
+              htmlFor="confirm-reset-modal"
+              className="btn btn-success"
+              onClick={() => awcProvider.resetToDefaults()}
+            >
+              Confirm
+            </label>
+            <label htmlFor="confirm-reset-modal" className="btn btn-error">
+              Nevermind
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <input type="checkbox" id="confirm-edit-modal" className="modal-toggle" />
       <div className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">
@@ -109,10 +117,10 @@ export const Editor = () => {
           <SpellIcon spellId={spellIdForModal} size={32} />
           <p className="py-4">Are you sure?</p>
           <div className="modal-action">
-            <label htmlFor="my-modal" className="btn btn-success" onClick={removeSpell}>
+            <label htmlFor="confirm-edit-modal" className="btn btn-success" onClick={removeSpell}>
               Confirm
             </label>
-            <label htmlFor="my-modal" className="btn btn-error">
+            <label htmlFor="confirm-edit-modal" className="btn btn-error">
               Nevermind
             </label>
           </div>
