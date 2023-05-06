@@ -1,5 +1,4 @@
 import { Firestore } from '@google-cloud/firestore';
-import { Storage } from '@google-cloud/storage';
 import { WowVersion } from '@wowarenalogs/parser';
 import fs from 'fs';
 import moment from 'moment';
@@ -9,23 +8,13 @@ import { ApolloContext, CombatQueryResult, ICombatDataStub } from '../types';
 import { Constants } from '../utils/constants';
 const matchStubsCollection = 'match-stubs-prod';
 
-const gcpCredentials =
-  process.env.NODE_ENV === 'development'
-    ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
-    : undefined;
-
 const firestore = new Firestore({
   projectId: process.env.NODE_ENV === 'development' ? 'wowarenalogs-public-dev' : 'wowarenalogs',
-  credentials: gcpCredentials,
+  credentials:
+    process.env.NODE_ENV === 'development'
+      ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
+      : undefined,
 });
-
-const logFilesBucket =
-  process.env.NODE_ENV === 'development' ? 'wowarenalogs-public-dev-log-files-prod' : 'wowarenalogs-log-files-prod';
-const storage = new Storage({
-  projectId: process.env.NODE_ENV === 'development' ? 'wowarenalogs-public-dev' : 'wowarenalogs',
-  credentials: gcpCredentials,
-});
-const bucket = storage.bucket(logFilesBucket);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function firestoreDocToMatchStub(stub: ICombatDataStub): ICombatDataStub {
