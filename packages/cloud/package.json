@@ -7,13 +7,13 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
-    "build": "shx rm -rf dist && cd ../.. && npm run build:parser && shx mkdir -p ./packages/cloud/dist/parser && shx cp -r ./packages/parser/dist ./packages/cloud/dist/parser/dist && cd packages/cloud && prisma generate && tsc",
-    "deploy:dev": "npm run build && dotenv -- node ./dist/cloud/test/test_env_for_deploy.js && dotenv -- serverless deploy --config serverless.dev.yml",
-    "deploy:prod": "npm run build && dotenv -- node ./dist/cloud/test/test_env_for_deploy.js && dotenv -- serverless deploy --config serverless.prod.yml",
-    "start:fix-cross-year-timestamps": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/src/operations/fixCrossYearTimestamps.js",
-    "start:generate-map-image": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/src/operations/generateMapImage.js",
-    "test:refresh-competitive-stats": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_competitive_stats.js",
-    "test:refresh-spell-icons": "npm run build && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js",
+    "build:cloud": "shx rm -rf dist && cd ../.. && npm run build:parser && shx mkdir -p ./packages/cloud/dist/parser && shx cp -r ./packages/parser/dist ./packages/cloud/dist/parser/dist && cd packages/cloud && prisma generate && tsc",
+    "deploy:dev": "npm run build:cloud && dotenv -- node ./dist/cloud/test/test_env_for_deploy.js && dotenv -- serverless deploy --config serverless.dev.yml",
+    "deploy:prod": "npm run build:cloud && dotenv -- node ./dist/cloud/test/test_env_for_deploy.js && dotenv -- serverless deploy --config serverless.prod.yml",
+    "start:fix-cross-year-timestamps": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/fixCrossYearTimestamps.js",
+    "start:generate-map-image": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/generateMapImage.js",
+    "test:refresh-competitive-stats": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_competitive_stats.js",
+    "test:refresh-spell-icons": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js",
     "postinstall": "cross-env CI=1 prisma generate"
   },
   "devDependencies": {
