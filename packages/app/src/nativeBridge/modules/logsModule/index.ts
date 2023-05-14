@@ -74,6 +74,15 @@ export class LogsModule extends NativeBridgeModule {
             this.handleMalformedCombatDetected(mainWindow, combat);
           });
 
+          logParser.on('parser_error', (error: Error) => {
+            // We need to pickle the error object out here a bit to help it seralize correctly over the message bus
+            this.handleParserError(mainWindow, {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            });
+          });
+
           data.filePaths.forEach((logFile) => {
             DesktopUtils.parseLogFile(logParser, logFile);
           });
@@ -110,6 +119,9 @@ export class LogsModule extends NativeBridgeModule {
     });
     bridge.logParser.on('malformed_arena_match_detected', (combat: IMalformedCombatData) => {
       this.handleMalformedCombatDetected(mainWindow, combat);
+    });
+    bridge.logParser.on('parser_error', (error: Error) => {
+      this.handleParserError(mainWindow, error);
     });
 
     const lastKnownFileStats = new Map<string, ILastKnownCombatLogState>();
@@ -197,6 +209,11 @@ export class LogsModule extends NativeBridgeModule {
 
   @moduleEvent('on')
   public handleMalformedCombatDetected(_mainWindow: BrowserWindow, _combat: IMalformedCombatData) {
+    return;
+  }
+
+  @moduleEvent('on')
+  public handleParserError(_mainWindow: BrowserWindow, _error: Error) {
     return;
   }
 }

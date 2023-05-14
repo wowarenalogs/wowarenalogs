@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react';
 import {
   AtomicArenaCombat,
   buildQueryHelpers,
@@ -201,12 +202,17 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         }
       });
 
+      window.wowarenalogs.logs?.handleParserError((_event, error) => {
+        Sentry.captureException(error);
+      });
+
       return () => {
         window.wowarenalogs.logs?.stopLogWatcher();
         window.wowarenalogs.logs?.removeAll_handleNewCombat_listeners();
         window.wowarenalogs.logs?.removeAll_handleMalformedCombatDetected_listeners();
         window.wowarenalogs.logs?.removeAll_handleSoloShuffleEnded_listeners();
         window.wowarenalogs.logs?.removeAll_handleSoloShuffleRoundEnded_listeners();
+        window.wowarenalogs.logs?.removeAll_handleParserError_listeners();
         setCombats([]);
       };
     });

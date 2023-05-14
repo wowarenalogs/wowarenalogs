@@ -11,6 +11,7 @@ export const createRetailParserPipeline = (
   onMalformedCombat: (combat: IMalformedCombatData) => void,
   onShuffleRound: (combat: IShuffleRound) => void,
   onShuffleComplete: (combat: IShuffleMatch) => void,
+  onError: (error: Error) => void,
   timezone: string,
 ) => {
   const rawLogs = new Subject<string>();
@@ -35,6 +36,9 @@ export const createRetailParserPipeline = (
             onShuffleRound(d);
             break;
         }
+      },
+      error: (e) => {
+        onError(e);
       },
     });
 

@@ -55,11 +55,13 @@ export type INativeBridge = {
     handleSoloShuffleRoundEnded: (callback: (event: ElectronOpaqueEvent, c: IShuffleRound) => void) => void;
     handleSoloShuffleEnded: (callback: (event: ElectronOpaqueEvent, c: IShuffleMatch) => void) => void;
     handleMalformedCombatDetected: (callback: (event: ElectronOpaqueEvent, c: IMalformedCombatData) => void) => void;
+    handleParserError: (callback: (event: ElectronOpaqueEvent, c: Error) => void) => void;
     startLogWatcher: (wowDirectory: string, wowVersion: WowVersion) => Promise<void>;
     stopLogWatcher: () => Promise<void>;
     removeAll_handleNewCombat_listeners: () => Promise<void>;
     removeAll_handleMalformedCombatDetected_listeners: () => Promise<void>;
     removeAll_handleSoloShuffleEnded_listeners: () => Promise<void>;
     removeAll_handleSoloShuffleRoundEnded_listeners: () => Promise<void>;
+    removeAll_handleParserError_listeners: () => Promise<void>;
   };
 };
