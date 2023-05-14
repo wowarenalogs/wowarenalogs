@@ -19,7 +19,7 @@ function escape_commas(line: string): string {
     if (inside_quoted) {
       // if we are on a quote this might be the start of a quoted string
       // but it could also be a quote-escaped substring
-      if (c === '"' && prev_c && prev_c !== '\\') {
+      if (c === '"' && (prev_c == null || prev_c !== '\\')) {
         inside_quoted = false;
         continue;
       }
