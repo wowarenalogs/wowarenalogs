@@ -97,9 +97,6 @@ function decodeShuffleRound(
     }))
     .filter((a) => a.deathRecords.length > 0);
 
-  if (playerDeaths.length !== 1) {
-    throw new Error(`Wrong number of players dead, invalid round n=${playerDeaths.length}`);
-  }
   const deadPlayerId = playerDeaths[0].unit.id;
   const deathRecords = playerDeaths[0].deathRecords;
 

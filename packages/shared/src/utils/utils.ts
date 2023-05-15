@@ -51,6 +51,7 @@ export class Utils {
     logParser.on('solo_shuffle_ended', (data: IShuffleMatch) => {
       results.shuffleMatches.push(data);
     });
+    // TODO: handle onError here?
 
     for (const line of buffer) {
       logParser.parseLine(line);

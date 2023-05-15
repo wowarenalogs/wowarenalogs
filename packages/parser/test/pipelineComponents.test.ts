@@ -23,6 +23,25 @@ describe('pipeline component tests', () => {
     });
   });
 
+  describe('jsonparse', () => {
+    it('handles interior quote escaped strings with commas', () => {
+      const errors = [];
+      const parser = new WoWCombatLogParser('retail', 'America/New_York');
+      parser.on('parser_error', (err) => {
+        errors.push(err);
+      });
+
+      parser.parseLine(
+        `5/10 20:50:33.984  SPELL_AURA_APPLIED,Player-3694-0A859E95,"Sarious-Lightbringer",0x512,0x20,Player-3694-0A859E95,"Sarious-Lightbringer",0x512,0x20,123904,"Invoke Xuen, the White Tiger",0x8,BUFF`,
+      );
+      const testLine = String.raw`5/14 13:01:48.235  SPELL_AURA_APPLIED,0000000000000000,nil,0x518,0x0,Player-1379-0AE1CEE3,"Myster-Uldum",0x518,0x0,411060,"Nuevo tónico \"Olfatopo, no me olfatees\"",0x8,BUFF`;
+      parser.parseLine(testLine);
+
+      parser.flush();
+      expect(errors.length).toBe(0);
+    });
+  });
+
   describe('dedup', () => {
     it('should remove duplicate lines', () => {
       const inputLines = fs.readFileSync(path.join(__dirname, 'testlogs', 'test_dedup.txt')).toString().split('\n');
