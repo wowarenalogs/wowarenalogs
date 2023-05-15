@@ -17,7 +17,6 @@
     "@apollo/client": "^3.6.9",
     "@google-cloud/firestore": "^5.0.2",
     "@sentry/react": "^7.28.1",
-    "@sentry/tracing": "^7.28.1",
     "@tailwindcss/typography": "^0.5.7",
     "@wowarenalogs/parser": "^5.2.0",
     "@wowarenalogs/shared": "^1.0.0",

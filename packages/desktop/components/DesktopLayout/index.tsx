@@ -36,20 +36,17 @@ export const DesktopLayout = !window.wowarenalogs
       useEffect(() => {
         initAnalyticsAsync('G-Z6E8QS4ENW').then(() => {
           import('@sentry/react').then((Sentry) => {
-            import('@sentry/tracing').then(({ Integrations }) => {
-              Sentry.init({
-                dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
-                integrations: [new Integrations.BrowserTracing()],
-                tracesSampleRate: 1.0,
-                ignoreErrors: ['Non-Error promise rejection captured'],
-              });
-              const userId = getAnalyticsDeviceId();
-              if (userId) {
-                Sentry.setUser({
-                  id: userId,
-                });
-              }
+            Sentry.init({
+              dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
+              tracesSampleRate: 1.0,
+              ignoreErrors: ['Non-Error promise rejection captured'],
             });
+            const userId = getAnalyticsDeviceId();
+            if (userId) {
+              Sentry.setUser({
+                id: userId,
+              });
+            }
           });
         });
       }, []);
