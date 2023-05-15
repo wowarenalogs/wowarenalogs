@@ -202,9 +202,11 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         }
       });
 
-      window.wowarenalogs.logs?.handleParserError((_event, error) => {
-        Sentry.captureException(error);
-      });
+      if (window.wowarenalogs.logs?.handleParserError) {
+        window.wowarenalogs.logs.handleParserError((_event, error) => {
+          Sentry.captureException(error);
+        });
+      }
 
       return () => {
         window.wowarenalogs.logs?.stopLogWatcher();
