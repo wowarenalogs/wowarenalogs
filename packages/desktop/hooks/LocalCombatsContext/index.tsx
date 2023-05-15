@@ -214,7 +214,8 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         window.wowarenalogs.logs?.removeAll_handleMalformedCombatDetected_listeners();
         window.wowarenalogs.logs?.removeAll_handleSoloShuffleEnded_listeners();
         window.wowarenalogs.logs?.removeAll_handleSoloShuffleRoundEnded_listeners();
-        window.wowarenalogs.logs?.removeAll_handleParserError_listeners();
+        window.wowarenalogs.logs?.removeAll_handleParserError_listeners &&
+          window.wowarenalogs.logs?.removeAll_handleParserError_listeners();
         setCombats([]);
       };
     });
