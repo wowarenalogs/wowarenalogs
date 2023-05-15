@@ -8,3 +8,18 @@ export const getWinRateCorrectionFactor = (totalWin: number, totalLose: number) 
   // correctionFactor = 0.5 / actualWinRate
   return 0.5 / actualWinRate;
 };
+
+export type SpecStatsData = [
+  {
+    date: string;
+    spec: string;
+    result: 'win' | 'lose';
+    matches: number;
+    burstDps: number;
+    effectiveDps: number;
+    effectiveHps: number;
+    isKillTarget: number;
+  },
+];
+
+export type ChartableStat = 'representation' | 'winRate' | 'dps' | 'hps' | 'burst' | 'target';

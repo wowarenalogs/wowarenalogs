@@ -1,7 +1,7 @@
 import { AtomicArenaCombat, CombatHpUpdateAction, ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaSkullCrossbones } from 'react-icons/fa';
 
 import { SIGNIFICANT_DAMAGE_HEAL_THRESHOLD, Utils } from '../../../utils/utils';
@@ -25,6 +25,7 @@ const generateHpUpdateColumn = (
   maxAbs: number,
   startTime: number,
   endTime: number,
+  deathTime: number,
 ): React.ReactNode => {
   return (
     <div
@@ -43,7 +44,9 @@ const generateHpUpdateColumn = (
                 align === 'LEFT' ? 'justify-start' : 'justify-end'
               } ${groupTotal >= 0 ? 'text-success' : 'text-error'}`}
               style={{
-                top: parseInt(secondMark, 10) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
+                top:
+                  (parseInt(secondMark, 10) - Math.floor((deathTime - endTime) / 1000)) *
+                  REPORT_TIMELINE_HEIGHT_PER_SECOND,
                 height: REPORT_TIMELINE_HEIGHT_PER_SECOND,
               }}
             >
@@ -70,7 +73,9 @@ const generateHpUpdateColumn = (
               key={secondMark}
               className={`flex ${align === 'LEFT' ? 'flex-row' : 'flex-row-reverse'} absolute`}
               style={{
-                top: parseInt(secondMark, 10) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
+                top:
+                  (parseInt(secondMark, 10) - Math.floor((deathTime - endTime) / 1000)) *
+                  REPORT_TIMELINE_HEIGHT_PER_SECOND,
                 left: align === 'LEFT' ? 0 : undefined,
                 right: align === 'RIGHT' ? 0 : undefined,
                 width: ((groupTotal / maxAbs) * 90).toFixed(2) + '%',
@@ -102,11 +107,12 @@ const generateHpUpdateColumn = (
 const generateHpColumn = (
   unit: ICombatUnit,
   hpBySecondMark: _.Dictionary<number>,
-  combatEndTime: number,
+  endTime: number,
+  deathTime: number,
 ): React.ReactElement[] => {
   const max = _.max(unit.advancedActions.map((a) => a.advancedActorMaxHp)) ?? 1;
   return _.map(hpBySecondMark, (hp, secondMark) => {
-    const absoluteTime = combatEndTime - parseInt(secondMark) * 1000;
+    const absoluteTime = deathTime - parseInt(secondMark) * 1000;
     return (
       <div
         key={secondMark}
@@ -114,7 +120,8 @@ const generateHpColumn = (
           secondMark === '0' ? 'justify-center' : 'justify-between'
         }`}
         style={{
-          top: parseInt(secondMark, 10) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
+          top:
+            (parseInt(secondMark, 10) - Math.floor((deathTime - endTime) / 1000)) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
           height: REPORT_TIMELINE_HEIGHT_PER_SECOND,
         }}
       >
@@ -135,19 +142,28 @@ const generateHpColumn = (
   });
 };
 
-const generateTimeMarksColumn = (secondMarks: string[], combatEndTime: number): React.ReactElement[] => {
+const generateTimeMarksColumn = (
+  startTime: number,
+  endTime: number,
+  combatStartTime: number,
+  deathTime: number,
+): React.ReactElement[] => {
+  const secondMarks = [];
+  for (let i = 0; i <= (endTime - startTime) / 1000; i++) {
+    secondMarks.push(i + Math.floor((deathTime - endTime) / 1000));
+  }
   return _.map(secondMarks, (secondMark) => {
-    const absoluteTime = combatEndTime - parseInt(secondMark) * 1000;
+    const absoluteTime = combatStartTime + deathTime - secondMark * 1000;
     return (
       <div
         key={secondMark}
         className={`flex flex-row w-16 absolute items-center justify-center`}
         style={{
-          top: parseInt(secondMark, 10) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
+          top: (secondMark - Math.floor((deathTime - endTime) / 1000)) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
           height: REPORT_TIMELINE_HEIGHT_PER_SECOND,
         }}
       >
-        {secondMark === '0' ? (
+        {secondMark <= 0 ? (
           <div>
             <FaSkullCrossbones />
           </div>
@@ -162,33 +178,33 @@ const generateTimeMarksColumn = (secondMarks: string[], combatEndTime: number): 
 };
 
 export const CombatUnitTimelineView = (props: IProps) => {
+  const [endTime, setEndTime] = useState(props.endTime);
+  const viewportDuration = props.endTime - props.startTime;
+  const deathTime = props.endTime;
+  const startTime = endTime - viewportDuration;
+
+  useEffect(() => {
+    setEndTime(props.endTime);
+  }, [props.endTime]);
+
   const { combat, players } = useCombatReportContext();
   if (!combat) {
     return null;
   }
 
-  const secondMarks = [];
-  for (let i = 0; i < Math.floor((props.endTime - props.startTime) / 1000); i++) {
-    secondMarks.push(i.toString());
-  }
-
   // Group damage/healing actions and hp numbers into 1 second chunks
-  const damageActions = props.unit.damageIn.filter(
-    (a) => a.timestamp >= props.startTime && a.timestamp <= props.endTime,
-  );
+  const damageActions = props.unit.damageIn.filter((a) => a.timestamp >= startTime && a.timestamp <= endTime);
   const damageActionGroupsBySecondMark = _.groupBy(damageActions, (action) =>
-    Math.floor((props.endTime - action.timestamp) / 1000),
+    Math.floor((deathTime - action.timestamp) / 1000),
   );
-  const healActions = props.unit.healIn.filter((a) => a.timestamp >= props.startTime && a.timestamp <= props.endTime);
+  const healActions = props.unit.healIn.filter((a) => a.timestamp >= startTime && a.timestamp <= endTime);
   const healActionGroupsBySecondMark = _.groupBy(healActions, (action) =>
-    Math.floor((props.endTime - action.timestamp) / 1000),
+    Math.floor((deathTime - action.timestamp) / 1000),
   );
 
-  const advancedActions = props.unit.advancedActions.filter(
-    (a) => a.timestamp >= props.startTime && a.timestamp <= props.endTime,
-  );
+  const advancedActions = props.unit.advancedActions.filter((a) => a.timestamp >= startTime && a.timestamp <= endTime);
   const hpBySecondMark = _.mapValues(
-    _.groupBy(advancedActions, (action) => Math.floor((props.endTime - action.timestamp) / 1000)),
+    _.groupBy(advancedActions, (action) => Math.floor((deathTime - action.timestamp) / 1000)),
     (actions) => _.maxBy(actions, (a) => a.timestamp)?.advancedActorCurrentHp ?? 0,
   );
 
@@ -202,8 +218,29 @@ export const CombatUnitTimelineView = (props: IProps) => {
   const friends = players.filter((p) => p.reaction === props.unit.reaction);
   const enemies = players.filter((p) => p.reaction !== props.unit.reaction);
 
+  const sliderStartOffset = (deathTime - combat.startTime) % 1000;
+
   return (
     <div className="flex flex-col flex-1 text-sm">
+      <div className="flex flex-row items-center mb-2">
+        <input
+          type="range"
+          className="range range-sm flex-1"
+          min={0}
+          max={deathTime - combat.startTime - sliderStartOffset}
+          value={endTime - combat.startTime - sliderStartOffset}
+          step={1000}
+          onChange={(e) => {
+            setEndTime(e.target.valueAsNumber + combat.startTime + sliderStartOffset);
+          }}
+        />
+        <div className="ml-2">{moment.utc(endTime - combat.startTime).format('mm:ss')}</div>
+        <div className="opacity-50 mr-2">
+          &nbsp;
+          {'/ ' + moment.utc(deathTime - combat.startTime).format('mm:ss')}
+        </div>
+        <FaSkullCrossbones className="opacity-50" />
+      </div>
       <div className="flex flex-row mb-1 font-bold uppercase pb-2 items-end">
         <div className="flex flex-row items-start border-t pt-2 pr-2 mr-2 border-base-content">
           {enemies.map((p) => (
@@ -233,7 +270,7 @@ export const CombatUnitTimelineView = (props: IProps) => {
       </div>
       <div className="flex flex-row">
         {enemies.map((p) => (
-          <CombatUnitAuraTimeline key={p.id} unit={p} startTime={props.startTime} endTime={props.endTime} />
+          <CombatUnitAuraTimeline key={p.id} unit={p} startTime={startTime} endTime={endTime} />
         ))}
         {generateHpUpdateColumn(
           combat,
@@ -241,19 +278,20 @@ export const CombatUnitTimelineView = (props: IProps) => {
           damageActionGroupsBySecondMark,
           'RIGHT',
           maxAbs,
-          props.startTime,
-          props.endTime,
+          startTime,
+          endTime,
+          deathTime,
         )}
         <div className="divider divider-horizontal mx-1" />
         <div
           className="w-16 flex relative"
           style={{
-            height: ((props.endTime - props.startTime) / 1000) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
+            height: (viewportDuration / 1000) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
           }}
         >
           {combat.hasAdvancedLogging
-            ? generateHpColumn(props.unit, hpBySecondMark, props.endTime - combat.startTime)
-            : generateTimeMarksColumn(secondMarks, props.endTime - combat.startTime)}
+            ? generateHpColumn(props.unit, hpBySecondMark, endTime, deathTime)
+            : generateTimeMarksColumn(startTime, endTime, combat.startTime, deathTime)}
         </div>
         <div className="divider divider-horizontal mx-1" />
         {generateHpUpdateColumn(
@@ -262,11 +300,12 @@ export const CombatUnitTimelineView = (props: IProps) => {
           healActionGroupsBySecondMark,
           'LEFT',
           maxAbs,
-          props.startTime,
-          props.endTime,
+          startTime,
+          endTime,
+          deathTime,
         )}
         {friends.map((p) => (
-          <CombatUnitAuraTimeline key={p.id} unit={p} startTime={props.startTime} endTime={props.endTime} />
+          <CombatUnitAuraTimeline key={p.id} unit={p} startTime={startTime} endTime={endTime} />
         ))}
       </div>
     </div>

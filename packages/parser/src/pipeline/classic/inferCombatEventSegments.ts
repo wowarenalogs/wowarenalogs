@@ -1,18 +1,35 @@
 import { Observable } from 'rxjs';
 
 import { CombatAction } from '../../actions/CombatAction';
+import { ZoneChange } from '../../actions/ZoneChange';
 import { CombatEvent, CombatUnitType, ICombatEventSegment, LogEvent } from '../../types';
 import { getUnitReaction, getUnitType, PIPELINE_FLUSH_SIGNAL } from '../../utils';
 
-const COMBAT_AUTO_TIMEOUT_SECS = 60;
+const ARENA_ZONE_IDS = [
+  559, // Nagrand Arena
+  562, // Blade's Edge Arena
+  572, // Ruins of Lordaeron
+  617, // Dalaran Arena
+  618, // The Ring of Valor
+];
 
 type State = 'MATCH_NOT_STARTED' | 'MATCH_STARTED';
+
+function isMatchStartEvent(event: CombatEvent): boolean {
+  // combat log is not showing the arena preparation buff, so we have to infer start by
+  // looking for the zone changes
+  return event instanceof ZoneChange && ARENA_ZONE_IDS.includes(event.instanceId);
+}
+
+function isMatchEndEvent(event: CombatEvent): boolean {
+  // arena end is inferred by zone changeing into a non-arena zone
+  return event instanceof ZoneChange && !ARENA_ZONE_IDS.includes(event.instanceId);
+}
 
 export const inferCombatEventSegments = () => {
   return (input: Observable<CombatEvent | string>) => {
     return new Observable<ICombatEventSegment>((output) => {
       let state: State = 'MATCH_NOT_STARTED';
-      let lastSignificantEventTime = 0;
       let currentBuffer: ICombatEventSegment = { events: [], lines: [] };
       const currentSegmentCombatantIds = new Set<string>();
 
@@ -44,7 +61,6 @@ export const inferCombatEventSegments = () => {
           lines: [],
         };
         currentSegmentCombatantIds.clear();
-        lastSignificantEventTime = 0;
       };
 
       input.subscribe({
@@ -61,49 +77,45 @@ export const inferCombatEventSegments = () => {
             return;
           }
 
-          const isMatchStartEvent =
-            event instanceof CombatAction &&
-            event.logLine.event === LogEvent.SPELL_AURA_REMOVED &&
-            getUnitType(event.destUnitFlags) === CombatUnitType.Player &&
-            event.spellId === '32727'; // arena preparation buff
-
           switch (state) {
             case 'MATCH_NOT_STARTED':
               // when not in a match, the only event that matters is
               // match start. when that happens we change state to reflect
               // that we are now in a match.
-              if (isMatchStartEvent) {
+              if (isMatchStartEvent(event)) {
                 state = 'MATCH_STARTED';
                 currentSegmentCombatantIds.add((event as CombatAction).destUnitId);
-                lastSignificantEventTime = event.timestamp;
               } else {
                 return;
               }
               break;
             case 'MATCH_STARTED':
-              if (isMatchStartEvent) {
+              if (isMatchStartEvent(event)) {
                 if (Math.abs(event.timestamp - currentBuffer.events[0].timestamp) > 5000) {
                   emitCurrentBuffer();
                 }
                 currentSegmentCombatantIds.add((event as CombatAction).destUnitId);
-                lastSignificantEventTime = event.timestamp;
-              } else if (event.timestamp - lastSignificantEventTime > COMBAT_AUTO_TIMEOUT_SECS * 1000) {
+              } else if (isMatchEndEvent(event)) {
                 emitCurrentBuffer();
                 state = 'MATCH_NOT_STARTED';
               } else {
-                // a significant event is an interaction between two players from
-                // different teams and one of them is a known combatant.
+                // We cannot currently tell known combatants at the start of the arena because
+                // arena preparation buff is not showing up in combat logs. So we just record
+                // all cambatants. this is not ideal because it could include other
+                // combatants (some other events arrive before ZONE_CHANGE involving players in the loading map).
+                // This is mitigated by parser trimming the events until the last death event,
+                // it remains to be seen if we could finish the arena and get another UNIT_DIED
+                // event (from a player in the loading map) before the ZONE_CHANGE event.
                 const isSignificantEvent =
                   event instanceof CombatAction &&
                   event.srcUnitId !== event.destUnitId &&
                   getUnitReaction(event.srcUnitFlags) !== getUnitReaction(event.destUnitFlags) &&
                   getUnitType(event.srcUnitFlags) === CombatUnitType.Player &&
-                  getUnitType(event.destUnitFlags) === CombatUnitType.Player &&
-                  (currentSegmentCombatantIds.has(event.srcUnitId) || currentSegmentCombatantIds.has(event.destUnitId));
+                  getUnitType(event.destUnitFlags) === CombatUnitType.Player;
+
                 if (isSignificantEvent) {
                   currentSegmentCombatantIds.add((event as CombatAction).srcUnitId);
                   currentSegmentCombatantIds.add((event as CombatAction).destUnitId);
-                  lastSignificantEventTime = event.timestamp;
                 }
               }
               break;

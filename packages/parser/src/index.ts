@@ -106,6 +106,9 @@ export class WoWCombatLogParser extends EventEmitter {
             (combat) => {
               this.emit('solo_shuffle_ended', combat);
             },
+            (error) => {
+              this.emit('parser_error', error);
+            },
             this._timezone,
           ),
         };
@@ -125,6 +128,9 @@ export class WoWCombatLogParser extends EventEmitter {
           (malformedCombat) => {
             this.emit('malformed_arena_match_detected', malformedCombat);
           },
+          (error) => {
+            this.emit('parser_error', error);
+          },
           this._timezone,
         ),
       };
@@ -143,6 +149,9 @@ export class WoWCombatLogParser extends EventEmitter {
           },
           (combat) => {
             this.emit('solo_shuffle_ended', combat);
+          },
+          (error) => {
+            this.emit('parser_error', error);
           },
           this._timezone,
         ),

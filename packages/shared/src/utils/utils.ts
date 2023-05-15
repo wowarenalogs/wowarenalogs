@@ -51,6 +51,7 @@ export class Utils {
     logParser.on('solo_shuffle_ended', (data: IShuffleMatch) => {
       results.shuffleMatches.push(data);
     });
+    // TODO: handle onError here?
 
     for (const line of buffer) {
       logParser.parseLine(line);
@@ -66,6 +67,64 @@ export class Utils {
 
   public static getClassName(unitClass: CombatUnitClass) {
     return classNames[unitClass];
+  }
+
+  public static getSpecClass(spec: CombatUnitSpec): CombatUnitClass {
+    switch (spec) {
+      case CombatUnitSpec.Druid_Balance:
+      case CombatUnitSpec.Druid_Feral:
+      case CombatUnitSpec.Druid_Guardian:
+      case CombatUnitSpec.Druid_Restoration:
+        return CombatUnitClass.Druid;
+      case CombatUnitSpec.Hunter_BeastMastery:
+      case CombatUnitSpec.Hunter_Marksmanship:
+      case CombatUnitSpec.Hunter_Survival:
+        return CombatUnitClass.Hunter;
+      case CombatUnitSpec.Mage_Arcane:
+      case CombatUnitSpec.Mage_Fire:
+      case CombatUnitSpec.Mage_Frost:
+        return CombatUnitClass.Mage;
+      case CombatUnitSpec.Paladin_Holy:
+      case CombatUnitSpec.Paladin_Protection:
+      case CombatUnitSpec.Paladin_Retribution:
+        return CombatUnitClass.Paladin;
+      case CombatUnitSpec.Priest_Discipline:
+      case CombatUnitSpec.Priest_Holy:
+      case CombatUnitSpec.Priest_Shadow:
+        return CombatUnitClass.Priest;
+      case CombatUnitSpec.Rogue_Assassination:
+      case CombatUnitSpec.Rogue_Outlaw:
+      case CombatUnitSpec.Rogue_Subtlety:
+        return CombatUnitClass.Rogue;
+      case CombatUnitSpec.Shaman_Elemental:
+      case CombatUnitSpec.Shaman_Enhancement:
+      case CombatUnitSpec.Shaman_Restoration:
+        return CombatUnitClass.Shaman;
+      case CombatUnitSpec.Warlock_Affliction:
+      case CombatUnitSpec.Warlock_Demonology:
+      case CombatUnitSpec.Warlock_Destruction:
+        return CombatUnitClass.Warlock;
+      case CombatUnitSpec.Warrior_Arms:
+      case CombatUnitSpec.Warrior_Fury:
+      case CombatUnitSpec.Warrior_Protection:
+        return CombatUnitClass.Warrior;
+      case CombatUnitSpec.DeathKnight_Blood:
+      case CombatUnitSpec.DeathKnight_Frost:
+      case CombatUnitSpec.DeathKnight_Unholy:
+        return CombatUnitClass.DeathKnight;
+      case CombatUnitSpec.Monk_BrewMaster:
+      case CombatUnitSpec.Monk_Mistweaver:
+      case CombatUnitSpec.Monk_Windwalker:
+        return CombatUnitClass.Monk;
+      case CombatUnitSpec.DemonHunter_Havoc:
+      case CombatUnitSpec.DemonHunter_Vengeance:
+        return CombatUnitClass.DemonHunter;
+      case CombatUnitSpec.Evoker_Devastation:
+      case CombatUnitSpec.Evoker_Preservation:
+        return CombatUnitClass.Evoker;
+      default:
+        return CombatUnitClass.None;
+    }
   }
 
   public static getAverageItemLevel(player: ICombatUnit): number {
