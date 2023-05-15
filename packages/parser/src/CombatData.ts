@@ -526,6 +526,7 @@ export class CombatData {
         ) {
           destUnit.consciousDeathRecords.push(event.logLine);
         } else {
+          logInfo('UNIT_DIED', event.logLine.raw);
           destUnit.deathRecords.push(event.logLine);
         }
         break;

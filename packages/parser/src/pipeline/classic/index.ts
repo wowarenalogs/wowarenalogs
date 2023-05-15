@@ -10,6 +10,7 @@ import { segmentToCombat } from './segmentToCombat';
 export const createClassicParserPipeline = (
   onValidCombat: (combat: IArenaMatch) => void,
   onMalformedCombat: (combat: IMalformedCombatData) => void,
+  onError: (error: Error) => void,
   timezone: string,
 ) => {
   const rawLogs = new Subject<string>();
@@ -23,6 +24,9 @@ export const createClassicParserPipeline = (
       segmentToCombat(),
     )
     .subscribe({
+      error: (e) => {
+        onError(e);
+      },
       next: (v) => {
         if (v.dataType === 'ArenaMatch') {
           onValidCombat(v);
