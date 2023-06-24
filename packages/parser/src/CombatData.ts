@@ -382,6 +382,7 @@ export class CombatData {
             break;
           case CombatUnitSpec.Evoker_Devastation:
           case CombatUnitSpec.Evoker_Preservation:
+          case CombatUnitSpec.Evoker_Augmentation:
             unitClass = CombatUnitClass.Evoker;
             break;
         }

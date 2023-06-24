@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 import path from 'path';
 import { from } from 'rxjs';
 
-import { WoWCombatLogParser } from '../src';
+import { CombatSupportAction, WoWCombatLogParser } from '../src';
 import { CombatHpUpdateAction } from '../src/actions/CombatHpUpdateAction';
 import { PartyKill } from '../src/actions/PartyKill';
 import { dedup } from '../src/pipeline/classic/dedup';
@@ -135,6 +135,55 @@ describe('pipeline component tests', () => {
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
       expect(action.isCritical).toEqual(true);
     });
+
+    it('should parse SPELL_DAMAGE_SUPPORT', () => {
+      const log = `6/24 13:55:42.309  SPELL_DAMAGE_SUPPORT,Player-5764-0001B6CA,"Asdofh-Fyrakk",0x511,0x0,Creature-0-5770-530-764-153285-0000972A98,"Training Dummy",0x10a28,0x0,395152,"Ebon Might",0xc,0000000000000000,0000000000000000,0,0,0,0,0,0,-1,0,0,0,0.00,0.00,110,0.0000,0,2564,2564,-1,4,0,0,0,nil,nil,nil,Player-5764-0001804B`;
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+      expect(logLine).not.toBeNull();
+      const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.amount).toEqual(-2564);
+      expect(action.supportActorId).toEqual('Player-5764-0001804B');
+    });
+
+    it('should parse SPELL_PERIODIC_DAMAGE_SUPPORT', () => {
+      const log = `6/24 14:15:32.187  SPELL_PERIODIC_DAMAGE_SUPPORT,Player-5764-0001B6CA,"Asdofh-Fyrakk",0x511,0x0,Creature-0-5770-530-764-153285-0000972A98,"Training Dummy",0x10a28,0x0,395152,"Ebon Might",0xc,0000000000000000,0000000000000000,0,0,0,0,0,0,-1,0,0,0,0.00,0.00,110,0.0000,0,1520,1520,-1,80,0,0,0,nil,nil,nil,Player-5764-0001804B`;
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+      expect(logLine).not.toBeNull();
+      const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.amount).toEqual(-1520);
+      expect(action.supportActorId).toEqual('Player-5764-0001804B');
+    });
+
+    it('should parse SWING_DAMAGE_SUPPORT', () => {
+      throw new Error('NYI');
+    });
+
+    it('should parse SWING_DAMAGE_SUPPORT', () => {
+      throw new Error('NYI');
+    });
+
+    it('should parse RANGE_DAMAGE_SUPPORT', () => {
+      throw new Error('NYI');
+    });
+
+    it('should parse SPELL_HEAL_SUPPORT', () => {
+      throw new Error('NYI');
+    });
+
+    it('should parse SPELL_PERIODIC_HEAL_SUPPORT', () => {
+      throw new Error('NYI');
+    });
+
+    it('should parse SWING_DAMAGE_LANDED_SUPPORT', () => {
+      throw new Error('NYI');
+    });
+
     //
     it('should parse party kill events', () => {
       const log =

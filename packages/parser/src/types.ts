@@ -52,6 +52,13 @@ export enum LogEvent {
   DAMAGE_SPLIT = 'DAMAGE_SPLIT',
   UNIT_DIED = 'UNIT_DIED',
   PARTY_KILL = 'PARTY_KILL',
+  SWING_DAMAGE_SUPPORT = 'SWING_DAMAGE_SUPPORT',
+  RANGE_DAMAGE_SUPPORT = 'RANGE_DAMAGE_SUPPORT',
+  SPELL_DAMAGE_SUPPORT = 'SPELL_DAMAGE_SUPPORT',
+  SPELL_HEAL_SUPPORT = 'SPELL_HEAL_SUPPORT',
+  SPELL_PERIODIC_DAMAGE_SUPPORT = 'SPELL_PERIODIC_DAMAGE_SUPPORT',
+  SPELL_PERIODIC_HEAL_SUPPORT = 'SPELL_PERIODIC_HEAL_SUPPORT',
+  SWING_DAMAGE_LANDED_SUPPORT = 'SWING_DAMAGE_LANDED_SUPPORT',
 }
 
 export type CombatEvent = ArenaMatchStart | ArenaMatchEnd | CombatAction | CombatantInfoAction | PartyKill | ZoneChange;
@@ -175,6 +182,7 @@ export enum CombatUnitSpec {
   Warrior_Protection = '73',
   Evoker_Devastation = '1467',
   Evoker_Preservation = '1468',
+  Evoker_Augmentation = '1469',
 }
 
 export enum CombatUnitPowerType {
