@@ -177,4 +177,13 @@ export const awcSpells: Record<CombatUnitSpec, string[]> = {
     '370960', // emerald communion
     '374348', // renewing blaze
   ],
+  //  Evoker_Augmentation = "1473",
+  '1473': [
+    '357170', // time dilation
+    '363534', // rewind
+    '363916', // obsidian scales
+    '370553', // tip the scales
+    '370960', // emerald communion
+    '374348', // renewing blaze
+  ],
 };
