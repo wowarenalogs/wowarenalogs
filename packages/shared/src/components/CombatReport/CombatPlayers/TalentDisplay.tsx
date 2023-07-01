@@ -9,7 +9,7 @@ const classHeight = {
   [CombatUnitClass.Warrior]: 390,
   [CombatUnitClass.Evoker]: 490,
   [CombatUnitClass.Hunter]: 480,
-  [CombatUnitClass.Shaman]: 390,
+  [CombatUnitClass.Shaman]: 420,
   [CombatUnitClass.Paladin]: 430,
   [CombatUnitClass.Warlock]: 490,
   [CombatUnitClass.Priest]: 430,
