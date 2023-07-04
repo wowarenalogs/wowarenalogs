@@ -62,7 +62,6 @@ const compileDamageBySpell = (actions: CombatHpUpdateAction[], ownerActorId: str
     const maybeActorId = _.first(actionsGroup.filter((a) => a.srcUnitId).map((a) => a.srcUnitId));
     let maybeActorName = _.first(actionsGroup.filter((a) => a.srcUnitName).map((a) => a.srcUnitName));
     maybeActorName = maybeActorId === ownerActorId ? '' : `(Pet) ${maybeActorName}: `;
-    console.log({ groups });
     return {
       id: spellId,
       name: maybeActorName + spellName,
