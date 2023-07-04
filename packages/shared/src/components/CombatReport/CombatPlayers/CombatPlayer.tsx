@@ -49,15 +49,22 @@ export const maybeGetSpellIdFromTalentId = (talentId: number) => {
 
 const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14, 17, 3];
 
-const compileDamageBySpell = (actions: CombatHpUpdateAction[]) => {
+const compileDamageBySpell = (actions: CombatHpUpdateAction[], ownerActorId: string) => {
   const groups = _.groupBy(
     actions.filter((a) => a.effectiveAmount !== 0),
-    (a) => a.spellId,
+    (a) => {
+      // console.log({ a });
+      return a.srcUnitName + (a.spellId || 'swing');
+    },
   );
   return _.map(groups, (actionsGroup, spellId) => {
+    const spellName = _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack';
+    const maybeActorId = _.first(actionsGroup.filter((a) => a.srcUnitId).map((a) => a.srcUnitId));
+    let maybeActorName = _.first(actionsGroup.filter((a) => a.srcUnitName).map((a) => a.srcUnitName));
+    maybeActorName = maybeActorId === ownerActorId ? '' : `(Pet) ${maybeActorName}: `;
     return {
       id: spellId,
-      name: _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack',
+      name: maybeActorName + spellName,
       value: _.sum(actionsGroup.map((a) => Math.abs(a.effectiveAmount))),
     };
   }).sort((a, b) => b.value - a.value);
@@ -227,7 +234,7 @@ export function CombatPlayer(props: IProps) {
   }, [props.player]);
 
   const damageDoneBySpells = useMemo(() => {
-    return compileDamageBySpell(props.player.damageOut);
+    return compileDamageBySpell(props.player.damageOut, props.player.id);
   }, [props.player]);
   const damageDoneBySpellsMax = _.max(damageDoneBySpells.map((s) => s.value)) || 1;
   const damageDoneBySpellsSum = _.sum(damageDoneBySpells.map((s) => s.value));
