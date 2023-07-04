@@ -53,7 +53,6 @@ const compileDamageBySpell = (actions: CombatHpUpdateAction[], ownerActorId: str
   const groups = _.groupBy(
     actions.filter((a) => a.effectiveAmount !== 0),
     (a) => {
-      // console.log({ a });
       return a.srcUnitName + (a.spellId || 'swing');
     },
   );
