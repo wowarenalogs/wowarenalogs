@@ -56,8 +56,9 @@ const compileDamageBySpell = (actions: CombatHpUpdateAction[], ownerActorId: str
       return a.srcUnitName + (a.spellId || 'swing');
     },
   );
-  return _.map(groups, (actionsGroup, spellId) => {
+  return _.map(groups, (actionsGroup, _groupKey) => {
     const spellName = _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack';
+    const spellId = _.first(actionsGroup.filter((a) => a.spellId).map((a) => a.spellId)) || '0';
     const maybeActorId = _.first(actionsGroup.filter((a) => a.srcUnitId).map((a) => a.srcUnitId));
     let maybeActorName = _.first(actionsGroup.filter((a) => a.srcUnitName).map((a) => a.srcUnitName));
     maybeActorName = maybeActorId === ownerActorId ? '' : `(Pet) ${maybeActorName}: `;
