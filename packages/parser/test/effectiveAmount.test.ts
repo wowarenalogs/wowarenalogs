@@ -51,15 +51,33 @@ describe('parsing a log with overheals and pets', () => {
 
     // Total damage by InternalSwift
     const totalDamage = results.combats[0].units['2e292443-3689-451b-a125-d99e463ee255'].damageOut.reduce(
-      (prev, cur) => prev + cur.amount,
+      // type narrowing here needed because of absorbs
+      (prev, cur) => ('amount' in cur ? cur.amount + prev : prev),
       0,
     );
     expect(totalDamage).toBe(-355713);
-    // Effective damage by InternalSwift
-    const effectiveDamage = results.combats[0].units['2e292443-3689-451b-a125-d99e463ee255'].damageOut.reduce(
-      (prev, cur) => prev + cur.effectiveAmount,
+
+    // Total effective damage by InternalSwift
+    const totalEffectiveDamage = results.combats[0].units['2e292443-3689-451b-a125-d99e463ee255'].damageOut.reduce(
+      // type narrowing here needed because of absorbs
+      (prev, cur) => ('amount' in cur ? cur.effectiveAmount + prev : prev),
       0,
     );
-    expect(effectiveDamage).toBe(-295070);
+    expect(totalEffectiveDamage).toBe(-295070);
+
+    const totalAbsorbed = results.combats[0].units['2e292443-3689-451b-a125-d99e463ee255'].damageOut.reduce(
+      // type narrowing here needed because of absorbs
+      (prev, cur) => ('absorbedAmount' in cur ? cur.effectiveAmount + prev : prev),
+      0,
+    );
+    expect(totalAbsorbed).toBe(87929);
+
+    // Effective damage by InternalSwift
+    const effectiveDamage = results.combats[0].units['2e292443-3689-451b-a125-d99e463ee255'].damageOut.reduce(
+      (prev, cur) => prev + Math.abs(cur.effectiveAmount),
+      0,
+    );
+    expect(effectiveDamage).toBe(382999);
+    expect(-totalEffectiveDamage + totalAbsorbed).toBe(382999);
   });
 });
