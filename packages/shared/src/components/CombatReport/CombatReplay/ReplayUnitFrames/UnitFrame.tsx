@@ -109,7 +109,7 @@ const POWER_BY_SPEC: Record<CombatUnitSpec, CombatUnitPowerType> = {
 
   [CombatUnitSpec.Evoker_Devastation]: CombatUnitPowerType.Mana,
   [CombatUnitSpec.Evoker_Preservation]: CombatUnitPowerType.Mana,
-  // [CombatUnitSpec.Evoker_Augmentation]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Evoker_Augmentation]: CombatUnitPowerType.Mana,
 };
 
 const MINIMUM_VALID_CAST_DURATION = 200;

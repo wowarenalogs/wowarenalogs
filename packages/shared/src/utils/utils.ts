@@ -121,7 +121,7 @@ export class Utils {
         return CombatUnitClass.DemonHunter;
       case CombatUnitSpec.Evoker_Devastation:
       case CombatUnitSpec.Evoker_Preservation:
-        // case CombatUnitSpec.Evoker_Augmentation:
+      case CombatUnitSpec.Evoker_Augmentation:
         return CombatUnitClass.Evoker;
       default:
         return CombatUnitClass.None;
