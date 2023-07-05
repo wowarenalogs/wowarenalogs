@@ -460,6 +460,7 @@ export class CombatData {
           shieldOwner.absorbsOut.push(absorbAction);
           destUnit.absorbsIn.push(absorbAction);
           srcUnit.absorbsDamaged.push(absorbAction);
+          srcUnit.damageOut.push(absorbAction);
         }
         break;
       case LogEvent.SWING_DAMAGE:
