@@ -36,6 +36,7 @@ export const CombatReportInternal = () => {
   const { data: user } = useGetProfileQuery();
   const { combat, activeTab, setActiveTab, activePlayerId } = useCombatReportContext();
 
+  console.log({ combat });
   const [urlCopied, setUrlCopied] = useState(false);
   const reportUrl = useMemo(() => {
     const url = `https://wowarenalogs.com/match?id=${combat?.id}`;
