@@ -49,7 +49,7 @@ export const maybeGetSpellIdFromTalentId = (talentId: number) => {
 
 const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14, 17, 3];
 
-const compileDamageBySpell = (actions: CombatHpUpdateAction[], ownerActorId: string) => {
+const compileDamageBySpell = (actions: (CombatHpUpdateAction | CombatAbsorbAction)[], ownerActorId: string) => {
   const groups = _.groupBy(
     actions.filter((a) => a.effectiveAmount !== 0),
     (a) => {
@@ -84,7 +84,7 @@ const compileCastsBySpell = (actions: CombatAction[]) => {
   }).sort((a, b) => b.value - a.value);
 };
 
-const compileDamageByDest = (actions: CombatHpUpdateAction[]) => {
+const compileDamageByDest = (actions: (CombatHpUpdateAction | CombatAbsorbAction)[]) => {
   const groups = _.groupBy(
     actions.filter((a) => a.effectiveAmount !== 0),
     (a) => a.destUnitId,

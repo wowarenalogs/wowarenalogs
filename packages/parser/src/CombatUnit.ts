@@ -27,7 +27,7 @@ export interface ICombatUnit {
   info?: CombatantInfo;
 
   damageIn: CombatHpUpdateAction[];
-  damageOut: CombatHpUpdateAction[];
+  damageOut: (CombatHpUpdateAction | CombatAbsorbAction)[];
   healIn: CombatHpUpdateAction[];
   healOut: CombatHpUpdateAction[];
 
@@ -62,7 +62,7 @@ export class CombatUnit implements ICombatUnit {
   public isActive = false;
 
   public damageIn: CombatHpUpdateAction[] = [];
-  public damageOut: CombatHpUpdateAction[] = [];
+  public damageOut: (CombatHpUpdateAction | CombatAbsorbAction)[] = [];
   public healIn: CombatHpUpdateAction[] = [];
   public healOut: CombatHpUpdateAction[] = [];
   public absorbsIn: CombatAbsorbAction[] = [];
