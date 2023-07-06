@@ -18,6 +18,7 @@ import { getUnitAffiliation } from './utils';
 export interface ICombatUnit {
   id: string;
   name: string;
+  ownerId: string;
   isWellFormed: boolean;
   reaction: CombatUnitReaction;
   affiliation: CombatUnitAffiliation;
