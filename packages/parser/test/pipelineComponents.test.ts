@@ -157,6 +157,8 @@ describe('pipeline component tests', () => {
       expect(logLine).not.toBeNull();
       const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
       expect(action.amount).toEqual(-1520);
+      expect(action.spellName).toBe('Ebon Might');
+      expect(action.spellId).toBe('395152');
       expect(action.supportActorId).toEqual('Player-5764-0001804B');
     });
 
@@ -165,19 +167,32 @@ describe('pipeline component tests', () => {
       throw new Error('NYI');
     });
 
-    xit('should parse SWING_DAMAGE_SUPPORT', () => {
-      // TODO: support event
-      throw new Error('NYI');
+    it('should parse RANGE_DAMAGE_SUPPORT', () => {
+      const log = `7/10 18:22:57.752  RANGE_DAMAGE_SUPPORT,Player-5764-0002AE3B,"Beastmystery-Fyrakk",0x511,0x0,Creature-0-5770-2444-5-197833-00002C7CDE,"PvP Training Dummy",0x10a28,0x0,410089,"Prescience",0x40,0000000000000000,0000000000000000,0,0,0,0,0,0,-1,0,0,0,0.00,0.00,2112,0.0000,0,548,521,547,1,0,0,0,1,nil,nil,Player-5764-0001804B`;
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+      expect(logLine).not.toBeNull();
+      const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.amount).toEqual(-548);
+      expect(action.spellName).toBe('Prescience');
+      expect(action.spellId).toBe('410089');
+      expect(action.supportActorId).toEqual('Player-5764-0001804B');
     });
 
-    xit('should parse RANGE_DAMAGE_SUPPORT', () => {
-      // TODO: support event
-      throw new Error('NYI');
-    });
-
-    xit('should parse SPELL_HEAL_SUPPORT', () => {
-      // TODO: support event
-      throw new Error('NYI');
+    it('should parse SPELL_HEAL_SUPPORT', () => {
+      const log = `7/10 18:16:50.922  SPELL_HEAL_SUPPORT,Player-5764-000183CB,"Yllaphcaz-Iridikron",0x548,0x0,Creature-0-5770-2444-5-194646-00002C7CDE,"Training Dummy",0xa18,0x0,413786,"Fate Mirror",0x40,0000000000000000,0000000000000000,0,0,0,0,0,0,-1,0,0,0,0.00,0.00,2112,0.0000,0,1169,1169,0,0,nil,Player-5764-0002553E`;
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+      expect(logLine).not.toBeNull();
+      const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.amount).toEqual(1169);
+      expect(action.spellName).toBe('Fate Mirror');
+      expect(action.spellId).toBe('413786');
+      expect(action.supportActorId).toEqual('Player-5764-0002553E');
     });
 
     xit('should parse SPELL_PERIODIC_HEAL_SUPPORT', () => {

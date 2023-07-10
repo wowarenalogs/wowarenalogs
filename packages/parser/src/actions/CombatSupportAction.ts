@@ -84,7 +84,11 @@ export class CombatSupportAction extends CombatAction {
     /**
      * The id of the actor that cast the buff causing the extra support damage or healing
      */
-    this.supportActorId = logLine.parameters[advancedLoggingOffset + 27].toString();
+    if (logLine.event.includes('_HEAL_')) {
+      this.supportActorId = logLine.parameters[advancedLoggingOffset + 22].toString();
+    } else {
+      this.supportActorId = logLine.parameters[advancedLoggingOffset + 27].toString();
+    }
 
     if (logLine.event === 'SWING_DAMAGE_SUPPORT') {
       this.amount = -1 * logLine.parameters[25 + wowVersionOffset];
