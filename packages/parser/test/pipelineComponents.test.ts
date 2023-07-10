@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 import path from 'path';
 import { from } from 'rxjs';
 
-import { CombatSupportAction, WoWCombatLogParser } from '../src';
+import { CombatAbsorbAction, CombatSupportAction, WoWCombatLogParser } from '../src';
 import { CombatHpUpdateAction } from '../src/actions/CombatHpUpdateAction';
 import { PartyKill } from '../src/actions/PartyKill';
 import { dedup } from '../src/pipeline/classic/dedup';
@@ -217,6 +217,30 @@ describe('pipeline component tests', () => {
       expect(action.advancedActorPositionX).toEqual(4028.03);
       expect(action.advancedActorPositionY).toEqual(2925.57);
       expect(action.advancedActorItemLevel).toEqual(75);
+    });
+
+    // These two lines produced the combat text:
+    // Your Aimed Shot hit Banthur 52,602 Physical. (57,096 Absorbed)
+    it('should parse SPELL_ABSORBED+SPELL_DAMAGE pt1', () => {
+      const log = `7/5 17:55:45.405  SPELL_ABSORBED,Player-60-0F1108AA,"Beastmystery-Stormrage",0x548,0x0,Player-60-0F0C61CB,"Banthur-Stormrage",0x10511,0x0,19434,"Aimed Shot",0x1,Player-60-0F0C61CB,"Banthur-Stormrage",0x10511,0x0,17,"Power Word: Shield",0x2,57096,150591,nil`;
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+      expect(logLine).not.toBeNull();
+      const action = new CombatAbsorbAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.effectiveAmount).toEqual(57096);
+    });
+
+    it('should parse SPELL_ABSORBED+SPELL_DAMAGE pt2', () => {
+      const log = `7/5 17:55:45.405  SPELL_DAMAGE,Player-60-0F1108AA,"Beastmystery-Stormrage",0x548,0x0,Player-60-0F0C61CB,"Banthur-Stormrage",0x10511,0x0,19434,"Aimed Shot",0x1,Player-60-0F0C61CB,0000000000000000,569018,621620,1081,12160,2305,0,0,275625,275625,0,1208.91,-4421.43,1,1.2321,440,52602,150591,-1,1,0,0,57096,nil,nil,nil`;
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+      expect(logLine).not.toBeNull();
+      const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.effectiveAmount).toEqual(-52602);
     });
   });
 });

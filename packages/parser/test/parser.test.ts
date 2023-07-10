@@ -218,13 +218,13 @@ describe('parser tests', () => {
         results.combats[0].units['c5f3ff0a-040a-4e88-a171-59d4ceca1a42'].damageOut.filter(
           (e) => e.srcUnitId === 'Pet-0-4221-2167-21249-165189-050415A773',
         ).length,
-      ).toEqual(85);
+      ).toEqual(112);
 
       expect(
         results.combats[0].units['c5f3ff0a-040a-4e88-a171-59d4ceca1a42'].damageOut.filter(
           (e) => e.srcUnitId === 'Pet-0-4221-2167-21249-165189-0304151C51',
         ).length,
-      ).toEqual(113);
+      ).toEqual(145);
     });
   });
 });
