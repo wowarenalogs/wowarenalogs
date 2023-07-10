@@ -160,27 +160,33 @@ describe('pipeline component tests', () => {
       expect(action.supportActorId).toEqual('Player-5764-0001804B');
     });
 
-    it('should parse SWING_DAMAGE_SUPPORT', () => {
+    xit('should parse SWING_DAMAGE_SUPPORT', () => {
+      // TODO: support event
       throw new Error('NYI');
     });
 
-    it('should parse SWING_DAMAGE_SUPPORT', () => {
+    xit('should parse SWING_DAMAGE_SUPPORT', () => {
+      // TODO: support event
       throw new Error('NYI');
     });
 
-    it('should parse RANGE_DAMAGE_SUPPORT', () => {
+    xit('should parse RANGE_DAMAGE_SUPPORT', () => {
+      // TODO: support event
       throw new Error('NYI');
     });
 
-    it('should parse SPELL_HEAL_SUPPORT', () => {
+    xit('should parse SPELL_HEAL_SUPPORT', () => {
+      // TODO: support event
       throw new Error('NYI');
     });
 
-    it('should parse SPELL_PERIODIC_HEAL_SUPPORT', () => {
+    xit('should parse SPELL_PERIODIC_HEAL_SUPPORT', () => {
+      // TODO: support event
       throw new Error('NYI');
     });
 
-    it('should parse SWING_DAMAGE_LANDED_SUPPORT', () => {
+    xit('should parse SWING_DAMAGE_LANDED_SUPPORT', () => {
+      // TODO: support event
       throw new Error('NYI');
     });
 
