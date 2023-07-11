@@ -17,6 +17,7 @@ interface ICombatReportContextData {
   maxOutputNumber: number;
   playerTotalDamageOut: Map<string, number>;
   playerTotalHealOut: Map<string, number>;
+  playerTotalSupportIn: Map<string, number>;
   playerTimeInCC: Map<string, number>;
   playerCCOutput: Map<string, number>;
   playerInterruptsDone: Map<string, number>;
@@ -40,6 +41,7 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
   maxOutputNumber: 0,
   playerTotalDamageOut: new Map<string, number>(),
   playerTotalHealOut: new Map<string, number>(),
+  playerTotalSupportIn: new Map<string, number>(),
   playerTimeInCC: new Map<string, number>(),
   playerCCOutput: new Map<string, number>(),
   playerInterruptsDone: new Map<string, number>(),
@@ -67,6 +69,7 @@ export const CombatReportContextProvider = (props: IProps) => {
     playerCCOutput,
     playerInterruptsDone,
     playerInterruptsTaken,
+    playerTotalSupportIn,
   ] = useMemo(() => {
     const mPlayers = _.orderBy(
       _.values(props.combat.units).filter(
@@ -87,6 +90,7 @@ export const CombatReportContextProvider = (props: IProps) => {
     );
     const mPlayerTotalDamageOut = new Map<string, number>();
     const mPlayerTotalHealOut = new Map<string, number>();
+    const mPlayerTotalSupportIn = new Map<string, number>();
     const mPlayerTimeInCC = new Map<string, number>();
     const mPlayerCCOutput = new Map<string, number>();
     const mPlayerInterruptsDone = new Map<string, number>();
@@ -157,6 +161,11 @@ export const CombatReportContextProvider = (props: IProps) => {
       }, 0);
       mPlayerTotalDamageOut.set(p.id, totalDamageOut);
 
+      const totalSupportIn = p.supportDamageIn.reduce((sum, action) => {
+        return sum + Math.abs(action.effectiveAmount);
+      }, 0);
+      mPlayerTotalSupportIn.set(p.id, totalSupportIn);
+
       const totalHealOut = p.healOut.reduce((sum, action) => {
         if (action.logLine.event === 'SPELL_PERIODIC_HEAL') {
           // TODO: the parser needs to give us more info about overhealing
@@ -192,6 +201,7 @@ export const CombatReportContextProvider = (props: IProps) => {
       mPlayerCCOutput,
       mPlayerInterruptsDone,
       mPlayerInterruptsTaken,
+      mPlayerTotalSupportIn,
     ];
   }, [props.combat]);
 
@@ -227,6 +237,7 @@ export const CombatReportContextProvider = (props: IProps) => {
         playerCCOutput,
         playerInterruptsDone,
         playerInterruptsTaken,
+        playerTotalSupportIn,
         combat: props.combat,
         viewerIsOwner: props.viewerIsOwner,
       }}
