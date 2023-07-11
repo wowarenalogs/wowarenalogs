@@ -19,6 +19,7 @@ export * from './types';
 export * from './utils';
 export * from './actions/CombatAction';
 export * from './actions/CombatAdvancedAction';
+export * from './actions/CombatSupportAction';
 export * from './actions/ArenaMatchEnd';
 export * from './actions/ArenaMatchStart';
 export * from './actions/CombatHpUpdateAction';
