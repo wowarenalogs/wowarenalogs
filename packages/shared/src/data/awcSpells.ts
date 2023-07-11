@@ -286,6 +286,14 @@ export const awcSpells: Record<CombatUnitSpec, string[]> = {
   [CombatUnitSpec.Warrior_Arms]: ['97462', '118038', '5246', '107574', '198817', '6552', '262161'],
   [CombatUnitSpec.Warrior_Fury]: ['97462', '118038', '5246', '107574', '198817', '6552', '262161'],
   [CombatUnitSpec.Warrior_Protection]: ['97462', '118038', '5246', '107574', '198817', '6552', '262161'],
+  [CombatUnitSpec.Evoker_Augmentation]: [
+    '357170', // time dilation
+    '363534', // rewind
+    '363916', // obsidian scales
+    '370553', // tip the scales
+    '370960', // emerald communion
+    '374348', // renewing blaze
+  ],
   [CombatUnitSpec.Evoker_Devastation]: [],
   [CombatUnitSpec.Evoker_Preservation]: ['357170', '363534', '363916', '370553', '370960', '374348'],
 };
