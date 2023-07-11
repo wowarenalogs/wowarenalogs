@@ -136,32 +136,24 @@ export const Meters = () => {
                 <td className="bg-base-200">
                   {`${Utils.printCombatNumber((playerTotalDamageOut.get(u.id) || 0) / (effectiveDuration || 1))}/s`}
                 </td>
-                <td className="bg-base-200 relative">
-                  <div
-                    className={`inline-block h-2 bg-error rounded-lg absolute left-0 top-3`}
-                    style={{
-                      width: `${damageBarWidths[_i]}%`,
-                    }}
-                  />
-                  <div
-                    className={`inline-block h-2 bg-secondary rounded-lg absolute left-0 top-3`}
-                    style={{
-                      width: `${supportedBarWidths[_i]}%`,
-                    }}
-                    title={`${supportedBarWidths[_i]}% added from supporting classes (${Utils.printCombatNumber(
-                      playerTotalSupportIn.get(u.id) || 0,
-                    )})`}
-                  />
-                  {/* <progress
-                    className="progress w-20 progress-error"
-                    value={Math.floor(((playerTotalDamageOut.get(u.id) || 0) * 100) / maxDam)}
-                    max={100}
-                  />
-                  <progress
-                    className="progress w-20 progress-secondary absolute"
-                    value={Math.floor((playerTotalSupportIn.get(u.id) || 0) * 100) / maxDam}
-                    max={100}
-                  /> */}
+                <td className="bg-base-200 items-center">
+                  <div className="h-2 relative">
+                    <div
+                      className={`inline-block h-2 bg-error rounded-lg absolute left-0`}
+                      style={{
+                        width: `${damageBarWidths[_i]}%`,
+                      }}
+                    />
+                    <div
+                      className={`inline-block h-2 bg-secondary rounded-lg absolute left-0`}
+                      style={{
+                        width: `${supportedBarWidths[_i]}%`,
+                      }}
+                      title={`${supportedBarWidths[_i]}% added from supporting classes (${Utils.printCombatNumber(
+                        playerTotalSupportIn.get(u.id) || 0,
+                      )})`}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}
