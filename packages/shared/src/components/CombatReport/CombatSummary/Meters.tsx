@@ -9,8 +9,16 @@ import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 
 export const Meters = () => {
-  const { viewerIsOwner, combat, enemies, friends, players, playerTotalDamageOut, playerTotalHealOut } =
-    useCombatReportContext();
+  const {
+    viewerIsOwner,
+    combat,
+    enemies,
+    friends,
+    players,
+    playerTotalDamageOut,
+    playerTotalHealOut,
+    playerTotalSupportIn,
+  } = useCombatReportContext();
 
   if (!combat) {
     return null;
@@ -41,6 +49,14 @@ export const Meters = () => {
   const effectiveDuration = getEffectiveCombatDuration(combat);
   const latestDampening = getDampeningPercentage(combat.startInfo.bracket, players, combat.endTime);
 
+  const damageBarWidths = playersSortedByDamage.map((u) =>
+    Math.round(Math.floor((playerTotalDamageOut.get(u.id) || 0) * 100) / maxDam),
+  );
+  const supportedBarWidths = playersSortedByDamage.map((u) =>
+    Math.round(Math.floor((playerTotalSupportIn.get(u.id) || 0) * 100) / maxDam),
+  );
+
+  console.log({ playerTotalSupportIn });
   return (
     <div className="flex flex-col">
       <div className="flex flex-col rounded-box bg-base-300">
@@ -121,12 +137,32 @@ export const Meters = () => {
                 <td className="bg-base-200">
                   {`${Utils.printCombatNumber((playerTotalDamageOut.get(u.id) || 0) / (effectiveDuration || 1))}/s`}
                 </td>
-                <td className="bg-base-200">
-                  <progress
+                <td className="bg-base-200 relative">
+                  <div
+                    className={`inline-block h-2 bg-error rounded-lg absolute left-0 top-3`}
+                    style={{
+                      width: `${damageBarWidths[_i]}%`,
+                    }}
+                  />
+                  <div
+                    className={`inline-block h-2 bg-secondary rounded-lg absolute left-0 top-3`}
+                    style={{
+                      width: `${supportedBarWidths[_i]}%`,
+                    }}
+                    title={`${supportedBarWidths[_i]}% added from supporting classes (${Utils.printCombatNumber(
+                      playerTotalSupportIn.get(u.id) || 0,
+                    )})`}
+                  />
+                  {/* <progress
                     className="progress w-20 progress-error"
                     value={Math.floor(((playerTotalDamageOut.get(u.id) || 0) * 100) / maxDam)}
                     max={100}
                   />
+                  <progress
+                    className="progress w-20 progress-secondary absolute"
+                    value={Math.floor((playerTotalSupportIn.get(u.id) || 0) * 100) / maxDam}
+                    max={100}
+                  /> */}
                 </td>
               </tr>
             ))}
