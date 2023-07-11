@@ -9,6 +9,7 @@ import { CombatAction } from './actions/CombatAction';
 import { CombatAdvancedAction } from './actions/CombatAdvancedAction';
 import { CombatantInfoAction } from './actions/CombatantInfoAction';
 import { CombatHpUpdateAction } from './actions/CombatHpUpdateAction';
+import { CombatSupportAction } from './actions/CombatSupportAction';
 import { ZoneChange } from './actions/ZoneChange';
 import { classMetadata } from './classMetadata';
 import { CombatUnit, ICombatUnit } from './CombatUnit';
@@ -382,6 +383,7 @@ export class CombatData {
             break;
           case CombatUnitSpec.Evoker_Devastation:
           case CombatUnitSpec.Evoker_Preservation:
+          case CombatUnitSpec.Evoker_Augmentation:
             unitClass = CombatUnitClass.Evoker;
             break;
         }
@@ -444,6 +446,41 @@ export class CombatData {
     }
 
     switch (event.logLine.event) {
+      case LogEvent.SPELL_DAMAGE_SUPPORT:
+      case LogEvent.SPELL_PERIODIC_DAMAGE_SUPPORT:
+      case LogEvent.RANGE_DAMAGE_SUPPORT:
+      case LogEvent.SWING_DAMAGE_SUPPORT:
+      case LogEvent.SWING_DAMAGE_LANDED_SUPPORT:
+        {
+          const supportAction = event as CombatSupportAction;
+          srcUnit.supportDamageIn.push(supportAction);
+
+          // [#sup1] This is a similar case to the SPELL_ABSORB note below
+          // If the first event of the match is a support event and the support spell caster
+          //  isn't in the units array yet we must add them first. HOWEVER
+          //  for support events we don't have the unitName!
+
+          // Due to this restriction we are currently skipping including any absorb events before the unit is ready
+
+          if (this.units[supportAction.supportActorId]) {
+            const supportCaster = this.units[supportAction.supportActorId];
+            supportCaster.supportDamageOut.push(supportAction);
+          }
+        }
+        break;
+      case LogEvent.SPELL_HEAL_SUPPORT:
+      case LogEvent.SPELL_PERIODIC_HEAL_SUPPORT:
+        {
+          const supportAction = event as CombatSupportAction;
+          srcUnit.supportHealIn.push(supportAction);
+
+          // Same case as [#sup1] above
+          if (this.units[supportAction.supportActorId]) {
+            const supportCaster = this.units[supportAction.supportActorId];
+            supportCaster.supportHealOut.push(supportAction);
+          }
+        }
+        break;
       case LogEvent.SPELL_ABSORBED:
         {
           const absorbAction = event as CombatAbsorbAction;
