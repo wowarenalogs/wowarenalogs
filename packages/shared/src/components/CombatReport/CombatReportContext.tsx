@@ -98,9 +98,6 @@ export const CombatReportContextProvider = (props: IProps) => {
 
     let mMaxOutputNumber = 0;
     mPlayers.forEach((p) => {
-      // MOCK
-      mPlayerTotalSupportIn.set(p.id, Math.random() * 1500000);
-      // END MOCK
       let totalTimeInCC = 0;
       let ccStartTime = -1;
       let ccStack = 0;
@@ -163,6 +160,11 @@ export const CombatReportContextProvider = (props: IProps) => {
         return sum + Math.abs(action.effectiveAmount);
       }, 0);
       mPlayerTotalDamageOut.set(p.id, totalDamageOut);
+
+      const totalSupportIn = p.supportDamageIn.reduce((sum, action) => {
+        return sum + Math.abs(action.effectiveAmount);
+      }, 0);
+      mPlayerTotalSupportIn.set(p.id, totalSupportIn);
 
       const totalHealOut = p.healOut.reduce((sum, action) => {
         if (action.logLine.event === 'SPELL_PERIODIC_HEAL') {

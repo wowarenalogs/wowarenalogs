@@ -56,7 +56,6 @@ export const Meters = () => {
     Math.round(Math.floor((playerTotalSupportIn.get(u.id) || 0) * 100) / maxDam),
   );
 
-  console.log({ playerTotalSupportIn });
   return (
     <div className="flex flex-col">
       <div className="flex flex-col rounded-box bg-base-300">
