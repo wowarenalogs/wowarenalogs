@@ -3,6 +3,8 @@ import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
 
+const DELETE_BEFORE_TS = 1693548868000; // sep 1 2023
+
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
   projectId: 'wowarenalogs',
@@ -11,7 +13,7 @@ const firestore = new Firestore({
 });
 
 const MATCH_STUBS_COLLECTION = 'match-stubs-prod';
-const NUMBER_OF_MATCHES = 8000;
+const NUMBER_OF_MATCHES = 500;
 
 export default async function deleteOldest() {
   const collectionReference = firestore.collection(MATCH_STUBS_COLLECTION);
@@ -19,6 +21,17 @@ export default async function deleteOldest() {
   console.log(`fetched ${matchDocs.size} latest matches from firestore. downloading logs...`);
 
   matchDocs.forEach((doc) => firestore.recursiveDelete(doc.ref));
+
+  if (matchDocs.docs[NUMBER_OF_MATCHES - 1].data().endTime < DELETE_BEFORE_TS) {
+    console.log(
+      `latest: ${matchDocs.docs[NUMBER_OF_MATCHES - 1].data().endTime} is older than ${DELETE_BEFORE_TS}, repeating`,
+    );
+    deleteOldest();
+  } else {
+    console.log(
+      `latest: ${matchDocs.docs[NUMBER_OF_MATCHES - 1].data().endTime} is newer than ${DELETE_BEFORE_TS}, stopping`,
+    );
+  }
 }
 
 deleteOldest();
