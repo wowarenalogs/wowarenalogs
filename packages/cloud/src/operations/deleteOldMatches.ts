@@ -13,7 +13,11 @@ const firestore = new Firestore({
 });
 
 const MATCH_STUBS_COLLECTION = 'match-stubs-prod';
-const NUMBER_OF_MATCHES = 500;
+const NUMBER_OF_MATCHES = 1000;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export default async function deleteOldest() {
   const collectionReference = firestore.collection(MATCH_STUBS_COLLECTION);
@@ -24,8 +28,11 @@ export default async function deleteOldest() {
 
   if (matchDocs.docs[NUMBER_OF_MATCHES - 1].data().endTime < DELETE_BEFORE_TS) {
     console.log(
-      `latest: ${matchDocs.docs[NUMBER_OF_MATCHES - 1].data().endTime} is older than ${DELETE_BEFORE_TS}, repeating`,
+      `latest: ${matchDocs.docs[NUMBER_OF_MATCHES - 1].data().endTime} ${new Date(
+        matchDocs.docs[NUMBER_OF_MATCHES - 1].data().endTime,
+      )} is older than ${DELETE_BEFORE_TS}, repeating`,
     );
+    await sleep(3000);
     deleteOldest();
   } else {
     console.log(
