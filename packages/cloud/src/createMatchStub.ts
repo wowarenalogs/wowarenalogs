@@ -1,4 +1,3 @@
-import { Timestamp } from '@google-cloud/firestore';
 import _ from 'lodash';
 import moment from 'moment';
 
