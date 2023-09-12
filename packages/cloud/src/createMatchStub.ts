@@ -32,7 +32,7 @@ export type FirebaseDTO = ICombatDataStub & {
   combatantNames: string[];
   combatantGuids: string[];
   extra: QueryHelpers;
-  expires: Timestamp; // Used to set object TTL for auto-delete
+  expires: Date; // Used to set object TTL for auto-delete
   timezone: string;
 };
 
@@ -106,7 +106,7 @@ function createStubDTOFromShuffleMatch(
         extra: { ...buildQueryHelpers(round), ...buildMMRHelpers(round) },
         combatantNames: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
         combatantGuids: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
-        expires: Timestamp.fromDate(inThirtyDays.toDate()),
+        expires: inThirtyDays.toDate(),
         shuffleMatchId: match.id,
         shuffleMatchResult: match.result,
         shuffleMatchEndInfo: match.endInfo,
@@ -142,7 +142,7 @@ function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjec
     extra: { ...buildQueryHelpers(com), ...buildMMRHelpers(com) },
     combatantNames: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
     combatantGuids: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
-    expires: Timestamp.fromDate(inThirtyDays.toDate()),
+    expires: inThirtyDays.toDate(),
     timezone: com.timezone,
   };
 }
