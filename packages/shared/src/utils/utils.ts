@@ -165,7 +165,7 @@ export class Utils {
   public static getSpecIcon(spec: CombatUnitSpec): string | null {
     switch (spec) {
       default:
-        return `https://images.wowarenalogs.com/specs/${combatUnitSpecReverse[spec].toLowerCase()}.jpg`;
+        return `https://images.wowarenalogs.com/specs/${combatUnitSpecReverse[spec]?.toLowerCase()}.jpg`;
       case CombatUnitSpec.None:
         return null;
     }

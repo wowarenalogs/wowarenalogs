@@ -161,7 +161,7 @@ export const CombatReportContextProvider = (props: IProps) => {
       }, 0);
       mPlayerTotalDamageOut.set(p.id, totalDamageOut);
 
-      const totalSupportIn = p.supportDamageIn.reduce((sum, action) => {
+      const totalSupportIn = p.supportDamageIn?.reduce((sum, action) => {
         return sum + Math.abs(action.effectiveAmount);
       }, 0);
       mPlayerTotalSupportIn.set(p.id, totalSupportIn);
