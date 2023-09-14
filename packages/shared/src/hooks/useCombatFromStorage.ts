@@ -1,48 +1,40 @@
 import { WowVersion } from '@wowarenalogs/parser';
 import { useQuery } from 'react-query';
 
-import { useGetMatchByIdQuery } from '../graphql/__generated__/graphql';
 import { Utils } from '../utils/utils';
 
-export function useCombatFromStorage(matchId: string) {
-  const queryCombat = useGetMatchByIdQuery({
-    variables: {
-      matchId,
-    },
-  });
+const LOG_WOW_VERSION_HEADER = 'X-Goog-Meta-Wow-Version';
+const LOG_CLIENT_TIMEZONE_HEADER = 'X-Goog-Meta-Client-Timezone';
 
+const combatRootURL =
+  process.env.NODE_ENV === 'development'
+    ? 'https://storage.googleapis.com/wowarenalogs-public-dev-log-files-prod/'
+    : 'https://storage.googleapis.com/wowarenalogs-log-files-prod/';
+
+export function useCombatFromStorage(matchId: string) {
   const queryParsedLog = useQuery(
     ['log-file', matchId],
     async () => {
-      const logObjectUrl = queryCombat.data?.matchById.logObjectUrl;
-      const wowVersion = queryCombat.data?.matchById.wowVersion as WowVersion;
-      if (!logObjectUrl) {
-        throw new Error('No log object url for query ' + matchId, {});
-      }
-      if (!wowVersion) {
-        throw new Error('No wow version for query ' + matchId);
-      }
+      const logObjectUrl = `${combatRootURL}${matchId}`;
       const result = await fetch(logObjectUrl);
+
+      const wowVersion = (result.headers.get(LOG_WOW_VERSION_HEADER) as WowVersion) ?? WowVersion.Retail;
+      const timezone = result.headers.get(LOG_CLIENT_TIMEZONE_HEADER);
+
       const text = await result.text();
-      const results = Utils.parseFromStringArray(
-        text.split('\n'),
-        wowVersion,
-        queryCombat.data?.matchById.timezone ?? undefined,
-      );
+      const results = Utils.parseFromStringArray(text.split('\n'), wowVersion, timezone ?? undefined);
       return results.arenaMatches.at(0) || results.shuffleMatches[0]?.rounds?.find((i) => i.id === matchId);
     },
     {
       cacheTime: 60 * 60 * 24 * 1000,
       staleTime: Infinity,
-      enabled: matchId != '' && !queryCombat.loading && Boolean(queryCombat.data?.matchById.logObjectUrl),
+      enabled: matchId != '',
     },
   );
 
-  const loading = queryCombat.loading || queryParsedLog.isLoading;
-
   return {
     combat: queryParsedLog.data,
-    loading,
-    error: queryParsedLog.error || queryCombat.error,
+    loading: queryParsedLog.isLoading,
+    error: queryParsedLog.error,
   };
 }
