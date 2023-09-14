@@ -18,7 +18,7 @@ export function useCombatFromStorage(matchId: string) {
       const logObjectUrl = `${combatRootURL}${matchId}`;
       const result = await fetch(logObjectUrl);
 
-      const wowVersion = (result.headers.get(LOG_WOW_VERSION_HEADER) as WowVersion) ?? WowVersion.Retail;
+      const wowVersion = (result.headers.get(LOG_WOW_VERSION_HEADER) as WowVersion) ?? 'retail';
       const timezone = result.headers.get(LOG_CLIENT_TIMEZONE_HEADER);
 
       const text = await result.text();
