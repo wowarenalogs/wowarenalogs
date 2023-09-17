@@ -11,9 +11,9 @@ const combatRootURL =
     ? 'https://storage.googleapis.com/wowarenalogs-public-dev-log-files-prod/'
     : 'https://storage.googleapis.com/wowarenalogs-log-files-prod/';
 
-export function useCombatFromStorage(matchId: string) {
+export function useCombatFromStorage(matchId: string, roundId?: string) {
   const queryParsedLog = useQuery(
-    ['log-file', matchId],
+    ['log-file', matchId, roundId],
     async () => {
       const logObjectUrl = `${combatRootURL}${matchId}`;
       const result = await fetch(logObjectUrl);
@@ -23,7 +23,14 @@ export function useCombatFromStorage(matchId: string) {
 
       const text = await result.text();
       const results = Utils.parseFromStringArray(text.split('\n'), wowVersion, timezone ?? undefined);
-      return results.arenaMatches.at(0) || results.shuffleMatches[0]?.rounds?.find((i) => i.id === matchId);
+      console.log('parsed round', roundId);
+      console.log({ results });
+      return {
+        matchId,
+        combat:
+          results.arenaMatches.at(0) ||
+          (roundId ? results.shuffleMatches[0]?.rounds[parseInt(roundId) - 1] : undefined),
+      };
     },
     {
       cacheTime: 60 * 60 * 24 * 1000,
@@ -33,7 +40,9 @@ export function useCombatFromStorage(matchId: string) {
   );
 
   return {
-    combat: queryParsedLog.data,
+    matchId,
+    roundId,
+    combat: queryParsedLog.data?.combat,
     loading: queryParsedLog.isLoading,
     error: queryParsedLog.error,
   };
