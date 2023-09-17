@@ -27,20 +27,22 @@ const CombatReplay = dynamic(
 );
 
 interface IProps {
+  matchId: string;
+  roundId?: string;
   combat: AtomicArenaCombat;
   viewerIsOwner?: boolean;
 }
 
-export const CombatReportInternal = () => {
+export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; roundId?: string }) => {
   const router = useRouter();
   const { data: user } = useGetProfileQuery();
   const { combat, activeTab, setActiveTab, activePlayerId } = useCombatReportContext();
 
   const [urlCopied, setUrlCopied] = useState(false);
   const reportUrl = useMemo(() => {
-    const url = `https://wowarenalogs.com/match?id=${combat?.id}`;
+    const url = `https://wowarenalogs.com/match?id=${matchId}&roundId=${roundId}`;
     return url;
-  }, [combat]);
+  }, [matchId, roundId]);
 
   useEffect(() => {
     if (combat) {
@@ -198,10 +200,10 @@ export const CombatReportInternal = () => {
   );
 };
 
-export const CombatReport = ({ combat, viewerIsOwner }: IProps) => {
+export const CombatReport = ({ combat, viewerIsOwner, matchId, roundId }: IProps) => {
   return (
     <CombatReportContextProvider combat={combat} viewerIsOwner={viewerIsOwner || false}>
-      <CombatReportInternal />
+      <CombatReportInternal matchId={matchId} roundId={roundId} />
     </CombatReportContextProvider>
   );
 };
