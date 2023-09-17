@@ -38,12 +38,11 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
   const { data: user } = useGetProfileQuery();
   const { combat, activeTab, setActiveTab, activePlayerId } = useCombatReportContext();
 
-  console.log({ combat, matchId, roundId });
   const [urlCopied, setUrlCopied] = useState(false);
   const reportUrl = useMemo(() => {
-    const url = `https://wowarenalogs.com/match?id=${matchId}&roundId=${roundId}`; // ADD ROUND
+    const url = `https://wowarenalogs.com/match?id=${matchId}&roundId=${roundId}`;
     return url;
-  }, [combat]);
+  }, [matchId, roundId]);
 
   useEffect(() => {
     if (combat) {

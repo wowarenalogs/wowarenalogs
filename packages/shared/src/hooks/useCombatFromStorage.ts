@@ -23,8 +23,7 @@ export function useCombatFromStorage(matchId: string, roundId?: string) {
 
       const text = await result.text();
       const results = Utils.parseFromStringArray(text.split('\n'), wowVersion, timezone ?? undefined);
-      console.log('parsed round', roundId);
-      console.log({ results });
+
       return {
         matchId,
         combat:
