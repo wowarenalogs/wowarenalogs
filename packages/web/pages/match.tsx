@@ -27,8 +27,7 @@ import { NextSeo } from 'next-seo';
 
 const Page = () => {
   const router = useRouter();
-
-  const { id, viewerIsOwner } = router.query;
+  const { id, viewerIsOwner, roundId } = router.query;
   if (!id || typeof id !== 'string') {
     return null;
   }
@@ -45,7 +44,11 @@ const Page = () => {
           // description: 'none', SEE NOTE AT TOP
         }}
       />
-      <CombatReportFromStorage id={id} viewerIsOwner={viewerIsOwner === 'true'} />
+      <CombatReportFromStorage
+        id={id}
+        roundId={roundId ? roundId.toString() : undefined}
+        viewerIsOwner={viewerIsOwner === 'true'}
+      />
     </>
   );
 };
