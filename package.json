@@ -55,6 +55,7 @@
     "start:refreshSpellMetadata": "npm run start:refreshSpellMetadata --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "build": "npm run build:web && npm run build:desktop && npm run build:app",
     "test": "npm run test --workspaces --if-present",
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
