@@ -19,5 +19,7 @@ jobs:
         run: npm cache clean -f
       - name: install dependencies
         run: npm ci
+      - name: build
+        run: npm run build
       - name: tests
         run: npm run test
