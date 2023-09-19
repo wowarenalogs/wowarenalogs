@@ -12,7 +12,7 @@ export const LatestMatchMonitor = () => {
     : null;
 
   if (latestLocalCombat) {
-    return <CombatReport combat={latestLocalCombat} />;
+    return <CombatReport combat={latestLocalCombat} matchId={latestLocalCombat.id} />;
   }
 
   return (
