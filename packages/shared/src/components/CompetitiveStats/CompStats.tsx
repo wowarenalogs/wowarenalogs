@@ -39,7 +39,7 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
   const specStatsQuery = useQuery(
     ['competitive-stats', 'comp-stats'],
     async () => {
-      const result = await fetch(`https://images.wowarenalogs.com/data/comp-stats.v${STATS_SCHEMA_VERSION}.json`);
+      const result = await fetch(`https://data.wowarenalogs.com/data/comp-stats.v${STATS_SCHEMA_VERSION}.json`);
       return (await result.json()) as StatsData;
     },
     {
