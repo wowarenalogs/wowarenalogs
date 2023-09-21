@@ -58,7 +58,7 @@ if (!isFirstInstance) {
 
     if (app.isPackaged) {
       autoUpdater.checkForUpdatesAndNotify().then((result) => {
-        if (result?.updateInfo.version === app.getVersion()) {
+        if (result?.updateInfo.version !== app.getVersion()) {
           dialog
             .showMessageBox(win, {
               type: 'question',
