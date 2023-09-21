@@ -1,3 +1,3 @@
-export const globalStates = { 
+export const globalStates = {
   isUpdateAvailable: false,
 };
