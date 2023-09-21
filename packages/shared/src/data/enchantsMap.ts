@@ -8666,7 +8666,10 @@ export const enchantsData: RaidbotsEnchantsData = [
   },
 ];
 
-export const enchantsMap = enchantsData.reduce((prev, cur) => {
-  prev[cur.id.toString()] = cur;
-  return prev;
-}, {} as Record<string, RaidbotsEnchant>);
+export const enchantsMap = enchantsData.reduce(
+  (prev, cur) => {
+    prev[cur.id.toString()] = cur;
+    return prev;
+  },
+  {} as Record<string, RaidbotsEnchant>,
+);

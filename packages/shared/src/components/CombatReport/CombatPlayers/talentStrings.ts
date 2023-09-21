@@ -87,14 +87,20 @@ export const nodeMaps: Record<number, MappedRaidbotsSpec> = {};
 talentIdMap.forEach((spec) => {
   nodeMaps[spec.specId] = {
     ...spec,
-    classNodeMap: spec.classNodes.reduce((prev, cur) => {
-      prev[cur.id] = cur;
-      return prev;
-    }, {} as Record<number, ClassNode>),
-    specNodeMap: spec.specNodes.reduce((prev, cur) => {
-      prev[cur.id] = cur;
-      return prev;
-    }, {} as Record<number, SpecNode>),
+    classNodeMap: spec.classNodes.reduce(
+      (prev, cur) => {
+        prev[cur.id] = cur;
+        return prev;
+      },
+      {} as Record<number, ClassNode>,
+    ),
+    specNodeMap: spec.specNodes.reduce(
+      (prev, cur) => {
+        prev[cur.id] = cur;
+        return prev;
+      },
+      {} as Record<number, SpecNode>,
+    ),
   };
 });
 
