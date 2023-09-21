@@ -7,6 +7,7 @@ import { nativeBridgeRegistry } from './nativeBridge/registry';
 
 import path = require('path');
 import { BASE_REMOTE_URL } from './constants';
+import { globalStates } from './nativeBridge/modules/common/globalStates';
 
 function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
@@ -58,7 +59,9 @@ if (!isFirstInstance) {
 
     if (app.isPackaged) {
       autoUpdater.checkForUpdatesAndNotify().then((result) => {
-        if (result?.updateInfo.version !== app.getVersion()) {
+        if (result && result.updateInfo.version !== app.getVersion()) {
+          globalStates.isUpdateAvailable = true;
+
           dialog
             .showMessageBox(win, {
               type: 'question',

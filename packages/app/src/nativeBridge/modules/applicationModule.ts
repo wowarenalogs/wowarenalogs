@@ -1,6 +1,7 @@
 import { app, session } from 'electron';
 
 import { moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
+import { globalStates } from './common/globalStates';
 
 @nativeBridgeModule('app')
 export class ApplicationModule extends NativeBridgeModule {
@@ -28,6 +29,11 @@ export class ApplicationModule extends NativeBridgeModule {
   @moduleFunction()
   public async getVersion(_mainWindow: Electron.BrowserWindow) {
     return app.getVersion();
+  }
+
+  @moduleFunction()
+  public async isUpdateAvailable(_mainWindow: Electron.BrowserWindow) {
+    return globalStates.isUpdateAvailable;
   }
 
   @moduleFunction()

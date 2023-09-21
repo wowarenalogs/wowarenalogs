@@ -34,6 +34,7 @@ module.exports = {
     fallback: {
       assert: false,
       buffer: false,
+      child_process: false,
       console: false,
       constants: false,
       crypto: false,
