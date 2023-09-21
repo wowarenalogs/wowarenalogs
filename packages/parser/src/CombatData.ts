@@ -273,7 +273,10 @@ export class CombatData {
 
   private inferredCombatantIds: Set<string> = new Set<string>();
 
-  constructor(public readonly wowVersion: WowVersion, public readonly timezone: string) {}
+  constructor(
+    public readonly wowVersion: WowVersion,
+    public readonly timezone: string,
+  ) {}
 
   public readEvent(event: CombatEvent) {
     if (this.startTime === 0) {

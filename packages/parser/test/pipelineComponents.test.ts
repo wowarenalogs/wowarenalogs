@@ -44,7 +44,10 @@ describe('pipeline component tests', () => {
 
   describe('dedup', () => {
     it('should remove duplicate lines', () => {
-      const inputLines = fs.readFileSync(path.join(__dirname, 'testlogs', 'test_dedup.txt')).toString().split('\n');
+      const inputLines = fs
+        .readFileSync(path.join(__dirname, 'testlogs', 'test_dedup.txt'))
+        .toString()
+        .split('\n');
 
       const outputLines: string[] = [];
       from(inputLines)
