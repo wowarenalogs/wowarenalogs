@@ -12,10 +12,13 @@ const SPECS = Object.entries(CombatUnitSpec)
     return [parts[0], parts[1], c[1]];
   });
 const SPEC_BY_CLASS = Array.from(CLASS_NAMES).map((c) => SPECS.filter((s) => s[0] === c));
-const SPEC_TO_CLASS = SPECS.reduce((prev, cur) => {
-  prev[cur[2] as CombatUnitSpec] = cur[0].toLowerCase();
-  return prev;
-}, {} as Record<CombatUnitSpec, string>);
+const SPEC_TO_CLASS = SPECS.reduce(
+  (prev, cur) => {
+    prev[cur[2] as CombatUnitSpec] = cur[0].toLowerCase();
+    return prev;
+  },
+  {} as Record<CombatUnitSpec, string>,
+);
 
 export function SpecSelector({
   spec,
