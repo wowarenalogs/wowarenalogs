@@ -29,7 +29,7 @@ export default function SpecStats(props: {
     ['competitive-stats', 'spec-stats', props.activeBracket, props.minRating, props.maxRating],
     async () => {
       const result = await fetch(
-        `https://images.wowarenalogs.com/data/spec-stats/${props.activeBracket}/${props.minRating}-${props.maxRating}/v${STATS_SCHEMA_VERSION}.latest.json`,
+        `https://data.wowarenalogs.com/data/spec-stats/${props.activeBracket}/${props.minRating}-${props.maxRating}/v${STATS_SCHEMA_VERSION}.latest.json`,
       );
       return (await result.json()) as SpecStatsData;
     },
