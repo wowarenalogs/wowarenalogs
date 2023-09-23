@@ -51,11 +51,12 @@
     "build:web": "npm run build:web --workspaces --if-present",
     "start:web": "npm run start:web --workspaces --if-present",
     "release:web": "npm run release:web --workspaces --if-present",
+    "build:sql": "npm run build:sql --workspaces --if-present",
     "build:parser": "npm run build:parser --workspaces --if-present",
     "start:refreshSpellMetadata": "npm run start:refreshSpellMetadata --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
-    "build": "npm run build:web && npm run build:desktop && npm run build:app",
+    "build": "npm run build:sql && npm run build:web && npm run build:desktop && npm run build:app",
     "test": "npm run test --workspaces --if-present",
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
