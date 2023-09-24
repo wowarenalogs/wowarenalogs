@@ -1,6 +1,6 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { Storage as GoogleCloudStorage } from '@google-cloud/storage';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@wowarenalogs/sql';
 import fs from 'fs';
 import _ from 'lodash';
 import moment from 'moment';

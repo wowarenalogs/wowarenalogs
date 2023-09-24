@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@wowarenalogs/sql';
 import _ from 'lodash';
 import moment from 'moment';
 
