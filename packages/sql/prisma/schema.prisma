@@ -56,6 +56,8 @@ model PlayerStatRecord {
 
   teamId     BigInt
   teamRecord TeamStatRecord @relation(fields: [teamId], references: [rowId])
+
+  @@index([name], name: "name")
 }
 
 model UserCharacter {
