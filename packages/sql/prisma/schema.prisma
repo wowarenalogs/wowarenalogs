@@ -64,7 +64,8 @@ model UserCharacter {
   rowId         BigInt @id @default(autoincrement())
   battlenetId   String @db.String(32)
   characterName String @db.String(64)
+  characterGuid String @db.String(64)
 
-  @@unique([battlenetId, characterName])
+  @@unique([battlenetId, characterName, characterGuid])
   @@index([battlenetId], name: "battlenetId")
 }

@@ -68,15 +68,17 @@ export const logCombatStatsAsync = async (combat: AtomicArenaCombat, stub: Fireb
   if (ownerPlayer && ownerId && ownerId !== 'unknown-uploader') {
     await prisma.userCharacter.upsert({
       where: {
-        battlenetId_characterName: {
+        battlenetId_characterName_characterGuid: {
           battlenetId: ownerId,
           characterName: ownerPlayer.name,
+          characterGuid: ownerPlayer.id,
         },
       },
       update: {},
       create: {
         battlenetId: ownerId,
         characterName: ownerPlayer.name,
+        characterGuid: ownerPlayer.id,
       },
     });
   }
