@@ -21,6 +21,13 @@ module.exports = {
           loader: 'babel-loader',
         },
       },
+{
+        test: /\.node$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'node-loader',
+        },
+      },
     ],
   },
 };
