@@ -23,6 +23,7 @@
     "outDir": "dist"
   },
   "include": [
+    "tsup.config.ts",
     "src/",
     "test/"
   ]

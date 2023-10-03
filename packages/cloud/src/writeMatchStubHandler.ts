@@ -78,5 +78,3 @@ export async function handler(file: any, _context: any) {
   }
   console.log('Parser did not find useable matches');
 }
-
-exports.handler = handler;
