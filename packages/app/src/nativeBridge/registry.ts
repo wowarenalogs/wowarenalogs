@@ -95,12 +95,12 @@ export class NativeBridgeRegistry {
 
       typeString += `${moduleMetadata.name}: {`;
       Object.values(moduleMetadata.functions).forEach((func) => {
-        typeString += `${func.name}: OmitFirstArg<${moduleMetadata.constructor.name}["${func.name}"]>,`;
+        typeString += `${func.name}?: OmitFirstArg<${moduleMetadata.constructor.name}["${func.name}"]>,`;
       });
 
       Object.values(moduleMetadata.events).forEach((evt) => {
-        typeString += `${evt.name}: (callback: AsEventFunction<${moduleMetadata.constructor.name}["${evt.name}"]>) => void,`;
-        typeString += `removeAll_${evt.name}_listeners: () => void,`;
+        typeString += `${evt.name}?: (callback: AsEventFunction<${moduleMetadata.constructor.name}["${evt.name}"]>) => void,`;
+        typeString += `removeAll_${evt.name}_listeners?: () => void,`;
       });
 
       typeString += `},`;
