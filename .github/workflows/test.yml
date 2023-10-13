@@ -24,4 +24,7 @@ jobs:
       # - name: tests
       #   run: npm run test
       - name: preloads
-        run: shasum packages/app/src/preloadApi.ts
+        run: echo "PRELOAD_SHASUM_ORIGIN=$(shasum packages/app/src/preloadApi.ts)" >> $GITHUB_ENV
+      - name: test value
+        run: |
+          echo "${{ env.PRELOAD_SHASUM_ORIGIN }}"
