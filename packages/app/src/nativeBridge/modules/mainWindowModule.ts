@@ -7,22 +7,22 @@ import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } f
 export class MainWindowModule extends NativeBridgeModule {
   private trayIcon: Tray | null = null;
 
-  @moduleFunction()
+  @moduleFunction({ isOptional: false })
   public async isMaximized(mainWindow: BrowserWindow): Promise<boolean> {
     return mainWindow.isMaximized();
   }
 
-  @moduleFunction()
+  @moduleFunction({ isOptional: false })
   public async isMinimized(mainWindow: BrowserWindow): Promise<boolean> {
     return mainWindow.isMinimized();
   }
 
-  @moduleFunction()
+  @moduleFunction({ isOptional: false })
   public async minimize(mainWindow: BrowserWindow): Promise<void> {
     mainWindow.minimize();
   }
 
-  @moduleFunction()
+  @moduleFunction({ isOptional: false })
   public async maximize(mainWindow: BrowserWindow, maximize?: boolean): Promise<void> {
     if (maximize === undefined) {
       maximize = true;
@@ -35,27 +35,27 @@ export class MainWindowModule extends NativeBridgeModule {
     }
   }
 
-  @moduleFunction()
+  @moduleFunction({ isOptional: false })
   public async hideToSystemTray(mainWindow: BrowserWindow): Promise<void> {
     mainWindow.hide();
   }
 
-  @moduleFunction()
+  @moduleFunction({ isOptional: false })
   public async setWindowSize(mainWindow: BrowserWindow, width: number, height: number) {
     mainWindow.setSize(width, height);
   }
 
-  @moduleFunction()
+  @moduleFunction({ isOptional: false })
   public async setWindowPosition(mainWindow: BrowserWindow, x: number, y: number) {
     mainWindow.setPosition(x, y);
   }
 
-  @moduleFunction()
+  @moduleFunction({ isOptional: false })
   public async getWindowPosition(mainWindow: BrowserWindow) {
     return mainWindow.getPosition();
   }
 
-  @moduleFunction()
+  @moduleFunction({ isOptional: false })
   public async getWindowSize(mainWindow: BrowserWindow) {
     return mainWindow.getSize();
   }
@@ -96,12 +96,12 @@ export class MainWindowModule extends NativeBridgeModule {
     }
   }
 
-  @moduleEvent('on')
+  @moduleEvent('on', { isOptional: false })
   public onWindowResized(_mainWindow: BrowserWindow, _w: number, _h: number): void {
     return;
   }
 
-  @moduleEvent('on')
+  @moduleEvent('on', { isOptional: false })
   public onWindowMoved(_mainWindow: BrowserWindow, _x: number, _y: number): void {
     return;
   }

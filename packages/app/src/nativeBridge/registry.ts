@@ -29,6 +29,7 @@ export class NativeBridgeRegistry {
 
       apiString += `${moduleMetadata.name}: {`;
       Object.values(moduleMetadata.functions).forEach((func) => {
+        console.log(`${func.name} ${func.isOptional}`);
         apiString += `${func.name}: (...args: any[]) => ipcRenderer.invoke("${getModuleFunctionKey(
           moduleMetadata.name,
           func.name,
@@ -95,12 +96,14 @@ export class NativeBridgeRegistry {
 
       typeString += `${moduleMetadata.name}: {`;
       Object.values(moduleMetadata.functions).forEach((func) => {
-        typeString += `${func.name}?: OmitFirstArg<${moduleMetadata.constructor.name}["${func.name}"]>,`;
+        const optionalDecorator = func.isOptional ? '?' : '';
+        typeString += `${func.name}${optionalDecorator}: OmitFirstArg<${moduleMetadata.constructor.name}["${func.name}"]>,`;
       });
 
       Object.values(moduleMetadata.events).forEach((evt) => {
-        typeString += `${evt.name}?: (callback: AsEventFunction<${moduleMetadata.constructor.name}["${evt.name}"]>) => void,`;
-        typeString += `removeAll_${evt.name}_listeners?: () => void,`;
+        const optionalDecorator = evt.isOptional ? '?' : '';
+        typeString += `${evt.name}${optionalDecorator}: (callback: AsEventFunction<${moduleMetadata.constructor.name}["${evt.name}"]>) => void,`;
+        typeString += `removeAll_${evt.name}_listeners${optionalDecorator}: () => void,`;
       });
 
       typeString += `},`;
