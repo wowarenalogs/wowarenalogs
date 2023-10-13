@@ -29,7 +29,6 @@ export class NativeBridgeRegistry {
 
       apiString += `${moduleMetadata.name}: {`;
       Object.values(moduleMetadata.functions).forEach((func) => {
-        console.log(`${func.name} ${func.isOptional}`);
         apiString += `${func.name}: (...args: any[]) => ipcRenderer.invoke("${getModuleFunctionKey(
           moduleMetadata.name,
           func.name,
