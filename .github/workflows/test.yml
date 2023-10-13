@@ -23,10 +23,10 @@ jobs:
       #   run: npm run build
       # - name: tests
       #   run: npm run test
-      - name: preloads
+      - name: preload sha check 1
         run: echo "PRELOAD_SHASUM_ORIGIN=$(shasum packages/app/src/preloadApi.ts)" >> $GITHUB_ENV
-      - name: preloads
+      - name: preload sha check 2
         run: echo "PRELOAD_SHASUM_NEW=asdf" >> $GITHUB_ENV
-      - name: test value
+      - name: check preload unchanged
         run: |
-          test $PRELOAD_SHASUM_ORIGIN = $PRELOAD_SHASUM_NEW
+          test "$PRELOAD_SHASUM_ORIGIN" = "$PRELOAD_SHASUM_NEW"
