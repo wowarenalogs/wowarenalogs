@@ -25,6 +25,8 @@ jobs:
       #   run: npm run test
       - name: preloads
         run: echo "PRELOAD_SHASUM_ORIGIN=$(shasum packages/app/src/preloadApi.ts)" >> $GITHUB_ENV
+      - name: preloads
+        run: echo "PRELOAD_SHASUM_NEW=asdf" >> $GITHUB_ENV
       - name: test value
         run: |
-          echo "${{ env.PRELOAD_SHASUM_ORIGIN }}"
+          test $PRELOAD_SHASUM_ORIGIN = $PRELOAD_SHASUM_NEW
