@@ -23,3 +23,5 @@ jobs:
         run: npm run build
       - name: tests
         run: npm run test
+      - name: preloads
+        run: shasum packages/app/src/preloadApi.ts
