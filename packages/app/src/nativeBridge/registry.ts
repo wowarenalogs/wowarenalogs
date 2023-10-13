@@ -18,7 +18,7 @@ export class NativeBridgeRegistry {
   }
 
   public generateAPIFile() {
-    let apiString = `/* eslint-disable @typescript-eslint/no-explicit-any */\nimport { IpcRendererEvent, ipcRenderer } from "electron";\n\nexport const modulesApi = {`;
+    let apiString = `/* eslint-disable @typescript-eslint/no-explicit-any */\nimport { ipcRenderer, IpcRendererEvent } from "electron";\n\nexport const modulesApi = {`;
 
     this.modules.forEach((module) => {
       const ctor = Object.getPrototypeOf(module).constructor;

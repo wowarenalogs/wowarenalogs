@@ -1,4 +1,5 @@
 import { contextBridge } from 'electron';
+
 import { modulesApi } from './preloadApi';
 
 contextBridge.exposeInMainWorld('wowarenalogs', {

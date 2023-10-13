@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { IpcRendererEvent, ipcRenderer } from 'electron';
+import { ipcRenderer, IpcRendererEvent } from 'electron';
 
 export const modulesApi = {
   logs: {

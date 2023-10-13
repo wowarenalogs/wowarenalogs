@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { LogsModule } from './nativeBridge/modules/logsModule';
-import { BnetModule } from './nativeBridge/modules/bnetModule';
-import { FilesModule } from './nativeBridge/modules/filesModule';
-import { ExternalLinksModule } from './nativeBridge/modules/externalLinksModule';
-import { MainWindowModule } from './nativeBridge/modules/mainWindowModule';
 import { ApplicationModule } from './nativeBridge/modules/applicationModule';
+import { BnetModule } from './nativeBridge/modules/bnetModule';
+import { ExternalLinksModule } from './nativeBridge/modules/externalLinksModule';
+import { FilesModule } from './nativeBridge/modules/filesModule';
+import { LogsModule } from './nativeBridge/modules/logsModule';
+import { MainWindowModule } from './nativeBridge/modules/mainWindowModule';
 
 type ElectronOpaqueEvent = {
   senderId: number;
