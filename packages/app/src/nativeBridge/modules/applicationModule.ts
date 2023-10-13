@@ -37,11 +37,6 @@ export class ApplicationModule extends NativeBridgeModule {
   }
 
   @moduleFunction()
-  public async newtestfunc(_mainWindow: Electron.BrowserWindow) {
-    return globalStates.isUpdateAvailable;
-  }
-
-  @moduleFunction()
   public async clearStorage(_mainWindow: Electron.BrowserWindow) {
     await session.defaultSession.clearStorageData();
   }
