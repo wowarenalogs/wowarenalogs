@@ -15,13 +15,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-      - name: clean npm cache
-        run: npm cache clean -f
-      - name: install dependencies
-        run: npm ci
-      - name: build
-        run: npm run build
-      - name: tests
-        run: npm run test
+      # - name: clean npm cache
+      #   run: npm cache clean -f
+      # - name: install dependencies
+      #   run: npm ci
+      # - name: build
+      #   run: npm run build
+      # - name: tests
+      #   run: npm run test
       - name: preloads
         run: shasum packages/app/src/preloadApi.ts

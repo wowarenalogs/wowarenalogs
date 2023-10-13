@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { BrowserWindow, ipcMain, ipcRenderer, IpcRendererEvent } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 
-import { getModuleEventKey, getModuleFunctionKey, MODULE_METADATA, NativeBridgeModule } from './module';
+import { getModuleFunctionKey, MODULE_METADATA, NativeBridgeModule } from './module';
 import { ApplicationModule } from './modules/applicationModule';
 import { BnetModule } from './modules/bnetModule';
 import { ExternalLinksModule } from './modules/externalLinksModule';
