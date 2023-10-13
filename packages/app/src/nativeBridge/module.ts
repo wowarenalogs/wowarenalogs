@@ -76,7 +76,7 @@ export function getModuleEventKey(moduleName: string, eventName: string): string
   return `${getModuleKey(moduleName)}:${eventName}`;
 }
 
-export function moduleFunction(options?: { isOptional: boolean } | undefined) {
+export function moduleFunction(options?: { isOptional: boolean }) {
   const actuallyOptional = options?.isOptional ?? true;
   return (target: any, key: string, descriptor: PropertyDescriptor) => {
     if (!target.constructor) {
@@ -92,7 +92,7 @@ export function moduleFunction(options?: { isOptional: boolean } | undefined) {
   };
 }
 
-export function moduleEvent(type: ModuleEventType, options?: { isOptional: boolean } | undefined) {
+export function moduleEvent(type: ModuleEventType, options?: { isOptional: boolean }) {
   const actuallyOptional = options?.isOptional ?? true;
   return (target: any, key: string, descriptor: PropertyDescriptor) => {
     if (!target.constructor) {
