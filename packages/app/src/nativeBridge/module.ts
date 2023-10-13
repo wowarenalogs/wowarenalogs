@@ -5,6 +5,18 @@ import { BrowserWindow } from 'electron';
 type ModuleFunction = {
   name: string;
   value: (mainWindow: BrowserWindow, ...args: any[]) => Promise<any>;
+  /**
+   * This flag determines the optionality of the type created
+   *
+   * If you are writing a new native module then previous app builds will not have this function - this means that your
+   * f/e should assume the function is optional and test for it being present before attempting to call it (which
+   * would be an exception).
+   *
+   * Generally speaking this field can be left empty and is only used to correct the typing on functions that were
+   * present in the original builds of the application.
+   *
+   * Default: true
+   */
   isOptional: boolean;
 };
 
