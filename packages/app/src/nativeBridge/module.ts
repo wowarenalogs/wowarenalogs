@@ -2,9 +2,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { BrowserWindow } from 'electron';
 
-type ModuleFunction = {
-  name: string;
-  value: (mainWindow: BrowserWindow, ...args: any[]) => Promise<any>;
+type ModuleCallOptions = {
   /**
    * This flag determines the optionality of the type created; true will create a function on the type that is not
    * optional and false will create a function that is optional using the ? syntax
@@ -17,24 +15,18 @@ type ModuleFunction = {
    */
   isRequired: boolean;
 };
+
+type ModuleFunction = {
+  name: string;
+  value: (mainWindow: BrowserWindow, ...args: any[]) => Promise<any>;
+} & ModuleCallOptions;
 
 type ModuleEventType = 'on' | 'once';
 
 type ModuleEvent = {
   name: string;
   type: ModuleEventType;
-  /**
-   * This flag determines the optionality of the type created; true will create a function on the type that is not
-   * optional and false will create a function that is optional using the ? syntax
-   *
-   * If you are writing a new native module then previous app builds will not have this function - this means that your
-   * f/e should assume the function is optional and test for it being present before attempting to call it (which
-   * would be an exception).
-   *
-   * Default: false
-   */
-  isRequired: boolean;
-};
+} & ModuleCallOptions;
 
 type NativeBridgeModuleMetadata = {
   name: string;
@@ -84,7 +76,7 @@ export function getModuleEventKey(moduleName: string, eventName: string): string
   return `${getModuleKey(moduleName)}:${eventName}`;
 }
 
-export function moduleFunction(options?: { isRequired: boolean }) {
+export function moduleFunction(options?: ModuleCallOptions) {
   const actuallyRequired = options?.isRequired ?? false;
   return (target: any, key: string, descriptor: PropertyDescriptor) => {
     if (!target.constructor) {
@@ -100,7 +92,7 @@ export function moduleFunction(options?: { isRequired: boolean }) {
   };
 }
 
-export function moduleEvent(type: ModuleEventType, options?: { isRequired: boolean }) {
+export function moduleEvent(type: ModuleEventType, options?: ModuleCallOptions) {
   const actuallyRequired = options?.isRequired ?? false;
   return (target: any, key: string, descriptor: PropertyDescriptor) => {
     if (!target.constructor) {
