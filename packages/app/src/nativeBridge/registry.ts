@@ -9,6 +9,8 @@ import { FilesModule } from './modules/filesModule';
 import { LogsModule } from './modules/logsModule';
 import { MainWindowModule } from './modules/mainWindowModule';
 
+const MODULES_PATH = './nativeBridge/modules/';
+
 export class NativeBridgeRegistry {
   private modules: NativeBridgeModule[] = [];
 
@@ -63,7 +65,7 @@ export class NativeBridgeRegistry {
     return apiString;
   }
 
-  public generateAPITypeFile(modulesPath: string) {
+  public generateAPITypeFile() {
     let typeString = `/* eslint-disable @typescript-eslint/no-explicit-any */\n`;
     this.modules.forEach((module) => {
       const ctor = Object.getPrototypeOf(module).constructor;
@@ -75,7 +77,7 @@ export class NativeBridgeRegistry {
         moduleMetadata.constructor.name[0].toLowerCase() +
         moduleMetadata.constructor.name.slice(1, moduleMetadata.constructor.name.length);
 
-      typeString += `import { ${moduleMetadata.constructor.name} } from "${modulesPath}${casedName}";\n`;
+      typeString += `import { ${moduleMetadata.constructor.name} } from "${MODULES_PATH}${casedName}";\n`;
     });
 
     typeString += `\ntype ElectronOpaqueEvent = {

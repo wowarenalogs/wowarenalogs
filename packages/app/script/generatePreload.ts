@@ -2,7 +2,7 @@ import { nativeBridgeRegistry } from '../src/nativeBridge/registry';
 import { close, openSync, writeSync } from 'fs-extra';
 
 const apiFile = nativeBridgeRegistry.generateAPIFile();
-const typeFile = nativeBridgeRegistry.generateAPITypeFile('./nativeBridge/modules/');
+const typeFile = nativeBridgeRegistry.generateAPITypeFile();
 
 const apiOut = openSync('src/preloadApi.ts', 'w');
 writeSync(apiOut, apiFile);
