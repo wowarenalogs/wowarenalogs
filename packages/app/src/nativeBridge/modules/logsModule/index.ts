@@ -40,7 +40,7 @@ const bridgeState: {
 
 @nativeBridgeModule('logs')
 export class LogsModule extends NativeBridgeModule {
-  @moduleFunction()
+  @moduleFunction({ isRequired: true })
   public async importLogFiles(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
     dialog
       .showOpenDialog({
@@ -90,7 +90,7 @@ export class LogsModule extends NativeBridgeModule {
       });
   }
 
-  @moduleFunction()
+  @moduleFunction({ isRequired: true })
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
     const bridge = bridgeState[wowVersion] as IBridge; // why can TS not figure this out?
     if (bridge.watcher) {
@@ -180,7 +180,7 @@ export class LogsModule extends NativeBridgeModule {
     });
   }
 
-  @moduleFunction()
+  @moduleFunction({ isRequired: true })
   public async stopLogWatcher(_mainWindow: BrowserWindow) {
     bridgeState.retail.watcher?.close();
     bridgeState.retail.logParser?.removeAllListeners();
@@ -192,27 +192,27 @@ export class LogsModule extends NativeBridgeModule {
     bridgeState.classic.watcher = undefined;
   }
 
-  @moduleEvent('on')
+  @moduleEvent('on', { isRequired: true })
   public handleNewCombat(_mainWindow: BrowserWindow, _combat: IArenaMatch) {
     return;
   }
 
-  @moduleEvent('on')
+  @moduleEvent('on', { isRequired: true })
   public handleSoloShuffleRoundEnded(_mainWindow: BrowserWindow, _combat: IShuffleRound) {
     return;
   }
 
-  @moduleEvent('on')
+  @moduleEvent('on', { isRequired: true })
   public handleSoloShuffleEnded(_mainWindow: BrowserWindow, _combat: IShuffleMatch) {
     return;
   }
 
-  @moduleEvent('on')
+  @moduleEvent('on', { isRequired: true })
   public handleMalformedCombatDetected(_mainWindow: BrowserWindow, _combat: IMalformedCombatData) {
     return;
   }
 
-  @moduleEvent('on')
+  @moduleEvent('on', { isRequired: true })
   public handleParserError(_mainWindow: BrowserWindow, _error: Error) {
     return;
   }

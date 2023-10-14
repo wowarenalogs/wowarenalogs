@@ -1,4 +1,5 @@
 {
+  "exclude": ["script/generatePreload.ts"],
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",

@@ -4,7 +4,7 @@ import { moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../modul
 
 @nativeBridgeModule('bnet')
 export class BnetModule extends NativeBridgeModule {
-  @moduleFunction()
+  @moduleFunction({ isRequired: true })
   public login(mainWindow: Electron.BrowserWindow, absoluteAuthUrl: string, windowTitle: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const mainWindowPosition = mainWindow.getPosition();

@@ -1,8 +1,8 @@
 import { contextBridge } from 'electron';
 
-import { nativeBridgeRegistry } from './nativeBridge/registry';
+import { modulesApi } from './preloadApi';
 
 contextBridge.exposeInMainWorld('wowarenalogs', {
-  ...nativeBridgeRegistry.generateAPIObject(),
+  ...modulesApi,
   platform: process.platform,
 });

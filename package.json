@@ -36,6 +36,7 @@
     "add:shared": "npm install -w @wowarenalogs/shared",
     "add:parser": "npm install -w @wowarenalogs/parser",
     "add:tools": "npm install -w @wowarenalogs/tools",
+    "gen:app:preload": "npm run gen:app:preload --workspaces --if-present",
     "dev:app": "cross-env NODE_ENV=development BROWSER=none concurrently -k \"cd packages/desktop && npm run dev:desktop\" \"wait-on -d 3000 -i 5000 http://localhost:3000 && npm run build:app && electron .\"",
     "build:app": "npm run build:app --workspaces --if-present",
     "build:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=never",
