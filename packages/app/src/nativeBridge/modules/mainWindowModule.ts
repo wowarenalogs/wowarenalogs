@@ -7,22 +7,22 @@ import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } f
 export class MainWindowModule extends NativeBridgeModule {
   private trayIcon: Tray | null = null;
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async isMaximized(mainWindow: BrowserWindow): Promise<boolean> {
     return mainWindow.isMaximized();
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async isMinimized(mainWindow: BrowserWindow): Promise<boolean> {
     return mainWindow.isMinimized();
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async minimize(mainWindow: BrowserWindow): Promise<void> {
     mainWindow.minimize();
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async maximize(mainWindow: BrowserWindow, maximize?: boolean): Promise<void> {
     if (maximize === undefined) {
       maximize = true;
@@ -35,27 +35,27 @@ export class MainWindowModule extends NativeBridgeModule {
     }
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async hideToSystemTray(mainWindow: BrowserWindow): Promise<void> {
     mainWindow.hide();
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async setWindowSize(mainWindow: BrowserWindow, width: number, height: number) {
     mainWindow.setSize(width, height);
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async setWindowPosition(mainWindow: BrowserWindow, x: number, y: number) {
     mainWindow.setPosition(x, y);
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async getWindowPosition(mainWindow: BrowserWindow) {
     return mainWindow.getPosition();
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async getWindowSize(mainWindow: BrowserWindow) {
     return mainWindow.getSize();
   }
@@ -96,12 +96,12 @@ export class MainWindowModule extends NativeBridgeModule {
     }
   }
 
-  @moduleEvent('on', { isOptional: false })
+  @moduleEvent('on', { isRequired: true })
   public onWindowResized(_mainWindow: BrowserWindow, _w: number, _h: number): void {
     return;
   }
 
-  @moduleEvent('on', { isOptional: false })
+  @moduleEvent('on', { isRequired: true })
   public onWindowMoved(_mainWindow: BrowserWindow, _x: number, _y: number): void {
     return;
   }

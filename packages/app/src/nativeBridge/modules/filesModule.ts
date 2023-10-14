@@ -33,7 +33,7 @@ async function installAddonToPath(path: string, version: WowVersion) {
 
 @nativeBridgeModule('fs')
 export class FilesModule extends NativeBridgeModule {
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async selectFolder(_mainWindow: BrowserWindow) {
     const executableName = process.platform === 'darwin' ? 'World of Warcraft.app' : 'Wow.exe';
     const dialogResult = await dialog.showOpenDialog({
@@ -64,12 +64,12 @@ export class FilesModule extends NativeBridgeModule {
     throw new Error('No valid directory selected');
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public getAllWoWInstallations(_mainWindow: BrowserWindow, path: string) {
     return DesktopUtils.getWowInstallsFromPath(path);
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async installAddon(_mainWindow: BrowserWindow, path: string) {
     const wowInstallations = await DesktopUtils.getWowInstallsFromPath(path);
     for (const [ver, dir] of Array.from(wowInstallations.entries())) {

@@ -97,12 +97,12 @@ export class NativeBridgeRegistry {
 
       typeString += `${moduleMetadata.name}: {`;
       Object.values(moduleMetadata.functions).forEach((func) => {
-        const optionalDecorator = func.isOptional ? '?' : '';
+        const optionalDecorator = func.isRequired ? '' : '?';
         typeString += `${func.name}${optionalDecorator}: OmitFirstArg<${moduleMetadata.constructor.name}["${func.name}"]>,`;
       });
 
       Object.values(moduleMetadata.events).forEach((evt) => {
-        const optionalDecorator = evt.isOptional ? '?' : '';
+        const optionalDecorator = evt.isRequired ? '' : '?';
         typeString += `${evt.name}${optionalDecorator}: (callback: AsEventFunction<${moduleMetadata.constructor.name}["${evt.name}"]>) => void,`;
         typeString += `removeAll_${evt.name}_listeners${optionalDecorator}: () => void,`;
       });

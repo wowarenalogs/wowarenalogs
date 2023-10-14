@@ -5,12 +5,12 @@ import { globalStates } from './common/globalStates';
 
 @nativeBridgeModule('app')
 export class ApplicationModule extends NativeBridgeModule {
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async quit(_mainWindow: Electron.BrowserWindow): Promise<void> {
     app.quit();
   }
 
-  @moduleFunction({ isOptional: false })
+  @moduleFunction({ isRequired: true })
   public async setOpenAtLogin(_mainWindow: Electron.BrowserWindow, openAtLogin: boolean): Promise<void> {
     if (!app.isPackaged) {
       // do not make the dev app launch on startup
