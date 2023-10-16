@@ -111,6 +111,7 @@ export type Query = {
   matchById: CombatDataStub;
   matchesWithCombatant: Array<CombatDataStub>;
   me?: Maybe<IUser>;
+  myCharacters: Array<UserCharacterInfo>;
   myMatches: CombatQueryResult;
   userMatches: CombatQueryResult;
 };
@@ -197,6 +198,23 @@ export type Talent = {
   id2?: Maybe<Scalars['Int']>;
 };
 
+export type UserCharacterBracketStats = {
+  __typename?: 'UserCharacterBracketStats';
+  bracket: Scalars['String'];
+  highestRating: Scalars['Int'];
+  latestRating: Scalars['Int'];
+  losses: Scalars['Int'];
+  wins: Scalars['Int'];
+};
+
+export type UserCharacterInfo = {
+  __typename?: 'UserCharacterInfo';
+  bracketStats: Array<UserCharacterBracketStats>;
+  characterName: Scalars['String'];
+  guid: Scalars['String'];
+  specId: Scalars['String'];
+};
+
 export type EndInfosFragment = { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number };
 
 export type StartInfosFragment = { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean };
@@ -268,6 +286,11 @@ export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetProfileQuery = { __typename?: 'Query', me?: { __typename?: 'IUser', id: string, battletag?: string | null, battlenetId?: string | null, referrer?: string | null, subscriptionTier: string, tags?: Array<string | null> | null } | null };
+
+export type GetUserCharactersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUserCharactersQuery = { __typename?: 'Query', myCharacters: Array<{ __typename?: 'UserCharacterInfo', characterName: string, guid: string, specId: string, bracketStats: Array<{ __typename?: 'UserCharacterBracketStats', bracket: string, highestRating: number, latestRating: number, wins: number, losses: number }> }> };
 
 export type SetUserReferrerMutationVariables = Exact<{
   referrer?: InputMaybe<Scalars['String']>;
@@ -687,6 +710,49 @@ export function useGetProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
 export type GetProfileQueryHookResult = ReturnType<typeof useGetProfileQuery>;
 export type GetProfileLazyQueryHookResult = ReturnType<typeof useGetProfileLazyQuery>;
 export type GetProfileQueryResult = Apollo.QueryResult<GetProfileQuery, GetProfileQueryVariables>;
+export const GetUserCharactersDocument = gql`
+    query GetUserCharacters {
+  myCharacters {
+    characterName
+    guid
+    specId
+    bracketStats {
+      bracket
+      highestRating
+      latestRating
+      wins
+      losses
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUserCharactersQuery__
+ *
+ * To run a query within a React component, call `useGetUserCharactersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserCharactersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserCharactersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetUserCharactersQuery(baseOptions?: Apollo.QueryHookOptions<GetUserCharactersQuery, GetUserCharactersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUserCharactersQuery, GetUserCharactersQueryVariables>(GetUserCharactersDocument, options);
+      }
+export function useGetUserCharactersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserCharactersQuery, GetUserCharactersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUserCharactersQuery, GetUserCharactersQueryVariables>(GetUserCharactersDocument, options);
+        }
+export type GetUserCharactersQueryHookResult = ReturnType<typeof useGetUserCharactersQuery>;
+export type GetUserCharactersLazyQueryHookResult = ReturnType<typeof useGetUserCharactersLazyQuery>;
+export type GetUserCharactersQueryResult = Apollo.QueryResult<GetUserCharactersQuery, GetUserCharactersQueryVariables>;
 export const SetUserReferrerDocument = gql`
     mutation SetUserReferrer($referrer: String) {
   setUserReferrer(referrer: $referrer) {

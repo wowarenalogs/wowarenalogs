@@ -57,7 +57,7 @@ model PlayerStatRecord {
   teamId     BigInt
   teamRecord TeamStatRecord @relation(fields: [teamId], references: [rowId])
 
-  @@index([name], name: "name")
+  @@index([unitId], name: "unitId")
 }
 
 model UserCharacter {
@@ -66,6 +66,6 @@ model UserCharacter {
   characterName String @db.String(64)
   characterGuid String @db.String(64)
 
-  @@unique([battlenetId, characterName, characterGuid])
+  @@unique([characterGuid])
   @@index([battlenetId], name: "battlenetId")
 }
