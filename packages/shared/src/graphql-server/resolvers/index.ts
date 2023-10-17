@@ -1,5 +1,5 @@
 import { characterMatches, latestMatches, matchById, matchesWithCombatant, myMatches, userMatches } from './matches';
-import { me, setUserReferrer } from './profile';
+import { me, myCharacters, setUserReferrer } from './profile';
 
 export const resolvers = {
   CombatDataStub: {
@@ -18,6 +18,7 @@ export const resolvers = {
     me,
     latestMatches,
     myMatches,
+    myCharacters,
     userMatches,
     characterMatches,
     matchesWithCombatant,

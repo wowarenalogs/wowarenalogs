@@ -9,6 +9,7 @@ export const typeDefs = gql`
     subscriptionTier: String!
     tags: [String]
   }
+
   type ArenaMatchEndInfo {
     timestamp: Float!
     winningTeamId: String!
@@ -16,6 +17,7 @@ export const typeDefs = gql`
     team0MMR: Int!
     team1MMR: Int!
   }
+
   type ArenaMatchStartInfo {
     timestamp: Float!
     zoneId: String!
@@ -23,6 +25,7 @@ export const typeDefs = gql`
     bracket: String!
     isRanked: Boolean!
   }
+
   type ArenaMatchDataStub {
     id: String!
     wowVersion: String
@@ -42,10 +45,12 @@ export const typeDefs = gql`
     winningTeamId: String
     timezone: String
   }
+
   type ScoreboardEntry {
     unitId: String!
     wins: Int!
   }
+
   type ShuffleRoundStub {
     id: String!
     wowVersion: String
@@ -72,11 +77,13 @@ export const typeDefs = gql`
   }
 
   union CombatDataStub = ShuffleRoundStub | ArenaMatchDataStub
+
   type Talent {
     id1: Int
     id2: Int
     count: Int
   }
+
   type CombatantInfo {
     teamId: String!
     specId: String!
@@ -85,6 +92,7 @@ export const typeDefs = gql`
     personalRating: Int!
     highestPvpTier: Int
   }
+
   type CombatUnitStub {
     id: String!
     name: String!
@@ -95,10 +103,27 @@ export const typeDefs = gql`
     reaction: Int!
     affiliation: Int
   }
+
   type CombatQueryResult {
     combats: [CombatDataStub!]!
     queryLimitReached: Boolean!
   }
+
+  type UserCharacterBracketStats {
+    bracket: String!
+    highestRating: Int!
+    latestRating: Int!
+    wins: Int!
+    losses: Int!
+  }
+
+  type UserCharacterInfo {
+    characterName: String!
+    guid: String!
+    specId: String!
+    bracketStats: [UserCharacterBracketStats!]!
+  }
+
   type Query {
     me: IUser
     latestMatches(
@@ -111,11 +136,13 @@ export const typeDefs = gql`
       count: Int! = 50
     ): CombatQueryResult!
     myMatches(anonymousUserId: String = null, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
+    myCharacters: [UserCharacterInfo!]!
     userMatches(userId: String!, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
     characterMatches(realm: String!, characterName: String!, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
     matchesWithCombatant(playerName: String!): [CombatDataStub!]!
     matchById(matchId: String!): CombatDataStub!
   }
+
   type Mutation {
     setUserReferrer(referrer: String): IUser
   }

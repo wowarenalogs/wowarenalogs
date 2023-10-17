@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { BrowserWindow, ipcMain, ipcRenderer, IpcRendererEvent } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 
-import { getModuleEventKey, getModuleFunctionKey, MODULE_METADATA, NativeBridgeModule } from './module';
+import { getModuleFunctionKey, MODULE_METADATA, NativeBridgeModule } from './module';
 import { ApplicationModule } from './modules/applicationModule';
 import { BnetModule } from './modules/bnetModule';
 import { ExternalLinksModule } from './modules/externalLinksModule';
 import { FilesModule } from './modules/filesModule';
 import { LogsModule } from './modules/logsModule';
 import { MainWindowModule } from './modules/mainWindowModule';
+
+const MODULES_PATH = './nativeBridge/modules/';
 
 export class NativeBridgeRegistry {
   private modules: NativeBridgeModule[] = [];
@@ -17,41 +19,99 @@ export class NativeBridgeRegistry {
     this.modules.push(module);
   }
 
-  public generateAPIObject(): Object {
-    return Object.assign(
-      {},
-      ...this.modules.map((module) => {
-        const ctor = Object.getPrototypeOf(module).constructor;
-        const moduleMetadata = MODULE_METADATA.get(ctor);
-        if (!moduleMetadata) {
-          throw new Error('module metadata not found');
+  public generateAPIFile() {
+    let apiString = `/* eslint-disable @typescript-eslint/no-explicit-any */\nimport { ipcRenderer, IpcRendererEvent } from "electron";\n\nexport const modulesApi = {`;
+
+    this.modules.forEach((module) => {
+      const ctor = Object.getPrototypeOf(module).constructor;
+      const moduleMetadata = MODULE_METADATA.get(ctor);
+      if (!moduleMetadata) {
+        throw new Error('module metadata not found');
+      }
+
+      apiString += `${moduleMetadata.name}: {`;
+      Object.values(moduleMetadata.functions).forEach((func) => {
+        apiString += `${func.name}: (...args: any[]) => ipcRenderer.invoke("${getModuleFunctionKey(
+          moduleMetadata.name,
+          func.name,
+        )}", ...args),`;
+      });
+
+      Object.values(moduleMetadata.events).forEach((evt) => {
+        if (evt.type === 'on') {
+          apiString += `${
+            evt.name
+          }: (callback: (event: IpcRendererEvent, ...args: any[]) => void) => ipcRenderer.on("${getModuleFunctionKey(
+            moduleMetadata.name,
+            evt.name,
+          )}", callback),`;
+        } else {
+          apiString += `${
+            evt.name
+          }: (callback: (event: IpcRendererEvent, ...args: any[]) => void) => ipcRenderer.once("${getModuleFunctionKey(
+            moduleMetadata.name,
+            evt.name,
+          )}", callback),`;
         }
+        apiString += `removeAll_${evt.name}_listeners: () => ipcRenderer.removeAllListeners("${getModuleFunctionKey(
+          moduleMetadata.name,
+          evt.name,
+        )}"),`;
+      });
 
-        const moduleApi: Record<string, Object> = {};
+      apiString += `},`;
+    });
+    apiString += '};';
+    return apiString;
+  }
 
-        Object.values(moduleMetadata.functions).forEach((func) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          moduleApi[func.name] = (...args: any[]) => {
-            return ipcRenderer.invoke(getModuleFunctionKey(moduleMetadata.name, func.name), ...args);
-          };
-        });
+  public generateAPITypeFile() {
+    let typeString = `/* eslint-disable @typescript-eslint/no-explicit-any */\n`;
+    this.modules.forEach((module) => {
+      const ctor = Object.getPrototypeOf(module).constructor;
+      const moduleMetadata = MODULE_METADATA.get(ctor);
+      if (!moduleMetadata) {
+        throw new Error('module metadata not found');
+      }
+      const casedName =
+        moduleMetadata.constructor.name[0].toLowerCase() +
+        moduleMetadata.constructor.name.slice(1, moduleMetadata.constructor.name.length);
 
-        Object.values(moduleMetadata.events).forEach((evt) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          moduleApi[evt.name] = (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
-            evt.type === 'on'
-              ? ipcRenderer.on(getModuleEventKey(moduleMetadata.name, evt.name), callback)
-              : ipcRenderer.once(getModuleEventKey(moduleMetadata.name, evt.name), callback);
+      typeString += `import { ${moduleMetadata.constructor.name} } from "${MODULES_PATH}${casedName}";\n`;
+    });
 
-          moduleApi[`removeAll_${evt.name}_listeners`] = () =>
-            ipcRenderer.removeAllListeners(getModuleEventKey(moduleMetadata.name, evt.name));
-        });
+    typeString += `\ntype ElectronOpaqueEvent = {
+      senderId: number;
+    };\n\ntype OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;\n`;
+    typeString += `type AsEventFunction<F> = F extends (x: any, ...args: infer P) => infer R
+    ? (event: ElectronOpaqueEvent, ...args: P) => R
+    : never;\n\n`;
 
-        return {
-          [moduleMetadata.name]: moduleApi,
-        };
-      }),
-    );
+    typeString += `export type NativeApi = {`;
+    this.modules.forEach((module) => {
+      const ctor = Object.getPrototypeOf(module).constructor;
+      const moduleMetadata = MODULE_METADATA.get(ctor);
+      if (!moduleMetadata) {
+        throw new Error('module metadata not found');
+      }
+
+      typeString += `${moduleMetadata.name}: {`;
+      Object.values(moduleMetadata.functions).forEach((func) => {
+        const optionalDecorator = func.isRequired ? '' : '?';
+        typeString += `${func.name}${optionalDecorator}: OmitFirstArg<${moduleMetadata.constructor.name}["${func.name}"]>,`;
+      });
+
+      Object.values(moduleMetadata.events).forEach((evt) => {
+        const optionalDecorator = evt.isRequired ? '' : '?';
+        typeString += `${evt.name}${optionalDecorator}: (callback: AsEventFunction<${moduleMetadata.constructor.name}["${evt.name}"]>) => void,`;
+        typeString += `removeAll_${evt.name}_listeners${optionalDecorator}: () => void,`;
+      });
+
+      typeString += `},`;
+    });
+    typeString += '};\n';
+
+    return typeString;
   }
 
   public startListeners(mainWindow: BrowserWindow): void {
