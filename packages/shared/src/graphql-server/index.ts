@@ -7,11 +7,10 @@ import { typeDefs } from './types/gql';
 export const graphqlServer = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => {
-    return getSession({ req }).then((session) => {
-      return {
-        user: session?.user,
-      };
-    });
+  context: async ({ req }) => {
+    const session = await getSession({ req });
+    return {
+      user: session?.user,
+    };
   },
 });

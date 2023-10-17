@@ -7,14 +7,14 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
-    "build:cloud": "shx rm -rf dist && cd ../.. && npm run build:parser && shx mkdir -p ./packages/cloud/dist/parser && shx cp -r ./packages/parser/dist ./packages/cloud/dist/parser/dist && cd packages/cloud && prisma generate && tsc",
-    "deploy:dev": "npm run build:cloud && dotenv -- node ./dist/cloud/test/test_env_for_deploy.js && dotenv -- serverless deploy --config serverless.dev.yml",
-    "deploy:prod": "npm run build:cloud && dotenv -- node ./dist/cloud/test/test_env_for_deploy.js && dotenv -- serverless deploy --config serverless.prod.yml",
+    "build:cloud": "shx rm -rf dist && cd ../.. && npm run build:parser && npm run build:sql && cd packages/cloud && tsc && tsup && shx cp -r ./deploy/* ./dist && shx cp wowarenalogs*.json ./dist && shx cp .env ./dist && shx cp ../sql/prisma/schema.prisma ./dist",
+    "deploy:dev": "npm run build:cloud && cd dist && npm run deploy:dev",
+    "deploy:prod": "npm run build:cloud && cd dist && npm run deploy:prod",
     "start:fix-cross-year-timestamps": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/fixCrossYearTimestamps.js",
     "start:generate-map-image": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/generateMapImage.js",
+    "start:delete-oldest": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/deleteOldMatches.js",
     "test:refresh-competitive-stats": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_competitive_stats.js",
-    "test:refresh-spell-icons": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js",
-    "postinstall": "cross-env CI=1 prisma generate"
+    "test:refresh-spell-icons": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js"
   },
   "devDependencies": {
     "@types/node": "^14.14.31",
@@ -22,15 +22,10 @@
     "@types/superagent": "^4.1.16",
     "@types/uuid": "^8.3.0",
     "add": "^2.0.6",
-    "eslint": "^8.28.0",
-    "eslint-config-airbnb-typescript": "^16.1.4",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-import-resolver-node": "^0.3.6",
-    "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-config-wowarenalogs": "*",
     "serverless": "^3.25.1",
-    "serverless-google-cloudfunctions": "^4.3.1"
+    "serverless-google-cloudfunctions": "^4.3.1",
+    "tsup": "^7.2.0"
   },
   "dependencies": {
     "@google-analytics/data": "^3.1.2",

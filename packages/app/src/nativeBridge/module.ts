@@ -5,6 +5,17 @@ import { BrowserWindow } from 'electron';
 type ModuleFunction = {
   name: string;
   value: (mainWindow: BrowserWindow, ...args: any[]) => Promise<any>;
+  /**
+   * This flag determines the optionality of the type created; true will create a function on the type that is not
+   * optional and false will create a function that is optional using the ? syntax
+   *
+   * If you are writing a new native module then previous app builds will not have this function - this means that your
+   * f/e should assume the function is optional and test for it being present before attempting to call it (which
+   * would be an exception).
+   *
+   * Default: false
+   */
+  isRequired: boolean;
 };
 
 type ModuleEventType = 'on' | 'once';
@@ -12,6 +23,17 @@ type ModuleEventType = 'on' | 'once';
 type ModuleEvent = {
   name: string;
   type: ModuleEventType;
+  /**
+   * This flag determines the optionality of the type created; true will create a function on the type that is not
+   * optional and false will create a function that is optional using the ? syntax
+   *
+   * If you are writing a new native module then previous app builds will not have this function - this means that your
+   * f/e should assume the function is optional and test for it being present before attempting to call it (which
+   * would be an exception).
+   *
+   * Default: false
+   */
+  isRequired: boolean;
 };
 
 type NativeBridgeModuleMetadata = {
@@ -62,7 +84,8 @@ export function getModuleEventKey(moduleName: string, eventName: string): string
   return `${getModuleKey(moduleName)}:${eventName}`;
 }
 
-export function moduleFunction(nameOverride?: string) {
+export function moduleFunction(options?: { isRequired: boolean }) {
+  const actuallyRequired = options?.isRequired ?? false;
   return (target: any, key: string, descriptor: PropertyDescriptor) => {
     if (!target.constructor) {
       throw new Error('@moduleFunction must be used within a class');
@@ -70,13 +93,15 @@ export function moduleFunction(nameOverride?: string) {
 
     const module = ensureModuleMetadata(target.constructor);
     module.functions[key] = {
-      name: nameOverride || key,
+      name: key,
       value: descriptor.value,
+      isRequired: actuallyRequired,
     };
   };
 }
 
-export function moduleEvent(type: ModuleEventType, nameOverride?: string) {
+export function moduleEvent(type: ModuleEventType, options?: { isRequired: boolean }) {
+  const actuallyRequired = options?.isRequired ?? false;
   return (target: any, key: string, descriptor: PropertyDescriptor) => {
     if (!target.constructor) {
       throw new Error('@moduleEvent must be used within a class');
@@ -85,7 +110,8 @@ export function moduleEvent(type: ModuleEventType, nameOverride?: string) {
     const module = ensureModuleMetadata(target.constructor);
     module.events[key] = {
       type,
-      name: nameOverride || key,
+      name: key,
+      isRequired: actuallyRequired,
     };
 
     descriptor.value = (mainWindow: BrowserWindow, ...args: any[]) => {

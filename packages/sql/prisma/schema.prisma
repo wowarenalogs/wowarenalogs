@@ -56,4 +56,16 @@ model PlayerStatRecord {
 
   teamId     BigInt
   teamRecord TeamStatRecord @relation(fields: [teamId], references: [rowId])
+
+  @@index([unitId], name: "unitId")
+}
+
+model UserCharacter {
+  rowId         BigInt @id @default(autoincrement())
+  battlenetId   String @db.String(32)
+  characterName String @db.String(64)
+  characterGuid String @db.String(64)
+
+  @@unique([characterGuid])
+  @@index([battlenetId], name: "battlenetId")
 }

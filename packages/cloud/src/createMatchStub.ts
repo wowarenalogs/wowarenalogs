@@ -1,4 +1,3 @@
-import { Timestamp } from '@google-cloud/firestore';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -17,6 +16,8 @@ import {
 // for the application build in @shared
 import { ICombatDataStub } from '../../shared/src/graphql-server/types/index';
 
+const DOC_RETENTION_DAYS = 7;
+
 export function nullthrows<T>(value: T | null | undefined): T {
   if (value === null || value === undefined) {
     throw Error('this value cannot be null or undefined');
@@ -32,7 +33,7 @@ export type FirebaseDTO = ICombatDataStub & {
   combatantNames: string[];
   combatantGuids: string[];
   extra: QueryHelpers;
-  expires: Timestamp; // Used to set object TTL for auto-delete
+  expires: Date; // Used to set object TTL for auto-delete
   timezone: string;
 };
 
@@ -70,7 +71,7 @@ function createStubDTOFromShuffleMatch(
   const rounds = match.rounds;
   const lastRound = rounds[5];
 
-  const inThirtyDays = moment().add(30, 'days');
+  const expiryTime = moment().add(DOC_RETENTION_DAYS, 'days');
 
   rounds.forEach((round) => {
     round.shuffleMatchEndInfo = match.endInfo;
@@ -106,7 +107,7 @@ function createStubDTOFromShuffleMatch(
         extra: { ...buildQueryHelpers(round), ...buildMMRHelpers(round) },
         combatantNames: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
         combatantGuids: roundUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
-        expires: Timestamp.fromDate(inThirtyDays.toDate()),
+        expires: expiryTime.toDate(),
         shuffleMatchId: match.id,
         shuffleMatchResult: match.result,
         shuffleMatchEndInfo: match.endInfo,
@@ -118,7 +119,7 @@ function createStubDTOFromShuffleMatch(
 }
 
 function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjectUrl: string): FirebaseDTO {
-  const inThirtyDays = moment().add(30, 'days');
+  const expiryTime = moment().add(DOC_RETENTION_DAYS, 'days');
   const combatUnits = createUnitsList(com.units);
   return {
     dataType: 'ArenaMatch',
@@ -142,7 +143,7 @@ function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjec
     extra: { ...buildQueryHelpers(com), ...buildMMRHelpers(com) },
     combatantNames: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.name),
     combatantGuids: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
-    expires: Timestamp.fromDate(inThirtyDays.toDate()),
+    expires: expiryTime.toDate(),
     timezone: com.timezone,
   };
 }

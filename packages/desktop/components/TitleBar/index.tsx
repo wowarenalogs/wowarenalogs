@@ -46,7 +46,8 @@ function TitleBar() {
           className="btn btn-ghost btn-square btn-sm"
           onClick={async () => {
             flushSync(() => {
-              if (window.wowarenalogs.win?.hideToSystemTray) {
+              // the condition below checks whether the app is on a recent enough version that supports system tray
+              if (window.wowarenalogs.win?.hideToSystemTray && window.wowarenalogs.app?.isUpdateAvailable) {
                 window.wowarenalogs.win.hideToSystemTray();
               } else {
                 window.wowarenalogs.app?.quit();

@@ -28,20 +28,26 @@ const specTalentEntryToSpellId = talentIdMap
   .flat()
   .map((n) => n.entries)
   .flat()
-  .reduce((prev, cur) => {
-    prev[cur.id] = cur.spellId;
-    return prev;
-  }, {} as Record<number, number>);
+  .reduce(
+    (prev, cur) => {
+      prev[cur.id] = cur.spellId;
+      return prev;
+    },
+    {} as Record<number, number>,
+  );
 
 const classTalentEntryToSpellId = talentIdMap
   .map((a) => a.classNodes)
   .flat()
   .map((n) => n.entries)
   .flat()
-  .reduce((prev, cur) => {
-    prev[cur.id] = cur.spellId;
-    return prev;
-  }, {} as Record<number, number>);
+  .reduce(
+    (prev, cur) => {
+      prev[cur.id] = cur.spellId;
+      return prev;
+    },
+    {} as Record<number, number>,
+  );
 
 export const maybeGetSpellIdFromTalentId = (talentId: number) => {
   return classTalentEntryToSpellId[talentId] ?? specTalentEntryToSpellId[talentId] ?? 0;
