@@ -3,6 +3,7 @@ FROM node:16
 # Prepare working directory
 WORKDIR /usr/src/app
 RUN mkdir packages
+RUN mkdir packages/sql
 RUN mkdir packages/shared
 RUN mkdir packages/desktop
 RUN mkdir packages/parser
@@ -14,15 +15,18 @@ ENV NEXTAUTH_URL="https://desktop.wowarenalogs.com"
 COPY package.json ./
 COPY package-lock.json ./
 COPY tsconfig.json ./
+COPY packages/sql/package.json ./packages/sql
 COPY packages/shared/package.json ./packages/shared
 COPY packages/desktop/package.json ./packages/desktop
 COPY packages/parser/package.json ./packages/parser
 RUN npm ci
+COPY ./packages/sql ./packages/sql
 COPY ./packages/shared ./packages/shared
 COPY ./packages/desktop ./packages/desktop
 COPY ./packages/parser ./packages/parser
 
 # Build 
+RUN npm run build:sql
 RUN npm run build:parser
 RUN npm run build:desktop
 
