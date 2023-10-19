@@ -97,3 +97,42 @@ jobs:
       - name: upload latest-mac.zip
         working-directory: ./dist
         run: gsutil cp latest-mac.zip gs://download.wowarenalogs.com/desktop-client/
+  build_on_linux:
+    runs-on: ubuntu-latest
+    env:
+      CI: false
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: gcloud auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+      - name: setup gcloud
+        uses: google-github-actions/setup-gcloud@v1
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: install node-gyp
+        run: npm i -g node-gyp@latest
+      - name: clean npm cache
+        run: npm cache clean -f
+      - name: install dependencies
+        run: npm ci
+      - name: build for linux
+        run: npm run publish:app:linux
+      - name: upload to google cloud storage
+        working-directory: ./dist
+        run: gsutil cp *.AppImage gs://download.wowarenalogs.com/desktop-client/
+      - name: create latest-linux.zip
+        working-directory: ./dist
+        run: zip latest-linux.zip *.AppImage
+      - name: upload latest-linux.zip
+        working-directory: ./dist
+        run: gsutil cp latest-linux.zip gs://download.wowarenalogs.com/desktop-client/

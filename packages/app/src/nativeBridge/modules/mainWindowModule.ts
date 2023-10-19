@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, Tray } from 'electron';
 import path from 'path';
+import { platform } from 'process';
 
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
 
@@ -37,7 +38,11 @@ export class MainWindowModule extends NativeBridgeModule {
 
   @moduleFunction({ isRequired: true })
   public async hideToSystemTray(mainWindow: BrowserWindow): Promise<void> {
-    mainWindow.hide();
+    if (platform === 'win32') {
+      mainWindow.hide();
+    } else {
+      app.quit();
+    }
   }
 
   @moduleFunction({ isRequired: true })
