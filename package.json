@@ -1,7 +1,7 @@
 {
   "name": "wowarenalogs",
   "license": "MIT",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
@@ -26,6 +26,11 @@
     ],
     "directories": {
       "buildResources": "packages/app/assets"
+    },
+    "linux": {
+      "category": "Utility",
+      "target": "AppImage",
+      "icon": "icon.icns"
     }
   },
   "scripts": {
@@ -41,8 +46,10 @@
     "build:app": "npm run build:app --workspaces --if-present",
     "build:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=never",
     "build:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=never",
+    "build:app:linux": "shx rm -rf dist && npm run build:app && electron-builder --linux --publish=never",
     "publish:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=always",
     "publish:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=always",
+    "publish:app:linux": "shx rm -rf dist && npm run build:app && electron-builder --linux --publish=always",
     "release:app": "npm run release:app --workspaces --if-present",
     "dev:desktop": "npm run dev:desktop --workspaces --if-present",
     "build:desktop": "npm run build:desktop --workspaces --if-present",

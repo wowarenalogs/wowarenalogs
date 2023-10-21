@@ -40,7 +40,7 @@ class WindowsLogWatcher extends LogWatcher {
   }
 }
 
-class MacLogWatcher extends LogWatcher {
+class UnixLogWatcher extends LogWatcher {
   private watcher: chokidar.FSWatcher;
 
   constructor(wowDirectory: string) {
@@ -69,6 +69,6 @@ class MacLogWatcher extends LogWatcher {
 }
 
 export const createLogWatcher = (wowDirectory: string, platform: string) => {
-  const isMac = platform === 'darwin';
-  return isMac ? new MacLogWatcher(wowDirectory) : new WindowsLogWatcher(wowDirectory);
+  const isUnix = platform !== 'win32';
+  return isUnix ? new UnixLogWatcher(wowDirectory) : new WindowsLogWatcher(wowDirectory);
 };
