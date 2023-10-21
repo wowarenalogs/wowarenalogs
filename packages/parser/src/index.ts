@@ -95,6 +95,9 @@ export class WoWCombatLogParser extends EventEmitter {
         this.context = {
           wowVersion: 'retail',
           pipeline: createRetailParserPipeline(
+            (activityStarted) => {
+              this.emit('activity_started', activityStarted);
+            },
             (combat) => {
               this.emit('arena_match_ended', combat);
             },
@@ -139,6 +142,9 @@ export class WoWCombatLogParser extends EventEmitter {
       this.context = {
         wowVersion,
         pipeline: createRetailParserPipeline(
+          (activityStarted) => {
+            this.emit('activity_started', activityStarted);
+          },
           (combat) => {
             this.emit('arena_match_ended', combat);
           },
