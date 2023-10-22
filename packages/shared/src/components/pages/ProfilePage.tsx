@@ -6,7 +6,6 @@ import { useMemo, useState } from 'react';
 import { TbLoader } from 'react-icons/tb';
 
 import { Utils } from '../../utils/utils';
-import { CharactersOverview } from '../CharacterStats/CharactersOverview';
 import { CharacterStats } from '../CharacterStats/CharacterStats';
 import { LogoutButton } from '../common/LogoutButton';
 import { QuerryError } from '../common/QueryError';
@@ -94,7 +93,7 @@ export const ProfilePage = (props: { onLogout?: () => Promise<void> }) => {
             </ul>
           </div>
           {activeCharacterId === 'overview' && userCharactersQuery.data?.myCharacters && (
-            <CharactersOverview characters={userCharactersQuery.data?.myCharacters} />
+            <CharacterStats specs={userCharactersQuery.data?.myCharacters} />
           )}
           {characterGroups.map((c) => activeCharacterId === c.guid && <CharacterStats key={c.guid} specs={c.specs} />)}
         </div>
