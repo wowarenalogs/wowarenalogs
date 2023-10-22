@@ -30,6 +30,7 @@ export const CharacterStats = (props: { specs: UserCharacterInfo[] }) => {
 
   return (
     <div className="flex flex-col flex-1 gap-4">
+      <div className="text-center opacity-50">Data based on matches recorded through WoW Arena Logs.</div>
       {brackets.map((b) => (
         <table className="table" key={b[0].bracket}>
           <thead>
