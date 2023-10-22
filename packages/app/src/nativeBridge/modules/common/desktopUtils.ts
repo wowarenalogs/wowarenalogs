@@ -21,7 +21,8 @@ export class DesktopUtils {
     Object.values(METADATA).forEach(async (metadata) => {
       if (
         ((platform === 'darwin' && existsSync(join(path, '..', metadata.dir, metadata.macAppFile))) ||
-          (platform === 'win32' && existsSync(join(path, '..', metadata.dir, metadata.winAppFile)))) &&
+          ((platform === 'win32' || platform === 'linux') && // WoW can run on linux in a simulated windows environment
+            existsSync(join(path, '..', metadata.dir, metadata.winAppFile)))) &&
         existsSync(join(path, '..', metadata.dir, 'Interface', 'AddOns'))
       ) {
         results.set(metadata.version as WowVersion, join(path, '..', metadata.dir));

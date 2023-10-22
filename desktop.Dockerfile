@@ -3,6 +3,7 @@ FROM node:16
 # Prepare working directory
 WORKDIR /usr/src/app
 RUN mkdir packages
+RUN mkdir packages/app
 RUN mkdir packages/sql
 RUN mkdir packages/shared
 RUN mkdir packages/desktop
