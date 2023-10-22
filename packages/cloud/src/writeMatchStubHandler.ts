@@ -54,7 +54,7 @@ export async function handler(file: any, _context: any) {
     console.log(`writing ${matchStubsFirestore}/${stub.id}`);
     await document.set(instanceToPlain(stub));
     try {
-      await logCombatStatsAsync(arenaMatch, stub);
+      await logCombatStatsAsync(arenaMatch, stub, ownerId);
     } catch (e) {
       console.error(e);
     }
@@ -69,7 +69,7 @@ export async function handler(file: any, _context: any) {
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
       await document.set(instanceToPlain(stub));
       try {
-        await logCombatStatsAsync(round, stub);
+        await logCombatStatsAsync(round, stub, ownerId);
       } catch (e) {
         console.error(e);
       }
@@ -78,5 +78,3 @@ export async function handler(file: any, _context: any) {
   }
   console.log('Parser did not find useable matches');
 }
-
-exports.handler = handler;

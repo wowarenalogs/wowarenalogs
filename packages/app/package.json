@@ -6,6 +6,7 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "build:app": "shx rm -rf dist && tsc -p . && webpack --config webpack.config.js && webpack --config webpack.preload.config.js && shx cp -r public dist/public",
+    "gen:app:preload": "cross-env ts-node script/generatePreload.ts && npm run lint:fix",
     "release:app": "git checkout release/wowarenalogs/app && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "devDependencies": {
@@ -34,6 +35,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "node-fetch": "^2.6.7",
+    "node-loader": "^2.0.0",
     "update-electron-app": "^2.0.1",
     "webpack": "^5.72.0"
   }

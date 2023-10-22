@@ -159,5 +159,3 @@ export async function handler(_event: unknown, _context: unknown, callback: () =
 
   callback();
 }
-
-exports.handler = handler;

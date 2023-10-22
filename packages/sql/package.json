@@ -1,0 +1,16 @@
+{
+  "name": "@wowarenalogs/sql",
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build:sql": "prisma generate",
+    "postinstall": "cross-env CI=1 prisma generate"
+  },
+  "devDependencies": {
+    "eslint-config-wowarenalogs": "*"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.9.0",
+    "prisma": "^4.9.0"
+  }
+}

@@ -4,7 +4,7 @@ import { moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../modul
 
 @nativeBridgeModule('links')
 export class ExternalLinksModule extends NativeBridgeModule {
-  @moduleFunction()
+  @moduleFunction({ isRequired: true })
   public async openExternalURL(_mainWindow: BrowserWindow, url: string) {
     // Security ref: https://benjamin-altpeter.de/shell-openexternal-dangers/
     if (typeof url !== 'string') throw new Error('openExternalURL limited to strings');
