@@ -13,6 +13,9 @@ function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
 
   const win = new BrowserWindow({
+    title: 'WoW Arena Logs',
+    titleBarStyle: 'hidden',
+    icon: path.join(__dirname, 'public', 'icon.png'),
     frame: false,
     backgroundColor: '#000000',
     width: 1120,
