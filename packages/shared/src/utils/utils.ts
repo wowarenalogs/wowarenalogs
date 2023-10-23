@@ -35,6 +35,22 @@ type ParseResult = {
 
 export const SIGNIFICANT_DAMAGE_HEAL_THRESHOLD = 10000;
 
+export const tanksOrHealers = [
+  CombatUnitSpec.DeathKnight_Blood,
+  CombatUnitSpec.DemonHunter_Vengeance,
+  CombatUnitSpec.Druid_Guardian,
+  CombatUnitSpec.Monk_BrewMaster,
+  CombatUnitSpec.Warrior_Protection,
+  CombatUnitSpec.Paladin_Protection,
+  CombatUnitSpec.Paladin_Holy,
+  CombatUnitSpec.Priest_Discipline,
+  CombatUnitSpec.Priest_Holy,
+  CombatUnitSpec.Shaman_Restoration,
+  CombatUnitSpec.Druid_Restoration,
+  CombatUnitSpec.Monk_Mistweaver,
+  CombatUnitSpec.Evoker_Preservation,
+];
+
 export class Utils {
   public static parseFromStringArray(buffer: string[], wowVersion: WowVersion, timezone?: string): ParseResult {
     const logParser = new WoWCombatLogParser(wowVersion, timezone);
