@@ -46,7 +46,7 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
       // locally cache for one hour to avoid people spamming refresh.
       // don't cache for too long to allow people to see latest data not too long after a refresh.
       // the file is behind a CDN which has a 4-hour cache anyways.
-      cacheTime: 1000 * 60 * 1 * 24,
+      cacheTime: 1000 * 60 * 60,
       // rely on cache. only refetch when cache expired.
       staleTime: Infinity,
       enabled: true,
