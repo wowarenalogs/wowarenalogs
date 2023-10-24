@@ -59,6 +59,9 @@ export async function myCharacters(
         },
       },
     },
+    orderBy: {
+      rowId: 'asc',
+    },
   });
 
   return characters
@@ -85,7 +88,7 @@ export async function myCharacters(
         (records, bracket) => ({
           bracket: bracket as Bracket,
           highestRating: _.maxBy(records, (r) => r.rating)?.rating ?? 0,
-          latestRating: _.maxBy(records, (r) => r.rowId)?.rating ?? 0,
+          latestRating: _.last(records)?.rating ?? 0,
           wins: records.filter((r) => r.teamRecord.combatRecord.winningTeamId === r.teamRecord.teamId).length,
           losses: records.filter((r) => r.teamRecord.combatRecord.winningTeamId !== r.teamRecord.teamId).length,
         }),
