@@ -111,7 +111,7 @@ export default function TierList(props: { activeBracket: string; minRating: numb
   }
 
   return (
-    <div className="flex flex-col gap-2 mt-2">
+    <div className="flex flex-col gap-2 mt-2 overflow-x-auto overflow-y-scroll">
       <table className="table">
         <tbody>
           {['S', 'A', 'B', 'C'].map((tier) => (
