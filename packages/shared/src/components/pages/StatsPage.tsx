@@ -1,6 +1,7 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import { TbCaretDown, TbInfoCircle } from 'react-icons/tb';
 
 import { DownloadPromotion } from '../common/DownloadPromotion';
@@ -42,6 +43,22 @@ export const StatsPage = () => {
 
   return (
     <div className="flex flex-col px-4 py-2 w-full h-full items-stretch">
+      <NextSeo
+        title={
+          tab === 'tier-list'
+            ? `${bracket} Spec Tier List`
+            : tab === 'spec-stats'
+            ? `${bracket} Spec Leaderboard`
+            : `${bracket} Comp Leaderboard`
+        }
+        description={
+          tab === 'tier-list'
+            ? `What specs perform the best in ${bracket} matches?`
+            : tab === 'spec-stats'
+            ? `Performance statistics for ${bracket} specs.`
+            : `Performance statistics for ${bracket} comps.`
+        }
+      />
       <DownloadPromotion />
       <div className="flex flex-col md:flex-row gap-2 items-center z-50">
         <Dropdown
