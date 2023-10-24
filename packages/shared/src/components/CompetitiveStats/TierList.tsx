@@ -88,7 +88,7 @@ export default function TierList(props: { activeBracket: string; minRating: numb
     return adjustedStats.map((s) => ({
       ...s,
       tier:
-        s.representation >= 0.03 && s.winRate >= 0.5
+        s.representation >= 0.03 && s.winRate >= 0.51
           ? 'S'
           : s.representation <= 0.01 && s.winRate <= 0.45
           ? 'C'
