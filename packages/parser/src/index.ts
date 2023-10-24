@@ -12,6 +12,7 @@ export type {
   IShuffleMatch,
   IShuffleRound,
   IArenaCombat,
+  IActivityStarted,
   AtomicArenaCombat,
 } from './CombatData';
 export type { ICombatUnit } from './CombatUnit';

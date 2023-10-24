@@ -3,6 +3,7 @@ import { closeSync, existsSync, openSync, readFileSync, readSync } from 'fs-extr
 import { join } from 'path';
 
 const chunkParitialsBuffer: Record<string, string> = {};
+const DEBUG_FILE_BUFFER = false;
 
 export class DesktopUtils {
   public static async getWowInstallsFromPath(path: string) {
@@ -53,6 +54,8 @@ export class DesktopUtils {
   }
 
   public static parseLogFileChunk(parser: WoWCombatLogParser, path: string, start: number, size: number) {
+    // eslint-disable-next-line no-console
+    if (DEBUG_FILE_BUFFER) console.log(`${new Date()}: parseLogFileChunk start=${start} size=${size}`);
     if (size <= 0) {
       return true;
     }
