@@ -63,6 +63,7 @@ function computePercentCDRemaining(
   spellData: Record<string, IMinedSpell>,
 ): { cooldown: CooldownInfo; lastCastTimestampOffset?: number } {
   const cooldown = spellData[spellId]?.cooldownSeconds || spellData[spellId]?.charges?.chargeCooldownSeconds || 30;
+  if (cooldown == 30) console.log(spellId, spellData[spellId]);
   const charges = spellData[spellId]?.charges?.charges;
   if (charges && charges > 1) {
     return {

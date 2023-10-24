@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
-    "start:generateSpellsData": "ts-node --files ./src/generateSpellsData.ts",
+    "start:generateSpellsData": "node --max_old_space_size=16184 --require ts-node/register srcgenerateSpellsData.ts",
     "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts"
   },
   "devDependencies": {
