@@ -33,7 +33,6 @@ import {
 
 import {
   IOBSDevice,
-  Metadata,
   MicStatus,
   ObsAudioConfig,
   ObsBaseConfig,
@@ -43,7 +42,7 @@ import {
   TAudioSourceType,
   TPreviewPosition,
 } from './types';
-import Activity, { IActivity } from './activity';
+import { IActivity } from './activity';
 import VideoProcessQueue from './videoProcessQueue';
 import ConfigService from './configService';
 import { obsResolutions } from './constants';
