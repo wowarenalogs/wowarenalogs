@@ -42,8 +42,9 @@ export function SpellIcon(props: IProps) {
           <div
             className="absolute text-white m-0 p-0"
             style={{
+              zIndex: 8,
               textShadow: '1px 1px #000000',
-              bottom: -8,
+              bottom: -1,
               right: 2,
             }}
           >
