@@ -1822,7 +1822,7 @@ const Paladin = {
       tags: [SpellTag.Defensive],
     },
     { spellId: '96231', name: 'Rebuke', tags: [] },
-    { spellId: '152262', name: 'Seraphim', tags: [] },
+    { spellId: '172321', name: 'Seraphim', tags: [] },
     { spellId: '190784', name: 'Divine Steed', tags: [] },
     { spellId: '209202', name: 'Eye of Tyr', tags: [] },
     { spellId: '215652', name: 'Shield of Virtue', tags: [] },
@@ -7386,7 +7386,6 @@ const Priest = {
     { spellId: '205369', name: 'Mind Bomb', tags: [] },
     { spellId: '211522', name: 'Psyfiend', tags: [] },
     // -- PvP
-    { spellId: '213602', name: 'Greater Fade', tags: [SpellTag.Defensive] },
     { spellId: '328530', name: 'Divine Ascension', tags: [SpellTag.Defensive] },
     // -- Classic
     {

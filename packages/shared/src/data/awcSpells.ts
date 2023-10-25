@@ -182,7 +182,6 @@ export const awcSpells: Record<CombatUnitSpec, string[]> = {
     '255937',
     '210256',
     '205191',
-    '152262',
   ],
   [CombatUnitSpec.Priest_Discipline]: [
     '19236',
@@ -193,7 +192,6 @@ export const awcSpells: Record<CombatUnitSpec, string[]> = {
     '33206',
     '109964',
     '197871',
-    '213602',
     '108968',
   ],
   [CombatUnitSpec.Priest_Holy]: [
@@ -204,13 +202,12 @@ export const awcSpells: Record<CombatUnitSpec, string[]> = {
     '47788',
     '64843',
     '109964',
-    '213602',
     '200183',
     '2050',
     '88625',
     '108968',
   ],
-  [CombatUnitSpec.Priest_Shadow]: ['10060', '73325', '47585', '15487', '64044', '213602', '8122', '108968'],
+  [CombatUnitSpec.Priest_Shadow]: ['10060', '73325', '47585', '15487', '64044', '8122', '108968'],
   [CombatUnitSpec.Rogue_Assassination]: [
     '31224',
     '5277',

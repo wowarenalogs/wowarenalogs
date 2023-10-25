@@ -195,6 +195,7 @@ export const UnitFrame = (props: IProps) => {
     return computeAuraDurations(props.combat, props.unit);
   }, [props.combat, props.unit]);
 
+  console.log(props.unit);
   const spellData = useMemo(() => {
     const sd = _.keyBy(
       _.keys(spellEffectData)
@@ -213,10 +214,19 @@ export const UnitFrame = (props: IProps) => {
     }
     if (sd['2050']) {
       // 235587 Miracle Worker (Holy Word: Serenity)
-      if (props.unit.info?.pvpTalents.includes('235587')) {
+      if (props.unit.info?.talents.find((t) => t?.id2 === 103737)) {
         if (sd['2050'].charges) {
           sd['2050'].charges.charges = 2;
-          sd['2050'].cooldownSeconds = (sd['2050'].cooldownSeconds || 60) * 0.8;
+        }
+      }
+    }
+    if (sd['33206']) {
+      console.log('inspect', sd['33206']);
+      // 33206 pain suppression +1 charge
+      // 103714 is the talent id for protector of the frail
+      if (props.unit.info?.talents.find((t) => t?.id2 === 103714)) {
+        if (sd['33206'].charges) {
+          sd['33206'].charges.charges = 2;
         }
       }
     }
