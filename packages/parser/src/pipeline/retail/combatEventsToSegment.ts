@@ -2,15 +2,21 @@ import { Observable } from 'rxjs';
 
 import { ArenaMatchEnd } from '../../actions/ArenaMatchEnd';
 import { ArenaMatchStart } from '../../actions/ArenaMatchStart';
+import { IActivityStarted } from '../../CombatData';
 import { CombatEvent, ICombatEventSegment } from '../../types';
 
 const COMBAT_AUTO_TIMEOUT_SECS = 60;
 
 export const combatEventsToSegment = () => {
   return (input: Observable<CombatEvent | string>) => {
-    return new Observable<ICombatEventSegment>((output) => {
+    return new Observable<ICombatEventSegment | IActivityStarted>((output) => {
       let lastTimestamp = 0;
-      let currentBuffer: ICombatEventSegment = { events: [], lines: [] };
+      let currentBuffer: ICombatEventSegment = {
+        events: [],
+        lines: [],
+        dataType: 'CombatEventSegment',
+        hasEmittedStartEvent: false,
+      };
 
       input.subscribe({
         next: (event) => {
@@ -31,6 +37,8 @@ export const combatEventsToSegment = () => {
             currentBuffer = {
               events: [],
               lines: [],
+              dataType: 'CombatEventSegment',
+              hasEmittedStartEvent: false,
             };
           };
 
@@ -38,6 +46,14 @@ export const combatEventsToSegment = () => {
 
           if (timeout || event instanceof ArenaMatchStart) {
             emitCurrentBuffer();
+          }
+
+          if (event instanceof ArenaMatchStart && !currentBuffer.hasEmittedStartEvent) {
+            output.next({
+              dataType: 'ActivityStarted',
+              arenaMatchStartInfo: event,
+            });
+            currentBuffer.hasEmittedStartEvent = true;
           }
 
           currentBuffer.events.push(event);
