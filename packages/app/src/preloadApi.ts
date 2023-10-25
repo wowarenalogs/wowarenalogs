@@ -6,6 +6,10 @@ export const modulesApi = {
     importLogFiles: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:logs:importLogFiles', ...args),
     startLogWatcher: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:logs:startLogWatcher', ...args),
     stopLogWatcher: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:logs:stopLogWatcher', ...args),
+    handleActivityStarted: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:logs:handleActivityStarted', callback),
+    removeAll_handleActivityStarted_listeners: () =>
+      ipcRenderer.removeAllListeners('wowarenalogs:logs:handleActivityStarted'),
     handleNewCombat: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
       ipcRenderer.on('wowarenalogs:logs:handleNewCombat', callback),
     removeAll_handleNewCombat_listeners: () => ipcRenderer.removeAllListeners('wowarenalogs:logs:handleNewCombat'),

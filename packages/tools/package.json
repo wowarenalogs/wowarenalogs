@@ -8,12 +8,15 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "start:generateSpellsData": "ts-node --files ./src/generateSpellsData.ts",
-    "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts"
+    "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts",
+    "start:simlog": "dotenv -- ts-node --files ./src/simlog.ts"
   },
   "devDependencies": {
     "@types/node": "^14.14.31",
     "@types/node-fetch": "2.3.0",
     "eslint-config-wowarenalogs": "*",
+    "dotenv": "^16.0.3",
+    "dotenv-cli": "^7.0.0",
     "ts-node": "^10.9.1"
   },
   "dependencies": {
