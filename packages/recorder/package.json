@@ -2,7 +2,7 @@
   "name": "@wowarenalogs/recorder",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/",
   "author": "WoW Arena Logs",
   "scripts": {
     "lint": "eslint . --max-warnings 0",

@@ -43,7 +43,7 @@ import {
   TAudioSourceType,
   TPreviewPosition,
 } from './types';
-import Activity from './activity';
+import Activity, { IActivity } from './activity';
 import VideoProcessQueue from './videoProcessQueue';
 import ConfigService from './configService';
 import { obsResolutions } from './constants';
@@ -62,7 +62,7 @@ const { v4: uuidfn } = require('uuid');
  * actually see the ENCOUNTER_START event 20 seconds after it occured in
  * game.
  */
-export default class Recorder {
+export class Recorder {
   /**
    * For quickly checking if we're recording an activity or not. This is
    * not the same as the OBS state.
@@ -896,7 +896,7 @@ export default class Recorder {
    * @param {Activity} activity the details of the recording
    * @param {boolean} closedWow if wow has just been closed
    */
-  public async stop(activity: Activity, closedWow = false) {
+  public async stop(activity: IActivity, closedWow = false) {
     console.info('[Recorder] Stop called');
 
     if (!this.isRecording) {
@@ -949,26 +949,9 @@ export default class Recorder {
     resolveHelper();
     this.isOverruning = false;
 
-    // The remaining logic in this function adds the video to the process
-    // queue. This should probably be run async so we can allow a pending
-    // recording to start first, but it's a minor benefit so not bothering
-    // just now.
-    let metadata: Metadata | undefined;
-
-    try {
-      metadata = activity.getMetadata();
-    } catch (error) {
-      // We've failed to get the Metadata from the activity. Throw away the
-      // video and log why. Example of when we hit this is on raid resets
-      // where we don't have long enough to get a GUID for the player.
-      console.warn('[Recorder] Discarding video as failed to get Metadata:', String(error));
-
-      return;
-    }
-
     // If we got this far, we've got everything we need to process the
     // video. Add it to the queue for processing.
-    this.videoProcessQueue.queueVideo(bufferFile, metadata, activity.getFileName(), relativeStart);
+    this.videoProcessQueue.queueVideo(bufferFile, activity.metadata, activity.fileName, relativeStart);
   }
 
   /**

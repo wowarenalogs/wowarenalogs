@@ -10,5 +10,10 @@
     "noEmitOnError": true,
     "experimentalDecorators": true,
     "esModuleInterop": true
-  }
+  },
+  "references": [
+    {
+      "path": "../recorder"
+    }
+  ]
 }
