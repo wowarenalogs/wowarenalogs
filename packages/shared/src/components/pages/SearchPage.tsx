@@ -2,6 +2,7 @@ import { CombatUnitSpec } from '@wowarenalogs/parser';
 import base64url from 'base64url';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import { useEffect, useMemo } from 'react';
 import { TbArrowBigUpLines, TbLoader, TbRocketOff } from 'react-icons/tb';
 
@@ -122,6 +123,10 @@ export const SearchPage = () => {
 
   return (
     <div className="transition-all px-4 mt-4 overflow-y-auto overflow-visible">
+      <NextSeo
+        title="Find Matches"
+        description="View recent matches played by the community. Filter by bracket, rating, and specs."
+      />
       <div className="p-4 rounded bg-base-300">
         <BracketSelector
           bracket={filters.bracket}

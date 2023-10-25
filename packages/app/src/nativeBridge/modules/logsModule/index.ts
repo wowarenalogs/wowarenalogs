@@ -1,4 +1,5 @@
 import {
+  IActivityStarted,
   IArenaMatch,
   IMalformedCombatData,
   IShuffleMatch,
@@ -108,6 +109,9 @@ export class LogsModule extends NativeBridgeModule {
     if (!logsExist) {
       mkdirSync(wowLogsDirectoryFullPath);
     }
+    bridge.logParser.on('activity_started', (event: IActivityStarted) => {
+      this.handleActivityStarted(mainWindow, event);
+    });
     bridge.logParser.on('arena_match_ended', (combat: IArenaMatch) => {
       this.handleNewCombat(mainWindow, combat);
     });
@@ -190,6 +194,11 @@ export class LogsModule extends NativeBridgeModule {
     bridgeState.classic.logParser?.removeAllListeners();
     bridgeState.classic.logParser = undefined;
     bridgeState.classic.watcher = undefined;
+  }
+
+  @moduleEvent('on')
+  public handleActivityStarted(_mainWindow: BrowserWindow, _event: IActivityStarted) {
+    return;
   }
 
   @moduleEvent('on', { isRequired: true })
