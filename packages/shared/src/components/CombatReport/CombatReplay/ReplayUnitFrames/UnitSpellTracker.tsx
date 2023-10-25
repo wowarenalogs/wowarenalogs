@@ -103,9 +103,7 @@ export const UnitSpellTracker = (props: IUnitFrameRenderData) => {
           props.currentTimeOffset,
           props.spellData,
         );
-        if (spellId === '2050') {
-          console.log(cdrInfo);
-        }
+
         const cooldownInfo = cdrInfo.cooldown;
         const spellMaxCharges = props.spellData[spellId]?.charges?.charges || 0;
         const shouldShowCharges = spellMaxCharges > 1;
