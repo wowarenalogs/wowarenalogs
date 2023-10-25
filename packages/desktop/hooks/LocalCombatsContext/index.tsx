@@ -157,6 +157,13 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       const [wowVersion, wowDirectory] = installRow;
       window.wowarenalogs.logs?.startLogWatcher(wowDirectory, wowVersion);
 
+      if (window.wowarenalogs.logs?.handleActivityStarted) {
+        window.wowarenalogs.logs.handleActivityStarted((_nodeEvent, activityStartedEvent) => {
+          // eslint-disable-next-line no-console
+          console.log(activityStartedEvent);
+        });
+      }
+
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
           uploadCombatAsync(combat, auth.battlenetId).then((r) => {
@@ -216,6 +223,8 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         window.wowarenalogs.logs?.removeAll_handleSoloShuffleRoundEnded_listeners();
         window.wowarenalogs.logs?.removeAll_handleParserError_listeners &&
           window.wowarenalogs.logs?.removeAll_handleParserError_listeners();
+        window.wowarenalogs.logs.removeAll_handleActivityStarted_listeners &&
+          window.wowarenalogs.logs.removeAll_handleActivityStarted_listeners();
         setCombats([]);
       };
     });
