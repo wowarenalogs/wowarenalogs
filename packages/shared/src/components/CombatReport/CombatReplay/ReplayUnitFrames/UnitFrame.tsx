@@ -212,7 +212,8 @@ export const UnitFrame = (props: IProps) => {
       }
     }
     if (sd['2050']) {
-      // 235587 Miracle Worker (Holy Word: Serenity)
+      // spell 2050: Holy Word: Serenity
+      // talent 103737: Miracle Worker (+1 charges)
       if (props.unit.info?.talents.find((t) => t?.id2 === 103737)) {
         if (sd['2050'].charges) {
           sd['2050'].charges.charges = 2;
