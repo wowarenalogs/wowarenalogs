@@ -1,0 +1,19 @@
+{
+  "name": "@wowarenalogs/recorder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "WoW Arena Logs",
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "atomic-queue": "^5.0.4",
+    "electron-store": "^8.1.0",
+    "obs-studio-node": "https://warcraftrecorderstorage.blob.core.windows.net/warcraftrecorder/osn-0.23.71-release-win64.tar.gz",
+    "uiohook-napi": "^1.5.2",
+    "wait-queue": "^1.1.4"
+  }
+}
