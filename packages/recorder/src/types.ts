@@ -1,4 +1,5 @@
 import { Size } from 'electron';
+import ConfigService from './configService';
 
 /**
  * Application recording status.
@@ -95,6 +96,15 @@ export type TPreviewPosition = {
   height: number;
   xPos: number;
   yPos: number;
+};
+
+export type ConfigStage = {
+  name: string;
+  initial: boolean;
+  current: any;
+  get: (cfg: ConfigService) => any;
+  configure: (...args: any[]) => Promise<void>;
+  validate: (...args: any[]) => void;
 };
 
 export type StorageConfig = {

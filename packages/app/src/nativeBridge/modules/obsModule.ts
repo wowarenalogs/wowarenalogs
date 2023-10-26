@@ -1,26 +1,24 @@
-import { Recorder } from '@wowarenalogs/recorder';
+import { Manager } from '@wowarenalogs/recorder';
 import { BrowserWindow } from 'electron';
 
 import { moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
 
-let recorder: Recorder;
-
 @nativeBridgeModule('obs')
 export class ObsModule extends NativeBridgeModule {
-  @moduleFunction()
-  public async startOBSRecorder(mainWindow: BrowserWindow) {
-    recorder = new Recorder(mainWindow);
-    return;
+  private manager: Manager | null = null;
+
+  public onRegistered(mainWindow: BrowserWindow): void {
+    this.manager = new Manager(mainWindow);
   }
 
   @moduleFunction()
   public async startRecording(_mainWindow: BrowserWindow) {
-    recorder.start();
+    this.manager?.recorder.start();
   }
 
   @moduleFunction()
   public async stopRecording(_mainWindow: BrowserWindow, _activityName: string) {
-    recorder.stop({
+    this.manager?.recorder.stop({
       startDate: new Date(),
       endDate: new Date(),
       metadata: {},
