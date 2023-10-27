@@ -1,45 +1,52 @@
-<!-- public/sitemap.xml -->
-<xml version="1.0" encoding="UTF-8">
+<?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://wowarenalogs.com/search</loc>
-    <lastmod>2023-10-24</lastmod>
+    <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://wowarenalogs.com/stats?tab=tier-list&amp;bracket=2v2&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
-    <lastmod>2023-10-24</lastmod>
+    <loc>
+      https://wowarenalogs.com/stats?tab=tier-list&amp;bracket=2v2&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
+    <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://wowarenalogs.com/stats?tab=tier-list&amp;bracket=3v3&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
-    <lastmod>2023-10-24</lastmod>
+    <loc>
+      https://wowarenalogs.com/stats?tab=tier-list&amp;bracket=3v3&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
+    <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://wowarenalogs.com/stats?tab=tier-list&amp;bracket=Rated%20Solo%20Shuffle&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
-    <lastmod>2023-10-24</lastmod>
+    <loc>
+      https://wowarenalogs.com/stats?tab=tier-list&amp;bracket=Rated%20Solo%20Shuffle&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
+    <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://wowarenalogs.com/stats?tab=spec-stats&amp;bracket=2v2&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
-    <lastmod>2023-10-24</lastmod>
+    <loc>
+      https://wowarenalogs.com/stats?tab=spec-stats&amp;bracket=2v2&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
+    <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://wowarenalogs.com/stats?tab=spec-stats&amp;bracket=3v3&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
-    <lastmod>2023-10-24</lastmod>
+    <loc>
+      https://wowarenalogs.com/stats?tab=spec-stats&amp;bracket=3v3&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
+    <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://wowarenalogs.com/stats?tab=spec-stats&amp;bracket=Rated%20Solo%20Shuffle&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
-    <lastmod>2023-10-24</lastmod>
+    <loc>
+      https://wowarenalogs.com/stats?tab=spec-stats&amp;bracket=Rated%20Solo%20Shuffle&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
+    <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://wowarenalogs.com/stats?tab=comp-stats&amp;bracket=2v2&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
-    <lastmod>2023-10-24</lastmod>
+    <loc>
+      https://wowarenalogs.com/stats?tab=comp-stats&amp;bracket=2v2&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
+    <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://wowarenalogs.com/stats?tab=comp-stats&amp;bracket=3v3&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
-    <lastmod>2023-10-24</lastmod>
+    <loc>
+      https://wowarenalogs.com/stats?tab=comp-stats&amp;bracket=3v3&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
+    <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://wowarenalogs.com/stats?tab=comp-stats&amp;bracket=Rated%20Solo%20Shuffle&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
-    <lastmod>2023-10-24</lastmod>
+    <loc>
+      https://wowarenalogs.com/stats?tab=comp-stats&amp;bracket=Rated%20Solo%20Shuffle&amp;sortKey=total&amp;minRating=0&amp;maxRating=4999&amp;trendChartStat=representation&amp;trendChartSpecs=</loc>
+    <changefreq>daily</changefreq>
   </url>
 </urlset>
-</xml>
