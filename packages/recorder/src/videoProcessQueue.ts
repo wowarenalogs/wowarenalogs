@@ -3,17 +3,16 @@ import path from 'path';
 import SizeMonitor from './sizeMonitor';
 import ConfigService from './configService';
 import { Metadata, SaveStatus, VideoQueueItem } from './types';
-import { fixPathWhenPackaged, tryUnlink, writeMetadataFile, getThumbnailFileNameForVideo } from './util';
+import { tryUnlink, writeMetadataFile, getThumbnailFileNameForVideo } from './util';
+import Queue, { DoneCallback, Job } from 'bee-queue';
 
-const atomicQueue = require('atomic-queue');
-const ffmpeg = require('fluent-ffmpeg');
+import ffmpeg from 'fluent-ffmpeg';
+import ffmpegPath from '@ffmpeg-installer/ffmpeg';
 
-const ffmpegPath = fixPathWhenPackaged(require('@ffmpeg-installer/ffmpeg').path);
-
-ffmpeg.setFfmpegPath(ffmpegPath);
+ffmpeg.setFfmpegPath(ffmpegPath.path);
 
 export default class VideoProcessQueue {
-  private videoQueue: any;
+  private videoQueue: Queue<VideoQueueItem> = null!;
 
   private mainWindow: BrowserWindow;
 
@@ -25,22 +24,14 @@ export default class VideoProcessQueue {
   }
 
   private setupVideoProcessingQueue() {
-    const worker = this.processVideoQueueItem.bind(this);
-    const settings = { concurrency: 1 };
-    this.videoQueue = atomicQueue(worker, settings);
-
-    this.videoQueue.on('error', VideoProcessQueue.errorProcessingVideo).on('idle', () => {
-      this.videoQueueEmpty();
+    this.videoQueue = new Queue<VideoQueueItem>('video-processing');
+    this.videoQueue.process<void>(this.processVideoQueueItem);
+    this.videoQueue.on('succeeded', async (job: Job<VideoQueueItem>) => {
+      this.finishProcessingVideo(job);
+      const counts = await this.videoQueue.checkHealth();
+      if (counts.active + counts.waiting + counts.delayed === 0) this.videoQueueEmpty();
     });
-
-    this.videoQueue.pool
-      .on('start', (data: VideoQueueItem) => {
-        this.startedProcessingVideo(data);
-      })
-      .on('finish', (_: unknown, data: VideoQueueItem) => {
-        this.finishProcessingVideo(data);
-      });
-    return;
+    this.videoQueue.on('failed', VideoProcessQueue.errorProcessingVideo);
   }
 
   public async queueVideo(bufferFile: string, metadata: Metadata, filename: string, relativeStart: number) {
@@ -52,22 +43,27 @@ export default class VideoProcessQueue {
     };
 
     console.log('[VideoProcessQueue] Queuing video for processing', queueItem);
-    this.videoQueue.write(queueItem);
+    const newJob = this.videoQueue.createJob(queueItem);
+    newJob.on('failed', VideoProcessQueue.errorProcessingVideo);
+    newJob.save();
   }
 
-  private async processVideoQueueItem(data: VideoQueueItem, done: () => void): Promise<void> {
+  private async processVideoQueueItem(job: Job<VideoQueueItem>, done: DoneCallback<void>): Promise<void> {
+    console.info('[VideoProcessQueue] Now processing video', job.data.bufferFile);
+    this.mainWindow.webContents.send('updateSaveStatus', SaveStatus.Saving);
+
+    const data = job.data;
     const { duration } = data.metadata;
+
+    const isLongEnough = true; // TODO: re-implement this feature
 
     if (duration === null || duration === undefined) {
       throw new Error('[VideoProcessQueue] Null or undefined duration');
     }
 
-    const isLongEnough = duration >= this.cfg.get<number>('minEncounterDuration');
-
     if (!isLongEnough) {
       console.info('[VideoProcessQueue] Encounter was too short, discarding');
-
-      done();
+      done(null);
       return;
     }
 
@@ -84,20 +80,14 @@ export default class VideoProcessQueue {
 
     await VideoProcessQueue.getThumbnail(videoPath);
 
-    done();
+    done(null);
   }
 
   private static errorProcessingVideo(err: any) {
     console.error('[VideoProcessQueue] Error processing video', err);
   }
-
-  private startedProcessingVideo(data: VideoQueueItem) {
-    console.info('[VideoProcessQueue] Now processing video', data.bufferFile);
-    this.mainWindow.webContents.send('updateSaveStatus', SaveStatus.Saving);
-  }
-
-  private finishProcessingVideo(data: VideoQueueItem) {
-    console.log('[VideoProcessQueue] Finished processing video', data.bufferFile);
+  private finishProcessingVideo(job: Job<VideoQueueItem>) {
+    console.log('[VideoProcessQueue] Finished processing video', job.data.bufferFile);
 
     this.mainWindow.webContents.send('updateSaveStatus', SaveStatus.NotSaving);
     this.mainWindow.webContents.send('refreshState');

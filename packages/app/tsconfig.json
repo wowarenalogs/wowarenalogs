@@ -1,19 +1,15 @@
 {
   "exclude": ["script/generatePreload.ts"],
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "sourceMap": true,
     "strict": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "skipLibCheck": true,
     "noEmitOnError": true,
     "experimentalDecorators": true,
     "esModuleInterop": true
-  },
-  "references": [
-    {
-      "path": "../recorder"
-    }
-  ]
+  }
 }

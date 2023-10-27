@@ -22,7 +22,6 @@ import {
 
 import {
   deferredPromiseHelper,
-  fixPathWhenPackaged,
   getAssetPath,
   getSortedVideos,
   isPushToTalkHotkey,
@@ -308,13 +307,11 @@ export class Recorder {
     try {
       osn.NodeObs.IPC.host(this.uuid);
 
-      osn.NodeObs.SetWorkingDirectory(
-        fixPathWhenPackaged(path.join(__dirname, '../../', 'node_modules', 'obs-studio-node')),
-      );
+      osn.NodeObs.SetWorkingDirectory(path.join(__dirname, '../../', 'node_modules', 'obs-studio-node'));
 
       const initResult = osn.NodeObs.OBS_API_initAPI(
         'en-US',
-        fixPathWhenPackaged(path.join(path.normalize(__dirname), 'osn-data')),
+        path.join(path.normalize(__dirname), 'osn-data'),
         '1.0.0',
         '',
       );

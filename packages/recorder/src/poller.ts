@@ -1,6 +1,5 @@
 import EventEmitter from 'events';
-
-const tasklist = require('tasklist');
+import { tasklist } from 'tasklist';
 
 type WowProcess = {
   exe: string;

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Manager } from '@wowarenalogs/recorder';
 import { BrowserWindow } from 'electron';
 
@@ -8,6 +9,7 @@ export class ObsModule extends NativeBridgeModule {
   private manager: Manager | null = null;
 
   public onRegistered(mainWindow: BrowserWindow): void {
+    console.log('Manager registered');
     this.manager = new Manager(mainWindow);
   }
 

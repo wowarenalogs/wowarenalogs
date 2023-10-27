@@ -10,10 +10,15 @@
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
-    "atomic-queue": "^5.0.4",
+    "bee-queue": "^1.5.0",
     "electron-store": "^8.1.0",
+    "fluent-ffmpeg": "^2.1.2",
     "obs-studio-node": "https://warcraftrecorderstorage.blob.core.windows.net/warcraftrecorder/osn-0.23.71-release-win64.tar.gz",
+    "tasklist": "^5.0.0",
     "uiohook-napi": "^1.5.2",
     "wait-queue": "^1.1.4"
+  },
+  "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.23"
   }
 }
