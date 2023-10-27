@@ -362,7 +362,7 @@ export function CombatPlayer(props: IProps) {
           </thead>
           <tbody>
             {damageDoneBySpells.map((d) => (
-              <tr key={d.id}>
+              <tr key={d.id + d.name}>
                 <td className="bg-base-200 flex flex-row items-center">
                   <SpellIcon spellId={d.id} size={24} />
                   <div className="ml-1">{d.name}</div>
@@ -384,7 +384,7 @@ export function CombatPlayer(props: IProps) {
               </th>
             </tr>
             {damageDoneByDest.map((d) => (
-              <tr key={d.id}>
+              <tr key={d.id + d.name}>
                 <td className="bg-base-200">
                   <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
                 </td>
@@ -405,7 +405,7 @@ export function CombatPlayer(props: IProps) {
               </th>
             </tr>
             {healsDoneBySpells.map((d) => (
-              <tr key={d.id}>
+              <tr key={d.id + d.name}>
                 <td className="bg-base-200 flex flex-row items-center">
                   <SpellIcon spellId={d.id} size={24} />
                   <div className="ml-1">{d.name}</div>
@@ -427,7 +427,7 @@ export function CombatPlayer(props: IProps) {
               </th>
             </tr>
             {healsDoneByDest.map((d) => (
-              <tr key={d.id}>
+              <tr key={d.id + d.name}>
                 <td className="bg-base-200">
                   <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
                 </td>
