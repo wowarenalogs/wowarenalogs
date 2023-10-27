@@ -2,7 +2,7 @@ import { BrowserWindow, app, ipcMain, powerMonitor } from 'electron';
 import { isEqual } from 'lodash';
 import path from 'path';
 import fs from 'fs';
-import { uIOhook } from 'uiohook-napi';
+// import { uIOhook } from 'uiohook-napi';
 import Poller from './poller';
 import { Recorder } from './recorder';
 import ConfigService from './configService';
@@ -113,11 +113,10 @@ export class Manager {
    */
   constructor(mainWindow: BrowserWindow) {
     console.info('[Manager] Creating manager');
-
     this.setupListeners();
 
     this.mainWindow = mainWindow;
-    this.recorder = new Recorder(this.mainWindow);
+    this.recorder = new Recorder(mainWindow);
 
     this.poller.on('wowProcessStart', () => this.onWowStarted());
     this.poller.on('wowProcessStop', () => this.onWowStopped());
@@ -390,7 +389,7 @@ export class Manager {
     app.on('before-quit', () => {
       console.info('[Manager] Running before-quit actions');
       this.recorder.shutdownOBS();
-      uIOhook.stop();
+      // uIOhook.stop(); // TODO: fix uiohook
     });
 
     // If Windows is going to sleep, we don't want to confuse OBS. Stop the

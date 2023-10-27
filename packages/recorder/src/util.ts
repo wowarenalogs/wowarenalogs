@@ -1,11 +1,11 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 import { URL } from 'url';
 import path from 'path';
-import fs, { promises as fspromise } from 'fs';
 import { app, BrowserWindow, ClientRequestConstructorOptions, Display, net, screen } from 'electron';
-import { EventType, uIOhook, UiohookKeyboardEvent, UiohookMouseEvent } from 'uiohook-napi';
+// import { EventType, uIOhook, UiohookKeyboardEvent, UiohookMouseEvent } from 'uiohook-napi';
 import { PTTKeyPressEvent } from './keyTypesUIOHook';
 import { Metadata, FileInfo, FileSortDirection, OurDisplayType, RecStatus, ObsAudioConfig } from './types';
+import { access, existsSync, readdir, readFile, readFileSync, stat, unlink, writeFile } from 'fs-extra';
 
 const getResolvedHtmlPath = () => {
   if (process.env.NODE_ENV === 'development') {
@@ -30,7 +30,7 @@ export const resolveHtmlPath = getResolvedHtmlPath();
  */
 const getFileInfo = async (pathSpec: string): Promise<FileInfo> => {
   const filePath = path.resolve(pathSpec);
-  const fstats = await fspromise.stat(filePath);
+  const fstats = await stat(filePath);
   const mtime = fstats.mtime.getTime();
   const { size } = fstats;
   return { name: filePath, size, mtime };
@@ -49,9 +49,7 @@ const getSortedFiles = async (
   // We use fs.promises.readdir here instead of glob, which we used to
   // use but it caused problems with NFS paths, see this issue:
   // https://github.com/isaacs/node-glob/issues/74.
-  const files = (await fs.promises.readdir(dir))
-    .filter((f) => f.match(new RegExp(pattern)))
-    .map((f) => path.join(dir, f));
+  const files = (await readdir(dir)).filter((f) => f.match(new RegExp(pattern))).map((f) => path.join(dir, f));
 
   const mappedFileInfo: FileInfo[] = [];
 
@@ -106,8 +104,8 @@ const getThumbnailFileNameForVideo = (video: string) => {
  */
 const getMetadataForVideo = async (video: string) => {
   const metadataFilePath = getMetadataFileNameForVideo(video);
-  await fspromise.access(metadataFilePath);
-  const metadataJSON = await fspromise.readFile(metadataFilePath);
+  await access(metadataFilePath);
+  const metadataJSON = await readFile(metadataFilePath);
   const metadata = JSON.parse(metadataJSON.toString()) as Metadata;
   return metadata;
 };
@@ -121,7 +119,7 @@ const writeMetadataFile = async (videoPath: string, metadata: Metadata) => {
   const metadataFileName = getMetadataFileNameForVideo(videoPath);
   const jsonString = JSON.stringify(metadata, null, 2);
 
-  fspromise.writeFile(metadataFileName, jsonString, {
+  writeFile(metadataFileName, jsonString, {
     encoding: 'utf-8',
   });
 };
@@ -133,7 +131,7 @@ const writeMetadataFile = async (videoPath: string, metadata: Metadata) => {
 const tryUnlink = async (file: string): Promise<boolean> => {
   try {
     console.log(`[Util] Deleting: ${file}`);
-    await fs.promises.unlink(file);
+    await unlink(file);
     return true;
   } catch (e) {
     console.error(`[Util] Unable to delete file: ${file}.`);
@@ -330,11 +328,11 @@ const getWowFlavour = (pathSpec: string): string => {
   const flavourInfoFile = path.normalize(path.join(pathSpec, '../.flavor.info'));
 
   // If this file doesn't exist, it's not a subdirectory of a WoW flavour.
-  if (!fs.existsSync(flavourInfoFile)) {
+  if (!existsSync(flavourInfoFile)) {
     return 'unknown';
   }
 
-  const content = fs.readFileSync(flavourInfoFile).toString().split('\n');
+  const content = readFileSync(flavourInfoFile).toString().split('\n');
 
   return content.length > 1 ? content[1] : 'unknown';
 };
@@ -364,70 +362,71 @@ const isPushToTalkHotkey = (config: ObsAudioConfig, event: PTTKeyPressEvent) => 
   return buttonMatch && altMatch && ctrlMatch && shiftMatch && winMatch;
 };
 
-const convertUioHookKeyPressEvent = (event: UiohookKeyboardEvent): PTTKeyPressEvent => {
-  return {
-    altKey: event.altKey,
-    ctrlKey: event.ctrlKey,
-    metaKey: event.metaKey,
-    shiftKey: event.shiftKey,
-    keyCode: event.keycode,
-    mouseButton: -1,
-  };
-};
+// TODO: fix uiohook
+// const convertUioHookKeyPressEvent = (event: UiohookKeyboardEvent): PTTKeyPressEvent => {
+//   return {
+//     altKey: event.altKey,
+//     ctrlKey: event.ctrlKey,
+//     metaKey: event.metaKey,
+//     shiftKey: event.shiftKey,
+//     keyCode: event.keycode,
+//     mouseButton: -1,
+//   };
+// };
 
-const convertUioHookMousePressEvent = (event: UiohookMouseEvent): PTTKeyPressEvent => {
-  return {
-    altKey: event.altKey,
-    ctrlKey: event.ctrlKey,
-    metaKey: event.metaKey,
-    shiftKey: event.shiftKey,
-    keyCode: -1,
-    mouseButton: event.button as number,
-  };
-};
+// const convertUioHookMousePressEvent = (event: UiohookMouseEvent): PTTKeyPressEvent => {
+//   return {
+//     altKey: event.altKey,
+//     ctrlKey: event.ctrlKey,
+//     metaKey: event.metaKey,
+//     shiftKey: event.shiftKey,
+//     keyCode: -1,
+//     mouseButton: event.button as number,
+//   };
+// };
 
-const convertUioHookEvent = (event: UiohookKeyboardEvent | UiohookMouseEvent): PTTKeyPressEvent => {
-  if (event.type === EventType.EVENT_KEY_PRESSED) {
-    return convertUioHookKeyPressEvent(event as UiohookKeyboardEvent);
-  }
+// const convertUioHookEvent = (event: UiohookKeyboardEvent | UiohookMouseEvent): PTTKeyPressEvent => {
+//   if (event.type === EventType.EVENT_KEY_PRESSED) {
+//     return convertUioHookKeyPressEvent(event as UiohookKeyboardEvent);
+//   }
 
-  if (event.type === EventType.EVENT_KEY_RELEASED) {
-    return convertUioHookKeyPressEvent(event as UiohookKeyboardEvent);
-  }
+//   if (event.type === EventType.EVENT_KEY_RELEASED) {
+//     return convertUioHookKeyPressEvent(event as UiohookKeyboardEvent);
+//   }
 
-  if (event.type === EventType.EVENT_MOUSE_PRESSED) {
-    return convertUioHookMousePressEvent(event as UiohookMouseEvent);
-  }
+//   if (event.type === EventType.EVENT_MOUSE_PRESSED) {
+//     return convertUioHookMousePressEvent(event as UiohookMouseEvent);
+//   }
 
-  if (event.type === EventType.EVENT_MOUSE_RELEASED) {
-    return convertUioHookMousePressEvent(event as UiohookMouseEvent);
-  }
+//   if (event.type === EventType.EVENT_MOUSE_RELEASED) {
+//     return convertUioHookMousePressEvent(event as UiohookMouseEvent);
+//   }
 
-  return {
-    altKey: false,
-    shiftKey: false,
-    ctrlKey: false,
-    metaKey: false,
-    keyCode: -1,
-    mouseButton: -1,
-  };
-};
+//   return {
+//     altKey: false,
+//     shiftKey: false,
+//     ctrlKey: false,
+//     metaKey: false,
+//     keyCode: -1,
+//     mouseButton: -1,
+//   };
+// };
 
-const nextKeyPressPromise = (): Promise<PTTKeyPressEvent> => {
-  return new Promise((resolve) => {
-    uIOhook.once('keydown', (event) => {
-      resolve(convertUioHookEvent(event));
-    });
-  });
-};
+// const nextKeyPressPromise = (): Promise<PTTKeyPressEvent> => {
+//   return new Promise((resolve) => {
+//     uIOhook.once('keydown', (event) => {
+//       resolve(convertUioHookEvent(event));
+//     });
+//   });
+// };
 
-const nextMousePressPromise = (): Promise<PTTKeyPressEvent> => {
-  return new Promise((resolve) => {
-    uIOhook.once('mousedown', (event) => {
-      resolve(convertUioHookEvent(event));
-    });
-  });
-};
+// const nextMousePressPromise = (): Promise<PTTKeyPressEvent> => {
+//   return new Promise((resolve) => {
+//     uIOhook.once('mousedown', (event) => {
+//       resolve(convertUioHookEvent(event));
+//     });
+//   });
+// };
 
 const getPromiseBomb = (fuse: number, reason: string) => {
   return new Promise((_resolve, reject) => setTimeout(reject, fuse, reason));
@@ -449,8 +448,8 @@ export {
   getWowFlavour,
   updateRecStatus,
   isPushToTalkHotkey,
-  nextKeyPressPromise,
-  nextMousePressPromise,
-  convertUioHookEvent,
+  // nextKeyPressPromise,
+  // nextMousePressPromise,
+  // convertUioHookEvent,
   getPromiseBomb,
 };

@@ -15,17 +15,17 @@ export class ObsModule extends NativeBridgeModule {
 
   @moduleFunction()
   public async startRecording(_mainWindow: BrowserWindow) {
-    this.manager?.recorder.start();
+    // this.manager?.recorder.start();
   }
 
   @moduleFunction()
   public async stopRecording(_mainWindow: BrowserWindow, _activityName: string) {
-    this.manager?.recorder.stop({
-      startDate: new Date(),
-      endDate: new Date(),
-      metadata: {},
-      overrun: 0,
-      fileName: 'testFile',
-    });
+    // this.manager?.recorder.stop({
+    //   startDate: new Date(),
+    //   endDate: new Date(),
+    //   metadata: {},
+    //   overrun: 0,
+    //   fileName: 'testFile',
+    // });
   }
 }

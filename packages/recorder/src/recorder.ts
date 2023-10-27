@@ -6,7 +6,7 @@ import { isEqual } from 'lodash';
 import { IFader, IInput, IScene, ISceneItem, ISceneItemInfo, ISource } from 'obs-studio-node';
 import WaitQueue from 'wait-queue';
 
-import { UiohookKeyboardEvent, UiohookMouseEvent, uIOhook } from 'uiohook-napi';
+// import { UiohookKeyboardEvent, UiohookMouseEvent, uIOhook } from 'uiohook-napi';
 import { getOverlayConfig } from './configUtils';
 import {
   EColorSpace,
@@ -24,8 +24,9 @@ import {
   deferredPromiseHelper,
   getAssetPath,
   getSortedVideos,
-  isPushToTalkHotkey,
-  convertUioHookEvent,
+  // TODO: fix uiohook
+  // isPushToTalkHotkey,
+  // convertUioHookEvent,
   tryUnlink,
   getPromiseBomb,
 } from './util';
@@ -45,8 +46,7 @@ import { IActivity } from './activity';
 import VideoProcessQueue from './videoProcessQueue';
 import ConfigService from './configService';
 import { obsResolutions } from './constants';
-
-const { v4: uuidfn } = require('uuid');
+import { v4 as uuidfn } from 'uuid';
 
 /**
  * Class for handing the interface between Warcraft Recorder and OBS.
@@ -274,7 +274,7 @@ export class Recorder {
   constructor(mainWindow: BrowserWindow) {
     console.info('[Recorder] Constructing recorder:', this.uuid);
     this.mainWindow = mainWindow;
-    this.videoProcessQueue = new VideoProcessQueue(mainWindow);
+    this.videoProcessQueue = null!; // new VideoProcessQueue(mainWindow);
     this.initializeOBS();
   }
 
@@ -571,7 +571,7 @@ export class Recorder {
    */
   public configureAudioSources(config: ObsAudioConfig) {
     this.removeAudioSources();
-    uIOhook.removeAllListeners();
+    // uIOhook.removeAllListeners(); // TODO: fix uiohook
     this.mainWindow.webContents.send('updateMicStatus', MicStatus.NONE);
 
     const { audioInputDevices, audioOutputDevices, micVolume, speakerVolume, obsForceMono } = config;
@@ -626,19 +626,21 @@ export class Recorder {
 
       this.inputDevicesMuted = true;
 
-      const pttHandler = (fn: () => void, event: UiohookKeyboardEvent | UiohookMouseEvent) => {
-        const convertedEvent = convertUioHookEvent(event);
+      // TODO: fix uiohook
+      // const pttHandler = (fn: () => void, event: UiohookKeyboardEvent | UiohookMouseEvent) => {
+      //   const convertedEvent = convertUioHookEvent(event);
 
-        if (isPushToTalkHotkey(config, convertedEvent)) {
-          fn();
-        }
-      };
+      //   if (isPushToTalkHotkey(config, convertedEvent)) {
+      //     fn();
+      //   }
+      // };
 
+      // TODO: fix uiohook
       /* eslint-disable prettier/prettier */
-      uIOhook.on('keydown', (e) => pttHandler(() => this.unmuteInputDevices(), e));
-      uIOhook.on('keyup', (e) => pttHandler(() => this.muteInputDevices(), e));
-      uIOhook.on('mousedown', (e) => pttHandler(() => this.unmuteInputDevices(), e));
-      uIOhook.on('mouseup', (e) => pttHandler(() => this.muteInputDevices(), e));
+      // uIOhook.on('keydown', (e) => pttHandler(() => this.unmuteInputDevices(), e));
+      // uIOhook.on('keyup', (e) => pttHandler(() => this.muteInputDevices(), e));
+      // uIOhook.on('mousedown', (e) => pttHandler(() => this.unmuteInputDevices(), e));
+      // uIOhook.on('mouseup', (e) => pttHandler(() => this.muteInputDevices(), e));
       /* eslint-enable prettier/prettier */
     }
 

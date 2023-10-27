@@ -5,11 +5,12 @@ import ConfigService from './configService';
 import { Metadata, SaveStatus, VideoQueueItem } from './types';
 import { tryUnlink, writeMetadataFile, getThumbnailFileNameForVideo } from './util';
 import Queue, { DoneCallback, Job } from 'bee-queue';
-
+import pathTo from 'ffmpeg-static';
 import ffmpeg from 'fluent-ffmpeg';
-import ffmpegPath from '@ffmpeg-installer/ffmpeg';
 
-ffmpeg.setFfmpegPath(ffmpegPath.path);
+console.log('ffpath', pathTo);
+
+ffmpeg.setFfmpegPath(pathTo || '');
 
 export default class VideoProcessQueue {
   private videoQueue: Queue<VideoQueueItem> = null!;
