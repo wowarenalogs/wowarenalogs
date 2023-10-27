@@ -48,7 +48,7 @@ export function CheckPvPLink({ player }: IProps) {
         width={22}
         alt="check-pvp.fr Link"
         title="check-pvp.fr Link"
-        src={'https://check-tbc.fr/assets/images/logo-pvp.png'}
+        src={'https://check-pvp.fr/favicon.png'}
       />
       Check PvP
     </button>
