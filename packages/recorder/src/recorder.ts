@@ -305,17 +305,13 @@ export class Recorder {
     console.info('[Recorder] Initializing OBS', this.uuid);
 
     try {
+      // TODO: MUSTFIX packaging with obs executable
+      const obsPath = 'D:\\Github\\wowarenalogs\\packages\\recorder\\node_modules\\obs-studio-node';
+      osn.NodeObs.IPC.setServerPath(obsPath + '\\obs64.exe', obsPath);
       osn.NodeObs.IPC.host(this.uuid);
-
-      osn.NodeObs.SetWorkingDirectory(path.join(__dirname, '../../', 'node_modules', 'obs-studio-node'));
-
-      const initResult = osn.NodeObs.OBS_API_initAPI(
-        'en-US',
-        path.join(path.normalize(__dirname), 'osn-data'),
-        '1.0.0',
-        '',
-      );
-
+      osn.NodeObs.SetWorkingDirectory(obsPath);
+      const initResult = osn.NodeObs.OBS_API_initAPI('en-US', 'D:\\Video\\osn-data', '1.0.0', '');
+      console.log('OBS init:', initResult);
       if (initResult !== 0) {
         throw new Error(`OBS process initialization failed with code ${initResult}`);
       }
@@ -351,22 +347,23 @@ export class Recorder {
     // color range setting. So swap that to partial here. See https://github.com/aza547/wow-recorder/issues/446.
     const colorRange = obsRecEncoder === ESupportedEncoders.AMD_AMF_H264 ? ERangeType.Partial : ERangeType.Full;
 
-    osn.VideoFactory.videoContext = {
-      fpsNum: obsFPS,
-      fpsDen: 1,
-      baseWidth: width,
-      baseHeight: height,
-      outputWidth: width,
-      outputHeight: height,
+    // TODO: MUSTFIX upgrade to correct api to set this config
+    // osn.VideoFactory.videoContext = {
+    //   fpsNum: obsFPS,
+    //   fpsDen: 1,
+    //   baseWidth: width,
+    //   baseHeight: height,
+    //   outputWidth: width,
+    //   outputHeight: height,
 
-      // Bit of a mess here to keep typescript happy and make this readable.
-      // See https://github.com/stream-labs/obs-studio-node/issues/1260.
-      outputFormat: EVideoFormat.NV12 as unknown as osn.EVideoFormat,
-      colorspace: EColorSpace.CS709 as unknown as osn.EColorSpace,
-      scaleType: EScaleType.Bicubic as unknown as osn.EScaleType,
-      fpsType: EFPSType.Fractional as unknown as osn.EFPSType,
-      range: colorRange as unknown as osn.ERangeType,
-    };
+    //   // Bit of a mess here to keep typescript happy and make this readable.
+    //   // See https://github.com/stream-labs/obs-studio-node/issues/1260.
+    //   outputFormat: EVideoFormat.NV12 as unknown as osn.EVideoFormat,
+    //   colorspace: EColorSpace.CS709 as unknown as osn.EColorSpace,
+    //   scaleType: EScaleType.Bicubic as unknown as osn.EScaleType,
+    //   fpsType: EFPSType.Fractional as unknown as osn.EFPSType,
+    //   range: colorRange as unknown as osn.ERangeType,
+    // };
 
     if (!this.obsRecordingFactory) {
       this.obsRecordingFactory = osn.AdvancedRecordingFactory.create();
