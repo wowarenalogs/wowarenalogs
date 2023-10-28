@@ -37,6 +37,7 @@
     "moment": "^2.29.1",
     "node-fetch": "^2.6.7",
     "node-loader": "^2.0.0",
+    "obs-studio-node": "https://storage.googleapis.com/spires-log-files/obs-studio-node-0.3.21-win64-27.0.2.tar.gz",
     "update-electron-app": "^2.0.1",
     "webpack": "^5.72.0"
   }
