@@ -47,6 +47,7 @@ import VideoProcessQueue from './videoProcessQueue';
 import ConfigService from './configService';
 import { obsResolutions } from './constants';
 import { v4 as uuidfn } from 'uuid';
+import { existsSync } from 'fs-extra';
 
 /**
  * Class for handing the interface between Warcraft Recorder and OBS.
@@ -305,12 +306,32 @@ export class Recorder {
     console.info('[Recorder] Initializing OBS', this.uuid);
 
     try {
-      // TODO: MUSTFIX packaging with obs executable
-      const obsPath = 'D:\\Github\\wowarenalogs\\packages\\recorder\\node_modules\\obs-studio-node';
-      osn.NodeObs.IPC.setServerPath(obsPath + '\\obs64.exe', obsPath);
+      // TODO: MUSTFIX packaging for release
+      const obsPath = path.join(__dirname, 'lib', 'obs-studio-node');
+      const obsExecutableFilename = path.join(obsPath, 'obs64.exe');
+      const osnDataPath = path.join(__dirname, 'dist', 'osn-data');
+
+      console.log(
+        `Loading OBS obsPath=${obsPath} obsExecutableFilename=${obsExecutableFilename} osnDataPath=${osnDataPath}`,
+      );
+      const testObsPath = existsSync(obsPath);
+      const testExec = existsSync(obsExecutableFilename);
+      // const testOSN = existsSync(osnDataPath);
+      if (!testObsPath) {
+        throw new Error(`Path to OBS does not exist ${obsPath}`);
+      }
+      if (!testExec) {
+        throw new Error(`Could not find obs64.exe at ${obsExecutableFilename}`);
+      }
+
+      console.log(`Setting server path ${obsExecutableFilename} ${obsPath}`);
+      osn.NodeObs.IPC.setServerPath(obsExecutableFilename, obsPath);
+      console.log(`Setting host ${this.uuid}`);
       osn.NodeObs.IPC.host(this.uuid);
+      console.log(`Setting working directory ${obsPath}`);
       osn.NodeObs.SetWorkingDirectory(obsPath);
-      const initResult = osn.NodeObs.OBS_API_initAPI('en-US', 'D:\\Video\\osn-data', '1.0.0', '');
+      console.log(`Setting osnDataPath ${osnDataPath}`);
+      const initResult = osn.NodeObs.OBS_API_initAPI('en-US', osnDataPath, '1.0.0', '');
       console.log('OBS init:', initResult);
       if (initResult !== 0) {
         throw new Error(`OBS process initialization failed with code ${initResult}`);
