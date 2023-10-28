@@ -5,7 +5,7 @@ import moment from 'moment';
 
 import { nativeBridgeRegistry } from './nativeBridge/registry';
 
-import path = require('path');
+import path from 'path';
 import { BASE_REMOTE_URL } from './constants';
 import { globalStates } from './nativeBridge/modules/common/globalStates';
 

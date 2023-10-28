@@ -61,4 +61,8 @@ export const modulesApi = {
     isUpdateAvailable: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:app:isUpdateAvailable', ...args),
     clearStorage: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:app:clearStorage', ...args),
   },
+  obs: {
+    startRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:startRecording', ...args),
+    stopRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:stopRecording', ...args),
+  },
 };

@@ -1,5 +1,6 @@
 import { Size } from 'electron';
 import ConfigService from './configService';
+import { IActivity } from './activity';
 
 /**
  * Application recording status.
@@ -57,9 +58,10 @@ export type FileInfo = {
 
 export type VideoQueueItem = {
   bufferFile: string;
-  metadata: Metadata;
+  metadata?: Metadata;
   filename: string;
   relativeStart: number;
+  duration: number;
 };
 
 /**

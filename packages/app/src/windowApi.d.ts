@@ -5,6 +5,7 @@ import { ExternalLinksModule } from './nativeBridge/modules/externalLinksModule'
 import { FilesModule } from './nativeBridge/modules/filesModule';
 import { LogsModule } from './nativeBridge/modules/logsModule';
 import { MainWindowModule } from './nativeBridge/modules/mainWindowModule';
+import { ObsModule } from './nativeBridge/modules/obsModule';
 
 type ElectronOpaqueEvent = {
   senderId: number;
@@ -62,5 +63,9 @@ export type NativeApi = {
     getVersion?: OmitFirstArg<ApplicationModule['getVersion']>;
     isUpdateAvailable?: OmitFirstArg<ApplicationModule['isUpdateAvailable']>;
     clearStorage?: OmitFirstArg<ApplicationModule['clearStorage']>;
+  };
+  obs: {
+    startRecording?: OmitFirstArg<ObsModule['startRecording']>;
+    stopRecording?: OmitFirstArg<ObsModule['stopRecording']>;
   };
 };

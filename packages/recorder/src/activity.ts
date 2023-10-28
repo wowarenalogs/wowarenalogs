@@ -4,6 +4,6 @@ export interface IActivity {
   startDate: Date;
   endDate: Date;
   overrun: number;
-  metadata: Metadata;
+  metadata?: Metadata;
   fileName: string;
 }

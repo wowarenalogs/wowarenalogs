@@ -275,7 +275,7 @@ export class Recorder {
   constructor(mainWindow: BrowserWindow) {
     console.info('[Recorder] Constructing recorder:', this.uuid);
     this.mainWindow = mainWindow;
-    this.videoProcessQueue = null!; // new VideoProcessQueue(mainWindow);
+    this.videoProcessQueue = new VideoProcessQueue(mainWindow);
     this.initializeOBS();
   }
 
@@ -881,6 +881,7 @@ export class Recorder {
       console.info('[Recorder] Finished with last game overrun');
     }
 
+    console.info(`[Recorder] ready check isRecording=${this.isRecording} obsState=${this.obsState}`);
     let rdy = !this.isRecording && this.obsState === ERecordingState.Recording;
     let retries = 5;
 
@@ -963,9 +964,16 @@ export class Recorder {
     resolveHelper();
     this.isOverruning = false;
 
+    const duration = (activity.endDate.getTime() - activity.startDate.getTime()) / 1000;
     // If we got this far, we've got everything we need to process the
     // video. Add it to the queue for processing.
-    this.videoProcessQueue.queueVideo(bufferFile, activity.metadata, activity.fileName, relativeStart);
+    this.videoProcessQueue.queueVideo({
+      bufferFile,
+      metadata: activity.metadata,
+      filename: activity.fileName,
+      relativeStart,
+      duration,
+    });
   }
 
   /**
