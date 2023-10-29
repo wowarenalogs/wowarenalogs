@@ -29,6 +29,7 @@ import {
   // convertUioHookEvent,
   tryUnlink,
   getPromiseBomb,
+  fixPathWhenPackaged,
 } from './util';
 
 import {
@@ -47,7 +48,6 @@ import VideoProcessQueue from './videoProcessQueue';
 import ConfigService from './configService';
 import { obsResolutions } from './constants';
 import { v4 as uuidfn } from 'uuid';
-import { existsSync } from 'fs-extra';
 
 /**
  * Class for handing the interface between Warcraft Recorder and OBS.
@@ -313,15 +313,15 @@ export class Recorder {
 
     try {
       // TODO: MUSTFIX packaging for release
-      const obsPath = path.join(__dirname, 'lib', 'obs-studio-node');
+      const obsPath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'obs-studio-node'));
       const obsExecutableFilename = path.join(obsPath, 'obs64.exe');
-      const osnDataPath = path.join(__dirname, 'dist', 'osn-data');
+      const osnDataPath = fixPathWhenPackaged(path.join(__dirname, 'dist', 'osn-data'));
 
       console.log(
         `Loading OBS obsPath=${obsPath} obsExecutableFilename=${obsExecutableFilename} osnDataPath=${osnDataPath}`,
       );
-      const testObsPath = existsSync(obsPath);
-      const testExec = existsSync(obsExecutableFilename);
+      const testObsPath = fs.existsSync(obsPath);
+      const testExec = fs.existsSync(obsExecutableFilename);
       // const testOSN = existsSync(osnDataPath);
       if (!testObsPath) {
         throw new Error(`Path to OBS does not exist ${obsPath}`);

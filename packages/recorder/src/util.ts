@@ -321,6 +321,13 @@ const getAssetPath = (...paths: string[]): string => {
 };
 
 /**
+ * When packaged, we need to fix some paths
+ */
+export const fixPathWhenPackaged = (pathSpec: string) => {
+  return pathSpec.replace('app.asar', 'app.asar.unpacked');
+};
+
+/**
  * Find and return the flavour of WoW that the log directory
  * belongs to by means of the '.flavor.info' file.
  */

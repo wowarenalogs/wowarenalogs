@@ -89,7 +89,7 @@ export function MainLayout(props: IProps) {
           </Link>
         </div>
         <div className="flex-1" />
-        {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
+        {clientContext.isDesktop && (
           <div
             className={`p-2 hover:text-primary ${
               selectedNavMenuKey === '/recording' ? 'bg-base-100 text-primary' : ''

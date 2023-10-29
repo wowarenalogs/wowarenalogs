@@ -3,14 +3,12 @@ import path from 'path';
 // import SizeMonitor from './sizeMonitor';
 import ConfigService from './configService';
 import { VideoQueueItem } from './types';
-import { tryUnlink, writeMetadataFile, getThumbnailFileNameForVideo } from './util';
+import { tryUnlink, writeMetadataFile, getThumbnailFileNameForVideo, fixPathWhenPackaged } from './util';
 import ffmpeg from 'fluent-ffmpeg';
 import { existsSync } from 'fs-extra';
 
-// TODO: MUSTFIX ffmpeg path for packaging
-const ffmpegPath = 'D:\\Github\\wowarenalogs\\packages\\app\\dist\\lib\\obs-studio-node\\ffmpeg.exe';
-const ffmpegOK = existsSync(ffmpegPath);
-if (!ffmpegOK) throw new Error(`Could not find ffmpeg at ${ffmpegPath}`);
+const ffmpegPath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'obs-studio-node', 'ffmpeg.exe'));
+
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 export default class VideoProcessQueue {
@@ -22,6 +20,9 @@ export default class VideoProcessQueue {
   private cfg = ConfigService.getInstance();
 
   constructor(mainWindow: BrowserWindow) {
+    const ffmpegOK = existsSync(ffmpegPath);
+    if (!ffmpegOK) throw new Error(`Could not find ffmpeg at ${ffmpegPath}`);
+
     // this.mainWindow = mainWindow;
     this.setupVideoProcessingQueue();
   }

@@ -26,6 +26,9 @@
     "files": [
       "packages/app/dist/**/*"
     ],
+    "asarUnpack": [
+      "packages/app/dist/lib/obs-studio-node/**"
+    ],
     "directories": {
       "buildResources": "packages/app/assets"
     },

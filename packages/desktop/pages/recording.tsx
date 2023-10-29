@@ -5,10 +5,7 @@ import { useEffect, useState } from 'react';
 import {
   TbAlertCircle,
   TbAlertOctagon,
-  TbBread,
   TbCaretDown,
-  TbError404,
-  TbPlayerRecord,
   TbSettings,
   TbVideo,
   TbVideoMinus,
@@ -44,9 +41,8 @@ const resolutionOptions: ResolutionOptions[] = [
 ];
 
 // more enum bullshit
-const recStatus = ['WaitingForWoW', 'Recording', 'InvalidConfig', 'ReadyToRecord', 'FatalError', 'Overruning'];
-
-const recStates: Record<number, { icon: any; message: string }> = {
+// const recStatus = ['WaitingForWoW', 'Recording', 'InvalidConfig', 'ReadyToRecord', 'FatalError', 'Overruning'];
+const recStates: Record<number, { icon: JSX.Element; message: string }> = {
   0: {
     icon: <TbVideoOff size={32} color="yellow" />,
     message: 'Waiting for WoW process or settings change...',
