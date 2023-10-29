@@ -312,7 +312,6 @@ export class Recorder {
     console.info('[Recorder] Initializing OBS', this.uuid);
 
     try {
-      // TODO: MUSTFIX packaging for release
       const obsPath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'obs-studio-node'));
       const obsExecutableFilename = path.join(obsPath, 'obs64.exe');
       const osnDataPath = fixPathWhenPackaged(path.join(__dirname, 'dist', 'osn-data'));

@@ -1,6 +1,7 @@
-import { app, BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow, dialog, protocol } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { autoUpdater } from 'electron-updater';
+import { closeSync, openSync, readSync, statSync } from 'fs-extra';
 import moment from 'moment';
 import path from 'path';
 
@@ -46,10 +47,62 @@ function createWindow() {
     }
   });
 
+  protocol.handle('vod', async (request) => {
+    const allowedFileTypes = ['mp4', 'mkv', 'avi'];
+    const encodedFilename = decodeURI(request.url.slice('vod://wowarenalogs/'.length, request.url.length));
+
+    const filename = atob(encodedFilename);
+    let allowed = false;
+    for (let i = 0; i < allowedFileTypes.length - 1; i++) {
+      if (filename.endsWith(allowedFileTypes[i])) {
+        allowed = true;
+      }
+    }
+    if (!allowed) {
+      return new Response('Only video files are allowed', { status: 400 });
+    }
+
+    const rangeReq = request.headers.get('Range') || 'bytes=0-';
+    const parts = rangeReq.split('=');
+    const numbers = parts[1].split('-').map((p) => parseInt(p));
+
+    const fp = openSync(filename, 'r');
+    const size = 2500000; // ~2.5mb chunks
+    const start = numbers[0] || 0;
+    const buffer = Buffer.alloc(size);
+    readSync(fp, buffer, 0, size, start);
+
+    const stats = statSync(filename);
+    const totalSize = stats.size;
+    closeSync(fp);
+
+    return new Response(buffer, {
+      status: 206,
+      statusText: 'Partial Content',
+      headers: {
+        'Content-Length': `${totalSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Range': `bytes ${start}-${totalSize}`,
+      },
+    });
+  });
+
   nativeBridgeRegistry.startListeners(win);
 
   return win;
 }
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'vod',
+    privileges: {
+      bypassCSP: true,
+      standard: true,
+      stream: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
 
 const isFirstInstance = app.requestSingleInstanceLock();
 

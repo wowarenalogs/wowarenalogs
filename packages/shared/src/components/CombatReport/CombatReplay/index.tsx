@@ -3,7 +3,7 @@ import { CombatUnitType } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
 import PIXI from 'pixi.js';
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaSkullCrossbones } from 'react-icons/fa';
 import { TbPlayerPause, TbPlayerPlay } from 'react-icons/tb';
 
@@ -19,14 +19,20 @@ import { ReplayViewport } from './ReplayViewport';
 const VIEWPORT_PADDING = 10;
 const VIEWPORT_X_OFFSET = 20;
 
+// Account for extra time at start of vod?
+// TODO: MUSTFIX Handle time sync better
+const TIME_CORRECT = 2.75;
+
 const debouncedSlide = _.debounce(
   (
     v: number,
     setPaused: React.Dispatch<React.SetStateAction<boolean>>,
     setCurrentTimeOffset: React.Dispatch<React.SetStateAction<number>>,
+    setVideoTime: (n: number) => void,
   ) => {
     setPaused(true);
     setCurrentTimeOffset(typeof v === 'number' ? v : 0);
+    setVideoTime(TIME_CORRECT + v / 1000); // TODO: MUSTFIX Handle time sync better
   },
   1,
 );
@@ -63,6 +69,9 @@ export function CombatReplay() {
   const [filterEventsByPlayerId, setFilterEventsByPlayerId] = useState<string | null>(null);
   const [sliderPos, setSliderPos] = useState(0);
   const [pixiApp, setPixiApp] = useState<PIXI.Application | null>(null);
+
+  // TODO: MUSTFIX Is this where video will go? tbd
+  const vidRef = useRef<HTMLVideoElement>(null);
 
   // reset state every time we switch to a different combat
   useEffect(() => {
@@ -112,6 +121,13 @@ export function CombatReplay() {
     const onKey = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         setPaused((prev) => {
+          // TODO: MUSTFIX Is this where video will go? tbd
+          if (prev) {
+            vidRef.current?.play();
+          } else {
+            vidRef.current?.pause();
+          }
+
           return !prev;
         });
       }
@@ -222,10 +238,23 @@ export function CombatReplay() {
             step={100}
             onChange={(e) => {
               setSliderPos(e.target.valueAsNumber);
-              debouncedSlide(e.target.valueAsNumber, setPaused, setCurrentTimeOffset);
+              debouncedSlide(e.target.valueAsNumber, setPaused, setCurrentTimeOffset, (n: number) => {
+                // TODO: MUSTFIX Is this where video will go? tbd
+                if (vidRef.current) {
+                  vidRef.current.currentTime = n;
+                }
+              });
             }}
           />
         </div>
+        <button
+          onClick={() => {
+            // TODO: MUSTFIX Is this where video will go? tbd
+            if (vidRef.current?.currentTime) vidRef.current.currentTime = 3;
+          }}
+        >
+          reset vod
+        </button>
         <div className="ml-2">{moment.utc(currentTimeOffset).format('mm:ss')}</div>
         <div className="opacity-60 mr-2">
           &nbsp;
@@ -237,6 +266,31 @@ export function CombatReplay() {
           currentTimestamp={currentTimeOffset + combat.startInfo.timestamp}
         />
       </div>
+      <video
+        // TODO: MUSTFIX Is this where video will go? tbd
+        controls
+        id="video"
+        ref={vidRef}
+        // domain here looks weird but chrome will canonicalize the item in the string it thinks is the domain
+        // which will lead to the b64 string losing its casing :(
+        src={`vod://wowarenalogs/${btoa(
+          'D:\\Video\\2023-10-28 22-46-57 - Rated Solo Shuffle_1badc357e2250214a34f48a72b4d6b01.mp4',
+        )}`}
+        style={{
+          zIndex: 10,
+          position: 'absolute',
+          top: 200,
+          left: 500,
+          float: 'left',
+          margin: 'auto',
+          flex: 1,
+          objectFit: 'contain',
+          minWidth: 0,
+          minHeight: 0,
+          width: 1920 / 2,
+          height: 1080 / 2,
+        }}
+      />
       <div className={`flex flex-col flex-1 rounded-box bg-base-200 overflow-hidden relative`}>
         <div className="w-full h-full absolute" ref={initializeReplayContainerRef}>
           {replayContainerRef ? (
