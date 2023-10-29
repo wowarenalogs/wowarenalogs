@@ -1,6 +1,5 @@
 import { Size } from 'electron';
 import ConfigService from './configService';
-import { IActivity } from './activity';
 
 /**
  * Application recording status.

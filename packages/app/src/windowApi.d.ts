@@ -67,5 +67,10 @@ export type NativeApi = {
   obs: {
     startRecording?: OmitFirstArg<ObsModule['startRecording']>;
     stopRecording?: OmitFirstArg<ObsModule['stopRecording']>;
+    getConfiguration?: OmitFirstArg<ObsModule['getConfiguration']>;
+    setConfig?: OmitFirstArg<ObsModule['setConfig']>;
+    getAudioDevices?: OmitFirstArg<ObsModule['getAudioDevices']>;
+    configUpdated?: (callback: AsEventFunction<ObsModule['configUpdated']>) => void;
+    removeAll_configUpdated_listeners?: () => void;
   };
 };

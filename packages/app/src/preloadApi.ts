@@ -64,5 +64,11 @@ export const modulesApi = {
   obs: {
     startRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:startRecording', ...args),
     stopRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:stopRecording', ...args),
+    getConfiguration: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getConfiguration', ...args),
+    setConfig: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:setConfig', ...args),
+    getAudioDevices: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getAudioDevices', ...args),
+    configUpdated: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:obs:configUpdated', callback),
+    removeAll_configUpdated_listeners: () => ipcRenderer.removeAllListeners('wowarenalogs:obs:configUpdated'),
   },
 };

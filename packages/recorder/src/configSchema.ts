@@ -31,6 +31,11 @@ export type ConfigurationSchema = {
 
 export type ConfigurationSchemaKey = keyof ConfigurationSchema;
 
+export type ConfigurationChangeCallback = (
+  newValue: Readonly<ConfigurationSchema> | undefined,
+  oldValue: Readonly<ConfigurationSchema> | undefined,
+) => void;
+
 /**
  * Config schema. The descriptions included here may get displayed in the UI.
  */
@@ -113,7 +118,7 @@ export const configSchema: Schema<ConfigurationSchema> = {
     description:
       'The capture mode OBS should use to record. Recommended is Window capture, but each have their own limitations. See #faq in discord for more details.',
     type: 'string',
-    default: 'window_capture',
+    default: 'game_capture',
   },
   obsRecEncoder: {
     description:

@@ -1,13 +1,11 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.d.ts"],
+  "include": ["src"],
   "compilerOptions": {
-    "target": "es6",
-    "sourceMap": true,
-    "strict": true,
-    "noEmitOnError": true,
-    "experimentalDecorators": true,
-    "esModuleInterop": true
-  },
-  "exclude": ["node_modules"]
+    "module": "commonjs",
+    "outDir": "dist",
+    "noEmit": false,
+    "declaration": true,
+    "noEmitOnError": true
+  }
 }

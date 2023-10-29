@@ -14,7 +14,6 @@ import {
   RecStatus,
   ConfigStage,
   ObsOverlayConfig,
-  IOBSDevice,
 } from './types';
 import {
   getObsBaseConfig,
@@ -25,6 +24,7 @@ import {
 } from './configUtils';
 import { updateRecStatus } from './util';
 import { ERecordingState } from './obsEnums';
+import { ConfigurationChangeCallback, ConfigurationSchema, ConfigurationSchemaKey } from './configSchema';
 
 /**
  * The manager class is responsible for orchestrating all the functional
@@ -152,14 +152,6 @@ export class Manager {
   }
 
   /**
-   * Force a recording to stop regardless of the scenario.
-   */
-  public async forceStop() {
-    // This only stopped the activity handlers
-    // no-op now?
-  }
-
-  /**
    * This function iterates through the config stages, checks for any changes,
    * validates the new config and then applies it.
    */
@@ -230,6 +222,29 @@ export class Manager {
       await this.recorder.stopBuffer();
       this.recorder.removeAudioSources();
     }
+  }
+
+  /**
+   * Update a config value and then manage()
+   */
+  public setConfigurationValue(key: ConfigurationSchemaKey, value: number | string | boolean) {
+    this.cfg.setValue(key, value);
+    this.manage();
+  }
+
+  /**
+   * Update config values and then manage()
+   */
+  public setConfigurationValues(values: Partial<ConfigurationSchema>) {
+    this.cfg.setValues(values);
+    this.manage();
+  }
+
+  /**
+   * Get the entire configuration store
+   */
+  public getConfiguration() {
+    return this.cfg.getStore();
   }
 
   /**
@@ -327,6 +342,32 @@ export class Manager {
     }
   }
 
+  public getAvailableEncoders() {
+    const obsEncoders = this.recorder.getAvailableEncoders().filter((encoder) => encoder !== 'none');
+    return obsEncoders;
+  }
+
+  public getAudioDevices() {
+    if (!this.recorder.obsInitialized) {
+      return {
+        input: [],
+        output: [],
+      };
+    }
+
+    const inputDevices = this.recorder.getInputAudioDevices();
+    const outputDevices = this.recorder.getOutputAudioDevices();
+
+    return {
+      input: inputDevices,
+      output: outputDevices,
+    };
+  }
+
+  public subscribeToConfigurationUpdates(callback: ConfigurationChangeCallback) {
+    this.cfg.subscribeToConfigurationUpdates(callback);
+  }
+
   /**
    * Setup event listeneres the app relies on.
    */
@@ -339,48 +380,6 @@ export class Manager {
       } else if (args[0] === 'hide') {
         this.recorder.hidePreview();
       }
-    });
-
-    // Encoder listener, to populate settings on the frontend.
-    ipcMain.handle('getEncoders', (): string[] => {
-      const obsEncoders = this.recorder.getAvailableEncoders().filter((encoder) => encoder !== 'none');
-
-      return obsEncoders;
-    });
-
-    // Audio devices listener, to populate settings on the frontend.
-    ipcMain.handle(
-      'getAudioDevices',
-      (): {
-        input: IOBSDevice[];
-        output: IOBSDevice[];
-      } => {
-        if (!this.recorder.obsInitialized) {
-          return {
-            input: [],
-            output: [],
-          };
-        }
-
-        const inputDevices = this.recorder.getInputAudioDevices();
-        const outputDevices = this.recorder.getOutputAudioDevices();
-
-        return {
-          input: inputDevices,
-          output: outputDevices,
-        };
-      },
-    );
-
-    // Force stop listener, to enable the force stop button to do its job.
-    ipcMain.on('recorder', async (_event, args) => {
-      if (args[0] === 'stop') {
-        console.log('[Manager] Force stopping recording due to user request.');
-        this.forceStop();
-        return;
-      }
-
-      this.manage();
     });
 
     // Important we shutdown OBS on the before-quit event as if we get closed by

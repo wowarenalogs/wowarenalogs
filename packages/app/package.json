@@ -9,6 +9,7 @@
     "gen:app:preload": "cross-env ts-node script/generatePreload.ts && npm run lint:fix",
     "release:app": "git checkout release/wowarenalogs/app && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
+  "main": "src/",
   "devDependencies": {
     "@babel/core": "^7.19.6",
     "@babel/preset-env": "^7.19.4",

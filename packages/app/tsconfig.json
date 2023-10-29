@@ -1,5 +1,5 @@
 {
-  "exclude": ["script/generatePreload.ts"],
+  "exclude": ["script/generatePreload.ts", "dist"],
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",

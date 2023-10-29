@@ -1,8 +1,7 @@
 import ElectronStore from 'electron-store';
-import { ipcMain } from 'electron';
 import path from 'path';
 import { EventEmitter } from 'stream';
-import { configSchema, ConfigurationSchema } from './configSchema';
+import { configSchema, ConfigurationChangeCallback, ConfigurationSchema } from './configSchema';
 
 export default class ConfigService extends EventEmitter {
   /**
@@ -14,6 +13,8 @@ export default class ConfigService extends EventEmitter {
     schema: configSchema,
     name: 'config-v3',
   });
+
+  private unSubscribe: ReturnType<typeof this._store.onDidAnyChange> | null = null;
 
   /**
    * Get the instance of the class as a singleton.
@@ -27,6 +28,33 @@ export default class ConfigService extends EventEmitter {
     return ConfigService._instance;
   }
 
+  public setValue(key: keyof ConfigurationSchema, value: any) {
+    if (!this.configValueChanged(key, value)) {
+      return;
+    }
+    this.set(key, value);
+    // this.emit('change', key, value);
+    ConfigService.logConfigChanged({ [key]: value });
+  }
+
+  public setValues(values: Partial<ConfigurationSchema>) {
+    const configKeys = Object.keys(values) as (keyof ConfigurationSchema)[];
+    const newConfigValues: Record<string, any> = {};
+
+    configKeys.forEach((key) => {
+      if (!this.configValueChanged(key, values[key])) {
+        return;
+      }
+
+      newConfigValues[key] = values[key];
+
+      this.set(key, values[key]);
+      // this.emit('change', key, values[key]);
+    });
+
+    ConfigService.logConfigChanged(values);
+  }
+
   private constructor() {
     super();
 
@@ -34,71 +62,26 @@ export default class ConfigService extends EventEmitter {
 
     console.log('[Config Service] Using configuration', this._store.store);
 
-    this._store.onDidAnyChange((newValue: any, oldValue: any) => {
-      this.emit('configChanged', oldValue, newValue);
-    });
+    // this._store.onDidAnyChange((newValue: any, oldValue: any) => {
+    //   this.emit('configChanged', oldValue, newValue);
+    // });
+  }
 
-    /**
-     * Getter and setter config listeners.
-     */
-    ipcMain.on('config', (event, args) => {
-      switch (args[0]) {
-        case 'get': {
-          const value = this.get(args[1]);
-          event.returnValue = value;
-          return;
-        }
+  public getStore() {
+    return this._store.store;
+  }
 
-        case 'set': {
-          const [key, value] = [args[1], args[2]];
-
-          if (!this.configValueChanged(key, value)) {
-            return;
-          }
-
-          this.set(key, value);
-          this.emit('change', key, value);
-          ConfigService.logConfigChanged({ [key]: value });
-          return;
-        }
-
-        case 'set_values': {
-          const configObject = args[1];
-          const configKeys = Object.keys(configObject);
-          const newConfigValues: { [key: string]: any } = {};
-
-          configKeys.forEach((key: string) => {
-            if (!this.configValueChanged(key, configObject[key])) {
-              return;
-            }
-
-            newConfigValues[key] = configObject[key];
-          });
-
-          Object.keys(newConfigValues).forEach((key: any) => {
-            const value = newConfigValues[key];
-
-            this.set(key, value);
-            this.emit('change', key, value);
-          });
-
-          ConfigService.logConfigChanged(newConfigValues);
-
-          return;
-        }
-
-        default: {
-          console.error('[ConfigService] Unrecognised config call, should be one of get, set or set_values');
-        }
-      }
+  /**
+   * Subscribe to conifugration updates, only a single subscriber is allowed
+   */
+  public subscribeToConfigurationUpdates(callback: ConfigurationChangeCallback) {
+    if (this.unSubscribe) this.unSubscribe();
+    this.unSubscribe = this._store.onDidAnyChange((newVal, oldVal) => {
+      callback(newVal, oldVal);
     });
   }
 
-  has(key: keyof ConfigurationSchema): boolean {
-    return this._store.has(key);
-  }
-
-  get<T>(key: keyof ConfigurationSchema): T {
+  public get<T>(key: keyof ConfigurationSchema): T {
     if (!configSchema[key]) {
       throw Error(`[Config Service] Attempted to get invalid configuration key '${key}'`);
     }
@@ -114,7 +97,7 @@ export default class ConfigService extends EventEmitter {
     return value as T;
   }
 
-  set(key: keyof ConfigurationSchema, value: any): void {
+  private set(key: keyof ConfigurationSchema, value: any): void {
     if (!configSchema[key]) {
       throw Error(`[Config Service] Attempted to set invalid configuration key '${key}'`);
     }
@@ -128,21 +111,13 @@ export default class ConfigService extends EventEmitter {
   }
 
   getPath(key: keyof ConfigurationSchema): string {
-    const value = this.getString(key);
+    const value = this.get<string>(key);
 
     if (!value) {
       return '';
     }
 
     return path.join(value, path.sep);
-  }
-
-  getNumber(key: keyof ConfigurationSchema): number {
-    return this.has(key) ? parseInt(this.get(key), 10) : NaN;
-  }
-
-  getString(key: keyof ConfigurationSchema): string {
-    return this.has(key) ? (this.get(key) as string) : '';
   }
 
   /**

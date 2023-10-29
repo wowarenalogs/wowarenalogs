@@ -2,12 +2,11 @@ import { app, BrowserWindow, dialog } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { autoUpdater } from 'electron-updater';
 import moment from 'moment';
-
-import { nativeBridgeRegistry } from './nativeBridge/registry';
-
 import path from 'path';
+
 import { BASE_REMOTE_URL } from './constants';
 import { globalStates } from './nativeBridge/modules/common/globalStates';
+import { nativeBridgeRegistry } from './nativeBridge/registry';
 
 function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');

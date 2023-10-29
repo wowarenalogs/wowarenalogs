@@ -1,9 +1,23 @@
 import EventEmitter from 'events';
-import { tasklist } from 'tasklist';
+import child_process from 'child_process';
 
-type WowProcess = {
-  exe: string;
-};
+function isTaskRunning(taskMatcher: RegExp) {
+  const promise = new Promise<boolean>((resolve, reject) => {
+    child_process.exec('tasklist', function (err, stdout, stderr) {
+      if (err) {
+        reject(err);
+      }
+      if (taskMatcher.test(stdout)) {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+      // stdout is a string containing the output of the command.
+      // parse it and look for the apache and mysql processes.
+    });
+  });
+  return promise;
+}
 
 /**
  * The Poller singleton periodically checks the list of WoW active processes.
@@ -70,31 +84,14 @@ export default class Poller extends EventEmitter {
   }
 
   private poll = async () => {
-    const processList = await tasklist();
+    const isNowRunning = await isTaskRunning(this.processRegex);
 
-    // Tasklist package doesn't export types annoyingly, hence
-    // the use of any here.
-    const wowProcesses = processList
-      .map((process: any) => process.imageName.match(this.processRegex))
-      .filter((matches: string[]) => matches)
-      .map(this.convertToWowProcessType);
-
-    // We don't care to do anything better in the scenario of multiple
-    // processes running. We don't support users multi-boxing.
-    if (!this.isWowRunning && wowProcesses.pop()) {
+    if (!this.isWowRunning && isNowRunning) {
       this.isWowRunning = true;
       this.emit('wowProcessStart');
-    } else if (this.isWowRunning && !wowProcesses.pop()) {
+    } else if (this.isWowRunning && !isNowRunning) {
       this.isWowRunning = false;
       this.emit('wowProcessStop');
     }
-  };
-
-  private convertToWowProcessType = (match: string[]) => {
-    const wowProcessObject: WowProcess = {
-      exe: match[0],
-    };
-
-    return wowProcessObject;
   };
 }

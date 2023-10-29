@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import Router from 'next/router';
 import NProgress from 'nprogress';
 import React, { useEffect } from 'react';
-import { TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbUser } from 'react-icons/tb';
+import { TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbUser, TbVideo } from 'react-icons/tb';
 
 import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
@@ -89,6 +89,19 @@ export function MainLayout(props: IProps) {
           </Link>
         </div>
         <div className="flex-1" />
+        {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
+          <div
+            className={`p-2 hover:text-primary ${
+              selectedNavMenuKey === '/recording' ? 'bg-base-100 text-primary' : ''
+            }`}
+          >
+            <Link href="/recording">
+              <a>
+                <TbVideo size="32" />
+              </a>
+            </Link>
+          </div>
+        )}
         {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
           <div
             className={`p-2 hover:text-primary ${selectedNavMenuKey === '/debug' ? 'bg-base-100 text-primary' : ''}`}

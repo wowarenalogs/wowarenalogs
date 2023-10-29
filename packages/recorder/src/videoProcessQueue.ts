@@ -1,8 +1,8 @@
 import { BrowserWindow } from 'electron';
 import path from 'path';
-import SizeMonitor from './sizeMonitor';
+// import SizeMonitor from './sizeMonitor';
 import ConfigService from './configService';
-import { SaveStatus, VideoQueueItem } from './types';
+import { VideoQueueItem } from './types';
 import { tryUnlink, writeMetadataFile, getThumbnailFileNameForVideo } from './util';
 import ffmpeg from 'fluent-ffmpeg';
 import { existsSync } from 'fs-extra';
@@ -17,12 +17,12 @@ export default class VideoProcessQueue {
   // TODO: MIGHTFIX re-implement some kind of queue for processing
   // private videoQueue: any;
 
-  private mainWindow: BrowserWindow;
+  // private mainWindow: BrowserWindow;
 
   private cfg = ConfigService.getInstance();
 
   constructor(mainWindow: BrowserWindow) {
-    this.mainWindow = mainWindow;
+    // this.mainWindow = mainWindow;
     this.setupVideoProcessingQueue();
   }
 
@@ -80,26 +80,26 @@ export default class VideoProcessQueue {
     done();
   }
 
-  private static errorProcessingVideo(err: any) {
-    console.error('[VideoProcessQueue] Error processing video', err);
-  }
+  // private static errorProcessingVideo(err: any) {
+  //   console.error('[VideoProcessQueue] Error processing video', err);
+  // }
 
-  private startedProcessingVideo(data: VideoQueueItem) {
-    console.info('[VideoProcessQueue] Now processing video', data.bufferFile);
-    this.mainWindow.webContents.send('updateSaveStatus', SaveStatus.Saving);
-  }
+  // private startedProcessingVideo(data: VideoQueueItem) {
+  //   console.info('[VideoProcessQueue] Now processing video', data.bufferFile);
+  //   this.mainWindow.webContents.send('updateSaveStatus', SaveStatus.Saving);
+  // }
 
-  private finishProcessingVideo(data: VideoQueueItem) {
-    console.log('[VideoProcessQueue] Finished processing video', data.bufferFile);
+  // private finishProcessingVideo(data: VideoQueueItem) {
+  //   console.log('[VideoProcessQueue] Finished processing video', data.bufferFile);
 
-    this.mainWindow.webContents.send('updateSaveStatus', SaveStatus.NotSaving);
-    this.mainWindow.webContents.send('refreshState');
-  }
+  //   this.mainWindow.webContents.send('updateSaveStatus', SaveStatus.NotSaving);
+  //   this.mainWindow.webContents.send('refreshState');
+  // }
 
-  private async videoQueueEmpty() {
-    console.log('[VideoProcessQueue] Video processing queue empty');
-    new SizeMonitor(this.mainWindow).run();
-  }
+  // private async videoQueueEmpty() {
+  //   console.log('[VideoProcessQueue] Video processing queue empty');
+  //   new SizeMonitor(this.mainWindow).run();
+  // }
 
   /**
    * Sanitize a filename and replace all invalid characters with a space.

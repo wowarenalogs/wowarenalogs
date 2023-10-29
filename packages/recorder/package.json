@@ -2,9 +2,11 @@
   "name": "@wowarenalogs/recorder",
   "version": "1.0.0",
   "description": "",
-  "main": "src/",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "author": "WoW Arena Logs",
   "scripts": {
+    "build:recorder": "tsc",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix"
   },
@@ -15,7 +17,6 @@
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^11.1.1",
     "obs-studio-node": "https://storage.googleapis.com/spires-log-files/obs-studio-node-0.3.21-win64-27.0.2.tar.gz",
-    "tasklist": "^5.0.0",
     "uiohook-napi": "^1.5.2",
     "wait-queue": "^1.1.4"
   },

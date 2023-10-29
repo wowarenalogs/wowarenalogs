@@ -94,22 +94,6 @@ const Debug = () => {
           <button
             className="btn"
             onClick={() => {
-              window.wowarenalogs.obs?.startRecording && window.wowarenalogs.obs.startRecording();
-            }}
-          >
-            Test Start Recording
-          </button>
-          <button
-            className="btn"
-            onClick={() => {
-              window.wowarenalogs.obs?.stopRecording && window.wowarenalogs.obs.stopRecording({});
-            }}
-          >
-            Test Stop Recording
-          </button>
-          <button
-            className="btn"
-            onClick={() => {
               window.wowarenalogs.fs
                 ?.selectFolder()
                 .then((folder) => {

@@ -186,7 +186,7 @@ export class Recorder {
    * Gets toggled if push to talk is enabled and when the hotkey for push to
    * talk is held down.
    */
-  private inputDevicesMuted = false;
+  // private inputDevicesMuted = false;
 
   /**
    * Some arbritrarily chosen channel numbers we can use for adding output
@@ -366,7 +366,8 @@ export class Recorder {
 
     // The AMD encoder causes recordings to get much darker if using the full
     // color range setting. So swap that to partial here. See https://github.com/aza547/wow-recorder/issues/446.
-    const colorRange = obsRecEncoder === ESupportedEncoders.AMD_AMF_H264 ? ERangeType.Partial : ERangeType.Full;
+    const colorRange = ERangeType.Partial; //obsRecEncoder === ESupportedEncoders.AMD_AMF_H264 ? ERangeType.Partial : ERangeType.Full;
+    // TODO: not sure what to do here. I had dark/bad results on .Full with the default nv enc; made .Partial the default...
 
     osn.VideoFactory.videoContext = {
       fpsNum: obsFPS,
@@ -640,7 +641,7 @@ export class Recorder {
         device.muted = true;
       });
 
-      this.inputDevicesMuted = true;
+      // this.inputDevicesMuted = true;
 
       // TODO: fix uiohook
       // const pttHandler = (fn: () => void, event: UiohookKeyboardEvent | UiohookMouseEvent) => {
@@ -964,7 +965,7 @@ export class Recorder {
     resolveHelper();
     this.isOverruning = false;
 
-    const duration = (activity.endDate.getTime() - activity.startDate.getTime()) / 1000;
+    const duration = activity.overrun + (activity.endDate.getTime() - activity.startDate.getTime()) / 1000;
     // If we got this far, we've got everything we need to process the
     // video. Add it to the queue for processing.
     this.videoProcessQueue.queueVideo({
@@ -1334,29 +1335,29 @@ export class Recorder {
     this.overlaySceneItem = this.scene.add(this.overlayImageSource, overlaySettings);
   }
 
-  private muteInputDevices() {
-    if (this.inputDevicesMuted) {
-      return;
-    }
+  // private muteInputDevices() {
+  //   if (this.inputDevicesMuted) {
+  //     return;
+  //   }
 
-    this.audioInputDevices.forEach((device) => {
-      device.muted = true;
-    });
+  //   this.audioInputDevices.forEach((device) => {
+  //     device.muted = true;
+  //   });
 
-    this.inputDevicesMuted = true;
-    this.mainWindow.webContents.send('updateMicStatus', MicStatus.MUTED);
-  }
+  //   this.inputDevicesMuted = true;
+  //   this.mainWindow.webContents.send('updateMicStatus', MicStatus.MUTED);
+  // }
 
-  private unmuteInputDevices() {
-    if (!this.inputDevicesMuted) {
-      return;
-    }
+  // private unmuteInputDevices() {
+  //   if (!this.inputDevicesMuted) {
+  //     return;
+  //   }
 
-    this.audioInputDevices.forEach((device) => {
-      device.muted = false;
-    });
+  //   this.audioInputDevices.forEach((device) => {
+  //     device.muted = false;
+  //   });
 
-    this.inputDevicesMuted = false;
-    this.mainWindow.webContents.send('updateMicStatus', MicStatus.LISTENING);
-  }
+  //   this.inputDevicesMuted = false;
+  //   this.mainWindow.webContents.send('updateMicStatus', MicStatus.LISTENING);
+  // }
 }
