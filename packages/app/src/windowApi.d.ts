@@ -65,11 +65,14 @@ export type NativeApi = {
     clearStorage?: OmitFirstArg<ApplicationModule['clearStorage']>;
   };
   obs: {
+    selectFolder?: OmitFirstArg<ObsModule['selectFolder']>;
     startRecording?: OmitFirstArg<ObsModule['startRecording']>;
     stopRecording?: OmitFirstArg<ObsModule['stopRecording']>;
     getConfiguration?: OmitFirstArg<ObsModule['getConfiguration']>;
     setConfig?: OmitFirstArg<ObsModule['setConfig']>;
     getAudioDevices?: OmitFirstArg<ObsModule['getAudioDevices']>;
+    recorderStatusUpdated?: (callback: AsEventFunction<ObsModule['recorderStatusUpdated']>) => void;
+    removeAll_recorderStatusUpdated_listeners?: () => void;
     configUpdated?: (callback: AsEventFunction<ObsModule['configUpdated']>) => void;
     removeAll_configUpdated_listeners?: () => void;
   };

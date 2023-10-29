@@ -62,11 +62,16 @@ export const modulesApi = {
     clearStorage: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:app:clearStorage', ...args),
   },
   obs: {
+    selectFolder: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:selectFolder', ...args),
     startRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:startRecording', ...args),
     stopRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:stopRecording', ...args),
     getConfiguration: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getConfiguration', ...args),
     setConfig: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:setConfig', ...args),
     getAudioDevices: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getAudioDevices', ...args),
+    recorderStatusUpdated: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:obs:recorderStatusUpdated', callback),
+    removeAll_recorderStatusUpdated_listeners: () =>
+      ipcRenderer.removeAllListeners('wowarenalogs:obs:recorderStatusUpdated'),
     configUpdated: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
       ipcRenderer.on('wowarenalogs:obs:configUpdated', callback),
     removeAll_configUpdated_listeners: () => ipcRenderer.removeAllListeners('wowarenalogs:obs:configUpdated'),

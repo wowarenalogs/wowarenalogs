@@ -13,7 +13,6 @@ function isTaskRunning(taskMatcher: RegExp) {
         resolve(false);
       }
       // stdout is a string containing the output of the command.
-      // parse it and look for the apache and mysql processes.
     });
   });
   return promise;

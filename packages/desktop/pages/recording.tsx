@@ -1,21 +1,84 @@
 /* eslint-disable no-console */
-import { ConfigurationSchema } from '@wowarenalogs/recorder';
+import { ConfigurationSchema, IOBSDevice, ResolutionOptions } from '@wowarenalogs/recorder';
+import { Dropdown, useClientContext } from '@wowarenalogs/shared';
 import { useEffect, useState } from 'react';
+import {
+  TbAlertCircle,
+  TbAlertOctagon,
+  TbBread,
+  TbCaretDown,
+  TbError404,
+  TbPlayerRecord,
+  TbSettings,
+  TbVideo,
+  TbVideoMinus,
+  TbVideoOff,
+  TbVideoPlus,
+} from 'react-icons/tb';
 
-import { useAppConfig } from '../hooks/AppConfigContext';
+// TODO: Figure out a clean way to share options between the two systems
+// Right now, if we export from @recorder anything concrete (ie not just types) we get
+// dependencies here on Electron that nextjs won't like
+const resolutionOptions: ResolutionOptions[] = [
+  '1024x768',
+  '1280x720',
+  '1280x800',
+  '1280x1024',
+  '1360x768',
+  '1366x768',
+  '1440x900',
+  '1600x900',
+  '1680x1050',
+  '1920x1080',
+  '1920x1200',
+  '2560x1080',
+  '2560x1440',
+  '2560x1600',
+  '3440x1440',
+  '3840x1080',
+  '3440x1200',
+  '3840x1440',
+  '3840x1600',
+  '3840x2160',
+  '5120x1440',
+];
 
-type IAudioDevice = {
-  description: string;
-  id: string;
+// more enum bullshit
+const recStatus = ['WaitingForWoW', 'Recording', 'InvalidConfig', 'ReadyToRecord', 'FatalError', 'Overruning'];
+
+const recStates: Record<number, { icon: any; message: string }> = {
+  0: {
+    icon: <TbVideoOff size={32} color="yellow" />,
+    message: 'Waiting for WoW process or settings change...',
+  },
+  1: {
+    icon: <TbVideo size={32} color="green" />,
+    message: 'Recording active',
+  },
+  2: {
+    icon: <TbAlertCircle size={32} color="red" />,
+    message: '',
+  },
+  3: {
+    icon: <TbVideoMinus size={32} color="aqua" />,
+    message: 'Ready',
+  },
+  4: {
+    icon: <TbAlertOctagon size={32} color="red" />,
+    message: 'Fatal error!',
+  },
+  5: {
+    icon: <TbVideoPlus size={32} />,
+    message: 'Recording overrun...',
+  },
 };
 
 const RecordingConfig = () => {
-  const [outputAudioOptions, setOutputAudioOptions] = useState<IAudioDevice[]>();
+  const clientContext = useClientContext();
+  const [outputAudioOptions, setOutputAudioOptions] = useState<IOBSDevice[]>([]);
   const [configStore, setConfigStore] = useState<ConfigurationSchema | undefined | null>(null);
-
-  const platform = typeof window !== 'undefined' ? window.wowarenalogs.platform : '';
-
-  const { wowInstallations } = useAppConfig();
+  const [recordingStatus, setRecordingStatus] = useState(-1);
+  const [recordStatusError, setRecordStatusError] = useState('');
 
   useEffect(() => {
     async function checkAudioDevices() {
@@ -32,130 +95,139 @@ const RecordingConfig = () => {
   }, []);
 
   useEffect(() => {
+    console.log('config subscribed');
     if (window.wowarenalogs.obs.configUpdated) {
       window.wowarenalogs.obs.configUpdated((_e, newConf) => {
         console.log('new config', newConf);
         setConfigStore(newConf);
       });
     }
-    return () =>
+    return () => {
+      console.log('Config unsubscribed');
       window.wowarenalogs.obs.removeAll_configUpdated_listeners &&
-      window.wowarenalogs.obs.removeAll_configUpdated_listeners();
+        window.wowarenalogs.obs.removeAll_configUpdated_listeners();
+    };
   }, []);
 
+  useEffect(() => {
+    if (window.wowarenalogs.obs.recorderStatusUpdated) {
+      window.wowarenalogs.obs.recorderStatusUpdated((_e, status, err) => {
+        console.log('stat', { status, err });
+        setRecordingStatus(status);
+        setRecordStatusError(err || '');
+      });
+    }
+    return () => {
+      window.wowarenalogs.obs.removeAll_recorderStatusUpdated_listeners &&
+        window.wowarenalogs.obs.removeAll_recorderStatusUpdated_listeners();
+    };
+  }, []);
+
+  const maybeAudioChoice = outputAudioOptions.find((a) => a.id === configStore?.audioOutputDevices);
+  const maybeAudioDevice = maybeAudioChoice?.description || 'No device found!';
+
+  const showDebugInfo = process.env.NODE_ENV === 'development' && clientContext.isDesktop;
+
   return (
-    <div className="mt-8 text-base-content">
+    <div className="p-2 gap-2 min-h-screen">
+      <div className="text-2xl font-bold mb-2">OBS Recording Settings</div>
       <div className="flex flex-row justify-between">
-        <div className="flex flex-col">
-          <div>Platform: {platform}</div>
-          <div>
-            {wowInstallations.size} Installations
-            {Array.from(wowInstallations).map((v) => (
-              <div key={v[0]}>{v.join(': ')}</div>
-            ))}
-          </div>
-        </div>
         <div className="flex flex-col gap-2">
+          <div className="flex flex-row gap-2 items-center">
+            {recStates[recordingStatus] && recStates[recordingStatus].icon}
+            {recStates[recordingStatus] && recStates[recordingStatus].message}
+            {recordStatusError}
+          </div>
           <div>
-            <div className="font-bold">Audio Output Device Options:</div>
-            {outputAudioOptions?.map((a) => (
-              <div
-                key={a.id}
-                onClick={() => {
-                  window.wowarenalogs.obs.setConfig && window.wowarenalogs.obs.setConfig('audioOutputDevices', a.id);
-                }}
+            <div className="font-bold">Audio Output Device:</div>
+            <div className="flex flex-row gap-2 items-center">
+              <Dropdown
+                menuItems={outputAudioOptions.map((k) => ({
+                  onClick: () => {
+                    window.wowarenalogs.obs?.setConfig && window.wowarenalogs.obs.setConfig('audioOutputDevices', k.id);
+                  },
+                  key: k.id,
+                  label: k.description,
+                }))}
               >
-                {a.description}
-              </div>
-            ))}
+                <TbCaretDown size={20} />
+              </Dropdown>
+              <div>{maybeAudioDevice}</div>
+            </div>
           </div>
           <div>
             <div className="font-bold">Resolution:</div>
-            {configStore?.obsOutputResolution}
-          </div>
-          <div>
-            <div className="font-bold">Capture Mode:</div>
-            {configStore?.obsCaptureMode}
+            <div className="flex flex-row gap-2 items-center">
+              <Dropdown
+                menuItems={resolutionOptions.map((k) => ({
+                  onClick: () => {
+                    window.wowarenalogs.obs?.setConfig && window.wowarenalogs.obs.setConfig('obsOutputResolution', k);
+                  },
+                  key: k,
+                  label: k,
+                }))}
+              >
+                <TbCaretDown size={20} />
+              </Dropdown>
+              <div>{configStore?.obsOutputResolution}</div>
+            </div>
           </div>
           <div>
             <div className="font-bold">VOD Storage Directory:</div>
-            {configStore?.storagePath}
+            <div className="flex flex-row gap-2 items-center">
+              <button
+                className="btn"
+                onClick={async () => {
+                  if (window.wowarenalogs.obs.selectFolder) {
+                    const folderChoice = await window.wowarenalogs.obs.selectFolder('Select folder to store videos to');
+                    if (folderChoice.length > 0) {
+                      window.wowarenalogs.obs?.setConfig &&
+                        window.wowarenalogs.obs.setConfig('storagePath', folderChoice[0]);
+                    }
+                  }
+                }}
+              >
+                <TbSettings size={20} />
+              </button>
+              <div>{configStore?.storagePath}</div>
+            </div>
           </div>
+        </div>
+        {showDebugInfo && (
           <div>
-            <div className="font-bold">Audio Output Devices:</div>
-            {configStore?.audioOutputDevices}
+            <button
+              className="btn"
+              onClick={() => {
+                window.wowarenalogs.obs?.startRecording && window.wowarenalogs.obs.startRecording();
+              }}
+            >
+              Test Start Recording
+            </button>
+            <button
+              className="btn"
+              onClick={() => {
+                window.wowarenalogs.obs?.stopRecording &&
+                  window.wowarenalogs.obs.stopRecording({
+                    startDate: new Date(),
+                    endDate: new Date(),
+                    fileName: 'test',
+                    overrun: 5,
+                  });
+              }}
+            >
+              Test Stop Recording
+            </button>
+            <button
+              className="btn"
+              onClick={() => {
+                window.wowarenalogs.obs?.setConfig && window.wowarenalogs.obs.setConfig('storagePath', 'd');
+              }}
+            >
+              Test Erase Storage Path Config
+            </button>
+            <pre>{JSON.stringify(configStore, null, 2)}</pre>
           </div>
-        </div>
-        <div>
-          <pre>{JSON.stringify(configStore, null, 2)}</pre>
-        </div>
-        <div className="flex flex-col">
-          <button
-            className="btn"
-            onClick={() => {
-              window.wowarenalogs.obs?.startRecording && window.wowarenalogs.obs.startRecording();
-            }}
-          >
-            Test Start Recording
-          </button>
-          <button
-            className="btn"
-            onClick={() => {
-              window.wowarenalogs.obs?.stopRecording &&
-                window.wowarenalogs.obs.stopRecording({
-                  startDate: new Date(),
-                  endDate: new Date(),
-                  fileName: 'test',
-                  overrun: 5,
-                });
-            }}
-          >
-            Test Stop Recording
-          </button>
-          <button
-            className="btn"
-            onClick={async () => {
-              window.wowarenalogs.obs?.getAudioDevices && console.log(await window.wowarenalogs.obs.getAudioDevices());
-            }}
-          >
-            Preview Audio Devices
-          </button>
-          <button
-            className="btn"
-            onClick={() => {
-              window.wowarenalogs.obs?.setConfig &&
-                window.wowarenalogs.obs.setConfig('obsOutputResolution', '1680x1050');
-            }}
-          >
-            test 1680
-          </button>
-          <button
-            className="btn"
-            onClick={() => {
-              window.wowarenalogs.obs?.setConfig &&
-                window.wowarenalogs.obs.setConfig('obsOutputResolution', '1920x1080');
-            }}
-          >
-            test 1920
-          </button>
-          <button
-            className="btn"
-            onClick={() => {
-              window.wowarenalogs.obs?.setConfig &&
-                window.wowarenalogs.obs.setConfig('obsOutputResolution', '2560x1080');
-            }}
-          >
-            test 2560
-          </button>
-          <button
-            className="btn"
-            onClick={() => {
-              window.wowarenalogs.obs?.setConfig && window.wowarenalogs.obs.setConfig('obsCaptureMode', 'game_capture');
-            }}
-          >
-            set game_capture
-          </button>
-        </div>
+        )}
       </div>
     </div>
   );

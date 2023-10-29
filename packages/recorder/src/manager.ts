@@ -22,7 +22,6 @@ import {
   getStorageConfig,
   getOverlayConfig,
 } from './configUtils';
-import { updateRecStatus } from './util';
 import { ERecordingState } from './obsEnums';
 import { ConfigurationChangeCallback, ConfigurationSchema, ConfigurationSchemaKey } from './configSchema';
 
@@ -190,11 +189,11 @@ export class Manager {
    */
   private refreshStatus(invalidConfig: boolean, message = '') {
     if (invalidConfig) {
-      updateRecStatus(this.mainWindow, RecStatus.InvalidConfig, String(message));
+      this.recorder.updateStatus(RecStatus.InvalidConfig, String(message));
     } else if (this.recorder.obsState === ERecordingState.Offline) {
-      updateRecStatus(this.mainWindow, RecStatus.WaitingForWoW);
+      this.recorder.updateStatus(RecStatus.WaitingForWoW);
     } else {
-      updateRecStatus(this.mainWindow, RecStatus.ReadyToRecord);
+      this.recorder.updateStatus(RecStatus.ReadyToRecord);
     }
   }
 

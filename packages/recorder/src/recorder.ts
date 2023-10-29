@@ -268,6 +268,12 @@ export class Recorder {
   public obsConfigured = false;
 
   /**
+   * Callback to fire when recording state updates
+   * TODO: MIGHTFIX update this to a proper emitter pattern
+   */
+  public recordingStateChangedCallback: ((status: RecStatus, error?: string) => void) | null = null;
+
+  /**
    * Contructor.
    *
    * @param mainWindow main app window for IPC interaction
@@ -438,22 +444,22 @@ export class Recorder {
       case EOBSOutputSignal.Start:
         this.startQueue.push(obsSignal);
         this.obsState = ERecordingState.Recording;
-        this.updateStatusIcon(RecStatus.ReadyToRecord);
+        this.updateStatus(RecStatus.ReadyToRecord);
         break;
 
       case EOBSOutputSignal.Starting:
         this.obsState = ERecordingState.Starting;
-        this.updateStatusIcon(RecStatus.ReadyToRecord);
+        this.updateStatus(RecStatus.ReadyToRecord);
         break;
 
       case EOBSOutputSignal.Stop:
         this.obsState = ERecordingState.Offline;
-        this.updateStatusIcon(RecStatus.WaitingForWoW);
+        this.updateStatus(RecStatus.WaitingForWoW);
         break;
 
       case EOBSOutputSignal.Stopping:
         this.obsState = ERecordingState.Stopping;
-        this.updateStatusIcon(RecStatus.WaitingForWoW);
+        this.updateStatus(RecStatus.WaitingForWoW);
         break;
 
       case EOBSOutputSignal.Wrote:
@@ -901,7 +907,7 @@ export class Recorder {
       retries--;
     }
 
-    this.updateStatusIcon(RecStatus.Recording);
+    this.updateStatus(RecStatus.Recording);
     this.cancelBufferTimers();
     this.isRecording = true;
   }
@@ -932,7 +938,7 @@ export class Recorder {
     console.info(`[Recorder] Stop recording after overrun: ${overrun}s`);
     const { promise, resolveHelper } = deferredPromiseHelper<void>();
     this.overrunPromise = promise;
-    this.updateStatusIcon(RecStatus.Overruning);
+    this.updateStatus(RecStatus.Overruning);
     this.isOverruning = true;
 
     // Await for the specified overrun.
@@ -1043,7 +1049,7 @@ export class Recorder {
       this.recorderStartDate = new Date();
     } catch (error) {
       console.error(`[Recorder] Failed to start OBS: ${String(error)}`);
-      this.updateStatusIcon(RecStatus.FatalError, String(error));
+      this.updateStatus(RecStatus.FatalError, String(error));
     }
   }
 
@@ -1077,7 +1083,7 @@ export class Recorder {
       this.wroteQueue.empty();
     } catch (error) {
       console.error(`[Recorder] Failed to stop OBS: ${String(error)}`);
-      this.updateStatusIcon(RecStatus.FatalError, String(error));
+      this.updateStatus(RecStatus.FatalError, String(error));
     }
   }
 
@@ -1193,8 +1199,20 @@ export class Recorder {
     }
   }
 
-  private updateStatusIcon(status: RecStatus, err = '') {
-    this.mainWindow.webContents.send('updateRecStatus', status, err);
+  /**
+   * Trigger callbacks when status updates
+   */
+  public onStatusUpdates(callback: (status: RecStatus, err?: string) => void) {
+    this.recordingStateChangedCallback = callback;
+  }
+
+  /**
+   * Set status of recorder
+   */
+  public updateStatus(status: RecStatus, err = '') {
+    if (this.recordingStateChangedCallback) {
+      this.recordingStateChangedCallback(status, err);
+    }
   }
 
   createPreview() {

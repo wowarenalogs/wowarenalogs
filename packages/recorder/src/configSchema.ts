@@ -42,7 +42,7 @@ export type ConfigurationChangeCallback = (
 export const configSchema: Schema<ConfigurationSchema> = {
   storagePath: {
     type: 'string',
-    default: 'D:\\Video', // TODO: MUSTFIX default is bad
+    default: '',
   },
   separateBufferPath: {
     description:

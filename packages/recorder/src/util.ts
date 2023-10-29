@@ -4,7 +4,7 @@ import path from 'path';
 import { app, BrowserWindow, ClientRequestConstructorOptions, Display, net, screen } from 'electron';
 // import { EventType, uIOhook, UiohookKeyboardEvent, UiohookMouseEvent } from 'uiohook-napi';
 import { PTTKeyPressEvent } from './keyTypesUIOHook';
-import { Metadata, FileInfo, FileSortDirection, OurDisplayType, RecStatus, ObsAudioConfig } from './types';
+import { Metadata, FileInfo, FileSortDirection, OurDisplayType, ObsAudioConfig } from './types';
 import { access, existsSync, readdir, readFile, readFileSync, stat, unlink, writeFile } from 'fs-extra';
 
 const getResolvedHtmlPath = () => {
@@ -337,16 +337,6 @@ const getWowFlavour = (pathSpec: string): string => {
   return content.length > 1 ? content[1] : 'unknown';
 };
 
-/**
- * Updates the status icon for the application.
- * @param status the status number
- */
-const updateRecStatus = (mainWindow: BrowserWindow, status: RecStatus, reason = '') => {
-  console.info('[Main] Updating status with:', status, reason);
-  if (mainWindow === null) return;
-  mainWindow.webContents.send('updateRecStatus', status, reason);
-};
-
 const isPushToTalkHotkey = (config: ObsAudioConfig, event: PTTKeyPressEvent) => {
   const { keyCode, mouseButton, altKey, ctrlKey, shiftKey, metaKey } = event;
   const { pushToTalkKey, pushToTalkMouseButton, pushToTalkModifiers } = config;
@@ -446,7 +436,6 @@ export {
   getThumbnailFileNameForVideo,
   getAssetPath,
   getWowFlavour,
-  updateRecStatus,
   isPushToTalkHotkey,
   // nextKeyPressPromise,
   // nextMousePressPromise,

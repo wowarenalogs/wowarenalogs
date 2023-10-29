@@ -1,7 +1,9 @@
+import { ResolutionOptions } from './types';
+
 /**
  * The set of resolutions we allow users to select.
  */
-export const obsResolutions = {
+export const obsResolutions: Record<ResolutionOptions, { width: number; height: number }> = {
   '1024x768': { width: 1024, height: 768 },
   '1280x720': { width: 1280, height: 720 },
   '1280x800': { width: 1280, height: 800 },

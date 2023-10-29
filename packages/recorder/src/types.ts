@@ -19,18 +19,33 @@ export enum MicStatus {
   LISTENING,
 }
 
-/**
- * Application saving status.
- */
-export enum SaveStatus {
-  Saving,
-  NotSaving,
-}
-
 export enum FileSortDirection {
   NewestFirst,
   OldestFirst,
 }
+
+export type ResolutionOptions =
+  | '1024x768'
+  | '1280x720'
+  | '1280x800'
+  | '1280x1024'
+  | '1360x768'
+  | '1366x768'
+  | '1440x900'
+  | '1600x900'
+  | '1680x1050'
+  | '1920x1080'
+  | '1920x1200'
+  | '2560x1080'
+  | '2560x1440'
+  | '2560x1600'
+  | '3440x1440'
+  | '3840x1080'
+  | '3440x1200'
+  | '3840x1440'
+  | '3840x1600'
+  | '3840x2160'
+  | '5120x1440';
 
 /**
  * Specifies the format that we use in Settings to display monitors
