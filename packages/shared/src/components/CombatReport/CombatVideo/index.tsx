@@ -30,15 +30,18 @@ export const CombatVideo = () => {
   const [foundVodRef, setFoundVodRef] = useState<
     { videoPath: string; metadata: ArenaMatchMetadata | ShuffleMatchMetadata } | undefined
   >();
+  const [vodNotFound, setVodNotFound] = useState(false);
 
   useEffect(() => {
     async function find() {
       if (window.wowarenalogs.obs.findVideoForMatch && combat?.id) {
-        // eslint-disable-next-line no-console
         console.log(`Searching for ${combat?.id}`);
         const f = await window.wowarenalogs.obs.findVideoForMatch('D:\\Video', combat.id);
-        // eslint-disable-next-line no-console
-        setFoundVodRef(f);
+        if (f) {
+          setFoundVodRef(f);
+        } else {
+          setVodNotFound(true);
+        }
       }
     }
     find();
@@ -53,6 +56,9 @@ export const CombatVideo = () => {
     vidRef.current.currentTime = getMatchTimeoffsetSeconds(combat.id, foundVodRef.metadata) || MATCH_START_CORRECTION;
   }, [combat, foundVodRef]);
 
+  if (vodNotFound) {
+    return <div className="animate-fadein flex flex-col gap-2">No video found for this match!</div>;
+  }
   if (!combat || !foundVodRef) {
     return null;
   }
