@@ -21,12 +21,14 @@ COPY packages/sql/package.json ./packages/sql
 COPY packages/shared/package.json ./packages/shared
 COPY packages/web/package.json ./packages/web
 COPY packages/parser/package.json ./packages/parser
+COPY packages/recorder/package.json ./packages/recorder
 RUN npm ci
 COPY ./packages/app ./packages/app
 COPY ./packages/sql ./packages/sql
 COPY ./packages/shared ./packages/shared
 COPY ./packages/web ./packages/web
 COPY ./packages/parser ./packages/parser
+COPY ./packages/recorder ./packages/recorder
 
 # Build 
 RUN npm run build:sql
