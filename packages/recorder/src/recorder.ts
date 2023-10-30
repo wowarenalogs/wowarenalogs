@@ -2,8 +2,17 @@
 import { BrowserWindow, screen } from 'electron';
 import fs from 'fs';
 import { isEqual } from 'lodash';
-import * as osn from 'obs-studio-node';
-import { IFader, IInput, IScene, ISceneItem, ISceneItemInfo, ISource } from 'obs-studio-node';
+import type {
+  EOutputSignal,
+  ERecordingFormat,
+  IAdvancedRecording,
+  IFader,
+  IInput,
+  IScene,
+  ISceneItem,
+  ISceneItemInfo,
+  ISource,
+} from 'obs-studio-node';
 import path from 'path';
 import { v4 as uuidfn } from 'uuid';
 import WaitQueue from 'wait-queue';
@@ -47,6 +56,8 @@ import {
   tryUnlink,
 } from './util';
 import VideoProcessQueue from './videoProcessQueue';
+
+let osn: typeof import('obs-studio-node');
 
 /**
  * Class for handing the interface between Warcraft Recorder and OBS.
@@ -100,7 +111,7 @@ export class Recorder {
   /**
    * Shiny new OSN API object for controlling OBS.
    */
-  private obsRecordingFactory: osn.IAdvancedRecording | undefined;
+  private obsRecordingFactory: IAdvancedRecording | undefined;
 
   /**
    * ConfigService instance.
@@ -204,13 +215,13 @@ export class Recorder {
    * WaitQueue object for storing signalling from OBS. We only care about
    * start signals here which indicate the recording has started.
    */
-  private startQueue = new WaitQueue<osn.EOutputSignal>();
+  private startQueue = new WaitQueue<EOutputSignal>();
 
   /**
    * WaitQueue object for storing signalling from OBS. We only care about
    * wrote signals here which indicate the video file has been written.
    */
-  private wroteQueue = new WaitQueue<osn.EOutputSignal>();
+  private wroteQueue = new WaitQueue<EOutputSignal>();
 
   /**
    * Name we use to create and reference the preview display.
@@ -271,6 +282,17 @@ export class Recorder {
    * TODO: MIGHTFIX update this to a proper emitter pattern
    */
   public recordingStateChangedCallback: ((status: RecStatus, error?: string) => void) | null = null;
+
+  /**
+   * Load OBS libraries as a DLL instead of through static imports
+   * This is to let implementers choose to simply not bundle OBS libraries for platforms
+   * where recording won't be supported
+   *
+   * MUST be called before Recorder is constructed!
+   */
+  static async loadOBSLibraries() {
+    osn = await import('obs-studio-node');
+  }
 
   /**
    * Contructor.
@@ -382,55 +404,63 @@ export class Recorder {
       outputHeight: height,
       // Bit of a mess here to keep typescript happy and make this readable.
       // See https://github.com/stream-labs/obs-studio-node/issues/1260.
-      outputFormat: EVideoFormat.NV12 as unknown as osn.EVideoFormat,
-      colorspace: EColorSpace.CS709 as unknown as osn.EColorSpace,
-      scaleType: EScaleType.Bicubic as unknown as osn.EScaleType,
-      fpsType: EFPSType.Fractional as unknown as osn.EFPSType,
-      range: colorRange as unknown as osn.ERangeType,
+      // TODO: MIGHTFIX these enums are pure fuckery
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      outputFormat: EVideoFormat.NV12 as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      colorspace: EColorSpace.CS709 as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      scaleType: EScaleType.Bicubic as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      fpsType: EFPSType.Fractional as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      range: colorRange as unknown as any,
     };
 
     if (!this.obsRecordingFactory) {
       this.obsRecordingFactory = osn.AdvancedRecordingFactory.create();
     }
 
-    this.obsRecordingFactory.path = path.normalize(this.bufferStorageDir);
-    this.obsRecordingFactory.format = 'mp4' as osn.ERecordingFormat;
-    this.obsRecordingFactory.useStreamEncoders = false;
-    this.obsRecordingFactory.overwrite = false;
-    this.obsRecordingFactory.noSpace = false;
+    if (this.obsRecordingFactory) {
+      this.obsRecordingFactory.path = path.normalize(this.bufferStorageDir);
+      this.obsRecordingFactory.format = 'mp4' as ERecordingFormat;
+      this.obsRecordingFactory.useStreamEncoders = false;
+      this.obsRecordingFactory.overwrite = false;
+      this.obsRecordingFactory.noSpace = false;
 
-    // This function is defined here:
-    //   (client) https://github.com/stream-labs/obs-studio-node/blob/staging/obs-studio-client/source/video-encoder.cpp
-    //   (server) https://github.com/stream-labs/obs-studio-node/blob/staging/obs-studio-server/source/osn-video-encoder.cpp
-    //
-    // Ideally we'd pass the 3rd arg with all the settings, but it seems that
-    // hasn't been implemented so we instead call .update() shortly after.
-    this.obsRecordingFactory.videoEncoder = osn.VideoEncoderFactory.create(obsRecEncoder, 'WR-video-encoder', {});
+      // This function is defined here:
+      //   (client) https://github.com/stream-labs/obs-studio-node/blob/staging/obs-studio-client/source/video-encoder.cpp
+      //   (server) https://github.com/stream-labs/obs-studio-node/blob/staging/obs-studio-server/source/osn-video-encoder.cpp
+      //
+      // Ideally we'd pass the 3rd arg with all the settings, but it seems that
+      // hasn't been implemented so we instead call .update() shortly after.
+      this.obsRecordingFactory.videoEncoder = osn.VideoEncoderFactory.create(obsRecEncoder, 'WR-video-encoder', {});
 
-    this.obsRecordingFactory.videoEncoder.update({
-      rate_control: 'VBR',
-      bitrate: obsKBitRate * 1000,
-      max_bitrate: obsKBitRate * 1000,
-    });
-
-    // Not totally clear why AMF is a special case here. Theory is that as it
-    // is a plugin to OBS (it's a seperate github repo), and the likes of the
-    // nvenc/x264 encoders are native to OBS so have homogenized settings. We
-    // add a 1.5 multiplier onto the peak from what the user sets here.
-    if (obsRecEncoder === ESupportedEncoders.AMD_AMF_H264) {
       this.obsRecordingFactory.videoEncoder.update({
-        'Bitrate.Peak': obsKBitRate * 1000 * 1.5,
+        rate_control: 'VBR',
+        bitrate: obsKBitRate * 1000,
+        max_bitrate: obsKBitRate * 1000,
       });
+
+      // Not totally clear why AMF is a special case here. Theory is that as it
+      // is a plugin to OBS (it's a seperate github repo), and the likes of the
+      // nvenc/x264 encoders are native to OBS so have homogenized settings. We
+      // add a 1.5 multiplier onto the peak from what the user sets here.
+      if (obsRecEncoder === ESupportedEncoders.AMD_AMF_H264) {
+        this.obsRecordingFactory.videoEncoder.update({
+          'Bitrate.Peak': obsKBitRate * 1000 * 1.5,
+        });
+      }
+
+      console.info('Video encoder settings:', this.obsRecordingFactory.videoEncoder.settings);
+
+      this.obsRecordingFactory.signalHandler = (signal) => {
+        this.handleSignal(signal);
+      };
     }
-
-    console.info('Video encoder settings:', this.obsRecordingFactory.videoEncoder.settings);
-
-    this.obsRecordingFactory.signalHandler = (signal) => {
-      this.handleSignal(signal);
-    };
   }
 
-  private handleSignal(obsSignal: osn.EOutputSignal) {
+  private handleSignal(obsSignal: EOutputSignal) {
     console.info('[Recorder] Got signal:', obsSignal);
 
     if (obsSignal.type !== 'recording') {

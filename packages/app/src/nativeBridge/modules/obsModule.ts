@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { ArenaMatchEndInfo, ArenaMatchStartInfo, CombatResult, WowVersion } from '@wowarenalogs/parser';
-import { ConfigurationSchema, IActivity, Manager, RecStatus } from '@wowarenalogs/recorder';
+import { ConfigurationSchema, IActivity, Manager, Recorder, RecStatus } from '@wowarenalogs/recorder';
 import { BrowserWindow, dialog } from 'electron';
 import { readdir, readFile } from 'fs-extra';
 import path from 'path';
@@ -53,11 +53,13 @@ export class ObsModule extends NativeBridgeModule {
 
   public onRegistered(mainWindow: BrowserWindow): void {
     if (process.platform === 'win32') {
-      this.manager = new Manager(mainWindow);
-      this.manager.subscribeToConfigurationUpdates((newValue, _oldValue) => {
-        this.configUpdated(mainWindow, newValue);
+      Recorder.loadOBSLibraries().then(() => {
+        this.manager = new Manager(mainWindow);
+        this.manager.subscribeToConfigurationUpdates((newValue, _oldValue) => {
+          this.configUpdated(mainWindow, newValue);
+        });
+        this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
       });
-      this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
     }
   }
 
