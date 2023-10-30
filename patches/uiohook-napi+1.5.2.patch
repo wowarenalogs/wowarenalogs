@@ -1,0 +1,1188 @@
+diff --git a/node_modules/uiohook-napi/build/Release/libuiohook.lib b/node_modules/uiohook-napi/build/Release/libuiohook.lib
+new file mode 100644
+index 0000000..2ab81e8
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/libuiohook.lib differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.lib.recipe b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.lib.recipe
+new file mode 100644
+index 0000000..129347d
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.lib.recipe
+@@ -0,0 +1,7 @@
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project>
++  <ProjectOutputs />
++  <ContentFiles />
++  <SatelliteDlls />
++  <NonRecipeFileRefs />
++</Project>
+\ No newline at end of file
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/CL.command.1.tlog b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/CL.command.1.tlog
+new file mode 100644
+index 0000000..2a0acd3
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/CL.command.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/CL.read.1.tlog b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/CL.read.1.tlog
+new file mode 100644
+index 0000000..7c889df
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/CL.read.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/CL.write.1.tlog b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/CL.write.1.tlog
+new file mode 100644
+index 0000000..30b2283
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/CL.write.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Cl.items.tlog b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Cl.items.tlog
+new file mode 100644
+index 0000000..c382110
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Cl.items.tlog
+@@ -0,0 +1,6 @@
++D:\Github\wowarenalogs\node_modules\uiohook-napi\libuiohook\src\logger.c;D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\obj\libuiohook\libuiohook\src\logger.obj
++D:\Github\wowarenalogs\node_modules\uiohook-napi\libuiohook\src\windows\input_helper.c;D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\obj\libuiohook\libuiohook\src\windows\input_helper.obj
++D:\Github\wowarenalogs\node_modules\uiohook-napi\libuiohook\src\windows\input_hook.c;D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\obj\libuiohook\libuiohook\src\windows\input_hook.obj
++D:\Github\wowarenalogs\node_modules\uiohook-napi\libuiohook\src\windows\post_event.c;D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\obj\libuiohook\libuiohook\src\windows\post_event.obj
++D:\Github\wowarenalogs\node_modules\uiohook-napi\libuiohook\src\windows\system_properties.c;D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\obj\libuiohook\libuiohook\src\windows\system_properties.obj
++D:\Github\wowarenalogs\node_modules\node-gyp\src\win_delay_load_hook.cc;D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\obj\libuiohook\win_delay_load_hook.obj
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Lib-link.read.1.tlog b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Lib-link.read.1.tlog
+new file mode 100644
+index 0000000..936f7b6
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Lib-link.read.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Lib-link.write.1.tlog b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Lib-link.write.1.tlog
+new file mode 100644
+index 0000000..abb2623
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Lib-link.write.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Lib.command.1.tlog b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Lib.command.1.tlog
+new file mode 100644
+index 0000000..1c636f0
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/Lib.command.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/libuiohook.lastbuildstate b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/libuiohook.lastbuildstate
+new file mode 100644
+index 0000000..a02505f
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook.tlog/libuiohook.lastbuildstate
+@@ -0,0 +1,2 @@
++PlatformToolSet=v143:VCToolArchitecture=Native64Bit:VCToolsVersion=14.37.32822:TargetPlatformVersion=10.0.22621.0:
++Release|x64|D:\Github\wowarenalogs\node_modules\uiohook-napi\build\|
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/logger.obj b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/logger.obj
+new file mode 100644
+index 0000000..35d09ed
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/logger.obj differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/input_helper.obj b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/input_helper.obj
+new file mode 100644
+index 0000000..d1e13b6
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/input_helper.obj differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/input_hook.obj b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/input_hook.obj
+new file mode 100644
+index 0000000..e7b3e15
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/input_hook.obj differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/post_event.obj b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/post_event.obj
+new file mode 100644
+index 0000000..3ed5d82
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/post_event.obj differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/system_properties.obj b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/system_properties.obj
+new file mode 100644
+index 0000000..121eb3a
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/libuiohook/src/windows/system_properties.obj differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/libuiohook/win_delay_load_hook.obj b/node_modules/uiohook-napi/build/Release/obj/libuiohook/win_delay_load_hook.obj
+new file mode 100644
+index 0000000..f8d5da2
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/libuiohook/win_delay_load_hook.obj differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/src/lib/addon.obj b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/src/lib/addon.obj
+new file mode 100644
+index 0000000..b158167
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/src/lib/addon.obj differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/src/lib/napi_helpers.obj b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/src/lib/napi_helpers.obj
+new file mode 100644
+index 0000000..690a361
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/src/lib/napi_helpers.obj differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/src/lib/uiohook_worker.obj b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/src/lib/uiohook_worker.obj
+new file mode 100644
+index 0000000..a6d1b9c
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/src/lib/uiohook_worker.obj differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.node.recipe b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.node.recipe
+new file mode 100644
+index 0000000..52edb6a
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.node.recipe
+@@ -0,0 +1,11 @@
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project>
++  <ProjectOutputs>
++    <ProjectOutput>
++      <FullPath>D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\uiohook_napi.node</FullPath>
++    </ProjectOutput>
++  </ProjectOutputs>
++  <ContentFiles />
++  <SatelliteDlls />
++  <NonRecipeFileRefs />
++</Project>
+\ No newline at end of file
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/CL.command.1.tlog b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/CL.command.1.tlog
+new file mode 100644
+index 0000000..6258013
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/CL.command.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/CL.read.1.tlog b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/CL.read.1.tlog
+new file mode 100644
+index 0000000..db202d0
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/CL.read.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/CL.write.1.tlog b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/CL.write.1.tlog
+new file mode 100644
+index 0000000..4358e19
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/CL.write.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/Cl.items.tlog b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/Cl.items.tlog
+new file mode 100644
+index 0000000..a11d3ae
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/Cl.items.tlog
+@@ -0,0 +1,4 @@
++D:\Github\wowarenalogs\node_modules\uiohook-napi\src\lib\addon.c;D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\obj\uiohook_napi\src\lib\addon.obj
++D:\Github\wowarenalogs\node_modules\uiohook-napi\src\lib\napi_helpers.c;D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\obj\uiohook_napi\src\lib\napi_helpers.obj
++D:\Github\wowarenalogs\node_modules\uiohook-napi\src\lib\uiohook_worker.c;D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\obj\uiohook_napi\src\lib\uiohook_worker.obj
++D:\Github\wowarenalogs\node_modules\node-gyp\src\win_delay_load_hook.cc;D:\Github\wowarenalogs\node_modules\uiohook-napi\build\Release\obj\uiohook_napi\win_delay_load_hook.obj
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.command.1.tlog b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.command.1.tlog
+new file mode 100644
+index 0000000..fb713f8
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.command.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.read.1.tlog b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.read.1.tlog
+new file mode 100644
+index 0000000..a6da18f
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.read.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.write.1.tlog b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.write.1.tlog
+new file mode 100644
+index 0000000..d019601
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.write.1.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.write.2u.tlog b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.write.2u.tlog
+new file mode 100644
+index 0000000..b4a0a30
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/link.write.2u.tlog differ
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/uiohook_napi.lastbuildstate b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/uiohook_napi.lastbuildstate
+new file mode 100644
+index 0000000..a02505f
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/uiohook_napi.tlog/uiohook_napi.lastbuildstate
+@@ -0,0 +1,2 @@
++PlatformToolSet=v143:VCToolArchitecture=Native64Bit:VCToolsVersion=14.37.32822:TargetPlatformVersion=10.0.22621.0:
++Release|x64|D:\Github\wowarenalogs\node_modules\uiohook-napi\build\|
+diff --git a/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/win_delay_load_hook.obj b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/win_delay_load_hook.obj
+new file mode 100644
+index 0000000..23b11e0
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/obj/uiohook_napi/win_delay_load_hook.obj differ
+diff --git a/node_modules/uiohook-napi/build/Release/uiohook_napi.exp b/node_modules/uiohook-napi/build/Release/uiohook_napi.exp
+new file mode 100644
+index 0000000..2eea6da
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/uiohook_napi.exp differ
+diff --git a/node_modules/uiohook-napi/build/Release/uiohook_napi.iobj b/node_modules/uiohook-napi/build/Release/uiohook_napi.iobj
+new file mode 100644
+index 0000000..f83792b
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/uiohook_napi.iobj differ
+diff --git a/node_modules/uiohook-napi/build/Release/uiohook_napi.ipdb b/node_modules/uiohook-napi/build/Release/uiohook_napi.ipdb
+new file mode 100644
+index 0000000..492ceed
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/uiohook_napi.ipdb differ
+diff --git a/node_modules/uiohook-napi/build/Release/uiohook_napi.lib b/node_modules/uiohook-napi/build/Release/uiohook_napi.lib
+new file mode 100644
+index 0000000..adaa10c
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/uiohook_napi.lib differ
+diff --git a/node_modules/uiohook-napi/build/Release/uiohook_napi.node b/node_modules/uiohook-napi/build/Release/uiohook_napi.node
+new file mode 100644
+index 0000000..d4172c8
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/uiohook_napi.node differ
+diff --git a/node_modules/uiohook-napi/build/Release/uiohook_napi.pdb b/node_modules/uiohook-napi/build/Release/uiohook_napi.pdb
+new file mode 100644
+index 0000000..19da938
+Binary files /dev/null and b/node_modules/uiohook-napi/build/Release/uiohook_napi.pdb differ
+diff --git a/node_modules/uiohook-napi/build/binding.sln b/node_modules/uiohook-napi/build/binding.sln
+new file mode 100644
+index 0000000..c14f4d5
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/binding.sln
+@@ -0,0 +1,28 @@
++Microsoft Visual Studio Solution File, Format Version 12.00
++# Visual Studio 2015
++Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libuiohook", "libuiohook.vcxproj", "{A510941F-EF2C-E4A1-BC26-6AF8F95EEB3C}"
++EndProject
++Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "uiohook_napi", "uiohook_napi.vcxproj", "{0AFB0EF2-CC9F-F017-AD72-21F289C3570A}"
++	ProjectSection(ProjectDependencies) = postProject
++		{A510941F-EF2C-E4A1-BC26-6AF8F95EEB3C} = {A510941F-EF2C-E4A1-BC26-6AF8F95EEB3C}
++	EndProjectSection
++EndProject
++Global
++	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Debug|x64 = Debug|x64
++		Release|x64 = Release|x64
++	EndGlobalSection
++	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{0AFB0EF2-CC9F-F017-AD72-21F289C3570A}.Debug|x64.ActiveCfg = Debug|x64
++		{0AFB0EF2-CC9F-F017-AD72-21F289C3570A}.Debug|x64.Build.0 = Debug|x64
++		{0AFB0EF2-CC9F-F017-AD72-21F289C3570A}.Release|x64.ActiveCfg = Release|x64
++		{0AFB0EF2-CC9F-F017-AD72-21F289C3570A}.Release|x64.Build.0 = Release|x64
++		{A510941F-EF2C-E4A1-BC26-6AF8F95EEB3C}.Debug|x64.ActiveCfg = Debug|x64
++		{A510941F-EF2C-E4A1-BC26-6AF8F95EEB3C}.Debug|x64.Build.0 = Debug|x64
++		{A510941F-EF2C-E4A1-BC26-6AF8F95EEB3C}.Release|x64.ActiveCfg = Release|x64
++		{A510941F-EF2C-E4A1-BC26-6AF8F95EEB3C}.Release|x64.Build.0 = Release|x64
++	EndGlobalSection
++	GlobalSection(SolutionProperties) = preSolution
++		HideSolutionNode = FALSE
++	EndGlobalSection
++EndGlobal
+diff --git a/node_modules/uiohook-napi/build/config.gypi b/node_modules/uiohook-napi/build/config.gypi
+new file mode 100644
+index 0000000..89a11f3
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/config.gypi
+@@ -0,0 +1,423 @@
++# Do not edit. File was generated by node-gyp's "configure" step
++{
++  "target_defaults": {
++    "cflags": [],
++    "default_configuration": "Release",
++    "defines": [],
++    "include_dirs": [],
++    "libraries": [],
++    "msbuild_toolset": "v143",
++    "msvs_windows_target_platform_version": "10.0.22621.0"
++  },
++  "variables": {
++    "asan": 0,
++    "build_v8_with_gn": "false",
++    "built_with_electron": 1,
++    "coverage": "false",
++    "dcheck_always_on": 0,
++    "debug_nghttp2": "false",
++    "debug_node": "false",
++    "enable_lto": "false",
++    "enable_pgo_generate": "false",
++    "enable_pgo_use": "false",
++    "error_on_warn": "false",
++    "force_dynamic_crt": 0,
++    "host_arch": "x64",
++    "icu_data_in": "..\\..\\deps\\icu-tmp\\icudt73l.dat",
++    "icu_endianness": "l",
++    "icu_gyp_path": "tools/icu/icu-generic.gyp",
++    "icu_path": "deps/icu-small",
++    "icu_small": "false",
++    "icu_ver_major": "73",
++    "is_debug": 0,
++    "libdir": "lib",
++    "llvm_version": "0.0",
++    "napi_build_version": "9",
++    "node_builtin_shareable_builtins": [
++      "deps/cjs-module-lexer/lexer.js",
++      "deps/cjs-module-lexer/dist/lexer.js",
++      "deps/undici/undici.js"
++    ],
++    "node_byteorder": "little",
++    "node_debug_lib": "false",
++    "node_enable_d8": "false",
++    "node_enable_v8_vtunejit": "false",
++    "node_fipsinstall": "false",
++    "node_install_corepack": "true",
++    "node_install_npm": "true",
++    "node_library_files": [
++      "lib/_http_agent.js",
++      "lib/_http_client.js",
++      "lib/_http_common.js",
++      "lib/_http_incoming.js",
++      "lib/_http_outgoing.js",
++      "lib/_http_server.js",
++      "lib/_stream_duplex.js",
++      "lib/_stream_passthrough.js",
++      "lib/_stream_readable.js",
++      "lib/_stream_transform.js",
++      "lib/_stream_wrap.js",
++      "lib/_stream_writable.js",
++      "lib/_tls_common.js",
++      "lib/_tls_wrap.js",
++      "lib/assert.js",
++      "lib/assert/strict.js",
++      "lib/async_hooks.js",
++      "lib/buffer.js",
++      "lib/child_process.js",
++      "lib/cluster.js",
++      "lib/console.js",
++      "lib/constants.js",
++      "lib/crypto.js",
++      "lib/dgram.js",
++      "lib/diagnostics_channel.js",
++      "lib/dns.js",
++      "lib/dns/promises.js",
++      "lib/domain.js",
++      "lib/events.js",
++      "lib/fs.js",
++      "lib/fs/promises.js",
++      "lib/http.js",
++      "lib/http2.js",
++      "lib/https.js",
++      "lib/inspector.js",
++      "lib/internal/abort_controller.js",
++      "lib/internal/assert.js",
++      "lib/internal/assert/assertion_error.js",
++      "lib/internal/assert/calltracker.js",
++      "lib/internal/async_hooks.js",
++      "lib/internal/blob.js",
++      "lib/internal/blocklist.js",
++      "lib/internal/bootstrap/browser.js",
++      "lib/internal/bootstrap/loaders.js",
++      "lib/internal/bootstrap/node.js",
++      "lib/internal/bootstrap/switches/does_not_own_process_state.js",
++      "lib/internal/bootstrap/switches/does_own_process_state.js",
++      "lib/internal/bootstrap/switches/is_main_thread.js",
++      "lib/internal/bootstrap/switches/is_not_main_thread.js",
++      "lib/internal/buffer.js",
++      "lib/internal/child_process.js",
++      "lib/internal/child_process/serialization.js",
++      "lib/internal/cli_table.js",
++      "lib/internal/cluster/child.js",
++      "lib/internal/cluster/primary.js",
++      "lib/internal/cluster/round_robin_handle.js",
++      "lib/internal/cluster/shared_handle.js",
++      "lib/internal/cluster/utils.js",
++      "lib/internal/cluster/worker.js",
++      "lib/internal/console/constructor.js",
++      "lib/internal/console/global.js",
++      "lib/internal/constants.js",
++      "lib/internal/crypto/aes.js",
++      "lib/internal/crypto/certificate.js",
++      "lib/internal/crypto/cfrg.js",
++      "lib/internal/crypto/cipher.js",
++      "lib/internal/crypto/diffiehellman.js",
++      "lib/internal/crypto/ec.js",
++      "lib/internal/crypto/hash.js",
++      "lib/internal/crypto/hashnames.js",
++      "lib/internal/crypto/hkdf.js",
++      "lib/internal/crypto/keygen.js",
++      "lib/internal/crypto/keys.js",
++      "lib/internal/crypto/mac.js",
++      "lib/internal/crypto/pbkdf2.js",
++      "lib/internal/crypto/random.js",
++      "lib/internal/crypto/rsa.js",
++      "lib/internal/crypto/scrypt.js",
++      "lib/internal/crypto/sig.js",
++      "lib/internal/crypto/util.js",
++      "lib/internal/crypto/webcrypto.js",
++      "lib/internal/crypto/webidl.js",
++      "lib/internal/crypto/x509.js",
++      "lib/internal/debugger/inspect.js",
++      "lib/internal/debugger/inspect_client.js",
++      "lib/internal/debugger/inspect_repl.js",
++      "lib/internal/dgram.js",
++      "lib/internal/dns/callback_resolver.js",
++      "lib/internal/dns/promises.js",
++      "lib/internal/dns/utils.js",
++      "lib/internal/dtrace.js",
++      "lib/internal/encoding.js",
++      "lib/internal/error_serdes.js",
++      "lib/internal/errors.js",
++      "lib/internal/event_target.js",
++      "lib/internal/file.js",
++      "lib/internal/fixed_queue.js",
++      "lib/internal/freelist.js",
++      "lib/internal/freeze_intrinsics.js",
++      "lib/internal/fs/cp/cp-sync.js",
++      "lib/internal/fs/cp/cp.js",
++      "lib/internal/fs/dir.js",
++      "lib/internal/fs/promises.js",
++      "lib/internal/fs/read_file_context.js",
++      "lib/internal/fs/recursive_watch.js",
++      "lib/internal/fs/rimraf.js",
++      "lib/internal/fs/streams.js",
++      "lib/internal/fs/sync_write_stream.js",
++      "lib/internal/fs/utils.js",
++      "lib/internal/fs/watchers.js",
++      "lib/internal/heap_utils.js",
++      "lib/internal/histogram.js",
++      "lib/internal/http.js",
++      "lib/internal/http2/compat.js",
++      "lib/internal/http2/core.js",
++      "lib/internal/http2/util.js",
++      "lib/internal/idna.js",
++      "lib/internal/inspector_async_hook.js",
++      "lib/internal/js_stream_socket.js",
++      "lib/internal/legacy/processbinding.js",
++      "lib/internal/linkedlist.js",
++      "lib/internal/main/check_syntax.js",
++      "lib/internal/main/environment.js",
++      "lib/internal/main/eval_stdin.js",
++      "lib/internal/main/eval_string.js",
++      "lib/internal/main/inspect.js",
++      "lib/internal/main/mksnapshot.js",
++      "lib/internal/main/print_help.js",
++      "lib/internal/main/prof_process.js",
++      "lib/internal/main/repl.js",
++      "lib/internal/main/run_main_module.js",
++      "lib/internal/main/single_executable_application.js",
++      "lib/internal/main/test_runner.js",
++      "lib/internal/main/watch_mode.js",
++      "lib/internal/main/worker_thread.js",
++      "lib/internal/mime.js",
++      "lib/internal/modules/cjs/helpers.js",
++      "lib/internal/modules/cjs/loader.js",
++      "lib/internal/modules/esm/assert.js",
++      "lib/internal/modules/esm/create_dynamic_module.js",
++      "lib/internal/modules/esm/fetch_module.js",
++      "lib/internal/modules/esm/formats.js",
++      "lib/internal/modules/esm/get_format.js",
++      "lib/internal/modules/esm/handle_process_exit.js",
++      "lib/internal/modules/esm/initialize_import_meta.js",
++      "lib/internal/modules/esm/load.js",
++      "lib/internal/modules/esm/loader.js",
++      "lib/internal/modules/esm/module_job.js",
++      "lib/internal/modules/esm/module_map.js",
++      "lib/internal/modules/esm/package_config.js",
++      "lib/internal/modules/esm/resolve.js",
++      "lib/internal/modules/esm/translators.js",
++      "lib/internal/modules/esm/utils.js",
++      "lib/internal/modules/package_json_reader.js",
++      "lib/internal/modules/run_main.js",
++      "lib/internal/net.js",
++      "lib/internal/options.js",
++      "lib/internal/per_context/domexception.js",
++      "lib/internal/per_context/messageport.js",
++      "lib/internal/per_context/primordials.js",
++      "lib/internal/perf/event_loop_delay.js",
++      "lib/internal/perf/event_loop_utilization.js",
++      "lib/internal/perf/nodetiming.js",
++      "lib/internal/perf/observe.js",
++      "lib/internal/perf/performance.js",
++      "lib/internal/perf/performance_entry.js",
++      "lib/internal/perf/resource_timing.js",
++      "lib/internal/perf/timerify.js",
++      "lib/internal/perf/usertiming.js",
++      "lib/internal/perf/utils.js",
++      "lib/internal/policy/manifest.js",
++      "lib/internal/policy/sri.js",
++      "lib/internal/priority_queue.js",
++      "lib/internal/process/esm_loader.js",
++      "lib/internal/process/execution.js",
++      "lib/internal/process/per_thread.js",
++      "lib/internal/process/policy.js",
++      "lib/internal/process/pre_execution.js",
++      "lib/internal/process/promises.js",
++      "lib/internal/process/report.js",
++      "lib/internal/process/signal.js",
++      "lib/internal/process/task_queues.js",
++      "lib/internal/process/warning.js",
++      "lib/internal/process/worker_thread_only.js",
++      "lib/internal/promise_hooks.js",
++      "lib/internal/querystring.js",
++      "lib/internal/readline/callbacks.js",
++      "lib/internal/readline/emitKeypressEvents.js",
++      "lib/internal/readline/interface.js",
++      "lib/internal/readline/promises.js",
++      "lib/internal/readline/utils.js",
++      "lib/internal/repl.js",
++      "lib/internal/repl/await.js",
++      "lib/internal/repl/history.js",
++      "lib/internal/repl/utils.js",
++      "lib/internal/socket_list.js",
++      "lib/internal/socketaddress.js",
++      "lib/internal/source_map/prepare_stack_trace.js",
++      "lib/internal/source_map/source_map.js",
++      "lib/internal/source_map/source_map_cache.js",
++      "lib/internal/stream_base_commons.js",
++      "lib/internal/streams/add-abort-signal.js",
++      "lib/internal/streams/buffer_list.js",
++      "lib/internal/streams/compose.js",
++      "lib/internal/streams/destroy.js",
++      "lib/internal/streams/duplex.js",
++      "lib/internal/streams/duplexify.js",
++      "lib/internal/streams/end-of-stream.js",
++      "lib/internal/streams/from.js",
++      "lib/internal/streams/lazy_transform.js",
++      "lib/internal/streams/legacy.js",
++      "lib/internal/streams/operators.js",
++      "lib/internal/streams/passthrough.js",
++      "lib/internal/streams/pipeline.js",
++      "lib/internal/streams/readable.js",
++      "lib/internal/streams/state.js",
++      "lib/internal/streams/transform.js",
++      "lib/internal/streams/utils.js",
++      "lib/internal/streams/writable.js",
++      "lib/internal/structured_clone.js",
++      "lib/internal/test/binding.js",
++      "lib/internal/test/transfer.js",
++      "lib/internal/test_runner/coverage.js",
++      "lib/internal/test_runner/harness.js",
++      "lib/internal/test_runner/mock.js",
++      "lib/internal/test_runner/reporter/dot.js",
++      "lib/internal/test_runner/reporter/spec.js",
++      "lib/internal/test_runner/reporter/tap.js",
++      "lib/internal/test_runner/reporter/v8-serializer.js",
++      "lib/internal/test_runner/runner.js",
++      "lib/internal/test_runner/test.js",
++      "lib/internal/test_runner/tests_stream.js",
++      "lib/internal/test_runner/utils.js",
++      "lib/internal/timers.js",
++      "lib/internal/tls/secure-context.js",
++      "lib/internal/tls/secure-pair.js",
++      "lib/internal/trace_events_async_hooks.js",
++      "lib/internal/tty.js",
++      "lib/internal/url.js",
++      "lib/internal/util.js",
++      "lib/internal/util/colors.js",
++      "lib/internal/util/comparisons.js",
++      "lib/internal/util/debuglog.js",
++      "lib/internal/util/inspect.js",
++      "lib/internal/util/inspector.js",
++      "lib/internal/util/iterable_weak_map.js",
++      "lib/internal/util/parse_args/parse_args.js",
++      "lib/internal/util/parse_args/utils.js",
++      "lib/internal/util/types.js",
++      "lib/internal/v8/startup_snapshot.js",
++      "lib/internal/v8_prof_polyfill.js",
++      "lib/internal/v8_prof_processor.js",
++      "lib/internal/validators.js",
++      "lib/internal/vm.js",
++      "lib/internal/vm/module.js",
++      "lib/internal/wasm_web_api.js",
++      "lib/internal/watch_mode/files_watcher.js",
++      "lib/internal/watchdog.js",
++      "lib/internal/webidl.js",
++      "lib/internal/webstreams/adapters.js",
++      "lib/internal/webstreams/compression.js",
++      "lib/internal/webstreams/encoding.js",
++      "lib/internal/webstreams/queuingstrategies.js",
++      "lib/internal/webstreams/readablestream.js",
++      "lib/internal/webstreams/transfer.js",
++      "lib/internal/webstreams/transformstream.js",
++      "lib/internal/webstreams/util.js",
++      "lib/internal/webstreams/writablestream.js",
++      "lib/internal/worker.js",
++      "lib/internal/worker/io.js",
++      "lib/internal/worker/js_transferable.js",
++      "lib/module.js",
++      "lib/net.js",
++      "lib/os.js",
++      "lib/path.js",
++      "lib/path/posix.js",
++      "lib/path/win32.js",
++      "lib/perf_hooks.js",
++      "lib/process.js",
++      "lib/punycode.js",
++      "lib/querystring.js",
++      "lib/readline.js",
++      "lib/readline/promises.js",
++      "lib/repl.js",
++      "lib/stream.js",
++      "lib/stream/consumers.js",
++      "lib/stream/promises.js",
++      "lib/stream/web.js",
++      "lib/string_decoder.js",
++      "lib/sys.js",
++      "lib/test.js",
++      "lib/test/reporters.js",
++      "lib/timers.js",
++      "lib/timers/promises.js",
++      "lib/tls.js",
++      "lib/trace_events.js",
++      "lib/tty.js",
++      "lib/url.js",
++      "lib/util.js",
++      "lib/util/types.js",
++      "lib/v8.js",
++      "lib/vm.js",
++      "lib/wasi.js",
++      "lib/worker_threads.js",
++      "lib/zlib.js"
++    ],
++    "node_module_version": 118,
++    "node_no_browser_globals": "false",
++    "node_prefix": "\\usr\\local",
++    "node_release_urlbase": "",
++    "node_shared": "false",
++    "node_shared_brotli": "false",
++    "node_shared_cares": "false",
++    "node_shared_http_parser": "false",
++    "node_shared_libuv": "false",
++    "node_shared_nghttp2": "false",
++    "node_shared_nghttp3": "false",
++    "node_shared_ngtcp2": "false",
++    "node_shared_openssl": "false",
++    "node_shared_zlib": "false",
++    "node_tag": "",
++    "node_target_type": "executable",
++    "node_use_bundled_v8": "true",
++    "node_use_dtrace": "false",
++    "node_use_etw": "true",
++    "node_use_node_code_cache": "true",
++    "node_use_node_snapshot": "true",
++    "node_use_openssl": "true",
++    "node_use_v8_platform": "true",
++    "node_with_ltcg": "true",
++    "node_without_node_options": "false",
++    "openssl_is_fips": "false",
++    "openssl_no_asm": 1,
++    "openssl_quic": "true",
++    "ossfuzz": "false",
++    "shlib_suffix": "so.108",
++    "single_executable_application": "true",
++    "target_arch": "x64",
++    "using_electron_config_gypi": 1,
++    "v8_enable_31bit_smis_on_64bit_arch": 1,
++    "v8_enable_gdbjit": 0,
++    "v8_enable_hugepage": 0,
++    "v8_enable_i18n_support": 1,
++    "v8_enable_inspector": 1,
++    "v8_enable_javascript_promise_hooks": 1,
++    "v8_enable_lite_mode": 0,
++    "v8_enable_object_print": 1,
++    "v8_enable_pointer_compression": 1,
++    "v8_enable_sandbox": 1,
++    "v8_enable_shared_ro_heap": 0,
++    "v8_enable_short_builtin_calls": 1,
++    "v8_enable_webassembly": 1,
++    "v8_no_strict_aliasing": 1,
++    "v8_optimized_debug": 1,
++    "v8_promise_internal_field_count": 1,
++    "v8_random_seed": 0,
++    "v8_trace_maps": 0,
++    "v8_use_siphash": 1,
++    "want_separate_host_toolset": 0,
++    "nodedir": "C:\\Users\\banthur\\AppData\\Local\\node-gyp\\Cache\\27.0.2",
++    "standalone_static_library": 1,
++    "msbuild_path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe",
++    "target": "27.0.2",
++    "cache": "C:\\Users\\banthur\\AppData\\Local\\npm-cache",
++    "globalconfig": "C:\\Program Files\\nodejs\\etc\\npmrc",
++    "global_prefix": "C:\\Program Files\\nodejs",
++    "init_module": "C:\\Users\\banthur\\.npm-init.js",
++    "local_prefix": "D:\\Github\\wowarenalogs\\node_modules\\uiohook-napi",
++    "metrics_registry": "https://registry.npmjs.org/",
++    "node_gyp": "C:\\Users\\banthur\\AppData\\Roaming\\nvm\\v16.18.1\\node_modules\\npm\\node_modules\\node-gyp\\bin\\node-gyp.js",
++    "prefix": "C:\\Program Files\\nodejs",
++    "userconfig": "C:\\Users\\banthur\\.npmrc",
++    "user_agent": "npm/8.19.2 node/v16.18.1 win32 x64 workspaces/false"
++  }
++}
+diff --git a/node_modules/uiohook-napi/build/libuiohook.vcxproj b/node_modules/uiohook-napi/build/libuiohook.vcxproj
+new file mode 100644
+index 0000000..aa0a63c
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/libuiohook.vcxproj
+@@ -0,0 +1,153 @@
++<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectGuid>{A510941F-EF2C-E4A1-BC26-6AF8F95EEB3C}</ProjectGuid>
++    <Keyword>Win32Proj</Keyword>
++    <RootNamespace>libuiohook</RootNamespace>
++    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
++    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
++    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
++  <PropertyGroup Label="Configuration">
++    <ConfigurationType>StaticLibrary</ConfigurationType>
++  </PropertyGroup>
++  <PropertyGroup Label="Locals">
++    <PlatformToolset>v143</PlatformToolset>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
++  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
++  <ImportGroup Label="ExtensionSettings"/>
++  <ImportGroup Label="PropertySheets">
++    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros"/>
++  <PropertyGroup>
++    <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\bin\;$(MSBuildProjectDirectory)\..\bin\</ExecutablePath>
++    <IntDir>$(Configuration)\obj\$(ProjectName)\</IntDir>
++    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
++    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
++    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
++    <TargetName>$(ProjectName)</TargetName>
++    <TargetPath>$(OutDir)\$(ProjectName)$(TargetExt)</TargetPath>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <ClCompile>
++      <AdditionalIncludeDirectories>C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\include\node;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\src;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\config;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\openssl\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\uv\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\zlib;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\v8\include;..\libuiohook\include;..\libuiohook\src;..\libuiohook\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalOptions>/Zc:__cplusplus -std:c++17 %(AdditionalOptions)</AdditionalOptions>
++      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
++      <BufferSecurityCheck>true</BufferSecurityCheck>
++      <DebugInformationFormat>OldStyle</DebugInformationFormat>
++      <DisableSpecificWarnings>4351;4355;4800;4251;4275;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <ExceptionHandling>false</ExceptionHandling>
++      <MinimalRebuild>false</MinimalRebuild>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <OmitFramePointers>false</OmitFramePointers>
++      <Optimization>Disabled</Optimization>
++      <PrecompiledHeader>NotUsing</PrecompiledHeader>
++      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=libuiohook;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;_GLIBCXX_USE_CXX11_ABI=1;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_ENABLE_SANDBOX;V8_31BIT_SMIS_ON_64BIT_ARCH;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;HOST_BINARY=&quot;node.exe&quot;;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <StringPooling>true</StringPooling>
++      <SuppressStartupBanner>true</SuppressStartupBanner>
++      <TreatWarningAsError>false</TreatWarningAsError>
++      <WarningLevel>Level3</WarningLevel>
++      <WholeProgramOptimization>true</WholeProgramOptimization>
++    </ClCompile>
++    <Lib>
++      <AdditionalOptions>/LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
++      <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
++    </Lib>
++    <Link>
++      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\\Users\\banthur\\AppData\\Local\\node-gyp\\Cache\\27.0.2\\x64\\node.lib&quot;</AdditionalDependencies>
++      <AdditionalOptions>/LTCG:INCREMENTAL /ignore:4199 %(AdditionalOptions)</AdditionalOptions>
++      <DelayLoadDLLs>node.exe;%(DelayLoadDLLs)</DelayLoadDLLs>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <OptimizeReferences>true</OptimizeReferences>
++      <SuppressStartupBanner>true</SuppressStartupBanner>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++    <ResourceCompile>
++      <AdditionalIncludeDirectories>C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\include\node;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\src;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\config;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\openssl\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\uv\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\zlib;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\v8\include;..\libuiohook\include;..\libuiohook\src;..\libuiohook\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=libuiohook;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;_GLIBCXX_USE_CXX11_ABI=1;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_ENABLE_SANDBOX;V8_31BIT_SMIS_ON_64BIT_ARCH;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;HOST_BINARY=&quot;node.exe&quot;;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
++    </ResourceCompile>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <ClCompile>
++      <AdditionalIncludeDirectories>C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\include\node;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\src;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\config;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\openssl\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\uv\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\zlib;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\v8\include;..\libuiohook\include;..\libuiohook\src;..\libuiohook\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalOptions>/Zc:__cplusplus -std:c++17 %(AdditionalOptions)</AdditionalOptions>
++      <BufferSecurityCheck>true</BufferSecurityCheck>
++      <DebugInformationFormat>OldStyle</DebugInformationFormat>
++      <DisableSpecificWarnings>4351;4355;4800;4251;4275;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <ExceptionHandling>false</ExceptionHandling>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <OmitFramePointers>true</OmitFramePointers>
++      <Optimization>Full</Optimization>
++      <PrecompiledHeader>NotUsing</PrecompiledHeader>
++      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=libuiohook;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;_GLIBCXX_USE_CXX11_ABI=1;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_ENABLE_SANDBOX;V8_31BIT_SMIS_ON_64BIT_ARCH;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;HOST_BINARY=&quot;node.exe&quot;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <RuntimeTypeInfo>false</RuntimeTypeInfo>
++      <StringPooling>true</StringPooling>
++      <SuppressStartupBanner>true</SuppressStartupBanner>
++      <TreatWarningAsError>false</TreatWarningAsError>
++      <WarningLevel>Level3</WarningLevel>
++      <WholeProgramOptimization>true</WholeProgramOptimization>
++    </ClCompile>
++    <Lib>
++      <AdditionalOptions>/LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
++      <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
++    </Lib>
++    <Link>
++      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\\Users\\banthur\\AppData\\Local\\node-gyp\\Cache\\27.0.2\\x64\\node.lib&quot;</AdditionalDependencies>
++      <AdditionalOptions>/LTCG:INCREMENTAL /ignore:4199 %(AdditionalOptions)</AdditionalOptions>
++      <DelayLoadDLLs>node.exe;%(DelayLoadDLLs)</DelayLoadDLLs>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <OptimizeReferences>true</OptimizeReferences>
++      <SuppressStartupBanner>true</SuppressStartupBanner>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++    <ResourceCompile>
++      <AdditionalIncludeDirectories>C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\include\node;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\src;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\config;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\openssl\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\uv\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\zlib;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\v8\include;..\libuiohook\include;..\libuiohook\src;..\libuiohook\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=libuiohook;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;_GLIBCXX_USE_CXX11_ABI=1;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_ENABLE_SANDBOX;V8_31BIT_SMIS_ON_64BIT_ARCH;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;HOST_BINARY=&quot;node.exe&quot;;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
++    </ResourceCompile>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <None Include="..\binding.gyp"/>
++  </ItemGroup>
++  <ItemGroup>
++    <ClCompile Include="..\libuiohook\src\logger.c">
++      <ObjectFileName>$(IntDir)\libuiohook\src\logger.obj</ObjectFileName>
++    </ClCompile>
++    <ClCompile Include="..\libuiohook\src\windows\input_helper.c">
++      <ObjectFileName>$(IntDir)\libuiohook\src\windows\input_helper.obj</ObjectFileName>
++    </ClCompile>
++    <ClCompile Include="..\libuiohook\src\windows\input_hook.c">
++      <ObjectFileName>$(IntDir)\libuiohook\src\windows\input_hook.obj</ObjectFileName>
++    </ClCompile>
++    <ClCompile Include="..\libuiohook\src\windows\post_event.c">
++      <ObjectFileName>$(IntDir)\libuiohook\src\windows\post_event.obj</ObjectFileName>
++    </ClCompile>
++    <ClCompile Include="..\libuiohook\src\windows\system_properties.c">
++      <ObjectFileName>$(IntDir)\libuiohook\src\windows\system_properties.obj</ObjectFileName>
++    </ClCompile>
++    <ClCompile Include="D:\Github\wowarenalogs\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
++  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
++  <ImportGroup Label="ExtensionTargets"/>
++</Project>
+diff --git a/node_modules/uiohook-napi/build/libuiohook.vcxproj.filters b/node_modules/uiohook-napi/build/libuiohook.vcxproj.filters
+new file mode 100644
+index 0000000..e6b9eb9
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/libuiohook.vcxproj.filters
+@@ -0,0 +1,106 @@
++<?xml version="1.0" encoding="utf-8"?>
++<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup>
++    <Filter Include="..">
++      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook">
++      <UniqueIdentifier>{C17923F2-1891-49A5-2A8B-74549F857080}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook\src">
++      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..">
++      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook">
++      <UniqueIdentifier>{C17923F2-1891-49A5-2A8B-74549F857080}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook\src">
++      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook\src\windows">
++      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..">
++      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook">
++      <UniqueIdentifier>{C17923F2-1891-49A5-2A8B-74549F857080}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook\src">
++      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook\src\windows">
++      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..">
++      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook">
++      <UniqueIdentifier>{C17923F2-1891-49A5-2A8B-74549F857080}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook\src">
++      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook\src\windows">
++      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..">
++      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook">
++      <UniqueIdentifier>{C17923F2-1891-49A5-2A8B-74549F857080}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook\src">
++      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\libuiohook\src\windows">
++      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:">
++      <UniqueIdentifier>{E5D29F2B-0177-9942-CA95-0FF700094F89}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:\Github">
++      <UniqueIdentifier>{61AF0388-6A36-F721-D5C4-52DAD1BC98B5}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:\Github\wowarenalogs">
++      <UniqueIdentifier>{A8E80301-6060-902F-5E33-95E1CD0DA182}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:\Github\wowarenalogs\node_modules">
++      <UniqueIdentifier>{56DF7A98-063D-FB9D-485C-089023B4C16A}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:\Github\wowarenalogs\node_modules\node-gyp">
++      <UniqueIdentifier>{77348C0E-2034-7791-74D5-63C077DF5A3B}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:\Github\wowarenalogs\node_modules\node-gyp\src">
++      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..">
++      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
++    </Filter>
++  </ItemGroup>
++  <ItemGroup>
++    <ClCompile Include="..\libuiohook\src\logger.c">
++      <Filter>..\libuiohook\src</Filter>
++    </ClCompile>
++    <ClCompile Include="..\libuiohook\src\windows\input_helper.c">
++      <Filter>..\libuiohook\src\windows</Filter>
++    </ClCompile>
++    <ClCompile Include="..\libuiohook\src\windows\input_hook.c">
++      <Filter>..\libuiohook\src\windows</Filter>
++    </ClCompile>
++    <ClCompile Include="..\libuiohook\src\windows\post_event.c">
++      <Filter>..\libuiohook\src\windows</Filter>
++    </ClCompile>
++    <ClCompile Include="..\libuiohook\src\windows\system_properties.c">
++      <Filter>..\libuiohook\src\windows</Filter>
++    </ClCompile>
++    <ClCompile Include="D:\Github\wowarenalogs\node_modules\node-gyp\src\win_delay_load_hook.cc">
++      <Filter>D:\Github\wowarenalogs\node_modules\node-gyp\src</Filter>
++    </ClCompile>
++    <None Include="..\binding.gyp">
++      <Filter>..</Filter>
++    </None>
++  </ItemGroup>
++</Project>
+diff --git a/node_modules/uiohook-napi/build/uiohook_napi.vcxproj b/node_modules/uiohook-napi/build/uiohook_napi.vcxproj
+new file mode 100644
+index 0000000..88942a6
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/uiohook_napi.vcxproj
+@@ -0,0 +1,160 @@
++<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectGuid>{0AFB0EF2-CC9F-F017-AD72-21F289C3570A}</ProjectGuid>
++    <Keyword>Win32Proj</Keyword>
++    <RootNamespace>uiohook_napi</RootNamespace>
++    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
++    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
++    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
++  <PropertyGroup Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++  </PropertyGroup>
++  <PropertyGroup Label="Locals">
++    <PlatformToolset>v143</PlatformToolset>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
++  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
++  <ImportGroup Label="ExtensionSettings"/>
++  <ImportGroup Label="PropertySheets">
++    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros"/>
++  <PropertyGroup>
++    <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\bin\;$(MSBuildProjectDirectory)\..\bin\</ExecutablePath>
++    <IgnoreImportLibrary>true</IgnoreImportLibrary>
++    <IntDir>$(Configuration)\obj\$(ProjectName)\</IntDir>
++    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
++    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
++    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
++    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.node</TargetExt>
++    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.node</TargetExt>
++    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.node</TargetExt>
++    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.node</TargetExt>
++    <TargetName>$(ProjectName)</TargetName>
++    <TargetPath>$(OutDir)\$(ProjectName).node</TargetPath>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <ClCompile>
++      <AdditionalIncludeDirectories>C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\include\node;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\src;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\config;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\openssl\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\uv\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\zlib;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\v8\include;..\libuiohook\include;..\src\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalOptions>/Zc:__cplusplus -std:c++17 %(AdditionalOptions)</AdditionalOptions>
++      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
++      <BufferSecurityCheck>true</BufferSecurityCheck>
++      <DebugInformationFormat>OldStyle</DebugInformationFormat>
++      <DisableSpecificWarnings>4351;4355;4800;4251;4275;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <ExceptionHandling>false</ExceptionHandling>
++      <MinimalRebuild>false</MinimalRebuild>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <OmitFramePointers>false</OmitFramePointers>
++      <Optimization>Disabled</Optimization>
++      <PrecompiledHeader>NotUsing</PrecompiledHeader>
++      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=uiohook_napi;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;_GLIBCXX_USE_CXX11_ABI=1;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_ENABLE_SANDBOX;V8_31BIT_SMIS_ON_64BIT_ARCH;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <StringPooling>true</StringPooling>
++      <SuppressStartupBanner>true</SuppressStartupBanner>
++      <TreatWarningAsError>false</TreatWarningAsError>
++      <WarningLevel>Level3</WarningLevel>
++      <WholeProgramOptimization>true</WholeProgramOptimization>
++    </ClCompile>
++    <Lib>
++      <AdditionalOptions>/LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
++    </Lib>
++    <Link>
++      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\\Users\\banthur\\AppData\\Local\\node-gyp\\Cache\\27.0.2\\x64\\node.lib&quot;</AdditionalDependencies>
++      <AdditionalOptions>/LTCG:INCREMENTAL /ignore:4199 %(AdditionalOptions)</AdditionalOptions>
++      <DelayLoadDLLs>node.exe;%(DelayLoadDLLs)</DelayLoadDLLs>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <OptimizeReferences>true</OptimizeReferences>
++      <OutputFile>$(OutDir)$(ProjectName).node</OutputFile>
++      <SuppressStartupBanner>true</SuppressStartupBanner>
++      <TargetExt>.node</TargetExt>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++    <ResourceCompile>
++      <AdditionalIncludeDirectories>C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\include\node;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\src;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\config;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\openssl\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\uv\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\zlib;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\v8\include;..\libuiohook\include;..\src\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=uiohook_napi;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;_GLIBCXX_USE_CXX11_ABI=1;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_ENABLE_SANDBOX;V8_31BIT_SMIS_ON_64BIT_ARCH;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
++    </ResourceCompile>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <ClCompile>
++      <AdditionalIncludeDirectories>C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\include\node;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\src;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\config;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\openssl\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\uv\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\zlib;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\v8\include;..\libuiohook\include;..\src\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalOptions>/Zc:__cplusplus -std:c++17 %(AdditionalOptions)</AdditionalOptions>
++      <BufferSecurityCheck>true</BufferSecurityCheck>
++      <DebugInformationFormat>OldStyle</DebugInformationFormat>
++      <DisableSpecificWarnings>4351;4355;4800;4251;4275;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <ExceptionHandling>false</ExceptionHandling>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <OmitFramePointers>true</OmitFramePointers>
++      <Optimization>Full</Optimization>
++      <PrecompiledHeader>NotUsing</PrecompiledHeader>
++      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=uiohook_napi;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;_GLIBCXX_USE_CXX11_ABI=1;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_ENABLE_SANDBOX;V8_31BIT_SMIS_ON_64BIT_ARCH;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <RuntimeTypeInfo>false</RuntimeTypeInfo>
++      <StringPooling>true</StringPooling>
++      <SuppressStartupBanner>true</SuppressStartupBanner>
++      <TreatWarningAsError>false</TreatWarningAsError>
++      <WarningLevel>Level3</WarningLevel>
++      <WholeProgramOptimization>true</WholeProgramOptimization>
++    </ClCompile>
++    <Lib>
++      <AdditionalOptions>/LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
++    </Lib>
++    <Link>
++      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\\Users\\banthur\\AppData\\Local\\node-gyp\\Cache\\27.0.2\\x64\\node.lib&quot;</AdditionalDependencies>
++      <AdditionalOptions>/LTCG:INCREMENTAL /ignore:4199 %(AdditionalOptions)</AdditionalOptions>
++      <DelayLoadDLLs>node.exe;%(DelayLoadDLLs)</DelayLoadDLLs>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <OptimizeReferences>true</OptimizeReferences>
++      <OutputFile>$(OutDir)$(ProjectName).node</OutputFile>
++      <SuppressStartupBanner>true</SuppressStartupBanner>
++      <TargetExt>.node</TargetExt>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++    <ResourceCompile>
++      <AdditionalIncludeDirectories>C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\include\node;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\src;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\config;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\openssl\openssl\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\uv\include;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\zlib;C:\Users\banthur\AppData\Local\node-gyp\Cache\27.0.2\deps\v8\include;..\libuiohook\include;..\src\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=uiohook_napi;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;_GLIBCXX_USE_CXX11_ABI=1;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_ENABLE_SANDBOX;V8_31BIT_SMIS_ON_64BIT_ARCH;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
++    </ResourceCompile>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <None Include="..\binding.gyp"/>
++  </ItemGroup>
++  <ItemGroup>
++    <ClCompile Include="..\src\lib\addon.c">
++      <ObjectFileName>$(IntDir)\src\lib\addon.obj</ObjectFileName>
++    </ClCompile>
++    <ClCompile Include="..\src\lib\napi_helpers.c">
++      <ObjectFileName>$(IntDir)\src\lib\napi_helpers.obj</ObjectFileName>
++    </ClCompile>
++    <ClCompile Include="..\src\lib\uiohook_worker.c">
++      <ObjectFileName>$(IntDir)\src\lib\uiohook_worker.obj</ObjectFileName>
++    </ClCompile>
++    <ClCompile Include="D:\Github\wowarenalogs\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
++  </ItemGroup>
++  <ItemGroup>
++    <ProjectReference Include="libuiohook.vcxproj">
++      <Project>{A510941F-EF2C-E4A1-BC26-6AF8F95EEB3C}</Project>
++      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
++    </ProjectReference>
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
++  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
++  <ImportGroup Label="ExtensionTargets"/>
++</Project>
+diff --git a/node_modules/uiohook-napi/build/uiohook_napi.vcxproj.filters b/node_modules/uiohook-napi/build/uiohook_napi.vcxproj.filters
+new file mode 100644
+index 0000000..71ce140
+--- /dev/null
++++ b/node_modules/uiohook-napi/build/uiohook_napi.vcxproj.filters
+@@ -0,0 +1,70 @@
++<?xml version="1.0" encoding="utf-8"?>
++<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup>
++    <Filter Include="..">
++      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\src">
++      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\src\lib">
++      <UniqueIdentifier>{2739B19F-16DF-601C-060A-FF86F6A40045}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..">
++      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\src">
++      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\src\lib">
++      <UniqueIdentifier>{2739B19F-16DF-601C-060A-FF86F6A40045}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..">
++      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\src">
++      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..\src\lib">
++      <UniqueIdentifier>{2739B19F-16DF-601C-060A-FF86F6A40045}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:">
++      <UniqueIdentifier>{E5D29F2B-0177-9942-CA95-0FF700094F89}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:\Github">
++      <UniqueIdentifier>{61AF0388-6A36-F721-D5C4-52DAD1BC98B5}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:\Github\wowarenalogs">
++      <UniqueIdentifier>{A8E80301-6060-902F-5E33-95E1CD0DA182}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:\Github\wowarenalogs\node_modules">
++      <UniqueIdentifier>{56DF7A98-063D-FB9D-485C-089023B4C16A}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:\Github\wowarenalogs\node_modules\node-gyp">
++      <UniqueIdentifier>{77348C0E-2034-7791-74D5-63C077DF5A3B}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="D:\Github\wowarenalogs\node_modules\node-gyp\src">
++      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
++    </Filter>
++    <Filter Include="..">
++      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
++    </Filter>
++  </ItemGroup>
++  <ItemGroup>
++    <ClCompile Include="..\src\lib\addon.c">
++      <Filter>..\src\lib</Filter>
++    </ClCompile>
++    <ClCompile Include="..\src\lib\napi_helpers.c">
++      <Filter>..\src\lib</Filter>
++    </ClCompile>
++    <ClCompile Include="..\src\lib\uiohook_worker.c">
++      <Filter>..\src\lib</Filter>
++    </ClCompile>
++    <ClCompile Include="D:\Github\wowarenalogs\node_modules\node-gyp\src\win_delay_load_hook.cc">
++      <Filter>D:\Github\wowarenalogs\node_modules\node-gyp\src</Filter>
++    </ClCompile>
++    <None Include="..\binding.gyp">
++      <Filter>..</Filter>
++    </None>
++  </ItemGroup>
++</Project>
+diff --git a/node_modules/uiohook-napi/dist/index.js b/node_modules/uiohook-napi/dist/index.js
+index 657d3ba..c64789b 100644
+--- a/node_modules/uiohook-napi/dist/index.js
++++ b/node_modules/uiohook-napi/dist/index.js
+@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.uIOhook = exports.UiohookKey = exports.WheelDirection = exports.EventType = void 0;
+ const events_1 = require("events");
+ const path_1 = require("path");
+-const lib = require('node-gyp-build')((0, path_1.join)(__dirname, '..'));
++console.log('uioh');
++console.log(((0, path_1.join)(__dirname, '..', '..', 'node_modules', 'uiohook-napi')));
++const lib = require('node-gyp-build')(__dirname);
+ var KeyToggle;
+ (function (KeyToggle) {
+     KeyToggle[KeyToggle["Tap"] = 0] = "Tap";
+diff --git a/node_modules/uiohook-napi/prebuilds/win32-x64/_node.napi.node b/node_modules/uiohook-napi/prebuilds/win32-x64/_node.napi.node
+new file mode 100644
+index 0000000..135873b
+Binary files /dev/null and b/node_modules/uiohook-napi/prebuilds/win32-x64/_node.napi.node differ
+diff --git a/node_modules/uiohook-napi/prebuilds/win32-x64/node.napi.node b/node_modules/uiohook-napi/prebuilds/win32-x64/node.napi.node
+index 135873b..d4172c8 100644
+Binary files a/node_modules/uiohook-napi/prebuilds/win32-x64/node.napi.node and b/node_modules/uiohook-napi/prebuilds/win32-x64/node.napi.node differ

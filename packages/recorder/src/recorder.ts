@@ -14,12 +14,12 @@ import type {
   ISource,
 } from 'obs-studio-node';
 import path from 'path';
+import { uIOhook } from 'uiohook-napi';
 import { v4 as uuidfn } from 'uuid';
 import WaitQueue from 'wait-queue';
 
 import { IActivity } from './activity';
 import ConfigService from './configService';
-// import { UiohookKeyboardEvent, UiohookMouseEvent, uIOhook } from 'uiohook-napi';
 import { getOverlayConfig } from './configUtils';
 import { obsResolutions } from './constants';
 import {
@@ -58,6 +58,8 @@ import {
 import VideoProcessQueue from './videoProcessQueue';
 
 let osn: typeof import('obs-studio-node');
+
+console.log(uIOhook);
 
 /**
  * Class for handing the interface between Warcraft Recorder and OBS.

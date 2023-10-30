@@ -22,6 +22,7 @@
     "appId": "com.wowarenalogs.client",
     "productName": "WoW Arena Logs",
     "artifactName": "WoW-Arena-Logs-${version}.${ext}",
+    "nodeGypRebuild": true,
     "extends": null,
     "files": [
       "packages/app/dist/**/*"
@@ -77,6 +78,7 @@
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
   "devDependencies": {
+    "@electron/rebuild": "^3.3.0",
     "@types/estree": "^0.0.52",
     "@types/line-reader": "^0.0.34",
     "@types/md5": "^2.3.2",
