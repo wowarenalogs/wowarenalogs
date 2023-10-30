@@ -63,11 +63,13 @@ export const modulesApi = {
   },
   obs: {
     selectFolder: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:selectFolder', ...args),
+    startRecordingEngine: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:startRecordingEngine', ...args),
     startRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:startRecording', ...args),
     stopRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:stopRecording', ...args),
     getConfiguration: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getConfiguration', ...args),
     setConfig: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:setConfig', ...args),
     getAudioDevices: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getAudioDevices', ...args),
+    getRecorderStatus: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getRecorderStatus', ...args),
     findVideoForMatch: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:findVideoForMatch', ...args),
     recorderStatusUpdated: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
       ipcRenderer.on('wowarenalogs:obs:recorderStatusUpdated', callback),

@@ -51,7 +51,10 @@ export class ObsModule extends NativeBridgeModule {
     return dialogResult.filePaths;
   }
 
-  public onRegistered(mainWindow: BrowserWindow): void {
+  @moduleFunction()
+  public startRecordingEngine(mainWindow: BrowserWindow): void {
+    if (this.manager) return;
+
     if (process.platform === 'win32') {
       Recorder.loadOBSLibraries().then(() => {
         this.manager = new Manager(mainWindow);
@@ -90,6 +93,11 @@ export class ObsModule extends NativeBridgeModule {
   @moduleFunction()
   public async getAudioDevices(_mainWindowL: BrowserWindow) {
     return this.manager?.getAudioDevices();
+  }
+
+  @moduleFunction()
+  public async getRecorderStatus(_mainWindow: BrowserWindow) {
+    return this.manager?.recorder.obsState || -1;
   }
 
   @moduleEvent('on')

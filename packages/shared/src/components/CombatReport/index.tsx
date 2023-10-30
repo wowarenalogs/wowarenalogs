@@ -39,7 +39,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
   const clientContext = useClientContext();
   const router = useRouter();
   const { data: user } = useGetProfileQuery();
-  const { combat, activeTab, setActiveTab, activePlayerId, viewerIsOwner } = useCombatReportContext();
+  const { combat, activeTab, setActiveTab, activePlayerId } = useCombatReportContext();
 
   const [urlCopied, setUrlCopied] = useState(false);
   const reportUrl = useMemo(() => {
@@ -146,7 +146,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
             Scoreboard
           </a>
         )}
-        {clientContext.isDesktop && viewerIsOwner && (
+        {clientContext.isDesktop && (
           <a
             className={`tab ${activeTab === 'video' ? 'tab-active' : ''}`}
             onClick={() => {

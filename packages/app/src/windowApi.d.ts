@@ -66,11 +66,13 @@ export type NativeApi = {
   };
   obs: {
     selectFolder?: OmitFirstArg<ObsModule['selectFolder']>;
+    startRecordingEngine?: OmitFirstArg<ObsModule['startRecordingEngine']>;
     startRecording?: OmitFirstArg<ObsModule['startRecording']>;
     stopRecording?: OmitFirstArg<ObsModule['stopRecording']>;
     getConfiguration?: OmitFirstArg<ObsModule['getConfiguration']>;
     setConfig?: OmitFirstArg<ObsModule['setConfig']>;
     getAudioDevices?: OmitFirstArg<ObsModule['getAudioDevices']>;
+    getRecorderStatus?: OmitFirstArg<ObsModule['getRecorderStatus']>;
     findVideoForMatch?: OmitFirstArg<ObsModule['findVideoForMatch']>;
     recorderStatusUpdated?: (callback: AsEventFunction<ObsModule['recorderStatusUpdated']>) => void;
     removeAll_recorderStatusUpdated_listeners?: () => void;

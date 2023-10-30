@@ -10,7 +10,7 @@ declare global {
 }
 
 // TODO: MUSTFIX what does this value represent? Where should we store it?
-const MATCH_START_CORRECTION = 2.75;
+const MATCH_START_CORRECTION = 0;
 
 function getMatchTimeoffsetSeconds(matchId: string, metadata: ArenaMatchMetadata | ShuffleMatchMetadata) {
   if (metadata.dataType == 'ShuffleMatchMetadata') {

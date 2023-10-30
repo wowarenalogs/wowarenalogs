@@ -83,7 +83,9 @@ export function ShuffleRoundRow({
   viewerIsOwner?: boolean;
   source: CombatStubListSource;
 }) {
-  const maybeShuffleId = combat.isLocal ? combat.match.id : combat.match?.shuffleMatchId;
+  const maybeShuffleId = combat.isLocal ? null : combat.match.shuffleMatchId;
+  const matchId = combat.match.id || maybeShuffleId;
+
   const round = combat.match;
   const roundTitle = `Round ${round.sequenceNumber + 1} ${round.result === CombatResult.Win ? 'win' : 'loss'}`;
 
@@ -107,7 +109,7 @@ export function ShuffleRoundRow({
   }
   return (
     <Link
-      href={`/match?id=${maybeShuffleId}&viewerIsOwner=${viewerIsOwner ? 'true' : 'false'}&source=${source}&roundId=${
+      href={`/match?id=${matchId}&viewerIsOwner=${viewerIsOwner ? 'true' : 'false'}&source=${source}&roundId=${
         round.sequenceNumber + 1
       }`}
     >

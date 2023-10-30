@@ -6,6 +6,7 @@ import {
   TbAlertCircle,
   TbAlertOctagon,
   TbCaretDown,
+  TbPlayerStop,
   TbSettings,
   TbVideo,
   TbVideoMinus,
@@ -43,6 +44,10 @@ const resolutionOptions: ResolutionOptions[] = [
 // more enum bullshit
 // const recStatus = ['WaitingForWoW', 'Recording', 'InvalidConfig', 'ReadyToRecord', 'FatalError', 'Overruning'];
 const recStates: Record<number, { icon: JSX.Element; message: string }> = {
+  [-1]: {
+    icon: <TbPlayerStop />,
+    message: 'Engine not started',
+  },
   0: {
     icon: <TbVideoOff size={32} color="yellow" />,
     message: 'Waiting for WoW process or settings change...',
@@ -91,6 +96,17 @@ const RecordingConfig = () => {
   }, []);
 
   useEffect(() => {
+    async function checkStatus() {
+      if (window.wowarenalogs.obs.getRecorderStatus) {
+        const status = await window.wowarenalogs.obs.getRecorderStatus();
+        setRecordingStatus(status as unknown as number);
+        console.log('init', typeof status);
+      }
+    }
+    checkStatus();
+  }, []);
+
+  useEffect(() => {
     console.log('config subscribed');
     if (window.wowarenalogs.obs.configUpdated) {
       window.wowarenalogs.obs.configUpdated((_e, newConf) => {
@@ -129,6 +145,19 @@ const RecordingConfig = () => {
       <div className="text-2xl font-bold mb-2">OBS Recording Settings</div>
       <div className="flex flex-row justify-between">
         <div className="flex flex-col gap-2">
+          {recordingStatus !== -1 && (
+            <button
+              className="btn"
+              disabled={recordingStatus !== -1}
+              onClick={() => {
+                if (window.wowarenalogs.obs.startRecordingEngine) {
+                  window.wowarenalogs.obs.startRecordingEngine();
+                }
+              }}
+            >
+              Start OBS Engine
+            </button>
+          )}
           <div className="flex flex-row gap-2 items-center">
             {recStates[recordingStatus] && recStates[recordingStatus].icon}
             {recStates[recordingStatus] && recStates[recordingStatus].message}
