@@ -8,6 +8,7 @@ RUN mkdir packages/sql
 RUN mkdir packages/shared
 RUN mkdir packages/web
 RUN mkdir packages/parser
+RUN mkdir packages/recorder
 
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 ENV NEXTAUTH_URL="https://wowarenalogs.com"
@@ -33,6 +34,7 @@ COPY ./packages/recorder ./packages/recorder
 # Build 
 RUN npm run build:sql
 RUN npm run build:parser
+RUN npm run build:recorder
 RUN npm run build:web
 
 CMD npm run start:web
