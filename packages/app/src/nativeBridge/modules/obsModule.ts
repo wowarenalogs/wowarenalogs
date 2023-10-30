@@ -52,11 +52,13 @@ export class ObsModule extends NativeBridgeModule {
   }
 
   public onRegistered(mainWindow: BrowserWindow): void {
-    this.manager = new Manager(mainWindow);
-    this.manager.subscribeToConfigurationUpdates((newValue, _oldValue) => {
-      this.configUpdated(mainWindow, newValue);
-    });
-    this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
+    if (process.platform === 'win32') {
+      this.manager = new Manager(mainWindow);
+      this.manager.subscribeToConfigurationUpdates((newValue, _oldValue) => {
+        this.configUpdated(mainWindow, newValue);
+      });
+      this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
+    }
   }
 
   @moduleFunction()

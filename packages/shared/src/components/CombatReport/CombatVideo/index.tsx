@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useEffect, useRef, useState } from 'react';
 
 import { ArenaMatchMetadata, INativeBridge, ShuffleMatchMetadata } from '../../..';
@@ -35,10 +34,15 @@ export const CombatVideo = () => {
   useEffect(() => {
     async function find() {
       if (window.wowarenalogs.obs.findVideoForMatch && combat?.id) {
-        console.log(`Searching for ${combat?.id}`);
         const f = await window.wowarenalogs.obs.findVideoForMatch('D:\\Video', combat.id);
         if (f) {
-          setFoundVodRef(f);
+          if (f.metadata?.dataType) {
+            // Since we are casting the metadata into a type from decoded JSON, we are a little more careful
+            // about checking a field to make sure it looks like it's the right type
+            setFoundVodRef(f);
+          } else {
+            setVodNotFound(true);
+          }
         } else {
           setVodNotFound(true);
         }
@@ -51,7 +55,7 @@ export const CombatVideo = () => {
 
   useEffect(() => {
     if (!combat) return;
-    if (!foundVodRef) return;
+    if (!foundVodRef?.metadata) return;
     if (!vidRef.current) return;
     vidRef.current.currentTime = getMatchTimeoffsetSeconds(combat.id, foundVodRef.metadata) || MATCH_START_CORRECTION;
   }, [combat, foundVodRef]);
@@ -69,6 +73,7 @@ export const CombatVideo = () => {
         className="btn"
         onClick={() => {
           if (!vidRef.current) return;
+          if (!foundVodRef.metadata) return;
 
           const offset = getMatchTimeoffsetSeconds(combat.id, foundVodRef.metadata);
           vidRef.current.currentTime = offset || MATCH_START_CORRECTION;
