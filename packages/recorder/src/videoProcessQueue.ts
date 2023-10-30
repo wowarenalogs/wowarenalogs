@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import ffmpeg from 'fluent-ffmpeg';
+
 import { existsSync } from 'fs-extra';
 import path from 'path';
 
@@ -8,9 +8,7 @@ import ConfigService from './configService';
 import { VideoQueueItem } from './types';
 import { fixPathWhenPackaged, getThumbnailFileNameForVideo, tryUnlink, writeMetadataFile } from './util';
 
-const ffmpegPath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'obs-studio-node', 'ffmpeg.exe'));
-
-ffmpeg.setFfmpegPath(ffmpegPath);
+let ffmpeg: typeof import('fluent-ffmpeg');
 
 export default class VideoProcessQueue {
   // TODO: MIGHTFIX re-implement some kind of queue for processing
@@ -20,7 +18,15 @@ export default class VideoProcessQueue {
 
   private cfg = ConfigService.getInstance();
 
+  static async LoadFFMpegLibraries() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ffmpeg = (await import('fluent-ffmpeg')).default;
+  }
+
   constructor() {
+    const ffmpegPath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'obs-studio-node', 'ffmpeg.exe'));
+
+    ffmpeg.setFfmpegPath(ffmpegPath);
     const ffmpegOK = existsSync(ffmpegPath);
     if (!ffmpegOK) throw new Error(`Could not find ffmpeg at ${ffmpegPath}`);
 

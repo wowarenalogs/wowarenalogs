@@ -292,6 +292,7 @@ export class Recorder {
    */
   static async loadOBSLibraries() {
     osn = await import('obs-studio-node');
+    await VideoProcessQueue.LoadFFMpegLibraries();
   }
 
   /**
