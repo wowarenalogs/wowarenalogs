@@ -73,6 +73,7 @@
     "build": "npm run build:sql && npm run build:parser && npm run build:recorder && npm run build:web && npm run build:desktop && npm run build:app",
     "test": "npm run test --workspaces --if-present",
     "start:simlog": "npm run start:simlog --workspaces --if-present",
+    "postinstall": "patch-package",
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
   "devDependencies": {
@@ -86,6 +87,7 @@
     "electron-builder": "^24.6.4",
     "eslint": "^8.49.0",
     "husky": "^7.0.4",
+    "patch-package": "^8.0.0",
     "prettier": "^3.0.3",
     "shx": "^0.3.4",
     "tsdx": "^0.14.1",
