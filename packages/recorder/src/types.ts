@@ -1,4 +1,5 @@
 import { Size } from 'electron';
+
 import ConfigService from './configService';
 
 /**
@@ -83,6 +84,7 @@ export type VideoQueueItem = {
  * represent any classes as writing entire classes to JSON files causes
  * problems on the frontend.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Metadata = Record<string, any>;
 
 /**
@@ -117,9 +119,13 @@ export type TPreviewPosition = {
 export type ConfigStage = {
   name: string;
   initial: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   current: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get: (cfg: ConfigService) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   configure: (...args: any[]) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validate: (...args: any[]) => void;
 };
 

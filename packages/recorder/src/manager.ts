@@ -1,29 +1,31 @@
-import { BrowserWindow, app, ipcMain, powerMonitor } from 'electron';
+/* eslint-disable no-console */
+import { app, BrowserWindow, ipcMain, powerMonitor } from 'electron';
+import fs from 'fs';
 import { isEqual } from 'lodash';
 import path from 'path';
-import fs from 'fs';
+
+import { ConfigurationChangeCallback, ConfigurationSchema, ConfigurationSchemaKey } from './configSchema';
+import ConfigService from './configService';
+import {
+  getObsAudioConfig,
+  getObsBaseConfig,
+  getObsVideoConfig,
+  getOverlayConfig,
+  getStorageConfig,
+} from './configUtils';
+import { ERecordingState } from './obsEnums';
 // import { uIOhook } from 'uiohook-napi';
 import Poller from './poller';
 import { Recorder } from './recorder';
-import ConfigService from './configService';
 import {
-  StorageConfig,
-  ObsBaseConfig,
-  ObsVideoConfig,
-  ObsAudioConfig,
-  RecStatus,
   ConfigStage,
+  ObsAudioConfig,
+  ObsBaseConfig,
   ObsOverlayConfig,
+  ObsVideoConfig,
+  RecStatus,
+  StorageConfig,
 } from './types';
-import {
-  getObsBaseConfig,
-  getObsVideoConfig,
-  getObsAudioConfig,
-  getStorageConfig,
-  getOverlayConfig,
-} from './configUtils';
-import { ERecordingState } from './obsEnums';
-import { ConfigurationChangeCallback, ConfigurationSchema, ConfigurationSchemaKey } from './configSchema';
 
 /**
  * The manager class is responsible for orchestrating all the functional
@@ -86,7 +88,7 @@ export class Manager {
       initial: true,
       current: this.obsVideoCfg,
       get: (cfg: ConfigService) => getObsVideoConfig(cfg),
-      validate: () => {},
+      validate: () => null,
       configure: async (config: ObsVideoConfig) => this.configureObsVideo(config),
     },
     {
@@ -94,7 +96,7 @@ export class Manager {
       initial: true,
       current: this.obsAudioCfg,
       get: (cfg: ConfigService) => getObsAudioConfig(cfg),
-      validate: () => {},
+      validate: () => null,
       configure: async (config: ObsAudioConfig) => this.configureObsAudio(config),
     },
     {
@@ -102,7 +104,7 @@ export class Manager {
       initial: true,
       current: this.overlayCfg,
       get: (cfg: ConfigService) => getOverlayConfig(cfg),
-      validate: () => {},
+      validate: () => null,
       configure: async (config: ObsOverlayConfig) => this.configureObsOverlay(config),
     },
   ];

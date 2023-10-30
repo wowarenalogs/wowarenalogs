@@ -1,11 +1,12 @@
-/* eslint global-require: off, no-console: off, promise/always-return: off */
-import { URL } from 'url';
-import path from 'path';
+/* eslint-disable no-console */
 import { app, BrowserWindow, ClientRequestConstructorOptions, Display, net, screen } from 'electron';
+import { access, existsSync, readdir, readFile, readFileSync, stat, unlink, writeFile } from 'fs-extra';
+import path from 'path';
+import { URL } from 'url';
+
 // import { EventType, uIOhook, UiohookKeyboardEvent, UiohookMouseEvent } from 'uiohook-napi';
 import { PTTKeyPressEvent } from './keyTypesUIOHook';
-import { Metadata, FileInfo, FileSortDirection, OurDisplayType, ObsAudioConfig, VideoQueueItem } from './types';
-import { access, existsSync, readdir, readFile, readFileSync, stat, unlink, writeFile } from 'fs-extra';
+import { FileInfo, FileSortDirection, Metadata, ObsAudioConfig, OurDisplayType, VideoQueueItem } from './types';
 
 const getResolvedHtmlPath = () => {
   if (process.env.NODE_ENV === 'development') {
@@ -164,7 +165,7 @@ const deleteVideo = async (videoPath: string) => {
 /**
  * Put a save marker on a video, protecting it from the file monitor.
  */
-const toggleVideoProtected = async (videoPath: string) => {
+const toggleVideoProtected = async (_videoPath: string) => {
   // TODO: MIGHTFIX re-implement protection from Size Monitor?
   throw new Error('Not implemented!');
   // let metadata;
@@ -299,6 +300,7 @@ const checkAppUpdate = (mainWindow: BrowserWindow | null = null) => {
 
 const deferredPromiseHelper = <T>() => {
   let resolveHelper!: (value: T | PromiseLike<T>) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let rejectHelper!: (reason?: any) => void;
 
   const promise = new Promise<T>((resolve, reject) => {

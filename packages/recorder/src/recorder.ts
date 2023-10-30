@@ -1,13 +1,18 @@
+/* eslint-disable no-console */
 import { BrowserWindow, screen } from 'electron';
-import path from 'path';
 import fs from 'fs';
-import * as osn from 'obs-studio-node';
 import { isEqual } from 'lodash';
+import * as osn from 'obs-studio-node';
 import { IFader, IInput, IScene, ISceneItem, ISceneItemInfo, ISource } from 'obs-studio-node';
+import path from 'path';
+import { v4 as uuidfn } from 'uuid';
 import WaitQueue from 'wait-queue';
 
+import { IActivity } from './activity';
+import ConfigService from './configService';
 // import { UiohookKeyboardEvent, UiohookMouseEvent, uIOhook } from 'uiohook-napi';
 import { getOverlayConfig } from './configUtils';
+import { obsResolutions } from './constants';
 import {
   EColorSpace,
   EFPSType,
@@ -19,19 +24,6 @@ import {
   ESupportedEncoders,
   EVideoFormat,
 } from './obsEnums';
-
-import {
-  deferredPromiseHelper,
-  getAssetPath,
-  getSortedVideos,
-  // TODO: fix uiohook
-  // isPushToTalkHotkey,
-  // convertUioHookEvent,
-  tryUnlink,
-  getPromiseBomb,
-  fixPathWhenPackaged,
-} from './util';
-
 import {
   IOBSDevice,
   MicStatus,
@@ -43,11 +35,18 @@ import {
   TAudioSourceType,
   TPreviewPosition,
 } from './types';
-import { IActivity } from './activity';
+import {
+  deferredPromiseHelper,
+  fixPathWhenPackaged,
+  getAssetPath,
+  getPromiseBomb,
+  getSortedVideos,
+  // TODO: fix uiohook
+  // isPushToTalkHotkey,
+  // convertUioHookEvent,
+  tryUnlink,
+} from './util';
 import VideoProcessQueue from './videoProcessQueue';
-import ConfigService from './configService';
-import { obsResolutions } from './constants';
-import { v4 as uuidfn } from 'uuid';
 
 /**
  * Class for handing the interface between Warcraft Recorder and OBS.
@@ -66,7 +65,7 @@ export class Recorder {
    * For quickly checking if we're recording an activity or not. This is
    * not the same as the OBS state.
    */
-  public isRecording: boolean = false;
+  public isRecording = false;
 
   /**
    * If we are currently overruning or not. Overrun is defined as the
@@ -281,7 +280,7 @@ export class Recorder {
   constructor(mainWindow: BrowserWindow) {
     console.info('[Recorder] Constructing recorder:', this.uuid);
     this.mainWindow = mainWindow;
-    this.videoProcessQueue = new VideoProcessQueue(mainWindow);
+    this.videoProcessQueue = new VideoProcessQueue();
     this.initializeOBS();
   }
 

@@ -1,11 +1,12 @@
-import { BrowserWindow } from 'electron';
+/* eslint-disable no-console */
+import ffmpeg from 'fluent-ffmpeg';
+import { existsSync } from 'fs-extra';
 import path from 'path';
+
 // import SizeMonitor from './sizeMonitor';
 import ConfigService from './configService';
 import { VideoQueueItem } from './types';
-import { tryUnlink, writeMetadataFile, getThumbnailFileNameForVideo, fixPathWhenPackaged } from './util';
-import ffmpeg from 'fluent-ffmpeg';
-import { existsSync } from 'fs-extra';
+import { fixPathWhenPackaged, getThumbnailFileNameForVideo, tryUnlink, writeMetadataFile } from './util';
 
 const ffmpegPath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'obs-studio-node', 'ffmpeg.exe'));
 
@@ -19,11 +20,10 @@ export default class VideoProcessQueue {
 
   private cfg = ConfigService.getInstance();
 
-  constructor(mainWindow: BrowserWindow) {
+  constructor() {
     const ffmpegOK = existsSync(ffmpegPath);
     if (!ffmpegOK) throw new Error(`Could not find ffmpeg at ${ffmpegPath}`);
 
-    // this.mainWindow = mainWindow;
     this.setupVideoProcessingQueue();
   }
 
@@ -165,6 +165,7 @@ export default class VideoProcessQueue {
         .output(finalVideoPath)
 
         // Handle the end of the FFmpeg cutting.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .on('end', async (err: any) => {
           if (err) {
             console.log('[VideoProcessQueue] FFmpeg video cut error (1): ', err);
@@ -177,6 +178,7 @@ export default class VideoProcessQueue {
 
         // Handle an error with the FFmpeg cutting. Not sure if we
         // need this as well as the above but being careful.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .on('error', (err: any) => {
           console.log('[VideoProcessQueue] FFmpeg video cut error (2): ', err);
           throw new Error('FFmpeg error when cutting video (2)');
@@ -204,6 +206,7 @@ export default class VideoProcessQueue {
           console.info('[VideoProcessQueue] Got thumbnail for', video);
           resolve();
         })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .on('error', (err: any) => {
           console.error('[VideoProcessQueue] Error getting thumbnail for', video, err);
 

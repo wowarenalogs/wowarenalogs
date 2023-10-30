@@ -1,6 +1,7 @@
-import { StorageConfig, ObsBaseConfig, ObsVideoConfig, ObsAudioConfig, ObsOverlayConfig } from './types';
 import path from 'path';
+
 import ConfigService from './configService';
+import { ObsAudioConfig, ObsBaseConfig, ObsOverlayConfig, ObsVideoConfig, StorageConfig } from './types';
 
 const getStorageConfig = (cfg: ConfigService): StorageConfig => {
   return {

@@ -1,9 +1,9 @@
-import EventEmitter from 'events';
 import child_process from 'child_process';
+import EventEmitter from 'events';
 
 function isTaskRunning(taskMatcher: RegExp) {
   const promise = new Promise<boolean>((resolve, reject) => {
-    child_process.exec('tasklist', function (err, stdout, stderr) {
+    child_process.exec('tasklist', function (err, stdout, _stderr) {
       if (err) {
         reject(err);
       }

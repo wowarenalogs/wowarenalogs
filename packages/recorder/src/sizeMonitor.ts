@@ -1,12 +1,15 @@
+/* eslint-disable no-console */
 import { BrowserWindow } from 'electron';
-import { FileInfo } from './types';
+
 import ConfigService from './configService';
+import { FileInfo } from './types';
 import { deleteVideo, getMetadataForVideo, getSortedVideos } from './util';
 
 // Had a bug here where we used filter with an async function but that isn't
 // valid as it just returns a truthy promise. See issue 323. To get around
 // this we do some creative stuff from here:
 // https://advancedweb.hu/how-to-use-async-functions-with-array-filter-in-javascript/
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const asyncFilter = async (fileStream: FileInfo[], filter: any) => {
   const results = await Promise.all(fileStream.map(filter));
   return fileStream.filter((_, index) => results[index]);

@@ -1,6 +1,8 @@
+/* eslint-disable no-console */
 import ElectronStore from 'electron-store';
 import path from 'path';
 import { EventEmitter } from 'stream';
+
 import { configSchema, ConfigurationChangeCallback, ConfigurationSchema } from './configSchema';
 
 export default class ConfigService extends EventEmitter {
@@ -28,6 +30,7 @@ export default class ConfigService extends EventEmitter {
     return ConfigService._instance;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public setValue(key: keyof ConfigurationSchema, value: any) {
     if (!this.configValueChanged(key, value)) {
       return;
@@ -39,6 +42,7 @@ export default class ConfigService extends EventEmitter {
 
   public setValues(values: Partial<ConfigurationSchema>) {
     const configKeys = Object.keys(values) as (keyof ConfigurationSchema)[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newConfigValues: Record<string, any> = {};
 
     configKeys.forEach((key) => {
@@ -97,6 +101,7 @@ export default class ConfigService extends EventEmitter {
     return value as T;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private set(key: keyof ConfigurationSchema, value: any): void {
     if (!configSchema[key]) {
       throw Error(`[Config Service] Attempted to set invalid configuration key '${key}'`);
@@ -145,6 +150,7 @@ export default class ConfigService extends EventEmitter {
   /**
    * Determine whether a configuration value has changed.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private configValueChanged(key: string, value: any): boolean {
     // We're checking for null here because we don't allow storing
     // null values and as such if we get one, it's because it's empty/shouldn't
@@ -152,6 +158,7 @@ export default class ConfigService extends EventEmitter {
     return value !== null && this._store.get(key) !== value;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static logConfigChanged(newConfig: { [key: string]: any }): void {
     console.log('[Config Service] Configuration changed:', newConfig);
   }
