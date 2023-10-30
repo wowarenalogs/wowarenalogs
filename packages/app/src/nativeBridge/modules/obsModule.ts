@@ -1,8 +1,41 @@
 /* eslint-disable no-console */
+import { ArenaMatchEndInfo, ArenaMatchStartInfo, CombatResult, WowVersion } from '@wowarenalogs/parser';
 import { ConfigurationSchema, IActivity, Manager, RecStatus } from '@wowarenalogs/recorder';
 import { BrowserWindow, dialog } from 'electron';
+import { readdir, readFile } from 'fs-extra';
+import path from 'path';
 
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
+
+// TODO: MUSTFIX: copies!!!!
+export interface IMetadata {
+  dataType: 'ArenaMatchMetadata' | 'ShuffleMatchMetadata';
+  startInfo: ArenaMatchStartInfo;
+  endInfo: ArenaMatchEndInfo;
+  wowVersion: WowVersion;
+  id: string;
+  timezone: string;
+  startTime: number;
+  endTime: number;
+  playerId: string;
+  playerTeamId: string;
+  result: CombatResult;
+  durationInSeconds: number;
+  winningTeamId: string;
+}
+
+export interface ArenaMatchMetadata extends IMetadata {
+  dataType: 'ArenaMatchMetadata';
+}
+
+export interface ShuffleMatchMetadata extends IMetadata {
+  dataType: 'ShuffleMatchMetadata';
+  roundStarts: {
+    id: string;
+    startInfo: ArenaMatchStartInfo;
+    sequenceNumber: number;
+  }[];
+}
 
 @nativeBridgeModule('obs')
 export class ObsModule extends NativeBridgeModule {
@@ -63,5 +96,24 @@ export class ObsModule extends NativeBridgeModule {
   @moduleEvent('on')
   public configUpdated(_mainWindow: BrowserWindow, _newValue: Readonly<ConfigurationSchema> | undefined): void {
     return;
+  }
+
+  /**
+   * A very hacky way to find if a match of a given id has a video file
+   */
+  @moduleFunction()
+  public async findVideoForMatch(_mainWindow: BrowserWindow, configFolder: string, matchId: string) {
+    const filesInFolder = await readdir(configFolder);
+    const metadataFiles = filesInFolder.filter((f) => f.endsWith('.json'));
+    for (let i = 0; i < metadataFiles.length; i++) {
+      console.log('Reading', metadataFiles[i]);
+      const fino = await readFile(path.join(configFolder, metadataFiles[i]));
+      if (fino.includes(matchId)) {
+        return JSON.parse(fino.toString()) as {
+          videoPath: string;
+          metadata: ArenaMatchMetadata | ShuffleMatchMetadata;
+        };
+      }
+    }
   }
 }

@@ -72,7 +72,7 @@ export default class VideoProcessQueue {
     );
 
     if (data.metadata) {
-      await writeMetadataFile(videoPath, data.metadata);
+      await writeMetadataFile(videoPath, data);
     }
     await tryUnlink(data.bufferFile);
 

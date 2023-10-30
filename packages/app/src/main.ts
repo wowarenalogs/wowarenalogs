@@ -48,17 +48,10 @@ function createWindow() {
   });
 
   protocol.handle('vod', async (request) => {
-    const allowedFileTypes = ['mp4', 'mkv', 'avi'];
     const encodedFilename = decodeURI(request.url.slice('vod://wowarenalogs/'.length, request.url.length));
 
     const filename = atob(encodedFilename);
-    let allowed = false;
-    for (let i = 0; i < allowedFileTypes.length - 1; i++) {
-      if (filename.endsWith(allowedFileTypes[i])) {
-        allowed = true;
-      }
-    }
-    if (!allowed) {
+    if (!filename.endsWith('.mp4')) {
       return new Response('Only video files are allowed', { status: 400 });
     }
 

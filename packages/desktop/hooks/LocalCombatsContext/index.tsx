@@ -11,7 +11,13 @@ import {
   getEffectiveHps,
   IActivityStarted,
 } from '@wowarenalogs/parser';
-import { logAnalyticsEvent, uploadCombatAsync, useAuth } from '@wowarenalogs/shared';
+import {
+  ArenaMatchMetadata,
+  logAnalyticsEvent,
+  ShuffleMatchMetadata,
+  uploadCombatAsync,
+  useAuth,
+} from '@wowarenalogs/shared';
 import _ from 'lodash';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
@@ -33,6 +39,11 @@ const LocalCombatsContext = React.createContext<ILocalCombatsContextData>({
 interface IProps {
   children: React.ReactNode | React.ReactNode[];
 }
+
+/** How long after the ARENA_END_EVENT the recording will continue
+ * The default of 0 means the score screen won't show up ;)
+ */
+const MATCH_OVERRUN_SECONDS = 3;
 
 const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
   const averageMMR =
@@ -176,20 +187,29 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
           if (currentActivity) {
-            // eslint-disable-next-line no-console
-            console.log('would-end-arena', combat);
+            const metadata: ArenaMatchMetadata = {
+              startInfo: combat.startInfo,
+              endInfo: combat.endInfo,
+              wowVersion: combat.wowVersion,
+              id: combat.id,
+              dataType: 'ArenaMatchMetadata',
+              timezone: combat.timezone,
+              startTime: combat.startTime,
+              endTime: combat.endTime,
+              playerId: combat.playerId,
+              playerTeamId: combat.playerTeamId,
+              result: combat.result,
+              durationInSeconds: combat.durationInSeconds,
+              winningTeamId: combat.endInfo.winningTeamId,
+            };
+
             currentActivity = null;
             window.wowarenalogs.obs?.stopRecording &&
               window.wowarenalogs.obs.stopRecording({
                 startDate: new Date(combat.startTime),
                 endDate: new Date(combat.endTime),
-                metadata: {
-                  didWin: combat.result === CombatResult.Win,
-                  id: combat.id,
-                  durationSeconds: combat.durationInSeconds,
-                  bracket: combat.startInfo.bracket,
-                },
-                overrun: 0,
+                metadata,
+                overrun: MATCH_OVERRUN_SECONDS,
                 fileName: `${combat.startInfo.bracket}_${combat.id}`,
               });
           }
@@ -214,6 +234,27 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       });
 
       window.wowarenalogs.logs?.handleSoloShuffleEnded((_event, combat) => {
+        const metadata: ShuffleMatchMetadata = {
+          startInfo: combat.startInfo,
+          endInfo: combat.endInfo,
+          wowVersion: combat.wowVersion,
+          id: combat.id,
+          dataType: 'ShuffleMatchMetadata',
+          timezone: combat.timezone,
+          startTime: combat.startTime,
+          endTime: combat.endTime,
+          playerId: combat.rounds[0].playerId,
+          playerTeamId: combat.rounds[0].playerTeamId,
+          result: combat.result,
+          roundStarts: combat.rounds.map((r) => ({
+            startInfo: r.startInfo,
+            sequenceNumber: r.sequenceNumber,
+            id: r.id,
+          })),
+          durationInSeconds: combat.durationInSeconds,
+          winningTeamId: combat.endInfo.winningTeamId,
+        };
+
         if (wowVersion === combat.wowVersion) {
           if (currentActivity) {
             // eslint-disable-next-line no-console
@@ -223,13 +264,8 @@ export const LocalCombatsContextProvider = (props: IProps) => {
               window.wowarenalogs.obs.stopRecording({
                 startDate: new Date(combat.startTime),
                 endDate: new Date(combat.endTime),
-                metadata: {
-                  didWin: combat.result === CombatResult.Win,
-                  id: combat.id,
-                  durationSeconds: combat.durationInSeconds,
-                  bracket: combat.startInfo.bracket,
-                },
-                overrun: 0,
+                metadata,
+                overrun: MATCH_OVERRUN_SECONDS,
                 fileName: `${combat.startInfo.bracket}_${combat.id}`,
               });
           }
@@ -247,6 +283,16 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleMalformedCombatDetected((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
+          if (currentActivity) {
+            currentActivity = null;
+            window.wowarenalogs.obs?.stopRecording &&
+              window.wowarenalogs.obs.stopRecording({
+                startDate: new Date(combat.startTime),
+                endDate: new Date(),
+                overrun: MATCH_OVERRUN_SECONDS,
+                fileName: `WoW_Arena_Logs_Error_${combat.id}`,
+              });
+          }
           // eslint-disable-next-line no-console
           console.log('Malformed combat');
           // eslint-disable-next-line no-console

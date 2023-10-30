@@ -4,7 +4,7 @@ import path from 'path';
 import { app, BrowserWindow, ClientRequestConstructorOptions, Display, net, screen } from 'electron';
 // import { EventType, uIOhook, UiohookKeyboardEvent, UiohookMouseEvent } from 'uiohook-napi';
 import { PTTKeyPressEvent } from './keyTypesUIOHook';
-import { Metadata, FileInfo, FileSortDirection, OurDisplayType, ObsAudioConfig } from './types';
+import { Metadata, FileInfo, FileSortDirection, OurDisplayType, ObsAudioConfig, VideoQueueItem } from './types';
 import { access, existsSync, readdir, readFile, readFileSync, stat, unlink, writeFile } from 'fs-extra';
 
 const getResolvedHtmlPath = () => {
@@ -113,11 +113,11 @@ const getMetadataForVideo = async (video: string) => {
 /**
  * Writes video metadata asynchronously and returns a Promise
  */
-const writeMetadataFile = async (videoPath: string, metadata: Metadata) => {
+const writeMetadataFile = async (videoPath: string, data: VideoQueueItem) => {
   console.info('[Util] Write Metadata file', videoPath);
 
   const metadataFileName = getMetadataFileNameForVideo(videoPath);
-  const jsonString = JSON.stringify(metadata, null, 2);
+  const jsonString = JSON.stringify({ videoPath, ...data }, null, 2);
 
   writeFile(metadataFileName, jsonString, {
     encoding: 'utf-8',
@@ -165,28 +165,25 @@ const deleteVideo = async (videoPath: string) => {
  * Put a save marker on a video, protecting it from the file monitor.
  */
 const toggleVideoProtected = async (videoPath: string) => {
-  let metadata;
-
-  try {
-    metadata = await getMetadataForVideo(videoPath);
-  } catch (err) {
-    console.error(
-      `[Util] Metadata not found for '${videoPath}', but somehow we managed to load it. This shouldn't happen.`,
-    );
-
-    return;
-  }
-
-  if (metadata.protected === undefined) {
-    console.info(`[Util] User protected ${videoPath}`);
-    metadata.protected = true;
-  } else {
-    metadata.protected = !metadata.protected;
-
-    console.info(`[Util] User toggled protection on ${videoPath}, now ${metadata.protected}`);
-  }
-
-  await writeMetadataFile(videoPath, metadata);
+  // TODO: MIGHTFIX re-implement protection from Size Monitor?
+  throw new Error('Not implemented!');
+  // let metadata;
+  // try {
+  //   metadata = await getMetadataForVideo(videoPath);
+  // } catch (err) {
+  //   console.error(
+  //     `[Util] Metadata not found for '${videoPath}', but somehow we managed to load it. This shouldn't happen.`,
+  //   );
+  //   return;
+  // }
+  // if (metadata.protected === undefined) {
+  //   console.info(`[Util] User protected ${videoPath}`);
+  //   metadata.protected = true;
+  // } else {
+  //   metadata.protected = !metadata.protected;
+  //   console.info(`[Util] User toggled protection on ${videoPath}, now ${metadata.protected}`);
+  // }
+  // await writeMetadataFile(videoPath, metadata);
 };
 
 /**

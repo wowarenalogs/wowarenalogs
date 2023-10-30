@@ -1,0 +1,91 @@
+/* eslint-disable no-console */
+import { useEffect, useRef, useState } from 'react';
+
+import { ArenaMatchMetadata, INativeBridge, ShuffleMatchMetadata } from '../../..';
+import { useCombatReportContext } from '../CombatReportContext';
+
+declare global {
+  interface Window {
+    wowarenalogs: INativeBridge;
+  }
+}
+
+// TODO: MUSTFIX what does this value represent? Where should we store it?
+const MATCH_START_CORRECTION = 2.75;
+
+function getMatchTimeoffsetSeconds(matchId: string, metadata: ArenaMatchMetadata | ShuffleMatchMetadata) {
+  if (metadata.dataType == 'ShuffleMatchMetadata') {
+    const roundOne = metadata.roundStarts.find((r) => r.sequenceNumber === 0);
+    const roundInfo = metadata.roundStarts.find((r) => r.id === matchId);
+    if (!roundOne || !roundInfo) return;
+    const roundTimeOffset = (roundInfo.startInfo.timestamp - roundOne.startInfo.timestamp) / 1000;
+    return roundTimeOffset + MATCH_START_CORRECTION;
+  } else {
+    return MATCH_START_CORRECTION;
+  }
+}
+
+export const CombatVideo = () => {
+  const { combat } = useCombatReportContext();
+  const [foundVodRef, setFoundVodRef] = useState<
+    { videoPath: string; metadata: ArenaMatchMetadata | ShuffleMatchMetadata } | undefined
+  >();
+
+  useEffect(() => {
+    async function find() {
+      if (window.wowarenalogs.obs.findVideoForMatch && combat?.id) {
+        // eslint-disable-next-line no-console
+        console.log(`Searching for ${combat?.id}`);
+        const f = await window.wowarenalogs.obs.findVideoForMatch('D:\\Video', combat.id);
+        // eslint-disable-next-line no-console
+        setFoundVodRef(f);
+      }
+    }
+    find();
+  }, [combat]);
+
+  const vidRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!combat) return;
+    if (!foundVodRef) return;
+    if (!vidRef.current) return;
+    vidRef.current.currentTime = getMatchTimeoffsetSeconds(combat.id, foundVodRef.metadata) || MATCH_START_CORRECTION;
+  }, [combat, foundVodRef]);
+
+  if (!combat || !foundVodRef) {
+    return null;
+  }
+
+  return (
+    <div className="animate-fadein flex flex-col gap-2">
+      <button
+        className="btn"
+        onClick={() => {
+          if (!vidRef.current) return;
+
+          const offset = getMatchTimeoffsetSeconds(combat.id, foundVodRef.metadata);
+          vidRef.current.currentTime = offset || MATCH_START_CORRECTION;
+          vidRef.current.play();
+        }}
+      >
+        Play from start of round
+      </button>
+      <video
+        controls
+        id="video"
+        ref={vidRef}
+        // domain here looks weird but chrome will canonicalize the item in the string it thinks is the domain
+        // which will lead to the b64 string losing its casing :(
+        src={`vod://wowarenalogs/${btoa(foundVodRef.videoPath)}`}
+        style={{
+          margin: 'auto',
+          flex: 1,
+          objectFit: 'contain',
+          minWidth: 0,
+          minHeight: 0,
+        }}
+      />
+    </div>
+  );
+};
