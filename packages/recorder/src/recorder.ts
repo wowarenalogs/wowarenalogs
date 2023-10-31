@@ -340,8 +340,8 @@ export class Recorder {
       const obsExecutableFilename = path.join(obsPath, 'obs64.exe');
       const osnDataPath = fixPathWhenPackaged(path.join(__dirname, 'dist', 'osn-data'));
 
-      console.log(
-        `Loading OBS obsPath=${obsPath} obsExecutableFilename=${obsExecutableFilename} osnDataPath=${osnDataPath}`,
+      console.info(
+        `[Recorder] Loading OBS obsPath=${obsPath} obsExecutableFilename=${obsExecutableFilename} osnDataPath=${osnDataPath}`,
       );
       const testObsPath = fs.existsSync(obsPath);
       const testExec = fs.existsSync(obsExecutableFilename);
@@ -353,15 +353,15 @@ export class Recorder {
         throw new Error(`Could not find obs64.exe at ${obsExecutableFilename}`);
       }
 
-      console.log(`Setting server path ${obsExecutableFilename} ${obsPath}`);
+      console.info(`[Recorder] Setting server path ${obsExecutableFilename} ${obsPath}`);
       osn.NodeObs.IPC.setServerPath(obsExecutableFilename, obsPath);
-      console.log(`Setting host ${this.uuid}`);
+      console.info(`[Recorder] Setting host ${this.uuid}`);
       osn.NodeObs.IPC.host(this.uuid);
-      console.log(`Setting working directory ${obsPath}`);
+      console.info(`[Recorder] Setting working directory ${obsPath}`);
       osn.NodeObs.SetWorkingDirectory(obsPath);
-      console.log(`Setting osnDataPath ${osnDataPath}`);
+      console.info(`[Recorder] Setting osnDataPath ${osnDataPath}`);
       const initResult = osn.NodeObs.OBS_API_initAPI('en-US', osnDataPath, '1.0.0', '');
-      console.log('OBS init:', initResult);
+      console.info('[Recorder] OBS init:', initResult);
       if (initResult !== 0) {
         throw new Error(`OBS process initialization failed with code ${initResult}`);
       }

@@ -88,7 +88,6 @@ export class ObsModule extends NativeBridgeModule {
     const filesInFolder = await readdir(configFolder);
     const metadataFiles = filesInFolder.filter((f) => f.endsWith('.json'));
     for (let i = 0; i < metadataFiles.length; i++) {
-      console.log('Reading', metadataFiles[i]);
       const fino = await readFile(path.join(configFolder, metadataFiles[i]));
       if (fino.includes(matchId)) {
         return JSON.parse(fino.toString()) as {

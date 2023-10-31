@@ -101,22 +101,18 @@ const RecordingConfig = () => {
       if (window.wowarenalogs.obs.getRecorderStatus) {
         const status = await window.wowarenalogs.obs.getRecorderStatus();
         setRecordingStatus(status);
-        console.log('init', typeof status);
       }
     }
     checkStatus();
   }, []);
 
   useEffect(() => {
-    console.log('config subscribed');
     if (window.wowarenalogs.obs.configUpdated) {
       window.wowarenalogs.obs.configUpdated((_e, newConf) => {
-        console.log('new config', newConf);
         setConfigStore(newConf);
       });
     }
     return () => {
-      console.log('Config unsubscribed');
       window.wowarenalogs.obs.removeAll_configUpdated_listeners &&
         window.wowarenalogs.obs.removeAll_configUpdated_listeners();
     };
@@ -125,7 +121,6 @@ const RecordingConfig = () => {
   useEffect(() => {
     if (window.wowarenalogs.obs.recorderStatusUpdated) {
       window.wowarenalogs.obs.recorderStatusUpdated((_e, status, err) => {
-        console.log('stat', { status, err });
         setRecordingStatus(status);
         setRecordStatusError(err || '');
       });

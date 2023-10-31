@@ -52,9 +52,9 @@ export default class VideoProcessQueue {
   }
 
   queueVideo = async (queueItem: VideoQueueItem) => {
-    console.log('[VideoProcessQueue] Queuing video for processing', queueItem);
+    console.info('[VideoProcessQueue] Queuing video for processing', queueItem);
     this.processVideoQueueItem(queueItem, () => {
-      console.log('VP done');
+      console.info(`[VideoProcessQueue] Queue processed ${queueItem.filename}`);
     });
   };
 

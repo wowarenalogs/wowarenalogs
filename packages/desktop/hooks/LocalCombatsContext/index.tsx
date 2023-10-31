@@ -173,10 +173,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       if (window.wowarenalogs.logs?.handleActivityStarted) {
         window.wowarenalogs.logs.handleActivityStarted((_nodeEvent, activityStartedEvent) => {
-          // eslint-disable-next-line no-console
-          console.log(`${new Date()} activityStartedEvent`);
-          // eslint-disable-next-line no-console
-          console.log({ activityStartedEvent, currentActivity });
           if (!currentActivity) {
             currentActivity = activityStartedEvent;
             window.wowarenalogs.obs?.startRecording && window.wowarenalogs.obs.startRecording();
@@ -258,7 +254,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         if (wowVersion === combat.wowVersion) {
           if (currentActivity) {
             // eslint-disable-next-line no-console
-            console.log('would-end-shf', combat);
             currentActivity = null;
             window.wowarenalogs.obs?.stopRecording &&
               window.wowarenalogs.obs.stopRecording({
