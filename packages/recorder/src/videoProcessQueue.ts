@@ -59,12 +59,10 @@ export default class VideoProcessQueue {
   };
 
   private async processVideoQueueItem(data: VideoQueueItem, done: () => void): Promise<void> {
-    // TODO: MUSTFIX re-implement length check var
-    const isLongEnough = true;
-    // duration >= this.cfg.get<number>('minEncounterDuration');
+    const minDuration = this.cfg.get<number>('minActivityDuration');
 
-    if (!isLongEnough) {
-      console.info('[VideoProcessQueue] Raid encounter was too short, discarding');
+    if (data.duration < minDuration) {
+      console.info(`[VideoProcessQueue] Activity ${data.filename} lasting ${data.duration}s was too short, discarding`);
       done();
       return;
     }

@@ -9,7 +9,8 @@ declare global {
   }
 }
 
-// TODO: MUSTFIX what does this value represent? Where should we store it?
+// TODO: What does this value represent? Where should we store it?
+// Downgraded this from MUSTFIX to just a todo. This will need more exploration.
 const MATCH_START_CORRECTION = 0;
 // I have observed correct values for this between 1 - 2.75s
 // it appears to be some discrepency between the combat log timestamps and system clock?

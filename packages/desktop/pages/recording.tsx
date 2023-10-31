@@ -228,9 +228,12 @@ const RecordingConfig = () => {
             <button
               className="btn"
               onClick={() => {
+                const now = new Date();
                 window.wowarenalogs.obs?.stopRecording &&
                   window.wowarenalogs.obs.stopRecording({
-                    startDate: new Date(),
+                    // Test: a video starting 10s ago and 5s of overrun
+                    // this should write a 15s video
+                    startDate: new Date(now.getTime() - 10000),
                     endDate: new Date(),
                     fileName: 'test',
                     overrun: 5,

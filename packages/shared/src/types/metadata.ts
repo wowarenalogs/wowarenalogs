@@ -1,6 +1,5 @@
 import { ArenaMatchEndInfo, ArenaMatchStartInfo, CombatResult, WowVersion } from '@wowarenalogs/parser';
 
-/** TODO: MUSTFIX move these to somewhere move centralized */
 export interface IMetadata {
   dataType: 'ArenaMatchMetadata' | 'ShuffleMatchMetadata';
   startInfo: ArenaMatchStartInfo;

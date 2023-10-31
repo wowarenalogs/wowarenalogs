@@ -8,7 +8,7 @@ export type ConfigurationSchema = {
   monitorIndex: number;
   audioInputDevices: string;
   audioOutputDevices: string;
-  minEncounterDuration: number;
+  minActivityDuration: number;
   obsOutputResolution: string;
   obsFPS: number;
   obsForceMono: boolean;
@@ -80,11 +80,10 @@ export const configSchema: Schema<ConfigurationSchema> = {
     type: 'string',
     default: '',
   },
-  minEncounterDuration: {
-    description:
-      'Minimum raid boss encounter duration, encounters shorter than this will not be recorded. This setting is aimed at avoiding saving boss resets.',
+  minActivityDuration: {
+    description: 'Activities shorter than this will not be recorded.',
     type: 'integer',
-    default: 15,
+    default: 9,
     maximum: 10000,
   },
   obsOutputResolution: {
