@@ -11,6 +11,8 @@ declare global {
 
 // TODO: MUSTFIX what does this value represent? Where should we store it?
 const MATCH_START_CORRECTION = 0;
+// I have observed correct values for this between 1 - 2.75s
+// it appears to be some discrepency between the combat log timestamps and system clock?
 
 function getMatchTimeoffsetSeconds(matchId: string, metadata: ArenaMatchMetadata | ShuffleMatchMetadata) {
   if (metadata.dataType == 'ShuffleMatchMetadata') {
@@ -68,7 +70,7 @@ export const CombatVideo = () => {
   }
 
   return (
-    <div className="animate-fadein flex flex-col gap-2">
+    <div className="animate-fadein flex flex-col gap-2 flex-1 h-full">
       <button
         className="btn"
         onClick={() => {
@@ -90,11 +92,7 @@ export const CombatVideo = () => {
         // which will lead to the b64 string losing its casing :(
         src={`vod://wowarenalogs/${btoa(foundVodRef.videoPath)}`}
         style={{
-          margin: 'auto',
-          flex: 1,
-          objectFit: 'contain',
-          minWidth: 0,
-          minHeight: 0,
+          maxHeight: 'calc(100vh - 200px)', // TODO: MIGHTFIX figure out how to contain video without allowing scrollbars here
         }}
       />
     </div>

@@ -17,15 +17,7 @@ import { ERecordingState } from './obsEnums';
 // import { uIOhook } from 'uiohook-napi';
 import Poller from './poller';
 import { Recorder } from './recorder';
-import {
-  ConfigStage,
-  ObsAudioConfig,
-  ObsBaseConfig,
-  ObsOverlayConfig,
-  ObsVideoConfig,
-  RecStatus,
-  StorageConfig,
-} from './types';
+import { ConfigStage, ObsAudioConfig, ObsBaseConfig, ObsOverlayConfig, ObsVideoConfig, StorageConfig } from './types';
 
 /**
  * The manager class is responsible for orchestrating all the functional
@@ -191,11 +183,11 @@ export class Manager {
    */
   private refreshStatus(invalidConfig: boolean, message = '') {
     if (invalidConfig) {
-      this.recorder.updateStatus(RecStatus.InvalidConfig, String(message));
+      this.recorder.updateStatus('InvalidConfig', String(message));
     } else if (this.recorder.obsState === ERecordingState.Offline) {
-      this.recorder.updateStatus(RecStatus.WaitingForWoW);
+      this.recorder.updateStatus('WaitingForWoW');
     } else {
-      this.recorder.updateStatus(RecStatus.ReadyToRecord);
+      this.recorder.updateStatus('ReadyToRecord');
     }
   }
 
@@ -367,6 +359,8 @@ export class Manager {
 
   public subscribeToConfigurationUpdates(callback: ConfigurationChangeCallback) {
     this.cfg.subscribeToConfigurationUpdates(callback);
+    /** Let consumers sync with an initial event */
+    callback(this.cfg.getStore(), undefined);
   }
 
   /**

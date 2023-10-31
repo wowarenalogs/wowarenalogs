@@ -283,6 +283,8 @@ export class Recorder {
    */
   public recordingStateChangedCallback: ((status: RecStatus, error?: string) => void) | null = null;
 
+  public recorderStatus: RecStatus = 'WaitingForWoW';
+
   /**
    * Load OBS libraries as a DLL instead of through static imports
    * This is to let implementers choose to simply not bundle OBS libraries for platforms
@@ -473,22 +475,22 @@ export class Recorder {
       case EOBSOutputSignal.Start:
         this.startQueue.push(obsSignal);
         this.obsState = ERecordingState.Recording;
-        this.updateStatus(RecStatus.ReadyToRecord);
+        this.updateStatus('ReadyToRecord');
         break;
 
       case EOBSOutputSignal.Starting:
         this.obsState = ERecordingState.Starting;
-        this.updateStatus(RecStatus.ReadyToRecord);
+        this.updateStatus('ReadyToRecord');
         break;
 
       case EOBSOutputSignal.Stop:
         this.obsState = ERecordingState.Offline;
-        this.updateStatus(RecStatus.WaitingForWoW);
+        this.updateStatus('WaitingForWoW');
         break;
 
       case EOBSOutputSignal.Stopping:
         this.obsState = ERecordingState.Stopping;
-        this.updateStatus(RecStatus.WaitingForWoW);
+        this.updateStatus('WaitingForWoW');
         break;
 
       case EOBSOutputSignal.Wrote:
@@ -936,7 +938,7 @@ export class Recorder {
       retries--;
     }
 
-    this.updateStatus(RecStatus.Recording);
+    this.updateStatus('Recording');
     this.cancelBufferTimers();
     this.isRecording = true;
   }
@@ -967,7 +969,7 @@ export class Recorder {
     console.info(`[Recorder] Stop recording after overrun: ${overrun}s`);
     const { promise, resolveHelper } = deferredPromiseHelper<void>();
     this.overrunPromise = promise;
-    this.updateStatus(RecStatus.Overruning);
+    this.updateStatus('Overrunning');
     this.isOverruning = true;
 
     // Await for the specified overrun.
@@ -1078,7 +1080,7 @@ export class Recorder {
       this.recorderStartDate = new Date();
     } catch (error) {
       console.error(`[Recorder] Failed to start OBS: ${String(error)}`);
-      this.updateStatus(RecStatus.FatalError, String(error));
+      this.updateStatus('FatalError', String(error));
     }
   }
 
@@ -1112,7 +1114,7 @@ export class Recorder {
       this.wroteQueue.empty();
     } catch (error) {
       console.error(`[Recorder] Failed to stop OBS: ${String(error)}`);
-      this.updateStatus(RecStatus.FatalError, String(error));
+      this.updateStatus('FatalError', String(error));
     }
   }
 
@@ -1239,6 +1241,7 @@ export class Recorder {
    * Set status of recorder
    */
   public updateStatus(status: RecStatus, err = '') {
+    this.recorderStatus = status;
     if (this.recordingStateChangedCallback) {
       this.recordingStateChangedCallback(status, err);
     }

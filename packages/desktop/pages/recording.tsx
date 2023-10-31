@@ -1,12 +1,11 @@
 /* eslint-disable no-console */
-import { ConfigurationSchema, IOBSDevice, ResolutionOptions } from '@wowarenalogs/recorder';
+import { ConfigurationSchema, IOBSDevice, RecStatus, ResolutionOptions } from '@wowarenalogs/recorder';
 import { Dropdown, useClientContext } from '@wowarenalogs/shared';
 import { useEffect, useState } from 'react';
 import {
   TbAlertCircle,
   TbAlertOctagon,
   TbCaretDown,
-  TbPlayerStop,
   TbSettings,
   TbVideo,
   TbVideoMinus,
@@ -43,32 +42,32 @@ const resolutionOptions: ResolutionOptions[] = [
 
 // more enum bullshit
 // const recStatus = ['WaitingForWoW', 'Recording', 'InvalidConfig', 'ReadyToRecord', 'FatalError', 'Overruning'];
-const recStates: Record<number, { icon: JSX.Element; message: string }> = {
-  [-1]: {
-    icon: <TbPlayerStop />,
+const recStates: Record<RecStatus | 'EngineNotStarted', { icon: JSX.Element; message: string }> = {
+  EngineNotStarted: {
+    icon: <TbVideo size={32} color="gray" />,
     message: 'Engine not started',
   },
-  0: {
+  WaitingForWoW: {
     icon: <TbVideoOff size={32} color="yellow" />,
     message: 'Waiting for WoW process or settings change...',
   },
-  1: {
+  Recording: {
     icon: <TbVideo size={32} color="green" />,
     message: 'Recording active',
   },
-  2: {
+  InvalidConfig: {
     icon: <TbAlertCircle size={32} color="red" />,
     message: '',
   },
-  3: {
+  ReadyToRecord: {
     icon: <TbVideoMinus size={32} color="aqua" />,
     message: 'Ready',
   },
-  4: {
+  FatalError: {
     icon: <TbAlertOctagon size={32} color="red" />,
     message: 'Fatal error!',
   },
-  5: {
+  Overrunning: {
     icon: <TbVideoPlus size={32} />,
     message: 'Recording overrun...',
   },
@@ -78,20 +77,22 @@ const RecordingConfig = () => {
   const clientContext = useClientContext();
   const [outputAudioOptions, setOutputAudioOptions] = useState<IOBSDevice[]>([]);
   const [configStore, setConfigStore] = useState<ConfigurationSchema | undefined | null>(null);
-  const [recordingStatus, setRecordingStatus] = useState(-1);
+  const [recordingStatus, setRecordingStatus] = useState<RecStatus | 'EngineNotStarted'>('EngineNotStarted');
   const [recordStatusError, setRecordStatusError] = useState('');
 
-  useEffect(() => {
-    async function checkAudioDevices() {
-      if (window.wowarenalogs.obs.getAudioDevices) {
-        const devices = await window.wowarenalogs.obs.getAudioDevices();
-        setOutputAudioOptions(devices?.output || []);
-      }
-      if (window.wowarenalogs.obs.getConfiguration) {
-        const config = await window.wowarenalogs.obs.getConfiguration();
-        setConfigStore(config);
-      }
+  const engineStarted = recordingStatus !== 'EngineNotStarted';
+
+  async function checkAudioDevices() {
+    if (window.wowarenalogs.obs.getAudioDevices) {
+      const devices = await window.wowarenalogs.obs.getAudioDevices();
+      setOutputAudioOptions(devices?.output || []);
     }
+    if (window.wowarenalogs.obs.getConfiguration) {
+      const config = await window.wowarenalogs.obs.getConfiguration();
+      setConfigStore(config);
+    }
+  }
+  useEffect(() => {
     checkAudioDevices();
   }, []);
 
@@ -99,7 +100,7 @@ const RecordingConfig = () => {
     async function checkStatus() {
       if (window.wowarenalogs.obs.getRecorderStatus) {
         const status = await window.wowarenalogs.obs.getRecorderStatus();
-        setRecordingStatus(status as unknown as number);
+        setRecordingStatus(status);
         console.log('init', typeof status);
       }
     }
@@ -145,13 +146,14 @@ const RecordingConfig = () => {
       <div className="text-2xl font-bold mb-2">OBS Recording Settings</div>
       <div className="flex flex-row justify-between">
         <div className="flex flex-col gap-2">
-          {recordingStatus !== -1 && (
+          {!engineStarted && (
             <button
               className="btn"
-              disabled={recordingStatus !== -1}
+              disabled={engineStarted}
               onClick={() => {
                 if (window.wowarenalogs.obs.startRecordingEngine) {
                   window.wowarenalogs.obs.startRecordingEngine();
+                  checkAudioDevices();
                 }
               }}
             >

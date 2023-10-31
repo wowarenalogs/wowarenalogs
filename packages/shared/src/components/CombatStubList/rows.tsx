@@ -83,9 +83,7 @@ export function ShuffleRoundRow({
   viewerIsOwner?: boolean;
   source: CombatStubListSource;
 }) {
-  const maybeShuffleId = combat.isLocal ? null : combat.match.shuffleMatchId;
-  const matchId = combat.match.id || maybeShuffleId;
-
+  const matchId = combat.isLocal ? combat.match.id : combat.match.shuffleMatchId;
   const round = combat.match;
   const roundTitle = `Round ${round.sequenceNumber + 1} ${round.result === CombatResult.Win ? 'win' : 'loss'}`;
 

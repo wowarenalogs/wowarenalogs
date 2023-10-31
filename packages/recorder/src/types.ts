@@ -5,14 +5,13 @@ import ConfigService from './configService';
 /**
  * Application recording status.
  */
-export enum RecStatus {
-  WaitingForWoW,
-  Recording,
-  InvalidConfig,
-  ReadyToRecord,
-  FatalError,
-  Overruning,
-}
+export type RecStatus =
+  | 'WaitingForWoW'
+  | 'Recording'
+  | 'InvalidConfig'
+  | 'ReadyToRecord'
+  | 'FatalError'
+  | 'Overrunning';
 
 export enum MicStatus {
   NONE,

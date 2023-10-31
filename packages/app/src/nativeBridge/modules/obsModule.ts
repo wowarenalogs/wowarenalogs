@@ -1,41 +1,11 @@
 /* eslint-disable no-console */
-import { ArenaMatchEndInfo, ArenaMatchStartInfo, CombatResult, WowVersion } from '@wowarenalogs/parser';
 import { ConfigurationSchema, IActivity, Manager, Recorder, RecStatus } from '@wowarenalogs/recorder';
+import type { ArenaMatchMetadata, ShuffleMatchMetadata } from '@wowarenalogs/shared';
 import { BrowserWindow, dialog } from 'electron';
 import { readdir, readFile } from 'fs-extra';
 import path from 'path';
 
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
-
-// TODO: MUSTFIX: copies!!!!
-export interface IMetadata {
-  dataType: 'ArenaMatchMetadata' | 'ShuffleMatchMetadata';
-  startInfo: ArenaMatchStartInfo;
-  endInfo: ArenaMatchEndInfo;
-  wowVersion: WowVersion;
-  id: string;
-  timezone: string;
-  startTime: number;
-  endTime: number;
-  playerId: string;
-  playerTeamId: string;
-  result: CombatResult;
-  durationInSeconds: number;
-  winningTeamId: string;
-}
-
-export interface ArenaMatchMetadata extends IMetadata {
-  dataType: 'ArenaMatchMetadata';
-}
-
-export interface ShuffleMatchMetadata extends IMetadata {
-  dataType: 'ShuffleMatchMetadata';
-  roundStarts: {
-    id: string;
-    startInfo: ArenaMatchStartInfo;
-    sequenceNumber: number;
-  }[];
-}
 
 @nativeBridgeModule('obs')
 export class ObsModule extends NativeBridgeModule {
@@ -97,7 +67,7 @@ export class ObsModule extends NativeBridgeModule {
 
   @moduleFunction()
   public async getRecorderStatus(_mainWindow: BrowserWindow) {
-    return this.manager?.recorder.obsState || -1;
+    return this.manager?.recorder.recorderStatus || 'EngineNotStarted';
   }
 
   @moduleEvent('on')
