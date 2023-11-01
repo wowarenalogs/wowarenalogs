@@ -101,7 +101,7 @@ const Page = () => {
           Support us on Patreon
         </button>
       </div>
-      {window.wowarenalogs.platform === 'win32' && <RecordingSettings />}
+      {window.wowarenalogs.platform === 'win32' && window.wowarenalogs.obs && <RecordingSettings />}
     </div>
   );
 };

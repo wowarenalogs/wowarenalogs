@@ -83,11 +83,11 @@ const RecordingSettings = () => {
   const engineStarted = recordingStatus !== 'EngineNotStarted';
 
   async function checkAudioDevices() {
-    if (window.wowarenalogs.obs.getAudioDevices) {
+    if (window.wowarenalogs.obs?.getAudioDevices) {
       const devices = await window.wowarenalogs.obs.getAudioDevices();
       setOutputAudioOptions(devices?.output || []);
     }
-    if (window.wowarenalogs.obs.getConfiguration) {
+    if (window.wowarenalogs.obs?.getConfiguration) {
       const config = await window.wowarenalogs.obs.getConfiguration();
       setConfigStore(config);
     }
@@ -98,7 +98,7 @@ const RecordingSettings = () => {
 
   useEffect(() => {
     async function checkStatus() {
-      if (window.wowarenalogs.obs.getRecorderStatus) {
+      if (window.wowarenalogs.obs?.getRecorderStatus) {
         const status = await window.wowarenalogs.obs.getRecorderStatus();
         setRecordingStatus(status);
       }
@@ -107,27 +107,21 @@ const RecordingSettings = () => {
   }, []);
 
   useEffect(() => {
-    if (window.wowarenalogs.obs.configUpdated) {
-      window.wowarenalogs.obs.configUpdated((_e, newConf) => {
-        setConfigStore(newConf);
-      });
-    }
+    window.wowarenalogs.obs?.configUpdated?.((_e, newConf) => {
+      setConfigStore(newConf);
+    });
     return () => {
-      window.wowarenalogs.obs.removeAll_configUpdated_listeners &&
-        window.wowarenalogs.obs.removeAll_configUpdated_listeners();
+      window.wowarenalogs.obs?.removeAll_configUpdated_listeners?.();
     };
   }, []);
 
   useEffect(() => {
-    if (window.wowarenalogs.obs.recorderStatusUpdated) {
-      window.wowarenalogs.obs.recorderStatusUpdated((_e, status, err) => {
-        setRecordingStatus(status);
-        setRecordStatusError(err || '');
-      });
-    }
+    window.wowarenalogs.obs?.recorderStatusUpdated?.((_e, status, err) => {
+      setRecordingStatus(status);
+      setRecordStatusError(err || '');
+    });
     return () => {
-      window.wowarenalogs.obs.removeAll_recorderStatusUpdated_listeners &&
-        window.wowarenalogs.obs.removeAll_recorderStatusUpdated_listeners();
+      window.wowarenalogs.obs?.removeAll_recorderStatusUpdated_listeners?.();
     };
   }, []);
 
@@ -141,7 +135,7 @@ const RecordingSettings = () => {
       <div className="text-2xl font-bold mb-1">OBS Recording Settings</div>
       <div
         className="mb-2 label-text"
-        onClick={() => window.wowarenalogs.links.openExternalURL('https://discord.gg/NFTPK9tmJK')}
+        onClick={() => window.wowarenalogs.links?.openExternalURL('https://discord.gg/NFTPK9tmJK')}
       >
         For help setting OBS recording up, please see our pinned guide in the #faq channel on{' '}
         <span className="underline">Discord</span>
@@ -153,10 +147,8 @@ const RecordingSettings = () => {
               className="btn"
               disabled={engineStarted}
               onClick={() => {
-                if (window.wowarenalogs.obs.startRecordingEngine) {
-                  window.wowarenalogs.obs.startRecordingEngine();
-                  checkAudioDevices();
-                }
+                window.wowarenalogs.obs?.startRecordingEngine?.();
+                checkAudioDevices();
               }}
             >
               Start OBS Engine
@@ -173,7 +165,7 @@ const RecordingSettings = () => {
               <Dropdown
                 menuItems={outputAudioOptions.map((k) => ({
                   onClick: () => {
-                    window.wowarenalogs.obs.setConfig?.('audioOutputDevices', k.id);
+                    window.wowarenalogs.obs?.setConfig?.('audioOutputDevices', k.id);
                   },
                   key: k.id,
                   label: k.description,
@@ -190,7 +182,7 @@ const RecordingSettings = () => {
               <Dropdown
                 menuItems={resolutionOptions.map((k) => ({
                   onClick: () => {
-                    window.wowarenalogs.obs.setConfig?.('obsOutputResolution', k);
+                    window.wowarenalogs.obs?.setConfig?.('obsOutputResolution', k);
                   },
                   key: k,
                   label: k,
@@ -207,10 +199,10 @@ const RecordingSettings = () => {
               <button
                 className="btn"
                 onClick={async () => {
-                  if (window.wowarenalogs.obs.selectFolder) {
+                  if (window.wowarenalogs.obs?.selectFolder) {
                     const folderChoice = await window.wowarenalogs.obs.selectFolder('Select folder to store videos to');
                     if (folderChoice.length > 0) {
-                      window.wowarenalogs.obs.setConfig?.('storagePath', folderChoice[0]);
+                      window.wowarenalogs.obs?.setConfig?.('storagePath', folderChoice[0]);
                     }
                   }
                 }}
@@ -235,7 +227,7 @@ const RecordingSettings = () => {
               className="btn"
               onClick={() => {
                 const now = new Date();
-                window.wowarenalogs.obs.stopRecording?.({
+                window.wowarenalogs.obs?.stopRecording?.({
                   // Test: a video starting 10s ago and 5s of overrun
                   // this should write a 15s video
                   startDate: new Date(now.getTime() - 10000),
@@ -250,7 +242,7 @@ const RecordingSettings = () => {
             <button
               className="btn"
               onClick={() => {
-                window.wowarenalogs.obs.setConfig?.('storagePath', 'd');
+                window.wowarenalogs.obs?.setConfig?.('storagePath', 'd');
               }}
             >
               Test Erase Storage Path Config

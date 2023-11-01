@@ -36,8 +36,8 @@ export const CombatVideo = () => {
 
   useEffect(() => {
     async function find() {
-      if (window.wowarenalogs.obs.findVideoForMatch && combat?.id) {
-        const f = await window.wowarenalogs.obs.findVideoForMatch('D:\\Video', combat.id);
+      if (window.wowarenalogs.obs?.findVideoForMatch && combat?.id) {
+        const f = await window.wowarenalogs.obs?.findVideoForMatch('D:\\Video', combat.id);
         if (f) {
           if (f.metadata?.dataType) {
             // Since we are casting the metadata into a type from decoded JSON, we are a little more careful

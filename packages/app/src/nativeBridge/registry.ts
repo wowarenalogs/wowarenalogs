@@ -96,7 +96,7 @@ export class NativeBridgeRegistry {
         throw new Error('module metadata not found');
       }
 
-      typeString += `${moduleMetadata.name}: {`;
+      typeString += `${moduleMetadata.name}?: {`;
       Object.values(moduleMetadata.functions).forEach((func) => {
         const optionalDecorator = func.isRequired ? '' : '?';
         typeString += `${func.name}${optionalDecorator}: OmitFirstArg<${moduleMetadata.constructor.name}["${func.name}"]>,`;
