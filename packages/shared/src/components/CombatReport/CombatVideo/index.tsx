@@ -174,7 +174,7 @@ export const CombatVideo = () => {
           // which will lead to the b64 string losing its casing :(
           src={`vod://wowarenalogs/${btoa(videoInformation.videoPath)}`}
           style={{
-            maxHeight: 'calc(100vh - 240px)', // TODO: MIGHTFIX figure out how to contain video without allowing scrollbars here
+            maxHeight: 'calc(100vh - 200px)', // TODO: MIGHTFIX figure out how to contain video without allowing scrollbars here
           }}
         />
       </div>
