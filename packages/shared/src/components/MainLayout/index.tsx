@@ -89,19 +89,6 @@ export function MainLayout(props: IProps) {
           </Link>
         </div>
         <div className="flex-1" />
-        {clientContext.isDesktop && (
-          <div
-            className={`p-2 hover:text-primary ${
-              selectedNavMenuKey === '/recording' ? 'bg-base-100 text-primary' : ''
-            }`}
-          >
-            <Link href="/recording">
-              <a>
-                <TbVideo size="32" />
-              </a>
-            </Link>
-          </div>
-        )}
         {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
           <div
             className={`p-2 hover:text-primary ${selectedNavMenuKey === '/debug' ? 'bg-base-100 text-primary' : ''}`}

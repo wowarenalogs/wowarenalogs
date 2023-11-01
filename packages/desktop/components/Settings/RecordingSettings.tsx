@@ -73,7 +73,7 @@ const recStates: Record<RecStatus | 'EngineNotStarted', { icon: JSX.Element; mes
   },
 };
 
-const RecordingConfig = () => {
+const RecordingSettings = () => {
   const clientContext = useClientContext();
   const [outputAudioOptions, setOutputAudioOptions] = useState<IOBSDevice[]>([]);
   const [configStore, setConfigStore] = useState<ConfigurationSchema | undefined | null>(null);
@@ -137,8 +137,15 @@ const RecordingConfig = () => {
   const showDebugInfo = process.env.NODE_ENV === 'development' && clientContext.isDesktop;
 
   return (
-    <div className="p-2 gap-2 min-h-screen">
-      <div className="text-2xl font-bold mb-2">OBS Recording Settings</div>
+    <div className="gap-2 min-h-screen">
+      <div className="text-2xl font-bold mb-1">OBS Recording Settings</div>
+      <div
+        className="mb-2 label-text"
+        onClick={() => window.wowarenalogs.links.openExternalURL('https://discord.gg/NFTPK9tmJK')}
+      >
+        For help setting OBS recording up, please see our pinned guide in the #faq channel on{' '}
+        <span className="underline">Discord</span>
+      </div>
       <div className="flex flex-row justify-between">
         <div className="flex flex-col gap-2">
           {!engineStarted && (
@@ -258,4 +265,4 @@ const RecordingConfig = () => {
   );
 };
 
-export default RecordingConfig;
+export default RecordingSettings;
