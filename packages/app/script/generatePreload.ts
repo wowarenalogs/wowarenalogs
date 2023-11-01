@@ -1,5 +1,6 @@
-import { nativeBridgeRegistry } from '../src/nativeBridge/registry';
 import { close, openSync, writeSync } from 'fs-extra';
+
+import { nativeBridgeRegistry } from '../src/nativeBridge/registry';
 
 const apiFile = nativeBridgeRegistry.generateAPIFile();
 const typeFile = nativeBridgeRegistry.generateAPITypeFile();

@@ -9,8 +9,15 @@ import {
   getEffectiveCombatDuration,
   getEffectiveDps,
   getEffectiveHps,
+  IActivityStarted,
 } from '@wowarenalogs/parser';
-import { logAnalyticsEvent, uploadCombatAsync, useAuth } from '@wowarenalogs/shared';
+import {
+  ArenaMatchMetadata,
+  logAnalyticsEvent,
+  ShuffleMatchMetadata,
+  uploadCombatAsync,
+  useAuth,
+} from '@wowarenalogs/shared';
 import _ from 'lodash';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
@@ -32,6 +39,11 @@ const LocalCombatsContext = React.createContext<ILocalCombatsContextData>({
 interface IProps {
   children: React.ReactNode | React.ReactNode[];
 }
+
+/** How long after the ARENA_END_EVENT the recording will continue
+ * The default of 0 means the score screen won't show up ;)
+ */
+const MATCH_OVERRUN_SECONDS = 3;
 
 const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
   const averageMMR =
@@ -147,6 +159,8 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
   });
 };
 
+let currentActivity: IActivityStarted | null = null;
+
 export const LocalCombatsContextProvider = (props: IProps) => {
   const [combats, setCombats] = useState<AtomicArenaCombat[]>([]);
   const auth = useAuth();
@@ -159,13 +173,42 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       if (window.wowarenalogs.logs?.handleActivityStarted) {
         window.wowarenalogs.logs.handleActivityStarted((_nodeEvent, activityStartedEvent) => {
-          // eslint-disable-next-line no-console
-          console.log(activityStartedEvent);
+          if (!currentActivity) {
+            currentActivity = activityStartedEvent;
+            window.wowarenalogs.obs?.startRecording?.();
+          }
         });
       }
 
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
+          if (currentActivity) {
+            const metadata: ArenaMatchMetadata = {
+              startInfo: combat.startInfo,
+              endInfo: combat.endInfo,
+              wowVersion: combat.wowVersion,
+              id: combat.id,
+              dataType: 'ArenaMatchMetadata',
+              timezone: combat.timezone,
+              startTime: combat.startTime,
+              endTime: combat.endTime,
+              playerId: combat.playerId,
+              playerTeamId: combat.playerTeamId,
+              result: combat.result,
+              durationInSeconds: combat.durationInSeconds,
+              winningTeamId: combat.endInfo.winningTeamId,
+            };
+
+            currentActivity = null;
+            window.wowarenalogs.obs?.stopRecording &&
+              window.wowarenalogs.obs.stopRecording({
+                startDate: new Date(combat.startTime),
+                endDate: new Date(combat.endTime),
+                metadata,
+                overrun: MATCH_OVERRUN_SECONDS,
+                fileName: `${combat.startInfo.bracket}_${combat.id}`,
+              });
+          }
           uploadCombatAsync(combat, auth.battlenetId).then((r) => {
             if (!r.matchExists || process.env.NODE_ENV === 'development') {
               logCombatAnalyticsAsync(combat);
@@ -187,7 +230,40 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       });
 
       window.wowarenalogs.logs?.handleSoloShuffleEnded((_event, combat) => {
+        const metadata: ShuffleMatchMetadata = {
+          startInfo: combat.startInfo,
+          endInfo: combat.endInfo,
+          wowVersion: combat.wowVersion,
+          id: combat.id,
+          dataType: 'ShuffleMatchMetadata',
+          timezone: combat.timezone,
+          startTime: combat.startTime,
+          endTime: combat.endTime,
+          playerId: combat.rounds[0].playerId,
+          playerTeamId: combat.rounds[0].playerTeamId,
+          result: combat.result,
+          roundStarts: combat.rounds.map((r) => ({
+            startInfo: r.startInfo,
+            sequenceNumber: r.sequenceNumber,
+            id: r.id,
+          })),
+          durationInSeconds: combat.durationInSeconds,
+          winningTeamId: combat.endInfo.winningTeamId,
+        };
+
         if (wowVersion === combat.wowVersion) {
+          if (currentActivity) {
+            // eslint-disable-next-line no-console
+            currentActivity = null;
+            window.wowarenalogs.obs?.stopRecording &&
+              window.wowarenalogs.obs.stopRecording({
+                startDate: new Date(combat.startTime),
+                endDate: new Date(combat.endTime),
+                metadata,
+                overrun: MATCH_OVERRUN_SECONDS,
+                fileName: `${combat.startInfo.bracket}_${combat.id}`,
+              });
+          }
           uploadCombatAsync(combat, auth.battlenetId).then((r) => {
             if (!r.matchExists || process.env.NODE_ENV === 'development') {
               combat.rounds.forEach((round) => {
@@ -202,6 +278,16 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       window.wowarenalogs.logs?.handleMalformedCombatDetected((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
+          if (currentActivity) {
+            currentActivity = null;
+            window.wowarenalogs.obs?.stopRecording &&
+              window.wowarenalogs.obs.stopRecording({
+                startDate: new Date(combat.startTime),
+                endDate: new Date(),
+                overrun: MATCH_OVERRUN_SECONDS,
+                fileName: `WoW_Arena_Logs_Error_${combat.id}`,
+              });
+          }
           // eslint-disable-next-line no-console
           console.log('Malformed combat');
           // eslint-disable-next-line no-console
@@ -221,10 +307,8 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         window.wowarenalogs.logs?.removeAll_handleMalformedCombatDetected_listeners();
         window.wowarenalogs.logs?.removeAll_handleSoloShuffleEnded_listeners();
         window.wowarenalogs.logs?.removeAll_handleSoloShuffleRoundEnded_listeners();
-        window.wowarenalogs.logs?.removeAll_handleParserError_listeners &&
-          window.wowarenalogs.logs?.removeAll_handleParserError_listeners();
-        window.wowarenalogs.logs.removeAll_handleActivityStarted_listeners &&
-          window.wowarenalogs.logs.removeAll_handleActivityStarted_listeners();
+        window.wowarenalogs.logs?.removeAll_handleParserError_listeners?.();
+        window.wowarenalogs.logs?.removeAll_handleActivityStarted_listeners?.();
         setCombats([]);
       };
     });

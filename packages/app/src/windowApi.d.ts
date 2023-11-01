@@ -5,6 +5,7 @@ import { ExternalLinksModule } from './nativeBridge/modules/externalLinksModule'
 import { FilesModule } from './nativeBridge/modules/filesModule';
 import { LogsModule } from './nativeBridge/modules/logsModule';
 import { MainWindowModule } from './nativeBridge/modules/mainWindowModule';
+import { ObsModule } from './nativeBridge/modules/obsModule';
 
 type ElectronOpaqueEvent = {
   senderId: number;
@@ -16,7 +17,7 @@ type AsEventFunction<F> = F extends (x: any, ...args: infer P) => infer R
   : never;
 
 export type NativeApi = {
-  logs: {
+  logs?: {
     importLogFiles: OmitFirstArg<LogsModule['importLogFiles']>;
     startLogWatcher: OmitFirstArg<LogsModule['startLogWatcher']>;
     stopLogWatcher: OmitFirstArg<LogsModule['stopLogWatcher']>;
@@ -33,14 +34,14 @@ export type NativeApi = {
     handleParserError: (callback: AsEventFunction<LogsModule['handleParserError']>) => void;
     removeAll_handleParserError_listeners: () => void;
   };
-  bnet: { login: OmitFirstArg<BnetModule['login']> };
-  fs: {
+  bnet?: { login: OmitFirstArg<BnetModule['login']> };
+  fs?: {
     selectFolder: OmitFirstArg<FilesModule['selectFolder']>;
     getAllWoWInstallations: OmitFirstArg<FilesModule['getAllWoWInstallations']>;
     installAddon: OmitFirstArg<FilesModule['installAddon']>;
   };
-  links: { openExternalURL: OmitFirstArg<ExternalLinksModule['openExternalURL']> };
-  win: {
+  links?: { openExternalURL: OmitFirstArg<ExternalLinksModule['openExternalURL']> };
+  win?: {
     isMaximized: OmitFirstArg<MainWindowModule['isMaximized']>;
     isMinimized: OmitFirstArg<MainWindowModule['isMinimized']>;
     minimize: OmitFirstArg<MainWindowModule['minimize']>;
@@ -55,12 +56,27 @@ export type NativeApi = {
     onWindowMoved: (callback: AsEventFunction<MainWindowModule['onWindowMoved']>) => void;
     removeAll_onWindowMoved_listeners: () => void;
   };
-  app: {
+  app?: {
     quit: OmitFirstArg<ApplicationModule['quit']>;
     setOpenAtLogin: OmitFirstArg<ApplicationModule['setOpenAtLogin']>;
     getIsPackaged?: OmitFirstArg<ApplicationModule['getIsPackaged']>;
     getVersion?: OmitFirstArg<ApplicationModule['getVersion']>;
     isUpdateAvailable?: OmitFirstArg<ApplicationModule['isUpdateAvailable']>;
     clearStorage?: OmitFirstArg<ApplicationModule['clearStorage']>;
+  };
+  obs?: {
+    selectFolder?: OmitFirstArg<ObsModule['selectFolder']>;
+    startRecordingEngine?: OmitFirstArg<ObsModule['startRecordingEngine']>;
+    startRecording?: OmitFirstArg<ObsModule['startRecording']>;
+    stopRecording?: OmitFirstArg<ObsModule['stopRecording']>;
+    getConfiguration?: OmitFirstArg<ObsModule['getConfiguration']>;
+    setConfig?: OmitFirstArg<ObsModule['setConfig']>;
+    getAudioDevices?: OmitFirstArg<ObsModule['getAudioDevices']>;
+    getRecorderStatus?: OmitFirstArg<ObsModule['getRecorderStatus']>;
+    findVideoForMatch?: OmitFirstArg<ObsModule['findVideoForMatch']>;
+    recorderStatusUpdated?: (callback: AsEventFunction<ObsModule['recorderStatusUpdated']>) => void;
+    removeAll_recorderStatusUpdated_listeners?: () => void;
+    configUpdated?: (callback: AsEventFunction<ObsModule['configUpdated']>) => void;
+    removeAll_configUpdated_listeners?: () => void;
   };
 };

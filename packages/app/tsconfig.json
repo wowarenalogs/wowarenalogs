@@ -1,13 +1,16 @@
 {
-  "exclude": ["script/generatePreload.ts"],
+  "exclude": ["script/generatePreload.ts", "dist"],
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "sourceMap": true,
     "strict": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "skipLibCheck": true,
     "noEmitOnError": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
     "experimentalDecorators": true,
     "esModuleInterop": true
   }

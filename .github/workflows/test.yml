@@ -19,14 +19,12 @@ jobs:
         run: npm cache clean -f
       - name: install dependencies
         run: npm ci
+      - name: preload sha check 1
+        run: echo "PRELOAD_SHASUM_ORIGIN=$(shasum packages/app/src/preloadApi.ts)" >> $GITHUB_ENV
       - name: build
         run: npm run build
       - name: tests
         run: npm run test
-      - name: preload sha check 1
-        run: echo "PRELOAD_SHASUM_ORIGIN=$(shasum packages/app/src/preloadApi.ts)" >> $GITHUB_ENV
-      - name: run preload generation
-        run: npm run gen:app:preload
       - name: preload sha check 2
         run: echo "PRELOAD_SHASUM_NEW=$(shasum packages/app/src/preloadApi.ts)" >> $GITHUB_ENV
       - name: check preload unchanged

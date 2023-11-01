@@ -20,8 +20,9 @@ const Page = () => {
     }
 
     const remoteCombats = matchesQuery.data?.myMatches?.combats || [];
-    const remoteCombatIds = new Set(remoteCombats.map((c) => c.id));
-
+    const remoteCombatIds = new Set(
+      remoteCombats.map((c) => `${c.id}+${c.__typename == 'ShuffleRoundStub' ? c.sequenceNumber : ''}`),
+    );
     return _.orderBy(
       (
         remoteCombats.map((c) => ({
@@ -32,7 +33,10 @@ const Page = () => {
       ).concat(
         localCombats
           // prefer remote match stub data because solo shuffle match result is not available locally
-          .filter((c) => !remoteCombatIds.has(c.id))
+          .filter((c) => {
+            // match by shuffle id + round number; this covers cases where the local data hasn't merged the whole match
+            return !remoteCombatIds.has(`${c.id}+${c.dataType == 'ShuffleRound' ? c.sequenceNumber : ''}`);
+          })
           .map((c) => ({
             isLocal: true,
             isShuffle: c.dataType === 'ShuffleRound',
