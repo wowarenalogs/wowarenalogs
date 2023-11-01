@@ -1,13 +1,13 @@
-import { app, BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow, dialog, protocol } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { autoUpdater } from 'electron-updater';
+import { closeSync, openSync, readSync, statSync } from 'fs-extra';
 import moment from 'moment';
+import path from 'path';
 
-import { nativeBridgeRegistry } from './nativeBridge/registry';
-
-import path = require('path');
 import { BASE_REMOTE_URL } from './constants';
 import { globalStates } from './nativeBridge/modules/common/globalStates';
+import { nativeBridgeRegistry } from './nativeBridge/registry';
 
 function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
@@ -47,10 +47,55 @@ function createWindow() {
     }
   });
 
+  protocol.handle('vod', async (request) => {
+    const encodedFilename = decodeURI(request.url.slice('vod://wowarenalogs/'.length, request.url.length));
+
+    const filename = atob(encodedFilename);
+    if (!filename.endsWith('.mp4')) {
+      return new Response('Only video files are allowed', { status: 400 });
+    }
+
+    const rangeReq = request.headers.get('Range') || 'bytes=0-';
+    const parts = rangeReq.split('=');
+    const numbers = parts[1].split('-').map((p) => parseInt(p));
+
+    const fp = openSync(filename, 'r');
+    const size = 2500000; // ~2.5mb chunks
+    const start = numbers[0] || 0;
+    const buffer = Buffer.alloc(size);
+    readSync(fp, buffer, 0, size, start);
+
+    const stats = statSync(filename);
+    const totalSize = stats.size;
+    closeSync(fp);
+
+    return new Response(buffer, {
+      status: 206,
+      statusText: 'Partial Content',
+      headers: {
+        'Content-Length': `${totalSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Range': `bytes ${start}-${totalSize}`,
+      },
+    });
+  });
+
   nativeBridgeRegistry.startListeners(win);
 
   return win;
 }
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'vod',
+    privileges: {
+      bypassCSP: true,
+      standard: true,
+      stream: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
 
 const isFirstInstance = app.requestSingleInstanceLock();
 

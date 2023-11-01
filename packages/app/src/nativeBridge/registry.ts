@@ -8,6 +8,7 @@ import { ExternalLinksModule } from './modules/externalLinksModule';
 import { FilesModule } from './modules/filesModule';
 import { LogsModule } from './modules/logsModule';
 import { MainWindowModule } from './modules/mainWindowModule';
+import { ObsModule } from './modules/obsModule';
 
 const MODULES_PATH = './nativeBridge/modules/';
 
@@ -95,7 +96,7 @@ export class NativeBridgeRegistry {
         throw new Error('module metadata not found');
       }
 
-      typeString += `${moduleMetadata.name}: {`;
+      typeString += `${moduleMetadata.name}?: {`;
       Object.values(moduleMetadata.functions).forEach((func) => {
         const optionalDecorator = func.isRequired ? '' : '?';
         typeString += `${func.name}${optionalDecorator}: OmitFirstArg<${moduleMetadata.constructor.name}["${func.name}"]>,`;
@@ -141,3 +142,4 @@ nativeBridgeRegistry.registerModule(FilesModule);
 nativeBridgeRegistry.registerModule(ExternalLinksModule);
 nativeBridgeRegistry.registerModule(MainWindowModule);
 nativeBridgeRegistry.registerModule(ApplicationModule);
+nativeBridgeRegistry.registerModule(ObsModule);

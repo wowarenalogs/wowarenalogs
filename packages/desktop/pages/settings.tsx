@@ -2,6 +2,7 @@ import { LoadingScreen, useClientContext } from '@wowarenalogs/shared';
 import { useEffect, useState } from 'react';
 import { FaDiscord, FaPatreon } from 'react-icons/fa';
 
+import RecordingSettings from '../components/Settings/RecordingSettings';
 import { useAppConfig } from '../hooks/AppConfigContext';
 
 const Page = () => {
@@ -80,7 +81,7 @@ const Page = () => {
       </div>
 
       <div className="text-2xl font-bold my-4">Feedback and Support</div>
-      <div className="flex flex-row">
+      <div className="flex flex-row mb-4">
         <button
           className="btn btn-info gap-2"
           onClick={() => {
@@ -100,6 +101,7 @@ const Page = () => {
           Support us on Patreon
         </button>
       </div>
+      {window.wowarenalogs.platform === 'win32' && window.wowarenalogs.obs && <RecordingSettings />}
     </div>
   );
 };

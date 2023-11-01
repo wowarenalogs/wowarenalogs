@@ -7,6 +7,7 @@ import { TbChevronLeft, TbCopy } from 'react-icons/tb';
 
 import { zoneMetadata } from '../../data/zoneMetadata';
 import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
+import { useClientContext } from '../../hooks/ClientContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
 import { DownloadPromotion } from '../common/DownloadPromotion';
 import { CombatCC } from './CombatCC';
@@ -17,6 +18,7 @@ import { CombatPlayers } from './CombatPlayers';
 import { CombatReportContextProvider, useCombatReportContext } from './CombatReportContext';
 import { CombatScoreboard } from './CombatScoreboard';
 import { CombatSummary } from './CombatSummary';
+import { CombatVideo } from './CombatVideo';
 
 const CombatReplay = dynamic(
   () => {
@@ -34,6 +36,7 @@ interface IProps {
 }
 
 export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; roundId?: string }) => {
+  const clientContext = useClientContext();
   const router = useRouter();
   const { data: user } = useGetProfileQuery();
   const { combat, activeTab, setActiveTab, activePlayerId } = useCombatReportContext();
@@ -143,6 +146,16 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
             Scoreboard
           </a>
         )}
+        {clientContext.isDesktop && (
+          <a
+            className={`tab ${activeTab === 'video' ? 'tab-active' : ''}`}
+            onClick={() => {
+              setActiveTab('video');
+            }}
+          >
+            Video
+          </a>
+        )}
         {user?.me?.tags?.includes('rawlogs') && (
           <a
             className={`tab ${activeTab === 'logview' ? 'tab-active' : ''}`}
@@ -163,6 +176,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
           {activeTab === 'curves' && <CombatCurves />}
           {activeTab === 'replay' && <CombatReplay />}
           {activeTab === 'scoreboard' && <CombatScoreboard />}
+          {activeTab === 'video' && <CombatVideo />}
           {activeTab === 'logview' && <CombatLogView />}
         </div>
       </div>
