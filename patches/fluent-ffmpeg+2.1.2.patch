@@ -5,3 +5,39 @@ index 04e594c..68a1522 100644
 @@ -1 +1 @@
 -module.exports = process.env.FLUENTFFMPEG_COV ? require('./lib-cov/fluent-ffmpeg') : require('./lib/fluent-ffmpeg');
 +module.exports = require('./lib/fluent-ffmpeg');
+diff --git a/node_modules/fluent-ffmpeg/lib/ffprobe.js b/node_modules/fluent-ffmpeg/lib/ffprobe.js
+index 3f00fa4..efb70dc 100644
+--- a/node_modules/fluent-ffmpeg/lib/ffprobe.js
++++ b/node_modules/fluent-ffmpeg/lib/ffprobe.js
+@@ -17,7 +17,8 @@ function parseFfprobeOutput(out) {
+   var data = {
+     streams: [],
+     format: {},
+-    chapters: []
++    chapters: [],
++    frames: []
+   };
+ 
+   function parseBlock(name) {
+@@ -55,6 +56,9 @@ function parseFfprobeOutput(out) {
+     } else if (line.match(/^\[chapter/i)) {
+       var chapter = parseBlock('chapter');
+       data.chapters.push(chapter);
++    } else if (line.match(/^\[frame/i)) {
++      var frame = parseBlock('frame');
++      data.frames.push(frame);
+     } else if (line.toLowerCase() === '[format]') {
+       data.format = parseBlock('format');
+     }
+diff --git a/node_modules/fluent-ffmpeg/lib/processor.js b/node_modules/fluent-ffmpeg/lib/processor.js
+index 5a8e56d..3a19984 100644
+--- a/node_modules/fluent-ffmpeg/lib/processor.js
++++ b/node_modules/fluent-ffmpeg/lib/processor.js
+@@ -149,6 +149,7 @@ module.exports = function(proto) {
+       var stderrClosed = false;
+ 
+       // Spawn process
++      console.log(`ffm spawn ${command} ${args} ${options}`)
+       var ffmpegProc = spawn(command, args, options);
+ 
+       if (ffmpegProc.stderr) {
