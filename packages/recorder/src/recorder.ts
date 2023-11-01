@@ -1011,6 +1011,7 @@ export class Recorder {
       filename: activity.fileName,
       relativeStart,
       duration,
+      compensationTimeSeconds: 0,
     });
   }
 

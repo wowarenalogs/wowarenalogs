@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 
+import { ffprobe, FfprobeData } from 'fluent-ffmpeg';
 import { existsSync } from 'fs-extra';
 import path from 'path';
 
@@ -33,7 +34,7 @@ export default class VideoProcessQueue {
     this.setupVideoProcessingQueue();
   }
 
-  private setupVideoProcessingQueue() {
+  private async setupVideoProcessingQueue() {
     // const worker = this.processVideoQueueItem.bind(this);
     // const settings = { concurrency: 1 };
     // this.videoQueue = atomicQueue(worker, settings);
@@ -74,6 +75,14 @@ export default class VideoProcessQueue {
       data.relativeStart,
       data.duration,
     );
+
+    try {
+      const compensation = await VideoProcessQueue.calculateFrameCompensation(data.bufferFile, data.relativeStart);
+      console.log(`[VideoProcssQueue] Cut video compensation time: ${compensation}`);
+      data.compensationTimeSeconds = compensation;
+    } catch (error) {
+      console.log(`[VideoProcessingQueue] ffprobe error ${error}`);
+    }
 
     if (data.metadata) {
       await writeMetadataFile(videoPath, data);
@@ -116,6 +125,34 @@ export default class VideoProcessQueue {
     return filename
       .replace(/[<>:"/|?*]/g, ' ') // Replace all invalid characters with space
       .replace(/ +/g, ' '); // Replace multiple spaces with a single space
+  }
+
+  private static async calculateFrameCompensation(initialFile: string, relativeStart: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+      console.log(
+        `[VideoProcessQueue] ffprobe ['-skip_frame', 'nokey', '-read_intervals', %+${relativeStart}, '-select_streams', 'v:0', '-show_frames']`,
+      );
+      ffprobe(
+        initialFile,
+        ['-skip_frame', 'nokey', '-read_intervals', `%+${relativeStart}`, '-select_streams', 'v:0', '-show_frames'],
+        (error, data) => {
+          if (error) {
+            reject(error);
+          } else {
+            const shimmedData = data as FfprobeData & {
+              frames: { key_frame: number; best_effort_timestamp_time: number }[];
+            };
+            console.log(shimmedData);
+            if (!shimmedData.frames || shimmedData.frames.length === 0) {
+              console.log('Rejecting');
+              reject(`Could not find frame data from ffprobe on ${initialFile}`);
+            } else {
+              resolve(relativeStart - shimmedData.frames[shimmedData.frames.length - 1].best_effort_timestamp_time);
+            }
+          }
+        },
+      );
+    });
   }
 
   /**
@@ -163,6 +200,10 @@ export default class VideoProcessQueue {
       //
       // This thread has a brilliant summary why we need "-avoid_negative_ts make_zero":
       // https://superuser.com/questions/1167958/video-cut-with-missing-frames-in-ffmpeg?rq=1
+      console.log(
+        `[VideoProcessQueue] ffmpeg call ${initialFile} input: -ss ${relativeStart}, -t ${desiredDuration} output: -t ${desiredDuration}, '-c:v copy', '-c:a copy', '-avoid_negative_ts make_zero' `,
+      );
+
       ffmpeg(initialFile)
         .inputOptions([`-ss ${relativeStart}`, `-t ${desiredDuration}`])
         .outputOptions([`-t ${desiredDuration}`, '-c:v copy', '-c:a copy', '-avoid_negative_ts make_zero'])

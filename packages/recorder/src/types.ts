@@ -76,6 +76,7 @@ export type VideoQueueItem = {
   filename: string;
   relativeStart: number;
   duration: number;
+  compensationTimeSeconds: number;
 };
 
 /**
