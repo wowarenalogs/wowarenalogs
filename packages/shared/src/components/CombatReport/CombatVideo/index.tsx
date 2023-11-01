@@ -9,6 +9,16 @@ declare global {
   }
 }
 
+// TODO: Fix this typing.
+// Forgot to add a few extra fields that are always present in the native side to the response type.
+type FindVideoReturnShim =
+  | {
+      compensationTimeSeconds: number;
+      videoPath: string;
+      metadata: ArenaMatchMetadata | ShuffleMatchMetadata;
+    }
+  | undefined;
+
 function getMatchTimeoffsetSeconds(
   matchId: string,
   metadata: ArenaMatchMetadata | ShuffleMatchMetadata,
@@ -37,7 +47,10 @@ export const CombatVideo = () => {
   useEffect(() => {
     async function find() {
       if (window.wowarenalogs.obs?.findVideoForMatch && combat?.id) {
-        const f = await window.wowarenalogs.obs?.findVideoForMatch('D:\\Video', combat.id);
+        const f = (await window.wowarenalogs.obs?.findVideoForMatch(
+          'D:\\Video',
+          combat.id,
+        )) as unknown as FindVideoReturnShim;
         if (f) {
           if (f.metadata?.dataType) {
             // Since we are casting the metadata into a type from decoded JSON, we are a little more careful
