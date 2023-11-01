@@ -142,9 +142,7 @@ export default class VideoProcessQueue {
             const shimmedData = data as FfprobeData & {
               frames: { key_frame: number; best_effort_timestamp_time: number }[];
             };
-            console.log(shimmedData);
             if (!shimmedData.frames || shimmedData.frames.length === 0) {
-              console.log('Rejecting');
               reject(`Could not find frame data from ffprobe on ${initialFile}`);
             } else {
               resolve(relativeStart - shimmedData.frames[shimmedData.frames.length - 1].best_effort_timestamp_time);
