@@ -36,6 +36,14 @@ const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
 );
 
 /**
+ * Describes an activity that has a start/end that can be determined from the game's combat log
+ */
+export interface IActivityStarted {
+  dataType: 'ActivityStarted';
+  arenaMatchStartInfo?: ArenaMatchStartInfo;
+}
+
+/**
  * Fields that describe a 2v2 or 3v3 conflict between players
  * with a conclusive end as observed by one of the players in the match
  */

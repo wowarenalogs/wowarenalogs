@@ -64,8 +64,10 @@ export enum LogEvent {
 export type CombatEvent = ArenaMatchStart | ArenaMatchEnd | CombatAction | CombatantInfoAction | PartyKill | ZoneChange;
 
 export interface ICombatEventSegment {
+  dataType: 'CombatEventSegment';
   events: CombatEvent[];
   lines: string[];
+  hasEmittedStartEvent: boolean;
 }
 
 export enum CombatResult {

@@ -79,20 +79,21 @@ export default function TierList(props: { activeBracket: string; minRating: numb
       .map((s) => ({
         spec: s.spec,
         winRate: s.winRate * winRateCorrectionFactor,
+        surplus: (s.winRate * winRateCorrectionFactor - 0.5) * s.total,
         representation: s.total / totalUnits,
       }))
       .sort((a, b) => {
-        return b.winRate - a.winRate;
+        return b.surplus - a.surplus;
       });
 
     return adjustedStats.map((s) => ({
       ...s,
       tier:
-        s.representation >= 0.03 && s.winRate >= 0.5
+        s.representation >= 0.02 && s.winRate >= 0.52
           ? 'S'
-          : s.representation <= 0.01 && s.winRate <= 0.45
+          : s.representation <= 0.01 && s.winRate <= 0.49
           ? 'C'
-          : s.representation <= 0.01 || s.winRate <= 0.45
+          : s.representation <= 0.01 || s.winRate <= 0.49
           ? 'B'
           : 'A',
     }));
@@ -111,7 +112,7 @@ export default function TierList(props: { activeBracket: string; minRating: numb
   }
 
   return (
-    <div className="flex flex-col gap-2 mt-2">
+    <div className="flex flex-col gap-2 mt-2 overflow-x-auto overflow-y-scroll">
       <table className="table">
         <tbody>
           {['S', 'A', 'B', 'C'].map((tier) => (
@@ -131,6 +132,7 @@ export default function TierList(props: { activeBracket: string; minRating: numb
                 <div className="w-16 h-16 text-black flex items-center justify-center">{tier}</div>
               </td>
               <td className="flex flex-wrap bg-base-300">
+                <div className="h-16 w-0">{/* placeholder to ensure min-height */}</div>
                 {data
                   .filter((s) => s.tier === tier)
                   .map((s) => (

@@ -75,11 +75,11 @@ export const DesktopLayout = !window.wowarenalogs
           <ClientContextProvider
             isDesktop={true}
             openExternalURL={(url) => {
-              window.wowarenalogs.links.openExternalURL(url);
+              window.wowarenalogs.links?.openExternalURL(url);
             }}
             showLoginModal={(authUrl, callback) => {
-              window.wowarenalogs.bnet
-                .login(getAbsoluteAuthUrl(authUrl), 'Login')
+              window.wowarenalogs?.bnet
+                ?.login(getAbsoluteAuthUrl(authUrl), 'Login')
                 .then(() => {
                   callback();
                 })

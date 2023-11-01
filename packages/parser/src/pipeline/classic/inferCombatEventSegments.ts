@@ -30,7 +30,12 @@ export const inferCombatEventSegments = () => {
   return (input: Observable<CombatEvent | string>) => {
     return new Observable<ICombatEventSegment>((output) => {
       let state: State = 'MATCH_NOT_STARTED';
-      let currentBuffer: ICombatEventSegment = { events: [], lines: [] };
+      let currentBuffer: ICombatEventSegment = {
+        events: [],
+        lines: [],
+        dataType: 'CombatEventSegment',
+        hasEmittedStartEvent: false,
+      };
       const currentSegmentCombatantIds = new Set<string>();
 
       const emitCurrentBuffer = () => {
@@ -59,6 +64,8 @@ export const inferCombatEventSegments = () => {
         currentBuffer = {
           events: [],
           lines: [],
+          dataType: 'CombatEventSegment',
+          hasEmittedStartEvent: false,
         };
         currentSegmentCombatantIds.clear();
       };

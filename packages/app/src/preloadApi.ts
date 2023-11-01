@@ -6,6 +6,10 @@ export const modulesApi = {
     importLogFiles: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:logs:importLogFiles', ...args),
     startLogWatcher: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:logs:startLogWatcher', ...args),
     stopLogWatcher: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:logs:stopLogWatcher', ...args),
+    handleActivityStarted: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:logs:handleActivityStarted', callback),
+    removeAll_handleActivityStarted_listeners: () =>
+      ipcRenderer.removeAllListeners('wowarenalogs:logs:handleActivityStarted'),
     handleNewCombat: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
       ipcRenderer.on('wowarenalogs:logs:handleNewCombat', callback),
     removeAll_handleNewCombat_listeners: () => ipcRenderer.removeAllListeners('wowarenalogs:logs:handleNewCombat'),
@@ -56,5 +60,23 @@ export const modulesApi = {
     getVersion: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:app:getVersion', ...args),
     isUpdateAvailable: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:app:isUpdateAvailable', ...args),
     clearStorage: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:app:clearStorage', ...args),
+  },
+  obs: {
+    selectFolder: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:selectFolder', ...args),
+    startRecordingEngine: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:startRecordingEngine', ...args),
+    startRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:startRecording', ...args),
+    stopRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:stopRecording', ...args),
+    getConfiguration: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getConfiguration', ...args),
+    setConfig: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:setConfig', ...args),
+    getAudioDevices: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getAudioDevices', ...args),
+    getRecorderStatus: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getRecorderStatus', ...args),
+    findVideoForMatch: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:findVideoForMatch', ...args),
+    recorderStatusUpdated: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:obs:recorderStatusUpdated', callback),
+    removeAll_recorderStatusUpdated_listeners: () =>
+      ipcRenderer.removeAllListeners('wowarenalogs:obs:recorderStatusUpdated'),
+    configUpdated: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:obs:configUpdated', callback),
+    removeAll_configUpdated_listeners: () => ipcRenderer.removeAllListeners('wowarenalogs:obs:configUpdated'),
   },
 };
