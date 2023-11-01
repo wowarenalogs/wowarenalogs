@@ -175,7 +175,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         window.wowarenalogs.logs.handleActivityStarted((_nodeEvent, activityStartedEvent) => {
           if (!currentActivity) {
             currentActivity = activityStartedEvent;
-            window.wowarenalogs.obs?.startRecording && window.wowarenalogs.obs.startRecording();
+            window.wowarenalogs.obs.startRecording?.();
           }
         });
       }

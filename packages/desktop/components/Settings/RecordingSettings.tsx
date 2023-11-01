@@ -173,7 +173,7 @@ const RecordingSettings = () => {
               <Dropdown
                 menuItems={outputAudioOptions.map((k) => ({
                   onClick: () => {
-                    window.wowarenalogs.obs?.setConfig && window.wowarenalogs.obs.setConfig('audioOutputDevices', k.id);
+                    window.wowarenalogs.obs.setConfig?.('audioOutputDevices', k.id);
                   },
                   key: k.id,
                   label: k.description,
@@ -190,7 +190,7 @@ const RecordingSettings = () => {
               <Dropdown
                 menuItems={resolutionOptions.map((k) => ({
                   onClick: () => {
-                    window.wowarenalogs.obs?.setConfig && window.wowarenalogs.obs.setConfig('obsOutputResolution', k);
+                    window.wowarenalogs.obs.setConfig?.('obsOutputResolution', k);
                   },
                   key: k,
                   label: k,
@@ -210,8 +210,7 @@ const RecordingSettings = () => {
                   if (window.wowarenalogs.obs.selectFolder) {
                     const folderChoice = await window.wowarenalogs.obs.selectFolder('Select folder to store videos to');
                     if (folderChoice.length > 0) {
-                      window.wowarenalogs.obs?.setConfig &&
-                        window.wowarenalogs.obs.setConfig('storagePath', folderChoice[0]);
+                      window.wowarenalogs.obs.setConfig?.('storagePath', folderChoice[0]);
                     }
                   }
                 }}
@@ -227,7 +226,7 @@ const RecordingSettings = () => {
             <button
               className="btn"
               onClick={() => {
-                window.wowarenalogs.obs?.startRecording && window.wowarenalogs.obs.startRecording();
+                window.wowarenalogs.obs?.startRecording?.();
               }}
             >
               Test Start Recording
@@ -236,15 +235,14 @@ const RecordingSettings = () => {
               className="btn"
               onClick={() => {
                 const now = new Date();
-                window.wowarenalogs.obs?.stopRecording &&
-                  window.wowarenalogs.obs.stopRecording({
-                    // Test: a video starting 10s ago and 5s of overrun
-                    // this should write a 15s video
-                    startDate: new Date(now.getTime() - 10000),
-                    endDate: new Date(),
-                    fileName: 'test',
-                    overrun: 5,
-                  });
+                window.wowarenalogs.obs.stopRecording?.({
+                  // Test: a video starting 10s ago and 5s of overrun
+                  // this should write a 15s video
+                  startDate: new Date(now.getTime() - 10000),
+                  endDate: new Date(),
+                  fileName: 'test',
+                  overrun: 5,
+                });
               }}
             >
               Test Stop Recording
@@ -252,7 +250,7 @@ const RecordingSettings = () => {
             <button
               className="btn"
               onClick={() => {
-                window.wowarenalogs.obs?.setConfig && window.wowarenalogs.obs.setConfig('storagePath', 'd');
+                window.wowarenalogs.obs.setConfig?.('storagePath', 'd');
               }}
             >
               Test Erase Storage Path Config
