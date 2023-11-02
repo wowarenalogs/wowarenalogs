@@ -171,6 +171,23 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       const [wowVersion, wowDirectory] = installRow;
       window.wowarenalogs.logs?.startLogWatcher(wowDirectory, wowVersion);
 
+      window.wowarenalogs.logs?.handleLogReadingTimeout?.((_event, _wowVersion, _timeout) => {
+        // Handle cases where parser has failed and not read any valid data in `_timeout` time and we are still
+        // recording video
+        // when this comment was written _timeout was 60s
+        if (currentActivity) {
+          window.wowarenalogs.obs?.stopRecording?.({
+            startDate: currentActivity.arenaMatchStartInfo?.timestamp
+              ? new Date(currentActivity.arenaMatchStartInfo?.timestamp)
+              : new Date(),
+            endDate: new Date(),
+            overrun: MATCH_OVERRUN_SECONDS,
+            fileName: `WoW_Arena_Logs_Error_${currentActivity.arenaMatchStartInfo?.timestamp}`,
+          });
+          currentActivity = null;
+        }
+      });
+
       if (window.wowarenalogs.logs?.handleActivityStarted) {
         window.wowarenalogs.logs.handleActivityStarted((_nodeEvent, activityStartedEvent) => {
           if (!currentActivity) {
@@ -309,6 +326,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         window.wowarenalogs.logs?.removeAll_handleSoloShuffleRoundEnded_listeners();
         window.wowarenalogs.logs?.removeAll_handleParserError_listeners?.();
         window.wowarenalogs.logs?.removeAll_handleActivityStarted_listeners?.();
+        window.wowarenalogs.logs?.removeAll_handleLogReadingTimeout_listeners?.();
         setCombats([]);
       };
     });
