@@ -260,9 +260,6 @@ export const segmentToCombat = () => {
                 recentShuffleRoundsBuffer = [];
                 recentScoreboardBuffer = [];
                 return shuf;
-                // recentShuffleRoundsBuffer = [];
-                // recentScoreboardBuffer = [];
-                // return decoded.shuffle;
               }
             } catch (e) {
               logInfo(`Decoding final round error ${e}`);
