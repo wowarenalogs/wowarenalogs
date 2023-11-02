@@ -1,7 +1,6 @@
-/* eslint-disable no-console */
 import { ConfigurationSchema, IOBSDevice, RecStatus, ResolutionOptions } from '@wowarenalogs/recorder';
 import { Dropdown, useClientContext } from '@wowarenalogs/shared';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   TbAlertCircle,
   TbAlertOctagon,
@@ -40,6 +39,17 @@ const resolutionOptions: ResolutionOptions[] = [
   '5120x1440',
 ];
 
+const captureModes = [
+  {
+    key: 'game_capture',
+    name: 'Game Capture',
+  },
+  {
+    key: 'monitor_capture',
+    name: 'Monitor/Display Capture',
+  },
+];
+
 // more enum bullshit
 // const recStatus = ['WaitingForWoW', 'Recording', 'InvalidConfig', 'ReadyToRecord', 'FatalError', 'Overruning'];
 const recStates: Record<RecStatus | 'EngineNotStarted', { icon: JSX.Element; message: string }> = {
@@ -72,6 +82,36 @@ const recStates: Record<RecStatus | 'EngineNotStarted', { icon: JSX.Element; mes
     message: 'Recording overrun...',
   },
 };
+
+function PreviewVideoWindow({ key }: { key: string }) {
+  const divRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const rect = divRef.current?.getBoundingClientRect();
+    window.wowarenalogs.obs?.drawPreviewWindow?.(rect?.width || 50, rect?.height || 50, rect?.x || 50, rect?.y || 50);
+    return () => {
+      window.wowarenalogs.obs?.hidePreviewWindow?.();
+    };
+  }, []);
+
+  if (!window.wowarenalogs.obs?.drawPreviewWindow) return null;
+
+  return (
+    <div
+      key={key}
+      ref={divRef}
+      onClick={() => {
+        const rect = divRef.current?.getBoundingClientRect();
+        window.wowarenalogs.obs?.drawPreviewWindow?.(
+          rect?.width || 50,
+          rect?.height || 50,
+          rect?.x || 50,
+          rect?.y || 50,
+        );
+      }}
+      className="h-[200px] w-[400px]"
+    />
+  );
+}
 
 const RecordingSettings = () => {
   const clientContext = useClientContext();
@@ -140,8 +180,8 @@ const RecordingSettings = () => {
         For help setting OBS recording up, please see our pinned guide in the #faq channel on{' '}
         <span className="underline">Discord</span>
       </div>
-      <div className="flex flex-row justify-between">
-        <div className="flex flex-col gap-2">
+      <div className="flex flex-row gap-4">
+        <div className="flex flex-col gap-2 ">
           {!engineStarted && (
             <button
               className="btn"
@@ -212,44 +252,107 @@ const RecordingSettings = () => {
               <div>{configStore?.storagePath}</div>
             </div>
           </div>
-        </div>
-        {showDebugInfo && (
           <div>
-            <button
-              className="btn"
-              onClick={() => {
-                window.wowarenalogs.obs?.startRecording?.();
-              }}
-            >
-              Test Start Recording
-            </button>
-            <button
-              className="btn"
-              onClick={() => {
-                const now = new Date();
-                window.wowarenalogs.obs?.stopRecording?.({
-                  // Test: a video starting 10s ago and 5s of overrun
-                  // this should write a 15s video
-                  startDate: new Date(now.getTime() - 10000),
-                  endDate: new Date(),
-                  fileName: 'test',
-                  overrun: 5,
-                });
-              }}
-            >
-              Test Stop Recording
-            </button>
-            <button
-              className="btn"
-              onClick={() => {
-                window.wowarenalogs.obs?.setConfig?.('storagePath', 'd');
-              }}
-            >
-              Test Erase Storage Path Config
-            </button>
-            <pre>{JSON.stringify(configStore, null, 2)}</pre>
+            <div className="font-bold">Capture Mode:</div>
+            <div className="flex flex-row gap-2 items-center">
+              {captureModes.map((o) => {
+                return (
+                  <div className="form-control" key={o.key}>
+                    <label className="label cursor-pointer space-x-2">
+                      <input
+                        type="radio"
+                        name="obs-radio-1"
+                        className="radio checked:bg-primary"
+                        value={o.key}
+                        checked={configStore?.obsCaptureMode === o.key}
+                        onChange={() => {
+                          window.wowarenalogs.obs?.setConfig?.('obsCaptureMode', o.key);
+                        }}
+                      />
+                      <span className="label-text">{o.name}</span>
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+            {configStore?.obsCaptureMode === 'monitor_capture' && (
+              <div className="flex flex-row gap-2 items-center">
+                Monitor:
+                {[1, 2, 3, 4].map((o) => {
+                  return (
+                    <div className="form-control" key={o}>
+                      <label className="label cursor-pointer space-x-2">
+                        <input
+                          type="radio"
+                          name="obs-radio-2"
+                          className="radio checked:bg-primary"
+                          value={o}
+                          checked={configStore?.monitorIndex === o}
+                          onChange={(e) => {
+                            window.wowarenalogs.obs?.setConfig?.('monitorIndex', parseInt(e.target.value));
+                          }}
+                        />
+                        <span className="label-text">{o}</span>
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
+          <div className="form-control">
+            <label className="label gap-2 justify-start items-center">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={configStore?.captureCursor || false}
+                onChange={(e) => {
+                  window.wowarenalogs.obs?.setConfig?.('captureCursor', e.target.checked);
+                }}
+              />
+              <span className="label-text">Capture cursor</span>
+            </label>
+          </div>
+          {showDebugInfo && (
+            <>
+              <button
+                className="btn"
+                onClick={() => {
+                  window.wowarenalogs.obs?.startRecording?.();
+                }}
+              >
+                Test Start Recording
+              </button>
+              <button
+                className="btn"
+                onClick={() => {
+                  const now = new Date();
+                  window.wowarenalogs.obs?.stopRecording?.({
+                    // Test: a video starting 10s ago and 5s of overrun
+                    // this should write a 15s video
+                    startDate: new Date(now.getTime() - 10000),
+                    endDate: new Date(),
+                    fileName: 'test',
+                    overrun: 5,
+                  });
+                }}
+              >
+                Test Stop Recording
+              </button>
+              <button
+                className="btn"
+                onClick={() => {
+                  window.wowarenalogs.obs?.setConfig?.('storagePath', 'd');
+                }}
+              >
+                Test Erase Storage Path Config
+              </button>
+            </>
+          )}
+        </div>
+        <div className="flex flex-col gap-2 ">
+          <PreviewVideoWindow key={configStore?.obsCaptureMode || 'no-mode'} />
+        </div>
       </div>
     </div>
   );
