@@ -48,26 +48,26 @@ describe('parsing a log where someone leaves a shuffle match early', () => {
  *
  * the shuffle will only have 1 valid round
  */
-// describe('parsing a log where someone leaves a shuffle match in the middle of a live round', () => {
-//   const results: LoaderResults = {
-//     combats: [],
-//     malformedCombats: [],
-//     shuffleRounds: [],
-//     shuffles: [],
-//   };
+describe('parsing a log where someone leaves a shuffle match in the middle of a live round', () => {
+  const results: LoaderResults = {
+    combats: [],
+    malformedCombats: [],
+    shuffleRounds: [],
+    shuffles: [],
+  };
 
-//   beforeAll(() => {
-//     const loaded = loadLogFile('shuffle_early_leaver_mid_round.txt');
-//     results.combats = loaded.combats;
-//     results.malformedCombats = loaded.malformedCombats;
-//     results.shuffleRounds = loaded.shuffleRounds;
-//     results.shuffles = loaded.shuffles;
-//   });
+  beforeAll(() => {
+    const loaded = loadLogFile('shuffle_early_leaver_mid_round.txt');
+    results.combats = loaded.combats;
+    results.malformedCombats = loaded.malformedCombats;
+    results.shuffleRounds = loaded.shuffleRounds;
+    results.shuffles = loaded.shuffles;
+  });
 
-//   it('should return the rounds before the leaver left and no matches', () => {
-//     expect(results.shuffles).toHaveLength(1);
-//     expect(results.shuffleRounds).toHaveLength(1);
-//     expect(results.malformedCombats).toHaveLength(0);
-//     expect(results.combats).toHaveLength(0);
-//   });
-// });
+  it('should return the rounds before the leaver left and no matches', () => {
+    expect(results.shuffles).toHaveLength(1);
+    expect(results.shuffleRounds).toHaveLength(1);
+    expect(results.malformedCombats).toHaveLength(0);
+    expect(results.combats).toHaveLength(0);
+  });
+});
