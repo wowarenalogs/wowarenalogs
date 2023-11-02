@@ -248,6 +248,8 @@ export interface IShuffleMatch {
 
   // Store information about each round individually
   rounds: IShuffleRound[];
+
+  reportFinalRound: boolean;
 }
 
 export interface IMalformedCombatData {
@@ -575,7 +577,10 @@ export class CombatData {
         ) {
           destUnit.consciousDeathRecords.push(event.logLine);
         } else {
-          logInfo('UNIT_DIED', event.logLine.raw);
+          if (destUnit.id.includes('Player')) {
+            // unit.type not ready here
+            logInfo('UNIT_DIED', event.logLine.raw);
+          }
           destUnit.deathRecords.push(event.logLine);
         }
         break;
@@ -788,6 +793,9 @@ export class CombatData {
     // Debugging for malformed matches in tests
     else {
       logInfo('Malformed match report');
+      logInfo(
+        `playerUnitsLength=${playerUnits.length} combatantMetadataSize=${this.combatantMetadata.size} deadPlayerCount=${deadPlayerCount}`,
+      );
       logInfo('unitLength >=? combatMetadata', playerUnits.length, this.combatantMetadata.size);
       logInfo('deadPlayerCount', deadPlayerCount);
       logInfo('wasTimeout', wasTimeout);
