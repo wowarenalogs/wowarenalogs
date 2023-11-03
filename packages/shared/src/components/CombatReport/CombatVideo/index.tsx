@@ -43,25 +43,31 @@ export const CombatVideo = () => {
     | { compensationTimeSeconds: number; videoPath: string; metadata: ArenaMatchMetadata | ShuffleMatchMetadata }
     | undefined
   >();
-  const [vodNotFound, setVodNotFound] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function find() {
       if (window.wowarenalogs.obs?.findVideoForMatch && combat?.id) {
+        const config = await window.wowarenalogs.obs?.getConfiguration?.();
+        if (!config) {
+          setErrorMessage('OBS configuration not loaded. Please visit settings and enable the OBS engine.');
+          return;
+        }
         const f = (await window.wowarenalogs.obs?.findVideoForMatch(
-          'D:\\Video',
+          config?.storagePath,
           combat.id,
-        )) as unknown as FindVideoReturnShim;
+        )) as FindVideoReturnShim;
         if (f) {
           if (f.metadata?.dataType) {
             // Since we are casting the metadata into a type from decoded JSON, we are a little more careful
             // about checking a field to make sure it looks like it's the right type
             setVideoInformation(f);
+            setErrorMessage(null);
           } else {
-            setVodNotFound(true);
+            setErrorMessage(`No video found for this match in ${config?.storagePath}`);
           }
         } else {
-          setVodNotFound(true);
+          setErrorMessage(`No video found for this match in ${config?.storagePath}`);
         }
       }
     }
@@ -128,8 +134,8 @@ export const CombatVideo = () => {
     };
   }, [combat?.durationInSeconds, matchStartTime, videoInformation]);
 
-  if (vodNotFound) {
-    return <div className="animate-fadein flex flex-col gap-2">No video found for this match!</div>;
+  if (errorMessage) {
+    return <div className="animate-fadein flex flex-col gap-2">{errorMessage}</div>;
   }
   if (!combat || !videoInformation) {
     return null;
