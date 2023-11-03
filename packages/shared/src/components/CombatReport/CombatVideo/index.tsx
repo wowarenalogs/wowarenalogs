@@ -2,6 +2,7 @@ import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 import { ArenaMatchMetadata, INativeBridge, ShuffleMatchMetadata } from '../../..';
 import { useCombatReportContext } from '../CombatReportContext';
+import styles from './index.module.css';
 
 declare global {
   interface Window {
@@ -175,6 +176,7 @@ export const CombatVideo = () => {
         </div>
         <video
           controls
+          className={styles['vodPlayer']}
           id="video"
           ref={vidRef}
           // domain here looks weird but chrome will canonicalize the item in the string it thinks is the domain
