@@ -36,7 +36,7 @@ function getMatchTimeoffsetSeconds(
 }
 
 export const CombatVideo = () => {
-  const progressBar = useRef<HTMLProgressElement>(null);
+  const rangeRef = useRef<HTMLInputElement>(null);
   const { combat } = useCombatReportContext();
   const [videoInformation, setVideoInformation] = useState<
     | { compensationTimeSeconds: number; videoPath: string; metadata: ArenaMatchMetadata | ShuffleMatchMetadata }
@@ -86,41 +86,35 @@ export const CombatVideo = () => {
       0;
   }, [combat, videoInformation]);
 
-  const progressBarClick = useCallback(
-    (e: MouseEvent<HTMLProgressElement>) => {
+  const rangeBarClick = useCallback(
+    (e: MouseEvent<HTMLInputElement>) => {
       if (!vidRef.current) return;
-      if (!progressBar.current) return;
-
-      const rect = progressBar.current.getBoundingClientRect();
-      const pos = (e.pageX - rect.left) / progressBar.current.clientWidth;
-      vidRef.current.currentTime = (combat?.durationInSeconds || 0) * pos + matchStartTime;
+      if (!rangeRef.current) return;
+      vidRef.current.currentTime = parseFloat(e.currentTarget.value) + matchStartTime;
     },
-    [combat?.durationInSeconds, matchStartTime],
+    [matchStartTime],
   );
 
-  const progressBarDrag = useCallback(
-    (e: MouseEvent<HTMLProgressElement>) => {
+  const rangeBarDrag = useCallback(
+    (e: MouseEvent<HTMLInputElement>) => {
       if (!vidRef.current) return;
-      if (!progressBar.current) return;
+      if (!rangeRef.current) return;
       if (!(e.buttons === 1)) return;
-      const rect = progressBar.current.getBoundingClientRect();
-      const pos = (e.pageX - rect.left) / progressBar.current.clientWidth;
-      vidRef.current.currentTime = (combat?.durationInSeconds || 0) * pos + matchStartTime;
+      vidRef.current.currentTime = parseFloat(e.currentTarget.value) + matchStartTime;
     },
-    [combat?.durationInSeconds, matchStartTime],
+    [matchStartTime],
   );
 
   useEffect(() => {
     const controller = new AbortController();
     const signal = controller.signal;
-    if (vidRef.current && progressBar.current) {
+    if (vidRef.current && rangeRef.current) {
       vidRef.current.addEventListener(
         'timeupdate',
         () => {
-          if (!progressBar.current) return;
+          if (!rangeRef.current) return;
           if (!vidRef.current) return;
-          progressBar.current.setAttribute('max', `${combat?.durationInSeconds}` || '100');
-          progressBar.current.value = vidRef.current.currentTime - matchStartTime;
+          rangeRef.current.value = `${vidRef.current.currentTime - matchStartTime}`;
         },
         {
           signal,
@@ -187,21 +181,21 @@ export const CombatVideo = () => {
           // which will lead to the b64 string losing its casing :(
           src={`vod://wowarenalogs/${btoa(videoInformation.videoPath)}`}
           style={{
-            maxHeight: 'calc(100vh - 200px)', // TODO: MIGHTFIX figure out how to contain video without allowing scrollbars here
+            maxHeight: 'calc(100vh - 190px)', // TODO: MIGHTFIX figure out how to contain video without allowing scrollbars here
           }}
         />
       </div>
-      <div className="flex flex-row gap-2 items-center">
-        <progress
-          ref={progressBar}
-          onClick={progressBarClick}
-          onMouseMove={progressBarDrag}
+      <div className="slidecontainer w-full">
+        <input
+          ref={rangeRef}
+          onClick={rangeBarClick}
+          onMouseMove={rangeBarDrag}
+          type="range"
+          step={0.1}
+          min="0"
+          max={`${combat?.durationInSeconds}`}
           className="w-full"
-          id="progress"
-          value="0"
-        >
-          <span id="progress-bar"></span>
-        </progress>
+        />
       </div>
     </div>
   );
