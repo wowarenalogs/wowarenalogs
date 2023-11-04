@@ -39,8 +39,33 @@ const bridgeState: {
   },
 };
 
+const READ_TIMEOUT_MS = 60000;
+
 @nativeBridgeModule('logs')
 export class LogsModule extends NativeBridgeModule {
+  protected lastChangeEventTime = new Date();
+
+  public onRegistered(mainWindow: BrowserWindow): void {
+    setInterval(() => this.checkLastViableRead(mainWindow), READ_TIMEOUT_MS - 100);
+  }
+
+  private checkLastViableRead(mainWindow: BrowserWindow) {
+    const now = new Date();
+    if (bridgeState.classic.watcher) {
+      const elapsed = now.getTime() - bridgeState.classic.watcher.lastReadDate.getTime();
+      if (elapsed > READ_TIMEOUT_MS) {
+        this.handleLogReadingTimeout(mainWindow, 'classic', elapsed);
+      }
+    }
+    if (bridgeState.retail.watcher) {
+      const elapsed = now.getTime() - bridgeState.retail.watcher.lastReadDate.getTime();
+      if (elapsed > READ_TIMEOUT_MS) {
+        this.handleLogReadingTimeout(mainWindow, 'retail', elapsed);
+      }
+    }
+    return;
+  }
+
   @moduleFunction({ isRequired: true })
   public async importLogFiles(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
     dialog
@@ -223,6 +248,11 @@ export class LogsModule extends NativeBridgeModule {
 
   @moduleEvent('on', { isRequired: true })
   public handleParserError(_mainWindow: BrowserWindow, _error: Error) {
+    return;
+  }
+
+  @moduleEvent('on')
+  public handleLogReadingTimeout(_mainWindow: BrowserWindow, _wowVersion: WowVersion, _timeoutSeconds: number) {
     return;
   }
 }
