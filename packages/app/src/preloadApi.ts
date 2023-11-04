@@ -28,6 +28,10 @@ export const modulesApi = {
     handleParserError: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
       ipcRenderer.on('wowarenalogs:logs:handleParserError', callback),
     removeAll_handleParserError_listeners: () => ipcRenderer.removeAllListeners('wowarenalogs:logs:handleParserError'),
+    handleLogReadingTimeout: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:logs:handleLogReadingTimeout', callback),
+    removeAll_handleLogReadingTimeout_listeners: () =>
+      ipcRenderer.removeAllListeners('wowarenalogs:logs:handleLogReadingTimeout'),
   },
   bnet: { login: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:bnet:login', ...args) },
   fs: {

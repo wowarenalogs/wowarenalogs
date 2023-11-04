@@ -33,6 +33,8 @@ export type NativeApi = {
     removeAll_handleMalformedCombatDetected_listeners: () => void;
     handleParserError: (callback: AsEventFunction<LogsModule['handleParserError']>) => void;
     removeAll_handleParserError_listeners: () => void;
+    handleLogReadingTimeout?: (callback: AsEventFunction<LogsModule['handleLogReadingTimeout']>) => void;
+    removeAll_handleLogReadingTimeout_listeners?: () => void;
   };
   bnet?: { login: OmitFirstArg<BnetModule['login']> };
   fs?: {
