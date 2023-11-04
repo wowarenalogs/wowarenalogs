@@ -173,6 +173,8 @@ export const LocalCombatsContextProvider = (props: IProps) => {
 
       if (window.wowarenalogs.logs?.handleActivityStarted) {
         window.wowarenalogs.logs.handleActivityStarted((_nodeEvent, activityStartedEvent) => {
+          // eslint-disable-next-line no-console
+          console.log('Started activity');
           if (!currentActivity) {
             currentActivity = activityStartedEvent;
             window.wowarenalogs.obs?.startRecording?.();

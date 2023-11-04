@@ -37,6 +37,22 @@ export class ObsModule extends NativeBridgeModule {
   }
 
   @moduleFunction()
+  public async drawPreviewWindow(
+    _mainWindow: BrowserWindow,
+    width: number,
+    height: number,
+    xPos: number,
+    yPos: number,
+  ) {
+    this.manager?.recorder.showPreview(width, height, xPos, yPos);
+  }
+
+  @moduleFunction()
+  public async hidePreviewWindow(_mainWindow: BrowserWindow) {
+    this.manager?.recorder.hidePreview();
+  }
+
+  @moduleFunction()
   public async startRecording(_mainWindow: BrowserWindow) {
     this.manager?.recorder.start();
   }

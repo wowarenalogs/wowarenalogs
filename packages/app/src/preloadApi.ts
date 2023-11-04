@@ -64,6 +64,8 @@ export const modulesApi = {
   obs: {
     selectFolder: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:selectFolder', ...args),
     startRecordingEngine: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:startRecordingEngine', ...args),
+    drawPreviewWindow: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:drawPreviewWindow', ...args),
+    hidePreviewWindow: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:hidePreviewWindow', ...args),
     startRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:startRecording', ...args),
     stopRecording: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:stopRecording', ...args),
     getConfiguration: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getConfiguration', ...args),
