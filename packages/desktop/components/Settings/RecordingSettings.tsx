@@ -244,9 +244,7 @@ const RecordingSettings = () => {
                 label: k.toString(),
               }))}
             >
-              <div>
-                {captureModes.find((m) => m.key === configStore?.obsCaptureMode)?.name ?? 'Select capture mode'}
-              </div>
+              <div>{configStore.monitorIndex ?? 'Select monitor'}</div>
               <TbCaretDown size={20} />
             </Dropdown>
           )}
