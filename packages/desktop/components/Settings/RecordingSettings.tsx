@@ -284,6 +284,9 @@ const RecordingSettings = () => {
             Set VOD Directory
           </button>
         </div>
+        <div className="flex flex-col gap-2 ">
+          <PreviewVideoWindow key={configStore?.obsCaptureMode || 'no-mode'} />
+        </div>
       </div>
       {showDebugInfo && (
         <div className="flex flex-col gap-2">
@@ -322,9 +325,7 @@ const RecordingSettings = () => {
               Test Erase Storage Path Config
             </button>
           </div>
-          <div className="flex flex-col gap-2 ">
-            <PreviewVideoWindow key={configStore?.obsCaptureMode || 'no-mode'} />
-          </div>
+
           <textarea className="textarea" readOnly rows={8}>
             {JSON.stringify(configStore, null, 2)}
           </textarea>
