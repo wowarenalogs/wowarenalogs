@@ -52,13 +52,15 @@ export class LogsModule extends NativeBridgeModule {
   private checkLastViableRead(mainWindow: BrowserWindow) {
     const now = new Date();
     if (bridgeState.classic.watcher) {
-      if (now.getTime() - bridgeState.classic.watcher.lastReadDate.getTime() > READ_TIMEOUT_MS) {
-        this.handleLogReadingTimeout(mainWindow, 'classic', READ_TIMEOUT_MS);
+      const elapsed = now.getTime() - bridgeState.classic.watcher.lastReadDate.getTime();
+      if (elapsed > READ_TIMEOUT_MS) {
+        this.handleLogReadingTimeout(mainWindow, 'classic', elapsed);
       }
     }
     if (bridgeState.retail.watcher) {
-      if (now.getTime() - bridgeState.retail.watcher.lastReadDate.getTime() > READ_TIMEOUT_MS) {
-        this.handleLogReadingTimeout(mainWindow, 'retail', READ_TIMEOUT_MS);
+      const elapsed = now.getTime() - bridgeState.retail.watcher.lastReadDate.getTime();
+      if (elapsed > READ_TIMEOUT_MS) {
+        this.handleLogReadingTimeout(mainWindow, 'retail', elapsed);
       }
     }
     return;
