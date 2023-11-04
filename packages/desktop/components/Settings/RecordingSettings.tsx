@@ -197,7 +197,7 @@ const RecordingSettings = () => {
           {recStates[recordingStatus] && recStates[recordingStatus].message}
           {recordStatusError}
         </div>
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row flex-wrap gap-2 items-center">
           <Dropdown
             menuItems={outputAudioOptions.map((k) => ({
               onClick: () => {
@@ -222,6 +222,47 @@ const RecordingSettings = () => {
             <div>{configStore?.obsOutputResolution ?? 'Select video resolution'}</div>
             <TbCaretDown size={20} />
           </Dropdown>
+          <Dropdown
+            menuItems={captureModes.map((k) => ({
+              onClick: () => {
+                window.wowarenalogs.obs?.setConfig?.('obsCaptureMode', k.key);
+              },
+              key: k.key,
+              label: k.name,
+            }))}
+          >
+            <div>{captureModes.find((m) => m.key === configStore?.obsCaptureMode)?.name ?? 'Select capture mode'}</div>
+            <TbCaretDown size={20} />
+          </Dropdown>
+          {configStore?.obsCaptureMode === 'monitor_capture' && (
+            <Dropdown
+              menuItems={[1, 2, 3, 4].map((k) => ({
+                onClick: () => {
+                  window.wowarenalogs.obs?.setConfig?.('monitorIndex', k);
+                },
+                key: k.toString(),
+                label: k.toString(),
+              }))}
+            >
+              <div>
+                {captureModes.find((m) => m.key === configStore?.obsCaptureMode)?.name ?? 'Select capture mode'}
+              </div>
+              <TbCaretDown size={20} />
+            </Dropdown>
+          )}
+          <div className="form-control">
+            <label className="label gap-2 justify-start items-center">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={configStore?.captureCursor || false}
+                onChange={(e) => {
+                  window.wowarenalogs.obs?.setConfig?.('captureCursor', e.target.checked);
+                }}
+              />
+              <span className="label-text">Capture cursor</span>
+            </label>
+          </div>
         </div>
         <div className="flex flex-row-reverse gap-2">
           <input
@@ -244,67 +285,6 @@ const RecordingSettings = () => {
           >
             Set VOD Directory
           </button>
-        </div>
-        <div>
-          <div className="font-bold">Capture Mode:</div>
-          <div className="flex flex-row gap-2 items-center">
-            {captureModes.map((o) => {
-              return (
-                <div className="form-control" key={o.key}>
-                  <label className="label cursor-pointer space-x-2">
-                    <input
-                      type="radio"
-                      name="obs-radio-1"
-                      className="radio checked:bg-primary"
-                      value={o.key}
-                      checked={configStore?.obsCaptureMode === o.key}
-                      onChange={() => {
-                        window.wowarenalogs.obs?.setConfig?.('obsCaptureMode', o.key);
-                      }}
-                    />
-                    <span className="label-text">{o.name}</span>
-                  </label>
-                </div>
-              );
-            })}
-          </div>
-          {configStore?.obsCaptureMode === 'monitor_capture' && (
-            <div className="flex flex-row gap-2 items-center">
-              Monitor:
-              {[1, 2, 3, 4].map((o) => {
-                return (
-                  <div className="form-control" key={o}>
-                    <label className="label cursor-pointer space-x-2">
-                      <input
-                        type="radio"
-                        name="obs-radio-2"
-                        className="radio checked:bg-primary"
-                        value={o}
-                        checked={configStore?.monitorIndex === o}
-                        onChange={(e) => {
-                          window.wowarenalogs.obs?.setConfig?.('monitorIndex', parseInt(e.target.value));
-                        }}
-                      />
-                      <span className="label-text">{o}</span>
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-        <div className="form-control">
-          <label className="label gap-2 justify-start items-center">
-            <input
-              type="checkbox"
-              className="checkbox"
-              checked={configStore?.captureCursor || false}
-              onChange={(e) => {
-                window.wowarenalogs.obs?.setConfig?.('captureCursor', e.target.checked);
-              }}
-            />
-            <span className="label-text">Capture cursor</span>
-          </label>
         </div>
       </div>
       {showDebugInfo && (
