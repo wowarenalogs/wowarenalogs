@@ -3,6 +3,7 @@ import { FSWatcher, watch } from 'fs';
 import { join } from 'path';
 
 abstract class LogWatcher {
+  public lastReadDate = new Date();
   constructor(protected wowDirectory: string) {}
   abstract onChange(handler: (fileName: string) => void): void;
   abstract close(): void;
@@ -19,6 +20,7 @@ class WindowsLogWatcher extends LogWatcher {
 
   onChange(handler: (fileName: string) => void): void {
     this.watcher.on('change', (eventType: string, fileName: string) => {
+      this.lastReadDate = new Date();
       if (eventType === 'rename') {
         // rename fires on new-file-creation and file-deletion
         // however-- a 'change' event *also* fires when the bytes are written
@@ -56,6 +58,7 @@ class UnixLogWatcher extends LogWatcher {
 
   onChange(handler: (fileName: string) => void): void {
     this.watcher.on('change', (fileName) => {
+      this.lastReadDate = new Date();
       if (fileName.indexOf('WoWCombatLog') < 0) {
         return;
       }

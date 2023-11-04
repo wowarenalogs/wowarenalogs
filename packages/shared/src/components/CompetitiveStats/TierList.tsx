@@ -129,7 +129,7 @@ export default function TierList(props: { activeBracket: string; minRating: numb
                       : 'rgb(191, 255, 127)',
                 }}
               >
-                <div className="w-16 h-16 text-black flex items-center justify-center">{tier}</div>
+                <div className="w-4 md:w-16 h-16 text-black flex items-center justify-center">{tier}</div>
               </td>
               <td className="flex flex-wrap bg-base-300">
                 <div className="h-16 w-0">{/* placeholder to ensure min-height */}</div>
