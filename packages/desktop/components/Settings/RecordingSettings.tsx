@@ -1,12 +1,10 @@
-/* eslint-disable no-console */
 import { ConfigurationSchema, IOBSDevice, RecStatus, ResolutionOptions } from '@wowarenalogs/recorder';
 import { Dropdown, useClientContext } from '@wowarenalogs/shared';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   TbAlertCircle,
   TbAlertOctagon,
   TbCaretDown,
-  TbSettings,
   TbVideo,
   TbVideoMinus,
   TbVideoOff,
@@ -38,6 +36,17 @@ const resolutionOptions: ResolutionOptions[] = [
   '3840x1600',
   '3840x2160',
   '5120x1440',
+];
+
+const captureModes = [
+  {
+    key: 'game_capture',
+    name: 'Game Capture',
+  },
+  {
+    key: 'monitor_capture',
+    name: 'Monitor/Display Capture',
+  },
 ];
 
 // more enum bullshit
@@ -72,6 +81,36 @@ const recStates: Record<RecStatus | 'EngineNotStarted', { icon: JSX.Element; mes
     message: 'Recording overrun...',
   },
 };
+
+function PreviewVideoWindow({ key }: { key: string }) {
+  const divRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const rect = divRef.current?.getBoundingClientRect();
+    window.wowarenalogs.obs?.drawPreviewWindow?.(rect?.width || 50, rect?.height || 50, rect?.x || 50, rect?.y || 50);
+    return () => {
+      window.wowarenalogs.obs?.hidePreviewWindow?.();
+    };
+  }, []);
+
+  if (!window.wowarenalogs.obs?.drawPreviewWindow) return null;
+
+  return (
+    <div
+      key={key}
+      ref={divRef}
+      onClick={() => {
+        const rect = divRef.current?.getBoundingClientRect();
+        window.wowarenalogs.obs?.drawPreviewWindow?.(
+          rect?.width || 50,
+          rect?.height || 50,
+          rect?.x || 50,
+          rect?.y || 50,
+        );
+      }}
+      className="h-[200px] w-[400px]"
+    />
+  );
+}
 
 const RecordingSettings = () => {
   const clientContext = useClientContext();
@@ -126,95 +165,130 @@ const RecordingSettings = () => {
   }, []);
 
   const maybeAudioChoice = outputAudioOptions.find((a) => a.id === configStore?.audioOutputDevices);
-  const maybeAudioDevice = maybeAudioChoice?.description || 'No device found!';
+  const maybeAudioDevice = maybeAudioChoice?.description || null;
 
   const showDebugInfo = process.env.NODE_ENV === 'development' && clientContext.isDesktop;
 
   return (
-    <div className="gap-2 min-h-screen">
-      <div className="text-2xl font-bold mb-1">OBS Recording Settings</div>
+    <div className="flex flex-col gap-2">
+      <div className="text-2xl font-bold mb-1">Video Recording</div>
       <div
         className="mb-2 label-text"
         onClick={() => window.wowarenalogs.links?.openExternalURL('https://discord.gg/NFTPK9tmJK')}
       >
-        For help setting OBS recording up, please see our pinned guide in the #faq channel on{' '}
-        <span className="underline">Discord</span>
+        For help setting up video recording, please see our pinned guide in the #faq channel on{' '}
+        <span className="underline">Discord</span>.
       </div>
-      <div className="flex flex-row justify-between">
-        <div className="flex flex-col gap-2">
-          {!engineStarted && (
-            <button
-              className="btn"
-              disabled={engineStarted}
-              onClick={() => {
-                window.wowarenalogs.obs?.startRecordingEngine?.();
-                checkAudioDevices();
-              }}
+      <div className="flex flex-col gap-2">
+        {!engineStarted && (
+          <button
+            className="btn"
+            disabled={engineStarted}
+            onClick={() => {
+              window.wowarenalogs.obs?.startRecordingEngine?.();
+              checkAudioDevices();
+            }}
+          >
+            Enable Video Recording
+          </button>
+        )}
+        <div className="flex flex-row gap-2 items-center">
+          {recStates[recordingStatus] && recStates[recordingStatus].icon}
+          {recStates[recordingStatus] && recStates[recordingStatus].message}
+          {recordStatusError}
+        </div>
+        <div className="flex flex-row flex-wrap gap-2 items-center">
+          <Dropdown
+            menuItems={outputAudioOptions.map((k) => ({
+              onClick: () => {
+                window.wowarenalogs.obs?.setConfig?.('audioOutputDevices', k.id);
+              },
+              key: k.id,
+              label: k.description,
+            }))}
+          >
+            <div>{maybeAudioDevice ?? 'Select audio source'}</div>
+            <TbCaretDown size={20} />
+          </Dropdown>
+          <Dropdown
+            menuItems={resolutionOptions.map((k) => ({
+              onClick: () => {
+                window.wowarenalogs.obs?.setConfig?.('obsOutputResolution', k);
+              },
+              key: k,
+              label: k,
+            }))}
+          >
+            <div>{configStore?.obsOutputResolution ?? 'Select video resolution'}</div>
+            <TbCaretDown size={20} />
+          </Dropdown>
+          <Dropdown
+            menuItems={captureModes.map((k) => ({
+              onClick: () => {
+                window.wowarenalogs.obs?.setConfig?.('obsCaptureMode', k.key);
+              },
+              key: k.key,
+              label: k.name,
+            }))}
+          >
+            <div>{captureModes.find((m) => m.key === configStore?.obsCaptureMode)?.name ?? 'Select capture mode'}</div>
+            <TbCaretDown size={20} />
+          </Dropdown>
+          {configStore?.obsCaptureMode === 'monitor_capture' && (
+            <Dropdown
+              menuItems={[1, 2, 3, 4].map((k) => ({
+                onClick: () => {
+                  window.wowarenalogs.obs?.setConfig?.('monitorIndex', k);
+                },
+                key: k.toString(),
+                label: k.toString(),
+              }))}
             >
-              Start OBS Engine
-            </button>
+              <div>{configStore.monitorIndex ?? 'Select monitor'}</div>
+              <TbCaretDown size={20} />
+            </Dropdown>
           )}
-          <div className="flex flex-row gap-2 items-center">
-            {recStates[recordingStatus] && recStates[recordingStatus].icon}
-            {recStates[recordingStatus] && recStates[recordingStatus].message}
-            {recordStatusError}
-          </div>
-          <div>
-            <div className="font-bold">Audio Output Device:</div>
-            <div className="flex flex-row gap-2 items-center">
-              <Dropdown
-                menuItems={outputAudioOptions.map((k) => ({
-                  onClick: () => {
-                    window.wowarenalogs.obs?.setConfig?.('audioOutputDevices', k.id);
-                  },
-                  key: k.id,
-                  label: k.description,
-                }))}
-              >
-                <TbCaretDown size={20} />
-              </Dropdown>
-              <div>{maybeAudioDevice}</div>
-            </div>
-          </div>
-          <div>
-            <div className="font-bold">Resolution:</div>
-            <div className="flex flex-row gap-2 items-center">
-              <Dropdown
-                menuItems={resolutionOptions.map((k) => ({
-                  onClick: () => {
-                    window.wowarenalogs.obs?.setConfig?.('obsOutputResolution', k);
-                  },
-                  key: k,
-                  label: k,
-                }))}
-              >
-                <TbCaretDown size={20} />
-              </Dropdown>
-              <div>{configStore?.obsOutputResolution}</div>
-            </div>
-          </div>
-          <div>
-            <div className="font-bold">VOD Storage Directory:</div>
-            <div className="flex flex-row gap-2 items-center">
-              <button
-                className="btn"
-                onClick={async () => {
-                  if (window.wowarenalogs.obs?.selectFolder) {
-                    const folderChoice = await window.wowarenalogs.obs.selectFolder('Select folder to store videos to');
-                    if (folderChoice.length > 0) {
-                      window.wowarenalogs.obs?.setConfig?.('storagePath', folderChoice[0]);
-                    }
-                  }
+          <div className="form-control">
+            <label className="label gap-2 justify-start items-center">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={configStore?.captureCursor || false}
+                onChange={(e) => {
+                  window.wowarenalogs.obs?.setConfig?.('captureCursor', e.target.checked);
                 }}
-              >
-                <TbSettings size={20} />
-              </button>
-              <div>{configStore?.storagePath}</div>
-            </div>
+              />
+              <span className="label-text">Capture cursor</span>
+            </label>
           </div>
         </div>
-        {showDebugInfo && (
-          <div>
+        <div className="flex flex-row-reverse gap-2">
+          <input
+            type="text"
+            placeholder=""
+            readOnly
+            className="input input-sm input-bordered flex-1"
+            value={configStore?.storagePath ?? ''}
+          />
+          <button
+            className="btn btn-sm gap-2"
+            onClick={async () => {
+              if (window.wowarenalogs.obs?.selectFolder) {
+                const folderChoice = await window.wowarenalogs.obs.selectFolder('Select folder to store videos to');
+                if (folderChoice.length > 0) {
+                  window.wowarenalogs.obs?.setConfig?.('storagePath', folderChoice[0]);
+                }
+              }
+            }}
+          >
+            Set VOD Directory
+          </button>
+        </div>
+      </div>
+      {showDebugInfo && (
+        <div className="flex flex-col gap-2">
+          <div className="divider" />
+          <div className="flex gap-2">
             <button
               className="btn"
               onClick={() => {
@@ -247,10 +321,15 @@ const RecordingSettings = () => {
             >
               Test Erase Storage Path Config
             </button>
-            <pre>{JSON.stringify(configStore, null, 2)}</pre>
           </div>
-        )}
-      </div>
+          <div className="flex flex-col gap-2 ">
+            <PreviewVideoWindow key={configStore?.obsCaptureMode || 'no-mode'} />
+          </div>
+          <textarea className="textarea" readOnly rows={8}>
+            {JSON.stringify(configStore, null, 2)}
+          </textarea>
+        </div>
+      )}
     </div>
   );
 };

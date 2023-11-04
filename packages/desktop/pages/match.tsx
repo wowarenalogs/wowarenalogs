@@ -24,7 +24,7 @@ const Page = () => {
 
   const localCombat = localCombatsLookup.get(`${id}+${roundId ? roundId : ''}`);
   if (localCombat) {
-    return <CombatReport viewerIsOwner={false} combat={localCombat} matchId={localCombat.id} />;
+    return <CombatReport viewerIsOwner={true} combat={localCombat} matchId={localCombat.id} />;
   }
 
   return (
