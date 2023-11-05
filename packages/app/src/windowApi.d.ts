@@ -82,5 +82,7 @@ export type NativeApi = {
     removeAll_recorderStatusUpdated_listeners?: () => void;
     configUpdated?: (callback: AsEventFunction<ObsModule['configUpdated']>) => void;
     removeAll_configUpdated_listeners?: () => void;
+    videoRecorded?: (callback: AsEventFunction<ObsModule['videoRecorded']>) => void;
+    removeAll_videoRecorded_listeners?: () => void;
   };
 };
