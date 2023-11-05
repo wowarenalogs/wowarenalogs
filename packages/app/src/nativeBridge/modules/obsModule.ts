@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { ConfigurationSchema, IActivity, Manager, Recorder, RecStatus } from '@wowarenalogs/recorder';
+import { ConfigurationSchema, IActivity, Manager, Recorder, RecStatus, VideoQueueItem } from '@wowarenalogs/recorder';
 import type { ArenaMatchMetadata, ShuffleMatchMetadata } from '@wowarenalogs/shared';
 import { BrowserWindow, dialog } from 'electron';
 import { readdir, readFile } from 'fs-extra';
@@ -32,6 +32,9 @@ export class ObsModule extends NativeBridgeModule {
           this.configUpdated(mainWindow, newValue);
         });
         this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
+        this.manager.messageBus.on('video-written', (video) => {
+          this.videoRecorded(mainWindow, video);
+        });
       });
     }
   }
@@ -93,6 +96,11 @@ export class ObsModule extends NativeBridgeModule {
 
   @moduleEvent('on')
   public configUpdated(_mainWindow: BrowserWindow, _newValue: Readonly<ConfigurationSchema> | undefined): void {
+    return;
+  }
+
+  @moduleEvent('on')
+  public videoRecorded(_mainWindow: BrowserWindow, _video: VideoQueueItem) {
     return;
   }
 
