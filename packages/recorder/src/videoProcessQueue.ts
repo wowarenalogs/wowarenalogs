@@ -4,7 +4,6 @@ import { ffprobe, FfprobeData } from 'fluent-ffmpeg';
 import { existsSync } from 'fs-extra';
 import path from 'path';
 
-import { IActivity } from './activity';
 // import SizeMonitor from './sizeMonitor';
 import ConfigService from './configService';
 import { ManagerMessageBus } from './messageBus';
