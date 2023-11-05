@@ -149,7 +149,10 @@ export function CombatReplay() {
     return _.values(combat ? combat.units : []).filter((u) => u.type === CombatUnitType.Player);
   }, [combat]);
 
-  const deaths = _.flatten(players.map((p) => p.deathRecords)).sort((a, b) => a.timestamp - b.timestamp);
+  const deaths = useMemo(
+    () => _.flatten(players.map((p) => p.deathRecords)).sort((a, b) => a.timestamp - b.timestamp),
+    [players],
+  );
 
   if (!combat) {
     return null;
