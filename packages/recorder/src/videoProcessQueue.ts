@@ -6,12 +6,14 @@ import path from 'path';
 
 // import SizeMonitor from './sizeMonitor';
 import ConfigService from './configService';
+import { ManagerMessageBus } from './messageBus';
 import { VideoQueueItem } from './types';
 import { fixPathWhenPackaged, getThumbnailFileNameForVideo, tryUnlink, writeMetadataFile } from './util';
 
 let ffmpeg: typeof import('fluent-ffmpeg');
 
 export default class VideoProcessQueue {
+  private messageBus: ManagerMessageBus;
   // TODO: MIGHTFIX re-implement some kind of queue for processing
   // private videoQueue: any;
 
@@ -24,7 +26,8 @@ export default class VideoProcessQueue {
     ffmpeg = (await import('fluent-ffmpeg')).default;
   }
 
-  constructor() {
+  constructor(bus: ManagerMessageBus) {
+    this.messageBus = bus;
     const ffmpegPath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'obs-studio-node', 'ffmpeg.exe'));
 
     ffmpeg.setFfmpegPath(ffmpegPath);
@@ -91,6 +94,7 @@ export default class VideoProcessQueue {
 
     await VideoProcessQueue.getThumbnail(videoPath);
 
+    this.messageBus.emit('video-written', data);
     done();
   }
 

@@ -84,5 +84,8 @@ export const modulesApi = {
     configUpdated: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
       ipcRenderer.on('wowarenalogs:obs:configUpdated', callback),
     removeAll_configUpdated_listeners: () => ipcRenderer.removeAllListeners('wowarenalogs:obs:configUpdated'),
+    videoRecorded: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:obs:videoRecorded', callback),
+    removeAll_videoRecorded_listeners: () => ipcRenderer.removeAllListeners('wowarenalogs:obs:videoRecorded'),
   },
 };
