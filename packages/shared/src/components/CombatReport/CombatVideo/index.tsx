@@ -15,6 +15,7 @@ declare global {
 type FindVideoReturnShim =
   | {
       compensationTimeSeconds: number;
+      relativeStart: number;
       videoPath: string;
       metadata: ArenaMatchMetadata | ShuffleMatchMetadata;
     }
@@ -39,10 +40,7 @@ function getMatchTimeoffsetSeconds(
 export const CombatVideo = () => {
   const rangeRef = useRef<HTMLInputElement>(null);
   const { combat } = useCombatReportContext();
-  const [videoInformation, setVideoInformation] = useState<
-    | { compensationTimeSeconds: number; videoPath: string; metadata: ArenaMatchMetadata | ShuffleMatchMetadata }
-    | undefined
-  >();
+  const [videoInformation, setVideoInformation] = useState<FindVideoReturnShim>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -141,6 +139,24 @@ export const CombatVideo = () => {
     return null;
   }
 
+  let timeBasis = 0;
+  // Video describes an activity that started normally at an offset inside a buffer
+  // the timebasis will now just be the number of seconds needed to adjust for the keyframe cut from ffprobe
+  if (videoInformation.compensationTimeSeconds > 0) {
+    timeBasis = videoInformation.compensationTimeSeconds;
+  }
+  // Video describes an activity that started before the video's buffer began
+  // the timebasis will now be negative to account for the missing video footage and synchronize the timeline data
+  // All events before the video start will be imputed to t=0
+  if (videoInformation.relativeStart < 0) {
+    timeBasis = videoInformation.relativeStart;
+  }
+
+  const combatTimeToVideoTime = (combatRelativeTime: number): number => {
+    const offset = getMatchTimeoffsetSeconds(combat.id, videoInformation.metadata, timeBasis);
+    return Math.max(combatRelativeTime + offset - 5 || 0, 0);
+  };
+
   return (
     <div className="animate-fadein flex flex-col gap-2 flex-1 h-full">
       <div className="flex flex-row gap-2">
@@ -151,12 +167,7 @@ export const CombatVideo = () => {
               if (!vidRef.current) return;
               if (!videoInformation.metadata) return;
 
-              const offset = getMatchTimeoffsetSeconds(
-                combat.id,
-                videoInformation.metadata,
-                videoInformation.compensationTimeSeconds || 0,
-              );
-              vidRef.current.currentTime = offset || 0;
+              vidRef.current.currentTime = combatTimeToVideoTime(0);
               vidRef.current.play();
             }}
           >
@@ -168,12 +179,8 @@ export const CombatVideo = () => {
               if (!vidRef.current) return;
               if (!videoInformation.metadata) return;
 
-              const offset = getMatchTimeoffsetSeconds(
-                combat.id,
-                videoInformation.metadata,
-                videoInformation.compensationTimeSeconds || 0,
-              );
-              vidRef.current.currentTime = combat.durationInSeconds + offset - 5 || 0;
+              vidRef.current.currentTime = combatTimeToVideoTime(combat.durationInSeconds);
+
               vidRef.current.play();
             }}
           >
