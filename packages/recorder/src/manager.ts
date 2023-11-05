@@ -13,6 +13,7 @@ import {
   getOverlayConfig,
   getStorageConfig,
 } from './configUtils';
+import { ManagerMessageBus } from './messageBus';
 import { ERecordingState } from './obsEnums';
 // import { uIOhook } from 'uiohook-napi';
 import Poller from './poller';
@@ -52,6 +53,8 @@ export class Manager {
   private obsAudioCfg: ObsAudioConfig = getObsAudioConfig(this.cfg);
 
   private overlayCfg: ObsOverlayConfig = getOverlayConfig(this.cfg);
+
+  public messageBus: ManagerMessageBus;
 
   /**
    * Defined stages of configuration. They are named only for logging
@@ -106,10 +109,11 @@ export class Manager {
    */
   constructor(mainWindow: BrowserWindow) {
     console.info('[Manager] Creating manager');
+    this.messageBus = new ManagerMessageBus();
     this.setupListeners();
 
     this.mainWindow = mainWindow;
-    this.recorder = new Recorder(mainWindow);
+    this.recorder = new Recorder(mainWindow, this.messageBus);
 
     this.poller.on('wowProcessStart', () => this.onWowStarted());
     this.poller.on('wowProcessStop', () => this.onWowStopped());

@@ -3,6 +3,7 @@ import {
   getAnalyticsDeviceId,
   initAnalyticsAsync,
   LoadingScreen,
+  logAnalyticsEvent,
   MainLayout,
 } from '@wowarenalogs/shared';
 import { AuthProvider } from '@wowarenalogs/shared';
@@ -50,6 +51,22 @@ export const DesktopLayout = !window.wowarenalogs
           });
         });
       }, []);
+
+      useEffect(() => {
+        window.wowarenalogs.obs?.videoRecorded?.((_evt, vid) => {
+          logAnalyticsEvent('event_VideoRecorded', {
+            relativeStart: vid.relativeStart,
+            duration: vid.duration,
+            compensationTime: vid.compensationTimeSeconds,
+            bracket: vid.metadata?.startInfo?.bracket,
+            startTimestamp: vid.metadata?.startInfo?.timestamp,
+            team0MMR: vid.metadata?.endInfo?.team0MMR,
+            team1MMR: vid.metadata?.endInfo?.team1MMR,
+            result: vid.metadata?.result,
+          });
+        });
+        return () => window.wowarenalogs.obs?.removeAll_videoRecorded_listeners?.();
+      });
 
       return (
         <>
