@@ -313,7 +313,7 @@ export class Recorder {
 
     console.info('[Recorder] Constructing recorder:', this.uuid);
     this.mainWindow = mainWindow;
-    this.videoProcessQueue = new VideoProcessQueue(bus);
+    this.videoProcessQueue = new VideoProcessQueue(this.messageBus);
     this.initializeOBS();
   }
 
