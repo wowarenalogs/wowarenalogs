@@ -154,7 +154,7 @@ export const CombatVideo = () => {
 
   const combatTimeToVideoTime = (combatRelativeTime: number): number => {
     const offset = getMatchTimeoffsetSeconds(combat.id, videoInformation.metadata, timeBasis);
-    return Math.max(combatRelativeTime + offset - 5 || 0, 0);
+    return Math.max(combatRelativeTime + offset || 0, 0);
   };
 
   return (
@@ -179,7 +179,7 @@ export const CombatVideo = () => {
               if (!vidRef.current) return;
               if (!videoInformation.metadata) return;
 
-              vidRef.current.currentTime = combatTimeToVideoTime(combat.durationInSeconds);
+              vidRef.current.currentTime = combatTimeToVideoTime(combat.durationInSeconds - 5);
 
               vidRef.current.play();
             }}
