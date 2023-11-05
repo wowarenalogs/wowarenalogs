@@ -22,6 +22,7 @@ import ConfigService from './configService';
 // import { UiohookKeyboardEvent, UiohookMouseEvent, uIOhook } from 'uiohook-napi';
 import { getOverlayConfig } from './configUtils';
 import { obsResolutions } from './constants';
+import { ManagerMessageBus } from './messageBus';
 import {
   EColorSpace,
   EFPSType,
@@ -72,6 +73,11 @@ let osn: typeof import('obs-studio-node');
  * game.
  */
 export class Recorder {
+  /**
+   * Messaging bus for event communications to the Manager class
+   */
+  private messageBus: ManagerMessageBus;
+
   /**
    * For quickly checking if we're recording an activity or not. This is
    * not the same as the OBS state.
@@ -302,10 +308,12 @@ export class Recorder {
    *
    * @param mainWindow main app window for IPC interaction
    */
-  constructor(mainWindow: BrowserWindow) {
+  constructor(mainWindow: BrowserWindow, bus: ManagerMessageBus) {
+    this.messageBus = bus;
+
     console.info('[Recorder] Constructing recorder:', this.uuid);
     this.mainWindow = mainWindow;
-    this.videoProcessQueue = new VideoProcessQueue();
+    this.videoProcessQueue = new VideoProcessQueue(bus);
     this.initializeOBS();
   }
 
