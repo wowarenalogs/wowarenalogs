@@ -1,13 +1,9 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 
 import { VideoQueueItem } from './types';
 
-export class ManagerMessageBus extends EventEmitter {
-  public emit = (eventName: 'video-written', video: VideoQueueItem): boolean => {
-    return super.emit(eventName, video);
-  };
-
-  public on = (eventName: 'video-written', listener: (video: VideoQueueItem) => void): this => {
-    return super.on(eventName, listener);
-  };
+interface EventSpec {
+  'video-written': (data: VideoQueueItem) => void;
 }
+
+export class ManagerMessageBus extends EventEmitter<EventSpec> {}
