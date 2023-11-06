@@ -82,7 +82,7 @@ const recStates: Record<RecStatus | 'EngineNotStarted', { icon: JSX.Element; mes
   },
 };
 
-function PreviewVideoWindow({ key }: { key: string }) {
+function PreviewVideoWindow() {
   const divRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const rect = divRef.current?.getBoundingClientRect();
@@ -96,7 +96,6 @@ function PreviewVideoWindow({ key }: { key: string }) {
 
   return (
     <div
-      key={key}
       ref={divRef}
       onClick={() => {
         const rect = divRef.current?.getBoundingClientRect();
@@ -330,9 +329,7 @@ const RecordingSettings = () => {
             </button>
           </div>
 
-          <textarea className="textarea" readOnly rows={8}>
-            {JSON.stringify(configStore, null, 2)}
-          </textarea>
+          <textarea className="textarea" readOnly rows={8} defaultValue={JSON.stringify(configStore, null, 2)} />
         </div>
       )}
     </div>

@@ -25,14 +25,14 @@ const Page = () => {
   return (
     <div className="flex flex-col m-2 gap-4">
       {appVersion ? (
-        <div className="fixed bottom-4 right-4 rounded-box table table-compact">
+        <table className="fixed bottom-4 right-4 rounded-box table table-compact">
           <thead>
             <tr>
               <th className="bg-base-300">Version</th>
               <td className="bg-base-200">{appVersion}</td>
             </tr>
           </thead>
-        </div>
+        </table>
       ) : null}
       <div className="flex flex-row gap-2">
         <button
