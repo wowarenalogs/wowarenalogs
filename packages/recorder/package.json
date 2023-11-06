@@ -2,8 +2,7 @@
   "name": "@wowarenalogs/recorder",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "main": "./src/index.ts",
   "author": "WoW Arena Logs",
   "scripts": {
     "build:recorder": "tsc",

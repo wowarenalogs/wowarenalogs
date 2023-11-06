@@ -48,7 +48,7 @@
     "add:tools": "npm install -w @wowarenalogs/tools",
     "gen:app:preload": "npm run gen:app:preload --workspaces --if-present",
     "dev:app": "cross-env NODE_ENV=development BROWSER=none concurrently -k \"cd packages/desktop && npm run dev:desktop\" \"wait-on -d 3000 -i 5000 http://localhost:3000 && npm run build:app && electron .\"",
-    "build:app": "npm run build:recorder --workspaces --if-present && npm run gen:app:preload --workspaces --if-present && npm run build:app --workspaces --if-present",
+    "build:app": "npm run gen:app:preload --workspaces --if-present && npm run build:app --workspaces --if-present",
     "build:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=never",
     "build:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=never",
     "build:app:linux": "shx rm -rf dist && npm run build:app && electron-builder --linux --publish=never",
