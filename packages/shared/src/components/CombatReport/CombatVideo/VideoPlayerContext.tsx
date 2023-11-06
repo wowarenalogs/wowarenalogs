@@ -4,7 +4,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
 import { ArenaMatchMetadata, ShuffleMatchMetadata } from '../../../types/metadata';
 import { useCombatReportContext } from '../CombatReportContext';
 
-export type VideoPlayerPlayState = 'init' | 'playing' | 'paused' | 'error';
+export type VideoPlayerPlayState = 'playing' | 'paused' | 'error';
 
 interface VideoPlayerUserInputSpec {
   play: () => void;
@@ -62,7 +62,7 @@ type FindVideoReturnShim =
 
 export const VideoPlayerContextProvider = ({ children }: { children: ReactNode }) => {
   const { combat } = useCombatReportContext();
-  const [playState, setPlayState] = useState<VideoPlayerPlayState>('init');
+  const [playState, setPlayState] = useState<VideoPlayerPlayState>('paused');
   const [combatTime, setCombatTime] = useState(0);
   const [volume, setVolume] = useState(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

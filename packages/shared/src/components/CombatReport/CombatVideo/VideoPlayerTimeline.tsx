@@ -3,14 +3,16 @@ import _ from 'lodash';
 import moment from 'moment';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FaSkullCrossbones } from 'react-icons/fa';
-import { TbPlayerPause, TbPlayerPlay } from 'react-icons/tb';
+import { TbPlayerPause, TbPlayerPlay, TbVolume, TbVolumeOff } from 'react-icons/tb';
 
 import { useCombatReportContext } from '../CombatReportContext';
 import { useVideoPlayerContext } from './VideoPlayerContext';
 
+const RECORDING_OVERRUN = 3000;
+
 export const VideoPlayerTimeline = () => {
   const { combat } = useCombatReportContext();
-  const { playState, userInputs, combatTime } = useVideoPlayerContext();
+  const { playState, userInputs, combatTime, volume } = useVideoPlayerContext();
 
   const players = useMemo(() => {
     return _.values(combat ? combat.units : []).filter((u) => u.type === CombatUnitType.Player);
@@ -35,17 +37,16 @@ export const VideoPlayerTimeline = () => {
   }, [playState, userInputs]);
 
   useEffect(() => {
-    if (combat && combatTime >= combat.endTime) {
+    if (combat && combatTime >= combat.endTime + RECORDING_OVERRUN) {
       userInputs.emit('pause');
     }
   }, [combat, combatTime, userInputs]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedJump = useCallback(
-    _.debounce((time: number) => {
+  const jump = useCallback(
+    (time: number) => {
       userInputs.emit('pause');
       userInputs.emit('jumpToCombatTime', time);
-    }, 100),
+    },
     [userInputs],
   );
 
@@ -54,53 +55,62 @@ export const VideoPlayerTimeline = () => {
   }
 
   return (
-    <div className="flex flex-row mx-2 items-center mb-2">
-      <div className="mr-1">
-        <div
-          className="tooltip"
-          data-tip={playState === 'paused' ? 'Press Spacebar To Resume' : 'Press Spacebar To Pause'}
-        >
-          <button
-            className="btn btn-ghost btn-sm"
-            disabled={playState === 'init' || playState === 'error'}
-            onClick={() => {
-              playState === 'playing' ? userInputs.emit('pause') : userInputs.emit('play');
-            }}
-          >
-            {playState === 'playing' ? <TbPlayerPause /> : <TbPlayerPlay />}
-          </button>
-        </div>
-      </div>
-      <div className="mr-2">
-        <div className="tooltip" data-tip="Jump to First Blood">
-          <button
-            className="btn btn-sm btn-ghost"
-            disabled={deaths.length === 0}
-            onClick={() => {
-              userInputs.emit('jumpToCombatTime', deaths[0].timestamp - 5000);
-            }}
-          >
-            <FaSkullCrossbones />
-          </button>
-        </div>
-      </div>
+    <div className="flex flex-row gap-1 mx-2 items-center mb-2">
+      <button
+        className="btn btn-sm btn-ghost"
+        title={playState === 'paused' ? 'Press Spacebar To Resume' : 'Press Spacebar To Pause'}
+        disabled={playState === 'error'}
+        onMouseDown={(e) => {
+          e.preventDefault(); // prevent the button from acquiring focus which intercepts spacebar key presses
+        }}
+        onClick={() => {
+          playState === 'playing' ? userInputs.emit('pause') : userInputs.emit('play');
+        }}
+      >
+        {playState === 'playing' ? <TbPlayerPause /> : <TbPlayerPlay />}
+      </button>
+      <button
+        className="btn btn-sm btn-ghost"
+        title={volume === 0 ? 'Turn on audio' : 'Turn off audio'}
+        disabled={playState === 'error'}
+        onMouseDown={(e) => {
+          e.preventDefault(); // prevent the button from acquiring focus which intercepts spacebar key presses
+        }}
+        onClick={() => {
+          userInputs.emit('setVolume', volume === 0 ? 1 : 0);
+        }}
+      >
+        {volume === 0 ? <TbVolumeOff /> : <TbVolume />}
+      </button>
+      <button
+        className="btn btn-sm btn-ghost"
+        title="Jump to First Blood"
+        disabled={deaths.length === 0}
+        onMouseDown={(e) => {
+          e.preventDefault(); // prevent the button from acquiring focus which intercepts spacebar key presses
+        }}
+        onClick={() => {
+          userInputs.emit('jumpToCombatTime', deaths[0].timestamp - 3000);
+        }}
+      >
+        <FaSkullCrossbones />
+      </button>
       <div className="flex-1 flex flex-col justify-center">
         <input
           type="range"
           className="range range-sm"
           min={0}
-          max={combat.endTime - combat.startTime}
+          max={combat.endTime - combat.startTime + RECORDING_OVERRUN}
           value={combatTime - combat.startTime}
-          step={100}
+          step={1000}
           onChange={(e) => {
-            debouncedJump(e.target.valueAsNumber + combat.startTime);
+            jump(e.target.valueAsNumber + combat.startTime);
           }}
         />
       </div>
-      <div className="ml-2">{moment.utc(combatTime - combat.startTime).format('mm:ss')}</div>
-      <div className="opacity-60 mr-2">
-        &nbsp;
-        {'/ ' + moment.utc(combat.endTime - combat.startTime).format('mm:ss')}
+      <div>{moment.utc(combatTime - combat.startTime).format('mm:ss')}</div>
+      <div className="opacity-60">
+        {'/ ' + moment.utc(combat.endTime + RECORDING_OVERRUN - combat.startTime).format('mm:ss')}
       </div>
     </div>
   );

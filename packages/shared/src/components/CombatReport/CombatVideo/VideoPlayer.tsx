@@ -5,8 +5,15 @@ import { useVideoPlayerContext } from './VideoPlayerContext';
 
 export const VideoPlayer = () => {
   const { combat } = useCombatReportContext();
-  const { videoInformation, errorMessage, stateChanges, userInputs, combatTimeToVideoTime, videoTimeToCombatTime } =
-    useVideoPlayerContext();
+  const {
+    videoInformation,
+    errorMessage,
+    stateChanges,
+    playState,
+    userInputs,
+    combatTimeToVideoTime,
+    videoTimeToCombatTime,
+  } = useVideoPlayerContext();
   const vidRef = useRef<HTMLVideoElement>(null);
 
   // Set video playhead to start of round when it loads
@@ -40,16 +47,6 @@ export const VideoPlayer = () => {
       'volumechange',
       () => {
         stateChanges.emit('volume', vid.volume);
-      },
-      {
-        signal,
-      },
-    );
-
-    vid.addEventListener(
-      'canplay',
-      () => {
-        stateChanges.emit('playState', 'paused');
       },
       {
         signal,
@@ -138,6 +135,14 @@ export const VideoPlayer = () => {
       // domain here looks weird but chrome will canonicalize the item in the string it thinks is the domain
       // which will lead to the b64 string losing its casing :(
       src={`vod://wowarenalogs/${btoa(videoInformation.videoPath)}`}
+      onClick={() => {
+        if (playState === 'playing') {
+          userInputs.emit('pause');
+        }
+        if (playState === 'paused') {
+          userInputs.emit('play');
+        }
+      }}
     />
   );
 };
