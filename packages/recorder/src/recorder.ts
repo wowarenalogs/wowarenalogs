@@ -865,7 +865,7 @@ export class Recorder {
   }
 
   /**
-   * Start recorder buffer. This starts OBS and records in 15 min chunks
+   * Start recorder buffer. This starts OBS and records in chunks
    * to the buffer location.
    */
   public async startBuffer() {
@@ -890,8 +890,8 @@ export class Recorder {
       () => {
         this.restartBuffer();
       },
-      15 * 60 * 1000,
-    ); // Five mins
+      15 * 60 * 1000, // 15m
+    );
   }
 
   /**
