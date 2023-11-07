@@ -106,25 +106,25 @@ if (!isFirstInstance) {
     const win = createWindow();
 
     if (app.isPackaged) {
-      autoUpdater.checkForUpdatesAndNotify().then((result) => {
-        if (result && result.updateInfo.version !== app.getVersion()) {
-          globalStates.isUpdateAvailable = true;
+      autoUpdater.on('update-downloaded', () => {
+        globalStates.isUpdateAvailable = true;
 
-          dialog
-            .showMessageBox(win, {
-              type: 'question',
-              buttons: ['Update Now', 'Skip'],
-              defaultId: 0,
-              title: 'Update Available',
-              message: 'A new version of the app is available. Would you like to update now?',
-            })
-            .then((response) => {
-              if (response.response === 0) {
-                autoUpdater.quitAndInstall();
-              }
-            });
-        }
+        dialog
+          .showMessageBox(win, {
+            type: 'question',
+            buttons: ['Update Now', 'Skip'],
+            defaultId: 0,
+            title: 'Update Available',
+            message: 'A new version of the app is available. Would you like to update now?',
+          })
+          .then((response) => {
+            if (response.response === 0) {
+              autoUpdater.quitAndInstall();
+            }
+          });
       });
+
+      autoUpdater.checkForUpdatesAndNotify();
     }
 
     app.on('second-instance', () => {
