@@ -165,29 +165,34 @@ const RecordingSettings = () => {
       </div>
       <div className="flex flex-row gap-4">
         <div className="flex flex-col gap-2 flex-1">
-          <div className="form-control">
-            <label className="label gap-2 justify-start items-center">
-              <input
-                type="checkbox"
-                className="checkbox"
-                checked={engineStarted}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    window.wowarenalogs.obs?.startRecordingEngine?.();
-                  } else {
-                    window.wowarenalogs.obs?.stopRecordingEngine?.();
-                  }
-                  updateAppConfig((prev) => {
-                    return {
-                      ...prev,
-                      enableVideoRecording: e.target.checked,
-                    };
-                  });
-                  checkAudioDevices();
-                }}
-              />
-              <span className="label-text">Enable video recording</span>
-            </label>
+          <div className="flex flex-row">
+            <div className="form-control">
+              <label className="label gap-2 justify-start items-center">
+                <input
+                  type="checkbox"
+                  className="checkbox"
+                  checked={engineStarted}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      window.wowarenalogs.obs?.startRecordingEngine?.();
+                    } else {
+                      window.wowarenalogs.obs?.stopRecordingEngine?.();
+                    }
+
+                    updateAppConfig((prev) => {
+                      return {
+                        ...prev,
+                        enableVideoRecording: e.target.checked,
+                      };
+                    });
+
+                    checkAudioDevices();
+                  }}
+                />
+                <span className="label-text">Enable video recording</span>
+              </label>
+            </div>
+            <div className="flex-1" />
           </div>
           {engineStarted && (
             <div className="flex flex-col gap-2">
