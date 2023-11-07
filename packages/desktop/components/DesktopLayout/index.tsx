@@ -14,6 +14,7 @@ import { useEffect } from 'react';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 import { LocalCombatsContextProvider } from '../../hooks/LocalCombatsContext';
+import { VideoRecordingContextProvider } from '../../hooks/VideoRecordingContext';
 import TitleBar from '../TitleBar';
 
 function getAbsoluteAuthUrl(authUrl: string): string {
@@ -107,12 +108,14 @@ export const DesktopLayout = !window.wowarenalogs
             }}
           >
             <AuthProvider>
-              <LocalCombatsContextProvider>
-                <div className="w-screen h-screen flex flex-col bg-base-300 overflow-hidden">
-                  <TitleBar />
-                  <MainLayout>{isLoading ? <LoadingScreen /> : <Component {...pageProps} />}</MainLayout>
-                </div>
-              </LocalCombatsContextProvider>
+              <VideoRecordingContextProvider>
+                <LocalCombatsContextProvider>
+                  <div className="w-screen h-screen flex flex-col bg-base-300 overflow-hidden">
+                    <TitleBar />
+                    <MainLayout>{isLoading ? <LoadingScreen /> : <Component {...pageProps} />}</MainLayout>
+                  </div>
+                </LocalCombatsContextProvider>
+              </VideoRecordingContextProvider>
             </AuthProvider>
           </ClientContextProvider>
         </>
