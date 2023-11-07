@@ -99,8 +99,8 @@ export class Recorder {
   private overrunPromise: Promise<void> | undefined;
 
   /**
-   * Timer object to trigger a restart of the buffer. We do this on a 5
-   * minute interval so we aren't building up massive files.
+   * Timer object to trigger a restart of the buffer. We do this on an
+   * interval so we aren't building up massive files.
    */
   private bufferRestartIntervalID: ReturnType<typeof setInterval> | undefined;
 
@@ -865,7 +865,7 @@ export class Recorder {
   }
 
   /**
-   * Start recorder buffer. This starts OBS and records in 5 min chunks
+   * Start recorder buffer. This starts OBS and records in 15 min chunks
    * to the buffer location.
    */
   public async startBuffer() {
@@ -890,7 +890,7 @@ export class Recorder {
       () => {
         this.restartBuffer();
       },
-      5 * 60 * 1000,
+      15 * 60 * 1000,
     ); // Five mins
   }
 
