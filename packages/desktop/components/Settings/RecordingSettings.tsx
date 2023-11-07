@@ -175,16 +175,25 @@ const RecordingSettings = () => {
                   onChange={(e) => {
                     if (e.target.checked) {
                       window.wowarenalogs.obs?.startRecordingEngine?.();
+                      updateAppConfig((prev) => {
+                        return {
+                          ...prev,
+                          enableVideoRecording: true,
+                        };
+                      });
+                    } else if (window.wowarenalogs.obs?.stopRecordingEngine) {
+                      window.wowarenalogs.obs.stopRecordingEngine();
+                      updateAppConfig((prev) => {
+                        return {
+                          ...prev,
+                          enableVideoRecording: false,
+                        };
+                      });
                     } else {
-                      window.wowarenalogs.obs?.stopRecordingEngine?.();
+                      window.alert(
+                        'You are running an old version of the app that does not support this operation. Please update your WoW Arena Logs to the latest version.',
+                      );
                     }
-
-                    updateAppConfig((prev) => {
-                      return {
-                        ...prev,
-                        enableVideoRecording: e.target.checked,
-                      };
-                    });
 
                     checkAudioDevices();
                   }}
