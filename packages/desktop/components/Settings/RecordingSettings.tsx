@@ -177,15 +177,13 @@ const RecordingSettings = () => {
                   } else {
                     window.wowarenalogs.obs?.stopRecordingEngine?.();
                   }
-                  checkAudioDevices();
-                }}
-                onClick={(e) => {
                   updateAppConfig((prev) => {
                     return {
                       ...prev,
-                      enableVideoRecording: e.currentTarget.checked,
+                      enableVideoRecording: e.target.checked,
                     };
                   });
+                  checkAudioDevices();
                 }}
               />
               <span className="label-text">Enable video recording</span>
