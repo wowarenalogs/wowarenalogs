@@ -6,6 +6,7 @@ import ConfigService from './configService';
  * Application recording status.
  */
 export type RecStatus =
+  | 'EngineNotStarted'
   | 'WaitingForWoW'
   | 'Recording'
   | 'InvalidConfig'

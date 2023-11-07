@@ -1,6 +1,4 @@
 .combat-report-replay-events-root {
-  margin-top: 16px;
-  margin-right: 16px;
   position: absolute;
   right: 0;
   display: flex;
@@ -9,6 +7,7 @@
 }
 
 .combat-report-replay-events {
+  border: solid 1px gray;
   min-width: 320px;
 }
 

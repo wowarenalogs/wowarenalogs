@@ -24,6 +24,7 @@ const MAX_EVENTS_TO_SHOW = 16;
 
 interface IProps {
   currentTimeOffset: number;
+  disableHighlight?: boolean;
   filterByUnitId: string | null;
   setUnitIdFilter: (unitId: string | null) => void;
 }
@@ -119,12 +120,16 @@ export const ReplayEvents = (props: IProps) => {
 
   return (
     <div className={`${styles['combat-report-replay-events-root']}`}>
-      <div
-        className={`${styles['combat-report-replay-highlight-event']} mr-2 ${highlightEvent ? 'visible' : 'invisible'}`}
-      >
-        {highlightEvent && <ReplayEventDisplay event={highlightEvent} expanded />}
-      </div>
-      <div className={`${styles['combat-report-replay-events']} flex flex-col bg-base-100 rounded shadow-lg`}>
+      {props.disableHighlight ? null : (
+        <div
+          className={`${styles['combat-report-replay-highlight-event']} mr-2 ${
+            highlightEvent ? 'visible' : 'invisible'
+          }`}
+        >
+          {highlightEvent && <ReplayEventDisplay event={highlightEvent} expanded />}
+        </div>
+      )}
+      <div className={`${styles['combat-report-replay-events']} flex flex-col bg-base-100 rounded`}>
         {eventsToShow.map((e) => {
           return (
             <div

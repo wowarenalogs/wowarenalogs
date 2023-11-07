@@ -24,17 +24,7 @@ const Page = () => {
 
   return (
     <div className="flex flex-col m-2 gap-4">
-      {appVersion ? (
-        <div className="fixed bottom-4 right-4 rounded-box table table-compact">
-          <thead>
-            <tr>
-              <th className="bg-base-300">Version</th>
-              <td className="bg-base-200">{appVersion}</td>
-            </tr>
-          </thead>
-        </div>
-      ) : null}
-      <div className="flex flex-row gap-2">
+      <div className="flex gap-2 items-center fixed bottom-4 right-4">
         <button
           className="btn btn-sm btn-info gap-2"
           onClick={() => {
@@ -53,6 +43,16 @@ const Page = () => {
           <FaPatreon />
           Support us on Patreon
         </button>
+        {appVersion ? (
+          <table className="rounded-box table table-compact">
+            <thead>
+              <tr>
+                <th className="bg-base-300">Version</th>
+                <td className="bg-base-200">{appVersion}</td>
+              </tr>
+            </thead>
+          </table>
+        ) : null}
       </div>
       <div className="flex flex-col gap-2">
         <div className="text-2xl font-bold">Basics</div>
@@ -101,6 +101,7 @@ const Page = () => {
           </button>
         </div>
       </div>
+      <div className="divider" />
       {window.wowarenalogs.platform === 'win32' && window.wowarenalogs.obs && <RecordingSettings />}
     </div>
   );

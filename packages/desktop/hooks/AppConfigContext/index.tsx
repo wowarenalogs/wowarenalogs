@@ -11,6 +11,7 @@ export interface IAppConfig {
   lastWindowWidth?: number;
   lastWindowHeight?: number;
   launchAtStartup?: boolean;
+  enableVideoRecording?: boolean;
 }
 
 interface IAppConfigContextData {
@@ -23,7 +24,9 @@ interface IAppConfigContextData {
 const AppConfigContext = React.createContext<IAppConfigContextData>({
   isLoading: true,
   appConfig: {},
-  updateAppConfig: () => {},
+  updateAppConfig: () => {
+    return;
+  },
   wowInstallations: new Map(),
 });
 
@@ -94,6 +97,7 @@ export const AppConfigContextProvider = (props: IProps) => {
           lastWindowHeight:
             storedConfig.lastWindowHeight === undefined ? windowHeight : storedConfig.lastWindowHeight || 0,
           launchAtStartup: storedConfig.launchAtStartup || false,
+          enableVideoRecording: storedConfig.enableVideoRecording || false,
         };
         setAppConfig(newState);
 
