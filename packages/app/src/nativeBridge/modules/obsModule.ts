@@ -40,6 +40,16 @@ export class ObsModule extends NativeBridgeModule {
   }
 
   @moduleFunction()
+  public stopRecordingEngine(_mainWindow: BrowserWindow): void {
+    if (!this.manager) return;
+
+    this.manager.recorder.hidePreview();
+    this.manager.messageBus.removeAllListeners();
+    this.manager.recorder.shutdownOBS();
+    this.manager = null;
+  }
+
+  @moduleFunction()
   public async drawPreviewWindow(
     _mainWindow: BrowserWindow,
     width: number,

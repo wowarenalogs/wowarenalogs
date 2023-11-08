@@ -289,7 +289,18 @@ export class Recorder {
    */
   public recordingStateChangedCallback: ((status: RecStatus, error?: string) => void) | null = null;
 
-  public recorderStatus: RecStatus = 'WaitingForWoW';
+  private _recorderStatus: RecStatus = 'WaitingForWoW';
+
+  public get recorderStatus() {
+    if (!this.obsInitialized) {
+      return 'EngineNotStarted';
+    }
+    return this._recorderStatus;
+  }
+
+  private set recorderStatus(status: RecStatus) {
+    this._recorderStatus = status;
+  }
 
   /**
    * Load OBS libraries as a DLL instead of through static imports
@@ -382,6 +393,9 @@ export class Recorder {
     this.createOverlayImageSource();
 
     this.obsInitialized = true;
+    if (this.recordingStateChangedCallback) {
+      this.recordingStateChangedCallback('WaitingForWoW', '');
+    }
     console.info('[Recorder] OBS initialized successfully');
   }
 
@@ -844,6 +858,9 @@ export class Recorder {
 
     this.obsInitialized = false;
     this.obsConfigured = false;
+    if (this.recordingStateChangedCallback) {
+      this.recordingStateChangedCallback('EngineNotStarted', '');
+    }
     console.info('[Recorder] OBS shut down successfully');
   }
 
@@ -1252,7 +1269,7 @@ export class Recorder {
   public updateStatus(status: RecStatus, err = '') {
     this.recorderStatus = status;
     if (this.recordingStateChangedCallback) {
-      this.recordingStateChangedCallback(status, err);
+      this.recordingStateChangedCallback(this.recorderStatus, err);
     }
   }
 
