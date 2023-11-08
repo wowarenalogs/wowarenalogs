@@ -116,7 +116,7 @@ function PreviewVideoWindow() {
 
 const RecordingSettings = () => {
   const clientContext = useClientContext();
-  const { updateAppConfig } = useAppConfig();
+  const { appConfig, updateAppConfig } = useAppConfig();
   const { recordingConfig, recordingStatus, recordingStatusError } = useVideoRecordingContext();
   const [outputAudioOptions, setOutputAudioOptions] = useState<IOBSDevice[]>([]);
 
@@ -175,6 +175,14 @@ const RecordingSettings = () => {
                   onChange={(e) => {
                     if (e.target.checked) {
                       window.wowarenalogs.obs?.startRecordingEngine?.();
+                      if (!recordingConfig?.storagePath && appConfig.wowDirectory) {
+                        window.wowarenalogs.obs?.setConfig?.(
+                          'storagePath',
+                          appConfig.wowDirectory.startsWith('/') || appConfig.wowDirectory.startsWith('~')
+                            ? appConfig.wowDirectory + '/Logs'
+                            : appConfig.wowDirectory + '\\Logs',
+                        );
+                      }
                       updateAppConfig((prev) => {
                         return {
                           ...prev,
