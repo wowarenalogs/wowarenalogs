@@ -82,6 +82,9 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
           case LogEvent.ZONE_CHANGE:
             return new ZoneChange(logLine);
           default:
+            if (!['DAMAGE_SPLIT', 'SPELL_DRAIN'].includes(logLine.event))
+              // eslint-disable-next-line no-console
+              console.log(logLine.event);
             return logLine.raw;
         }
       } catch (e) {
