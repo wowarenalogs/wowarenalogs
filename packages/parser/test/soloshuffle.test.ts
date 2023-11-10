@@ -8,7 +8,6 @@ describe('solo shuffle tests', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
-      activityStarts: [],
     };
 
     beforeAll(() => {

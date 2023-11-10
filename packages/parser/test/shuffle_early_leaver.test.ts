@@ -8,7 +8,6 @@ describe('parsing a log where someone leaves a shuffle match early', () => {
     malformedCombats: [],
     shuffleRounds: [],
     shuffles: [],
-    activityStarts: [],
   };
 
   beforeAll(() => {
