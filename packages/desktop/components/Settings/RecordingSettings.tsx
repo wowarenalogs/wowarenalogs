@@ -175,13 +175,17 @@ const RecordingSettings = () => {
                   onChange={(e) => {
                     if (e.target.checked) {
                       window.wowarenalogs.obs?.startRecordingEngine?.();
-                      if (!recordingConfig?.storagePath && appConfig.wowDirectory) {
-                        window.wowarenalogs.obs?.setConfig?.(
-                          'storagePath',
-                          appConfig.wowDirectory.startsWith('/') || appConfig.wowDirectory.startsWith('~')
-                            ? appConfig.wowDirectory + '/Logs'
-                            : appConfig.wowDirectory + '\\Logs',
-                        );
+                      if (!recordingConfig?.storagePath) {
+                        if (appConfig.wowDirectory) {
+                          window.wowarenalogs.obs?.setConfig?.(
+                            'storagePath',
+                            appConfig.wowDirectory.startsWith('/') || appConfig.wowDirectory.startsWith('~')
+                              ? appConfig.wowDirectory + '/Logs'
+                              : appConfig.wowDirectory + '\\Logs',
+                          );
+                        } else {
+                          window.alert('You haven\'t set your WoW path yet. Please do so in the "Basics" section.');
+                        }
                       }
                       updateAppConfig((prev) => {
                         return {
