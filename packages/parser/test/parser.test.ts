@@ -29,6 +29,7 @@ describe('parser tests', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
+      activityStarts: [],
     };
 
     beforeAll(() => {

@@ -1,18 +1,22 @@
+/* eslint-disable no-console */
 import _ from 'lodash';
 import { pipe } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
 import { ArenaMatchEnd } from '../../actions/ArenaMatchEnd';
 import { ArenaMatchStart, ArenaMatchStartInfo } from '../../actions/ArenaMatchStart';
+import { ZoneChange } from '../../actions/ZoneChange';
+import { BattlegroundData } from '../../BattlegroundData';
 import {
   CombatData,
   IActivityStarted,
   IArenaMatch,
+  IBattlegroundCombat,
   IMalformedCombatData,
   IShuffleMatch,
   IShuffleRound,
 } from '../../CombatData';
-import { logInfo } from '../../logger';
+import { logDebug, logInfo } from '../../logger';
 import { CombatResult, CombatUnitType, ICombatEventSegment } from '../../types';
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
@@ -162,13 +166,48 @@ export const segmentToCombat = () => {
     map(
       (
         segment: ICombatEventSegment | IActivityStarted,
-      ): IArenaMatch | IMalformedCombatData | IShuffleRound | IShuffleMatch | IActivityStarted | null => {
+      ):
+        | IArenaMatch
+        | IMalformedCombatData
+        | IShuffleRound
+        | IShuffleMatch
+        | IBattlegroundCombat
+        | IActivityStarted
+        | null => {
         // Pass-through events that aren't relevant to the combat generation process
         if (segment.dataType == 'ActivityStarted') {
           return segment;
         }
-        if (segment.events[0] instanceof ArenaMatchStart) {
-          segment.lines[0];
+
+        const firstEvent = segment.events[0];
+        const lastEvent = segment.events[segment.events.length - 1];
+
+        logDebug(`First segment event: ${firstEvent.logLine.raw.slice(0, 17)} ${firstEvent.logLine.event}`);
+        logDebug(`Last segment event: ${lastEvent.logLine.raw.slice(0, 17)} ${lastEvent.logLine.event}`);
+
+        // Length check here is because if there is a buffer with only 1 event (zonechange)
+        //  that is technically the first and last event
+        if (segment.events.length > 1 && firstEvent instanceof ZoneChange && lastEvent instanceof ZoneChange) {
+          const bg = new BattlegroundData('retail', segment.events[0].logLine.timezone);
+
+          logInfo(`Decoding bg with ${segment.events.length} events`);
+          bg.startTime = segment.events[0].timestamp || 0;
+          segment.events.forEach((e) => {
+            bg.readEvent(e);
+          });
+          bg.end();
+
+          return {
+            id: computeCanonicalHash(segment.lines),
+            dataType: 'BattlegroundCombat',
+            wowVersion: 'retail',
+            timezone: segment.events[0].logLine.timezone,
+            zoneInEvent: firstEvent,
+            zoneOutEvent: lastEvent,
+            units: bg.units,
+            events: bg.events,
+            rawLines: segment.lines,
+          };
         }
 
         const isShuffleRound =

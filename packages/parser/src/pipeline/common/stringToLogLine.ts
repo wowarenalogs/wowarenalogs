@@ -2,7 +2,7 @@ import { pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { parseWowToJSON } from '../../jsonparse';
-import { logInfo } from '../../logger';
+import { logTrace } from '../../logger';
 import { ILogLine, LogEvent } from '../../types';
 import { getTimestamp } from './utils';
 
@@ -30,8 +30,7 @@ export const stringToLogLine = (timezone: string) => {
 
       // unsupported event
       if (!(eventName in LogEvent)) {
-        if (!['SPELL_HEAL_ABSORBED', 'SPELL_EMPOWER_START', 'SPELL_EMPOWER_END'].includes(eventName))
-          logInfo('UNSUPPORTED EVENT:' + eventName);
+        logTrace(`UNSUPPORTED EVENT: ${eventName}`);
         return line;
       }
 

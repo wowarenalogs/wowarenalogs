@@ -10,7 +10,7 @@ import { CombatAdvancedAction } from './actions/CombatAdvancedAction';
 import { CombatantInfoAction } from './actions/CombatantInfoAction';
 import { CombatHpUpdateAction } from './actions/CombatHpUpdateAction';
 import { CombatSupportAction } from './actions/CombatSupportAction';
-import { ZoneChange } from './actions/ZoneChange';
+import { ZoneChange, ZoneChangeInfo } from './actions/ZoneChange';
 import { classMetadata } from './classMetadata';
 import { CombatUnit, ICombatUnit } from './CombatUnit';
 import { logInfo } from './logger';
@@ -41,6 +41,23 @@ const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
 export interface IActivityStarted {
   dataType: 'ActivityStarted';
   arenaMatchStartInfo?: ArenaMatchStartInfo;
+  bgZoneChange?: ZoneChangeInfo;
+}
+
+/**
+ * Generic to hold any battleground activity
+ * Currently it is unclear how to determine if a bg is ranked or unranked or blitz
+ */
+export interface IBattlegroundCombat {
+  dataType: 'BattlegroundCombat';
+  id: string;
+  wowVersion: WowVersion;
+  timezone: string;
+  zoneInEvent: ZoneChangeInfo;
+  zoneOutEvent: ZoneChangeInfo;
+  units: { [unitId: string]: ICombatUnit };
+  events: (CombatAction | CombatAdvancedAction)[];
+  rawLines: string[];
 }
 
 /**

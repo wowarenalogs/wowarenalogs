@@ -2,10 +2,30 @@ import { Observable } from 'rxjs';
 
 import { ArenaMatchEnd } from '../../actions/ArenaMatchEnd';
 import { ArenaMatchStart } from '../../actions/ArenaMatchStart';
+import { ZoneChange } from '../../actions/ZoneChange';
 import { IActivityStarted } from '../../CombatData';
+import { logDebug } from '../../logger';
 import { CombatEvent, ICombatEventSegment } from '../../types';
 
 const COMBAT_AUTO_TIMEOUT_SECS = 60;
+const VALID_BG_ZONE_IDS = [
+  30, // | Alterac Valley
+  2107, // | Arathi Basin
+  529, // | Arathi Basin (Classic)
+  1681, // | Arathi Basin (Winter)
+  2177, // | Arathi Basin Comp Stomp
+  1105, // | Deepwind Gorge
+  566, //| Eye of the Storm
+  968, //| Eye of the Storm (Rated)
+  628, //| Isle of Conquest
+  1803, // | Seething Shore
+  727, //| Silvershard Mines
+  607, //| Strand of the Ancients
+  998, //| Temple of Kotmogu
+  761, //| The Battle for Gilneas
+  726, //| Twin Peaks
+  489, //| Warsong Gulch
+];
 
 export const combatEventsToSegment = () => {
   return (input: Observable<CombatEvent | string>) => {
@@ -48,12 +68,23 @@ export const combatEventsToSegment = () => {
             emitCurrentBuffer();
           }
 
-          if (event instanceof ArenaMatchStart && !currentBuffer.hasEmittedStartEvent) {
-            output.next({
-              dataType: 'ActivityStarted',
-              arenaMatchStartInfo: event,
-            });
-            currentBuffer.hasEmittedStartEvent = true;
+          if (!currentBuffer.hasEmittedStartEvent) {
+            if (event instanceof ArenaMatchStart) {
+              output.next({
+                dataType: 'ActivityStarted',
+                arenaMatchStartInfo: event,
+              });
+              currentBuffer.hasEmittedStartEvent = true;
+            }
+            if (event instanceof ZoneChange) {
+              if (VALID_BG_ZONE_IDS.includes(event.instanceId)) {
+                output.next({
+                  dataType: 'ActivityStarted',
+                  bgZoneChange: event,
+                });
+                currentBuffer.hasEmittedStartEvent = true;
+              }
+            }
           }
 
           currentBuffer.events.push(event);
@@ -61,6 +92,11 @@ export const combatEventsToSegment = () => {
 
           if (event instanceof ArenaMatchEnd) {
             emitCurrentBuffer();
+          }
+
+          if (event instanceof ZoneChange && currentBuffer.lines.length > 1) {
+            logDebug(`Emitting buffer on ZoneChange linecount=${currentBuffer.lines.length}`);
+            if (!VALID_BG_ZONE_IDS.includes(event.instanceId)) emitCurrentBuffer();
           }
 
           lastTimestamp = event.timestamp;

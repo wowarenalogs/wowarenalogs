@@ -1,6 +1,13 @@
 import { Subject } from 'rxjs';
 
-import { IActivityStarted, IArenaMatch, IMalformedCombatData, IShuffleMatch, IShuffleRound } from '../../CombatData';
+import {
+  IActivityStarted,
+  IArenaMatch,
+  IBattlegroundCombat,
+  IMalformedCombatData,
+  IShuffleMatch,
+  IShuffleRound,
+} from '../../CombatData';
 import { logLineToCombatEvent } from '../common/logLineToCombatEvent';
 import { stringToLogLine } from '../common/stringToLogLine';
 import { combatEventsToSegment } from './combatEventsToSegment';
@@ -12,6 +19,7 @@ export const createRetailParserPipeline = (
   onMalformedCombat: (combat: IMalformedCombatData) => void,
   onShuffleRound: (combat: IShuffleRound) => void,
   onShuffleComplete: (combat: IShuffleMatch) => void,
+  onBattlegroundCombat: (combat: IBattlegroundCombat) => void,
   onError: (error: Error) => void,
   timezone: string,
 ) => {
@@ -38,6 +46,9 @@ export const createRetailParserPipeline = (
             break;
           case 'ActivityStarted':
             onActivityStarted(d);
+            break;
+          case 'BattlegroundCombat':
+            onBattlegroundCombat(d);
             break;
         }
       },
