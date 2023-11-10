@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import _ from 'lodash';
 import { pipe } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
