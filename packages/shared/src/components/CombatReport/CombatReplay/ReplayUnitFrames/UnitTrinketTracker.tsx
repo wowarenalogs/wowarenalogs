@@ -1,5 +1,6 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 
+import { healerSpecs } from '../../../../utils/utils';
 import { SpellIcon } from '../../SpellIcon';
 import { IUnitFrameRenderData } from './UnitFrame';
 import { ISpellCast } from './UnitFrame';
@@ -58,15 +59,7 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     '209347', // Verdant Glad Sigil
   ]; // Spell: 195756
 
-  const isHealer = [
-    CombatUnitSpec.Druid_Restoration,
-    CombatUnitSpec.Monk_Mistweaver,
-    CombatUnitSpec.Priest_Discipline,
-    CombatUnitSpec.Evoker_Preservation,
-    CombatUnitSpec.Shaman_Restoration,
-    CombatUnitSpec.Priest_Holy,
-    CombatUnitSpec.Paladin_Holy,
-  ].includes(props.unit.spec);
+  const isHealer = healerSpecs.includes(props.unit.spec);
   const trinketCooldown = isHealer ? 90 : 120;
 
   if (props.unit.info?.equipment.some((e) => relentlessTrinkets.includes(e.id))) {
