@@ -1,11 +1,19 @@
+import * as amplitude from '@amplitude/analytics-browser';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let googleAnalyticsPropertyId: string;
 let googleAnalyticsClientId: string;
 let googleAnalyticsSessionId: string;
+let amplitudeActive = false;
 
-export const initAnalyticsAsync = (gaPropertyId: string): Promise<void> => {
+export const initAnalyticsAsync = (gaPropertyId: string, amplitudeApiKey?: string): Promise<void> => {
   if (process.env.NODE_ENV === 'development') {
     return Promise.resolve();
+  }
+
+  if (amplitudeApiKey) {
+    amplitude.init(amplitudeApiKey);
+    amplitudeActive = true;
   }
 
   return new Promise((resolve) => {
@@ -33,6 +41,9 @@ export const logAnalyticsEvent = (event: string, params?: any) => {
   }
   if (window.gtag) {
     window.gtag('event', event, params);
+  }
+  if (amplitudeActive) {
+    amplitude.track(event, params);
   }
 };
 
