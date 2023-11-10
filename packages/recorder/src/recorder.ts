@@ -890,7 +890,7 @@ export class Recorder {
       () => {
         this.restartBuffer();
       },
-      15 * 60 * 1000, // 15m
+      5 * 60 * 1000, // 5m
     );
   }
 
