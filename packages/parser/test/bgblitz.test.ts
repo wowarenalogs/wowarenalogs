@@ -31,10 +31,20 @@ describe('BG Blitz parsing', () => {
       );
       const bg = results.battlegrounds?.at(0);
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const samplePlayer = bg!.units['Player-3725-0AD4FBDB']; // ! here because it's okay to crash
+      expect(samplePlayer.spellCastEvents.length + samplePlayer.damageOut.length + samplePlayer.healOut.length).toBe(
+        1244,
+      );
+
+      players.forEach((p) => {
+        // eslint-disable-next-line no-console
+        console.log(`pid=${p.id} participate=${p.spellCastEvents.length + p.damageOut.length + p.healOut.length}`);
+      });
       expect(players).toHaveLength(16);
       expect(bg?.zoneInEvent.instanceId).toBe(998);
       expect(bg?.zoneOutEvent.instanceId).toBe(2444);
-      expect(bg?.id).toBe('792d71746d6d6e8c7bf3190cb221fd6a');
+      expect(bg?.id).toBe('1950a67125b3f163d1b945487af311b8');
     });
   });
 });
