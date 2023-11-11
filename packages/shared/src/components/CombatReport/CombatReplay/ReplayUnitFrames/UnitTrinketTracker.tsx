@@ -1,3 +1,4 @@
+import { healerSpecs } from '../../../../utils/utils';
 import { SpellIcon } from '../../SpellIcon';
 import { IUnitFrameRenderData } from './UnitFrame';
 import { ISpellCast } from './UnitFrame';
@@ -37,6 +38,9 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     '201450',
     '205779',
     '205711',
+    '209346', // Verdant Glad Medallion
+    '208307', // Verdant Comb Medallion
+    '209764', // Verdant Asp Medallion
   ]; // Spell: 336126
   const adaptationTrinkets = [
     '181816',
@@ -49,7 +53,12 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     '201811',
     '205782',
     '205712',
+    '209767', // Verdant Asp Sigil
+    '209347', // Verdant Glad Sigil
   ]; // Spell: 195756
+
+  const isHealer = healerSpecs.includes(props.unit.spec);
+  const trinketCooldown = isHealer ? 90 : 120;
 
   if (props.unit.info?.equipment.some((e) => relentlessTrinkets.includes(e.id))) {
     return (
@@ -64,7 +73,12 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
       </div>
     );
   } else if (props.unit.info?.equipment.some((e) => gladiatorTrinkets.includes(e.id))) {
-    const cooldownPercent = computePercentCDRemaining(props.trinketSpellCasts, '336126', props.currentTimeOffset, 120);
+    const cooldownPercent = computePercentCDRemaining(
+      props.trinketSpellCasts,
+      '336126',
+      props.currentTimeOffset,
+      trinketCooldown,
+    );
     return (
       <div className={styles['unit-frame-trinkettracker']}>
         <SpellIcon

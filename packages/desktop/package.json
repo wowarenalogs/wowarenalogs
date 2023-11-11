@@ -22,6 +22,7 @@
     "@wowarenalogs/shared": "^1.0.0",
     "base64url": "^3.0.1",
     "daisyui": "^2.33.0",
+    "eventemitter3": "^5.0.1",
     "lodash": "^4.17.21",
     "next": "^12.1.1",
     "next-auth": "^4.9.0",

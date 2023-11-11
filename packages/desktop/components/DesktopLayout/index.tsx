@@ -14,6 +14,7 @@ import { useEffect } from 'react';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 import { LocalCombatsContextProvider } from '../../hooks/LocalCombatsContext';
+import { VideoRecordingContextProvider } from '../../hooks/VideoRecordingContext';
 import TitleBar from '../TitleBar';
 
 function getAbsoluteAuthUrl(authUrl: string): string {
@@ -35,7 +36,7 @@ export const DesktopLayout = !window.wowarenalogs
       const { isLoading } = useAppConfig();
 
       useEffect(() => {
-        initAnalyticsAsync('G-Z6E8QS4ENW').then(() => {
+        initAnalyticsAsync('G-Z6E8QS4ENW', '650475e4b06ebfb536489356d27b60f8').then(() => {
           import('@sentry/react').then((Sentry) => {
             Sentry.init({
               dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
@@ -107,12 +108,14 @@ export const DesktopLayout = !window.wowarenalogs
             }}
           >
             <AuthProvider>
-              <LocalCombatsContextProvider>
-                <div className="w-screen h-screen flex flex-col bg-base-300 overflow-hidden">
-                  <TitleBar />
-                  <MainLayout>{isLoading ? <LoadingScreen /> : <Component {...pageProps} />}</MainLayout>
-                </div>
-              </LocalCombatsContextProvider>
+              <VideoRecordingContextProvider>
+                <LocalCombatsContextProvider>
+                  <div className="w-screen h-screen flex flex-col bg-base-300 overflow-hidden">
+                    <TitleBar />
+                    <MainLayout>{isLoading ? <LoadingScreen /> : <Component {...pageProps} />}</MainLayout>
+                  </div>
+                </LocalCombatsContextProvider>
+              </VideoRecordingContextProvider>
             </AuthProvider>
           </ClientContextProvider>
         </>
