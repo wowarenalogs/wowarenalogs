@@ -193,6 +193,7 @@ export const awcSpells: Record<CombatUnitSpec, string[]> = {
     '109964',
     '197871',
     '108968',
+    '421453',
   ],
   [CombatUnitSpec.Priest_Holy]: [
     '19236',

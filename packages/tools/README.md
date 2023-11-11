@@ -53,7 +53,7 @@ This should generate a number of .json files in that folder.
 
 ## 5. Run the effects json parser
 
-Assuming everything is in the correct folder, you can simply run
+Assuming everything is in the correct folder, you can return to the wowarenalogs repo and run
 
 ```
 npm run start:generateSpellsData

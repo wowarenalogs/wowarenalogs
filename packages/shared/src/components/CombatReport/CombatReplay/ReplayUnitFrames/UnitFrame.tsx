@@ -229,6 +229,15 @@ export const UnitFrame = (props: IProps) => {
         }
       }
     }
+    if (sd['1966']) {
+      // 1966 feint +1 charge
+      // 117145 is the talent id for graceful guile
+      if (props.unit.info?.talents.find((t) => t?.id2 === 117145)) {
+        if (sd['1966'].charges) {
+          sd['1966'].charges.charges = 2;
+        }
+      }
+    }
     return sd;
   }, [props.unit, spellUses]);
 
