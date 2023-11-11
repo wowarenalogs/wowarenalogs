@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as Sentry from '@sentry/react';
 import {
   AtomicArenaCombat,
@@ -11,6 +12,7 @@ import {
   getEffectiveHps,
   IActivityStarted,
 } from '@wowarenalogs/parser';
+import { IBattlegroundCombat } from '@wowarenalogs/parser/dist/CombatData';
 import {
   ArenaMatchMetadata,
   logAnalyticsEvent,
@@ -39,6 +41,44 @@ const LocalCombatsContext = React.createContext<ILocalCombatsContextData>({
 interface IProps {
   children: React.ReactNode | React.ReactNode[];
 }
+
+const useLocalBgData = () => {
+  const [db, setDb] = useState<IDBDatabase | null>(null);
+
+  useEffect(() => {
+    const dbConn = indexedDB.open('local-bgs', 2);
+    const listener = (ev: { target: { result: IDBDatabase } }) => {
+      setDb(ev.target.result as IDBDatabase);
+    };
+    const upgradeListener = (ev: { target: { result: IDBDatabase } }) => {
+      ev.target.result.createObjectStore('battlegrounds_data', { keyPath: 'id' });
+    };
+    const errorListener = (ev) => {
+      console.log('error', ev);
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dbConn.addEventListener('success', listener as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dbConn.addEventListener('upgradeneeded', upgradeListener as any);
+    dbConn.addEventListener('error', errorListener);
+
+    return () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      dbConn.removeEventListener('success', listener as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      dbConn.removeEventListener('upgradeneeded', upgradeListener as any);
+      dbConn.removeEventListener('error', errorListener);
+    };
+  }, []);
+
+  const addBattlegroundCombat = (data: IBattlegroundCombat) => {
+    if (!db) return;
+    const tx = db.transaction('battlegrounds_data', 'readwrite');
+    const store = tx.objectStore('battlegrounds_data');
+    store.add(data);
+  };
+  return { db, addBattlegroundCombat };
+};
 
 /** How long after the ARENA_END_EVENT the recording will continue
  * The default of 0 means the score screen won't show up ;)
@@ -165,6 +205,9 @@ export const LocalCombatsContextProvider = (props: IProps) => {
   const [combats, setCombats] = useState<AtomicArenaCombat[]>([]);
   const auth = useAuth();
   const { wowInstallations } = useAppConfig();
+  const localBgs = useLocalBgData();
+  // eslint-disable-next-line no-console
+  console.log(localBgs);
 
   useEffect(() => {
     const cleanups = Array.from(wowInstallations.entries()).map((installRow) => {
@@ -350,6 +393,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         },
       }}
     >
+      <button onClick={() => localBgs.addBattlegroundCombat({ id: 'nah' })}>CLICK IT?</button>
       {props.children}
     </LocalCombatsContext.Provider>
   );
