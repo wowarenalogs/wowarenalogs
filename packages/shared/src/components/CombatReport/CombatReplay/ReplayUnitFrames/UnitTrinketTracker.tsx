@@ -1,5 +1,3 @@
-import { CombatUnitSpec } from '@wowarenalogs/parser';
-
 import { healerSpecs } from '../../../../utils/utils';
 import { SpellIcon } from '../../SpellIcon';
 import { IUnitFrameRenderData } from './UnitFrame';
