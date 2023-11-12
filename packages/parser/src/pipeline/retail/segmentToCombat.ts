@@ -77,6 +77,7 @@ function decodeShuffleRound(
     combat.readEvent(e);
   });
   combat.end();
+  logInfo(`ending combat`);
 
   if (recentShuffleRounds.length == 6) {
     // Panic: Already 6 rounds in the buffer, this cant be the same solo shuffle match
@@ -104,16 +105,22 @@ function decodeShuffleRound(
     }))
     .filter((a) => a.deathRecords.length > 0);
 
+  if (playerDeaths.length == 0) {
+    logInfo('decodeShuffle panic 3 - No player deaths');
+    throw new Error(`No player deaths`);
+  }
   const deadPlayerId = playerDeaths[0].unit.id;
   const deathRecords = playerDeaths[0].deathRecords;
 
   if (deathRecords.length !== 1) {
+    logInfo('decodeShuffle panic 4 - wrong death records');
     throw new Error(`Wrong number of death records for player, invalid round n=${deathRecords.length}`);
   }
 
   const losingTeam = combat.units[deadPlayerId].info?.teamId;
 
   if (typeof losingTeam !== 'string') {
+    logInfo('decodeShuffle panic 5 - no winner');
     throw new Error('Could not determine winners of shuffle round');
   }
 
@@ -124,6 +131,7 @@ function decodeShuffleRound(
   const deadPlayerTeam = playerDeaths[0].unit.info?.teamId;
   const result = combat.playerTeamId === deadPlayerTeam ? CombatResult.Lose : CombatResult.Win;
 
+  logInfo(`Decoded result ${result}`);
   const endTime = combat.endInfo ? combat.endInfo.timestamp : deathRecords[0].timestamp;
 
   const rv: IShuffleRound = {
@@ -163,6 +171,7 @@ export const segmentToCombat = () => {
       (
         segment: ICombatEventSegment | IActivityStarted,
       ): IArenaMatch | IMalformedCombatData | IShuffleRound | IShuffleMatch | IActivityStarted | null => {
+        logInfo(`segmentToCombat ${segment.dataType}`);
         // Pass-through events that aren't relevant to the combat generation process
         if (segment.dataType == 'ActivityStarted') {
           return segment;
@@ -181,9 +190,10 @@ export const segmentToCombat = () => {
           segment.events[0] instanceof ArenaMatchStart &&
           segment.events[segment.events.length - 1] instanceof ArenaMatchEnd;
 
-        logInfo(`segmentToCombat isShuffle=${isShuffleRound} metadataOK=${metadataLooksGood}`);
+        logInfo(`segmentToCombat isShuffleRound=${isShuffleRound} metadataLooksGood=${metadataLooksGood}`);
         if (isShuffleRound) {
           try {
+            logInfo(`decoding as individual shuffle round...`);
             const decoded = decodeShuffleRound(
               segment,
               recentShuffleRoundsBuffer,
@@ -223,6 +233,7 @@ export const segmentToCombat = () => {
                   rounds: [...recentShuffleRoundsBuffer],
                   durationInSeconds: (decoded.combat.endTime - recentShuffleRoundsBuffer[0].startTime) / 1000,
                   timezone: decoded.combat.timezone,
+                  reportFinalRound: true,
                 };
                 recentShuffleRoundsBuffer = [];
                 recentScoreboardBuffer = [];
@@ -230,14 +241,48 @@ export const segmentToCombat = () => {
               } else {
                 // We hit a final round (ARENA_MATCH_END) but the Match itself wasn't a valid 6-round shuffle
                 // We want to emit the shuffle as a round but then reset the internal match aggregator
+
+                const lastViableRound = recentShuffleRoundsBuffer[recentShuffleRoundsBuffer.length - 1];
+                const shuf: IShuffleMatch = {
+                  wowVersion: 'retail',
+                  dataType: 'ShuffleMatch',
+                  id: lastViableRound.id, // Using id of last round
+                  startTime: recentShuffleRoundsBuffer[0].startTime,
+                  endTime: lastViableRound.endTime,
+                  result: lastViableRound.result,
+                  startInfo: nullthrows(lastViableRound.startInfo),
+                  endInfo: new ArenaMatchEnd(segment.events[segment.events.length - 1].logLine),
+                  rounds: [...recentShuffleRoundsBuffer],
+                  durationInSeconds: (lastViableRound.endTime - recentShuffleRoundsBuffer[0].startTime) / 1000,
+                  timezone: lastViableRound.timezone,
+                  reportFinalRound: true,
+                };
                 recentShuffleRoundsBuffer = [];
                 recentScoreboardBuffer = [];
-                return decoded.shuffle;
+                return shuf;
               }
             } catch (e) {
-              // Reset buffer also if rounds are invalid...
+              logInfo(`Decoding final round error ${e}`);
+              // Something ended the shuffle early and the final round was not a valid combat
+              // Eject the buffer as a partial shuffle match
+              const lastViableRound = recentShuffleRoundsBuffer[recentShuffleRoundsBuffer.length - 1];
+              const shuf: IShuffleMatch = {
+                wowVersion: 'retail',
+                dataType: 'ShuffleMatch',
+                id: lastViableRound.id, // Using id of last round
+                startTime: recentShuffleRoundsBuffer[0].startTime,
+                endTime: lastViableRound.endTime,
+                result: lastViableRound.result,
+                startInfo: nullthrows(lastViableRound.startInfo),
+                endInfo: new ArenaMatchEnd(segment.events[segment.events.length - 1].logLine),
+                rounds: [...recentShuffleRoundsBuffer],
+                durationInSeconds: (lastViableRound.endTime - recentShuffleRoundsBuffer[0].startTime) / 1000,
+                timezone: lastViableRound.timezone,
+                reportFinalRound: false,
+              };
               recentShuffleRoundsBuffer = [];
               recentScoreboardBuffer = [];
+              return shuf;
             }
           } else {
             const combat = new CombatData('retail', segment.events[0].logLine.timezone);
@@ -287,6 +332,7 @@ export const segmentToCombat = () => {
           return malformedCombatObject;
         }
 
+        logInfo(`combatToSegment=>null`);
         return null;
       },
     ),

@@ -30,7 +30,9 @@ export const createRetailParserPipeline = (
             break;
           case 'ShuffleMatch':
             // TODO: Think more about this edge case
-            onShuffleRound(d.rounds[5]); // TODO: last round, not first
+            if (d.reportFinalRound) {
+              onShuffleRound(d.rounds[5]); // TODO: last round, not first
+            }
             onShuffleComplete(d);
             break;
           case 'ShuffleRound':
