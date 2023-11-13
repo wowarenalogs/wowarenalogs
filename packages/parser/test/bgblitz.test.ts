@@ -31,16 +31,15 @@ describe('BG Blitz parsing', () => {
       );
       const bg = results.battlegrounds?.at(0);
 
+      expect(bg?.dataType).toBe('BattlegroundCombat');
+      expect(bg?.timezone).toBe('America/New_York');
+
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const samplePlayer = bg!.units['Player-3725-0AD4FBDB']; // ! here because it's okay to crash
       expect(samplePlayer.spellCastEvents.length + samplePlayer.damageOut.length + samplePlayer.healOut.length).toBe(
         1244,
       );
 
-      players.forEach((p) => {
-        // eslint-disable-next-line no-console
-        console.log(`pid=${p.id} participate=${p.spellCastEvents.length + p.damageOut.length + p.healOut.length}`);
-      });
       expect(players).toHaveLength(16);
       expect(bg?.zoneInEvent.instanceId).toBe(998);
       expect(bg?.zoneOutEvent.instanceId).toBe(2444);
