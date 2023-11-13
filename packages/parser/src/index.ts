@@ -16,6 +16,7 @@ import { PIPELINE_FLUSH_SIGNAL } from './utils';
 
 export type {
   IArenaMatch,
+  IBattlegroundCombat,
   IMalformedCombatData,
   IShuffleMatch,
   IShuffleRound,

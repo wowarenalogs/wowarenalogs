@@ -10,6 +10,7 @@ import {
   getEffectiveDps,
   getEffectiveHps,
   IActivityStarted,
+  IBattlegroundCombat,
 } from '@wowarenalogs/parser';
 import {
   ArenaMatchMetadata,
@@ -18,6 +19,7 @@ import {
   uploadCombatAsync,
   useAuth,
 } from '@wowarenalogs/shared';
+import { BattlegroundMetadata } from '@wowarenalogs/shared/src/types/metadata';
 import _ from 'lodash';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
@@ -26,14 +28,12 @@ import { useAppConfig } from '../AppConfigContext';
 
 interface ILocalCombatsContextData {
   localCombats: AtomicArenaCombat[];
-  appendCombat: (combat: AtomicArenaCombat) => void;
+  localBattlegroundCombats: IBattlegroundCombat[];
 }
 
 const LocalCombatsContext = React.createContext<ILocalCombatsContextData>({
   localCombats: [],
-  appendCombat: () => {
-    return;
-  },
+  localBattlegroundCombats: [],
 });
 
 interface IProps {
@@ -163,6 +163,7 @@ let currentActivity: IActivityStarted | null = null;
 
 export const LocalCombatsContextProvider = (props: IProps) => {
   const [combats, setCombats] = useState<AtomicArenaCombat[]>([]);
+  const [battlegroundCombats, setBGCombats] = useState<IBattlegroundCombat[]>([]);
   const auth = useAuth();
   const { wowInstallations } = useAppConfig();
 
@@ -191,13 +192,52 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       if (window.wowarenalogs.logs?.handleActivityStarted) {
         window.wowarenalogs.logs.handleActivityStarted((_nodeEvent, activityStartedEvent) => {
           // eslint-disable-next-line no-console
-          console.log('Started activity');
+          console.log('Started activity', activityStartedEvent);
           if (!currentActivity) {
-            currentActivity = activityStartedEvent;
-            window.wowarenalogs.obs?.startRecording?.();
+            // These checks make sure that the incoming activity isn't bogus and
+            //  that the underlying logger will eventually emit the end-handler
+            //  most relevant for bgs where versions <4.6.5 don't have handleBattlegroundEnded
+            if (activityStartedEvent.bgZoneChange?.instanceId && window.wowarenalogs.logs?.handleBattlegroundEnded) {
+              currentActivity = activityStartedEvent;
+              window.wowarenalogs.obs?.startRecording?.();
+            }
+            if (activityStartedEvent.arenaMatchStartInfo?.zoneId) {
+              currentActivity = activityStartedEvent;
+              window.wowarenalogs.obs?.startRecording?.();
+            }
           }
         });
       }
+
+      window.wowarenalogs.logs?.handleBattlegroundEnded?.((_event, bg) => {
+        if (wowVersion === bg.wowVersion) {
+          setBGCombats((prev) => {
+            return prev.concat([bg]);
+          });
+        }
+
+        if (currentActivity) {
+          const metadata: BattlegroundMetadata = {
+            wowVersion: bg.wowVersion,
+            id: bg.id,
+            dataType: 'BattlegroundMetadata',
+            timezone: bg.timezone,
+            startTime: bg.zoneInEvent.timestamp,
+            endTime: bg.zoneOutEvent.timestamp,
+          };
+          // eslint-disable-next-line no-console
+          console.log(bg, metadata);
+          currentActivity = null;
+          window.wowarenalogs.obs?.stopRecording &&
+            window.wowarenalogs.obs.stopRecording({
+              startDate: new Date(bg.zoneInEvent.timestamp),
+              endDate: new Date(bg.zoneOutEvent.timestamp),
+              metadata,
+              overrun: MATCH_OVERRUN_SECONDS,
+              fileName: `Battleground_${bg.id}`,
+            });
+        }
+      });
 
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
@@ -343,11 +383,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
     <LocalCombatsContext.Provider
       value={{
         localCombats: combats,
-        appendCombat: (combat) => {
-          setCombats((prev) => {
-            return prev.concat(combat);
-          });
-        },
+        localBattlegroundCombats: battlegroundCombats,
       }}
     >
       {props.children}

@@ -206,6 +206,8 @@ export const segmentToCombat = () => {
             units: bg.units,
             events: bg.events,
             rawLines: segment.lines,
+            startTime: firstEvent.timestamp,
+            endTime: lastEvent.timestamp,
           };
         }
 

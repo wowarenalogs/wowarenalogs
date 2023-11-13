@@ -46,6 +46,8 @@ export interface IBattlegroundCombat {
   units: { [unitId: string]: ICombatUnit };
   events: (CombatAction | CombatAdvancedAction)[];
   rawLines: string[];
+  startTime: number;
+  endTime: number;
 }
 
 /**
