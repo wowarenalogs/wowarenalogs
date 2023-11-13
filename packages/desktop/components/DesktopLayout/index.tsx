@@ -36,7 +36,7 @@ export const DesktopLayout = !window.wowarenalogs
       const { isLoading } = useAppConfig();
 
       useEffect(() => {
-        initAnalyticsAsync('G-Z6E8QS4ENW').then(() => {
+        initAnalyticsAsync('G-Z6E8QS4ENW', '650475e4b06ebfb536489356d27b60f8').then(() => {
           import('@sentry/react').then((Sentry) => {
             Sentry.init({
               dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',

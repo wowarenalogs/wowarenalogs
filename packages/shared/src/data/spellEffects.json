@@ -209,6 +209,10 @@
     "spellId": "1966",
     "name": "Feint",
     "cooldownSeconds": 15,
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 15
+    },
     "durationSeconds": 6
   },
   "2050": {
@@ -367,7 +371,7 @@
     "spellId": "10060",
     "name": "Power Infusion",
     "cooldownSeconds": 120,
-    "durationSeconds": 20
+    "durationSeconds": 15
   },
   "10326": {
     "spellId": "10326",
@@ -541,7 +545,7 @@
     "spellId": "29166",
     "name": "Innervate",
     "cooldownSeconds": 180,
-    "durationSeconds": 10
+    "durationSeconds": 8
   },
   "30213": {
     "spellId": "30213",
@@ -794,8 +798,8 @@
   "51690": {
     "spellId": "51690",
     "name": "Killing Spree",
-    "cooldownSeconds": 120,
-    "durationSeconds": 2
+    "cooldownSeconds": 90,
+    "durationSeconds": 0
   },
   "52437": {
     "spellId": "52437",
@@ -1377,7 +1381,7 @@
     "spellId": "115192",
     "name": "Subterfuge",
     "cooldownSeconds": 999.999,
-    "durationSeconds": 3
+    "durationSeconds": 0
   },
   "115310": {
     "spellId": "115310",
@@ -1427,6 +1431,10 @@
     "spellId": "116849",
     "name": "Life Cocoon",
     "cooldownSeconds": 120,
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 120
+    },
     "durationSeconds": 12
   },
   "117405": {
@@ -1695,7 +1703,7 @@
     "spellId": "162264",
     "name": "Metamorphosis",
     "cooldownSeconds": 999.999,
-    "durationSeconds": 24
+    "durationSeconds": 20
   },
   "162480": {
     "spellId": "162480",
@@ -1724,7 +1732,7 @@
   "179057": {
     "spellId": "179057",
     "name": "Chaos Nova",
-    "cooldownSeconds": 60,
+    "cooldownSeconds": 45,
     "durationSeconds": 2
   },
   "183752": {
@@ -1790,7 +1798,7 @@
   "187827": {
     "spellId": "187827",
     "name": "Metamorphosis",
-    "cooldownSeconds": 240,
+    "cooldownSeconds": 180,
     "durationSeconds": 15
   },
   "188389": {
@@ -1802,7 +1810,7 @@
   "188501": {
     "spellId": "188501",
     "name": "Spectral Sight",
-    "cooldownSeconds": 60,
+    "cooldownSeconds": 30,
     "durationSeconds": 10
   },
   "190319": {
@@ -1824,7 +1832,7 @@
   "191427": {
     "spellId": "191427",
     "name": "Metamorphosis",
-    "cooldownSeconds": 240,
+    "cooldownSeconds": 180,
     "durationSeconds": 0
   },
   "191634": {
@@ -1912,8 +1920,8 @@
   "197721": {
     "spellId": "197721",
     "name": "Flourish",
-    "cooldownSeconds": 90,
-    "durationSeconds": 8
+    "cooldownSeconds": 60,
+    "durationSeconds": 6
   },
   "197862": {
     "spellId": "197862",
@@ -2149,7 +2157,7 @@
     "spellId": "202748",
     "name": "Survival Tactics",
     "cooldownSeconds": 999.999,
-    "durationSeconds": 1.5
+    "durationSeconds": 3
   },
   "202770": {
     "spellId": "202770",
@@ -2556,7 +2564,7 @@
   "214621": {
     "spellId": "214621",
     "name": "Schism",
-    "cooldownSeconds": 24,
+    "cooldownSeconds": 999.999,
     "durationSeconds": 9
   },
   "215652": {
@@ -3047,7 +3055,7 @@
     "spellId": "322105",
     "name": "Shadow Covenant",
     "cooldownSeconds": 999.999,
-    "durationSeconds": 7
+    "durationSeconds": 15
   },
   "322118": {
     "spellId": "322118",
@@ -3245,7 +3253,7 @@
     "spellId": "343142",
     "name": "Dreadblades",
     "cooldownSeconds": 120,
-    "durationSeconds": 8
+    "durationSeconds": 10
   },
   "343294": {
     "spellId": "343294",
@@ -3822,5 +3830,11 @@
     "name": "Mass Barrier",
     "cooldownSeconds": 120,
     "durationSeconds": 0
+  },
+  "421453": {
+    "spellId": "421453",
+    "name": "Ultimate Penitence",
+    "cooldownSeconds": 240,
+    "durationSeconds": 6
   }
 }
