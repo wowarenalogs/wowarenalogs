@@ -21,6 +21,10 @@ export const modulesApi = {
       ipcRenderer.on('wowarenalogs:logs:handleSoloShuffleEnded', callback),
     removeAll_handleSoloShuffleEnded_listeners: () =>
       ipcRenderer.removeAllListeners('wowarenalogs:logs:handleSoloShuffleEnded'),
+    handleBattlegroundEnded: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:logs:handleBattlegroundEnded', callback),
+    removeAll_handleBattlegroundEnded_listeners: () =>
+      ipcRenderer.removeAllListeners('wowarenalogs:logs:handleBattlegroundEnded'),
     handleMalformedCombatDetected: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
       ipcRenderer.on('wowarenalogs:logs:handleMalformedCombatDetected', callback),
     removeAll_handleMalformedCombatDetected_listeners: () =>

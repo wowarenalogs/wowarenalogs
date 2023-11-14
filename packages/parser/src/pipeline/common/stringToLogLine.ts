@@ -2,6 +2,7 @@ import { pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { parseWowToJSON } from '../../jsonparse';
+import { logTrace } from '../../logger';
 import { ILogLine, LogEvent } from '../../types';
 import { getTimestamp } from './utils';
 
@@ -29,6 +30,7 @@ export const stringToLogLine = (timezone: string) => {
 
       // unsupported event
       if (!(eventName in LogEvent)) {
+        logTrace(`UNSUPPORTED EVENT: ${eventName}`);
         return line;
       }
 

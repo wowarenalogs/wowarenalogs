@@ -26,14 +26,10 @@ import { useAppConfig } from '../AppConfigContext';
 
 interface ILocalCombatsContextData {
   localCombats: AtomicArenaCombat[];
-  appendCombat: (combat: AtomicArenaCombat) => void;
 }
 
 const LocalCombatsContext = React.createContext<ILocalCombatsContextData>({
   localCombats: [],
-  appendCombat: () => {
-    return;
-  },
 });
 
 interface IProps {
@@ -191,13 +187,25 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       if (window.wowarenalogs.logs?.handleActivityStarted) {
         window.wowarenalogs.logs.handleActivityStarted((_nodeEvent, activityStartedEvent) => {
           // eslint-disable-next-line no-console
-          console.log('Started activity');
+          console.log('Started activity', activityStartedEvent);
           if (!currentActivity) {
-            currentActivity = activityStartedEvent;
-            window.wowarenalogs.obs?.startRecording?.();
+            if (activityStartedEvent.arenaMatchStartInfo?.zoneId) {
+              currentActivity = activityStartedEvent;
+              window.wowarenalogs.obs?.startRecording?.();
+            }
           }
         });
       }
+
+      window.wowarenalogs.logs?.handleBattlegroundEnded?.((_event, bg) => {
+        // eslint-disable-next-line no-console
+        console.log(bg);
+        logAnalyticsEvent('BattlegroundEnded', {
+          instanceId: bg.zoneInEvent.instanceId,
+          bgName: bg.zoneInEvent.zoneName,
+          playerCount: _.values(bg.units).filter((p) => p.type === CombatUnitType.Player).length,
+        });
+      });
 
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
@@ -343,11 +351,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
     <LocalCombatsContext.Provider
       value={{
         localCombats: combats,
-        appendCombat: (combat) => {
-          setCombats((prev) => {
-            return prev.concat(combat);
-          });
-        },
       }}
     >
       {props.children}

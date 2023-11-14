@@ -7,6 +7,7 @@ import {
   WoWCombatLogParser,
   WowVersion,
 } from '@wowarenalogs/parser';
+import { IBattlegroundCombat } from '@wowarenalogs/parser/dist/CombatData';
 import { BrowserWindow, dialog } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
@@ -84,19 +85,19 @@ export class LogsModule extends NativeBridgeModule {
       .then((data) => {
         if (!data.canceled && data.filePaths.length > 0) {
           const logParser = new WoWCombatLogParser(wowVersion);
-          logParser.on('arena_match_ended', (combat: IArenaMatch) => {
+          logParser.on('arena_match_ended', (combat) => {
             this.handleNewCombat(mainWindow, combat);
           });
 
-          logParser.on('solo_shuffle_round_ended', (combat: IShuffleRound) => {
+          logParser.on('solo_shuffle_round_ended', (combat) => {
             this.handleSoloShuffleRoundEnded(mainWindow, combat);
           });
 
-          logParser.on('solo_shuffle_ended', (combat: IShuffleMatch) => {
+          logParser.on('solo_shuffle_ended', (combat) => {
             this.handleSoloShuffleEnded(mainWindow, combat);
           });
 
-          logParser.on('malformed_arena_match_detected', (combat: IMalformedCombatData) => {
+          logParser.on('malformed_arena_match_detected', (combat) => {
             this.handleMalformedCombatDetected(mainWindow, combat);
           });
 
@@ -134,22 +135,23 @@ export class LogsModule extends NativeBridgeModule {
     if (!logsExist) {
       mkdirSync(wowLogsDirectoryFullPath);
     }
-    bridge.logParser.on('activity_started', (event: IActivityStarted) => {
+    bridge.logParser.on('activity_started', (event) => {
       this.handleActivityStarted(mainWindow, event);
     });
-    bridge.logParser.on('arena_match_ended', (combat: IArenaMatch) => {
+    bridge.logParser.on('arena_match_ended', (combat) => {
       this.handleNewCombat(mainWindow, combat);
     });
-    bridge.logParser.on('solo_shuffle_round_ended', (combat: IShuffleRound) => {
+    bridge.logParser.on('solo_shuffle_round_ended', (combat) => {
       this.handleSoloShuffleRoundEnded(mainWindow, combat);
     });
-    bridge.logParser.on('solo_shuffle_ended', (combat: IShuffleMatch) => {
+    bridge.logParser.on('solo_shuffle_ended', (combat) => {
       this.handleSoloShuffleEnded(mainWindow, combat);
     });
-    bridge.logParser.on('malformed_arena_match_detected', (combat: IMalformedCombatData) => {
+    bridge.logParser.on('battleground_ended', (data) => this.handleBattlegroundEnded(mainWindow, data));
+    bridge.logParser.on('malformed_arena_match_detected', (combat) => {
       this.handleMalformedCombatDetected(mainWindow, combat);
     });
-    bridge.logParser.on('parser_error', (error: Error) => {
+    bridge.logParser.on('parser_error', (error) => {
       this.handleParserError(mainWindow, error);
     });
 
@@ -238,6 +240,11 @@ export class LogsModule extends NativeBridgeModule {
 
   @moduleEvent('on', { isRequired: true })
   public handleSoloShuffleEnded(_mainWindow: BrowserWindow, _combat: IShuffleMatch) {
+    return;
+  }
+
+  @moduleEvent('on')
+  public handleBattlegroundEnded(_mainWindow: BrowserWindow, _bg: IBattlegroundCombat) {
     return;
   }
 
