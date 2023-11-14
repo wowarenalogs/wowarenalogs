@@ -10,7 +10,6 @@ import {
   getEffectiveDps,
   getEffectiveHps,
   IActivityStarted,
-  IBattlegroundCombat,
 } from '@wowarenalogs/parser';
 import {
   ArenaMatchMetadata,
