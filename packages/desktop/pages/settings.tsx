@@ -77,9 +77,11 @@ const Page = () => {
         <div className="flex flex-row-reverse gap-2">
           <input
             type="text"
-            placeholder=""
+            placeholder={`Please locate your ${
+              window.wowarenalogs.platform === 'win32' ? 'WoW.exe' : 'World of Warcraft.app'
+            }`}
             readOnly
-            className="input input-sm input-bordered flex-1"
+            className={`input input-sm input-bordered flex-1 ${appConfig.wowDirectory ? '' : 'input-error'}`}
             value={appConfig.wowDirectory}
           />
           <button
@@ -97,7 +99,7 @@ const Page = () => {
                 });
             }}
           >
-            Set WoW Directory
+            Set WoW Path
           </button>
         </div>
       </div>

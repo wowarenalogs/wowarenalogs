@@ -2,13 +2,22 @@ import fs from 'fs';
 import path from 'path';
 
 import { WoWCombatLogParser } from '../src';
-import { IArenaMatch, IMalformedCombatData, IShuffleMatch, IShuffleRound } from '../src/CombatData';
+import {
+  IActivityStarted,
+  IArenaMatch,
+  IBattlegroundCombat,
+  IMalformedCombatData,
+  IShuffleMatch,
+  IShuffleRound,
+} from '../src/CombatData';
 
 export type LoaderResults = {
   combats: IArenaMatch[];
   malformedCombats: IMalformedCombatData[];
   shuffleRounds: IShuffleRound[];
   shuffles: IShuffleMatch[];
+  activityStarts?: IActivityStarted[];
+  battlegrounds?: IBattlegroundCombat[];
 };
 
 export const loadLogFile = (logFileName: string): LoaderResults => {
@@ -20,25 +29,30 @@ export const loadLogFile = (logFileName: string): LoaderResults => {
   const shuffleRounds: IShuffleRound[] = [];
   const shuffles: IShuffleMatch[] = [];
 
+  const activityStarts: IActivityStarted[] = [];
+  const battlegrounds: IBattlegroundCombat[] = [];
+
   logParser.on('arena_match_ended', (data) => {
-    const combat = data as IArenaMatch;
-    combats.push(combat);
+    combats.push(data);
   });
 
   logParser.on('malformed_arena_match_detected', (data) => {
-    const combat = data as IMalformedCombatData;
-    malformedCombats.push(combat);
+    malformedCombats.push(data);
   });
 
   logParser.on('solo_shuffle_round_ended', (data) => {
-    const combat = data as IShuffleRound;
-    shuffleRounds.push(combat);
+    shuffleRounds.push(data);
   });
 
   logParser.on('solo_shuffle_ended', (data) => {
-    const combat = data as IShuffleMatch;
-    shuffles.push(combat);
+    shuffles.push(data);
   });
+
+  logParser.on('activity_started', (data) => {
+    activityStarts.push(data);
+  });
+
+  logParser.on('battleground_ended', (data) => battlegrounds.push(data));
 
   const buffer = fs.readFileSync(path.join(__dirname, 'testlogs', logFileName));
   buffer
@@ -50,5 +64,5 @@ export const loadLogFile = (logFileName: string): LoaderResults => {
 
   logParser.flush();
 
-  return { combats, malformedCombats, shuffleRounds, shuffles };
+  return { combats, malformedCombats, shuffleRounds, shuffles, activityStarts, battlegrounds };
 };

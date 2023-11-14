@@ -13,7 +13,7 @@ import { CombatSupportAction } from '../../actions/CombatSupportAction';
 import { PartyKill } from '../../actions/PartyKill';
 import { SpellAuraBrokenSpell } from '../../actions/SpellAuraBrokenSpell';
 import { ZoneChange } from '../../actions/ZoneChange';
-import { logInfo } from '../../logger';
+import { logInfo, logTrace } from '../../logger';
 import { CombatEvent, ILogLine, LogEvent, WowVersion } from '../../types';
 
 export const logLineToCombatEvent = (wowVersion: WowVersion) => {
@@ -82,6 +82,7 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
           case LogEvent.ZONE_CHANGE:
             return new ZoneChange(logLine);
           default:
+            logTrace(logLine.event);
             return logLine.raw;
         }
       } catch (e) {
