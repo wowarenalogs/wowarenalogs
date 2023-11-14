@@ -352,7 +352,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
     <LocalCombatsContext.Provider
       value={{
         localCombats: combats,
-        localBattlegroundCombats: battlegroundCombats,
       }}
     >
       {props.children}
@@ -360,4 +359,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
   );
 };
 
-export const useLocalCombats = () => {};
+export const useLocalCombats = () => {
+  return useContext(LocalCombatsContext);
+};
