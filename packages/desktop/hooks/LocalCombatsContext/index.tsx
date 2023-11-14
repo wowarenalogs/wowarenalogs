@@ -19,7 +19,6 @@ import {
   uploadCombatAsync,
   useAuth,
 } from '@wowarenalogs/shared';
-import { BattlegroundMetadata } from '@wowarenalogs/shared/src/types/metadata';
 import _ from 'lodash';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
@@ -28,12 +27,10 @@ import { useAppConfig } from '../AppConfigContext';
 
 interface ILocalCombatsContextData {
   localCombats: AtomicArenaCombat[];
-  localBattlegroundCombats: IBattlegroundCombat[];
 }
 
 const LocalCombatsContext = React.createContext<ILocalCombatsContextData>({
   localCombats: [],
-  localBattlegroundCombats: [],
 });
 
 interface IProps {
@@ -163,7 +160,6 @@ let currentActivity: IActivityStarted | null = null;
 
 export const LocalCombatsContextProvider = (props: IProps) => {
   const [combats, setCombats] = useState<AtomicArenaCombat[]>([]);
-  const [battlegroundCombats, setBGCombats] = useState<IBattlegroundCombat[]>([]);
   const auth = useAuth();
   const { wowInstallations } = useAppConfig();
 
@@ -194,13 +190,6 @@ export const LocalCombatsContextProvider = (props: IProps) => {
           // eslint-disable-next-line no-console
           console.log('Started activity', activityStartedEvent);
           if (!currentActivity) {
-            // These checks make sure that the incoming activity isn't bogus and
-            //  that the underlying logger will eventually emit the end-handler
-            //  most relevant for bgs where versions <4.6.5 don't have handleBattlegroundEnded
-            if (activityStartedEvent.bgZoneChange?.instanceId && window.wowarenalogs.logs?.handleBattlegroundEnded) {
-              currentActivity = activityStartedEvent;
-              window.wowarenalogs.obs?.startRecording?.();
-            }
             if (activityStartedEvent.arenaMatchStartInfo?.zoneId) {
               currentActivity = activityStartedEvent;
               window.wowarenalogs.obs?.startRecording?.();
@@ -210,33 +199,13 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       }
 
       window.wowarenalogs.logs?.handleBattlegroundEnded?.((_event, bg) => {
-        if (wowVersion === bg.wowVersion) {
-          setBGCombats((prev) => {
-            return prev.concat([bg]);
-          });
-        }
-
-        if (currentActivity) {
-          const metadata: BattlegroundMetadata = {
-            wowVersion: bg.wowVersion,
-            id: bg.id,
-            dataType: 'BattlegroundMetadata',
-            timezone: bg.timezone,
-            startTime: bg.zoneInEvent.timestamp,
-            endTime: bg.zoneOutEvent.timestamp,
-          };
-          // eslint-disable-next-line no-console
-          console.log(bg, metadata);
-          currentActivity = null;
-          window.wowarenalogs.obs?.stopRecording &&
-            window.wowarenalogs.obs.stopRecording({
-              startDate: new Date(bg.zoneInEvent.timestamp),
-              endDate: new Date(bg.zoneOutEvent.timestamp),
-              metadata,
-              overrun: MATCH_OVERRUN_SECONDS,
-              fileName: `Battleground_${bg.id}`,
-            });
-        }
+        // eslint-disable-next-line no-console
+        console.log(bg);
+        logAnalyticsEvent('BattlegroundEnded', {
+          instanceId: bg.zoneInEvent.instanceId,
+          bgName: bg.zoneInEvent.zoneName,
+          playerCount: _.values(bg.units).filter((p) => p.type === CombatUnitType.Player).length,
+        });
       });
 
       window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
@@ -391,6 +360,4 @@ export const LocalCombatsContextProvider = (props: IProps) => {
   );
 };
 
-export const useLocalCombats = () => {
-  return useContext(LocalCombatsContext);
-};
+export const useLocalCombats = () => {};
