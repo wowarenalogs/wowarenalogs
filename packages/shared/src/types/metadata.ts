@@ -1,31 +1,26 @@
 import { ArenaMatchEndInfo, ArenaMatchStartInfo, CombatResult, WowVersion } from '@wowarenalogs/parser';
 
-interface IActivityMetadata {
-  dataType: 'ArenaMatchMetadata' | 'ShuffleMatchMetadata' | 'BattlegroundMetadata';
+export interface IMetadata {
+  dataType: 'ArenaMatchMetadata' | 'ShuffleMatchMetadata';
+  startInfo: ArenaMatchStartInfo;
+  endInfo: ArenaMatchEndInfo;
   wowVersion: WowVersion;
   id: string;
   timezone: string;
   startTime: number;
   endTime: number;
-}
-
-interface IArenaCombatMetadata extends IActivityMetadata {
-  startInfo: ArenaMatchStartInfo;
-  endInfo: ArenaMatchEndInfo;
   playerId: string;
   playerTeamId: string;
   result: CombatResult;
-  winningTeamId: string;
   durationInSeconds: number;
+  winningTeamId: string;
 }
 
-export type BattlegroundMetadata = IActivityMetadata;
-
-export interface ArenaMatchMetadata extends IArenaCombatMetadata {
+export interface ArenaMatchMetadata extends IMetadata {
   dataType: 'ArenaMatchMetadata';
 }
 
-export interface ShuffleMatchMetadata extends IArenaCombatMetadata {
+export interface ShuffleMatchMetadata extends IMetadata {
   dataType: 'ShuffleMatchMetadata';
   roundStarts: {
     id: string;
