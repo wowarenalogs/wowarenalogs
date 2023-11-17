@@ -1,4 +1,5 @@
 import { CombatReport } from '@wowarenalogs/shared';
+import Link from 'next/link';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 import { useLocalCombats } from '../../hooks/LocalCombatsContext';
@@ -32,6 +33,13 @@ export const LatestMatchMonitor = () => {
           <label htmlFor="toggle-troubleshooter" className="btn btn-link text-base-content">
             Not seeing your matches?
           </label>
+          <div className="flex flex-row items-center gap-2">
+            <div className="badge badge-lg badge-primary">NEW</div>
+            <h1 className="text-2xl font-bold">Want to record video?</h1>
+          </div>
+          <Link href="/settings">
+            <button className="btn btn-sm btn-outline">Video settings</button>
+          </Link>
         </div>
       </div>
       <input type="checkbox" id="toggle-troubleshooter" className="modal-toggle" />
