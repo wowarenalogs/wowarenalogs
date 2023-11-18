@@ -12,7 +12,7 @@ const Page = () => {
   const localCombatsLookup = useMemo(() => {
     const lookup = new Map<string, AtomicArenaCombat>();
     localCombats.forEach((c) => {
-      lookup.set(`${c.id}+${c.dataType == 'ShuffleRound' ? c.sequenceNumber : ''}`, c);
+      lookup.set(`${c.id}+${c.dataType == 'ShuffleRound' ? c.sequenceNumber + 1 : ''}`, c);
     });
     return lookup;
   }, [localCombats]);
