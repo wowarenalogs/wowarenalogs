@@ -42,7 +42,7 @@ class WindowsLogWatcher extends LogWatcher {
   }
 }
 
-class UnixLogWatcher extends LogWatcher {
+class MacLogWatcher extends LogWatcher {
   private watcher: chokidar.FSWatcher;
 
   constructor(wowDirectory: string) {
@@ -71,7 +71,34 @@ class UnixLogWatcher extends LogWatcher {
   }
 }
 
+class LinuxLogWatcher extends LogWatcher {
+  private watcher: FSWatcher;
+
+  constructor(wowDirectory: string) {
+    super(wowDirectory);
+    const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
+    this.watcher = watch(wowLogsDirectoryFullPath);
+  }
+
+  onChange(handler: (fileName: string) => void): void {
+    this.watcher.on('change', (_eventType: string, fileName: string) => {
+      this.lastReadDate = new Date();
+      if (typeof fileName !== 'string' || fileName.indexOf('WoWCombatLog') < 0) {
+        return;
+      }
+      handler(fileName);
+    });
+  }
+
+  close(): void {
+    this.watcher.close();
+  }
+}
+
 export const createLogWatcher = (wowDirectory: string, platform: string) => {
-  const isUnix = platform !== 'win32';
-  return isUnix ? new UnixLogWatcher(wowDirectory) : new WindowsLogWatcher(wowDirectory);
+  return platform === 'darwin'
+    ? new MacLogWatcher(wowDirectory)
+    : platform === 'linux'
+    ? new LinuxLogWatcher(wowDirectory)
+    : new WindowsLogWatcher(wowDirectory);
 };
