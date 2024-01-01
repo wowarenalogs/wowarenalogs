@@ -3,9 +3,13 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 const Home: NextPage = () => {
-  const [isMac, setIsMac] = useState(false);
+  const [os, setOs] = useState('windows');
   useEffect(() => {
-    setIsMac(navigator.platform.toUpperCase().indexOf('MAC') === 0);
+    if (navigator.platform.toUpperCase().indexOf('MAC') === 0) {
+      setOs('mac');
+    } else if (navigator.platform.toUpperCase().indexOf('LINUX') === 0) {
+      setOs('linux');
+    }
   }, []);
 
   return (
@@ -19,9 +23,9 @@ const Home: NextPage = () => {
               WoW Arena Logs is the best tool available to help you analyze your own arena matches and learn from the
               community.
             </p>
-            <div className={`flex gap-x-4 ${isMac ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className="flex flex-row gap-x-4">
               <a
-                className={`btn ${!isMac ? 'btn-primary' : ''}`}
+                className={`btn ${os === 'windows' ? 'btn-primary' : ''}`}
                 href="https://storage.googleapis.com/download.wowarenalogs.com/desktop-client/latest-windows.zip"
                 target="_blank"
                 rel="noreferrer"
@@ -29,12 +33,20 @@ const Home: NextPage = () => {
                 Download for Windows
               </a>
               <a
-                className={`btn ${isMac ? 'btn-primary' : ''}`}
+                className={`btn ${os === 'mac' ? 'btn-primary' : ''}`}
                 href="https://storage.googleapis.com/download.wowarenalogs.com/desktop-client/latest-mac.zip"
                 target="_blank"
                 rel="noreferrer"
               >
                 Download for Mac
+              </a>
+              <a
+                className={`btn ${os === 'linux' ? 'btn-primary' : ''}`}
+                href="https://storage.googleapis.com/download.wowarenalogs.com/desktop-client/latest-linux.zip"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Download for Linux
               </a>
             </div>
           </div>
