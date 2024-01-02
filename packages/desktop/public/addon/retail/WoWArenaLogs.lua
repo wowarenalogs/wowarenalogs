@@ -1,4 +1,3 @@
-local instanceType
 
 local function OnEvent(self, event, ...)
   if event == "ZONE_CHANGED_NEW_AREA" then
@@ -7,9 +6,16 @@ local function OnEvent(self, event, ...)
     if type == "arena" then
       LoggingCombat(true)
       print("WoWArenaLogs: Combat logging has been enabled. Good luck!")
+      return
     end
 
-    instanceType = type
+    local _, instanceType = GetInstanceInfo();
+    if (instanceType == "pvp") then
+      LoggingCombat(true)
+      print("WoWArenaLogs: Combat logging has been enabled. Good luck!")
+      return
+    end
+
   end
 end
 
