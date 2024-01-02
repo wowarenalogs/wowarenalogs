@@ -9,3 +9,5 @@
 *.cjs text eol=lf
 *.json text eol=lf
 *.md text eol=lf
+*.lua text eol=lf
+*.toc text eol=lf
