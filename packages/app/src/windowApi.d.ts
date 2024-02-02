@@ -80,6 +80,7 @@ export type NativeApi = {
     setConfig?: OmitFirstArg<ObsModule['setConfig']>;
     getAudioDevices?: OmitFirstArg<ObsModule['getAudioDevices']>;
     getRecorderStatus?: OmitFirstArg<ObsModule['getRecorderStatus']>;
+    getEncoders?: OmitFirstArg<ObsModule['getEncoders']>;
     findVideoForMatch?: OmitFirstArg<ObsModule['findVideoForMatch']>;
     recorderStatusUpdated?: (callback: AsEventFunction<ObsModule['recorderStatusUpdated']>) => void;
     removeAll_recorderStatusUpdated_listeners?: () => void;
