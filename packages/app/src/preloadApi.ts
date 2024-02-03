@@ -81,6 +81,7 @@ export const modulesApi = {
     setConfig: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:setConfig', ...args),
     getAudioDevices: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getAudioDevices', ...args),
     getRecorderStatus: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getRecorderStatus', ...args),
+    getEncoders: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:getEncoders', ...args),
     findVideoForMatch: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:obs:findVideoForMatch', ...args),
     recorderStatusUpdated: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
       ipcRenderer.on('wowarenalogs:obs:recorderStatusUpdated', callback),
