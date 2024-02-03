@@ -37,7 +37,10 @@ export const LatestMatchMonitor = () => {
           {diskSpaceRemaining > -1 && (
             <div className="text-2xl font-bold text-red-400 badge badge-lg badge-error p-5">
               You have only {(diskSpaceRemaining / 1e6).toFixed(1)} Mbytes disk space remaining. Vods may fail to
-              record!
+              record!{' '}
+              <button className="button pl-2" onClick={() => setDiskSpaceRemaining(-1)}>
+                dismiss
+              </button>
             </div>
           )}
           <button
