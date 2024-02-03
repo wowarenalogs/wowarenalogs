@@ -137,7 +137,7 @@ const Page = () => {
         <button
           className="btn btn-sm gap-2"
           onClick={() => {
-            parseCode(featureCode);
+            parseCode();
           }}
         >
           Use feature code
