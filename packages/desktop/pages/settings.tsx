@@ -11,26 +11,23 @@ const Page = () => {
   const [appVersion, setAppVersion] = useState('');
   const [featureCode, setFeatureCode] = useState('');
 
-  const parseCode = useCallback(
-    (featureCode: string) => {
-      if (featureCode.startsWith('add:')) {
-        updateAppConfig((prev) => {
-          return {
-            ...prev,
-            flags: [featureCode.slice(4), ...(appConfig.flags || [])],
-          };
-        });
-      } else if (featureCode.startsWith('drop:')) {
-        updateAppConfig((prev) => {
-          return {
-            ...prev,
-            flags: (appConfig.flags || []).filter((a) => a !== featureCode.slice(5)),
-          };
-        });
-      }
-    },
-    [appConfig.flags, updateAppConfig],
-  );
+  const parseCode = useCallback(() => {
+    if (featureCode.startsWith('add:')) {
+      updateAppConfig((prev) => {
+        return {
+          ...prev,
+          flags: [featureCode.slice(4), ...(appConfig.flags || [])],
+        };
+      });
+    } else if (featureCode.startsWith('drop:')) {
+      updateAppConfig((prev) => {
+        return {
+          ...prev,
+          flags: (appConfig.flags || []).filter((a) => a !== featureCode.slice(5)),
+        };
+      });
+    }
+  }, [appConfig.flags, featureCode, updateAppConfig]);
 
   // Intentionally leaving console log here so I can debug some in prod
   // eslint-disable-next-line no-console
