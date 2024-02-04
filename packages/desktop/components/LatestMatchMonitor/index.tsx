@@ -16,7 +16,7 @@ export const LatestMatchMonitor = () => {
     return <CombatReport combat={latestLocalCombat} matchId={latestLocalCombat.id} viewerIsOwner={true} />;
   }
 
-  const needs470Upgrade = Boolean(window.wowarenalogs.obs?.getEncoders);
+  const needs470Upgrade = !window.wowarenalogs.obs?.getEncoders;
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
