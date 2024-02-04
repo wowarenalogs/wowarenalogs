@@ -13,10 +13,13 @@ import {
 } from '@wowarenalogs/parser';
 import {
   ArenaMatchMetadata,
+  canUseFeature,
+  features,
   logAnalyticsEvent,
   ShuffleMatchMetadata,
   uploadCombatAsync,
   useAuth,
+  useClientContext,
 } from '@wowarenalogs/shared';
 import _ from 'lodash';
 import moment from 'moment';
@@ -161,6 +164,8 @@ export const LocalCombatsContextProvider = (props: IProps) => {
   const [combats, setCombats] = useState<AtomicArenaCombat[]>([]);
   const auth = useAuth();
   const { wowInstallations } = useAppConfig();
+  const { localFlags } = useClientContext();
+  const shouldSkipUpload = canUseFeature(features.skipUploads, undefined, localFlags);
 
   useEffect(() => {
     const cleanups = Array.from(wowInstallations.entries()).map((installRow) => {
@@ -236,11 +241,12 @@ export const LocalCombatsContextProvider = (props: IProps) => {
                 fileName: `${combat.startInfo.bracket}_${combat.id}`,
               });
           }
-          uploadCombatAsync(combat, auth.battlenetId).then((r) => {
-            if (!r.matchExists || process.env.NODE_ENV === 'development') {
-              logCombatAnalyticsAsync(combat);
-            }
-          });
+          if (!shouldSkipUpload)
+            uploadCombatAsync(combat, auth.battlenetId).then((r) => {
+              if (!r.matchExists || process.env.NODE_ENV === 'development') {
+                logCombatAnalyticsAsync(combat);
+              }
+            });
 
           setCombats((prev) => {
             return prev.concat([combat]);
@@ -291,15 +297,17 @@ export const LocalCombatsContextProvider = (props: IProps) => {
                 fileName: `${combat.startInfo.bracket}_${combat.id}`,
               });
           }
-          uploadCombatAsync(combat, auth.battlenetId).then((r) => {
-            if (!r.matchExists || process.env.NODE_ENV === 'development') {
-              combat.rounds.forEach((round) => {
-                round.shuffleMatchEndInfo = combat.endInfo;
-                round.shuffleMatchResult = combat.result;
-                logCombatAnalyticsAsync(round);
-              });
-            }
-          });
+
+          if (!shouldSkipUpload)
+            uploadCombatAsync(combat, auth.battlenetId).then((r) => {
+              if (!r.matchExists || process.env.NODE_ENV === 'development') {
+                combat.rounds.forEach((round) => {
+                  round.shuffleMatchEndInfo = combat.endInfo;
+                  round.shuffleMatchResult = combat.result;
+                  logCombatAnalyticsAsync(round);
+                });
+              }
+            });
         }
       });
 

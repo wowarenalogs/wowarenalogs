@@ -26,6 +26,7 @@ const Page = (props: { children: ReactNode | ReactNode[] }) => {
         showLoginModal={() => {
           signIn('battlenet');
         }}
+        localFlags={[]} // No local flags in web context
       >
         <MainLayout>
           <Head>

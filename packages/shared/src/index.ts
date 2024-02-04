@@ -5,6 +5,7 @@ export { ClientContextProvider, useClientContext } from './hooks/ClientContext';
 export { AuthProvider } from './hooks/AuthContext';
 export { useAuth } from './hooks/AuthContext';
 export { uploadCombatAsync } from './utils/upload';
+export { canUseFeature, features } from './utils/featureFlags';
 export {
   initAnalyticsAsync,
   logAnalyticsEvent,

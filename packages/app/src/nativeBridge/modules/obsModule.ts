@@ -114,6 +114,11 @@ export class ObsModule extends NativeBridgeModule {
     return;
   }
 
+  @moduleFunction()
+  public async getEncoders(_mainWindow: BrowserWindow) {
+    return this.manager?.getAvailableEncoders();
+  }
+
   /**
    * A very hacky way to find if a match of a given id has a video file
    */

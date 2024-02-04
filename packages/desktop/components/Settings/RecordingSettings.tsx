@@ -117,7 +117,7 @@ function PreviewVideoWindow() {
 const RecordingSettings = () => {
   const clientContext = useClientContext();
   const { appConfig, updateAppConfig } = useAppConfig();
-  const { recordingConfig, recordingStatus, recordingStatusError } = useVideoRecordingContext();
+  const { recordingConfig, recordingStatus, recordingStatusError, encoderOptions } = useVideoRecordingContext();
   const [outputAudioOptions, setOutputAudioOptions] = useState<IOBSDevice[]>([]);
 
   async function checkAudioDevices() {
@@ -288,6 +288,20 @@ const RecordingSettings = () => {
                     <span className="label-text">Capture cursor</span>
                   </label>
                 </div>
+                {window.wowarenalogs.obs?.getEncoders && (
+                  <Dropdown
+                    menuItems={encoderOptions.map((k) => ({
+                      onClick: () => {
+                        window.wowarenalogs.obs?.setConfig?.('obsRecEncoder', k);
+                      },
+                      key: k,
+                      label: k,
+                    }))}
+                  >
+                    <div>{recordingConfig?.obsRecEncoder ?? 'Select encoding method'}</div>
+                    <TbCaretDown size={20} />
+                  </Dropdown>
+                )}
               </div>
               <div className="flex flex-row-reverse gap-2">
                 <input

@@ -33,7 +33,7 @@ export const DesktopLayout = !window.wowarenalogs
       return null;
     }
   : ({ Component, pageProps }: AppProps) => {
-      const { isLoading } = useAppConfig();
+      const { isLoading, appConfig } = useAppConfig();
 
       useEffect(() => {
         initAnalyticsAsync('G-Z6E8QS4ENW', '650475e4b06ebfb536489356d27b60f8').then(() => {
@@ -106,6 +106,7 @@ export const DesktopLayout = !window.wowarenalogs
                   // but there's nothing we need to do here.
                 });
             }}
+            localFlags={appConfig.flags || []}
           >
             <AuthProvider>
               <VideoRecordingContextProvider>
