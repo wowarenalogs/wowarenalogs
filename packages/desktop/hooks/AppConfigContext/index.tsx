@@ -12,6 +12,7 @@ export interface IAppConfig {
   lastWindowHeight?: number;
   launchAtStartup?: boolean;
   enableVideoRecording?: boolean;
+  flags?: string[];
 }
 
 interface IAppConfigContextData {
