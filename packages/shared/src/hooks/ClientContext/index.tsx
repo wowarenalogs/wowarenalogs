@@ -4,6 +4,7 @@ interface IClientContextData {
   isDesktop: boolean;
   openExternalURL: (url: string) => void;
   showLoginModal: (authUrl: string, callback: () => void) => void;
+  localFlags: string[];
 }
 
 const ClientContext = React.createContext<IClientContextData>({
@@ -12,6 +13,7 @@ const ClientContext = React.createContext<IClientContextData>({
   showLoginModal: (_authUrl: string, callback: () => void) => {
     callback();
   },
+  localFlags: [],
 });
 
 interface IProps {
@@ -19,6 +21,7 @@ interface IProps {
   openExternalURL: (url: string) => void;
   showLoginModal: (authUrl: string, callback: () => void) => void;
   children: React.ReactNode | React.ReactNode[];
+  localFlags: string[];
 }
 
 export const ClientContextProvider = (props: IProps) => {
@@ -28,6 +31,7 @@ export const ClientContextProvider = (props: IProps) => {
         openExternalURL: props.openExternalURL,
         isDesktop: props.isDesktop,
         showLoginModal: props.showLoginModal,
+        localFlags: props.localFlags,
       }}
     >
       {props.children}

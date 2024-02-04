@@ -1,4 +1,4 @@
-import { CombatReport } from '@wowarenalogs/shared';
+import { canUseFeature, CombatReport, features } from '@wowarenalogs/shared';
 import Link from 'next/link';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
@@ -22,6 +22,11 @@ export const LatestMatchMonitor = () => {
         <div className="hero-content text-center flex flex-col pb-16">
           <h1 className="text-5xl font-bold">Ready for battle</h1>
           <p className="py-6">Please keep WoW Arena Logs running. Your latest match will be reported here.</p>
+          {canUseFeature(features.skipUploads, undefined, appConfig.flags) && (
+            <div className="text-2xl font-bold text-red-400 badge badge-lg badge-error p-5">
+              Logs are NOT being automatically uploaded to WoW Arena Logs!
+            </div>
+          )}
           <button
             className="btn glass btn-wide"
             onClick={() => {
@@ -33,15 +38,20 @@ export const LatestMatchMonitor = () => {
           <label htmlFor="toggle-troubleshooter" className="btn btn-link text-base-content">
             Not seeing your matches?
           </label>
-          <div className="flex flex-row items-center gap-2">
-            <div className="badge badge-lg badge-primary">NEW</div>
-            <h1 className="text-2xl font-bold">Want to record video?</h1>
-          </div>
-          <Link href="/settings">
-            <button className="btn btn-sm btn-outline">Video settings</button>
-          </Link>
+          {window.wowarenalogs.platform === 'win32' && (
+            <div className="flex flex-col">
+              <div className="flex flex-row items-center gap-2">
+                <div className="badge badge-lg badge-primary">NEW</div>
+                <h1 className="text-2xl font-bold">Want to record video?</h1>
+              </div>
+              <Link href="/settings">
+                <button className="btn btn-sm btn-outline">Video settings</button>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
+
       <input type="checkbox" id="toggle-troubleshooter" className="modal-toggle" />
       <label htmlFor="toggle-troubleshooter" className="modal">
         <label className="modal-box prose relative" htmlFor="">

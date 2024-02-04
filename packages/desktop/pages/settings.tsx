@@ -1,5 +1,5 @@
 import { LoadingScreen, useClientContext } from '@wowarenalogs/shared';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FaDiscord, FaPatreon } from 'react-icons/fa';
 
 import RecordingSettings from '../components/Settings/RecordingSettings';
@@ -9,6 +9,29 @@ const Page = () => {
   const { isLoading, appConfig, updateAppConfig } = useAppConfig();
   const clientContext = useClientContext();
   const [appVersion, setAppVersion] = useState('');
+  const [featureCode, setFeatureCode] = useState('');
+
+  const parseCode = useCallback(() => {
+    if (featureCode.startsWith('add:')) {
+      updateAppConfig((prev) => {
+        return {
+          ...prev,
+          flags: [featureCode.slice(4), ...(appConfig.flags || [])],
+        };
+      });
+    } else if (featureCode.startsWith('drop:')) {
+      updateAppConfig((prev) => {
+        return {
+          ...prev,
+          flags: (appConfig.flags || []).filter((a) => a !== featureCode.slice(5)),
+        };
+      });
+    }
+  }, [appConfig.flags, featureCode, updateAppConfig]);
+
+  // Intentionally leaving console log here so I can debug some in prod
+  // eslint-disable-next-line no-console
+  console.log(appConfig.flags);
 
   useEffect(() => {
     if (window.wowarenalogs.app?.getVersion) {
@@ -102,6 +125,23 @@ const Page = () => {
             Set WoW Path
           </button>
         </div>
+      </div>
+      <div className="flex flex-row-reverse gap-2">
+        <input
+          type="text"
+          placeholder={`enter feature code here`}
+          className={`input input-sm input-bordered flex-1`}
+          value={featureCode}
+          onChange={(e) => setFeatureCode(e.target.value)}
+        />
+        <button
+          className="btn btn-sm gap-2"
+          onClick={() => {
+            parseCode();
+          }}
+        >
+          Use feature code
+        </button>
       </div>
       <div className="divider" />
       {window.wowarenalogs.platform === 'win32' && window.wowarenalogs.obs && <RecordingSettings />}

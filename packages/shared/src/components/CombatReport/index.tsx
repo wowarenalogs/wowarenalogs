@@ -9,6 +9,7 @@ import { zoneMetadata } from '../../data/zoneMetadata';
 import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
 import { useClientContext } from '../../hooks/ClientContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
+import { canUseFeature } from '../../utils/featureFlags';
 import { DownloadPromotion } from '../common/DownloadPromotion';
 import { CombatCC } from './CombatCC';
 import { CombatCurves } from './CombatCurves';
@@ -156,7 +157,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
             Video
           </a>
         )}
-        {user?.me?.tags?.includes('rawlogs') && (
+        {canUseFeature('rawlogs', user, clientContext.localFlags) && (
           <a
             className={`tab ${activeTab === 'logview' ? 'tab-active' : ''}`}
             onClick={() => {

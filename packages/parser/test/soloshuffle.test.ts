@@ -30,9 +30,9 @@ describe('solo shuffle tests', () => {
       const firstRound = results.shuffleRounds[0];
       const lastRound = results.shuffleRounds[5];
 
-      expect(shuffle.startTime).toBe(1670981589259);
+      expect(shuffle.startTime).toBe(1702517589259);
       expect(shuffle.startTime).toBe(firstRound.startTime);
-      expect(shuffle.endTime).toBe(1670981983080);
+      expect(shuffle.endTime).toBe(1702517983080);
       expect(shuffle.endTime).toBe(lastRound.endTime);
       expect(shuffle.timezone).toBe('America/New_York');
 
@@ -77,8 +77,8 @@ describe('solo shuffle tests', () => {
       expect(round.killedUnitId).toBe('Player-3684-0DF0B4B2');
 
       expect(round.timezone).toBe('America/New_York');
-      expect(round.startTime).toBe(1670981589259);
-      expect(round.endTime).toBe(1670981624027);
+      expect(round.startTime).toBe(1702517589259);
+      expect(round.endTime).toBe(1702517624027);
       expect(round.hasAdvancedLogging).toBe(true);
       expect(round.playerTeamId).toBe('0');
       expect(round.playerTeamRating).toBe(0);
