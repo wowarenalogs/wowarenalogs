@@ -16,12 +16,19 @@ export const LatestMatchMonitor = () => {
     return <CombatReport combat={latestLocalCombat} matchId={latestLocalCombat.id} viewerIsOwner={true} />;
   }
 
+  const needs470Upgrade = Boolean(window.wowarenalogs.obs?.getEncoders);
+
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
       <div className="hero">
         <div className="hero-content text-center flex flex-col pb-16">
           <h1 className="text-5xl font-bold">Ready for battle</h1>
           <p className="py-6">Please keep WoW Arena Logs running. Your latest match will be reported here.</p>
+          {needs470Upgrade && (
+            <a href="https://wowarenalogs.com/">
+              <button className="btn btn-error text-lg ">Critical WoW Arena Logs update available now</button>
+            </a>
+          )}
           {canUseFeature(features.skipUploads, undefined, appConfig.flags) && (
             <div className="text-2xl font-bold text-red-400 badge badge-lg badge-error p-5">
               Logs are NOT being automatically uploaded to WoW Arena Logs!
