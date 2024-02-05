@@ -25,9 +25,12 @@ export const LatestMatchMonitor = () => {
           <h1 className="text-5xl font-bold">Ready for battle</h1>
           <p className="py-6">Please keep WoW Arena Logs running. Your latest match will be reported here.</p>
           {needs470Upgrade && (
-            <a href="https://wowarenalogs.com/">
-              <button className="btn btn-error text-lg ">Critical WoW Arena Logs update available now</button>
-            </a>
+            <button
+              onClick={() => window.wowarenalogs.links?.openExternalURL('https://wowarenalogs.com/')}
+              className="btn btn-error text-lg "
+            >
+              Critical WoW Arena Logs update available now
+            </button>
           )}
           {canUseFeature(features.skipUploads, undefined, appConfig.flags) && (
             <div className="text-2xl font-bold text-red-400 badge badge-lg badge-error p-5">
