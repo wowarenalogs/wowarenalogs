@@ -353,7 +353,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         cleanup();
       });
     };
-  }, [wowInstallations, auth.userId, auth.battlenetId]);
+  }, [wowInstallations, auth.userId, auth.battlenetId, shouldSkipUpload]);
 
   return (
     <LocalCombatsContext.Provider
