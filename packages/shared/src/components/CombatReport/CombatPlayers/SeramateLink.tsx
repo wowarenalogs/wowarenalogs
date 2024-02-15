@@ -50,7 +50,7 @@ export function SeramateLink({ player }: IProps) {
         title="seramate.com Link"
         src={'https://seramate.com/favicon.ico'}
       />
-      Check PvP
+      Seramate
     </button>
   );
 }
