@@ -1,11 +1,13 @@
-/* eslint-disable no-console */
 import { ConfigurationSchema, IActivity, Manager, Recorder, RecStatus, VideoQueueItem } from '@wowarenalogs/recorder';
 import type { ArenaMatchMetadata, ShuffleMatchMetadata } from '@wowarenalogs/shared';
+import checkDiskSpace from 'check-disk-space';
 import { BrowserWindow, dialog } from 'electron';
 import { readdir, readFile } from 'fs-extra';
 import path from 'path';
 
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
+
+const DISK_SPACE_THRESHOLD = 2e9; // ~2gb
 
 @nativeBridgeModule('obs')
 export class ObsModule extends NativeBridgeModule {
@@ -34,6 +36,7 @@ export class ObsModule extends NativeBridgeModule {
         this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
         this.manager.messageBus.on('video-written', (video) => {
           this.videoRecorded(mainWindow, video);
+          this.checkDiskSpace(mainWindow);
         });
       });
     }
@@ -114,6 +117,11 @@ export class ObsModule extends NativeBridgeModule {
     return;
   }
 
+  @moduleEvent('on')
+  public diskSpaceBecameCritical(_mainWindow: BrowserWindow, _bytesRemaining: number) {
+    return;
+  }
+
   @moduleFunction()
   public async getEncoders(_mainWindow: BrowserWindow) {
     return this.manager?.getAvailableEncoders();
@@ -135,5 +143,23 @@ export class ObsModule extends NativeBridgeModule {
         };
       }
     }
+  }
+
+  /**
+   * Check if user has < DISK_THRESHOLD space free
+   */
+  async checkDiskSpace(mainWindow: BrowserWindow) {
+    if (this.manager?.getConfiguration().storagePath) {
+      const details = await this.getDiskSpaceDetails(this.manager?.getConfiguration().storagePath);
+      if (details.free < DISK_SPACE_THRESHOLD) {
+        // warn
+        this.diskSpaceBecameCritical(mainWindow, details.free);
+      }
+    }
+  }
+
+  async getDiskSpaceDetails(path: string) {
+    const details = await checkDiskSpace(path);
+    return details;
   }
 }
