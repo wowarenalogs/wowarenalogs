@@ -99,12 +99,26 @@ export async function latestMatches(
   };
 }
 
-export async function matchesWithCombatant(_parent: unknown, args: { playerName: string }) {
+export async function matchesWithOwnerId(_parent: unknown, args: { ownerId: string }) {
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
-    .where('ownerId', '==', args.playerName)
+    .where('ownerId', '==', args.ownerId)
     .orderBy('startTime', 'desc')
     .limit(Constants.MAX_RESULTS_PER_QUERY)
+    .get();
+  const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
+  return matches;
+}
+
+export async function recentMatchesWithCombatant(
+  _parent: unknown,
+  args: { combatantName: string; serverName: string; region: string },
+) {
+  const collectionReference = firestore.collection(matchStubsCollection);
+  const matchDocs = await collectionReference
+    .where('combatantNames', 'array-contains', args.combatantName)
+    .orderBy('startTime', 'desc')
+    .limit(5)
     .get();
   const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
   return matches;

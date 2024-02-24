@@ -139,7 +139,8 @@ export const typeDefs = gql`
     myCharacters: [UserCharacterInfo!]!
     userMatches(userId: String!, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
     characterMatches(realm: String!, characterName: String!, offset: Int! = 0, count: Int! = 50): CombatQueryResult!
-    matchesWithCombatant(playerName: String!): [CombatDataStub!]!
+    matchesWithCombatant(combatantName: String!): [CombatDataStub!]!
+    matchesWithOwnerId(ownerId: String!): [CombatDataStub!]!
     matchById(matchId: String!): CombatDataStub!
   }
 
