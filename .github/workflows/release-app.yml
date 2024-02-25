@@ -9,8 +9,6 @@ jobs:
     env:
       CI: false
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CSC_LINK: ${{ secrets.CODESIGN_CERT_BASE64 }}
-      CSC_KEY_PASSWORD: ${{ secrets.CODESIGN_CERT_PASSWORD }}
     steps:
       - name: setup python
         uses: actions/setup-python@v2
