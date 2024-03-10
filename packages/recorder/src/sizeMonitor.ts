@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { BrowserWindow } from 'electron';
 
 import ConfigService from './configService';
@@ -20,6 +19,8 @@ export default class SizeMonitor {
 
   private mainWindow: BrowserWindow;
 
+  public static logger: Console = console;
+
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
   }
@@ -30,10 +31,10 @@ export default class SizeMonitor {
     const maxStorageGB = this.cfg.get<number>('maxStorage');
     const maxStorageBytes = maxStorageGB * 1024 ** 3;
 
-    console.info('[SizeMonitor] Running, size limit is', maxStorageGB, 'GB');
+    SizeMonitor.logger.info('[SizeMonitor] Running, size limit is', maxStorageGB, 'GB');
 
     if (maxStorageGB === 0) {
-      console.info('[SizeMonitor] Limitless storage, doing nothing');
+      SizeMonitor.logger.info('[SizeMonitor] Limitless storage, doing nothing');
       return;
     }
 
@@ -45,13 +46,13 @@ export default class SizeMonitor {
         const isUnprotected = !(metadata.protected || false);
 
         if (!isUnprotected) {
-          console.info('[SizeMonitor] Will not delete protected video', file.name);
+          SizeMonitor.logger.info('[SizeMonitor] Will not delete protected video', file.name);
         }
 
         return isUnprotected;
       } catch {
-        console.error('[SizeMonitor] Failed to get metadata for', file.name);
-        await deleteVideo(file.name);
+        SizeMonitor.logger.error('[SizeMonitor] Failed to get metadata for', file.name);
+        await deleteVideo(file.name, SizeMonitor.logger);
         return false;
       }
     });
@@ -63,11 +64,11 @@ export default class SizeMonitor {
       return totalVideoFileSize > maxStorageBytes;
     });
 
-    console.info(`[SizeMonitor] Deleting ${filesForDeletion.length} old video(s)`);
+    SizeMonitor.logger.info(`[SizeMonitor] Deleting ${filesForDeletion.length} old video(s)`);
 
     await Promise.all(
       filesForDeletion.map(async (file) => {
-        await deleteVideo(file.name);
+        await deleteVideo(file.name, SizeMonitor.logger);
       }),
     );
 
