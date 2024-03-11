@@ -160,8 +160,6 @@ const RecordingSettings = () => {
   }, []);
 
   const engineStarted = recordingStatus !== 'EngineNotStarted';
-  const maybeAudioChoice = outputAudioOptions.find((a) => a.id === recordingConfig?.audioOutputDevices);
-  const maybeAudioDevice = maybeAudioChoice?.description || null;
 
   const showDebugInfo = process.env.NODE_ENV === 'development' && clientContext.isDesktop;
 
