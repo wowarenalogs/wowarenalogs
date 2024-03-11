@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-import { app, BrowserWindow, ClientRequestConstructorOptions, Display, net, screen } from 'electron';
+import { app, Display, screen } from 'electron';
 import { access, existsSync, readdir, readFile, readFileSync, stat, unlink, writeFile } from 'fs-extra';
 import path from 'path';
 import { URL } from 'url';
@@ -115,8 +114,6 @@ const getMetadataForVideo = async (video: string) => {
  * Writes video metadata asynchronously and returns a Promise
  */
 const writeMetadataFile = async (videoPath: string, data: VideoQueueItem) => {
-  console.info('[Util] Write Metadata file', videoPath);
-
   const metadataFileName = getMetadataFileNameForVideo(videoPath);
   const jsonString = JSON.stringify({ videoPath, ...data }, null, 2);
 
@@ -129,14 +126,14 @@ const writeMetadataFile = async (videoPath: string, data: VideoQueueItem) => {
  * Try to unlink a file and return a boolean indicating the success
  * Logs any errors to the console, if the file couldn't be deleted for some reason.
  */
-const tryUnlink = async (file: string): Promise<boolean> => {
+const tryUnlink = async (file: string, logger: Console = console): Promise<boolean> => {
   try {
-    console.log(`[Util] Deleting: ${file}`);
+    logger.log(`[Util] Deleting: ${file}`);
     await unlink(file);
     return true;
   } catch (e) {
-    console.error(`[Util] Unable to delete file: ${file}.`);
-    console.error((e as Error).message);
+    logger.error(`[Util] Unable to delete file: ${file}.`);
+    logger.error((e as Error).message);
     return false;
   }
 };
@@ -144,10 +141,10 @@ const tryUnlink = async (file: string): Promise<boolean> => {
 /**
  * Delete a video and its metadata file if it exists.
  */
-const deleteVideo = async (videoPath: string) => {
-  console.info('[Util] Deleting video', videoPath);
+const deleteVideo = async (videoPath: string, logger: Console = console) => {
+  logger.info('[Util] Deleting video', videoPath);
 
-  const success = await tryUnlink(videoPath);
+  const success = await tryUnlink(videoPath, logger);
 
   if (!success) {
     // If we can't delete the video file, make sure we don't delete the metadata
@@ -156,10 +153,10 @@ const deleteVideo = async (videoPath: string) => {
   }
 
   const metadataPath = getMetadataFileNameForVideo(videoPath);
-  await tryUnlink(metadataPath);
+  await tryUnlink(metadataPath, logger);
 
   const thumbnailPath = getThumbnailFileNameForVideo(videoPath);
-  await tryUnlink(thumbnailPath);
+  await tryUnlink(thumbnailPath, logger);
 };
 
 /**
@@ -250,52 +247,6 @@ const getAvailableDisplays = (): OurDisplayType[] => {
     });
 
   return ourDisplays;
-};
-
-/**
- * Checks for updates from the releases page on github, and, if there is a
- * new version, sends a message to the main window to display a notification.
- */
-const checkAppUpdate = (mainWindow: BrowserWindow | null = null) => {
-  const options: ClientRequestConstructorOptions = {
-    hostname: 'api.github.com',
-    protocol: 'https:',
-    path: '/repos/aza547/wow-recorder/releases/latest',
-    method: 'GET',
-  };
-
-  const request = net.request(options);
-
-  request.on('response', (response) => {
-    let data = '';
-
-    response.on('data', (chunk) => {
-      data += chunk;
-    });
-
-    response.on('end', () => {
-      if (response.statusCode !== 200) {
-        console.error(`[Main] Failed to check for updates, status code: ${response.statusCode}`);
-        return;
-      }
-
-      const release = JSON.parse(data);
-      const latestVersion = release.tag_name;
-      const link = release.assets[0].browser_download_url;
-
-      if (latestVersion !== app.getVersion() && latestVersion && link) {
-        console.log('[Util] New version available:', latestVersion);
-        if (mainWindow === null) return;
-        mainWindow.webContents.send('updateUpgradeStatus', true, link);
-      }
-    });
-  });
-
-  request.on('error', (error) => {
-    console.error(`[Main] Failed to check for updates: ${error}`);
-  });
-
-  request.end();
 };
 
 const deferredPromiseHelper = <T>() => {
@@ -436,7 +387,6 @@ export {
   getAvailableDisplays,
   getSortedFiles,
   tryUnlink,
-  checkAppUpdate,
   getMetadataForVideo,
   deferredPromiseHelper,
   getThumbnailFileNameForVideo,
