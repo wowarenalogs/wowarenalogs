@@ -114,16 +114,45 @@ function PreviewVideoWindow() {
   );
 }
 
+/**
+ * Accepts an OBS device config list of device ids and removes the given id, if present
+ * @param list Device id list (serialized format for config)
+ * @param deviceId Id of device to remove
+ * @returns New device id list (serialized for config)
+ */
+function removeDeviceId(list?: string, deviceId?: string) {
+  if (list === undefined || list === null) return '';
+  const devices = list.split(',').filter((i) => i);
+  return devices.filter((i) => i !== deviceId).join(',');
+}
+
+/**
+ * Accepts an OBS device config list of device ids and adds the given id
+ * @param list Device id list (serialized format for config)
+ * @param deviceId Id of device to add
+ * @returns New device id list (serialized for config)
+ */
+function addDeviceId(list?: string, deviceId?: string) {
+  if (list === undefined || list === null) return '';
+  const devices = list
+    .split(',')
+    .filter((i) => i)
+    .filter((i) => i !== deviceId);
+  return [...devices, deviceId].join(',');
+}
+
 const RecordingSettings = () => {
   const clientContext = useClientContext();
   const { appConfig, updateAppConfig } = useAppConfig();
   const { recordingConfig, recordingStatus, recordingStatusError, encoderOptions } = useVideoRecordingContext();
   const [outputAudioOptions, setOutputAudioOptions] = useState<IOBSDevice[]>([]);
+  const [inputAudioOptions, setInputAudioOptions] = useState<IOBSDevice[]>([]);
 
   async function checkAudioDevices() {
     if (window.wowarenalogs.obs?.getAudioDevices) {
       const devices = await window.wowarenalogs.obs.getAudioDevices();
       setOutputAudioOptions(devices?.output || []);
+      setInputAudioOptions(devices?.input || []);
     }
   }
   useEffect(() => {
@@ -224,18 +253,6 @@ const RecordingSettings = () => {
               </div>
               <div className="flex flex-row flex-wrap gap-2 items-center">
                 <Dropdown
-                  menuItems={outputAudioOptions.map((k) => ({
-                    onClick: () => {
-                      window.wowarenalogs.obs?.setConfig?.('audioOutputDevices', k.id);
-                    },
-                    key: k.id,
-                    label: k.description,
-                  }))}
-                >
-                  <div>{maybeAudioDevice ?? 'Select audio source'}</div>
-                  <TbCaretDown size={20} />
-                </Dropdown>
-                <Dropdown
                   menuItems={resolutionOptions.map((k) => ({
                     onClick: () => {
                       window.wowarenalogs.obs?.setConfig?.('obsOutputResolution', k);
@@ -327,6 +344,71 @@ const RecordingSettings = () => {
                   Set VOD Directory
                 </button>
               </div>
+              <div>
+                <div className="flex flex-row gap-4">
+                  <div className="flex flex-col gap-1">
+                    <div className="font-bold">Recorded Audio Inputs</div>
+                    {inputAudioOptions.map((o) => (
+                      <div key={o.id} className="flex flex-row gap-1">
+                        <input
+                          type="checkbox"
+                          className="checkbox mr-1"
+                          checked={recordingConfig?.audioInputDevices.includes(o.id)}
+                          onChange={() => {
+                            if (recordingConfig?.audioInputDevices.includes(o.id)) {
+                              window.wowarenalogs.obs?.setConfig?.(
+                                'audioInputDevices',
+                                removeDeviceId(recordingConfig?.audioInputDevices, o.id),
+                              );
+                            } else {
+                              window.wowarenalogs.obs?.setConfig?.(
+                                'audioInputDevices',
+                                addDeviceId(recordingConfig?.audioInputDevices, o.id),
+                              );
+                            }
+                          }}
+                        />
+                        {o.description}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="font-bold">Recorded Audio Outputs</div>
+                    {outputAudioOptions.map((o) => (
+                      <div key={o.id} className="flex flex-row gap-1">
+                        <input
+                          type="checkbox"
+                          className="checkbox mr-1"
+                          checked={recordingConfig?.audioOutputDevices.includes(o.id)}
+                          onChange={() => {
+                            if (recordingConfig?.audioOutputDevices.includes(o.id)) {
+                              window.wowarenalogs.obs?.setConfig?.(
+                                'audioOutputDevices',
+                                removeDeviceId(recordingConfig?.audioOutputDevices, o.id),
+                              );
+                            } else {
+                              window.wowarenalogs.obs?.setConfig?.(
+                                'audioOutputDevices',
+                                addDeviceId(recordingConfig?.audioOutputDevices, o.id),
+                              );
+                            }
+                          }}
+                        />
+                        {o.description}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div
+                  className="mt-4 btn btn-sm btn-g gap-2"
+                  onClick={() => {
+                    window.wowarenalogs.obs?.setConfig?.('audioInputDevices', '');
+                    window.wowarenalogs.obs?.setConfig?.('audioOutputDevices', '');
+                  }}
+                >
+                  Clear Audio Devices
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -373,7 +455,6 @@ const RecordingSettings = () => {
               Test Erase Storage Path Config
             </button>
           </div>
-
           <textarea className="textarea" readOnly rows={8} defaultValue={JSON.stringify(recordingConfig, null, 2)} />
         </div>
       )}
