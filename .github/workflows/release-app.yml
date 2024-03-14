@@ -47,7 +47,7 @@ jobs:
         run: gsutil cp *.exe gs://download.wowarenalogs.com/desktop-client/
       - name: rename exe to latest-windows.exe
         working-directory: ./dist
-        run: Rename-Item -Path *.exe -NewName latest-windows.exe
+        run: Rename-Item -Path $(Get-ChildItem .\ -filter *.exe -Name) -NewName latest-windows.exe
         shell: powershell
       - name: upload latest-windows.exe
         working-directory: ./dist
