@@ -6,6 +6,7 @@ import path from 'path';
 
 function getAppDataPath() {
   switch (process.platform) {
+    // As of 3/13/2024 these path expansions are actually where electron itself writes its support files
     case 'darwin': {
       return path.join(process.env.HOME as string, 'Library', 'Application Support', 'WoW Arena Logs');
     }
@@ -24,7 +25,7 @@ function getAppDataPath() {
 
 let logConsole = console;
 // app will be undefined during preload compile
-if (app) {
+if (app && app.isPackaged) {
   const logPath = getAppDataPath();
   try {
     const output = createWriteStream(path.join(logPath, 'log.txt'));
