@@ -1,11 +1,14 @@
-/* eslint-disable no-console */
 import { ConfigurationSchema, IActivity, Manager, Recorder, RecStatus, VideoQueueItem } from '@wowarenalogs/recorder';
 import type { ArenaMatchMetadata, ShuffleMatchMetadata } from '@wowarenalogs/shared';
 import { BrowserWindow, dialog } from 'electron';
 import { readdir, readFile } from 'fs-extra';
 import path from 'path';
 
+import { logger } from '../../logger';
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
+
+// Static method to inject logger across OBS modules that will need it
+Manager.configureLogging(logger);
 
 @nativeBridgeModule('obs')
 export class ObsModule extends NativeBridgeModule {

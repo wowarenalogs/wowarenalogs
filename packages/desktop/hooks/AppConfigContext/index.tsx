@@ -99,6 +99,7 @@ export const AppConfigContextProvider = (props: IProps) => {
             storedConfig.lastWindowHeight === undefined ? windowHeight : storedConfig.lastWindowHeight || 0,
           launchAtStartup: storedConfig.launchAtStartup || false,
           enableVideoRecording: storedConfig.enableVideoRecording || false,
+          flags: storedConfig.flags || [],
         };
         setAppConfig(newState);
 
