@@ -49,11 +49,11 @@ jobs:
         working-directory: ./dist
         run: Rename-Item -Path *.exe -NewName latest-windows.exe
         shell: powershell
-      - name: upload latest-windows.zip
+      - name: upload latest-windows.exe
         working-directory: ./dist
         env:
           CLOUDSDK_PYTHON: ${{env.pythonLocation}}\python.exe
-        run: gsutil cp latest-windows.zip gs://download.wowarenalogs.com/desktop-client/
+        run: gsutil cp latest-windows.exe gs://download.wowarenalogs.com/desktop-client/
   build_on_mac:
     runs-on: macos-latest
     env:
