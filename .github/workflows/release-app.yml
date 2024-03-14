@@ -45,9 +45,9 @@ jobs:
         env:
           CLOUDSDK_PYTHON: ${{env.pythonLocation}}\python.exe
         run: gsutil cp *.exe gs://download.wowarenalogs.com/desktop-client/
-      - name: create latest-windows.zip
+      - name: rename exe to latest-windows.exe
         working-directory: ./dist
-        run: Compress-Archive *.exe latest-windows.zip
+        run: Rename-Item -Path *.exe -NewName latest-windows.exe
         shell: powershell
       - name: upload latest-windows.zip
         working-directory: ./dist
