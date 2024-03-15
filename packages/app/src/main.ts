@@ -133,6 +133,12 @@ if (!isFirstInstance) {
       }
       win.focus();
     });
+
+    const startMinimized = (process.argv || []).indexOf('--hidden') !== -1;
+
+    if (startMinimized) {
+      win.minimize();
+    }
   });
 
   app.on('window-all-closed', () => {
