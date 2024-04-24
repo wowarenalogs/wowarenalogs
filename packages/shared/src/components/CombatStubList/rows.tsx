@@ -83,6 +83,7 @@ export function ShuffleRoundRow({
   viewerIsOwner?: boolean;
   source: CombatStubListSource;
 }) {
+  const matchId = combat.isLocal ? combat.match.id : combat.match.shuffleMatchId;
   const round = combat.match;
   const roundTitle = `Round ${round.sequenceNumber + 1} ${round.result === CombatResult.Win ? 'win' : 'loss'}`;
 
@@ -105,7 +106,11 @@ export function ShuffleRoundRow({
       break;
   }
   return (
-    <Link href={`/match?id=${round.id}&viewerIsOwner=${viewerIsOwner ? 'true' : 'false'}&source=${source}`}>
+    <Link
+      href={`/match?id=${matchId}&viewerIsOwner=${viewerIsOwner ? 'true' : 'false'}&source=${source}&roundId=${
+        round.sequenceNumber + 1
+      }`}
+    >
       <div
         title={roundTitle}
         className="btn btn-ghost flex flex-row py-1 gap-2 w-full items-center transition-colors duration-200 rounded"

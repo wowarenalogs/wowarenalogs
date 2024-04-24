@@ -1,9 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@wowarenalogs/sql';
 import _ from 'lodash';
 import moment from 'moment';
 
 import {
   AtomicArenaCombat,
+  CombatUnitAffiliation,
   CombatUnitSpec,
   CombatUnitType,
   getBurstDps,
@@ -43,6 +44,7 @@ export function parseFromStringArrayAsync(
       logParser.on('solo_shuffle_ended', (data: IShuffleMatch) => {
         results.shuffleMatches.push(data);
       });
+      // TODO: Handle on error here?
 
       for (const line of buffer) {
         logParser.parseLine(line);
@@ -56,11 +58,31 @@ export function parseFromStringArrayAsync(
   });
 }
 
-export const logCombatStatsAsync = async (combat: AtomicArenaCombat, stub: FirebaseDTO) => {
+export const logCombatStatsAsync = async (combat: AtomicArenaCombat, stub: FirebaseDTO, ownerId: string) => {
   const prisma = new PrismaClient();
 
   const averageMMR = stub.extra.matchAverageMMR;
   const players = _.values(combat.units).filter((u) => u.type === CombatUnitType.Player);
+  const ownerPlayer = players.find((u) => u.affiliation === CombatUnitAffiliation.Mine);
+
+  if (ownerPlayer && ownerId && !ownerId.startsWith('anonymous:') && ownerId !== 'unknown-uploader') {
+    await prisma.userCharacter.upsert({
+      where: {
+        battlenetId_characterName_characterGuid: {
+          battlenetId: ownerId,
+          characterName: ownerPlayer.name,
+          characterGuid: ownerPlayer.id,
+        },
+      },
+      update: {},
+      create: {
+        battlenetId: ownerId,
+        characterName: ownerPlayer.name,
+        characterGuid: ownerPlayer.id,
+      },
+    });
+  }
+
   const team0specs = players
     .filter((u) => u.info?.teamId === '0')
     .map((u) => (u.spec === CombatUnitSpec.None ? `c${u.class}` : u.spec))

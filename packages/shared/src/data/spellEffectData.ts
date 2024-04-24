@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === 'development') {
     if (k !== spellEffectData[k].spellId) {
       console.error(`Missing Spell Id: ${k}`);
     }
-    if (!spellEffectData[k].cooldownSeconds) {
+    if (spellEffectData[k].cooldownSeconds === undefined) {
       if (!spellEffectData[k].charges?.chargeCooldownSeconds) {
         console.error(`Missing Cooldown Info: ${k}`);
       }

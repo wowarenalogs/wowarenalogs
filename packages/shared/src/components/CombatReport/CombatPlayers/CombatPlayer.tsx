@@ -17,6 +17,7 @@ import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
 import { ArmoryLink } from './ArmoryLink';
 import { CheckPvPLink } from './CheckPvPLink';
+import { SeramateLink } from './SeramateLink';
 import { TalentDisplay } from './TalentDisplay';
 
 interface IProps {
@@ -28,20 +29,26 @@ const specTalentEntryToSpellId = talentIdMap
   .flat()
   .map((n) => n.entries)
   .flat()
-  .reduce((prev, cur) => {
-    prev[cur.id] = cur.spellId;
-    return prev;
-  }, {} as Record<number, number>);
+  .reduce(
+    (prev, cur) => {
+      prev[cur.id] = cur.spellId;
+      return prev;
+    },
+    {} as Record<number, number>,
+  );
 
 const classTalentEntryToSpellId = talentIdMap
   .map((a) => a.classNodes)
   .flat()
   .map((n) => n.entries)
   .flat()
-  .reduce((prev, cur) => {
-    prev[cur.id] = cur.spellId;
-    return prev;
-  }, {} as Record<number, number>);
+  .reduce(
+    (prev, cur) => {
+      prev[cur.id] = cur.spellId;
+      return prev;
+    },
+    {} as Record<number, number>,
+  );
 
 export const maybeGetSpellIdFromTalentId = (talentId: number) => {
   return classTalentEntryToSpellId[talentId] ?? specTalentEntryToSpellId[talentId] ?? 0;
@@ -49,15 +56,22 @@ export const maybeGetSpellIdFromTalentId = (talentId: number) => {
 
 const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14, 17, 3];
 
-const compileDamageBySpell = (actions: CombatHpUpdateAction[]) => {
+const compileDamageBySpell = (actions: (CombatHpUpdateAction | CombatAbsorbAction)[], ownerActorId: string) => {
   const groups = _.groupBy(
     actions.filter((a) => a.effectiveAmount !== 0),
-    (a) => a.spellId,
+    (a) => {
+      return a.srcUnitName + '-' + (a.spellId || 'swing');
+    },
   );
-  return _.map(groups, (actionsGroup, spellId) => {
+  return _.map(groups, (actionsGroup, _groupKey) => {
+    const spellName = _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack';
+    const spellId = _.first(actionsGroup.filter((a) => a.spellId).map((a) => a.spellId)) || '0';
+    const maybeActorId = _.first(actionsGroup.filter((a) => a.srcUnitId).map((a) => a.srcUnitId));
+    let maybeActorName = _.first(actionsGroup.filter((a) => a.srcUnitName).map((a) => a.srcUnitName));
+    maybeActorName = maybeActorId === ownerActorId ? '' : `(Pet) ${maybeActorName}: `;
     return {
       id: spellId,
-      name: _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack',
+      name: maybeActorName + spellName,
       value: _.sum(actionsGroup.map((a) => Math.abs(a.effectiveAmount))),
     };
   }).sort((a, b) => b.value - a.value);
@@ -77,7 +91,7 @@ const compileCastsBySpell = (actions: CombatAction[]) => {
   }).sort((a, b) => b.value - a.value);
 };
 
-const compileDamageByDest = (actions: CombatHpUpdateAction[]) => {
+const compileDamageByDest = (actions: (CombatHpUpdateAction | CombatAbsorbAction)[]) => {
   const groups = _.groupBy(
     actions.filter((a) => a.effectiveAmount !== 0),
     (a) => a.destUnitId,
@@ -227,7 +241,7 @@ export function CombatPlayer(props: IProps) {
   }, [props.player]);
 
   const damageDoneBySpells = useMemo(() => {
-    return compileDamageBySpell(props.player.damageOut);
+    return compileDamageBySpell(props.player.damageOut, props.player.id);
   }, [props.player]);
   const damageDoneBySpellsMax = _.max(damageDoneBySpells.map((s) => s.value)) || 1;
   const damageDoneBySpellsSum = _.sum(damageDoneBySpells.map((s) => s.value));
@@ -275,6 +289,7 @@ export function CombatPlayer(props: IProps) {
         <div className="flex-1" />
         <ArmoryLink player={props.player} />
         <CheckPvPLink player={props.player} />
+        <SeramateLink player={props.player} />
       </div>
       <div className="mt-2">
         <AchievementBadge player={props.player} />
@@ -349,7 +364,7 @@ export function CombatPlayer(props: IProps) {
           </thead>
           <tbody>
             {damageDoneBySpells.map((d) => (
-              <tr key={d.id}>
+              <tr key={d.id + d.name}>
                 <td className="bg-base-200 flex flex-row items-center">
                   <SpellIcon spellId={d.id} size={24} />
                   <div className="ml-1">{d.name}</div>
@@ -371,7 +386,7 @@ export function CombatPlayer(props: IProps) {
               </th>
             </tr>
             {damageDoneByDest.map((d) => (
-              <tr key={d.id}>
+              <tr key={d.id + d.name}>
                 <td className="bg-base-200">
                   <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
                 </td>
@@ -392,7 +407,7 @@ export function CombatPlayer(props: IProps) {
               </th>
             </tr>
             {healsDoneBySpells.map((d) => (
-              <tr key={d.id}>
+              <tr key={d.id + d.name}>
                 <td className="bg-base-200 flex flex-row items-center">
                   <SpellIcon spellId={d.id} size={24} />
                   <div className="ml-1">{d.name}</div>
@@ -414,7 +429,7 @@ export function CombatPlayer(props: IProps) {
               </th>
             </tr>
             {healsDoneByDest.map((d) => (
-              <tr key={d.id}>
+              <tr key={d.id + d.name}>
                 <td className="bg-base-200">
                   <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
                 </td>

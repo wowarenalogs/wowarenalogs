@@ -3,6 +3,7 @@ import {
   getAnalyticsDeviceId,
   initAnalyticsAsync,
   LoadingScreen,
+  logAnalyticsEvent,
   MainLayout,
 } from '@wowarenalogs/shared';
 import { AuthProvider } from '@wowarenalogs/shared';
@@ -13,6 +14,7 @@ import { useEffect } from 'react';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 import { LocalCombatsContextProvider } from '../../hooks/LocalCombatsContext';
+import { VideoRecordingContextProvider } from '../../hooks/VideoRecordingContext';
 import TitleBar from '../TitleBar';
 
 function getAbsoluteAuthUrl(authUrl: string): string {
@@ -31,28 +33,41 @@ export const DesktopLayout = !window.wowarenalogs
       return null;
     }
   : ({ Component, pageProps }: AppProps) => {
-      const { isLoading } = useAppConfig();
+      const { isLoading, appConfig } = useAppConfig();
 
       useEffect(() => {
-        initAnalyticsAsync('G-Z6E8QS4ENW').then(() => {
+        initAnalyticsAsync('G-Z6E8QS4ENW', '650475e4b06ebfb536489356d27b60f8').then(() => {
           import('@sentry/react').then((Sentry) => {
-            import('@sentry/tracing').then(({ Integrations }) => {
-              Sentry.init({
-                dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
-                integrations: [new Integrations.BrowserTracing()],
-                tracesSampleRate: 1.0,
-                ignoreErrors: ['Non-Error promise rejection captured'],
-              });
-              const userId = getAnalyticsDeviceId();
-              if (userId) {
-                Sentry.setUser({
-                  id: userId,
-                });
-              }
+            Sentry.init({
+              dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
+              tracesSampleRate: 1.0,
+              ignoreErrors: ['Non-Error promise rejection captured'],
             });
+            const userId = getAnalyticsDeviceId();
+            if (userId) {
+              Sentry.setUser({
+                id: userId,
+              });
+            }
           });
         });
       }, []);
+
+      useEffect(() => {
+        window.wowarenalogs.obs?.videoRecorded?.((_evt, vid) => {
+          logAnalyticsEvent('event_VideoRecorded', {
+            relativeStart: vid.relativeStart,
+            duration: vid.duration,
+            compensationTime: vid.compensationTimeSeconds,
+            bracket: vid.metadata?.startInfo?.bracket,
+            startTimestamp: vid.metadata?.startInfo?.timestamp,
+            team0MMR: vid.metadata?.endInfo?.team0MMR,
+            team1MMR: vid.metadata?.endInfo?.team1MMR,
+            result: vid.metadata?.result,
+          });
+        });
+        return () => window.wowarenalogs.obs?.removeAll_videoRecorded_listeners?.();
+      });
 
       return (
         <>
@@ -81,7 +96,7 @@ export const DesktopLayout = !window.wowarenalogs
               window.wowarenalogs.links?.openExternalURL(url);
             }}
             showLoginModal={(authUrl, callback) => {
-              window.wowarenalogs.bnet
+              window.wowarenalogs?.bnet
                 ?.login(getAbsoluteAuthUrl(authUrl), 'Login')
                 .then(() => {
                   callback();
@@ -91,14 +106,17 @@ export const DesktopLayout = !window.wowarenalogs
                   // but there's nothing we need to do here.
                 });
             }}
+            localFlags={appConfig.flags || []}
           >
             <AuthProvider>
-              <LocalCombatsContextProvider>
-                <div className="w-screen h-screen flex flex-col bg-base-300 overflow-hidden">
-                  <TitleBar />
-                  <MainLayout>{isLoading ? <LoadingScreen /> : <Component {...pageProps} />}</MainLayout>
-                </div>
-              </LocalCombatsContextProvider>
+              <VideoRecordingContextProvider>
+                <LocalCombatsContextProvider>
+                  <div className="w-screen h-screen flex flex-col bg-base-300 overflow-hidden">
+                    <TitleBar />
+                    <MainLayout>{isLoading ? <LoadingScreen /> : <Component {...pageProps} />}</MainLayout>
+                  </div>
+                </LocalCombatsContextProvider>
+              </VideoRecordingContextProvider>
             </AuthProvider>
           </ClientContextProvider>
         </>

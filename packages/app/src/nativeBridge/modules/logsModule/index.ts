@@ -1,4 +1,5 @@
 import {
+  IActivityStarted,
   IArenaMatch,
   IMalformedCombatData,
   IShuffleMatch,
@@ -6,6 +7,7 @@ import {
   WoWCombatLogParser,
   WowVersion,
 } from '@wowarenalogs/parser';
+import { IBattlegroundCombat } from '@wowarenalogs/parser/dist/CombatData';
 import { BrowserWindow, dialog } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
@@ -38,9 +40,34 @@ const bridgeState: {
   },
 };
 
+const READ_TIMEOUT_MS = 60000;
+
 @nativeBridgeModule('logs')
 export class LogsModule extends NativeBridgeModule {
-  @moduleFunction()
+  protected lastChangeEventTime = new Date();
+
+  public onRegistered(mainWindow: BrowserWindow): void {
+    setInterval(() => this.checkLastViableRead(mainWindow), READ_TIMEOUT_MS - 100);
+  }
+
+  private checkLastViableRead(mainWindow: BrowserWindow) {
+    const now = new Date();
+    if (bridgeState.classic.watcher) {
+      const elapsed = now.getTime() - bridgeState.classic.watcher.lastReadDate.getTime();
+      if (elapsed > READ_TIMEOUT_MS) {
+        this.handleLogReadingTimeout(mainWindow, 'classic', elapsed);
+      }
+    }
+    if (bridgeState.retail.watcher) {
+      const elapsed = now.getTime() - bridgeState.retail.watcher.lastReadDate.getTime();
+      if (elapsed > READ_TIMEOUT_MS) {
+        this.handleLogReadingTimeout(mainWindow, 'retail', elapsed);
+      }
+    }
+    return;
+  }
+
+  @moduleFunction({ isRequired: true })
   public async importLogFiles(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
     dialog
       .showOpenDialog({
@@ -58,20 +85,29 @@ export class LogsModule extends NativeBridgeModule {
       .then((data) => {
         if (!data.canceled && data.filePaths.length > 0) {
           const logParser = new WoWCombatLogParser(wowVersion);
-          logParser.on('arena_match_ended', (combat: IArenaMatch) => {
+          logParser.on('arena_match_ended', (combat) => {
             this.handleNewCombat(mainWindow, combat);
           });
 
-          logParser.on('solo_shuffle_round_ended', (combat: IShuffleRound) => {
+          logParser.on('solo_shuffle_round_ended', (combat) => {
             this.handleSoloShuffleRoundEnded(mainWindow, combat);
           });
 
-          logParser.on('solo_shuffle_ended', (combat: IShuffleMatch) => {
+          logParser.on('solo_shuffle_ended', (combat) => {
             this.handleSoloShuffleEnded(mainWindow, combat);
           });
 
-          logParser.on('malformed_arena_match_detected', (combat: IMalformedCombatData) => {
+          logParser.on('malformed_arena_match_detected', (combat) => {
             this.handleMalformedCombatDetected(mainWindow, combat);
+          });
+
+          logParser.on('parser_error', (error: Error) => {
+            // We need to pickle the error object out here a bit to help it seralize correctly over the message bus
+            this.handleParserError(mainWindow, {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            });
           });
 
           data.filePaths.forEach((logFile) => {
@@ -81,7 +117,7 @@ export class LogsModule extends NativeBridgeModule {
       });
   }
 
-  @moduleFunction()
+  @moduleFunction({ isRequired: true })
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
     const bridge = bridgeState[wowVersion] as IBridge; // why can TS not figure this out?
     if (bridge.watcher) {
@@ -99,17 +135,24 @@ export class LogsModule extends NativeBridgeModule {
     if (!logsExist) {
       mkdirSync(wowLogsDirectoryFullPath);
     }
-    bridge.logParser.on('arena_match_ended', (combat: IArenaMatch) => {
+    bridge.logParser.on('activity_started', (event) => {
+      this.handleActivityStarted(mainWindow, event);
+    });
+    bridge.logParser.on('arena_match_ended', (combat) => {
       this.handleNewCombat(mainWindow, combat);
     });
-    bridge.logParser.on('solo_shuffle_round_ended', (combat: IShuffleRound) => {
+    bridge.logParser.on('solo_shuffle_round_ended', (combat) => {
       this.handleSoloShuffleRoundEnded(mainWindow, combat);
     });
-    bridge.logParser.on('solo_shuffle_ended', (combat: IShuffleMatch) => {
+    bridge.logParser.on('solo_shuffle_ended', (combat) => {
       this.handleSoloShuffleEnded(mainWindow, combat);
     });
-    bridge.logParser.on('malformed_arena_match_detected', (combat: IMalformedCombatData) => {
+    bridge.logParser.on('battleground_ended', (data) => this.handleBattlegroundEnded(mainWindow, data));
+    bridge.logParser.on('malformed_arena_match_detected', (combat) => {
       this.handleMalformedCombatDetected(mainWindow, combat);
+    });
+    bridge.logParser.on('parser_error', (error) => {
+      this.handleParserError(mainWindow, error);
     });
 
     const lastKnownFileStats = new Map<string, ILastKnownCombatLogState>();
@@ -168,7 +211,7 @@ export class LogsModule extends NativeBridgeModule {
     });
   }
 
-  @moduleFunction()
+  @moduleFunction({ isRequired: true })
   public async stopLogWatcher(_mainWindow: BrowserWindow) {
     bridgeState.retail.watcher?.close();
     bridgeState.retail.logParser?.removeAllListeners();
@@ -181,22 +224,42 @@ export class LogsModule extends NativeBridgeModule {
   }
 
   @moduleEvent('on')
+  public handleActivityStarted(_mainWindow: BrowserWindow, _event: IActivityStarted) {
+    return;
+  }
+
+  @moduleEvent('on', { isRequired: true })
   public handleNewCombat(_mainWindow: BrowserWindow, _combat: IArenaMatch) {
     return;
   }
 
-  @moduleEvent('on')
+  @moduleEvent('on', { isRequired: true })
   public handleSoloShuffleRoundEnded(_mainWindow: BrowserWindow, _combat: IShuffleRound) {
     return;
   }
 
-  @moduleEvent('on')
+  @moduleEvent('on', { isRequired: true })
   public handleSoloShuffleEnded(_mainWindow: BrowserWindow, _combat: IShuffleMatch) {
     return;
   }
 
   @moduleEvent('on')
+  public handleBattlegroundEnded(_mainWindow: BrowserWindow, _bg: IBattlegroundCombat) {
+    return;
+  }
+
+  @moduleEvent('on', { isRequired: true })
   public handleMalformedCombatDetected(_mainWindow: BrowserWindow, _combat: IMalformedCombatData) {
+    return;
+  }
+
+  @moduleEvent('on', { isRequired: true })
+  public handleParserError(_mainWindow: BrowserWindow, _error: Error) {
+    return;
+  }
+
+  @moduleEvent('on')
+  public handleLogReadingTimeout(_mainWindow: BrowserWindow, _wowVersion: WowVersion, _timeoutSeconds: number) {
     return;
   }
 }

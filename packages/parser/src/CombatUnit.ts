@@ -4,6 +4,7 @@ import { CombatAbsorbAction } from './actions/CombatAbsorbAction';
 import { CombatAction } from './actions/CombatAction';
 import { CombatAdvancedAction } from './actions/CombatAdvancedAction';
 import { CombatHpUpdateAction } from './actions/CombatHpUpdateAction';
+import { CombatSupportAction } from './actions/CombatSupportAction';
 import {
   CombatantInfo,
   CombatUnitAffiliation,
@@ -18,6 +19,7 @@ import { getUnitAffiliation } from './utils';
 export interface ICombatUnit {
   id: string;
   name: string;
+  ownerId: string;
   isWellFormed: boolean;
   reaction: CombatUnitReaction;
   affiliation: CombatUnitAffiliation;
@@ -27,16 +29,39 @@ export interface ICombatUnit {
   info?: CombatantInfo;
 
   damageIn: CombatHpUpdateAction[];
-  damageOut: CombatHpUpdateAction[];
+  damageOut: (CombatHpUpdateAction | CombatAbsorbAction)[];
   healIn: CombatHpUpdateAction[];
   healOut: CombatHpUpdateAction[];
 
-  // absorbsIn counts all absorbs that prevented damage on the ICombatUnit
+  /**
+   * Absorb events for absorbs that prevented damage on the ICombatUnit
+   */
   absorbsIn: CombatAbsorbAction[];
-  // absorbsOut counts shields the ICombatUnit casted
+  /**
+   * Absorb events for shields the ICombatUnit casted
+   */
   absorbsOut: CombatAbsorbAction[];
-  // absorbsDamaged counts attacks that ICombatUnit casted that hit shields instead of hp
+  /**
+   * Absorb events caused by attacks that ICombatUnit cast that hit a shield instead of hp
+   */
   absorbsDamaged: CombatAbsorbAction[];
+
+  /**
+   * Support damage events that describe damage added to a spell ICombatUnit cast
+   */
+  supportDamageIn: CombatSupportAction[];
+  /**
+   * Support damage events caused by a supporting spell cast by ICombatUnit
+   */
+  supportDamageOut: CombatSupportAction[];
+  /**
+   * Support healing events that describe healing added to a spell ICombatUnit cast
+   */
+  supportHealIn: CombatSupportAction[];
+  /**
+   * Support healing events caused by a supporting spell cast by ICombatUnit
+   */
+  supportHealOut: CombatSupportAction[];
 
   actionIn: ILogLine[];
   actionOut: ILogLine[];
@@ -62,12 +87,18 @@ export class CombatUnit implements ICombatUnit {
   public isActive = false;
 
   public damageIn: CombatHpUpdateAction[] = [];
-  public damageOut: CombatHpUpdateAction[] = [];
+  public damageOut: (CombatHpUpdateAction | CombatAbsorbAction)[] = [];
   public healIn: CombatHpUpdateAction[] = [];
   public healOut: CombatHpUpdateAction[] = [];
   public absorbsIn: CombatAbsorbAction[] = [];
   public absorbsOut: CombatAbsorbAction[] = [];
   public absorbsDamaged: CombatAbsorbAction[] = [];
+
+  public supportDamageIn: CombatSupportAction[] = [];
+  public supportDamageOut: CombatSupportAction[] = [];
+  public supportHealIn: CombatSupportAction[] = [];
+  public supportHealOut: CombatSupportAction[] = [];
+
   public actionIn: ILogLine[] = [];
   public actionOut: ILogLine[] = [];
   public auraEvents: CombatAction[] = [];

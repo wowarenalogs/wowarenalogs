@@ -1,6 +1,6 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { Storage as GoogleCloudStorage } from '@google-cloud/storage';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@wowarenalogs/sql';
 import fs from 'fs';
 import _ from 'lodash';
 import moment from 'moment';
@@ -33,6 +33,37 @@ const STATS_SCHEMA_VERSION = 3;
 const LOOKBACK_DAYS = 28;
 
 const prisma = new PrismaClient();
+
+async function generateMatchListAsync(bracket: string, ratingRange: [number, number]) {
+  console.log('generating match list...', bracket, ratingRange);
+
+  const date = moment().subtract(1, 'days').format('YYYY-MM-DD');
+
+  const resultRows = await prisma.combatStatRecord.findMany({
+    select: {
+      combatId: true,
+    },
+    where: {
+      bracket,
+      averageMMR: {
+        gte: ratingRange[0],
+        lte: ratingRange[1],
+      },
+      date,
+    },
+  });
+
+  prisma.$disconnect();
+
+  const content = JSON.stringify(resultRows, null, 2);
+  await bucket
+    .file(`data/match-lists/${bracket}/${ratingRange[0]}-${ratingRange[1]}/${moment().format('YYYY-MM-DD')}.json`)
+    .save(content, {
+      contentType: 'application/json',
+    });
+
+  console.log('Match list generated');
+}
 
 async function generateSpecStatsAsync(bracket: string, ratingRange: [number, number]) {
   console.log('generating spec stats...', bracket, ratingRange);
@@ -355,11 +386,10 @@ export async function handler(_event: unknown, _context: unknown, callback: () =
 
   for (const param of params) {
     await generateSpecStatsAsync(param[0], [param[1], param[2]]);
+    await generateMatchListAsync(param[0], [param[1], param[2]]);
   }
 
   await generateCompStatsAsync();
 
   callback();
 }
-
-exports.handler = handler;

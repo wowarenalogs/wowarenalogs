@@ -1,6 +1,7 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import { TbCaretDown, TbInfoCircle } from 'react-icons/tb';
 
 import { DownloadPromotion } from '../common/DownloadPromotion';
@@ -8,6 +9,7 @@ import { Dropdown } from '../common/Dropdown';
 import { ChartableStat } from '../CompetitiveStats/common';
 import CompStats from '../CompetitiveStats/CompStats';
 import SpecStats from '../CompetitiveStats/SpecStats';
+import TierList from '../CompetitiveStats/TierList';
 
 const SUPPORTED_BRACKETS = ['2v2', '3v3', 'Rated Solo Shuffle'];
 const RATING_RANGES = [
@@ -29,7 +31,7 @@ export const StatsPage = () => {
   const router = useRouter();
 
   const bracket = (router.query.bracket as string) ?? 'Rated Solo Shuffle';
-  const tab = (router.query.tab as string) ?? 'spec-stats';
+  const tab = (router.query.tab as string) ?? 'tier-list';
   const sortKey = (router.query.sortKey as string) ?? 'total';
   const minRating = parseInt((router.query.minRating as string) ?? '0');
   const maxRating = parseInt((router.query.maxRating as string) ?? '4999');
@@ -41,6 +43,22 @@ export const StatsPage = () => {
 
   return (
     <div className="flex flex-col px-4 py-2 w-full h-full items-stretch">
+      <NextSeo
+        title={
+          tab === 'tier-list'
+            ? `${bracket} Spec Tier List`
+            : tab === 'spec-stats'
+            ? `${bracket} Spec Leaderboard`
+            : `${bracket} Comp Leaderboard`
+        }
+        description={
+          tab === 'tier-list'
+            ? `What specs perform the best in ${bracket} matches?`
+            : tab === 'spec-stats'
+            ? `Performance statistics for ${bracket} specs.`
+            : `Performance statistics for ${bracket} comps.`
+        }
+      />
       <DownloadPromotion />
       <div className="flex flex-col md:flex-row gap-2 items-center z-50">
         <Dropdown
@@ -64,7 +82,7 @@ export const StatsPage = () => {
           </>
         </Dropdown>
         <Dropdown
-          menuItems={(tab === 'spec-stats' ? RATING_RANGES : [[0, 4999]]).map((r) => ({
+          menuItems={(tab === 'comp-stats' ? [[0, 4999]] : RATING_RANGES).map((r) => ({
             key: `${r[0]}-${r[1]}`,
             label: printRatingRange(r[0], r[1]),
             onClick: () => {
@@ -84,6 +102,20 @@ export const StatsPage = () => {
           </>
         </Dropdown>
         <div className="tabs tabs-boxed">
+          <a
+            className={`tab ${tab === 'tier-list' ? 'tab-active' : ''}`}
+            onClick={() => {
+              router.push(
+                `/stats?tab=tier-list&bracket=${bracket}&sortKey=${sortKey}&minRating=${minRating}&maxRating=${maxRating}&trendChartStat=${trendChartStat}&trendChartSpecs=${trendChartSpecs.join(
+                  `,`,
+                )}`,
+                undefined,
+                { shallow: true },
+              );
+            }}
+          >
+            Tier List
+          </a>
           <a
             className={`tab ${tab === 'spec-stats' ? 'tab-active' : ''}`}
             onClick={() => {
@@ -120,6 +152,7 @@ export const StatsPage = () => {
           <TbInfoCircle className="text-xl ml-2 cursor-pointer opacity-50 hover:opacity-100" />
         </div>
       </div>
+      {tab === 'tier-list' && <TierList activeBracket={bracket} minRating={minRating} maxRating={maxRating} />}
       {tab === 'spec-stats' && (
         <SpecStats
           activeBracket={bracket}

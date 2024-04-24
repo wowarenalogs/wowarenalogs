@@ -1,20 +1,6 @@
-import { CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
+import { ICombatUnit } from '@wowarenalogs/parser';
 
-const tanksOrHealers = [
-  CombatUnitSpec.DeathKnight_Blood,
-  CombatUnitSpec.DemonHunter_Vengeance,
-  CombatUnitSpec.Druid_Guardian,
-  CombatUnitSpec.Monk_BrewMaster,
-  CombatUnitSpec.Warrior_Protection,
-  CombatUnitSpec.Paladin_Protection,
-  CombatUnitSpec.Paladin_Holy,
-  CombatUnitSpec.Priest_Discipline,
-  CombatUnitSpec.Priest_Holy,
-  CombatUnitSpec.Shaman_Restoration,
-  CombatUnitSpec.Druid_Restoration,
-  CombatUnitSpec.Monk_Mistweaver,
-  CombatUnitSpec.Evoker_Preservation,
-];
+import { tanksOrHealers } from './utils';
 
 // DF RULES https://www.icy-veins.com/forums/topic/69530-dampening-and-healing-changes-in-dragonflight-pre-patch-phase-2-arenas/
 // Solo Shuffle - Start at 10% Dampening and after 1 minute, ramp up at a pace of 25% per minute

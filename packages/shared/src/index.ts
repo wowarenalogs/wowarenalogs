@@ -5,6 +5,7 @@ export { ClientContextProvider, useClientContext } from './hooks/ClientContext';
 export { AuthProvider } from './hooks/AuthContext';
 export { useAuth } from './hooks/AuthContext';
 export { uploadCombatAsync } from './utils/upload';
+export { canUseFeature, features } from './utils/featureFlags';
 export {
   initAnalyticsAsync,
   logAnalyticsEvent,
@@ -25,3 +26,5 @@ export { SpecSelector } from './components/MatchSearch/SpecSelector';
 export { RatingSelector } from './components/MatchSearch/RatingSelector';
 export { BracketSelector } from './components/MatchSearch/BracketSelector';
 export { ReplaySettingsProvider, useReplaySettings } from './hooks/ReplaySettingsContext';
+export * from './graphql/__generated__/graphql';
+export type { ArenaMatchMetadata, ShuffleMatchMetadata } from './types/metadata';

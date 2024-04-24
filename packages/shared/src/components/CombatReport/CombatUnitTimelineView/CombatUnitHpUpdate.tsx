@@ -28,7 +28,12 @@ interface IProps {
 export const CombatUnitHpUpdate = (props: IProps) => {
   const colorSourceUnitId =
     props.actionGroup.destUnitId === props.unit.id ? props.actionGroup.srcUnitId : props.actionGroup.destUnitId;
-  const colorSourceUnit = props.combat.units[colorSourceUnitId];
+
+  let colorSourceUnit = props.combat.units[colorSourceUnitId];
+  if (colorSourceUnit.ownerId !== '0') {
+    colorSourceUnit = props.combat.units[colorSourceUnit.ownerId];
+  }
+
   const colorSourceUnitClass = colorSourceUnit ? colorSourceUnit.class : CombatUnitClass.None;
   const totalEffectiveAmount = useMemo(
     () => _.sum(props.actionGroup.actions.map((a) => a.effectiveAmount)),

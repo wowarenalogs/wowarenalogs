@@ -110,6 +110,7 @@ const POWER_BY_SPEC: Record<CombatUnitSpec, CombatUnitPowerType> = {
 
   [CombatUnitSpec.Evoker_Devastation]: CombatUnitPowerType.Mana,
   [CombatUnitSpec.Evoker_Preservation]: CombatUnitPowerType.Mana,
+  [CombatUnitSpec.Evoker_Augmentation]: CombatUnitPowerType.Mana,
 };
 
 const MINIMUM_VALID_CAST_DURATION = 200;
@@ -212,11 +213,29 @@ export const UnitFrame = (props: IProps) => {
       }
     }
     if (sd['2050']) {
-      // 235587 Miracle Worker (Holy Word: Serenity)
-      if (props.unit.info?.pvpTalents.includes('235587')) {
+      // spell 2050: Holy Word: Serenity
+      // talent 103737: Miracle Worker (+1 charges)
+      if (props.unit.info?.talents.find((t) => t?.id2 === 103737)) {
         if (sd['2050'].charges) {
           sd['2050'].charges.charges = 2;
-          sd['2050'].cooldownSeconds = (sd['2050'].cooldownSeconds || 60) * 0.8;
+        }
+      }
+    }
+    if (sd['33206']) {
+      // 33206 pain suppression +1 charge
+      // 103714 is the talent id for protector of the frail
+      if (props.unit.info?.talents.find((t) => t?.id2 === 103714)) {
+        if (sd['33206'].charges) {
+          sd['33206'].charges.charges = 2;
+        }
+      }
+    }
+    if (sd['1966']) {
+      // 1966 feint +1 charge
+      // 117145 is the talent id for graceful guile
+      if (props.unit.info?.talents.find((t) => t?.id2 === 117145)) {
+        if (sd['1966'].charges) {
+          sd['1966'].charges.charges = 2;
         }
       }
     }

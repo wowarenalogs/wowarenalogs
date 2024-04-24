@@ -8,18 +8,15 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "start:generateSpellsData": "ts-node --files ./src/generateSpellsData.ts",
-    "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts"
+    "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts",
+    "start:simlog": "dotenv -- ts-node --files ./src/simlog.ts"
   },
   "devDependencies": {
     "@types/node": "^14.14.31",
     "@types/node-fetch": "2.3.0",
-    "eslint": "^8.28.0",
-    "eslint-config-airbnb-typescript": "^16.1.4",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-import-resolver-node": "^0.3.6",
-    "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-config-wowarenalogs": "*",
+    "dotenv": "^16.0.3",
+    "dotenv-cli": "^7.0.0",
     "ts-node": "^10.9.1"
   },
   "dependencies": {

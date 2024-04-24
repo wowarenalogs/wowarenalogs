@@ -7,7 +7,9 @@ import { TbChevronLeft, TbCopy } from 'react-icons/tb';
 
 import { zoneMetadata } from '../../data/zoneMetadata';
 import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
+import { useClientContext } from '../../hooks/ClientContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
+import { canUseFeature } from '../../utils/featureFlags';
 import { DownloadPromotion } from '../common/DownloadPromotion';
 import { CombatCC } from './CombatCC';
 import { CombatCurves } from './CombatCurves';
@@ -17,6 +19,7 @@ import { CombatPlayers } from './CombatPlayers';
 import { CombatReportContextProvider, useCombatReportContext } from './CombatReportContext';
 import { CombatScoreboard } from './CombatScoreboard';
 import { CombatSummary } from './CombatSummary';
+import { CombatVideo } from './CombatVideo';
 
 const CombatReplay = dynamic(
   () => {
@@ -27,20 +30,23 @@ const CombatReplay = dynamic(
 );
 
 interface IProps {
+  matchId: string;
+  roundId?: string;
   combat: AtomicArenaCombat;
   viewerIsOwner?: boolean;
 }
 
-export const CombatReportInternal = () => {
+export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; roundId?: string }) => {
+  const clientContext = useClientContext();
   const router = useRouter();
   const { data: user } = useGetProfileQuery();
-  const { combat, activeTab, setActiveTab, activePlayerId } = useCombatReportContext();
+  const { combat, activeTab, setActiveTab, activePlayerId, viewerIsOwner } = useCombatReportContext();
 
   const [urlCopied, setUrlCopied] = useState(false);
   const reportUrl = useMemo(() => {
-    const url = `https://wowarenalogs.com/match?id=${combat?.id}`;
+    const url = `https://wowarenalogs.com/match?id=${matchId}&roundId=${roundId}`;
     return url;
-  }, [combat]);
+  }, [matchId, roundId]);
 
   useEffect(() => {
     if (combat) {
@@ -141,7 +147,17 @@ export const CombatReportInternal = () => {
             Scoreboard
           </a>
         )}
-        {user?.me?.tags?.includes('rawlogs') && (
+        {clientContext.isDesktop && viewerIsOwner && (
+          <a
+            className={`tab ${activeTab === 'video' ? 'tab-active' : ''}`}
+            onClick={() => {
+              setActiveTab('video');
+            }}
+          >
+            Video
+          </a>
+        )}
+        {canUseFeature('rawlogs', user, clientContext.localFlags) && (
           <a
             className={`tab ${activeTab === 'logview' ? 'tab-active' : ''}`}
             onClick={() => {
@@ -161,6 +177,7 @@ export const CombatReportInternal = () => {
           {activeTab === 'curves' && <CombatCurves />}
           {activeTab === 'replay' && <CombatReplay />}
           {activeTab === 'scoreboard' && <CombatScoreboard />}
+          {activeTab === 'video' && <CombatVideo />}
           {activeTab === 'logview' && <CombatLogView />}
         </div>
       </div>
@@ -198,10 +215,10 @@ export const CombatReportInternal = () => {
   );
 };
 
-export const CombatReport = ({ combat, viewerIsOwner }: IProps) => {
+export const CombatReport = ({ combat, viewerIsOwner, matchId, roundId }: IProps) => {
   return (
     <CombatReportContextProvider combat={combat} viewerIsOwner={viewerIsOwner || false}>
-      <CombatReportInternal />
+      <CombatReportInternal matchId={matchId} roundId={roundId} />
     </CombatReportContextProvider>
   );
 };

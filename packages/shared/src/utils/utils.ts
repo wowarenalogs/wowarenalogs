@@ -35,6 +35,26 @@ type ParseResult = {
 
 export const SIGNIFICANT_DAMAGE_HEAL_THRESHOLD = 10000;
 
+export const healerSpecs = [
+  CombatUnitSpec.Paladin_Holy,
+  CombatUnitSpec.Priest_Discipline,
+  CombatUnitSpec.Priest_Holy,
+  CombatUnitSpec.Shaman_Restoration,
+  CombatUnitSpec.Druid_Restoration,
+  CombatUnitSpec.Monk_Mistweaver,
+  CombatUnitSpec.Evoker_Preservation,
+];
+export const tankSpecs = [
+  CombatUnitSpec.Druid_Guardian,
+  CombatUnitSpec.Monk_BrewMaster,
+  CombatUnitSpec.Warrior_Protection,
+  CombatUnitSpec.Paladin_Protection,
+  CombatUnitSpec.DemonHunter_Vengeance,
+  CombatUnitSpec.DeathKnight_Blood,
+];
+
+export const tanksOrHealers = [...healerSpecs, ...tankSpecs];
+
 export class Utils {
   public static parseFromStringArray(buffer: string[], wowVersion: WowVersion, timezone?: string): ParseResult {
     const logParser = new WoWCombatLogParser(wowVersion, timezone);
@@ -51,6 +71,7 @@ export class Utils {
     logParser.on('solo_shuffle_ended', (data: IShuffleMatch) => {
       results.shuffleMatches.push(data);
     });
+    // TODO: handle onError here?
 
     for (const line of buffer) {
       logParser.parseLine(line);
@@ -120,6 +141,7 @@ export class Utils {
         return CombatUnitClass.DemonHunter;
       case CombatUnitSpec.Evoker_Devastation:
       case CombatUnitSpec.Evoker_Preservation:
+      case CombatUnitSpec.Evoker_Augmentation:
         return CombatUnitClass.Evoker;
       default:
         return CombatUnitClass.None;

@@ -177,6 +177,21 @@ query GetProfile {
   }
 }
 
+query GetUserCharacters {
+  myCharacters {
+    characterName
+    guid
+    specId
+    bracketStats {
+      bracket
+      highestRating
+      latestRating
+      wins
+      losses
+    }
+  }
+}
+
 mutation SetUserReferrer($referrer: String) {
   setUserReferrer(referrer: $referrer) {
     id

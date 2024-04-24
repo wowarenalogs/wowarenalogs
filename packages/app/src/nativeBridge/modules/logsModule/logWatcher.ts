@@ -3,6 +3,7 @@ import { FSWatcher, watch } from 'fs';
 import { join } from 'path';
 
 abstract class LogWatcher {
+  public lastReadDate = new Date();
   constructor(protected wowDirectory: string) {}
   abstract onChange(handler: (fileName: string) => void): void;
   abstract close(): void;
@@ -19,6 +20,7 @@ class WindowsLogWatcher extends LogWatcher {
 
   onChange(handler: (fileName: string) => void): void {
     this.watcher.on('change', (eventType: string, fileName: string) => {
+      this.lastReadDate = new Date();
       if (eventType === 'rename') {
         // rename fires on new-file-creation and file-deletion
         // however-- a 'change' event *also* fires when the bytes are written
@@ -56,6 +58,7 @@ class MacLogWatcher extends LogWatcher {
 
   onChange(handler: (fileName: string) => void): void {
     this.watcher.on('change', (fileName) => {
+      this.lastReadDate = new Date();
       if (fileName.indexOf('WoWCombatLog') < 0) {
         return;
       }
@@ -68,7 +71,34 @@ class MacLogWatcher extends LogWatcher {
   }
 }
 
+class LinuxLogWatcher extends LogWatcher {
+  private watcher: FSWatcher;
+
+  constructor(wowDirectory: string) {
+    super(wowDirectory);
+    const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
+    this.watcher = watch(wowLogsDirectoryFullPath);
+  }
+
+  onChange(handler: (fileName: string) => void): void {
+    this.watcher.on('change', (_eventType: string, fileName: string) => {
+      this.lastReadDate = new Date();
+      if (typeof fileName !== 'string' || fileName.indexOf('WoWCombatLog') < 0) {
+        return;
+      }
+      handler(fileName);
+    });
+  }
+
+  close(): void {
+    this.watcher.close();
+  }
+}
+
 export const createLogWatcher = (wowDirectory: string, platform: string) => {
-  const isMac = platform === 'darwin';
-  return isMac ? new MacLogWatcher(wowDirectory) : new WindowsLogWatcher(wowDirectory);
+  return platform === 'darwin'
+    ? new MacLogWatcher(wowDirectory)
+    : platform === 'linux'
+    ? new LinuxLogWatcher(wowDirectory)
+    : new WindowsLogWatcher(wowDirectory);
 };

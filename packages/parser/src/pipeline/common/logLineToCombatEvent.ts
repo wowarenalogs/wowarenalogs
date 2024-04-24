@@ -9,10 +9,11 @@ import { CombatAdvancedAction } from '../../actions/CombatAdvancedAction';
 import { CombatantInfoAction } from '../../actions/CombatantInfoAction';
 import { CombatExtraSpellAction } from '../../actions/CombatExtraSpellAction';
 import { CombatHpUpdateAction } from '../../actions/CombatHpUpdateAction';
+import { CombatSupportAction } from '../../actions/CombatSupportAction';
 import { PartyKill } from '../../actions/PartyKill';
 import { SpellAuraBrokenSpell } from '../../actions/SpellAuraBrokenSpell';
 import { ZoneChange } from '../../actions/ZoneChange';
-import { logInfo } from '../../logger';
+import { logInfo, logTrace } from '../../logger';
 import { CombatEvent, ILogLine, LogEvent, WowVersion } from '../../types';
 
 export const logLineToCombatEvent = (wowVersion: WowVersion) => {
@@ -38,6 +39,14 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
           case LogEvent.SPELL_PERIODIC_HEAL:
           case LogEvent.SWING_DAMAGE_LANDED:
             return new CombatHpUpdateAction(logLine, wowVersion);
+          case LogEvent.SPELL_DAMAGE_SUPPORT:
+          case LogEvent.SPELL_PERIODIC_DAMAGE_SUPPORT:
+          case LogEvent.SPELL_HEAL_SUPPORT:
+          case LogEvent.SPELL_PERIODIC_HEAL_SUPPORT:
+          case LogEvent.RANGE_DAMAGE_SUPPORT:
+          case LogEvent.SWING_DAMAGE_SUPPORT:
+          case LogEvent.SWING_DAMAGE_LANDED_SUPPORT:
+            return new CombatSupportAction(logLine, wowVersion);
           case LogEvent.SPELL_ABSORBED:
             return new CombatAbsorbAction(logLine, wowVersion);
           case LogEvent.SPELL_AURA_BROKEN_SPELL:
@@ -73,6 +82,7 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
           case LogEvent.ZONE_CHANGE:
             return new ZoneChange(logLine);
           default:
+            logTrace(logLine.event);
             return logLine.raw;
         }
       } catch (e) {

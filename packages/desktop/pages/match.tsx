@@ -12,22 +12,28 @@ const Page = () => {
   const localCombatsLookup = useMemo(() => {
     const lookup = new Map<string, AtomicArenaCombat>();
     localCombats.forEach((c) => {
-      lookup.set(c.id, c);
+      lookup.set(`${c.id}+${c.dataType == 'ShuffleRound' ? c.sequenceNumber + 1 : ''}`, c);
     });
     return lookup;
   }, [localCombats]);
 
-  const { id, viewerIsOwner } = router.query;
+  const { id, viewerIsOwner, roundId } = router.query;
   if (!id || typeof id !== 'string') {
     return null;
   }
 
-  const localCombat = localCombatsLookup.get(id);
+  const localCombat = localCombatsLookup.get(`${id}+${roundId ? roundId : ''}`);
   if (localCombat) {
-    return <CombatReport viewerIsOwner={false} combat={localCombat} />;
+    return <CombatReport viewerIsOwner={true} combat={localCombat} matchId={localCombat.id} />;
   }
 
-  return <CombatReportFromStorage id={id} viewerIsOwner={viewerIsOwner === 'true'} />;
+  return (
+    <CombatReportFromStorage
+      id={id}
+      viewerIsOwner={viewerIsOwner === 'true'}
+      roundId={roundId ? roundId.toString() : undefined}
+    />
+  );
 };
 
 export default Page;

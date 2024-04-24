@@ -42,7 +42,8 @@ function computeChargeInfo(
   if (last > -1) {
     timecredit += (currentTimeOffset - castsOfThis[last].startTimeOffset) / 1000;
   }
-  const chargesRemaining = Math.floor(timecredit / cooldown);
+
+  const chargesRemaining = Math.max(0, Math.floor(timecredit / cooldown));
 
   if (chargesRemaining) {
     return {
@@ -61,7 +62,7 @@ function computePercentCDRemaining(
   currentTimeOffset: number,
   spellData: Record<string, IMinedSpell>,
 ): { cooldown: CooldownInfo; lastCastTimestampOffset?: number } {
-  const cooldown = spellData[spellId]?.cooldownSeconds || spellData[spellId]?.charges?.chargeCooldownSeconds || 30;
+  const cooldown = spellData[spellId]?.charges?.chargeCooldownSeconds || spellData[spellId]?.cooldownSeconds || 29.9;
   const charges = spellData[spellId]?.charges?.charges;
   if (charges && charges > 1) {
     return {
@@ -76,7 +77,6 @@ function computePercentCDRemaining(
   if (!lastCast) {
     return { cooldown: { charges } };
   }
-
   if (lastCast.startTimeOffset > currentTimeOffset) {
     return { cooldown: { charges }, lastCastTimestampOffset: lastCast.startTimeOffset };
   }
@@ -84,6 +84,7 @@ function computePercentCDRemaining(
   if (timeCooling > 1000 * cooldown) {
     return { cooldown: { charges }, lastCastTimestampOffset: lastCast.startTimeOffset };
   }
+
   return {
     cooldown: { cooldownPercent: timeCooling / (cooldown * 1000) },
     lastCastTimestampOffset: lastCast.startTimeOffset,
@@ -101,6 +102,7 @@ export const UnitSpellTracker = (props: IUnitFrameRenderData) => {
           props.currentTimeOffset,
           props.spellData,
         );
+
         const cooldownInfo = cdrInfo.cooldown;
         const spellMaxCharges = props.spellData[spellId]?.charges?.charges || 0;
         const shouldShowCharges = spellMaxCharges > 1;
