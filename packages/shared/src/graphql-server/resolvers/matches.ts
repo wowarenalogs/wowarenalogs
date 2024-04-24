@@ -116,9 +116,9 @@ export async function recentMatchesWithCombatant(
 ) {
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
-    .where('combatantNames', 'array-contains', args.combatantName)
+    .where('combatantNames', 'array-contains', `${args.combatantName}-${args.serverName}`)
     .orderBy('startTime', 'desc')
-    .limit(5)
+    .limit(10)
     .get();
   const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
   return matches;
