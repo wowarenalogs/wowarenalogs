@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import ElectronStore from 'electron-store';
 import path from 'path';
 import { EventEmitter } from 'stream';
@@ -17,6 +16,8 @@ export default class ConfigService extends EventEmitter {
   });
 
   private unSubscribe: ReturnType<typeof this._store.onDidAnyChange> | null = null;
+
+  public static logger: Console = console;
 
   /**
    * Get the instance of the class as a singleton.
@@ -64,7 +65,7 @@ export default class ConfigService extends EventEmitter {
 
     this.cleanupStore();
 
-    console.log('[Config Service] Using configuration', this._store.store);
+    ConfigService.logger.log('[Config Service] Using configuration', this._store.store);
 
     // this._store.onDidAnyChange((newValue: any, oldValue: any) => {
     //   this.emit('configChanged', oldValue, newValue);
@@ -144,7 +145,7 @@ export default class ConfigService extends EventEmitter {
     // trying to remove keys that _don't_ exist in the schema.
     keysToDelete.forEach((k) => this._store.delete(k));
 
-    console.log('[Config Service] Deleted deprecated keys from configuration store', keysToDelete);
+    ConfigService.logger.log('[Config Service] Deleted deprecated keys from configuration store', keysToDelete);
   }
 
   /**
@@ -160,6 +161,6 @@ export default class ConfigService extends EventEmitter {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static logConfigChanged(newConfig: { [key: string]: any }): void {
-    console.log('[Config Service] Configuration changed:', newConfig);
+    ConfigService.logger.log('[Config Service] Configuration changed:', newConfig);
   }
 }

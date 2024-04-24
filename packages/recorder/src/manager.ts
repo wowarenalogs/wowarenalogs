@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { app, BrowserWindow, ipcMain, powerMonitor } from 'electron';
 import fs from 'fs';
 import { isEqual } from 'lodash';
@@ -18,7 +17,9 @@ import { ERecordingState } from './obsEnums';
 // import { uIOhook } from 'uiohook-napi';
 import Poller from './poller';
 import { Recorder } from './recorder';
+import SizeMonitor from './sizeMonitor';
 import { ConfigStage, ObsAudioConfig, ObsBaseConfig, ObsOverlayConfig, ObsVideoConfig, StorageConfig } from './types';
+import VideoProcessQueue from './videoProcessQueue';
 
 /**
  * The manager class is responsible for orchestrating all the functional
@@ -54,7 +55,17 @@ export class Manager {
 
   private overlayCfg: ObsOverlayConfig = getOverlayConfig(this.cfg);
 
+  public static logger: Console = console;
+
   public messageBus: ManagerMessageBus;
+
+  public static configureLogging(logger: Console) {
+    Manager.logger = logger;
+    Recorder.logger = logger;
+    VideoProcessQueue.logger = logger;
+    ConfigService.logger = logger;
+    SizeMonitor.logger = logger;
+  }
 
   /**
    * Defined stages of configuration. They are named only for logging
@@ -108,7 +119,7 @@ export class Manager {
    * Constructor.
    */
   constructor(mainWindow: BrowserWindow) {
-    console.info('[Manager] Creating manager');
+    Manager.logger.info('[Manager] Creating manager');
     this.messageBus = new ManagerMessageBus();
     this.setupListeners();
 
@@ -131,7 +142,7 @@ export class Manager {
    */
   public async manage() {
     if (this.active) {
-      console.info('[Manager] Queued a manage call');
+      Manager.logger.info('[Manager] Queued a manage call');
       this.queued = true;
       return;
     }
@@ -140,7 +151,7 @@ export class Manager {
     await this.internalManage();
 
     if (this.queued) {
-      console.info('[Manager] Execute a queued manage call');
+      Manager.logger.info('[Manager] Execute a queued manage call');
       this.queued = false;
       await this.internalManage();
     }
@@ -153,7 +164,7 @@ export class Manager {
    * validates the new config and then applies it.
    */
   private async internalManage() {
-    console.info('[Manager] Internal manage');
+    Manager.logger.info('[Manager] Internal manage');
 
     for (let i = 0; i < this.stages.length; i++) {
       const stage = this.stages[i];
@@ -170,7 +181,7 @@ export class Manager {
       }
 
       if (stage.initial || configChanged) {
-        console.info('[Manager] Configuring stage', stage.name, 'with', newConfig);
+        Manager.logger.info('[Manager] Configuring stage', stage.name, 'with', newConfig);
 
         // eslint-disable-next-line no-await-in-loop
         await stage.configure(newConfig);
@@ -201,7 +212,7 @@ export class Manager {
    * the audio sources and starts the buffer recording.
    */
   private async onWowStarted() {
-    console.info('[Manager] Detected WoW running, or Windows active again');
+    Manager.logger.info('[Manager] Detected WoW running, or Windows active again');
     const config = getObsAudioConfig(this.cfg);
     this.recorder.configureAudioSources(config);
     await this.recorder.startBuffer();
@@ -213,7 +224,7 @@ export class Manager {
    * allow Windows to go to sleep with WR running.
    */
   private async onWowStopped() {
-    console.info('[Manager] Detected WoW not running, or Windows going inactive');
+    Manager.logger.info('[Manager] Detected WoW not running, or Windows going inactive');
 
     if (this.recorder) {
       await this.recorder.stopBuffer();
@@ -254,7 +265,7 @@ export class Manager {
 
   private async configureObsBase(config: ObsBaseConfig) {
     if (this.recorder.isRecording) {
-      console.error('[Manager] Invalid request from frontend');
+      Manager.logger.error('[Manager] Invalid request from frontend');
       throw new Error('[Manager] Invalid request from frontend');
     }
 
@@ -298,13 +309,13 @@ export class Manager {
     const { storagePath } = config;
 
     if (!storagePath) {
-      console.warn('[Manager] Validation failed: `storagePath` is falsy', storagePath);
+      Manager.logger.warn('[Manager] Validation failed: `storagePath` is falsy', storagePath);
 
       throw new Error('Storage path is invalid.');
     }
 
     if (!fs.existsSync(path.dirname(storagePath))) {
-      console.warn('[Manager] Validation failed, storagePath does not exist', storagePath);
+      Manager.logger.warn('[Manager] Validation failed, storagePath does not exist', storagePath);
 
       throw new Error('Storage Path is invalid.');
     }
@@ -319,13 +330,13 @@ export class Manager {
     const { bufferStoragePath } = config;
 
     if (!bufferStoragePath) {
-      console.warn('[Manager] Validation failed: `bufferStoragePath` is falsy', bufferStoragePath);
+      Manager.logger.warn('[Manager] Validation failed: `bufferStoragePath` is falsy', bufferStoragePath);
 
       throw new Error('Buffer Storage Path is invalid.');
     }
 
     if (!fs.existsSync(path.dirname(bufferStoragePath))) {
-      console.warn('[Manager] Validation failed, bufferStoragePath does not exist', bufferStoragePath);
+      Manager.logger.warn('[Manager] Validation failed, bufferStoragePath does not exist', bufferStoragePath);
 
       throw new Error('Buffer Storage Path is invalid.');
     }
@@ -333,7 +344,7 @@ export class Manager {
     const storagePath = this.cfg.get<string>('storagePath');
 
     if (storagePath === bufferStoragePath) {
-      console.warn('[Manager] Validation failed: Storage Path is the same as Buffer Path');
+      Manager.logger.warn('[Manager] Validation failed: Storage Path is the same as Buffer Path');
 
       throw new Error('Storage Path is the same as Buffer Path');
     }
@@ -385,7 +396,7 @@ export class Manager {
     // the installer we want to ensure we shutdown OBS, this is common when
     // upgrading the app. See issue 325 and 338.
     app.on('before-quit', () => {
-      console.info('[Manager] Running before-quit actions');
+      Manager.logger.info('[Manager] Running before-quit actions');
       this.recorder.shutdownOBS();
       // uIOhook.stop(); // TODO: fix uiohook
     });
@@ -394,12 +405,12 @@ export class Manager {
     // recording as if WoW has been closed, and resume it once Windows has
     // resumed.
     powerMonitor.on('suspend', () => {
-      console.info('[Manager] Detected Windows is going to sleep.');
+      Manager.logger.info('[Manager] Detected Windows is going to sleep.');
       this.onWowStopped();
     });
 
     powerMonitor.on('resume', () => {
-      console.log('[Manager] Detected Windows waking up from a sleep.');
+      Manager.logger.log('[Manager] Detected Windows waking up from a sleep.');
       this.poller.start();
     });
   }

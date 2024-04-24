@@ -5,9 +5,13 @@ import { BrowserWindow, dialog } from 'electron';
 import { readdir, readFile } from 'fs-extra';
 import path from 'path';
 
+import { logger } from '../../logger';
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
 
 const DISK_SPACE_THRESHOLD = 2e9; // ~2gb
+
+// Static method to inject logger across OBS modules that will need it
+Manager.configureLogging(logger);
 
 @nativeBridgeModule('obs')
 export class ObsModule extends NativeBridgeModule {

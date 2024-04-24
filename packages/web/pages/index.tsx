@@ -26,7 +26,7 @@ const Home: NextPage = () => {
             <div className="flex flex-row gap-x-4">
               <a
                 className={`btn ${os === 'windows' ? 'btn-primary' : ''}`}
-                href="https://storage.googleapis.com/download.wowarenalogs.com/desktop-client/latest-windows.zip"
+                href="https://storage.googleapis.com/download.wowarenalogs.com/desktop-client/latest-windows.exe"
                 target="_blank"
                 rel="noreferrer"
               >
