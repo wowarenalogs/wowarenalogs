@@ -93,5 +93,9 @@ export const modulesApi = {
     videoRecorded: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
       ipcRenderer.on('wowarenalogs:obs:videoRecorded', callback),
     removeAll_videoRecorded_listeners: () => ipcRenderer.removeAllListeners('wowarenalogs:obs:videoRecorded'),
+    diskSpaceBecameCritical: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:obs:diskSpaceBecameCritical', callback),
+    removeAll_diskSpaceBecameCritical_listeners: () =>
+      ipcRenderer.removeAllListeners('wowarenalogs:obs:diskSpaceBecameCritical'),
   },
 };
