@@ -7,6 +7,7 @@ import path from 'path';
 import { WowVersion } from '../../parser/dist/index';
 import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from './createMatchStub';
 import { logCombatStatsAsync, parseFromStringArrayAsync } from './utils';
+import { reportMatch } from './webhook';
 
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
 
@@ -55,6 +56,7 @@ export async function handler(file: any, _context: any) {
     await document.set(instanceToPlain(stub));
     try {
       await logCombatStatsAsync(arenaMatch, stub, ownerId);
+      await reportMatch(stub);
     } catch (e) {
       console.error(e);
     }
@@ -70,6 +72,7 @@ export async function handler(file: any, _context: any) {
       await document.set(instanceToPlain(stub));
       try {
         await logCombatStatsAsync(round, stub, ownerId);
+        await reportMatch(stub);
       } catch (e) {
         console.error(e);
       }
