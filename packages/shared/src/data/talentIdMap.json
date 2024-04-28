@@ -18337,7 +18337,7 @@
             "id": 103777,
             "definitionId": 108782,
             "maxRanks": 1,
-            "type": "active",
+            "type": "passive",
             "name": "Empyreal Blaze",
             "spellId": 372616,
             "icon": "ability_priest_empyrealblaze",
@@ -18653,7 +18653,7 @@
         "posY": 4500,
         "reqPoints": 8,
         "maxRanks": 1,
-        "next": [82627],
+        "next": [82627, 82628],
         "prev": [82625],
         "entries": [
           {
@@ -18698,14 +18698,14 @@
         "posX": 12300,
         "posY": 4500,
         "reqPoints": 8,
-        "maxRanks": 2,
+        "maxRanks": 1,
         "next": [82614],
         "prev": [82621],
         "entries": [
           {
             "id": 103747,
             "definitionId": 108752,
-            "maxRanks": 2,
+            "maxRanks": 1,
             "type": "passive",
             "name": "Gales of Song",
             "spellId": 372370,
@@ -18745,7 +18745,7 @@
         "posY": 4500,
         "reqPoints": 8,
         "maxRanks": 1,
-        "next": [82616],
+        "next": [82616, 82615],
         "prev": [82641],
         "entries": [
           {
@@ -18837,8 +18837,8 @@
         "posY": 5700,
         "reqPoints": 20,
         "maxRanks": 1,
-        "next": [82604, 82609],
-        "prev": [82627],
+        "next": [82604, 82629],
+        "prev": [82627, 82626],
         "entries": [
           {
             "id": 103763,
@@ -18860,7 +18860,7 @@
         "posY": 5700,
         "reqPoints": 20,
         "maxRanks": 1,
-        "next": [82609, 82629, 82611],
+        "next": [82629, 82608, 82611],
         "prev": [82627, 82614],
         "entries": [
           {
@@ -18887,33 +18887,23 @@
       },
       {
         "id": 82612,
-        "name": "Empowered Renew / Rapid Recovery",
-        "type": "choice",
+        "name": "Miracle Worker",
+        "type": "single",
         "posX": 12900,
         "posY": 5700,
         "reqPoints": 20,
         "maxRanks": 1,
-        "next": [82611, 82606],
+        "next": [82611, 82609],
         "prev": [82614, 82616],
         "entries": [
-          {
-            "id": 103746,
-            "definitionId": 108751,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Empowered Renew",
-            "spellId": 391339,
-            "icon": "ability_paladin_infusionoflight",
-            "index": 100
-          },
           {
             "id": 103745,
             "definitionId": 108750,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Rapid Recovery",
-            "spellId": 391368,
-            "icon": "spell_holy_renew",
+            "name": "Miracle Worker",
+            "spellId": 235587,
+            "icon": "spell_holy_persuitofjustice",
             "index": 200
           }
         ]
@@ -18926,8 +18916,8 @@
         "posY": 5700,
         "reqPoints": 20,
         "maxRanks": 1,
-        "next": [82606, 82608],
-        "prev": [82616],
+        "next": [82609, 82606],
+        "prev": [82616, 82642],
         "entries": [
           {
             "id": 103749,
@@ -18965,8 +18955,8 @@
         ]
       },
       {
-        "id": 82609,
-        "name": "Desperate Times",
+        "id": 82629,
+        "name": "Light of the Naaru",
         "type": "single",
         "posX": 11100,
         "posY": 6300,
@@ -18974,29 +18964,6 @@
         "maxRanks": 2,
         "next": [82603],
         "prev": [82628, 82610],
-        "entries": [
-          {
-            "id": 103741,
-            "definitionId": 108746,
-            "maxRanks": 2,
-            "type": "passive",
-            "name": "Desperate Times",
-            "spellId": 391381,
-            "icon": "ability_pvp_defenderoftheweak",
-            "index": 100
-          }
-        ]
-      },
-      {
-        "id": 82629,
-        "name": "Light of the Naaru",
-        "type": "single",
-        "posX": 11700,
-        "posY": 6300,
-        "reqPoints": 20,
-        "maxRanks": 2,
-        "next": [82554],
-        "prev": [82610],
         "entries": [
           {
             "id": 103764,
@@ -19011,61 +18978,15 @@
         ]
       },
       {
-        "id": 82611,
-        "name": "Harmonious Apparatus",
+        "id": 82608,
+        "name": "Answered Prayers",
         "type": "single",
-        "posX": 12300,
+        "posX": 11700,
         "posY": 6300,
         "reqPoints": 20,
         "maxRanks": 2,
         "next": [82554],
-        "prev": [82612, 82610],
-        "entries": [
-          {
-            "id": 103744,
-            "definitionId": 108749,
-            "maxRanks": 2,
-            "type": "passive",
-            "name": "Harmonious Apparatus",
-            "spellId": 390994,
-            "icon": "spell_holy_serendipity",
-            "index": 100
-          }
-        ]
-      },
-      {
-        "id": 82606,
-        "name": "Epiphany",
-        "type": "single",
-        "posX": 13500,
-        "posY": 6300,
-        "reqPoints": 20,
-        "maxRanks": 2,
-        "next": [82605],
-        "prev": [82612, 82615],
-        "entries": [
-          {
-            "id": 103738,
-            "definitionId": 108743,
-            "maxRanks": 2,
-            "type": "passive",
-            "name": "Epiphany",
-            "spellId": 414553,
-            "icon": "ability_mage_studentofthemind",
-            "index": 100
-          }
-        ]
-      },
-      {
-        "id": 82608,
-        "name": "Answered Prayers",
-        "type": "single",
-        "posX": 14100,
-        "posY": 6300,
-        "reqPoints": 20,
-        "maxRanks": 2,
-        "next": [82605],
-        "prev": [82615],
+        "prev": [82610],
         "entries": [
           {
             "id": 103740,
@@ -19080,6 +19001,75 @@
         ]
       },
       {
+        "id": 82611,
+        "name": "Voice of Harmony",
+        "type": "single",
+        "posX": 12300,
+        "posY": 6300,
+        "reqPoints": 20,
+        "maxRanks": 2,
+        "next": [82554],
+        "prev": [82612, 82610],
+        "entries": [
+          {
+            "id": 103744,
+            "definitionId": 108749,
+            "maxRanks": 2,
+            "type": "passive",
+            "name": "Voice of Harmony",
+            "spellId": 390994,
+            "icon": "ability_priest_heavanlyvoice",
+            "index": 100
+          }
+        ]
+      },
+      {
+        "id": 82609,
+        "name": "Desperate Times",
+        "type": "single",
+        "posX": 13500,
+        "posY": 6300,
+        "reqPoints": 20,
+        "maxRanks": 2,
+        "next": [82605],
+        "prev": [82615, 82612],
+        "entries": [
+          {
+            "id": 103741,
+            "definitionId": 108746,
+            "maxRanks": 2,
+            "type": "passive",
+            "name": "Desperate Times",
+            "spellId": 391381,
+            "icon": "ability_pvp_defenderoftheweak",
+            "index": 100
+          }
+        ]
+      },
+      {
+        "id": 82606,
+        "name": "Epiphany",
+        "type": "single",
+        "posX": 14100,
+        "posY": 6300,
+        "reqPoints": 20,
+        "maxRanks": 2,
+        "next": [82605],
+        "prev": [82615],
+        "entries": [
+          {
+            "id": 103738,
+            "definitionId": 108743,
+            "maxRanks": 2,
+            "type": "passive",
+            "name": "Epiphany",
+            "spellId": 414553,
+            "icon": "ability_mage_studentofthemind",
+            "index": 100
+          }
+        ]
+      },
+      {
         "id": 82603,
         "name": "Lightweaver / Lightwell",
         "type": "choice",
@@ -19088,7 +19078,7 @@
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [],
-        "prev": [82609, 82604],
+        "prev": [82629, 82604],
         "entries": [
           {
             "id": 103734,
@@ -19114,66 +19104,56 @@
       },
       {
         "id": 82554,
-        "name": "Divine Image / Divine Word",
-        "type": "choice",
+        "name": "Divine Image",
+        "type": "single",
         "posX": 12300,
         "posY": 6900,
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [],
-        "prev": [82629, 82611],
+        "prev": [82611, 82608],
         "entries": [
           {
-            "id": 103736,
-            "definitionId": 108741,
+            "id": 103675,
+            "definitionId": 108680,
             "maxRanks": 1,
             "type": "passive",
             "name": "Divine Image",
             "spellId": 392988,
             "icon": "inv_staff_2h_artifactheartofkure_d_04",
-            "index": 100
-          },
-          {
-            "id": 103675,
-            "definitionId": 108680,
-            "maxRanks": 1,
-            "type": "active",
-            "name": "Divine Word",
-            "spellId": 372760,
-            "icon": "spell_priest_chakra",
             "index": 200
           }
         ]
       },
       {
         "id": 82605,
-        "name": "Miracle Worker / Restitution",
+        "name": "Restitution / Divine Word",
         "type": "choice",
         "posX": 13500,
         "posY": 6900,
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [],
-        "prev": [82606, 82608],
+        "prev": [82606, 82609],
         "entries": [
           {
             "id": 103737,
             "definitionId": 108742,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Miracle Worker",
-            "spellId": 235587,
-            "icon": "spell_holy_persuitofjustice",
+            "name": "Restitution",
+            "spellId": 391124,
+            "icon": "inv_staff_2h_artifactheartofkure_d_03",
             "index": 100
           },
           {
             "id": 103676,
             "definitionId": 108681,
             "maxRanks": 1,
-            "type": "passive",
-            "name": "Restitution",
-            "spellId": 391124,
-            "icon": "inv_staff_2h_artifactheartofkure_d_03",
+            "type": "active",
+            "name": "Divine Word",
+            "spellId": 372760,
+            "icon": "spell_priest_chakra",
             "index": 200
           }
         ]
@@ -39486,7 +39466,7 @@
         "posY": 3600,
         "reqPoints": 8,
         "maxRanks": 2,
-        "next": [81092, 81084, 81066],
+        "next": [81092, 95253, 81066],
         "prev": [81100],
         "entries": [
           {
@@ -39509,7 +39489,7 @@
         "posY": 3600,
         "reqPoints": 8,
         "maxRanks": 1,
-        "next": [81084],
+        "next": [95253],
         "prev": [92682, 81100],
         "entries": [
           {
@@ -39532,7 +39512,7 @@
         "posY": 3600,
         "reqPoints": 8,
         "maxRanks": 1,
-        "next": [81084, 81081],
+        "next": [95253, 81081],
         "prev": [92682, 81069, 81070],
         "entries": [
           {
@@ -39627,7 +39607,7 @@
         ]
       },
       {
-        "id": 81084,
+        "id": 95253,
         "name": "Elemental Warding",
         "type": "single",
         "posX": 3000,
@@ -39635,11 +39615,11 @@
         "reqPoints": 8,
         "maxRanks": 2,
         "next": [81066, 81097, 81102],
-        "prev": [81075, 81101, 81082],
+        "prev": [81082, 81075, 81101],
         "entries": [
           {
-            "id": 101978,
-            "definitionId": 106978,
+            "id": 117910,
+            "definitionId": 122922,
             "maxRanks": 2,
             "type": "passive",
             "name": "Elemental Warding",
@@ -39737,7 +39717,7 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [81065, 81102],
-        "prev": [81101, 81084, 81092],
+        "prev": [81101, 81092, 95253],
         "entries": [
           {
             "id": 101955,
@@ -39760,7 +39740,7 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [81102, 81080, 81096],
-        "prev": [81081, 81084],
+        "prev": [81081, 95253],
         "entries": [
           {
             "id": 101995,
@@ -39872,7 +39852,7 @@
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [81103],
-        "prev": [81097, 81066, 81084],
+        "prev": [81097, 81066, 95253],
         "entries": [
           {
             "id": 102000,
@@ -41096,7 +41076,7 @@
       81052, 81054, 81055, 81056, 81057, 81058, 81059, 81060, 81061, 81062, 81063, 81064, 81065, 81066, 81067, 81068,
       81069, 81070, 81071, 81072, 81073, 81074, 81075, 81076, 81078, 81079, 81080, 81081, 81082, 81084, 81085, 81086,
       81087, 81088, 81089, 81090, 81091, 81092, 81093, 81094, 81095, 81096, 81097, 81099, 81100, 81101, 81102, 81103,
-      81104, 81105, 81106, 92219, 92675, 92677, 92681, 92682
+      81104, 81105, 81106, 92219, 92675, 92677, 92681, 92682, 95253
     ]
   },
   {
@@ -43326,7 +43306,7 @@
       81052, 81054, 81055, 81056, 81057, 81058, 81059, 81060, 81061, 81062, 81063, 81064, 81065, 81066, 81067, 81068,
       81069, 81070, 81071, 81072, 81073, 81074, 81075, 81076, 81078, 81079, 81080, 81081, 81082, 81084, 81085, 81086,
       81087, 81088, 81089, 81090, 81091, 81092, 81093, 81094, 81095, 81096, 81097, 81099, 81100, 81101, 81102, 81103,
-      81104, 81105, 81106, 92219, 92675, 92677, 92681, 92682
+      81104, 81105, 81106, 92219, 92675, 92677, 92681, 92682, 95253
     ]
   },
   {
@@ -45569,7 +45549,7 @@
       81052, 81054, 81055, 81056, 81057, 81058, 81059, 81060, 81061, 81062, 81063, 81064, 81065, 81066, 81067, 81068,
       81069, 81070, 81071, 81072, 81073, 81074, 81075, 81076, 81078, 81079, 81080, 81081, 81082, 81084, 81085, 81086,
       81087, 81088, 81089, 81090, 81091, 81092, 81093, 81094, 81095, 81096, 81097, 81099, 81100, 81101, 81102, 81103,
-      81104, 81105, 81106, 92219, 92675, 92677, 92681, 92682
+      81104, 81105, 81106, 92219, 92675, 92677, 92681, 92682, 95253
     ]
   },
   {
@@ -58760,7 +58740,7 @@
       },
       {
         "id": 90380,
-        "name": "Spear of Bastion",
+        "name": "Champion's Spear",
         "type": "single",
         "posX": 4500,
         "posY": 5700,
@@ -58774,7 +58754,7 @@
             "definitionId": 117252,
             "maxRanks": 1,
             "type": "active",
-            "name": "Spear of Bastion",
+            "name": "Champion's Spear",
             "spellId": 376079,
             "icon": "ability_bastion_warrior",
             "index": 100
@@ -58885,7 +58865,7 @@
       },
       {
         "id": 90379,
-        "name": "Piercing Verdict",
+        "name": "Piercing Challenge",
         "type": "single",
         "posX": 4200,
         "posY": 6300,
@@ -58899,16 +58879,16 @@
             "definitionId": 117251,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Piercing Verdict",
+            "name": "Piercing Challenge",
             "spellId": 382948,
-            "icon": "spell_animabastion_missile",
+            "icon": "ability_revendreth_warrior",
             "index": 0
           }
         ]
       },
       {
         "id": 90323,
-        "name": "Elysian Might",
+        "name": "Champion's Might",
         "type": "single",
         "posX": 4800,
         "posY": 6300,
@@ -58922,7 +58902,7 @@
             "definitionId": 117185,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Elysian Might",
+            "name": "Champion's Might",
             "spellId": 386285,
             "icon": "ability_bastion_warrior",
             "index": 0
@@ -60992,7 +60972,7 @@
       },
       {
         "id": 90380,
-        "name": "Spear of Bastion",
+        "name": "Champion's Spear",
         "type": "single",
         "posX": 4500,
         "posY": 5700,
@@ -61006,7 +60986,7 @@
             "definitionId": 117252,
             "maxRanks": 1,
             "type": "active",
-            "name": "Spear of Bastion",
+            "name": "Champion's Spear",
             "spellId": 376079,
             "icon": "ability_bastion_warrior",
             "index": 100
@@ -61117,7 +61097,7 @@
       },
       {
         "id": 90379,
-        "name": "Piercing Verdict",
+        "name": "Piercing Challenge",
         "type": "single",
         "posX": 4200,
         "posY": 6300,
@@ -61131,16 +61111,16 @@
             "definitionId": 117251,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Piercing Verdict",
+            "name": "Piercing Challenge",
             "spellId": 382948,
-            "icon": "spell_animabastion_missile",
+            "icon": "ability_revendreth_warrior",
             "index": 0
           }
         ]
       },
       {
         "id": 90323,
-        "name": "Elysian Might",
+        "name": "Champion's Might",
         "type": "single",
         "posX": 4800,
         "posY": 6300,
@@ -61154,7 +61134,7 @@
             "definitionId": 117185,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Elysian Might",
+            "name": "Champion's Might",
             "spellId": 386285,
             "icon": "ability_bastion_warrior",
             "index": 0
@@ -63173,7 +63153,7 @@
       },
       {
         "id": 90380,
-        "name": "Spear of Bastion",
+        "name": "Champion's Spear",
         "type": "single",
         "posX": 4500,
         "posY": 5700,
@@ -63187,7 +63167,7 @@
             "definitionId": 117252,
             "maxRanks": 1,
             "type": "active",
-            "name": "Spear of Bastion",
+            "name": "Champion's Spear",
             "spellId": 376079,
             "icon": "ability_bastion_warrior",
             "index": 100
@@ -63298,7 +63278,7 @@
       },
       {
         "id": 90379,
-        "name": "Piercing Verdict",
+        "name": "Piercing Challenge",
         "type": "single",
         "posX": 4200,
         "posY": 6300,
@@ -63312,16 +63292,16 @@
             "definitionId": 117251,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Piercing Verdict",
+            "name": "Piercing Challenge",
             "spellId": 382948,
-            "icon": "spell_animabastion_missile",
+            "icon": "ability_revendreth_warrior",
             "index": 0
           }
         ]
       },
       {
         "id": 90323,
-        "name": "Elysian Might",
+        "name": "Champion's Might",
         "type": "single",
         "posX": 4800,
         "posY": 6300,
@@ -63335,7 +63315,7 @@
             "definitionId": 117185,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Elysian Might",
+            "name": "Champion's Might",
             "spellId": 386285,
             "icon": "ability_bastion_warrior",
             "index": 0
@@ -70687,7 +70667,7 @@
         "posY": 4500,
         "reqPoints": 8,
         "maxRanks": 1,
-        "next": [80700, 80704, 80697],
+        "next": [80700, 95171, 80697],
         "prev": [80694],
         "entries": [
           {
@@ -70720,7 +70700,7 @@
         "posY": 4500,
         "reqPoints": 8,
         "maxRanks": 2,
-        "next": [80684, 80704],
+        "next": [80684, 95171],
         "prev": [80706, 80694, 80686],
         "entries": [
           {
@@ -70881,7 +70861,7 @@
         ]
       },
       {
-        "id": 80704,
+        "id": 95171,
         "name": "Dance of the Wind / Dampen Harm",
         "type": "choice",
         "posX": 4800,
@@ -70889,21 +70869,21 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [80703],
-        "prev": [80698, 80705],
+        "prev": [80705, 80698],
         "entries": [
           {
-            "id": 115760,
-            "definitionId": 120772,
+            "id": 117803,
+            "definitionId": 122815,
             "maxRanks": 1,
             "type": "passive",
             "name": "Dance of the Wind",
-            "spellId": 414132,
+            "spellId": 432181,
             "icon": "ability_monk_dematerialize",
             "index": 100
           },
           {
-            "id": 101522,
-            "definitionId": 106524,
+            "id": 117802,
+            "definitionId": 122814,
             "maxRanks": 1,
             "type": "active",
             "name": "Dampen Harm",
@@ -71037,7 +71017,7 @@
         "reqPoints": 20,
         "maxRanks": 2,
         "next": [80702, 80717],
-        "prev": [80704, 80684],
+        "prev": [80684, 95171],
         "entries": [
           {
             "id": 101521,
@@ -71853,13 +71833,13 @@
       },
       {
         "id": 80560,
-        "name": "Faeline Stomp",
+        "name": "Jadefire Stomp",
         "type": "single",
         "posX": 10200,
         "posY": 5700,
         "reqPoints": 20,
         "maxRanks": 1,
-        "next": [80569],
+        "next": [80569, 96168],
         "prev": [80578, 80583],
         "entries": [
           {
@@ -71867,7 +71847,7 @@
             "definitionId": 106361,
             "maxRanks": 1,
             "type": "active",
-            "name": "Faeline Stomp",
+            "name": "Jadefire Stomp",
             "spellId": 388193,
             "icon": "ability_ardenweald_monk",
             "index": 100
@@ -71882,7 +71862,7 @@
         "posY": 5700,
         "reqPoints": 20,
         "maxRanks": 1,
-        "next": [80585],
+        "next": [96168, 80585],
         "prev": [80582, 80578, 80563],
         "entries": [
           {
@@ -72004,7 +71984,7 @@
         "posY": 6300,
         "reqPoints": 20,
         "maxRanks": 1,
-        "next": [80565, 80577],
+        "next": [95953, 80565, 80577],
         "prev": [80560],
         "entries": [
           {
@@ -72015,6 +71995,29 @@
             "name": "Ancient Concordance",
             "spellId": 388740,
             "icon": "spell_animaardenweald_beam",
+            "index": 100
+          }
+        ]
+      },
+      {
+        "id": 96168,
+        "name": "Peer Into Peace",
+        "type": "single",
+        "posX": 10800,
+        "posY": 6300,
+        "reqPoints": 20,
+        "maxRanks": 1,
+        "next": [80565],
+        "prev": [80560, 80598],
+        "entries": [
+          {
+            "id": 119111,
+            "definitionId": 124011,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Peer Into Peace",
+            "spellId": 440008,
+            "icon": "inv_staff_2h_monk_c_01",
             "index": 100
           }
         ]
@@ -72095,14 +72098,14 @@
         "posX": 13200,
         "posY": 6300,
         "reqPoints": 20,
-        "maxRanks": 2,
+        "maxRanks": 1,
         "next": [80558],
         "prev": [80586, 80593],
         "entries": [
           {
             "id": 101399,
             "definitionId": 106401,
-            "maxRanks": 2,
+            "maxRanks": 1,
             "type": "passive",
             "name": "Peaceful Mending",
             "spellId": 388593,
@@ -72146,7 +72149,7 @@
       },
       {
         "id": 80577,
-        "name": "Awakened Faeline",
+        "name": "Awakened Jadefire",
         "type": "single",
         "posX": 9600,
         "posY": 6900,
@@ -72160,9 +72163,32 @@
             "definitionId": 106385,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Awakened Faeline",
+            "name": "Awakened Jadefire",
             "spellId": 388779,
             "icon": "spell_animaardenweald_buff",
+            "index": 100
+          }
+        ]
+      },
+      {
+        "id": 95953,
+        "name": "Dance of Chi-Ji",
+        "type": "single",
+        "posX": 10200,
+        "posY": 6900,
+        "reqPoints": 20,
+        "maxRanks": 1,
+        "next": [],
+        "prev": [80569],
+        "entries": [
+          {
+            "id": 118841,
+            "definitionId": 123741,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Dance of Chi-Ji",
+            "spellId": 438439,
+            "icon": "ability_monk_cranekick_new",
             "index": 100
           }
         ]
@@ -72176,7 +72202,7 @@
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [],
-        "prev": [80585, 80569],
+        "prev": [80585, 80569, 96168],
         "entries": [
           {
             "id": 101367,
@@ -72324,7 +72350,8 @@
       80673, 80674, 80675, 80676, 80677, 80678, 80679, 80680, 80681, 80682, 80683, 80684, 80685, 80686, 80687, 80688,
       80689, 80690, 80691, 80692, 80693, 80694, 80695, 80696, 80697, 80698, 80699, 80700, 80701, 80702, 80703, 80704,
       80705, 80706, 80707, 80708, 80709, 80710, 80711, 80712, 80713, 80714, 80715, 80716, 80717, 80718, 80719, 80720,
-      80721, 80722, 80723, 80724, 80725, 80726, 80727, 80728, 80729, 81633, 81634, 92611, 92684
+      80721, 80722, 80723, 80724, 80725, 80726, 80727, 80728, 80729, 81633, 81634, 92611, 92684, 95171, 95172, 95953,
+      96168
     ]
   },
   {
@@ -74420,7 +74447,8 @@
       80673, 80674, 80675, 80676, 80677, 80678, 80679, 80680, 80681, 80682, 80683, 80684, 80685, 80686, 80687, 80688,
       80689, 80690, 80691, 80692, 80693, 80694, 80695, 80696, 80697, 80698, 80699, 80700, 80701, 80702, 80703, 80704,
       80705, 80706, 80707, 80708, 80709, 80710, 80711, 80712, 80713, 80714, 80715, 80716, 80717, 80718, 80719, 80720,
-      80721, 80722, 80723, 80724, 80725, 80726, 80727, 80728, 80729, 81633, 81634, 92611, 92684
+      80721, 80722, 80723, 80724, 80725, 80726, 80727, 80728, 80729, 81633, 81634, 92611, 92684, 95171, 95172, 95953,
+      96168
     ]
   },
   {
@@ -74920,7 +74948,7 @@
         "posY": 4500,
         "reqPoints": 8,
         "maxRanks": 1,
-        "next": [80700, 80704, 80697],
+        "next": [80700, 95172, 80697],
         "prev": [80694],
         "entries": [
           {
@@ -74953,7 +74981,7 @@
         "posY": 4500,
         "reqPoints": 8,
         "maxRanks": 2,
-        "next": [80684, 80704],
+        "next": [80684, 95172],
         "prev": [80706, 80694, 80686],
         "entries": [
           {
@@ -75114,7 +75142,7 @@
         ]
       },
       {
-        "id": 80704,
+        "id": 95172,
         "name": "Dance of the Wind / Dampen Harm",
         "type": "choice",
         "posX": 4800,
@@ -75122,21 +75150,21 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [80703],
-        "prev": [80698, 80705],
+        "prev": [80705, 80698],
         "entries": [
           {
-            "id": 115760,
-            "definitionId": 120772,
+            "id": 117805,
+            "definitionId": 122817,
             "maxRanks": 1,
             "type": "passive",
             "name": "Dance of the Wind",
-            "spellId": 414132,
+            "spellId": 432181,
             "icon": "ability_monk_dematerialize",
             "index": 100
           },
           {
-            "id": 101522,
-            "definitionId": 106524,
+            "id": 117804,
+            "definitionId": 122816,
             "maxRanks": 1,
             "type": "active",
             "name": "Dampen Harm",
@@ -75270,7 +75298,7 @@
         "reqPoints": 20,
         "maxRanks": 2,
         "next": [80702, 80717],
-        "prev": [80704, 80684],
+        "prev": [80684, 95172],
         "entries": [
           {
             "id": 101521,
@@ -76322,7 +76350,7 @@
       },
       {
         "id": 80672,
-        "name": "Faeline Stomp",
+        "name": "Jadefire Stomp",
         "type": "single",
         "posX": 13800,
         "posY": 6300,
@@ -76336,7 +76364,7 @@
             "definitionId": 106490,
             "maxRanks": 1,
             "type": "active",
-            "name": "Faeline Stomp",
+            "name": "Jadefire Stomp",
             "spellId": 388193,
             "icon": "ability_ardenweald_monk",
             "index": 100
@@ -76447,7 +76475,7 @@
       },
       {
         "id": 80605,
-        "name": "Way of the Fae",
+        "name": "Path of Jade",
         "type": "single",
         "posX": 13800,
         "posY": 6900,
@@ -76461,7 +76489,7 @@
             "definitionId": 106417,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Way of the Fae",
+            "name": "Path of Jade",
             "spellId": 392994,
             "icon": "spell_animaardenweald_beam",
             "index": 100
@@ -76470,7 +76498,7 @@
       },
       {
         "id": 80671,
-        "name": "Faeline Harmony",
+        "name": "Jadefire Harmony",
         "type": "single",
         "posX": 14400,
         "posY": 6900,
@@ -76484,7 +76512,7 @@
             "definitionId": 106489,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Faeline Harmony",
+            "name": "Jadefire Harmony",
             "spellId": 391412,
             "icon": "ability_ardenweald_monk",
             "index": 100
@@ -76503,7 +76531,8 @@
       80673, 80674, 80675, 80676, 80677, 80678, 80679, 80680, 80681, 80682, 80683, 80684, 80685, 80686, 80687, 80688,
       80689, 80690, 80691, 80692, 80693, 80694, 80695, 80696, 80697, 80698, 80699, 80700, 80701, 80702, 80703, 80704,
       80705, 80706, 80707, 80708, 80709, 80710, 80711, 80712, 80713, 80714, 80715, 80716, 80717, 80718, 80719, 80720,
-      80721, 80722, 80723, 80724, 80725, 80726, 80727, 80728, 80729, 81633, 81634, 92611, 92684
+      80721, 80722, 80723, 80724, 80725, 80726, 80727, 80728, 80729, 81633, 81634, 92611, 92684, 95171, 95172, 95953,
+      96168
     ]
   },
   {
