@@ -41,6 +41,9 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     '209346', // Verdant Glad Medallion
     '208307', // Verdant Comb Medallion
     '209764', // Verdant Asp Medallion
+    '216369', // Draconic
+    '211606', // Draconic
+    '216282', // Draconic
   ]; // Spell: 336126
   const adaptationTrinkets = [
     '181816',
@@ -55,6 +58,8 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     '205712',
     '209767', // Verdant Asp Sigil
     '209347', // Verdant Glad Sigil
+    '216372', // Draconic
+    '216283', // Draconic
   ]; // Spell: 195756
 
   const isHealer = healerSpecs.includes(props.unit.spec);

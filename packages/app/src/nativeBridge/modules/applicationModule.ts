@@ -18,6 +18,7 @@ export class ApplicationModule extends NativeBridgeModule {
     }
     return app.setLoginItemSettings({
       openAtLogin,
+      args: ['--hidden'],
     });
   }
 
