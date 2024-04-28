@@ -152,8 +152,15 @@ query GetCharacterMatches($realm: String!, $characterName: String!, $offset: Int
   }
 }
 
-query GetMatchesWithCombatant($playerName: String!) {
-  matchesWithCombatant(playerName: $playerName) {
+query GetMatchesWithCombatant($combatantName: String!) {
+  matchesWithCombatant(combatantName: $combatantName) {
+    ...arenaInfos
+    ...shuffleInfos
+  }
+}
+
+query GetMatchesWithOwnerId($ownerId: String!) {
+  matchesWithOwnerId(ownerId: $ownerId) {
     ...arenaInfos
     ...shuffleInfos
   }

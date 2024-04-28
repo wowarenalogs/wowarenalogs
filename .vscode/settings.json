@@ -6,8 +6,8 @@
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll": "always",
-    "source.fixAll.eslint": "always"
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit"
   },
   "vim.handleKeys": {
     "<C-a>": false,
