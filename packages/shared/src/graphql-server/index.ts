@@ -7,6 +7,7 @@ import { typeDefs } from './types/gql';
 export const graphqlServer = new ApolloServer({
   typeDefs,
   resolvers,
+  introspection: true,
   context: async ({ req }) => {
     const session = await getSession({ req });
     return {
