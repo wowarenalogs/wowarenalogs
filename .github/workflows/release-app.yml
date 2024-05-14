@@ -63,7 +63,7 @@ jobs:
       - name: setup python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.9
       - name: gcloud auth
         uses: google-github-actions/auth@v1
         with:
@@ -76,6 +76,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+      - name: update node_canvas deps
+        run: brew install pkg-config cairo pango libpng jpeg giflib librsvg
       - name: install node-gyp
         run: npm i -g node-gyp@latest
       - name: clean npm cache
