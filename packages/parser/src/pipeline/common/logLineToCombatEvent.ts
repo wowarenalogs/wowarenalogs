@@ -37,7 +37,6 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
           case LogEvent.SPELL_PERIODIC_DAMAGE:
           case LogEvent.SPELL_HEAL:
           case LogEvent.SPELL_PERIODIC_HEAL:
-          case LogEvent.SWING_DAMAGE_LANDED:
             return new CombatHpUpdateAction(logLine, wowVersion);
           case LogEvent.SPELL_DAMAGE_SUPPORT:
           case LogEvent.SPELL_PERIODIC_DAMAGE_SUPPORT:
@@ -81,6 +80,7 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
             return new PartyKill(logLine);
           case LogEvent.ZONE_CHANGE:
             return new ZoneChange(logLine);
+          case LogEvent.SWING_DAMAGE_LANDED: // we should not process both this and SWING_DAMAGE
           default:
             logTrace(logLine.event);
             return logLine.raw;
