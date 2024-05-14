@@ -46,13 +46,13 @@ export class BattlegroundData extends CombatGenerator {
     }
 
     if (event instanceof ArenaMatchEnd) {
-      throw new Error('This is not possible but needed for TS');
+      throw new Error('This is not possible but needed for TS (ArenaMatchEnd)');
     }
     if (event instanceof ArenaMatchStart) {
-      throw new Error('This is not possible but needed for TS');
+      throw new Error('This is not possible but needed for TS (ArenaMatchStart)');
     }
     if (event instanceof CombatantInfoAction) {
-      throw new Error('This is not possible but needed for TS');
+      throw new Error('This is not possible but needed for TS (CombatantInfoAction)');
     }
 
     const srcGUID = event.srcUnitId;
