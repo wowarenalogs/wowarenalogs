@@ -2,7 +2,7 @@
   "name": "wowarenalogs",
   "productName": "WoW Arena Logs",
   "license": "MIT",
-  "version": "4.8.3",
+  "version": "4.8.4",
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
@@ -36,6 +36,16 @@
       "category": "Utility",
       "target": "AppImage",
       "icon": "icon.icns"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ]
     }
   },
   "scripts": {
