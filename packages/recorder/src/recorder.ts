@@ -479,7 +479,7 @@ export class Recorder {
         });
       }
 
-      Recorder.logger.info(`Video encoder settings: ${this.obsRecordingFactory.videoEncoder.settings}`);
+      Recorder.logger.info(`Video encoder settings: ${JSON.stringify(this.obsRecordingFactory.videoEncoder.settings)}`);
 
       this.obsRecordingFactory.signalHandler = (signal) => {
         this.handleSignal(signal);

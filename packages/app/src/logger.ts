@@ -24,7 +24,12 @@ function getAppDataPath() {
 
 const winstonLogger = winston.createLogger({
   level: 'info',
-  format: winston.format.combine(winston.format.timestamp(), winston.format.simple()),
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(({ level, message, timestamp }) => {
+      return `${timestamp} [${level}] ${message}`;
+    }),
+  ),
   transports: [],
 });
 winstonLogger.add(new winston.transports.Console());
