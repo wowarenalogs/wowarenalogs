@@ -5,7 +5,7 @@ import path from 'path';
 // import SizeMonitor from './sizeMonitor';
 import ConfigService from './configService';
 import { ManagerMessageBus } from './messageBus';
-import { VideoQueueItem } from './types';
+import { ILogger, VideoQueueItem } from './types';
 import { fixPathWhenPackaged, getThumbnailFileNameForVideo, tryUnlink, writeMetadataFile } from './util';
 
 let ffmpeg: typeof import('fluent-ffmpeg');
@@ -17,7 +17,7 @@ export default class VideoProcessQueue {
 
   // private mainWindow: BrowserWindow;
 
-  public static logger: Console = console;
+  public static logger: ILogger = console;
 
   private cfg = ConfigService.getInstance();
 
@@ -56,7 +56,7 @@ export default class VideoProcessQueue {
   }
 
   queueVideo = async (queueItem: VideoQueueItem) => {
-    VideoProcessQueue.logger.info('[VideoProcessQueue] Queuing video for processing', queueItem);
+    VideoProcessQueue.logger.info(`[VideoProcessQueue] Queuing video for processing ${queueItem}`);
     this.processVideoQueueItem(queueItem, () => {
       VideoProcessQueue.logger.info(`[VideoProcessQueue] Queue processed ${queueItem.filename}`);
     });
@@ -83,14 +83,14 @@ export default class VideoProcessQueue {
 
     try {
       const compensation = await VideoProcessQueue.calculateFrameCompensation(data.bufferFile, data.relativeStart);
-      VideoProcessQueue.logger.log(`[VideoProcssQueue] Cut video compensation time: ${compensation}`);
+      VideoProcessQueue.logger.info(`[VideoProcssQueue] Cut video compensation time: ${compensation}`);
       data.compensationTimeSeconds = compensation;
     } catch (error) {
-      VideoProcessQueue.logger.log(`[VideoProcessingQueue] ffprobe error ${error}`);
+      VideoProcessQueue.logger.info(`[VideoProcessingQueue] ffprobe error ${error}`);
     }
 
     if (data.metadata) {
-      VideoProcessQueue.logger.info('[Util] Write Metadata file', videoPath);
+      VideoProcessQueue.logger.info(`[Util] Write Metadata file: ${videoPath}`);
       await writeMetadataFile(videoPath, data);
     }
     await tryUnlink(data.bufferFile, VideoProcessQueue.logger);
@@ -111,14 +111,14 @@ export default class VideoProcessQueue {
   // }
 
   // private finishProcessingVideo(data: VideoQueueItem) {
-  //   VideoProcessQueue.logger.log('[VideoProcessQueue] Finished processing video', data.bufferFile);
+  //   VideoProcessQueue.logger.info('[VideoProcessQueue] Finished processing video', data.bufferFile);
 
   //   this.mainWindow.webContents.send('updateSaveStatus', SaveStatus.NotSaving);
   //   this.mainWindow.webContents.send('refreshState');
   // }
 
   // private async videoQueueEmpty() {
-  //   VideoProcessQueue.logger.log('[VideoProcessQueue] Video processing queue empty');
+  //   VideoProcessQueue.logger.info('[VideoProcessQueue] Video processing queue empty');
   //   new SizeMonitor(this.mainWindow).run();
   // }
 
@@ -136,7 +136,7 @@ export default class VideoProcessQueue {
 
   private static async calculateFrameCompensation(initialFile: string, relativeStart: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      VideoProcessQueue.logger.log(
+      VideoProcessQueue.logger.info(
         `[VideoProcessQueue] ffprobe ['-skip_frame', 'nokey', '-read_intervals', %+${relativeStart}, '-select_streams', 'v:0', '-show_frames']`,
       );
       ffprobe(
@@ -185,17 +185,15 @@ export default class VideoProcessQueue {
 
     return new Promise<string>((resolve) => {
       if (relativeStart < 0) {
-        VideoProcessQueue.logger.log('[VideoProcessQueue] Avoiding error by rejecting negative start', relativeStart);
-
+        VideoProcessQueue.logger.info(
+          `[VideoProcessQueue] Avoiding error by rejecting negative start: ${relativeStart}`,
+        );
         // eslint-disable-next-line no-param-reassign
         relativeStart = 0;
       }
 
-      VideoProcessQueue.logger.log(
-        '[VideoProcessQueue] Desired duration:',
-        desiredDuration,
-        'Relative start time:',
-        relativeStart,
+      VideoProcessQueue.logger.info(
+        `[VideoProcessQueue] Desired duration: ${desiredDuration}, Relative start time: ${relativeStart}`,
       );
 
       // It's crucial that we don't re-encode the video here as that
@@ -210,7 +208,7 @@ export default class VideoProcessQueue {
       //
       // This thread has a brilliant summary why we need "-avoid_negative_ts make_zero":
       // https://superuser.com/questions/1167958/video-cut-with-missing-frames-in-ffmpeg?rq=1
-      VideoProcessQueue.logger.log(
+      VideoProcessQueue.logger.info(
         `[VideoProcessQueue] ffmpeg call ${initialFile} input: -ss ${relativeStart}, -t ${desiredDuration} output: -t ${desiredDuration}, '-c:v copy', '-c:a copy', '-avoid_negative_ts make_zero' `,
       );
 
@@ -223,10 +221,10 @@ export default class VideoProcessQueue {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .on('end', async (err: any) => {
           if (err) {
-            VideoProcessQueue.logger.log('[VideoProcessQueue] FFmpeg video cut error (1): ', err);
+            VideoProcessQueue.logger.info(`[VideoProcessQueue] FFmpeg video cut error (1): ${err}`);
             throw new Error('FFmpeg error when cutting video (1)');
           } else {
-            VideoProcessQueue.logger.log('[VideoProcessQueue] FFmpeg cut video succeeded');
+            VideoProcessQueue.logger.info('[VideoProcessQueue] FFmpeg cut video succeeded');
             resolve(finalVideoPath);
           }
         })
@@ -235,7 +233,7 @@ export default class VideoProcessQueue {
         // need this as well as the above but being careful.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .on('error', (err: any) => {
-          VideoProcessQueue.logger.log('[VideoProcessQueue] FFmpeg video cut error (2): ', err);
+          VideoProcessQueue.logger.info(`[VideoProcessQueue] FFmpeg video cut error (2): ${err}`);
           throw new Error('FFmpeg error when cutting video (2)');
         })
         .run();
@@ -258,13 +256,12 @@ export default class VideoProcessQueue {
     return new Promise<void>((resolve) => {
       ffmpeg(video)
         .on('end', () => {
-          VideoProcessQueue.logger.info('[VideoProcessQueue] Got thumbnail for', video);
+          VideoProcessQueue.logger.info(`[VideoProcessQueue] Got thumbnail for ${video}`);
           resolve();
         })
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .on('error', (err: any) => {
-          VideoProcessQueue.logger.error('[VideoProcessQueue] Error getting thumbnail for', video, err);
-
+          VideoProcessQueue.logger.error(`[VideoProcessQueue] Error getting thumbnail for video=${video} err=${err}`);
           throw new Error(err);
         })
         .screenshots({

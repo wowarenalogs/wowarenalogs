@@ -5,7 +5,15 @@ import { URL } from 'url';
 
 // import { EventType, uIOhook, UiohookKeyboardEvent, UiohookMouseEvent } from 'uiohook-napi';
 import { PTTKeyPressEvent } from './keyTypesUIOHook';
-import { FileInfo, FileSortDirection, Metadata, ObsAudioConfig, OurDisplayType, VideoQueueItem } from './types';
+import {
+  FileInfo,
+  FileSortDirection,
+  ILogger,
+  Metadata,
+  ObsAudioConfig,
+  OurDisplayType,
+  VideoQueueItem,
+} from './types';
 
 const getResolvedHtmlPath = () => {
   if (process.env.NODE_ENV === 'development') {
@@ -126,9 +134,9 @@ const writeMetadataFile = async (videoPath: string, data: VideoQueueItem) => {
  * Try to unlink a file and return a boolean indicating the success
  * Logs any errors to the console, if the file couldn't be deleted for some reason.
  */
-const tryUnlink = async (file: string, logger: Console = console): Promise<boolean> => {
+const tryUnlink = async (file: string, logger: ILogger = console): Promise<boolean> => {
   try {
-    logger.log(`[Util] Deleting: ${file}`);
+    logger.info(`[Util] Deleting: ${file}`);
     await unlink(file);
     return true;
   } catch (e) {
@@ -141,8 +149,8 @@ const tryUnlink = async (file: string, logger: Console = console): Promise<boole
 /**
  * Delete a video and its metadata file if it exists.
  */
-const deleteVideo = async (videoPath: string, logger: Console = console) => {
-  logger.info('[Util] Deleting video', videoPath);
+const deleteVideo = async (videoPath: string, logger: ILogger = console) => {
+  logger.info(`[Util] Deleting video ${videoPath}`);
 
   const success = await tryUnlink(videoPath, logger);
 

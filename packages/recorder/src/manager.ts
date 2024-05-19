@@ -18,7 +18,15 @@ import { ERecordingState } from './obsEnums';
 import Poller from './poller';
 import { Recorder } from './recorder';
 import SizeMonitor from './sizeMonitor';
-import { ConfigStage, ObsAudioConfig, ObsBaseConfig, ObsOverlayConfig, ObsVideoConfig, StorageConfig } from './types';
+import {
+  ConfigStage,
+  ILogger,
+  ObsAudioConfig,
+  ObsBaseConfig,
+  ObsOverlayConfig,
+  ObsVideoConfig,
+  StorageConfig,
+} from './types';
 import VideoProcessQueue from './videoProcessQueue';
 
 /**
@@ -55,11 +63,11 @@ export class Manager {
 
   private overlayCfg: ObsOverlayConfig = getOverlayConfig(this.cfg);
 
-  public static logger: Console = console;
+  public static logger: ILogger = console;
 
   public messageBus: ManagerMessageBus;
 
-  public static configureLogging(logger: Console) {
+  public static configureLogging(logger: ILogger) {
     Manager.logger = logger;
     Recorder.logger = logger;
     VideoProcessQueue.logger = logger;
@@ -181,7 +189,7 @@ export class Manager {
       }
 
       if (stage.initial || configChanged) {
-        Manager.logger.info('[Manager] Configuring stage', stage.name, 'with', newConfig);
+        Manager.logger.info(`[Manager] Configuring stage ${stage.name} with ${JSON.stringify(newConfig)}`);
 
         // eslint-disable-next-line no-await-in-loop
         await stage.configure(newConfig);
@@ -309,13 +317,13 @@ export class Manager {
     const { storagePath } = config;
 
     if (!storagePath) {
-      Manager.logger.warn('[Manager] Validation failed: `storagePath` is falsy', storagePath);
+      Manager.logger.warn(`[Manager] Validation failed: is falsy: ${storagePath}`);
 
       throw new Error('Storage path is invalid.');
     }
 
     if (!fs.existsSync(path.dirname(storagePath))) {
-      Manager.logger.warn('[Manager] Validation failed, storagePath does not exist', storagePath);
+      Manager.logger.warn(`[Manager] Validation failed, storagePath does not exist: ${storagePath}`);
 
       throw new Error('Storage Path is invalid.');
     }
@@ -330,13 +338,13 @@ export class Manager {
     const { bufferStoragePath } = config;
 
     if (!bufferStoragePath) {
-      Manager.logger.warn('[Manager] Validation failed: `bufferStoragePath` is falsy', bufferStoragePath);
+      Manager.logger.warn(`[Manager] Validation failed: bufferStoragePath is falsy: ${bufferStoragePath}`);
 
       throw new Error('Buffer Storage Path is invalid.');
     }
 
     if (!fs.existsSync(path.dirname(bufferStoragePath))) {
-      Manager.logger.warn('[Manager] Validation failed, bufferStoragePath does not exist', bufferStoragePath);
+      Manager.logger.warn(`[Manager] Validation failed, bufferStoragePath does not exist: ${bufferStoragePath}`);
 
       throw new Error('Buffer Storage Path is invalid.');
     }
@@ -410,7 +418,7 @@ export class Manager {
     });
 
     powerMonitor.on('resume', () => {
-      Manager.logger.log('[Manager] Detected Windows waking up from a sleep.');
+      Manager.logger.info('[Manager] Detected Windows waking up from a sleep.');
       this.poller.start();
     });
   }

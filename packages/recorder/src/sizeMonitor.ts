@@ -1,7 +1,7 @@
 import { BrowserWindow } from 'electron';
 
 import ConfigService from './configService';
-import { FileInfo } from './types';
+import { FileInfo, ILogger } from './types';
 import { deleteVideo, getMetadataForVideo, getSortedVideos } from './util';
 
 // Had a bug here where we used filter with an async function but that isn't
@@ -19,7 +19,7 @@ export default class SizeMonitor {
 
   private mainWindow: BrowserWindow;
 
-  public static logger: Console = console;
+  public static logger: ILogger = console;
 
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
@@ -31,7 +31,7 @@ export default class SizeMonitor {
     const maxStorageGB = this.cfg.get<number>('maxStorage');
     const maxStorageBytes = maxStorageGB * 1024 ** 3;
 
-    SizeMonitor.logger.info('[SizeMonitor] Running, size limit is', maxStorageGB, 'GB');
+    SizeMonitor.logger.info(`[SizeMonitor] Running, size limit is ${maxStorageGB} GB`);
 
     if (maxStorageGB === 0) {
       SizeMonitor.logger.info('[SizeMonitor] Limitless storage, doing nothing');
@@ -46,12 +46,12 @@ export default class SizeMonitor {
         const isUnprotected = !(metadata.protected || false);
 
         if (!isUnprotected) {
-          SizeMonitor.logger.info('[SizeMonitor] Will not delete protected video', file.name);
+          SizeMonitor.logger.info(`[SizeMonitor] Will not delete protected video: ${file.name}`);
         }
 
         return isUnprotected;
       } catch {
-        SizeMonitor.logger.error('[SizeMonitor] Failed to get metadata for', file.name);
+        SizeMonitor.logger.error(`[SizeMonitor] Failed to get metadata for: ${file.name}`);
         await deleteVideo(file.name, SizeMonitor.logger);
         return false;
       }

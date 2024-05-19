@@ -56,14 +56,14 @@ export class LogsModule extends NativeBridgeModule {
     if (bridgeState.classic.watcher) {
       const elapsed = now.getTime() - bridgeState.classic.watcher.lastReadDate.getTime();
       if (elapsed > READ_TIMEOUT_MS) {
-        logger.log(`Log reading TIMEOUT wowVersion=classic elapsed=${elapsed}`);
+        logger.info(`Log reading TIMEOUT wowVersion=classic elapsed=${elapsed}`);
         this.handleLogReadingTimeout(mainWindow, 'classic', elapsed);
       }
     }
     if (bridgeState.retail.watcher) {
       const elapsed = now.getTime() - bridgeState.retail.watcher.lastReadDate.getTime();
       if (elapsed > READ_TIMEOUT_MS) {
-        logger.log(`Log reading TIMEOUT wowVersion=retail elapsed=${elapsed}`);
+        logger.info(`Log reading TIMEOUT wowVersion=retail elapsed=${elapsed}`);
         this.handleLogReadingTimeout(mainWindow, 'retail', elapsed);
       }
     }
