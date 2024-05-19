@@ -34,6 +34,7 @@ import {
   EVideoFormat,
 } from './obsEnums';
 import {
+  ILogger,
   IOBSDevice,
   MicStatus,
   ObsAudioConfig,
@@ -290,7 +291,7 @@ export class Recorder {
 
   private _recorderStatus: RecStatus = 'WaitingForWoW';
 
-  public static logger: Console = console;
+  public static logger: ILogger = console;
 
   public get recorderStatus() {
     if (!this.obsInitialized) {
@@ -323,7 +324,7 @@ export class Recorder {
   constructor(mainWindow: BrowserWindow, bus: ManagerMessageBus) {
     this.messageBus = bus;
 
-    Recorder.logger.info('[Recorder] Constructing recorder:', this.uuid);
+    Recorder.logger.info(`[Recorder] Constructing recorder: ${this.uuid}`);
     this.mainWindow = mainWindow;
     this.videoProcessQueue = new VideoProcessQueue(this.messageBus);
     this.initializeOBS();
@@ -340,7 +341,7 @@ export class Recorder {
     }
 
     if (!fs.existsSync(bufferStoragePath)) {
-      Recorder.logger.info('[Recorder] Creating dir:', bufferStoragePath);
+      Recorder.logger.info(`[Recorder] Creating dir: ${bufferStoragePath}`);
       fs.mkdirSync(bufferStoragePath);
     } else {
       Recorder.logger.info('[Recorder] Clean out buffer');
@@ -353,7 +354,7 @@ export class Recorder {
    * so use sparingly - it will block the main thread.
    */
   private initializeOBS() {
-    Recorder.logger.info('[Recorder] Initializing OBS', this.uuid);
+    Recorder.logger.info(`[Recorder] Initializing OBS ${this.uuid}`);
 
     try {
       const obsPath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'obs-studio-node'));
@@ -381,7 +382,7 @@ export class Recorder {
       osn.NodeObs.SetWorkingDirectory(obsPath);
       Recorder.logger.info(`[Recorder] Setting osnDataPath ${osnDataPath}`);
       const initResult = osn.NodeObs.OBS_API_initAPI('en-US', osnDataPath, '1.0.0', '');
-      Recorder.logger.info('[Recorder] OBS init:', initResult);
+      Recorder.logger.info(`[Recorder] OBS init: ${initResult}`);
       if (initResult !== 0) {
         throw new Error(`OBS process initialization failed with code ${initResult}`);
       }
@@ -478,7 +479,7 @@ export class Recorder {
         });
       }
 
-      Recorder.logger.info('Video encoder settings:', this.obsRecordingFactory.videoEncoder.settings);
+      Recorder.logger.info(`Video encoder settings: ${this.obsRecordingFactory.videoEncoder.settings}`);
 
       this.obsRecordingFactory.signalHandler = (signal) => {
         this.handleSignal(signal);
@@ -487,7 +488,7 @@ export class Recorder {
   }
 
   private handleSignal(obsSignal: EOutputSignal) {
-    Recorder.logger.info('[Recorder] Got signal:', obsSignal);
+    Recorder.logger.info(`[Recorder] Got signal: ${JSON.stringify(obsSignal)}`);
 
     if (obsSignal.type !== 'recording') {
       Recorder.logger.info('[Recorder] No action needed on this signal');
@@ -525,7 +526,7 @@ export class Recorder {
         break;
     }
 
-    Recorder.logger.info('[Recorder] State is now: ', this.obsState);
+    Recorder.logger.info(`[Recorder] State is now: ${this.obsState}`);
   }
 
   /**
@@ -662,7 +663,7 @@ export class Recorder {
       .split(',')
       .filter((id) => id)
       .forEach((id) => {
-        Recorder.logger.info('[Recorder] Adding input source', id);
+        Recorder.logger.info(`[Recorder] Adding input source ${id}`);
         const obsSource = this.createOBSAudioSource(id, TAudioSourceType.input);
 
         const micFader = osn.FaderFactory.create(0);
@@ -675,8 +676,7 @@ export class Recorder {
 
     if (this.audioInputDevices.length > this.audioInputChannels.length) {
       Recorder.logger.warn(
-        '[Recorder] Too many audio input devices, configuring first',
-        this.audioInputChannels.length,
+        `[Recorder] Too many audio input devices, configuring first ${this.audioInputChannels.length}`,
       );
 
       this.audioInputDevices = this.audioInputDevices.slice(0, this.audioInputChannels.length);
@@ -728,7 +728,7 @@ export class Recorder {
       .split(',')
       .filter((id) => id)
       .forEach((id) => {
-        Recorder.logger.info('[Recorder] Adding output source', id);
+        Recorder.logger.info(`[Recorder] Adding output source ${id}`);
 
         const obsSource = this.createOBSAudioSource(id, TAudioSourceType.output);
 
@@ -741,8 +741,7 @@ export class Recorder {
 
     if (this.audioOutputDevices.length > this.audioOutputChannels.length) {
       Recorder.logger.warn(
-        '[Recorder] Too many audio output devices, configuring first',
-        this.audioOutputChannels.length,
+        `[Recorder] Too many audio output devices, configuring first ${this.audioOutputChannels.length}`,
       );
 
       this.audioOutputDevices = this.audioOutputDevices.slice(0, this.audioOutputChannels.length);
@@ -792,7 +791,7 @@ export class Recorder {
    * Add a single audio source to the OBS scene.
    */
   private addAudioSource(obsInput: IInput, channel: number) {
-    Recorder.logger.info('[Recorder] Adding OBS audio source', obsInput.name, obsInput.id);
+    Recorder.logger.info(`[Recorder] Adding OBS audio source ${obsInput.name} ${obsInput.id}`);
 
     if (!this.obsInitialized) {
       throw new Error('[Recorder] OBS not initialized');
@@ -813,7 +812,7 @@ export class Recorder {
       throw new Error('[Recorder] OBS not initialized');
     }
 
-    Recorder.logger.info('[Recorder] Removing OBS audio source', obsInput.name, obsInput.id);
+    Recorder.logger.info(`[Recorder] Removing OBS audio source ${obsInput.name} ${obsInput.id}`);
 
     osn.Global.setOutputSource(channel, null as unknown as ISource);
     obsInput.release();
@@ -824,7 +823,7 @@ export class Recorder {
    * Release all OBS resources and shut it down.
    */
   public shutdownOBS() {
-    Recorder.logger.info('[Recorder] OBS shutting down', this.uuid);
+    Recorder.logger.info(`[Recorder] OBS shutting down ${this.uuid}`);
 
     if (!this.obsInitialized) {
       Recorder.logger.info('[Recorder] OBS not initialized so not attempting shutdown');
@@ -956,10 +955,10 @@ export class Recorder {
     let retries = 5;
 
     while (!rdy) {
-      Recorder.logger.info('[Recorder] Not ready, will sleep and retry:', retries);
+      Recorder.logger.info(`[Recorder] Not ready, will sleep and retry: ${retries}`);
 
       if (retries < 1) {
-        Recorder.logger.warn('[Recorder] Exhausted attempts to start', this.isRecording, this.obsState);
+        Recorder.logger.warn(`[Recorder] Exhausted attempts to start ${this.isRecording} ${this.obsState}`);
 
         return;
       }
@@ -1183,7 +1182,7 @@ export class Recorder {
    * Create an OBS audio source.
    */
   private createOBSAudioSource(id: string, type: TAudioSourceType) {
-    Recorder.logger.info('[Recorder] Creating OBS audio source', id, type);
+    Recorder.logger.info(`[Recorder] Creating OBS audio source ${id} ${type}`);
 
     if (!this.obsInitialized) {
       throw new Error('[Recorder] OBS not initialized');
@@ -1205,7 +1204,7 @@ export class Recorder {
     }
 
     const encoders = osn.VideoEncoderFactory.types();
-    Recorder.logger.info('[Recorder]', encoders);
+    Recorder.logger.info(`[Recorder] Available encoders: ${encoders}`);
 
     return encoders;
   }
@@ -1256,7 +1255,7 @@ export class Recorder {
     const newScaleFactor = { x: xScaleFactor, y: yScaleFactor };
 
     if (!isEqual(this.videoScaleFactor, newScaleFactor)) {
-      Recorder.logger.info('[Recorder] Rescaling from', this.videoScaleFactor, 'to', newScaleFactor);
+      Recorder.logger.info(`[Recorder] Rescaling from ${this.videoScaleFactor} to ${newScaleFactor}`);
 
       this.videoScaleFactor = newScaleFactor;
       this.videoSceneItem.scale = newScaleFactor;
@@ -1371,9 +1370,7 @@ export class Recorder {
 
     if (this.scene === undefined || this.overlayImageSource === undefined) {
       Recorder.logger.error(
-        '[Recorder] Not applying overlay as scene or image source undefined',
-        this.scene,
-        this.overlayImageSource,
+        `[Recorder] Not applying overlay as scene or image source undefined ${this.scene} ${this.overlayImageSource}`,
       );
 
       return;

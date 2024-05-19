@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
-import { Console } from 'console';
 import { app } from 'electron';
-import { createWriteStream } from 'fs-extra';
 import path from 'path';
+import winston from 'winston';
 
 function getAppDataPath() {
   switch (process.platform) {
@@ -23,17 +22,22 @@ function getAppDataPath() {
   }
 }
 
-let logConsole = console;
+const winstonLogger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(winston.format.timestamp(), winston.format.simple()),
+  transports: [],
+});
+winstonLogger.add(new winston.transports.Console());
+
 // app will be undefined during preload compile
 if (app && app.isPackaged) {
   const logPath = getAppDataPath();
   try {
-    const output = createWriteStream(path.join(logPath, 'log.txt'));
-    logConsole = new Console(output, output);
+    winstonLogger.add(new winston.transports.File({ filename: path.join(logPath, 'log.txt'), level: 'info' }));
   } catch (e) {
     console.log('Could not create log file for errors! Falling back to standard console.');
     console.log(e);
   }
 }
 
-export const logger = logConsole;
+export const logger = winstonLogger;

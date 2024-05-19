@@ -20,6 +20,12 @@ export enum MicStatus {
   LISTENING,
 }
 
+export type ILogger = {
+  info: (arg0: string) => void;
+  error: (arg0: string) => void;
+  warn: (arg0: string) => void;
+};
+
 export enum FileSortDirection {
   NewestFirst,
   OldestFirst,
