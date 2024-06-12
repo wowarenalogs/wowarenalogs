@@ -25,5 +25,6 @@ export { CombatStubList } from './components/CombatStubList';
 export { SpecSelector } from './components/MatchSearch/SpecSelector';
 export { RatingSelector } from './components/MatchSearch/RatingSelector';
 export { BracketSelector } from './components/MatchSearch/BracketSelector';
+export { ReplaySettingsProvider, useReplaySettings } from './hooks/ReplaySettingsContext';
 export * from './graphql/__generated__/graphql';
 export type { ArenaMatchMetadata, ShuffleMatchMetadata } from './types/metadata';
