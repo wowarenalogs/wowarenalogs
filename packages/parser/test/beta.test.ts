@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { LoaderResults, loadLogFile } from './testLogLoader';
 
 describe('solo shuffle tests', () => {
