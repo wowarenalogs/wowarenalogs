@@ -13,10 +13,8 @@ type HeroTalent = {
 };
 
 const heroTalentMap = talentIdMap
-  .map((a) => a.subTreeNodes)
-  .flat()
-  .map((n) => n.entries)
-  .flat()
+  .flatMap((a) => a.subTreeNodes)
+  .flatMap((n) => n.entries)
   .reduce(
     (prev, cur) => {
       prev[cur.id] = cur;
