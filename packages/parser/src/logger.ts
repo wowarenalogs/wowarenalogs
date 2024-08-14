@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const LOG_LEVEL: 0 | 1 | 2 | 3 = 0;
+const LOG_LEVEL: 0 | 1 | 2 | 3 = 1;
 
 export const logInfo = (...args: unknown[]) => (LOG_LEVEL > 0 ? console.log(...args) : null);
 export const logWarning = (...args: unknown[]) => (LOG_LEVEL >= 1 ? console.log(...args) : null);
