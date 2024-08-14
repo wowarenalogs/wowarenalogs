@@ -70,8 +70,6 @@ describe('solo shuffle tests', () => {
       team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('1'));
       team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('0'));
 
-      console.log(new Date(round.startTime));
-
       expect(round.id).toBe('aff33d7cf26bf37ff07850b8e9f2eff7');
       expect(round.dataType).toBe('ShuffleRound');
       expect(round.sequenceNumber).toBe(0);
