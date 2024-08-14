@@ -12,8 +12,10 @@ export function getTimestamp(
   minute: number,
   second: number,
   ms: number,
-  timezone: string,
+  timezone?: string,
 ) {
+  const intTZOffset = timezone ? parseInt(timezone) : 0;
+
   return moment
     .tz(
       {
@@ -25,7 +27,9 @@ export function getTimestamp(
         s: second,
         y: year,
       },
-      timezone,
+      'UTC',
     )
+    .utcOffset(intTZOffset)
+    .utc()
     .valueOf();
 }

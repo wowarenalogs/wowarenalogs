@@ -1,8 +1,8 @@
 5/21 16:33:00.558  ENVIRONMENTAL_DAMAGE,0000000000000000,nil,0x80000000,0x80000000,Player-4395-01B22DEA,"Corndew-Whitemane",0x518,0x0,Player-4395-01B22DEA,0000000000000000,100,100,448,0,2368,0,2900,2944,0,1995.95,-4794.40,1454,0.2293,59,Fire,14,14,0,4,0,0,0,nil,nil,nil
-5/21 16:33:01.776  SPELL_AURA_APPLIED,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,186403,"Sign of Battle",0x1,BUFF
-5/21 16:33:01.776  SPELL_AURA_APPLIED,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,32727,"Arena Preparation",0x1,BUFF
-5/21 16:33:01.776  SPELL_AURA_APPLIED,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,186403,"Sign of Battle",0x1,BUFF
-5/21 16:33:01.776  SPELL_AURA_APPLIED,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,32727,"Arena Preparation",0x1,BUFF
-5/21 16:33:02.879  SPELL_AURA_APPLIED,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,2383,"Find Herbs",0x1,BUFF
-5/21 16:33:02.879  SPELL_AURA_APPLIED,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,186403,"Sign of Battle",0x1,BUFF
-5/21 16:33:02.879  SPELL_AURA_APPLIED,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,32727,"Arena Preparation",0x1,BUFF
+5/21/2024 16:33:01.776  SPELL_AURA_APPLIED,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,186403,"Sign of Battle",0x1,BUFF
+5/21/2024 16:33:01.776  SPELL_AURA_APPLIED,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,32727,"Arena Preparation",0x1,BUFF
+5/21/2024 16:33:01.776  SPELL_AURA_APPLIED,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,186403,"Sign of Battle",0x1,BUFF
+5/21/2024 16:33:01.776  SPELL_AURA_APPLIED,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,32727,"Arena Preparation",0x1,BUFF
+5/21/2024 16:33:02.879  SPELL_AURA_APPLIED,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,2383,"Find Herbs",0x1,BUFF
+5/21/2024 16:33:02.879  SPELL_AURA_APPLIED,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,186403,"Sign of Battle",0x1,BUFF
+5/21/2024 16:33:02.879  SPELL_AURA_APPLIED,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,Player-4372-00E14984,"Mouseprinces-Atiesh",0x512,0x0,32727,"Arena Preparation",0x1,BUFF

@@ -30,9 +30,9 @@ describe('solo shuffle tests', () => {
       const firstRound = results.shuffleRounds[0];
       const lastRound = results.shuffleRounds[5];
 
-      expect(shuffle.startTime).toBe(1702517589259);
+      expect(shuffle.startTime).toBe(1734136389259);
       expect(shuffle.startTime).toBe(firstRound.startTime);
-      expect(shuffle.endTime).toBe(1702517983080);
+      expect(shuffle.endTime).toBe(1734136783080);
       expect(shuffle.endTime).toBe(lastRound.endTime);
       expect(shuffle.timezone).toBe('America/New_York');
 
@@ -70,15 +70,17 @@ describe('solo shuffle tests', () => {
       team1Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('1'));
       team0Ids.forEach((id) => expect(round.units[id].info?.teamId).toBe('0'));
 
-      expect(round.id).toBe('436260d16e3a82acd6bced6523c8c910');
+      console.log(new Date(round.startTime));
+
+      expect(round.id).toBe('aff33d7cf26bf37ff07850b8e9f2eff7');
       expect(round.dataType).toBe('ShuffleRound');
       expect(round.sequenceNumber).toBe(0);
       expect(round.winningTeamId).toBe('1');
       expect(round.killedUnitId).toBe('Player-3684-0DF0B4B2');
 
       expect(round.timezone).toBe('America/New_York');
-      expect(round.startTime).toBe(1702517589259);
-      expect(round.endTime).toBe(1702517624027);
+      expect(round.startTime).toBe(1734136389259);
+      expect(round.endTime).toBe(1734136424027);
       expect(round.hasAdvancedLogging).toBe(true);
       expect(round.playerTeamId).toBe('0');
       expect(round.playerTeamRating).toBe(0);

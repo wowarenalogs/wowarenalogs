@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 
-const LINE_PARSER = /^(\d+)\/(\d+)\s+(\d+):(\d+):(\d+)\.(\d+)(?=\s)/;
+const LINE_PARSER = /^(.*)? {2}([A-Z_]+),(.+)\s*$/;
 
 export const dedup = () => {
   return (input: Observable<string>) => {
@@ -12,7 +12,7 @@ export const dedup = () => {
         next: (line) => {
           const regexMatches = line.match(LINE_PARSER);
           if (regexMatches && regexMatches.length > 0) {
-            const timestamp = regexMatches[0];
+            const timestamp = regexMatches[1];
             if (timestamp === lastTimestamp) {
               if (!lastTimestampBuffer.has(line)) {
                 lastTimestampBuffer.add(line);
