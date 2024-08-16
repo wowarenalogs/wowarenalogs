@@ -13,6 +13,7 @@ export {
   getAnalyticsDeviceId,
   getAnalyticsSessionId,
 } from './utils/analytics';
+export { findHeroTalent } from './utils/talents';
 export type { INativeBridge } from './types/nativeBridge';
 export { FirestoreNextAuthAdapter } from './utils/FirestoreNextAuthAdapter';
 export type { ICombatDataStub } from './graphql-server/types/index';

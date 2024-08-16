@@ -30,7 +30,7 @@ describe('3v3 match parsing', () => {
 
     it('should compute the correct hash id', () => {
       const combat = results.combats[0];
-      expect(combat.id).toEqual('d32880eeff2927a20fd3f6433a8720a3');
+      expect(combat.id).toEqual('02e4b6d60277b6834648ff0414eae219');
       expect(combat.dataType).toBe('ArenaMatch');
       expect(combat.timezone).toBe('America/New_York');
     });
