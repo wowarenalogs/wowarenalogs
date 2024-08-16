@@ -26,7 +26,7 @@
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
-    "@wowarenalogs/parser": "^5.2.0",
+    "@wowarenalogs/parser": "^6.0.0",
     "@wowarenalogs/recorder": "^1.0.0",
     "@wowarenalogs/shared": "^1.0.0",
     "check-disk-space": "^3.4.0",
@@ -40,6 +40,7 @@
     "node-fetch": "^2.6.7",
     "node-loader": "^2.0.0",
     "update-electron-app": "^2.0.1",
-    "webpack": "^5.76.0"
+    "webpack": "^5.76.0",
+    "winston": "^3.13.0"
   }
 }

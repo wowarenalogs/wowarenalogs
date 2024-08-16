@@ -2,11 +2,10 @@ import { pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { parseWowToJSON } from '../../jsonparse';
-import { logTrace } from '../../logger';
+import { logDebug, logTrace } from '../../logger';
 import { ILogLine, LogEvent } from '../../types';
-import { getTimestamp } from './utils';
 
-const LINE_PARSER = /^(\d+)\/(\d+)\s+(\d+):(\d+):(\d+)\.(\d+)\s+([A-Z_]+),(.+)\s*$/;
+const LINE_PARSER = /^(.*)? {2}([A-Z_]+),(.+)\s*$/;
 let nextId = 0;
 
 export const stringToLogLine = (timezone: string) => {
@@ -16,27 +15,25 @@ export const stringToLogLine = (timezone: string) => {
 
       // not a valid line
       if (!regex_matches || regex_matches.length === 0) {
+        logDebug(`INVALID LINE: ${line}`);
         return line;
       }
 
-      const month = parseInt(regex_matches[1], 10);
-      const day = parseInt(regex_matches[2], 10);
-      const hour = parseInt(regex_matches[3], 10);
-      const minute = parseInt(regex_matches[4], 10);
-      const second = parseInt(regex_matches[5], 10);
-      const ms = parseInt(regex_matches[6], 10);
-
-      const eventName = regex_matches[7];
+      const tsString = regex_matches[1];
+      const eventIndex = 2;
+      const eventName = regex_matches[eventIndex];
 
       // unsupported event
       if (!(eventName in LogEvent)) {
-        logTrace(`UNSUPPORTED EVENT: ${eventName}`);
+        logDebug(`UNSUPPORTED EVENT: ${eventName}`);
         return line;
       }
 
       const event = LogEvent[eventName as keyof typeof LogEvent];
-      const jsonParameters = parseWowToJSON(regex_matches[8]);
-      const timestamp = getTimestamp(month, day, hour, minute, second, ms, timezone);
+      const jsonParameters = parseWowToJSON(regex_matches[eventIndex + 1]);
+      const decodedDate = new Date(tsString);
+      logTrace({ decodedDate });
+      const timestamp = decodedDate.getTime();
 
       return {
         id: (nextId++).toFixed(),

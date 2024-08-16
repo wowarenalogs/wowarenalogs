@@ -43,7 +43,7 @@ describe('BG Blitz parsing', () => {
       expect(players).toHaveLength(16);
       expect(bg?.zoneInEvent.instanceId).toBe(998);
       expect(bg?.zoneOutEvent.instanceId).toBe(2444);
-      expect(bg?.id).toBe('1950a67125b3f163d1b945487af311b8');
+      expect(bg?.id).toBe('8b1f03c30499464e6341d465b781183c');
     });
   });
 });

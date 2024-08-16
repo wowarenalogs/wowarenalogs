@@ -12,6 +12,7 @@ import { BrowserWindow, dialog } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
 
+import { logger } from '../../../logger';
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../../module';
 import { DesktopUtils } from '../common/desktopUtils';
 import { createLogWatcher } from './logWatcher';
@@ -40,7 +41,7 @@ const bridgeState: {
   },
 };
 
-const READ_TIMEOUT_MS = 60000;
+const READ_TIMEOUT_MS = 300000;
 
 @nativeBridgeModule('logs')
 export class LogsModule extends NativeBridgeModule {
@@ -55,12 +56,14 @@ export class LogsModule extends NativeBridgeModule {
     if (bridgeState.classic.watcher) {
       const elapsed = now.getTime() - bridgeState.classic.watcher.lastReadDate.getTime();
       if (elapsed > READ_TIMEOUT_MS) {
+        logger.info(`Log reading TIMEOUT wowVersion=classic elapsed=${elapsed}`);
         this.handleLogReadingTimeout(mainWindow, 'classic', elapsed);
       }
     }
     if (bridgeState.retail.watcher) {
       const elapsed = now.getTime() - bridgeState.retail.watcher.lastReadDate.getTime();
       if (elapsed > READ_TIMEOUT_MS) {
+        logger.info(`Log reading TIMEOUT wowVersion=retail elapsed=${elapsed}`);
         this.handleLogReadingTimeout(mainWindow, 'retail', elapsed);
       }
     }
