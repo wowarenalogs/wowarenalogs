@@ -80,6 +80,8 @@ const emptyTreeHash: ExportStream = Array(128 / 8).fill({
 type MappedRaidbotsSpec = RaidbotsTalentSpec & {
   specNodeMap: Record<number, SpecNode>;
   classNodeMap: Record<number, ClassNode>;
+  // subtreeNodeMap: Record<number, Entry>;
+  // heroNodeMap: Record<number, Entry>;
 };
 
 export const nodeMaps: Record<number, MappedRaidbotsSpec> = {};
