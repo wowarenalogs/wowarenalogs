@@ -29,6 +29,8 @@ const specTalentEntryToSpellId = talentIdMap
   .flat()
   .map((n) => n.entries)
   .flat()
+  .flatMap((i) => ('spellId' in i ? [i] : [])) // these flatMaps remove some bad data from the talents block
+  .flatMap((i) => (i.id ? [i] : []))
   .reduce(
     (prev, cur) => {
       prev[cur.id] = cur.spellId;

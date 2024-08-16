@@ -1,4 +1,4 @@
-import { LoadingScreen, useClientContext } from '@wowarenalogs/shared';
+import { getAnalyticsDeviceId, LoadingScreen, useClientContext } from '@wowarenalogs/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { FaDiscord, FaPatreon } from 'react-icons/fa';
 
@@ -10,6 +10,7 @@ const Page = () => {
   const clientContext = useClientContext();
   const [appVersion, setAppVersion] = useState('');
   const [featureCode, setFeatureCode] = useState('');
+  const [sentryId, setSentryId] = useState('');
 
   const parseCode = useCallback(() => {
     if (featureCode.startsWith('add:')) {
@@ -39,6 +40,7 @@ const Page = () => {
         setAppVersion(version);
       });
     }
+    setSentryId(getAnalyticsDeviceId() || '');
   }, []);
 
   if (isLoading) {
@@ -72,6 +74,17 @@ const Page = () => {
               <tr>
                 <th className="bg-base-300">Version</th>
                 <td className="bg-base-200">{appVersion}</td>
+                <td>{sentryId}</td>
+              </tr>
+            </thead>
+          </table>
+        ) : null}
+        {sentryId ? (
+          <table className="rounded-box table table-compact">
+            <thead>
+              <tr>
+                <th className="bg-base-300">Session</th>
+                <td className="bg-base-200">{sentryId}</td>
               </tr>
             </thead>
           </table>

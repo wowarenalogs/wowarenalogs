@@ -2,6 +2,8 @@ import chokidar from 'chokidar';
 import { FSWatcher, watch } from 'fs';
 import { join } from 'path';
 
+import { logger } from '../../../logger';
+
 abstract class LogWatcher {
   public lastReadDate = new Date();
   constructor(protected wowDirectory: string) {}
@@ -21,6 +23,7 @@ class WindowsLogWatcher extends LogWatcher {
   onChange(handler: (fileName: string) => void): void {
     this.watcher.on('change', (eventType: string, fileName: string) => {
       this.lastReadDate = new Date();
+      logger.info(`Log.onChange ${this.lastReadDate}`);
       if (eventType === 'rename') {
         // rename fires on new-file-creation and file-deletion
         // however-- a 'change' event *also* fires when the bytes are written
