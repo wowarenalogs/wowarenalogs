@@ -7,6 +7,7 @@ import path from 'path';
 import { WowVersion } from '../../parser/dist/index';
 import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from './createMatchStub';
 import { logCombatStatsAsync, parseFromStringArrayAsync } from './utils';
+import { stubsWebhookArenaMatchAsync, stubsWebhookShuffleMatchAsync } from './webhooks';
 
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
 
@@ -68,6 +69,7 @@ export async function handler(file: any, _context: any) {
       console.time('logCombatStatsAsync');
       await logCombatStatsAsync(arenaMatch, stub, ownerId);
       console.timeEnd('logCombatStatsAsync');
+      await stubsWebhookArenaMatchAsync(arenaMatch);
     } catch (e) {
       console.error(e);
     }
@@ -98,6 +100,11 @@ export async function handler(file: any, _context: any) {
     });
     await Promise.allSettled([...firestorePromises, ...prismaPromises]);
     console.timeEnd('writing shuffle match data');
+    try {
+      await stubsWebhookShuffleMatchAsync(shuffleMatch);
+    } catch (e) {
+      console.error(e);
+    }
     console.timeEnd('writeMatchHandler');
     return;
   }
