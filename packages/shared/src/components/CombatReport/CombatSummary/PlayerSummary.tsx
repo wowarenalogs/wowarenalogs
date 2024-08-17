@@ -1,7 +1,9 @@
 import { CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
 import Image from 'next/image';
 
+import { findHeroTalent } from '../../../utils/talents';
 import { Utils } from '../../../utils/utils';
+import { HeroTalentImage } from '../../common/HeroTalentImage';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
 
@@ -12,10 +14,11 @@ interface IProps {
 export const PlayerSummary = ({ player }: IProps) => {
   const trinkets = player.info?.equipment.filter((_, i) => [12, 13].includes(i)) || [];
 
+  const heroTal = findHeroTalent(player.info?.talents || []);
   return (
     <div className="flex flex-row items-start flex-1">
       <div className={`avatar`}>
-        <div className="rounded">
+        <div className="rounded relative">
           <Image
             src={
               (player.spec === CombatUnitSpec.None
@@ -35,6 +38,7 @@ export const PlayerSummary = ({ player }: IProps) => {
       <div className="flex flex-col ml-2">
         <CombatUnitName unit={player} navigateToPlayerView showSpec={false} />
         <div className="flex flex-row items-center">
+          {heroTal && <HeroTalentImage atlasMemberName={heroTal?.atlasMemberName} name={heroTal?.name} size={20} />}
           {trinkets.map((e, i) => (
             <EquipmentInfo key={`${i}`} item={e} size={'small'} notext />
           ))}
