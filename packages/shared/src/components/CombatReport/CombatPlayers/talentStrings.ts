@@ -244,6 +244,7 @@ function addValue(exportStream: ExportStream, bitWidth: number, value: number) {
   });
 }
 
+// PORT of function ClassTalentImportExportMixin:WriteLoadoutContent(exportStream, configID, treeID)
 function writeLoadoutContent(
   treeNodes: (ClassNode | SpecNode | HeroNode | SubtreeNode)[],
   talentsPicked: { id1: number; id2: number; count: number }[],
