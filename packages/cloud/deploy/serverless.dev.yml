@@ -25,6 +25,8 @@ functions:
       ENV_GCP_PROJECT: ${self:provider.project}
       ENV_SERVICE_NAME: ${self:service}
       ENV_SQL_URL: ${env:ENV_SQL_URL}
+      ENV_WEBHOOK_URL: ${env:ENV_WEBHOOK_URL}
+      ENV_WEBHOOK_SIGNATURE: ${env:ENV_WEBHOOK_SIGNATURE}
     events:
       - event:
           eventType: google.storage.object.finalize
