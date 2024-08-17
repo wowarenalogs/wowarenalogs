@@ -4,8 +4,10 @@ export function HeroTalentImage({
   atlasMemberName,
   circle,
   size,
+  name,
 }: {
   atlasMemberName?: string;
+  name?: string;
   circle?: boolean;
   size?: number;
 }) {
@@ -36,7 +38,8 @@ export function HeroTalentImage({
         }
         width={height}
         height={height}
-        alt={'Hero Talent Image'}
+        alt={name || 'Hero Talent Image'}
+        title={name || 'Hero Talent Image'}
       />
     </div>
   );
