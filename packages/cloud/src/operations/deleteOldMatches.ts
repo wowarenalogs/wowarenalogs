@@ -3,7 +3,7 @@ import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
 
-const DELETE_BEFORE_TS = 1693548868000; // sep 1 2023
+const DELETE_BEFORE_TS = 1695248488000; // sep 20 2023
 
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
