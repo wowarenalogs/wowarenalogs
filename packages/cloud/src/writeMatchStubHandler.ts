@@ -69,9 +69,15 @@ export async function handler(file: any, _context: any) {
       console.time('logCombatStatsAsync');
       await logCombatStatsAsync(arenaMatch, stub, ownerId);
       console.timeEnd('logCombatStatsAsync');
-      await stubsWebhookArenaMatchAsync(arenaMatch);
     } catch (e) {
       console.error(e);
+    }
+    if (arenaMatch.startInfo.isRanked) {
+      try {
+        await stubsWebhookArenaMatchAsync(arenaMatch);
+      } catch (e) {
+        console.error(e);
+      }
     }
     console.log('match writring done');
     console.timeEnd('writeMatchHandler');
@@ -100,10 +106,12 @@ export async function handler(file: any, _context: any) {
     });
     await Promise.allSettled([...firestorePromises, ...prismaPromises]);
     console.timeEnd('writing shuffle match data');
-    try {
-      await stubsWebhookShuffleMatchAsync(shuffleMatch);
-    } catch (e) {
-      console.error(e);
+    if (shuffleMatch.startInfo.bracket === 'Rated Solo Shuffle') {
+      try {
+        await stubsWebhookShuffleMatchAsync(shuffleMatch);
+      } catch (e) {
+        console.error(e);
+      }
     }
     console.timeEnd('writeMatchHandler');
     return;

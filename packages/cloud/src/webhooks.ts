@@ -40,7 +40,7 @@ function sleep(ms: number) {
 }
 
 export const stubsWebhookArenaMatchAsync = async (match: IArenaMatch) => {
-  if (!webhookUrl) return;
+  if (!webhookUrl || webhookUrl === 'disabled') return;
   const whStub: WebhookStub = {
     dataType: match.dataType,
     id: match.id,
@@ -83,7 +83,7 @@ export const stubsWebhookArenaMatchAsync = async (match: IArenaMatch) => {
 };
 
 export const stubsWebhookShuffleMatchAsync = async (match: IShuffleMatch) => {
-  if (!webhookUrl) return;
+  if (!webhookUrl || webhookUrl === 'disabled') return;
   const whStub: WebhookStub = {
     dataType: match.dataType,
     id: match.id,
@@ -105,7 +105,7 @@ export const stubsWebhookShuffleMatchAsync = async (match: IShuffleMatch) => {
     },
     link: match.rounds.map(
       (_r, idx) =>
-        `https://wowarenalogs.com/match?id=${match.rounds[0].id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
+        `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
     ),
     roundResults: match.rounds.map((r) => r.result),
     combatants: Object.values(match.rounds[0].units)
