@@ -56,9 +56,15 @@ export async function handler(file: any, _context: any) {
     await document.set(instanceToPlain(stub));
     try {
       await logCombatStatsAsync(arenaMatch, stub, ownerId);
-      await stubsWebhookArenaMatchAsync(arenaMatch);
     } catch (e) {
       console.error(e);
+    }
+    if (arenaMatch.startInfo.isRanked) {
+      try {
+        await stubsWebhookArenaMatchAsync(arenaMatch);
+      } catch (e) {
+        console.error(e);
+      }
     }
     return;
   }
@@ -76,11 +82,14 @@ export async function handler(file: any, _context: any) {
         console.error(e);
       }
     });
-    try {
-      await stubsWebhookShuffleMatchAsync(shuffleMatch);
-    } catch (e) {
-      console.error(e);
+    if (shuffleMatch.startInfo.bracket === 'Rated Solo Shuffle') {
+      try {
+        await stubsWebhookShuffleMatchAsync(shuffleMatch);
+      } catch (e) {
+        console.error(e);
+      }
     }
+
     return;
   }
   console.log('Parser did not find useable matches');
