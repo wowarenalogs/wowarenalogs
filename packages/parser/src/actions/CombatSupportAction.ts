@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { CombatUnitType, ILogLine, WowVersion } from '../types';
 import { getUnitType } from '../utils';
 import { CombatAction } from './CombatAction';
-import { ICombatUnitPower } from './CombatAdvancedAction';
 
 export class CombatSupportAction extends CombatAction {
   public static supports(logLine: ILogLine): boolean {
@@ -19,17 +18,6 @@ export class CombatSupportAction extends CombatAction {
     );
   }
 
-  public readonly advancedActorId: string;
-  public readonly advancedOwnerId: string;
-  public readonly advancedActorCurrentHp: number;
-  public readonly advancedActorMaxHp: number;
-  public readonly advancedActorPowers: ICombatUnitPower[];
-  public readonly advancedActorPositionX: number;
-  public readonly advancedActorPositionY: number;
-  public readonly advancedActorFacing: number;
-  public readonly advancedActorItemLevel: number;
-  public readonly advanced: boolean;
-
   /**
    * Support amounts represent the additional damage or healing caused by a buff or debuff
    *
@@ -44,55 +32,51 @@ export class CombatSupportAction extends CombatAction {
   constructor(logLine: ILogLine, wowVersion: WowVersion) {
     super(logLine);
     if (!CombatSupportAction.supports(logLine)) {
-      throw new Error('Event not supported as CombatAdvancedAction: ' + logLine.raw);
+      throw new Error('Event not supported as CombatSupportAction: ' + logLine.raw);
     }
 
-    const advancedLoggingOffset = logLine.event.startsWith('SWING_') ? 8 : 11;
+    /**
+     * For some god forsaken reason blizzard has decided that these _SUPPORT events will actually drop fields instead
+     * of zeroing them in non-advanced logging modes. This means our prior strategy of just ingesting the zero/nil
+     * fields won't work because it will crash with out of index errors. This is the only one I've seen in the new style
+     * so I am just casing it out here.
+     */
+    if (logLine.event === 'SWING_DAMAGE_LANDED_SUPPORT' && logLine.parameters.length == 22) {
+      this.amount = logLine.parameters[11];
 
-    this.advanced = logLine.parameters[advancedLoggingOffset] !== 0;
-    this.advancedActorId = logLine.parameters[advancedLoggingOffset].toString();
-    this.advancedOwnerId = logLine.parameters[advancedLoggingOffset + 1].toString();
-    this.advancedActorCurrentHp = logLine.parameters[advancedLoggingOffset + 2];
-    this.advancedActorMaxHp = logLine.parameters[advancedLoggingOffset + 3];
+      this.isCritical = false; // it's nil in the log
+      if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
+        this.effectiveAmount = -this.amount;
+      } else {
+        this.effectiveAmount = 0;
+      }
+      this.supportActorId = logLine.parameters[21];
+      return;
+    }
 
     const wowVersionOffset = wowVersion === 'retail' ? 0 : -1;
-
-    const powerType = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 8]
-      .toString()
-      .split('|')
-      .map((v: string) => v);
-    const currentPower = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 9]
-      .toString()
-      .split('|')
-      .map((v: string) => parseInt(v));
-    const maxPower = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 10]
-      .toString()
-      .split('|')
-      .map((v: string) => parseInt(v));
-    this.advancedActorPowers = _.range(0, powerType.length).map((i) => ({
-      type: powerType[i],
-      current: currentPower[i],
-      max: maxPower[i],
-    }));
-
-    this.advancedActorPositionX = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 12];
-    this.advancedActorPositionY = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 13];
-
-    this.advancedActorFacing = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 15];
-    this.advancedActorItemLevel = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 16];
 
     /**
      * The id of the actor that cast the buff causing the extra support damage or healing
      */
     if (logLine.event.includes('_HEAL_')) {
-      this.supportActorId = logLine.parameters[advancedLoggingOffset + 22].toString();
+      this.supportActorId = logLine.parameters[33].toString();
     } else {
-      this.supportActorId = logLine.parameters[advancedLoggingOffset + 27].toString();
+      this.supportActorId = logLine.parameters[38].toString();
     }
 
     if (logLine.event === 'SWING_DAMAGE_SUPPORT') {
       this.amount = -1 * logLine.parameters[25 + wowVersionOffset];
       this.isCritical = logLine.parameters[32 + wowVersionOffset] === 1;
+
+      if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
+        this.effectiveAmount = this.amount;
+      } else {
+        this.effectiveAmount = 0;
+      }
+    } else if (logLine.event === 'SWING_DAMAGE_LANDED_SUPPORT') {
+      this.amount = -1 * logLine.parameters[28 + wowVersionOffset];
+      this.isCritical = logLine.parameters[35 + wowVersionOffset] === 1;
 
       if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
         this.effectiveAmount = this.amount;
