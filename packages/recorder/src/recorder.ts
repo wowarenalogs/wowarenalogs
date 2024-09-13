@@ -595,15 +595,42 @@ export class Recorder {
     const gameCaptureSource = osn.InputFactory.create('game_capture', 'WR Game Capture');
 
     const { settings } = gameCaptureSource;
+
+    // This is the name of the retail window, we fall back to this
+    // if we don't find something in the game capture source.
+    let window = 'World of Warcraft:waApplication Window:Wow.exe';
+
+    // Search the game capture source for WoW options.
+    let prop = gameCaptureSource.properties.first();
+
+    while (prop && prop.name !== 'window') {
+      prop = prop.next();
+    }
+
+    if (prop.name === 'window' && osn.isListProperty(prop)) {
+      // Filter the WoW windows, and reverse sort them alphabetically. This
+      // is deliberate so that "waApplication" wins over the legacy "gxWindowClass".
+      const windows = prop.details.items
+        .filter((item) => {
+          return item.name.includes('[Wow.exe]: World of Warcraft');
+        })
+        .sort()
+        .reverse();
+
+      if (windows.length) {
+        window = windows[0].value as string;
+      }
+    }
+
     settings.capture_mode = 'window';
     settings.allow_transparency = true;
     settings.priority = 1;
     settings.capture_cursor = captureCursor;
-    settings.window = 'World of Warcraft:GxWindowClass:Wow.exe';
+    settings.window = window;
 
     gameCaptureSource.update(settings);
     gameCaptureSource.save();
-
+    gameCaptureSource.enabled = true;
     return gameCaptureSource;
   }
 
@@ -615,7 +642,7 @@ export class Recorder {
 
     const windowCaptureSource = osn.InputFactory.create('window_capture', 'WR Window Capture', {
       cursor: captureCursor,
-      window: 'World of Warcraft:GxWindowClass:Wow.exe',
+      window: 'World of Warcraft:waApplication Window:Wow.exe',
       // This corresponds to Windows Graphics Capture. The other mode "BITBLT" doesn't seem to work and
       // capture behind the WoW window. Not sure why, some googling suggested Windows theme issues.
       // See https://github.com/obsproject/obs-studio/blob/master/plugins/win-capture/window-capture.c#L70.
