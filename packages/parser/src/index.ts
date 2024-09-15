@@ -13,6 +13,7 @@ import { createClassicParserPipeline } from './pipeline/classic';
 import { createRetailParserPipeline } from './pipeline/retail';
 import { WowVersion } from './types';
 import { PIPELINE_FLUSH_SIGNAL } from './utils';
+import { logTrace } from './logger';
 
 export type {
   IArenaMatch,
@@ -159,7 +160,7 @@ export class WoWCombatLogParser extends EventEmitter<LogParserSpec> {
       return;
     }
 
-    console.log(`@@@@ Setting Wowversion=${wowVersion}`);
+    logTrace(`WoWCombatLogParser.setWowVersion=${wowVersion}`);
     if (wowVersion === 'classic') {
       this.context = {
         wowVersion,
