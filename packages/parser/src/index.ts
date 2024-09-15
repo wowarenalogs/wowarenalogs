@@ -146,6 +146,20 @@ export class WoWCombatLogParser extends EventEmitter<LogParserSpec> {
   }
 
   private setWowVersion(wowVersion: WowVersion) {
+    // If we call this again but we have already initialized a pipeline we can cause
+    // very strange behavior by re-initializing the pipeline; since state is buffered
+    // internally the system does not expect this to ever occur.
+    // In the case this is somehow called again with a different version, that is an error since
+    // the pipelines have no concept of being able to switch versions
+    if (this.context.wowVersion) {
+      if (this.context.wowVersion !== wowVersion)
+        throw new Error(
+          `Invalid re-init of pipeline with mismatched versions cur=${this.context.wowVersion} call=${wowVersion}`,
+        );
+      return;
+    }
+
+    console.log(`@@@@ Setting Wowversion=${wowVersion}`);
     if (wowVersion === 'classic') {
       this.context = {
         wowVersion,

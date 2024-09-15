@@ -15,7 +15,7 @@ import {
   IShuffleMatch,
   IShuffleRound,
 } from '../../CombatData';
-import { logDebug, logInfo } from '../../logger';
+import { logDebug, logInfo, logTrace } from '../../logger';
 import { CombatResult, CombatUnitType, ICombatEventSegment } from '../../types';
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
@@ -53,7 +53,7 @@ function roundsBelongToSameMatch(roundA: ArenaMatchStartInfo, roundB: ArenaMatch
 function validateRounds(rounds: IShuffleRound[]) {
   // Must contain 6 rounds
   if (rounds.length !== 6) {
-    logInfo(`validateRounds length != 6`);
+    logInfo(`validateRounds length != 6 (${rounds.length})`);
     return false;
   }
 
@@ -178,6 +178,10 @@ export const segmentToCombat = () => {
           return segment;
         }
 
+        if (segment.events.length === 0) {
+          return null;
+        }
+
         const firstEvent = segment.events[0];
         const lastEvent = segment.events[segment.events.length - 1];
 
@@ -222,6 +226,16 @@ export const segmentToCombat = () => {
           segment.events[segment.events.length - 1] instanceof ArenaMatchEnd;
 
         logInfo(`segmentToCombat isShuffle=${isShuffleRound} metadataOK=${metadataLooksGood}`);
+
+        logTrace(
+          `Metadata check good=${metadataLooksGood} isShuffleRound=${isShuffleRound} events=${
+            segment.events.length
+          } e0=${segment.events[0].logLine.event} e0=${
+            segment.events[0].logLine.timestamp
+          } e0=${segment.events[0].logLine.raw.slice(0, 50)} eLast=${
+            segment.events[segment.events.length - 1].logLine.event
+          } eLast=${segment.events[segment.events.length - 1].logLine.raw.slice(0, 50)}`,
+        );
         if (isShuffleRound) {
           try {
             const decoded = decodeShuffleRound(
@@ -229,6 +243,9 @@ export const segmentToCombat = () => {
               recentShuffleRoundsBuffer,
               recentScoreboardBuffer,
               segment.events[0].logLine.timezone,
+            );
+            logTrace(
+              `Emitting shuffle round ${segment.events[0].timestamp} ${segment.events[0].logLine.raw.slice(0, 50)}`,
             );
             return decoded.shuffle;
           } catch (e) {

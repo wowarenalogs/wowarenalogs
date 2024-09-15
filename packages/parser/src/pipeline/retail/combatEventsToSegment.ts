@@ -4,7 +4,7 @@ import { ArenaMatchEnd } from '../../actions/ArenaMatchEnd';
 import { ArenaMatchStart } from '../../actions/ArenaMatchStart';
 import { ZoneChange } from '../../actions/ZoneChange';
 import { IActivityStarted } from '../../CombatData';
-import { logDebug } from '../../logger';
+import { logDebug, logTrace } from '../../logger';
 import { CombatEvent, ICombatEventSegment } from '../../types';
 
 const COMBAT_AUTO_TIMEOUT_SECS = 60;
@@ -30,6 +30,7 @@ const VALID_BG_ZONE_IDS = [
 export const combatEventsToSegment = () => {
   return (input: Observable<CombatEvent | string>) => {
     return new Observable<ICombatEventSegment | IActivityStarted>((output) => {
+      logTrace('combatEventsToSegment.Observer.Init');
       let lastTimestamp = 0;
       let currentBuffer: ICombatEventSegment = {
         events: [],
@@ -65,11 +66,17 @@ export const combatEventsToSegment = () => {
           const timeout = event.timestamp - lastTimestamp > COMBAT_AUTO_TIMEOUT_SECS * 1000;
 
           if (timeout || event instanceof ArenaMatchStart) {
+            logTrace(
+              `combatEventsToSegment.TIMEOUT|START isStart=${event instanceof ArenaMatchStart} ets=${
+                event.timestamp
+              } lts=${lastTimestamp}`,
+            );
             emitCurrentBuffer();
           }
 
           if (!currentBuffer.hasEmittedStartEvent) {
             if (event instanceof ArenaMatchStart) {
+              logTrace(`combatEventsToSegment.!emitStart|ARENAMATCHSTART isStart=${event instanceof ArenaMatchStart}`);
               output.next({
                 dataType: 'ActivityStarted',
                 arenaMatchStartInfo: event,
@@ -78,6 +85,7 @@ export const combatEventsToSegment = () => {
             }
             if (event instanceof ZoneChange) {
               if (VALID_BG_ZONE_IDS.includes(event.instanceId)) {
+                logTrace('combatEventsToSegment.ZONE_CHANGE');
                 output.next({
                   dataType: 'ActivityStarted',
                   bgZoneChange: event,
@@ -91,6 +99,7 @@ export const combatEventsToSegment = () => {
           currentBuffer.lines.push(event.logLine.raw);
 
           if (event instanceof ArenaMatchEnd) {
+            logTrace('combatEventsToSegment.ArenaMatchEnd');
             emitCurrentBuffer();
           }
 
