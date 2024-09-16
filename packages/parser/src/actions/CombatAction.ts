@@ -50,7 +50,11 @@ export class CombatAction {
         this.spellName = parseQuotedName(logLine.parameters[9]);
         this.spellSchoolId = logLine.parameters[10].toString();
       }
-    } else if (logLine.event.startsWith('RANGE_') || logLine.event.startsWith('SPELL_')) {
+    } else if (
+      logLine.event.startsWith('RANGE_') ||
+      logLine.event.startsWith('SPELL_') ||
+      logLine.event.endsWith('_SUPPORT')
+    ) {
       this.spellId = logLine.parameters[8].toString();
       this.spellName = parseQuotedName(logLine.parameters[9]);
       this.spellSchoolId = logLine.parameters[10].toString();

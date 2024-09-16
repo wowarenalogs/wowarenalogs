@@ -25,7 +25,7 @@ const storage = new GoogleCloudStorage({
 const bucket = storage.bucket('images.wowarenalogs.com');
 
 const MATCH_STUBS_COLLECTION = 'match-stubs-prod';
-const NUMBER_OF_MATCHES = 100;
+const NUMBER_OF_MATCHES = 75;
 
 // returns whether a new spell icon was created
 const processSpellIdAsync = async (spellId: string): Promise<boolean> => {
