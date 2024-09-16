@@ -84,6 +84,7 @@ export class WoWCombatLogParser extends EventEmitter<LogParserSpec> {
   }
 
   public resetParserStates(wowVersion: WowVersion | null = null): void {
+    logTrace(`WoWCombatLogParser.resetParserStates ${wowVersion}`);
     if (wowVersion === null) {
       this.context = {
         wowVersion,
@@ -105,10 +106,6 @@ export class WoWCombatLogParser extends EventEmitter<LogParserSpec> {
   public parseLine(line: string): void {
     const wowVersionLineMatches = line.match(WOW_VERSION_LINE_PARSER);
     if (wowVersionLineMatches && wowVersionLineMatches.length > 0) {
-      if (this.context.wowVersion) {
-        this.context.pipeline(PIPELINE_FLUSH_SIGNAL);
-      }
-
       const wowBuild = wowVersionLineMatches[2];
       const wowVersion: WowVersion = wowBuild.startsWith('3.') ? 'classic' : 'retail';
       this.setWowVersion(wowVersion);
