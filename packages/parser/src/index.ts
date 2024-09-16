@@ -9,11 +9,11 @@ import {
   IShuffleMatch,
   IShuffleRound,
 } from './CombatData';
+import { logTrace } from './logger';
 import { createClassicParserPipeline } from './pipeline/classic';
 import { createRetailParserPipeline } from './pipeline/retail';
 import { WowVersion } from './types';
 import { PIPELINE_FLUSH_SIGNAL } from './utils';
-import { logTrace } from './logger';
 
 export type {
   IArenaMatch,
