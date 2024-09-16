@@ -140,29 +140,35 @@ describe('pipeline component tests', () => {
     });
 
     it('should parse SPELL_DAMAGE_SUPPORT', () => {
-      const log = `6/24/2024 13:55:42.309  SPELL_DAMAGE_SUPPORT,Player-5764-0001B6CA,"Asdofh-Fyrakk",0x511,0x0,Creature-0-5770-530-764-153285-0000972A98,"Training Dummy",0x10a28,0x0,395152,"Ebon Might",0xc,0000000000000000,0000000000000000,0,0,0,0,0,0,-1,0,0,0,0.00,0.00,110,0.0000,0,2564,2564,-1,4,0,0,0,nil,nil,nil,Player-5764-0001804B`;
+      const log = `9/11/2024 13:59:56.4812  SPELL_DAMAGE_SUPPORT,Player-1329-0A1AA05C,"Baowiidk-Ravencrest-EU",0x548,0x0,Player-1401-0A791866,"Kyriea-Garrosh-EU",0x512,0x4,432895,"Thread of Fate",0x40,Player-1401-0A791866,0000000000000000,6615051,6661460,21829,72449,61612,0,0,2500000,2500000,0,1303.54,1679.19,0,4.7347,626,3523,4366,-1,64,0,0,0,nil,nil,nil,Player-1390-0CE41B66`;
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
       expect(logLine).not.toBeNull();
+
       const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
-      expect(action.amount).toEqual(-2564);
-      expect(action.supportActorId).toEqual('Player-5764-0001804B');
+      // console.log(action);
+      // (logLine as unknown as ILogLine).parameters.forEach((p, idx) => {
+      //   console.log(`${idx} ${p}`);
+      // });
+      expect(action.spellName).toBe('Thread of Fate');
+      expect(action.amount).toEqual(-3523);
+      expect(action.supportActorId).toEqual('Player-1390-0CE41B66');
     });
 
     it('should parse SPELL_PERIODIC_DAMAGE_SUPPORT', () => {
-      const log = `6/24/2024 14:15:32.187  SPELL_PERIODIC_DAMAGE_SUPPORT,Player-5764-0001B6CA,"Asdofh-Fyrakk",0x511,0x0,Creature-0-5770-530-764-153285-0000972A98,"Training Dummy",0x10a28,0x0,395152,"Ebon Might",0xc,0000000000000000,0000000000000000,0,0,0,0,0,0,-1,0,0,0,0.00,0.00,110,0.0000,0,1520,1520,-1,80,0,0,0,nil,nil,nil,Player-5764-0001804B`;
+      const log = `9/11/2024 13:59:56.7892  SPELL_PERIODIC_DAMAGE_SUPPORT,Player-1329-0A1AA05C,"Baowiidk-Ravencrest-EU",0x548,0x0,Player-1401-0A791866,"Kyriea-Garrosh-EU",0x512,0x4,395152,"Ebon Might",0xc,Player-1401-0A791866,0000000000000000,6650903,6661460,21829,72449,61612,0,0,2500000,2500000,0,1303.71,1679.28,0,0.7581,626,624,641,-1,32,0,0,0,nil,nil,nil,Player-1390-0CE41B66`;
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
       expect(logLine).not.toBeNull();
       const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
-      expect(action.amount).toEqual(-1520);
       expect(action.spellName).toBe('Ebon Might');
       expect(action.spellId).toBe('395152');
-      expect(action.supportActorId).toEqual('Player-5764-0001804B');
+      expect(action.supportActorId).toEqual('Player-1390-0CE41B66');
+      expect(action.amount).toEqual(-624);
     });
 
     xit('should parse SWING_DAMAGE_SUPPORT', () => {
@@ -171,41 +177,45 @@ describe('pipeline component tests', () => {
     });
 
     it('should parse RANGE_DAMAGE_SUPPORT', () => {
-      const log = `7/10/2024 18:22:57.752  RANGE_DAMAGE_SUPPORT,Player-5764-0002AE3B,"Beastmystery-Fyrakk",0x511,0x0,Creature-0-5770-2444-5-197833-00002C7CDE,"PvP Training Dummy",0x10a28,0x0,410089,"Prescience",0x40,0000000000000000,0000000000000000,0,0,0,0,0,0,-1,0,0,0,0.00,0.00,2112,0.0000,0,548,521,547,1,0,0,0,1,nil,nil,Player-5764-0001804B`;
+      const log = `9/11/2024 12:06:56.5198  RANGE_DAMAGE_SUPPORT,Player-11-0E7C9656,"Nightstride-Tichondrius-US",0x548,0x0,Player-3725-07B9ADE3,"Skillcapped-Frostmourne-US",0x20512,0x2,395152,"Ebon Might",0xc,Player-3725-07B9ADE3,0000000000000000,6895740,7115820,87438,10672,39438,0,6,560,1000,0,1322.45,1674.56,0,1.9299,627,1220,2373,-1,1,0,0,277,nil,nil,nil,Player-57-0DC2897C`;
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
       expect(logLine).not.toBeNull();
       const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
-      expect(action.amount).toEqual(-548);
-      expect(action.spellName).toBe('Prescience');
-      expect(action.spellId).toBe('410089');
-      expect(action.supportActorId).toEqual('Player-5764-0001804B');
+      expect(action.spellName).toBe('Ebon Might');
+      expect(action.spellId).toBe('395152');
+      expect(action.supportActorId).toEqual('Player-57-0DC2897C');
+      expect(action.amount).toEqual(-1220);
     });
 
     it('should parse SPELL_HEAL_SUPPORT', () => {
-      const log = `7/10/2024 18:16:50.922  SPELL_HEAL_SUPPORT,Player-5764-000183CB,"Yllaphcaz-Iridikron",0x548,0x0,Creature-0-5770-2444-5-194646-00002C7CDE,"Training Dummy",0xa18,0x0,413786,"Fate Mirror",0x40,0000000000000000,0000000000000000,0,0,0,0,0,0,-1,0,0,0,0.00,0.00,2112,0.0000,0,1169,1169,0,0,nil,Player-5764-0002553E`;
+      const log = `9/11/2024 13:59:51.7472  SPELL_HEAL_SUPPORT,Player-1305-0C4C426C,"Mîstxd-Kazzak-EU",0x10548,0x0,Player-1305-0C4C426C,"Mîstxd-Kazzak-EU",0x10548,0x0,395152,"Ebon Might",0xc,Player-1305-0C4C426C,0000000000000000,3858490,6284380,86068,82758,24402,0,0,2628700,2756250,0,1279.96,1640.13,0,5.0636,626,29924,29924,0,0,nil,Player-1390-0CE41B66`;
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
       expect(logLine).not.toBeNull();
       const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
-      expect(action.amount).toEqual(1169);
-      expect(action.spellName).toBe('Fate Mirror');
-      expect(action.spellId).toBe('413786');
-      expect(action.supportActorId).toEqual('Player-5764-0002553E');
+      expect(action.amount).toEqual(29924);
+      expect(action.spellName).toBe('Ebon Might');
+      expect(action.spellId).toBe('395152');
+      expect(action.supportActorId).toEqual('Player-1390-0CE41B66');
     });
 
-    xit('should parse SPELL_PERIODIC_HEAL_SUPPORT', () => {
-      // TODO: support event
-      throw new Error('NYI');
-    });
-
-    xit('should parse SWING_DAMAGE_LANDED_SUPPORT', () => {
-      // TODO: support event
-      throw new Error('NYI');
+    it('should parse SPELL_PERIODIC_HEAL_SUPPORT', () => {
+      const log = `9/11/2024 13:59:56.3562  SPELL_PERIODIC_HEAL_SUPPORT,Creature-0-3894-572-21622-60849-0000618623,"Jade Serpent Statue",0x2148,0x0,Player-1305-0C4C426C,"Mîstxd-Kazzak-EU",0x10548,0x0,413984,"Shifting Sands",0x40,Player-1305-0C4C426C,0000000000000000,4626696,6284380,81850,78702,24402,0,0,2610560,2756250,0,1278.07,1639.92,0,0.9128,626,1789,1789,0,0,nil,Player-1390-0CE41B66`;
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+      expect(logLine).not.toBeNull();
+      const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.amount).toEqual(1789);
+      expect(action.spellName).toBe('Shifting Sands');
+      expect(action.spellId).toBe('413984');
+      expect(action.supportActorId).toEqual('Player-1390-0CE41B66');
     });
 
     //
@@ -265,6 +275,41 @@ describe('pipeline component tests', () => {
       expect(logLine).not.toBeNull();
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
       expect(action.effectiveAmount).toEqual(-52602);
+    });
+
+    it('should parse advanced SWING_DAMAGE_LANDED_SUPPORT', () => {
+      const log = `9/11/2024 13:59:45.0032  SWING_DAMAGE_LANDED_SUPPORT,Creature-0-3894-572-21622-221635-0000618628,"King Thoras Trollbane",0x2148,0x0,Player-1329-0A41360A,"Lanafelray-Ravencrest-EU",0x511,0x20,395152,"Ebon Might",0xc,Player-1329-0A41360A,0000000000000000,5898568,6229790,79485,13440,29282,0,17,163,170,0,1279.60,1691.91,0,5.1684,626,2173,2700,-1,1,0,0,0,nil,nil,nil,Player-1390-0CE41B66`;
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+      expect(logLine).not.toBeNull();
+      const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
+      // console.log(action);
+      // (logLine as unknown as ILogLine).parameters.forEach((p, idx) => {
+      //   console.log(`${idx} ${p}`);
+      // });
+      expect(action.srcUnitId).toBe('Creature-0-3894-572-21622-221635-0000618628');
+      expect(action.destUnitId).toBe('Player-1329-0A41360A');
+      expect(action.spellId).toBe('395152');
+      expect(action.spellName).toBe('Ebon Might');
+      expect(action.supportActorId).toBe('Player-1390-0CE41B66');
+      expect(action.effectiveAmount).toEqual(-2173);
+    });
+
+    it('should parse non-advanced SWING_DAMAGE_LANDED_SUPPORT', () => {
+      const log = `9/9/2024 23:21:00.2602  SWING_DAMAGE_LANDED_SUPPORT,Creature-0-4245-572-29372-149555-00005F6672,"Abomination",0x2148,0x0,Player-3713-0B12E270,"Sebowareq-BurningLegion-EU",0x511,0x0,413984,"Shifting Sands",0x40,16349,22235,-1,1,0,0,0,nil,nil,nil,Player-3657-0B141122
+    `;
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+      expect(logLine).not.toBeNull();
+      const action = new CombatSupportAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.srcUnitId).toBe('Creature-0-4245-572-29372-149555-00005F6672');
+      expect(action.destUnitId).toBe('Player-3713-0B12E270');
+      expect(action.supportActorId).toBe('Player-3657-0B141122');
+      expect(action.effectiveAmount).toEqual(-16349);
     });
   });
 });
