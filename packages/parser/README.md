@@ -44,3 +44,29 @@ logParser.removeAllListeners();
 ## Contributing
 
 Contributions are welcome! Please feel free to open an issue on GitHub or submit a pull request.
+
+## Reducing log files
+
+It can be useful to remove some events from logs to be used as test files. The following command may be helpful:
+
+```
+grep -v SPELL_AURA_REMOVED testlog.txt | \
+grep -v SPELL_AURA_APPLIED | \
+grep -v SPELL_AURA_REFRESH | \
+grep -v SPELL_CAST_FAILED | \
+grep -v SPELL_PERIODIC_DAMAGE | \
+grep -v SPELL_PERIODIC_HEAL | \
+grep -v SPELL_PERIODIC_MISSED | \
+grep -v SPELL_DAMAGE | \
+grep -v SPELL_HEAL | \
+grep -v SPELL_ABSORBED | \
+grep -v SPELL_CAST_START | \
+grep -v SPELL_CAST_END | \
+grep -v SWING_MISSED | \
+grep -v SPELL_MISSED | \
+grep -v RANGED_MISSED | \
+grep -v SPELL_ENERGIZE | \
+grep -v SPELL_CAST_SUCCESS | \
+grep -v DAMAGE_SPLIT | \
+grep -v SWING_DAMAGE > testlog.reduced.txt
+```

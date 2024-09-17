@@ -2,7 +2,7 @@ import { pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { parseWowToJSON } from '../../jsonparse';
-import { logDebug, logTrace } from '../../logger';
+import { logDebug } from '../../logger';
 import { ILogLine, LogEvent } from '../../types';
 
 const LINE_PARSER = /^(.*)? {2}([A-Z_]+),(.+)\s*$/;
@@ -32,7 +32,6 @@ export const stringToLogLine = (timezone: string) => {
       const event = LogEvent[eventName as keyof typeof LogEvent];
       const jsonParameters = parseWowToJSON(regex_matches[eventIndex + 1]);
       const decodedDate = new Date(tsString);
-      logTrace({ decodedDate });
       const timestamp = decodedDate.getTime();
 
       return {

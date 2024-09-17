@@ -10,6 +10,8 @@ lerna-debug.log*
 testrun.log
 testreport.txt
 
+wowarenalogs-public-dev.json
+wowarenalogs.json
 gcp_service_account.json
 
 build/

@@ -9,7 +9,7 @@ import { CombatSupportAction } from './actions/CombatSupportAction';
 import { PartyKill } from './actions/PartyKill';
 import { classMetadata } from './classMetadata';
 import { CombatUnit } from './CombatUnit';
-import { logInfo } from './logger';
+import { logTrace } from './logger';
 import { CombatUnitClass, ICombatantMetadata, LogEvent, WowVersion } from './types';
 
 const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
@@ -164,7 +164,7 @@ export class CombatGenerator {
         ) {
           destUnit.consciousDeathRecords.push(event.logLine);
         } else {
-          logInfo('UNIT_DIED', event.logLine.raw);
+          logTrace('UNIT_DIED', event.logLine.raw);
           destUnit.deathRecords.push(event.logLine);
         }
         break;

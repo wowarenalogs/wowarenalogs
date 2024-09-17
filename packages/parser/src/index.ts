@@ -9,6 +9,7 @@ import {
   IShuffleMatch,
   IShuffleRound,
 } from './CombatData';
+import { logTrace } from './logger';
 import { createClassicParserPipeline } from './pipeline/classic';
 import { createRetailParserPipeline } from './pipeline/retail';
 import { WowVersion } from './types';
@@ -83,6 +84,7 @@ export class WoWCombatLogParser extends EventEmitter<LogParserSpec> {
   }
 
   public resetParserStates(wowVersion: WowVersion | null = null): void {
+    logTrace(`WoWCombatLogParser.resetParserStates ${wowVersion}`);
     if (wowVersion === null) {
       this.context = {
         wowVersion,
@@ -104,10 +106,6 @@ export class WoWCombatLogParser extends EventEmitter<LogParserSpec> {
   public parseLine(line: string): void {
     const wowVersionLineMatches = line.match(WOW_VERSION_LINE_PARSER);
     if (wowVersionLineMatches && wowVersionLineMatches.length > 0) {
-      if (this.context.wowVersion) {
-        this.context.pipeline(PIPELINE_FLUSH_SIGNAL);
-      }
-
       const wowBuild = wowVersionLineMatches[2];
       const wowVersion: WowVersion = wowBuild.startsWith('3.') ? 'classic' : 'retail';
       this.setWowVersion(wowVersion);
@@ -146,6 +144,20 @@ export class WoWCombatLogParser extends EventEmitter<LogParserSpec> {
   }
 
   private setWowVersion(wowVersion: WowVersion) {
+    // If we call this again but we have already initialized a pipeline we can cause
+    // very strange behavior by re-initializing the pipeline; since state is buffered
+    // internally the system does not expect this to ever occur.
+    // In the case this is somehow called again with a different version, that is an error since
+    // the pipelines have no concept of being able to switch versions
+    if (this.context.wowVersion) {
+      if (this.context.wowVersion !== wowVersion)
+        throw new Error(
+          `Invalid re-init of pipeline with mismatched versions cur=${this.context.wowVersion} call=${wowVersion}`,
+        );
+      return;
+    }
+
+    logTrace(`WoWCombatLogParser.setWowVersion=${wowVersion}`);
     if (wowVersion === 'classic') {
       this.context = {
         wowVersion,

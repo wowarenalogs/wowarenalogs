@@ -5,7 +5,7 @@ import _ from 'lodash';
 import path from 'path';
 import superagent from 'superagent';
 
-import { AtomicArenaCombat } from '../../parser/dist/index';
+import { AtomicArenaCombat, CombatUnitType } from '../../parser/dist/index';
 import { ICombatDataStub } from '../../shared/src/graphql-server/types';
 import { parseFromStringArrayAsync } from './utils';
 
@@ -18,14 +18,18 @@ const gcpCredentials =
 const firestore = new Firestore({
   ignoreUndefinedProperties: true,
   credentials: gcpCredentials,
+  projectId: 'wowarenalogs',
 });
+
 const storage = new GoogleCloudStorage({
   credentials: gcpCredentials,
+  projectId: 'wowarenalogs',
 });
+
 const bucket = storage.bucket('images.wowarenalogs.com');
 
 const MATCH_STUBS_COLLECTION = 'match-stubs-prod';
-const NUMBER_OF_MATCHES = 75;
+const NUMBER_OF_MATCHES = 25;
 
 // returns whether a new spell icon was created
 const processSpellIdAsync = async (spellId: string): Promise<boolean> => {
@@ -122,6 +126,20 @@ export async function handler(_event: unknown, _context: unknown, callback: () =
               });
             }),
         );
+
+        // get all pvp talent ids from match:
+        const pvpTalentIds = (results.arenaMatches as AtomicArenaCombat[])
+          .map((match) => {
+            const players = _.values(match.units).filter((u) => u.type === CombatUnitType.Player);
+            return players.map((u) => u.info?.pvpTalents.filter((a) => a !== '0'));
+          })
+          .flat(2);
+
+        pvpTalentIds.forEach((pvpTalentId) => {
+          if (pvpTalentId) {
+            allSpellIds.add(pvpTalentId);
+          }
+        });
 
         spellIds.forEach((id) => {
           if (id) {
