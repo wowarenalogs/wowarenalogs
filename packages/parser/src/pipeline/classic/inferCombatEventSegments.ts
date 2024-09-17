@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 
 import { CombatAction } from '../../actions/CombatAction';
 import { ZoneChange } from '../../actions/ZoneChange';
+import { logTrace } from '../../logger';
 import { CombatEvent, CombatUnitType, ICombatEventSegment, LogEvent } from '../../types';
 import { getUnitReaction, getUnitType, PIPELINE_FLUSH_SIGNAL } from '../../utils';
 
@@ -83,6 +84,7 @@ export const inferCombatEventSegments = () => {
             }
             return;
           }
+          logTrace(`classic.inferCombat evt=${event.logLine.event} state=${state}`);
 
           switch (state) {
             case 'MATCH_NOT_STARTED':
@@ -90,6 +92,7 @@ export const inferCombatEventSegments = () => {
               // match start. when that happens we change state to reflect
               // that we are now in a match.
               if (isMatchStartEvent(event)) {
+                logTrace(`MATCH STARTED by ${event.logLine.event}`);
                 state = 'MATCH_STARTED';
                 currentSegmentCombatantIds.add((event as CombatAction).destUnitId);
               } else {
@@ -98,17 +101,19 @@ export const inferCombatEventSegments = () => {
               break;
             case 'MATCH_STARTED':
               if (isMatchStartEvent(event)) {
+                logTrace(`MATCH STARTED by ${event.logLine.event}`);
                 if (Math.abs(event.timestamp - currentBuffer.events[0].timestamp) > 5000) {
                   emitCurrentBuffer();
                 }
                 currentSegmentCombatantIds.add((event as CombatAction).destUnitId);
               } else if (isMatchEndEvent(event)) {
+                logTrace('MATCH ENDED by ZONE_CHANGE');
                 emitCurrentBuffer();
                 state = 'MATCH_NOT_STARTED';
               } else {
                 // We cannot currently tell known combatants at the start of the arena because
                 // arena preparation buff is not showing up in combat logs. So we just record
-                // all cambatants. this is not ideal because it could include other
+                // all combatants. this is not ideal because it could include other
                 // combatants (some other events arrive before ZONE_CHANGE involving players in the loading map).
                 // This is mitigated by parser trimming the events until the last death event,
                 // it remains to be seen if we could finish the arena and get another UNIT_DIED
