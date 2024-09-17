@@ -13,7 +13,7 @@ import { CombatSupportAction } from '../../actions/CombatSupportAction';
 import { PartyKill } from '../../actions/PartyKill';
 import { SpellAuraBrokenSpell } from '../../actions/SpellAuraBrokenSpell';
 import { ZoneChange } from '../../actions/ZoneChange';
-import { logDebug, logInfo } from '../../logger';
+import { logInfo, logTrace } from '../../logger';
 import { CombatEvent, ILogLine, LogEvent, WowVersion } from '../../types';
 
 export const logLineToCombatEvent = (wowVersion: WowVersion) => {
@@ -82,7 +82,7 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
             return new ZoneChange(logLine);
           case LogEvent.SWING_DAMAGE_LANDED: // we should not process both this and SWING_DAMAGE
           default:
-            logDebug(`DEFAULT HANDLER: ${logLine.event}`);
+            logTrace(`DEFAULT HANDLER: ${logLine.event}`);
             return logLine.raw;
         }
       } catch (e) {
