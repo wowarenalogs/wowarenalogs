@@ -26,7 +26,7 @@ export const parseQuotedName = (quotedName: string): string => {
 };
 
 export function computeCanonicalHash(buffer: string[]): string {
-  return md5(buffer.join('\n').slice(1024));
+  return md5(buffer.join('\n').slice(0, 16348));
 }
 
 export function getUnitType(flag: number): CombatUnitType {
