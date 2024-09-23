@@ -22,6 +22,7 @@ function getDeathID(death: IPlayerDeath | null) {
 export function CombatDeathReports() {
   const { combat } = useCombatReportContext();
   const [activePlayerDeathID, setActivePlayerDeathID] = useState<string | null>(null);
+  const [onlyShowCC, setOnlyShowCC] = useState(false);
 
   const players = _.values(combat ? combat.units : {}).filter((u) => u.type === CombatUnitType.Player);
   const allPlayerDeath = useMemo(() => {
@@ -68,6 +69,16 @@ export function CombatDeathReports() {
             </li>
           );
         })}
+        <div className="divider" />
+        <label className="label gap-2 justify-start items-center">
+          <input
+            type="checkbox"
+            checked={onlyShowCC}
+            onChange={(v) => setOnlyShowCC(v.target.checked)}
+            className="checkbox checkbox-sm"
+          />
+          <span className="label-text text-left">Only Show CC</span>
+        </label>
       </ul>
       {allPlayerDeath.map((d) => {
         const deathID = getDeathID(d);
@@ -78,6 +89,7 @@ export function CombatDeathReports() {
                 unit={d.unit}
                 startTime={d.deathRecord.timestamp - 30 * 1000}
                 endTime={d.deathRecord.timestamp}
+                onlyShowCC={onlyShowCC}
               />
             </div>
           )
