@@ -15,6 +15,7 @@ interface IProps {
   unit: ICombatUnit;
   startTime: number;
   endTime: number;
+  onlyShowCC?: boolean;
 }
 
 const generateHpUpdateColumn = (
@@ -270,7 +271,13 @@ export const CombatUnitTimelineView = (props: IProps) => {
       </div>
       <div className="flex flex-row">
         {enemies.map((p) => (
-          <CombatUnitAuraTimeline key={p.id} unit={p} startTime={startTime} endTime={endTime} />
+          <CombatUnitAuraTimeline
+            key={p.id}
+            unit={p}
+            startTime={startTime}
+            endTime={endTime}
+            onlyShowCC={props.onlyShowCC}
+          />
         ))}
         {generateHpUpdateColumn(
           combat,
@@ -305,7 +312,13 @@ export const CombatUnitTimelineView = (props: IProps) => {
           deathTime,
         )}
         {friends.map((p) => (
-          <CombatUnitAuraTimeline key={p.id} unit={p} startTime={startTime} endTime={endTime} />
+          <CombatUnitAuraTimeline
+            key={p.id}
+            unit={p}
+            startTime={startTime}
+            endTime={endTime}
+            onlyShowCC={props.onlyShowCC}
+          />
         ))}
       </div>
     </div>

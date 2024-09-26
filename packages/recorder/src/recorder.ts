@@ -1158,15 +1158,18 @@ export class Recorder {
       Recorder.logger.warn(`[Recorder] OBS can't stop, current state is: ${this.obsState}`);
     }
 
-    this.obsRecordingFactory.stop();
+    this.wroteQueue.empty();
 
     // Wait up to 30 seconds for OBS to signal it has wrote the file, really
     // this shouldn't take nearly as long as this but we're generous to account
     // for slow HDDs etc.
     const stopRace = Promise.race([
-      this.wroteQueue.shift(),
+      this.wroteQueue.shift().then((a) => Recorder.logger.info(`[Recorder] shifted signal = ${a.signal}`)),
       getPromiseBomb(30000, '[Recorder] OBS timeout waiting for video file'),
     ]);
+
+    this.obsRecordingFactory.stop();
+    Recorder.logger.info(`[Recorder] Stop OBS signal sent`);
 
     try {
       await stopRace;
