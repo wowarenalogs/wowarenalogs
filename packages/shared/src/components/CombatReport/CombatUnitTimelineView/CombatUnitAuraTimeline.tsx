@@ -28,9 +28,15 @@ const isSignificantAura = (a: IAuraDuration): boolean => {
   );
 };
 
-export const CombatUnitAuraTimeline = (props: { unit: ICombatUnit; startTime: number; endTime: number }) => {
+export const CombatUnitAuraTimeline = (props: {
+  unit: ICombatUnit;
+  startTime: number;
+  endTime: number;
+  onlyShowCC?: boolean;
+}) => {
   const { unit, startTime, endTime } = props;
   const { combat } = useCombatReportContext();
+  const ccOnly = props.onlyShowCC || false;
 
   const startTimeOffset = startTime - (combat?.startTime ?? 0);
   const endTimeOffset = endTime - (combat?.startTime ?? 0);
@@ -39,9 +45,14 @@ export const CombatUnitAuraTimeline = (props: { unit: ICombatUnit; startTime: nu
     if (combat) {
       const allAuras = computeAuraDurations(combat, unit);
       // only look at auras that were active during the specified time range
-      const relevantAuras = allAuras.filter(
-        (a) => isSignificantAura(a) && a.endTimeOffset > startTimeOffset && a.startTimeOffset < endTimeOffset,
-      );
+      const relevantAuras = allAuras
+        .filter((a) => isSignificantAura(a) && a.endTimeOffset > startTimeOffset && a.startTimeOffset < endTimeOffset)
+        .map((a) => ({
+          ...a,
+          color: getAuraColor(a),
+          auraType: spells[a.spellId].type,
+        }))
+        .filter((a) => !ccOnly || a.auraType === 'cc');
       // cap start time and end time for relevant auras
       relevantAuras.forEach((a) => {
         if (a.startTimeOffset < startTimeOffset) {
@@ -54,7 +65,7 @@ export const CombatUnitAuraTimeline = (props: { unit: ICombatUnit; startTime: nu
       return relevantAuras;
     }
     return [];
-  }, [combat, unit, startTimeOffset, endTimeOffset]);
+  }, [combat, unit, startTimeOffset, endTimeOffset, ccOnly]);
 
   return (
     <div
@@ -73,9 +84,7 @@ export const CombatUnitAuraTimeline = (props: { unit: ICombatUnit; startTime: nu
       />
       {auras.map((a) => (
         <div
-          className={`flex flex-col-reverse border border-black absolute items-center overflow-hidden ${getAuraColor(
-            a,
-          )} hover:!z-50 hover:border-base-content`}
+          className={`flex flex-col-reverse border border-black absolute items-center overflow-hidden ${a.color} hover:!z-50 hover:border-base-content`}
           title={`${a.spellName} from ${
             combat?.units[a.auraOwnerId].name === 'nil' ? 'Unknown' : combat?.units[a.auraOwnerId].name
           } - ${((a.endTimeOffset - a.startTimeOffset) / 1000).toFixed(1)}s`}
