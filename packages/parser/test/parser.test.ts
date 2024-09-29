@@ -8,6 +8,7 @@ describe('parser tests', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
+      errors: [],
     };
 
     beforeAll(() => {
@@ -29,6 +30,7 @@ describe('parser tests', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
+      errors: [],
     };
 
     beforeAll(() => {
@@ -61,6 +63,7 @@ describe('parser tests', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
+      errors: [],
     };
 
     beforeAll(() => {
@@ -102,6 +105,7 @@ describe('parser tests', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
+      errors: [],
     };
 
     beforeAll(() => {
@@ -157,6 +161,7 @@ describe('parser tests', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
+      errors: [],
     };
 
     beforeAll(() => {
@@ -186,6 +191,7 @@ describe('parser tests', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
+      errors: [],
     };
 
     beforeAll(() => {

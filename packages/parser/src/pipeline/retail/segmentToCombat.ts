@@ -16,7 +16,7 @@ import {
   IShuffleRound,
 } from '../../CombatData';
 import { logDebug, logInfo, logTrace } from '../../logger';
-import { CombatResult, CombatUnitType, ICombatEventSegment } from '../../types';
+import { CombatResult, CombatUnitType, ICombatEventSegment, IParseError } from '../../types';
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
 
@@ -164,7 +164,7 @@ export const segmentToCombat = () => {
   return pipe(
     map(
       (
-        segment: ICombatEventSegment | IActivityStarted,
+        segment: ICombatEventSegment | IActivityStarted | IParseError,
       ):
         | IArenaMatch
         | IMalformedCombatData
@@ -172,6 +172,7 @@ export const segmentToCombat = () => {
         | IShuffleMatch
         | IBattlegroundCombat
         | IActivityStarted
+        | IParseError
         | null => {
         // Pass-through events that aren't relevant to the combat generation process
         if (segment.dataType == 'ActivityStarted') {

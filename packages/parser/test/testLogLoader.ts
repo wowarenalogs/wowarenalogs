@@ -16,6 +16,7 @@ export type LoaderResults = {
   malformedCombats: IMalformedCombatData[];
   shuffleRounds: IShuffleRound[];
   shuffles: IShuffleMatch[];
+  errors: Error[];
   activityStarts?: IActivityStarted[];
   battlegrounds?: IBattlegroundCombat[];
 };
@@ -31,6 +32,8 @@ export const loadLogFile = (logFileName: string): LoaderResults => {
 
   const activityStarts: IActivityStarted[] = [];
   const battlegrounds: IBattlegroundCombat[] = [];
+
+  const errors: Error[] = [];
 
   logParser.on('arena_match_ended', (data) => {
     combats.push(data);
@@ -52,6 +55,10 @@ export const loadLogFile = (logFileName: string): LoaderResults => {
     activityStarts.push(data);
   });
 
+  logParser.on('parser_error', (data) => {
+    errors.push(data);
+  });
+
   logParser.on('battleground_ended', (data) => battlegrounds.push(data));
 
   const buffer = fs.readFileSync(path.join(__dirname, 'testlogs', logFileName));
@@ -64,5 +71,5 @@ export const loadLogFile = (logFileName: string): LoaderResults => {
 
   logParser.flush();
 
-  return { combats, malformedCombats, shuffleRounds, shuffles, activityStarts, battlegrounds };
+  return { combats, malformedCombats, shuffleRounds, shuffles, activityStarts, battlegrounds, errors };
 };

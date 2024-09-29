@@ -10,6 +10,7 @@ describe('3v3 match parsing', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
+      errors: [],
     };
 
     beforeAll(() => {

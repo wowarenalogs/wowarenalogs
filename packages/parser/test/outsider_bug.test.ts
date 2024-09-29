@@ -10,6 +10,7 @@ describe('2v2 bugged match parsing', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
+      errors: [],
     };
 
     beforeAll(() => {

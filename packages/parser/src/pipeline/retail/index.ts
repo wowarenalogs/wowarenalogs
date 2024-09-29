@@ -1,4 +1,5 @@
-import { Subject } from 'rxjs';
+import { Observable, pipe, Subject } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
 import {
   IActivityStarted,
@@ -8,10 +9,21 @@ import {
   IShuffleMatch,
   IShuffleRound,
 } from '../../CombatData';
+import { IParseError } from '../../types';
 import { logLineToCombatEvent } from '../common/logLineToCombatEvent';
 import { stringToLogLine } from '../common/stringToLogLine';
 import { combatEventsToSegment } from './combatEventsToSegment';
 import { segmentToCombat } from './segmentToCombat';
+
+export const reporter = () => {
+  return (input: Observable<Error>) => {
+    return {
+      dataType: 'Error',
+      pipeline: '',
+      error: input,
+    };
+  };
+};
 
 export const createRetailParserPipeline = (
   onActivityStarted: (activity: IActivityStarted) => void,
@@ -20,16 +32,18 @@ export const createRetailParserPipeline = (
   onShuffleRound: (combat: IShuffleRound) => void,
   onShuffleComplete: (combat: IShuffleMatch) => void,
   onBattlegroundCombat: (combat: IBattlegroundCombat) => void,
-  onError: (error: Error) => void,
+  onError: (error: IParseError) => void,
   timezone: string,
 ) => {
   const rawLogs = new Subject<string>();
-
   rawLogs
     .pipe(stringToLogLine(timezone), logLineToCombatEvent('retail'), combatEventsToSegment(), segmentToCombat())
     .subscribe({
       next: (d) => {
         switch (d.dataType) {
+          case 'ParseError':
+            onError(d);
+            break;
           case 'ArenaMatch':
             onValidCombat(d);
             break;

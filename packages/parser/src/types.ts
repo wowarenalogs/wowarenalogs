@@ -77,6 +77,13 @@ export enum CombatResult {
   Win,
 }
 
+export interface IParseError {
+  dataType: 'ParseError';
+  pipeline: string;
+  error: Error;
+  metadata?: Record<string, unknown>;
+}
+
 export interface ILogLine {
   id: string;
   timestamp: number;

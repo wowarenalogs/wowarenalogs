@@ -13,6 +13,7 @@ describe('shuffle matches with a lot of commands to reload the ui done', () => {
       malformedCombats: [],
       shuffleRounds: [],
       shuffles: [],
+      errors: [],
     };
 
     beforeAll(() => {

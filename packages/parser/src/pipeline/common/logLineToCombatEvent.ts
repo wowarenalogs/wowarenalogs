@@ -14,11 +14,11 @@ import { PartyKill } from '../../actions/PartyKill';
 import { SpellAuraBrokenSpell } from '../../actions/SpellAuraBrokenSpell';
 import { ZoneChange } from '../../actions/ZoneChange';
 import { logInfo, logTrace } from '../../logger';
-import { CombatEvent, ILogLine, LogEvent, WowVersion } from '../../types';
+import { CombatEvent, ILogLine, IParseError, LogEvent, WowVersion } from '../../types';
 
 export const logLineToCombatEvent = (wowVersion: WowVersion) => {
   return pipe(
-    map((logLine: ILogLine | string): CombatEvent | string => {
+    map((logLine: ILogLine | string | IParseError): CombatEvent | string | IParseError => {
       if (typeof logLine === 'string') {
         return logLine;
       }

@@ -5,7 +5,7 @@ import { ArenaMatchStart } from '../../actions/ArenaMatchStart';
 import { ZoneChange } from '../../actions/ZoneChange';
 import { IActivityStarted } from '../../CombatData';
 import { logDebug, logTrace } from '../../logger';
-import { CombatEvent, ICombatEventSegment } from '../../types';
+import { CombatEvent, ICombatEventSegment, IParseError } from '../../types';
 
 const COMBAT_AUTO_TIMEOUT_SECS = 60;
 const VALID_BG_ZONE_IDS = [
@@ -28,8 +28,8 @@ const VALID_BG_ZONE_IDS = [
 ];
 
 export const combatEventsToSegment = () => {
-  return (input: Observable<CombatEvent | string>) => {
-    return new Observable<ICombatEventSegment | IActivityStarted>((output) => {
+  return (input: Observable<CombatEvent | string | IParseError>) => {
+    return new Observable<ICombatEventSegment | IActivityStarted | IParseError>((output) => {
       logTrace('combatEventsToSegment.Observer.Init');
       let lastTimestamp = 0;
       let currentBuffer: ICombatEventSegment = {
