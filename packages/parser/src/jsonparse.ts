@@ -104,5 +104,6 @@ export function parseWowToJSON(logline: string): any {
   buf = buf.replace(/\(/g, '[');
   buf = buf.replace(/\)/g, ']');
 
-  return JSON.parse(`{"data":[${un_escape_commas(buf)}]}`);
+  // This is a really bad fix
+  return JSON.parse(`{"data":[${un_escape_commas(buf).replaceAll('[,[', '[[')}]}`);
 }
