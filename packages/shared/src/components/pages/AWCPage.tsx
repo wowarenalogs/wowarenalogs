@@ -32,7 +32,9 @@ export const AWCPage = () => {
               <th>Bracket</th>
               <th>Round</th>
               <th>Winner</th>
+              <th>Winner Composition</th>
               <th>Loser</th>
+              <th>Loser Composition</th>
               <th>Game</th>
               <th>Game ID</th>
               <th>Dungeon</th>
@@ -47,14 +49,23 @@ export const AWCPage = () => {
                 const team2 = match.secondTeam;
                 const winnerTeam = game.winnerTeamId === team1.id ? team1 : team2;
                 const loserTeam = game.winnerTeamId === team1.id ? team2 : team1;
+                const winnerRoster = game.winnerTeamId === team1.id ? game.firstTeamRoster : game.secondTeamRoster;
+                const loserRoster = game.winnerTeamId === team1.id ? game.secondTeamRoster : game.firstTeamRoster;
                 const gameDate = new Date(game.updatedAt).toLocaleString();
+
+                const formatComposition = (roster) => {
+                  return roster.map(player => `${player.name} (${player.class} - ${player.spec})`).join(', ');
+                };
+
                 return (
                   <tr key={`${match.id}-${game.id}`}>
                     <td>{gameDate}</td>
                     <td>{match.position}</td>
                     <td>{match.round}</td>
                     <td>{winnerTeam.name}</td>
+                    <td>{formatComposition(winnerRoster)}</td>
                     <td>{loserTeam.name}</td>
+                    <td>{formatComposition(loserRoster)}</td>
                     <td>{match.games.findIndex((g) => g.id === game.id) + 1}</td>
                     <td>{game.id}</td>
                     <td>{game.dungeon.name}</td>
