@@ -37,16 +37,8 @@ export const AWCPage = () => {
                     <td>{matchDate}</td>
                     <td>{match.position}</td>
                     <td>{match.round}</td>
-                    <td>
-                      <a href={winnerTeam.teamEventProfileUrl} target="_blank" rel="noopener noreferrer">
-                        {winnerTeam.name}
-                      </a>
-                    </td>
-                    <td>
-                      <a href={loserTeam.teamEventProfileUrl} target="_blank" rel="noopener noreferrer">
-                        {loserTeam.name}
-                      </a>
-                    </td>
+                    <td>{winnerTeam.name}</td>
+                    <td>{loserTeam.name}</td>
                     <td>{index + 1}</td>
                     <td>{game.dungeon?.name || 'N/A'}</td>
                   </tr>
