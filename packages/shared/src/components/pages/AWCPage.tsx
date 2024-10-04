@@ -27,7 +27,7 @@ export const AWCPage = () => {
             {allMatches.flatMap((match) => {
               const team1 = match.firstTeam;
               const team2 = match.secondTeam;
-              const matchDate = new Date(match.updatedAt).toLocaleDateString();
+              const matchDate = new Date(match.updatedAt).toLocaleString();
 
               return match.games.map((game, index) => {
                 const winnerTeam = game.winnerTeamId === team1.id ? team1 : team2;
