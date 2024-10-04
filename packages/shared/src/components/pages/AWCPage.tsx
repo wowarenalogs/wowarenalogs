@@ -39,26 +39,28 @@ export const AWCPage = () => {
             </tr>
           </thead>
           <tbody>
-            {allGames.map((game, index) => {
-              const match = game.match;
-              const team1 = match.firstTeam;
-              const team2 = match.secondTeam;
-              const winnerTeam = game.winnerTeamId === team1.id ? team1 : team2;
-              const loserTeam = game.winnerTeamId === team1.id ? team2 : team1;
-              const gameDate = new Date(game.updatedAt).toLocaleString();
-              return (
-                <tr key={`${match.id}-${game.id}`}>
-                  <td>{gameDate}</td>
-                  <td>{match.position}</td>
-                  <td>{match.round}</td>
-                  <td>{winnerTeam.name}</td>
-                  <td>{loserTeam.name}</td>
-                  <td>{match.games.findIndex((g) => g.id === game.id) + 1}</td>
-                  <td>{game.id}</td>
-                  <td>{game.dungeon?.name || 'N/A'}</td>
-                </tr>
-              );
-            })}
+            {allGames
+              .filter((game) => game.dungeon !== null)
+              .map((game, index) => {
+                const match = game.match;
+                const team1 = match.firstTeam;
+                const team2 = match.secondTeam;
+                const winnerTeam = game.winnerTeamId === team1.id ? team1 : team2;
+                const loserTeam = game.winnerTeamId === team1.id ? team2 : team1;
+                const gameDate = new Date(game.updatedAt).toLocaleString();
+                return (
+                  <tr key={`${match.id}-${game.id}`}>
+                    <td>{gameDate}</td>
+                    <td>{match.position}</td>
+                    <td>{match.round}</td>
+                    <td>{winnerTeam.name}</td>
+                    <td>{loserTeam.name}</td>
+                    <td>{match.games.findIndex((g) => g.id === game.id) + 1}</td>
+                    <td>{game.id}</td>
+                    <td>{game.dungeon.name}</td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>
