@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
 
 export const AWCPage = () => {
@@ -25,9 +26,7 @@ export const AWCPage = () => {
   return (
     <div>
       <h1>AWC Matches</h1>
-      <button onClick={toggleSortOption}>
-        Sort by {sortByTime ? 'Bracket and Round' : 'Time'}
-      </button>
+      <button onClick={toggleSortOption}>Sort by {sortByTime ? 'Bracket and Round' : 'Time'}</button>
       <table>
         <thead>
           <tr>
