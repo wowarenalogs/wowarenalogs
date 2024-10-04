@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import EU_TWW_S1C1 from '../../data/awc/EU_TWW_S1C1.json';
 import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
+import { CombatUnitSpec } from '../../data/spellEffectData';
 
 export const AWCPage = () => {
   const [region, setRegion] = useState('NA');
@@ -54,7 +55,11 @@ export const AWCPage = () => {
                 const gameDate = new Date(game.updatedAt).toLocaleString();
 
                 const formatComposition = (roster) => {
-                  return roster.map(player => `${player.name} (${player.class} - ${player.spec})`).join(', ');
+                  return roster.map(player => {
+                    const specEnum = `${player.class}_${player.spec.replace(/ /g, '')}` as keyof typeof CombatUnitSpec;
+                    const specValue = CombatUnitSpec[specEnum] || 'Unknown';
+                    return `${player.name} (${specValue})`;
+                  }).join(', ');
                 };
 
                 return (
