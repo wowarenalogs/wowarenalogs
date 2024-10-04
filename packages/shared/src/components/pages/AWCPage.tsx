@@ -22,6 +22,7 @@ export const AWCPage = () => {
             <th>Bracket</th>
             <th>Round</th>
             <th>Winner</th>
+            <th>Loser</th>
             <th>Map</th>
             <th>Time</th>
           </tr>
@@ -29,6 +30,7 @@ export const AWCPage = () => {
         <tbody>
           {sortedMatches.map((match) => {
             const winnerTeam = match.firstTeamStatus === 'active' ? match.firstTeam : match.secondTeam;
+            const loserTeam = match.firstTeamStatus === 'active' ? match.secondTeam : match.firstTeam;
             const lastGame = match.games[match.games.length - 1];
             const mapName = lastGame.dungeon ? lastGame.dungeon.name : 'N/A';
             const matchTime = new Date(match.updatedAt).toLocaleString();
@@ -38,6 +40,7 @@ export const AWCPage = () => {
                 <td>{match.position}</td>
                 <td>{match.round}</td>
                 <td>{winnerTeam.name}</td>
+                <td>{loserTeam.name}</td>
                 <td>{mapName}</td>
                 <td>{matchTime}</td>
               </tr>
