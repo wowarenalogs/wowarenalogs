@@ -1,5 +1,4 @@
-import React from 'react';
-import NA_TWW_S1C1 from '../../../data/awc/NA_TWW_S1C1.json';
+import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
 
 export const AWCPage = () => {
   const allMatches = [
