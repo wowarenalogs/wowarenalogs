@@ -21,6 +21,7 @@ export const AWCPage = () => {
               <th>Winner</th>
               <th>Loser</th>
               <th>Game</th>
+              <th>Game ID</th>
               <th>Dungeon</th>
             </tr>
           </thead>
@@ -40,6 +41,7 @@ export const AWCPage = () => {
                   <td>{winnerTeam.name}</td>
                   <td>{loserTeam.name}</td>
                   <td>{match.games.findIndex(g => g.id === game.id) + 1}</td>
+                  <td>{game.id}</td>
                   <td>{game.dungeon?.name || 'N/A'}</td>
                 </tr>
               );
