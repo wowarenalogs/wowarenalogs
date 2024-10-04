@@ -4,8 +4,9 @@ export const AWCPage = () => {
   const allGames = [
     ...Object.values(NA_TWW_S1C1.segments.upper.rounds).flat(),
     ...Object.values(NA_TWW_S1C1.segments.lower.rounds).flat(),
-  ].flatMap(match => match.games.map(game => ({ ...game, match })))
-   .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  ]
+    .flatMap((match) => match.games.map((game) => ({ ...game, match })))
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
   return (
     <div>
@@ -40,7 +41,7 @@ export const AWCPage = () => {
                   <td>{match.round}</td>
                   <td>{winnerTeam.name}</td>
                   <td>{loserTeam.name}</td>
-                  <td>{match.games.findIndex(g => g.id === game.id) + 1}</td>
+                  <td>{match.games.findIndex((g) => g.id === game.id) + 1}</td>
                   <td>{game.id}</td>
                   <td>{game.dungeon?.name || 'N/A'}</td>
                 </tr>
