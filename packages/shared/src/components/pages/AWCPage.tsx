@@ -4,7 +4,7 @@ export const AWCPage = () => {
   const allMatches = [
     ...Object.values(NA_TWW_S1C1.segments.upper.rounds).flat(),
     ...Object.values(NA_TWW_S1C1.segments.lower.rounds).flat(),
-  ];
+  ].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
   return (
     <div>
