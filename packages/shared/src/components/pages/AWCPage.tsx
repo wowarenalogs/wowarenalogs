@@ -54,11 +54,6 @@ export const AWCPage = () => {
               });
             })}
           </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={8}>Total Games: {allMatches.reduce((sum, match) => sum + match.games.length, 0)}</td>
-            </tr>
-          </tfoot>
         </table>
       </div>
     </div>
