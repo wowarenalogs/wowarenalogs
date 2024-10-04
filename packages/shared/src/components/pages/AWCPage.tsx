@@ -17,9 +17,8 @@ export const AWCPage = () => {
               <th>Date</th>
               <th>Bracket</th>
               <th>Round</th>
-              <th>Team 1</th>
-              <th>Team 2</th>
               <th>Winner</th>
+              <th>Loser</th>
               <th>Game</th>
               <th>Dungeon</th>
             </tr>
@@ -32,22 +31,22 @@ export const AWCPage = () => {
 
               return match.games.map((game, index) => {
                 const winnerTeam = game.winnerTeamId === team1.id ? team1 : team2;
+                const loserTeam = game.winnerTeamId === team1.id ? team2 : team1;
                 return (
                   <tr key={`${match.id}-${game.id}`}>
                     <td>{matchDate}</td>
                     <td>{match.position}</td>
                     <td>{match.round}</td>
                     <td>
-                      <a href={team1.teamEventProfileUrl} target="_blank" rel="noopener noreferrer">
-                        {team1.name}
+                      <a href={winnerTeam.teamEventProfileUrl} target="_blank" rel="noopener noreferrer">
+                        {winnerTeam.name}
                       </a>
                     </td>
                     <td>
-                      <a href={team2.teamEventProfileUrl} target="_blank" rel="noopener noreferrer">
-                        {team2.name}
+                      <a href={loserTeam.teamEventProfileUrl} target="_blank" rel="noopener noreferrer">
+                        {loserTeam.name}
                       </a>
                     </td>
-                    <td>{winnerTeam.name}</td>
                     <td>{index + 1}</td>
                     <td>{game.dungeon?.name || 'N/A'}</td>
                   </tr>
