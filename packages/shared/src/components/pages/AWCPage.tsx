@@ -1,64 +1,74 @@
-import React, { useState } from 'react';
-
 import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
 
 export const AWCPage = () => {
-  const [sortByTime, setSortByTime] = useState(false);
-
   const allMatches = [
     ...Object.values(NA_TWW_S1C1.segments.upper.rounds).flat(),
     ...Object.values(NA_TWW_S1C1.segments.lower.rounds).flat(),
   ];
 
-  const sortedMatches = sortByTime
-    ? allMatches.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-    : allMatches.sort((a, b) => {
-        if (a.position === b.position) {
-          return b.round - a.round;
-        }
-        return a.position === 'upper' ? -1 : 1;
-      });
-
-  const toggleSortOption = () => {
-    setSortByTime((prevState) => !prevState);
-  };
-
   return (
     <div>
-      <h1>AWC Matches</h1>
-      <button onClick={toggleSortOption}>Sort by {sortByTime ? 'Bracket and Round' : 'Time'}</button>
-      <table>
-        <thead>
-          <tr>
-            <th>Bracket</th>
-            <th>Round</th>
-            <th>Winner</th>
-            <th>Loser</th>
-            <th>Map</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedMatches.map((match) => {
-            const winnerTeam = match.winnerTeamId === match.firstTeam.id ? match.firstTeam : match.secondTeam;
-            const loserTeam = match.winnerTeamId === match.firstTeam.id ? match.secondTeam : match.firstTeam;
-            const lastGame = match.games[match.games.length - 1];
-            const mapName = lastGame.dungeon ? lastGame.dungeon.name : 'N/A';
-            const matchTime = new Date(match.updatedAt).toLocaleString();
+      <h1 style={{ textAlign: 'center' }}>AWC: The War Within Season 1 Cup 1</h1>
+      <div style={{ overflowX: 'auto', maxHeight: '600px' }}>
+        <table>
+          <caption>Match Results</caption>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Bracket</th>
+              <th>Round</th>
+              <th>Team 1</th>
+              <th>Team 2</th>
+              <th>Winner</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allMatches.map((match) => {
+              const team1 = match.firstTeam;
+              const team2 = match.secondTeam;
+              const winnerTeam = match.winnerTeamId === team1.id ? team1 : team2;
+              const team1Wins = match.games.filter((game) => game.winnerTeamId === team1.id).length;
+              const team2Wins = match.games.filter((game) => game.winnerTeamId === team2.id).length;
+              const matchDate = new Date(match.updatedAt).toLocaleDateString();
 
-            return (
-              <tr key={match.id}>
-                <td>{match.position}</td>
-                <td>{match.round}</td>
-                <td>{winnerTeam.name}</td>
-                <td>{loserTeam.name}</td>
-                <td>{mapName}</td>
-                <td>{matchTime}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+              return (
+                <tr key={match.id}>
+                  <td>{matchDate}</td>
+                  <td>{match.position}</td>
+                  <td>{match.round}</td>
+                  <td>
+                    <a href={team1.teamEventProfileUrl} target="_blank" rel="noopener noreferrer">
+                      {team1.name}
+                    </a>
+                  </td>
+                  <td>
+                    <a href={team2.teamEventProfileUrl} target="_blank" rel="noopener noreferrer">
+                      {team2.name}
+                    </a>
+                  </td>
+                  <td>{winnerTeam.name}</td>
+                  <td>
+                    {team1Wins} - {team2Wins}
+                  </td>
+                  <td>
+                    {match.games.map((d) => (
+                      <div key={d.id}>
+                        {d.id} {d.dungeon?.name}
+                      </div>
+                    ))}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={7}>Total Matches: {allMatches.length}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
   );
 };
