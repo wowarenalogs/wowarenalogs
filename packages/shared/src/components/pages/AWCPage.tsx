@@ -1,9 +1,15 @@
+import { useState } from 'react';
 import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
+import EU_TWW_S1C1 from '../../data/awc/EU_TWW_S1C1.json';
 
 export const AWCPage = () => {
+  const [region, setRegion] = useState('NA');
+
+  const data = region === 'NA' ? NA_TWW_S1C1 : EU_TWW_S1C1;
+
   const allGames = [
-    ...Object.values(NA_TWW_S1C1.segments.upper.rounds).flat(),
-    ...Object.values(NA_TWW_S1C1.segments.lower.rounds).flat(),
+    ...Object.values(data.segments.upper.rounds).flat(),
+    ...Object.values(data.segments.lower.rounds).flat(),
   ]
     .flatMap((match) => match.games.map((game) => ({ ...game, match })))
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
@@ -11,9 +17,14 @@ export const AWCPage = () => {
   return (
     <div>
       <h1 style={{ textAlign: 'center' }}>AWC: The War Within Season 1 Cup 1</h1>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <button onClick={() => setRegion(region === 'NA' ? 'EU' : 'NA')}>
+          Switch to {region === 'NA' ? 'EU' : 'NA'}
+        </button>
+      </div>
       <div style={{ overflowX: 'auto', maxHeight: '600px' }}>
         <table>
-          <caption>Match Results</caption>
+          <caption>Match Results - {region} Region</caption>
           <thead>
             <tr>
               <th>Date</th>
