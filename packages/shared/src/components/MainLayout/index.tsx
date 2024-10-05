@@ -33,7 +33,6 @@ export function MainLayout(props: IProps) {
 
   const selectedNavMenuKey = router.pathname === '' ? '/' : router.pathname;
 
-  console.log({ clientContext });
   return (
     <div className={`flex flex-1 flex-row items-stretch relative`}>
       <div className="flex flex-col text-base-content pb-1">
