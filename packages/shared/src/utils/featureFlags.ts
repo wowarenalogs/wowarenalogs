@@ -2,6 +2,7 @@ import { GetProfileQuery } from '../graphql/__generated__/graphql';
 
 export const features = {
   skipUploads: 'skip-log-uploads',
+  awcPreview: 'awc-preview',
 };
 
 export const canUseFeature = (flag: string, user?: GetProfileQuery | undefined, localFlags?: string[]) => {

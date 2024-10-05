@@ -92,7 +92,7 @@ const matchesWithLogs = Object.keys(matchMap);
 export const AWCPage = () => {
   const [gameToMatchMap, setGameToMatchMap] = useState<Record<string, string>>(matchMap);
 
-  const [region, setRegion] = useState('EU');
+  const [region, setRegion] = useState('NA');
 
   const data = (region === 'NA' ? NA_TWW_S1C1 : EU_TWW_S1C1) as AWCMetadata;
 

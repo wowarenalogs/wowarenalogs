@@ -8,6 +8,7 @@ import { TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, T
 
 import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
+import { canUseFeature, features } from '../../utils/featureFlags';
 
 interface IProps {
   children?: React.ReactNode[] | React.ReactNode;
@@ -32,6 +33,7 @@ export function MainLayout(props: IProps) {
 
   const selectedNavMenuKey = router.pathname === '' ? '/' : router.pathname;
 
+  console.log({ clientContext });
   return (
     <div className={`flex flex-1 flex-row items-stretch relative`}>
       <div className="flex flex-col text-base-content pb-1">
@@ -88,13 +90,15 @@ export function MainLayout(props: IProps) {
             </a>
           </Link>
         </div>
-        <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/awc' ? 'bg-base-100 text-primary' : ''}`}>
-          <Link href="/awc" aria-label="Competitive stats">
-            <a title="Competitive stats">
-              <TbTrophy size="32" />
-            </a>
-          </Link>
-        </div>
+        {canUseFeature(features.awcPreview, undefined, clientContext.localFlags) && (
+          <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/awc' ? 'bg-base-100 text-primary' : ''}`}>
+            <Link href="/awc" aria-label="AWC Matches">
+              <a title="AWC Matches">
+                <TbTrophy size="32" />
+              </a>
+            </Link>
+          </div>
+        )}
         <div className="flex-1" />
         {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
           <div
