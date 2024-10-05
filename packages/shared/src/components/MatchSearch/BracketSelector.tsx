@@ -1,6 +1,6 @@
 export type Bracket = '2v2' | '3v3' | 'Rated Solo Shuffle';
 
-const bracketOptions: Bracket[] = ['2v2', '3v3', 'Rated Solo Shuffle', 'AWC 3v3'];
+const bracketOptions: Bracket[] = ['2v2', '3v3', 'Rated Solo Shuffle'];
 
 export function BracketSelector({ bracket, setBracket }: { bracket: Bracket; setBracket: (b: Bracket) => void }) {
   return (
