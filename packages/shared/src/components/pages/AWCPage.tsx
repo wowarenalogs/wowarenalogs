@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 import EU_TWW_S1C1 from '../../data/awc/EU_TWW_S1C1.json';
 import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
+import { AWCMetadata } from '../../data/awc/types';
 import { Utils } from '../../utils/utils';
 
 /**
@@ -93,7 +94,7 @@ export const AWCPage = () => {
 
   const [region, setRegion] = useState('EU');
 
-  const data = region === 'NA' ? NA_TWW_S1C1 : EU_TWW_S1C1;
+  const data = (region === 'NA' ? NA_TWW_S1C1 : EU_TWW_S1C1) as AWCMetadata;
 
   const allGames = [
     ...Object.values(data.segments.upper.rounds).flat(),
@@ -175,7 +176,7 @@ export const AWCPage = () => {
                 <AWCTeam teamName={loserTeam.name} roster={loserRoster} />
               </div>
               <div className="text-center flex-1">
-                #{match.games.findIndex((g) => g.id === game.id) + 1}: {game.dungeon.name}
+                #{match.games.findIndex((g) => g.id === game.id) + 1}: {game.dungeon?.name}
                 {enableEditor && (
                   <input
                     type="text"
