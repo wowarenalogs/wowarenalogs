@@ -22,13 +22,13 @@ const AWCTeam = ({
   teamName,
 }: {
   teamName: string;
-  roster: { class: string; spec: string; name: string }[];
+  roster?: { class: string; spec: string; name: string }[];
 }) => {
   return (
     <div className="flex flex-col items-center">
       <div>{teamName}</div>
       <div className="flex flex-row gap-1 items-center">
-        {roster.map((player) => {
+        {roster?.map((player) => {
           const specEnum = `${player.class.replace(/ /g, '')}_${player.spec.replace(
             / /g,
             '',
