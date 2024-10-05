@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
