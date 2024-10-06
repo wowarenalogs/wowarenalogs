@@ -69,23 +69,23 @@ export interface Game {
   matchId: number;
   videoId: string;
   videoType: string;
-  videoTimestamp?: number;
+  videoTimestamp?: number | null;
   gameType: string;
   splitsType: string;
-  winnerTeamId?: number;
-  bracketDungeonId?: number;
-  dungeon?: Dungeon;
+  winnerTeamId?: number | null;
+  bracketDungeonId?: number | null;
+  dungeon?: Dungeon | null;
   syncRosterType: string;
-  syncRosterValue?: string;
-  firstTeamRoster?: TeamRoster[];
-  secondTeamRoster?: TeamRoster[];
+  syncRosterValue?: string | null;
+  firstTeamRoster?: TeamRoster[] | null;
+  secondTeamRoster?: TeamRoster[] | null;
   details: Details;
   updatedAt: string;
 }
 
 export interface Details {
-  dampening?: number;
-  duration?: string;
+  dampening?: number | null;
+  duration?: string | null;
 }
 
 export interface DungeonContext {

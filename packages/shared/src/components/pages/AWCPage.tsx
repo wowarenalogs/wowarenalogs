@@ -23,7 +23,7 @@ const AWCTeam = ({
   teamName,
 }: {
   teamName: string;
-  roster?: { class: string; spec: string; name: string }[];
+  roster?: { class: string; spec: string; name: string }[] | null;
 }) => {
   return (
     <div className="flex flex-col items-center">
@@ -89,16 +89,31 @@ const matchMap = {
 };
 const matchesWithLogs = Object.keys(matchMap);
 
+const metadataMap: Record<string, Record<string, AWCMetadata | null>> = {
+  NA: {
+    'Season 1 Cup 1': NA_TWW_S1C1,
+    'Season 1 Cup 2': null,
+  },
+  EU: {
+    'Season 1 Cup 1': EU_TWW_S1C1,
+    'Season 1 Cup 2': null,
+  },
+};
+
+const regions = ['NA', 'EU'];
+const cups = ['Season 1 Cup 1', 'Season 1 Cup 2'];
+
 export const AWCPage = () => {
   const [gameToMatchMap, setGameToMatchMap] = useState<Record<string, string>>(matchMap);
 
   const [region, setRegion] = useState('NA');
+  const [cup, setCup] = useState('Season 1 Cup 1');
 
-  const data = (region === 'NA' ? NA_TWW_S1C1 : EU_TWW_S1C1) as AWCMetadata;
+  const data = metadataMap[region][cup];
 
   const allGames = [
-    ...Object.values(data.segments.upper.rounds).flat(),
-    ...Object.values(data.segments.lower.rounds).flat(),
+    ...Object.values(data?.segments.upper.rounds || []).flat(),
+    ...Object.values(data?.segments.lower.rounds || []).flat(),
   ]
     .flatMap((match) => match.games.map((game) => ({ ...game, match })))
     .filter((game) => game.dungeon !== null)
@@ -108,10 +123,11 @@ export const AWCPage = () => {
   const router = useRouter();
   return (
     <div className="px-4 py-2 overflow-y-auto">
-      <h1 className="text-2xl text-center">AWC: The War Within Season 1 Cup 1</h1>
+      <h1 className="text-2xl text-center">AWC: The War Within</h1>
+      <h2 className="text-xl text-center">{cup}</h2>
       <div style={{ textAlign: 'center', marginBottom: '20px' }}>
         <div className="flex flex-row space-x-4 m-0 p-0 items-center">
-          {['NA', 'EU'].map((o) => {
+          {regions.map((o) => {
             return (
               <div className="form-control" key={o}>
                 <label className="label cursor-pointer space-x-2">
@@ -129,17 +145,16 @@ export const AWCPage = () => {
           })}
         </div>
         <div className="flex flex-row space-x-4 m-0 p-0 items-center">
-          {['Season 1 Cup 1', 'Season 1 Cup 2'].map((o) => {
+          {cups.map((o) => {
             return (
               <div className="form-control" key={o}>
                 <label className="label cursor-pointer space-x-2 disabled">
                   <input
-                    disabled
                     type="radio"
                     name="radio-seasoncup"
                     className="radio checked:bg-primary"
-                    onClick={() => setRegion(o)}
-                    defaultChecked={o === 'Season 1 Cup 1'}
+                    onClick={() => setCup(o)}
+                    defaultChecked={o === cup}
                   />
                   <span className="label-text">{o}</span>
                 </label>
@@ -150,6 +165,7 @@ export const AWCPage = () => {
       </div>
       {enableEditor && <div onClick={() => console.log({ gameToMatchMap })}>Show Map</div>}
       <ul className="space-y-1 flex flex-col gap-2 w-full justify-items-stretch">
+        {allGames.length === 0 && <div>No data is available for this event yet!</div>}
         {allGames.map((game) => {
           const match = game.match;
           const team1 = match.firstTeam;
