@@ -1,13 +1,15 @@
 /* eslint-disable no-console */
-import { CombatUnitSpec } from '@wowarenalogs/parser';
+import { CombatUnitSpec, CombatUnitType } from '@wowarenalogs/parser';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import EU_TWW_S1C1 from '../../data/awc/EU_TWW_S1C1.json';
+import EU_TWW_S1C2 from '../../data/awc/EU_TWW_S1C2.json';
 import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
-import { AWCMetadata } from '../../data/awc/types';
+import { AWCMetadata, Game } from '../../data/awc/types';
 import { Utils } from '../../utils/utils';
+import { CombatDataStub, useGetPublicMatchesQuery } from '../..';
 
 /**
  * Used to quickly pair the match metadata with log files in dev mode
@@ -16,7 +18,7 @@ import { Utils } from '../../utils/utils';
  * Since it seems like we only get ~30 matches per weekend this shouldn't be too insane
  * short term
  */
-const enableEditor = false;
+const enableEditor = true;
 
 const AWCTeam = ({
   roster,
@@ -96,21 +98,63 @@ const metadataMap: Record<string, Record<string, AWCMetadata | null>> = {
   },
   EU: {
     'Season 1 Cup 1': EU_TWW_S1C1,
-    'Season 1 Cup 2': null,
+    'Season 1 Cup 2': EU_TWW_S1C2,
   },
 };
 
 const regions = ['NA', 'EU'];
 const cups = ['Season 1 Cup 1', 'Season 1 Cup 2'];
 
+function findClosest(timedEvents: CombatDataStub[], game: Game): CombatDataStub | undefined {
+  if (timedEvents.length === 0) return undefined;
+
+  const gamefingerPrint = [
+    game.dungeon?.wowInstanceId,
+    game.firstTeamRoster?.map((p) => [p.class, p.spec]),
+    game.secondTeamRoster?.map((p) => [p.class, p.spec]),
+  ]
+    .flat(5)
+    .sort()
+    .join('')
+    .replaceAll(' ', '');
+  console.log({ gamefingerPrint });
+
+  return timedEvents.find((event) => {
+    const fingerItems = [
+      event.startInfo?.zoneId,
+      Object.values(event.units)
+        .filter((u) => u.type === CombatUnitType.Player)
+        .map((u) => [
+          Utils.getClassName(u.class),
+          Utils.getSpecName(u.spec as CombatUnitSpec)
+            .replace(Utils.getClassName(u.class), '')
+            .replace(' ', ''),
+        ]),
+    ]
+      .flat(6)
+      .sort();
+    const eventFingerprint = fingerItems.join('');
+    console.log({ eventFingerprint });
+    return eventFingerprint === gamefingerPrint;
+  });
+}
+
 export const AWCPage = () => {
   const [gameToMatchMap, setGameToMatchMap] = useState<Record<string, string>>(matchMap);
+  const matchesQuery = useGetPublicMatchesQuery({
+    skip: !enableEditor,
+    variables: {
+      wowVersion: 'retail',
+      bracket: 'AWC 3v3',
+      minRating: 0,
+      offset: 0,
+    },
+  });
 
   const [region, setRegion] = useState('NA');
   const [cup, setCup] = useState('Season 1 Cup 1');
 
   const data = metadataMap[region][cup];
-
   const allGames = [
     ...Object.values(data?.segments.upper.rounds || []).flat(),
     ...Object.values(data?.segments.lower.rounds || []).flat(),
@@ -176,6 +220,8 @@ export const AWCPage = () => {
           const loserRoster = game.winnerTeamId === team1.id ? game.secondTeamRoster : game.firstTeamRoster;
           const gameDate = new Date(game.updatedAt).toLocaleString();
 
+          const closestMatch = findClosest(matchesQuery.data?.latestMatches.combats || [], game);
+
           return (
             <div
               key={`${match.id}-${game.id}`}
@@ -194,13 +240,18 @@ export const AWCPage = () => {
               <div className="text-center flex-1">
                 #{match.games.findIndex((g) => g.id === game.id) + 1}: {game.dungeon?.name}
                 {enableEditor && (
-                  <input
-                    type="text"
-                    value={gameToMatchMap[game.id]}
-                    onChange={(e) => {
-                      setGameToMatchMap({ ...gameToMatchMap, [game.id]: e.target.value });
-                    }}
-                  />
+                  <>
+                    <input
+                      type="text"
+                      value={gameToMatchMap[game.id]}
+                      onChange={(e) => {
+                        setGameToMatchMap({ ...gameToMatchMap, [game.id]: e.target.value });
+                      }}
+                    />
+                    <div>{!gameToMatchMap[game.id] ? 'NO MAPPED GAME' : ''}</div>
+                    <div>{!closestMatch ? 'NO MATCH' : closestMatch?.id}</div>
+                    <div>{(closestMatch?.id === gameToMatchMap[game.id]).toString()}</div>
+                  </>
                 )}
               </div>
             </div>
