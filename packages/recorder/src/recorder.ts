@@ -612,7 +612,7 @@ export class Recorder {
       // is deliberate so that "waApplication" wins over the legacy "gxWindowClass".
       const windows = prop.details.items
         .filter((item) => {
-          return item.name.includes('[Wow.exe]: World of Warcraft');
+          return item.name.includes('[Wow.exe]: World of Warcraft') || item.name.includes('魔兽世界');
         })
         .sort()
         .reverse();
