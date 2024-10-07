@@ -89,15 +89,13 @@ export function MainLayout(props: IProps) {
             </a>
           </Link>
         </div>
-        {canUseFeature(features.awcPreview, undefined, clientContext.localFlags) && (
-          <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/awc' ? 'bg-base-100 text-primary' : ''}`}>
-            <Link href="/awc" aria-label="AWC Matches">
-              <a title="AWC Matches">
-                <TbTrophy size="32" />
-              </a>
-            </Link>
-          </div>
-        )}
+        <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/awc' ? 'bg-base-100 text-primary' : ''}`}>
+          <Link href="/awc" aria-label="AWC Matches">
+            <a title="AWC Matches">
+              <TbTrophy size="32" />
+            </a>
+          </Link>
+        </div>
         <div className="flex-1" />
         {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
           <div
