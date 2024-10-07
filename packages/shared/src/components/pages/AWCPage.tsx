@@ -7,6 +7,8 @@ import { useState } from 'react';
 import EU_TWW_S1C1 from '../../data/awc/EU_TWW_S1C1.json';
 import EU_TWW_S1C2 from '../../data/awc/EU_TWW_S1C2.json';
 import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
+import NA_TWW_S1C2 from '../../data/awc/NA_TWW_S1C2.json';
+
 import { AWCMetadata, Game } from '../../data/awc/types';
 import { Utils } from '../../utils/utils';
 import { CombatDataStub, useGetPublicMatchesQuery } from '../..';
@@ -18,7 +20,7 @@ import { CombatDataStub, useGetPublicMatchesQuery } from '../..';
  * Since it seems like we only get ~30 matches per weekend this shouldn't be too insane
  * short term
  */
-const enableEditor = true;
+const enableEditor = false;
 
 const AWCTeam = ({
   roster,
@@ -88,13 +90,45 @@ const matchMap = {
   '15207': '658be86d61d284cf8b843665d994fcbf',
   '15208': '2e14304594f54ebc6705a9ee93f261ec',
   '15209': '6fd94a3dc270f6d4f553523a56fe0761',
+  '16430': '5807c507abf23a3f5974ba06fbe19cbc',
+  '16431': '2343bff53265848c933428dc6ba2177e',
+  '16432': 'c0a0c5295eea7d6b8dfdbf61a8b0cea5',
+  '16433': 'a701f516373c47e2c9fc6a4cbddd019b',
+  '16434': '6b12b20aa7d055a807e74dd1e58d6d6c',
+  '16435': '11009078944aeb8a34f77d1ed004c031',
+  '16436': 'c719464b83e9e1cebedac7ee94bc316d',
+  '16437': '9ed2562ef35e6d259fb736de84f1cb6a',
+  '16450': 'b749ebd544fe373a30d76ee17a3fcf05',
+  '16451': 'a9e58e4633cf73c02ceff2db967525b9',
+  '16452': '19b1c11f90a38da8d4d7681b7811938b',
+  '16453': '7404852f0240ef3e5caf682b4b607dde',
+  '16480': 'cebf709ff7c7d77957d0b7a9c61b48fe',
+  '16481': '0393017baae64751edc5a43ef5e6c510',
+  '16482': '1596c136cf49c3ce93ac50f4221c1540',
+  '16485': '3522b9f3d53684c84d99bbb54e8c8524',
+  '16486': 'da1b79cc0b220b3b20fd52b4e48994e6',
+  '16487': '0b8c883f863ca207df08cc04ad561933',
+  '16488': 'c37b851e91f9dbe4c9ef2897f7f6b118',
+  '16500': 'f4e512775ea1291554213ae434268dd7',
+  '16501': '7c7efc2f1e1ae003a913ad01cce7ff8e',
+  '16502': '9cd9e978d28f264e3f1b8d48f54a8186',
+  '16510': '12520e47c8bc47bdbe8ad40d0ae5466d',
+  '16511': '00c4add653eea12d47c08c7751ca3eba',
+  '16512': '49176fa1bbd8e47052b73f68b4179dc9',
+  '16513': '56993be884b209de8d6eb6c863705439',
+  '16517': 'a5638540695a391bdb8792410f7c7064',
+  '16518': '0538e93617c4358f7d7c5fb164619817',
+  '16519': '0c102462d534f9c7a3606ac95fdf8391',
+  '16520': '909e71a1ff2fc9ded73d2b20da65b090',
+  '16521': '242d23c6201dba14b1b9bb4b13306e75',
 };
+
 const matchesWithLogs = Object.keys(matchMap);
 
 const metadataMap: Record<string, Record<string, AWCMetadata | null>> = {
   NA: {
     'Season 1 Cup 1': NA_TWW_S1C1,
-    'Season 1 Cup 2': null,
+    'Season 1 Cup 2': NA_TWW_S1C2,
   },
   EU: {
     'Season 1 Cup 1': EU_TWW_S1C1,
