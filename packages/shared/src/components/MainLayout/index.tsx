@@ -8,7 +8,6 @@ import { TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, T
 
 import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
-import { canUseFeature, features } from '../../utils/featureFlags';
 
 interface IProps {
   children?: React.ReactNode[] | React.ReactNode;
