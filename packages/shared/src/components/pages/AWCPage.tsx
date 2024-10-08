@@ -138,8 +138,8 @@ const metadataMap: Record<string, Record<string, AWCMetadata | null>> = {
 const regions = ['NA', 'EU'];
 const cups = ['Season 1 Cup 1', 'Season 1 Cup 2'];
 
-function findClosest(timedEvents: CombatDataStub[], game: Game): CombatDataStub | undefined {
-  if (timedEvents.length === 0) return undefined;
+function findClosest(timedEvents: CombatDataStub[], game: Game): CombatDataStub[] {
+  if (timedEvents.length === 0) return [];
 
   const gamefingerPrint = [
     game.dungeon?.wowInstanceId,
@@ -152,7 +152,7 @@ function findClosest(timedEvents: CombatDataStub[], game: Game): CombatDataStub 
     .replaceAll(' ', '');
   console.log({ gamefingerPrint });
 
-  return timedEvents.find((event) => {
+  return timedEvents.filter((event) => {
     const fingerItems = [
       event.startInfo?.zoneId,
       Object.values(event.units)
@@ -181,6 +181,7 @@ export const AWCPage = () => {
       bracket: 'AWC 3v3',
       minRating: 0,
       offset: 0,
+      count: 50,
     },
   });
 
@@ -253,7 +254,7 @@ export const AWCPage = () => {
           const loserRoster = game.winnerTeamId === team1.id ? game.secondTeamRoster : game.firstTeamRoster;
           const gameDate = new Date(game.updatedAt).toLocaleString();
 
-          const closestMatch = findClosest(matchesQuery.data?.latestMatches.combats || [], game);
+          const closestMatches = findClosest(matchesQuery.data?.latestMatches.combats || [], game);
 
           return (
             <div
@@ -282,8 +283,11 @@ export const AWCPage = () => {
                       }}
                     />
                     <div>{!gameToMatchMap[game.id] ? 'NO MAPPED GAME' : ''}</div>
-                    <div>{!closestMatch ? 'NO MATCH' : closestMatch?.id}</div>
-                    <div>{(closestMatch?.id === gameToMatchMap[game.id]).toString()}</div>
+                    <div>
+                      {!closestMatches[0] ? 'NO MATCH' : closestMatches[0]?.id}
+                      {closestMatches.length > 1 && ' WARNING: MULTIPLE MATCHES'}
+                    </div>
+                    <div>{(closestMatches[0]?.id === gameToMatchMap[game.id]).toString()}</div>
                   </>
                 )}
               </div>
