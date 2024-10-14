@@ -7,10 +7,10 @@ import { useState } from 'react';
 import { CombatDataStub, useGetPublicMatchesQuery } from '../..';
 import EU_TWW_S1C1 from '../../data/awc/EU_TWW_S1C1.json';
 import EU_TWW_S1C2 from '../../data/awc/EU_TWW_S1C2.json';
+import EU_TWW_S1C3 from '../../data/awc/EU_TWW_S1C3.json';
 import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
 import NA_TWW_S1C2 from '../../data/awc/NA_TWW_S1C2.json';
 import NA_TWW_S1C3 from '../../data/awc/NA_TWW_S1C3.json';
-import EU_TWW_S1C3 from '../../data/awc/EU_TWW_S1C3.json';
 
 import { AWCMetadata, Game } from '../../data/awc/types';
 import { Utils } from '../../utils/utils';
