@@ -38,7 +38,6 @@ export interface Segments {
 
 export interface SegmentBracket {
   rounds: Rounds;
-  backgroundImage: string;
 }
 
 export type Rounds = Record<string, RoundItem[]>;
