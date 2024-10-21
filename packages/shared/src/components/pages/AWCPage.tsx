@@ -8,9 +8,11 @@ import { CombatDataStub, useGetPublicMatchesQuery } from '../..';
 import EU_TWW_S1C1 from '../../data/awc/EU_TWW_S1C1.json';
 import EU_TWW_S1C2 from '../../data/awc/EU_TWW_S1C2.json';
 import EU_TWW_S1C3 from '../../data/awc/EU_TWW_S1C3.json';
+import EU_TWW_S1C4 from '../../data/awc/EU_TWW_S1C4.json';
 import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
 import NA_TWW_S1C2 from '../../data/awc/NA_TWW_S1C2.json';
 import NA_TWW_S1C3 from '../../data/awc/NA_TWW_S1C3.json';
+import NA_TWW_S1C4 from '../../data/awc/NA_TWW_S1C4.json';
 import { AWCMetadata, Game } from '../../data/awc/types';
 import { Utils } from '../../utils/utils';
 
@@ -155,6 +157,37 @@ const matchMap = {
   '17850': 'cbb89069c8a3fc29722d6325a6ccc01d',
   '17851': '195c060eb1e0dd12f7b65b8255ec0fd7',
   '17852': 'e9dc040cbc717360cee2bf3cdd1df8ca',
+  '18476': '8689cf0fa46f75ae5c481066a7588b7f',
+  '18477': '3e4d0e05a0634d2cabe9836f63701ac1',
+  '18478': '6051b9397bf139fabff8fcca6d3c66d7',
+  '18479': '85bd0f678b55375bb5ff034e884322f7',
+  '18481': 'be8e125b0091fe2ffcc42416b4c6f5c3',
+  '18482': 'b6134bbdafca48d107c951290bf39276',
+  '18483': '6c47bd8ccf4e1f8a05a78ee48ca0d71c',
+  '18496': 'ffbe5dacc5123ac98f92dd987063a17f',
+  '18497': 'e3106f80a2de85b066de9b4451893434',
+  '18498': '8b8fbaa0cb9017ece921c6b76e5bddad',
+  '18499': '2dc74fc05724d8eb44918053028dcd59',
+  '19126': '08c2141fa674a41a87f832cb9441fe69',
+  '19127': '3cd63d6d034bdc5818fc75af523391fc ',
+  '19128': '04820fd6348b3757b33e187e118ae173',
+  '19131': 'd1f7ce0f7c4f8e7901559650f284229d ',
+  '19132': '8a54b54ae34ab54c1ebde5c0fb5fe43a ',
+  '19133': 'ed16b476c56eee5dc774e926bfc8cedf ',
+  '19146': '488db065f6b397ddc5f8026f456bf054',
+  '19147': 'e912ce7ebe00f58985aad8a33838f18c',
+  '19148': 'd0f143df69493e3b01940f877a90e565',
+  '19156': '4e161a8e1fd9812f8245836dc94dad2a',
+  '19157': '0f548e0d4f2ece136191e993f86f4ad4',
+  '19158': '6eb2c74721c6f5b7b8b31132fafcd187',
+  '19159': '8b5e9c6d6994af06b577030a1f6295af',
+  '19160': 'e83ba59875e6f4f8d214b9471bf74f57',
+  '19161': '177b93b42807d5b07532f592b24e8756',
+  '19163': '69b073a9829c081578506c9a532f1b9b',
+  '19164': '26b0508a195ac179c5fa1b89c6c2fda9',
+  '19165': '986db609d83a3c0e69c03d737d6950f1 ',
+  '19166': '0002294353c13a2f40be5d875807e419',
+  '19167': '908734f6a8902748af95853166970d07',
 };
 const matchesWithLogs = Object.keys(matchMap);
 
@@ -163,16 +196,18 @@ const metadataMap: Record<string, Record<string, AWCMetadata | null>> = {
     'Season 1 Cup 1': NA_TWW_S1C1,
     'Season 1 Cup 2': NA_TWW_S1C2,
     'Season 1 Cup 3': NA_TWW_S1C3,
+    'Season 1 Cup 4': NA_TWW_S1C4,
   },
   EU: {
     'Season 1 Cup 1': EU_TWW_S1C1,
     'Season 1 Cup 2': EU_TWW_S1C2,
     'Season 1 Cup 3': EU_TWW_S1C3,
+    'Season 1 Cup 4': EU_TWW_S1C4,
   },
 };
 
 const regions = ['NA', 'EU'];
-const cups = ['Season 1 Cup 1', 'Season 1 Cup 2', 'Season 1 Cup 3'];
+const cups = ['Season 1 Cup 1', 'Season 1 Cup 2', 'Season 1 Cup 3', 'Season 1 Cup 4'];
 
 function findClosest(timedEvents: CombatDataStub[], game: Game): CombatDataStub[] {
   if (timedEvents.length === 0) return [];
@@ -326,6 +361,7 @@ export const AWCPage = () => {
                         setGameToMatchMap({ ...gameToMatchMap, [game.id]: e.target.value });
                       }}
                     />
+                    <div>gameid {game.id}</div>
                     <div>{!gameToMatchMap[game.id] ? 'NO MAPPED GAME' : ''}</div>
                     <div>
                       {!closestMatches[0] ? 'NO MATCH' : closestMatches[0]?.id}

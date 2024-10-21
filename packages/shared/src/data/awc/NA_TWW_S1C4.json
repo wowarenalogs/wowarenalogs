@@ -1,0 +1,4818 @@
+{
+  "id": 133,
+  "title": "Broadcast Bracket",
+  "slug": "broadcast-bracket",
+  "requireTeamCheckin": false,
+  "autoSelfScoreEnabled": false,
+  "showSeeds": true,
+  "format": "double_elimination",
+  "deathPenaltySeconds": 5,
+  "bracketTooltipHtml": "<div class=\"text-bold rio-text-shadow--normal slds-text-heading--small\"><span style=\"color: #00C7B1\">Oct 19 </span> &nbsp;•&nbsp; <span style=\"color: #81DFFF\">Oct 20</span></div><br/>",
+  "bracketEndsDate": "2024-10-21T03:00:00Z",
+  "bracketStartsDate": "2024-10-18T17:00:00Z",
+  "thirdPlaceMatch": null,
+  "tieBreakerMatches": [],
+  "backgroundImage": {
+    "path": "/images/events/expansion10/season-tww-1-mdi-awc/awc_bg2.png",
+    "storageItem": null
+  },
+  "segments": {
+    "upper": {
+      "rounds": {
+        "5": [
+          {
+            "id": 4111,
+            "firstTeamStatus": "active",
+            "secondTeamStatus": "active",
+            "firstTeamPlaceholder": null,
+            "secondTeamPlaceholder": null,
+            "round": 5,
+            "bonusRounds": 0,
+            "match": 1,
+            "status": "complete",
+            "position": "upper",
+            "winnerTeamId": 2728,
+            "backgroundColor": "rgba(0, 199, 177, 0.5)",
+            "borderColor": "rgba(0, 199, 177, 1)",
+            "gracePeriodEndsAt": "2024-10-19T19:12:31Z",
+            "updatedAt": "2024-10-19T19:37:15Z",
+            "secondTeam": {
+              "id": 2729,
+              "seed": 4,
+              "charter_id": 45430,
+              "group_id": 2067501,
+              "group_type": 3,
+              "platoon_id": 51992,
+              "status": "active",
+              "name": "THE MOVE AGAIN",
+              "slug": "the-move-again",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/the-move.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/the-move-again"
+            },
+            "firstTeam": {
+              "id": 2728,
+              "seed": 1,
+              "charter_id": 45382,
+              "group_id": 2066809,
+              "group_type": 3,
+              "platoon_id": 51958,
+              "status": "active",
+              "name": "Welcome to the Jung",
+              "slug": "welcome-to-the-jung",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/welcome-to-the-jung.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/welcome-to-the-jung"
+            },
+            "winnerTeam": null,
+            "games": [
+              {
+                "id": 19136,
+                "gameOrder": 1,
+                "status": "complete",
+                "matchId": 4111,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 7894,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2728,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 836,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 7822,
+                  "name": "Nagrand Arena",
+                  "short_name": "NA",
+                  "wowInstanceId": 1505,
+                  "slug": "nagrand-arena",
+                  "expansion_id": 1,
+                  "icon_url": "/images/arena-icons/1505.jpg",
+                  "patch": "2.1.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "bf1909f6-8e4d-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 31,
+                  "duration": "6:22",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T19:15:40Z"
+              },
+              {
+                "id": 19137,
+                "gameOrder": 2,
+                "status": "complete",
+                "matchId": 4111,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 8635,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2728,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 837,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 8008,
+                  "name": "Ashamane's Fall",
+                  "short_name": "AF",
+                  "wowInstanceId": 1552,
+                  "slug": "ashamanes-fall",
+                  "expansion_id": 6,
+                  "icon_url": "/images/arena-icons/1552.jpg",
+                  "patch": "7.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "bf1909f6-8e4d-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 20,
+                  "duration": "4:38",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T19:26:33Z"
+              },
+              {
+                "id": 19138,
+                "gameOrder": 3,
+                "status": "complete",
+                "matchId": 4111,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 9168,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2728,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 834,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 6732,
+                  "name": "The Tiger's Peak",
+                  "short_name": "TTP",
+                  "wowInstanceId": 1134,
+                  "slug": "the-tigers-peak",
+                  "expansion_id": 4,
+                  "icon_url": "/images/arena-icons/1134.jpg",
+                  "patch": "5.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "bf1909f6-8e4d-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 32,
+                  "duration": "6:39",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T19:37:15Z"
+              },
+              {
+                "id": 19139,
+                "gameOrder": 4,
+                "status": "skip",
+                "matchId": 4111,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:28:55Z"
+              },
+              {
+                "id": 19140,
+                "gameOrder": 5,
+                "status": "skip",
+                "matchId": 4111,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:30:22Z"
+              }
+            ]
+          },
+          {
+            "id": 4112,
+            "firstTeamStatus": "active",
+            "secondTeamStatus": "active",
+            "firstTeamPlaceholder": null,
+            "secondTeamPlaceholder": null,
+            "round": 5,
+            "bonusRounds": 0,
+            "match": 2,
+            "status": "complete",
+            "position": "upper",
+            "winnerTeamId": 2731,
+            "backgroundColor": "rgba(0, 199, 177, 0.5)",
+            "borderColor": "rgba(0, 199, 177, 1)",
+            "gracePeriodEndsAt": "2024-10-19T19:52:20Z",
+            "updatedAt": "2024-10-19T20:29:47Z",
+            "secondTeam": {
+              "id": 2731,
+              "seed": 7,
+              "charter_id": 45784,
+              "group_id": 2071797,
+              "group_type": 3,
+              "platoon_id": 52196,
+              "status": "active",
+              "name": "Mentally Damp",
+              "slug": "mentally-damp",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/mentally-damp.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/mentally-damp"
+            },
+            "firstTeam": {
+              "id": 2730,
+              "seed": 6,
+              "charter_id": 45144,
+              "group_id": 2064080,
+              "group_type": 3,
+              "platoon_id": 51793,
+              "status": "active",
+              "name": "Silk Tigers",
+              "slug": "silk-tigers",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/silk-tigers.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/silk-tigers"
+            },
+            "winnerTeam": null,
+            "games": [
+              {
+                "id": 19141,
+                "gameOrder": 1,
+                "status": "complete",
+                "matchId": 4112,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 10372,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2730,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 836,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 7822,
+                  "name": "Nagrand Arena",
+                  "short_name": "NA",
+                  "wowInstanceId": 1505,
+                  "slug": "nagrand-arena",
+                  "expansion_id": 1,
+                  "icon_url": "/images/arena-icons/1505.jpg",
+                  "patch": "2.1.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "790461d0-8e53-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Curney",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Kalvish",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Gage",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Mgxo",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bleeds",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dopamine",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 28,
+                  "duration": "5:52",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T19:56:30Z"
+              },
+              {
+                "id": 19142,
+                "gameOrder": 2,
+                "status": "complete",
+                "matchId": 4112,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 11019,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2731,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 837,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 8008,
+                  "name": "Ashamane's Fall",
+                  "short_name": "AF",
+                  "wowInstanceId": 1552,
+                  "slug": "ashamanes-fall",
+                  "expansion_id": 6,
+                  "icon_url": "/images/arena-icons/1552.jpg",
+                  "patch": "7.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "02c153f0-8e55-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Curney",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Kalvish",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Gage",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Mgxo",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bleeds",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dopamine",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 10,
+                  "duration": "2:21",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T20:03:42Z"
+              },
+              {
+                "id": 19143,
+                "gameOrder": 3,
+                "status": "complete",
+                "matchId": 4112,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 11404,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2731,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 840,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 9278,
+                  "name": "Hook Point",
+                  "short_name": "HP",
+                  "wowInstanceId": 1825,
+                  "slug": "hook-point",
+                  "expansion_id": 7,
+                  "icon_url": "/images/arena-icons/1825.jpg",
+                  "patch": "8.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "d944d05a-8e55-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Curney",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Kalvish",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Gage",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Mgxo",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bleeds",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dopamine",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 43,
+                  "duration": "8:20",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T20:16:05Z"
+              },
+              {
+                "id": 19144,
+                "gameOrder": 4,
+                "status": "complete",
+                "matchId": 4112,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 12256,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2731,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 834,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 6732,
+                  "name": "The Tiger's Peak",
+                  "short_name": "TTP",
+                  "wowInstanceId": 1134,
+                  "slug": "the-tigers-peak",
+                  "expansion_id": 4,
+                  "icon_url": "/images/arena-icons/1134.jpg",
+                  "patch": "5.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "cdc1e6bc-8e57-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Curney",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Kalvish",
+                    "class": "Rogue",
+                    "spec": "Outlaw",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Gage",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Mgxo",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bleeds",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dopamine",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 38,
+                  "duration": "7:35",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T20:29:47Z"
+              },
+              {
+                "id": 19145,
+                "gameOrder": 5,
+                "status": "skip",
+                "matchId": 4112,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:30:05Z"
+              }
+            ]
+          }
+        ],
+        "6": [
+          {
+            "id": 4113,
+            "firstTeamStatus": "active",
+            "secondTeamStatus": "active",
+            "firstTeamPlaceholder": "Winner of QF/M1",
+            "secondTeamPlaceholder": "Winner of QF/M2",
+            "round": 6,
+            "bonusRounds": 0,
+            "match": 1,
+            "status": "complete",
+            "position": "upper",
+            "winnerTeamId": 2728,
+            "backgroundColor": "rgba(129, 223, 255, 0.5)",
+            "borderColor": "rgba(129, 223, 255, 1)",
+            "gracePeriodEndsAt": "2024-10-20T20:04:20Z",
+            "updatedAt": "2024-10-20T20:34:19Z",
+            "secondTeam": {
+              "id": 2731,
+              "seed": 7,
+              "charter_id": 45784,
+              "group_id": 2071797,
+              "group_type": 3,
+              "platoon_id": 52196,
+              "status": "active",
+              "name": "Mentally Damp",
+              "slug": "mentally-damp",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/mentally-damp.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/mentally-damp"
+            },
+            "firstTeam": {
+              "id": 2728,
+              "seed": 1,
+              "charter_id": 45382,
+              "group_id": 2066809,
+              "group_type": 3,
+              "platoon_id": 51958,
+              "status": "active",
+              "name": "Welcome to the Jung",
+              "slug": "welcome-to-the-jung",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/welcome-to-the-jung.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/welcome-to-the-jung"
+            },
+            "winnerTeam": null,
+            "games": [
+              {
+                "id": 19146,
+                "gameOrder": 1,
+                "status": "complete",
+                "matchId": 4113,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 11200,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2728,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 836,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 7822,
+                  "name": "Nagrand Arena",
+                  "short_name": "NA",
+                  "wowInstanceId": 1505,
+                  "slug": "nagrand-arena",
+                  "expansion_id": 1,
+                  "icon_url": "/images/arena-icons/1505.jpg",
+                  "patch": "2.1.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "74a173aa-8f1e-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Mgxo",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bleeds",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dopamine",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 30,
+                  "duration": "6:15",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T20:11:39Z"
+              },
+              {
+                "id": 19147,
+                "gameOrder": 2,
+                "status": "complete",
+                "matchId": 4113,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 11874,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2728,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 833,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 6296,
+                  "name": "Tol'Viron Arena",
+                  "short_name": "TVA",
+                  "wowInstanceId": 980,
+                  "slug": "tolviron-arena",
+                  "expansion_id": 4,
+                  "icon_url": "/images/arena-icons/980.jpg",
+                  "patch": "5.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "fd6b8bd4-8f1f-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Mgxo",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bleeds",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dopamine",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 42,
+                  "duration": "8:13",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T20:22:44Z"
+              },
+              {
+                "id": 19148,
+                "gameOrder": 3,
+                "status": "complete",
+                "matchId": 4113,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 12601,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2728,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 843,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 13428,
+                  "name": "Empyrean Domain",
+                  "short_name": "ED",
+                  "wowInstanceId": 2373,
+                  "slug": "empyrean-domain",
+                  "expansion_id": 8,
+                  "icon_url": "/images/arena-icons/2373.jpg",
+                  "patch": "9.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "fd6b8bd4-8f1f-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Mgxo",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bleeds",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dopamine",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 38,
+                  "duration": "7:34",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T20:34:19Z"
+              },
+              {
+                "id": 19149,
+                "gameOrder": 4,
+                "status": "skip",
+                "matchId": 4113,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:30:56Z"
+              },
+              {
+                "id": 19150,
+                "gameOrder": 5,
+                "status": "skip",
+                "matchId": 4113,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:31:08Z"
+              }
+            ]
+          }
+        ],
+        "7": [
+          {
+            "id": 4114,
+            "firstTeamStatus": "active",
+            "secondTeamStatus": "active",
+            "firstTeamPlaceholder": "Winner of Upper SF",
+            "secondTeamPlaceholder": "Winner of Lower Finals",
+            "round": 7,
+            "bonusRounds": 0,
+            "match": 1,
+            "status": "complete",
+            "position": "upper",
+            "winnerTeamId": 2729,
+            "backgroundColor": "rgba(129, 223, 255, 0.5)",
+            "borderColor": "rgba(129, 223, 255, 1)",
+            "gracePeriodEndsAt": "2024-10-20T22:33:30Z",
+            "updatedAt": "2024-10-20T23:48:24Z",
+            "secondTeam": {
+              "id": 2729,
+              "seed": 4,
+              "charter_id": 45430,
+              "group_id": 2067501,
+              "group_type": 3,
+              "platoon_id": 51992,
+              "status": "active",
+              "name": "THE MOVE AGAIN",
+              "slug": "the-move-again",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/the-move.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/the-move-again"
+            },
+            "firstTeam": {
+              "id": 2728,
+              "seed": 1,
+              "charter_id": 45382,
+              "group_id": 2066809,
+              "group_type": 3,
+              "platoon_id": 51958,
+              "status": "active",
+              "name": "Welcome to the Jung",
+              "slug": "welcome-to-the-jung",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/welcome-to-the-jung.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/welcome-to-the-jung"
+            },
+            "winnerTeam": null,
+            "games": [
+              {
+                "id": 19156,
+                "gameOrder": 1,
+                "status": "complete",
+                "matchId": 4114,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 20144,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 836,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 7822,
+                  "name": "Nagrand Arena",
+                  "short_name": "NA",
+                  "wowInstanceId": 1505,
+                  "slug": "nagrand-arena",
+                  "expansion_id": 1,
+                  "icon_url": "/images/arena-icons/1505.jpg",
+                  "patch": "2.1.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "45120978-8f33-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 45,
+                  "duration": "8:47",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T22:41:11Z"
+              },
+              {
+                "id": 19157,
+                "gameOrder": 2,
+                "status": "complete",
+                "matchId": 4114,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 20990,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 837,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 8008,
+                  "name": "Ashamane's Fall",
+                  "short_name": "AF",
+                  "wowInstanceId": 1552,
+                  "slug": "ashamanes-fall",
+                  "expansion_id": 6,
+                  "icon_url": "/images/arena-icons/1552.jpg",
+                  "patch": "7.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "3a26cd26-8f35-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 53,
+                  "duration": "10:02",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T22:56:29Z"
+              },
+              {
+                "id": 19158,
+                "gameOrder": 3,
+                "status": "complete",
+                "matchId": 4114,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 21903,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2728,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 834,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 6732,
+                  "name": "The Tiger's Peak",
+                  "short_name": "TTP",
+                  "wowInstanceId": 1134,
+                  "slug": "the-tigers-peak",
+                  "expansion_id": 4,
+                  "icon_url": "/images/arena-icons/1134.jpg",
+                  "patch": "5.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "3a26cd26-8f35-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 40,
+                  "duration": "7:52",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T23:09:25Z"
+              },
+              {
+                "id": 19159,
+                "gameOrder": 4,
+                "status": "complete",
+                "matchId": 4114,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 22747,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 842,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 10497,
+                  "name": "The Robodrome",
+                  "short_name": "ROBO",
+                  "wowInstanceId": 2167,
+                  "slug": "the-robodrome",
+                  "expansion_id": 7,
+                  "icon_url": "/images/arena-icons/2167.jpg",
+                  "patch": "8.2.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "472e2f4c-8f39-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 40,
+                  "duration": "7:52",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T23:23:34Z"
+              },
+              {
+                "id": 19160,
+                "gameOrder": 5,
+                "status": "complete",
+                "matchId": 4114,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 23554,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2728,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 833,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 6296,
+                  "name": "Tol'Viron Arena",
+                  "short_name": "TVA",
+                  "wowInstanceId": 980,
+                  "slug": "tolviron-arena",
+                  "expansion_id": 4,
+                  "icon_url": "/images/arena-icons/980.jpg",
+                  "patch": "5.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "472e2f4c-8f39-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 45,
+                  "duration": "8:48",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T23:37:54Z"
+              },
+              {
+                "id": 19161,
+                "gameOrder": 6,
+                "status": "complete",
+                "matchId": 4114,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 24332,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 840,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 9278,
+                  "name": "Hook Point",
+                  "short_name": "HP",
+                  "wowInstanceId": 1825,
+                  "slug": "hook-point",
+                  "expansion_id": 7,
+                  "icon_url": "/images/arena-icons/1825.jpg",
+                  "patch": "8.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "472e2f4c-8f39-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Zhangbeihai",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Drake",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Prev",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 31,
+                  "duration": "6:24",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T23:48:24Z"
+              },
+              {
+                "id": 19162,
+                "gameOrder": 7,
+                "status": "skip",
+                "matchId": 4114,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:32:21Z"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "lower": {
+      "rounds": {
+        "7": [
+          {
+            "id": 4115,
+            "firstTeamStatus": "active",
+            "secondTeamStatus": "active",
+            "firstTeamPlaceholder": "Winner of Lower R6/M1",
+            "secondTeamPlaceholder": "Winner of Lower R6/M2",
+            "round": 7,
+            "bonusRounds": 0,
+            "match": 1,
+            "status": "complete",
+            "position": "lower",
+            "winnerTeamId": 2734,
+            "backgroundColor": "rgba(0, 199, 177, 0.5)",
+            "borderColor": "rgba(0, 199, 177, 1)",
+            "gracePeriodEndsAt": "2024-10-19T17:14:42Z",
+            "updatedAt": "2024-10-19T17:44:22Z",
+            "secondTeam": {
+              "id": 2735,
+              "seed": 14,
+              "charter_id": 45671,
+              "group_id": 2070627,
+              "group_type": 3,
+              "platoon_id": 52127,
+              "status": "active",
+              "name": "Team For the memes",
+              "slug": "team-for-the-memes",
+              "faction": "mixed",
+              "icon_logo_url": null,
+              "icon_logo": {
+                "url": "https://u-wowretail.raiderio.net/0f29/2024/10/19/ge3iGYZANFNCUKZFQlmkj3et3x/image.png",
+                "width": 512,
+                "height": 512,
+                "id": 4
+              },
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/team-for-the-memes"
+            },
+            "firstTeam": {
+              "id": 2734,
+              "seed": 2,
+              "charter_id": 45684,
+              "group_id": 2070715,
+              "group_type": 3,
+              "platoon_id": 52133,
+              "status": "active",
+              "name": "Power Toads",
+              "slug": "power-toads",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/power-toads.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/power-toads"
+            },
+            "winnerTeam": null,
+            "games": [
+              {
+                "id": 19106,
+                "gameOrder": 1,
+                "status": "complete",
+                "matchId": 4115,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 975,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2734,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 836,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 7822,
+                  "name": "Nagrand Arena",
+                  "short_name": "NA",
+                  "wowInstanceId": 1505,
+                  "slug": "nagrand-arena",
+                  "expansion_id": 1,
+                  "icon_url": "/images/arena-icons/1505.jpg",
+                  "patch": "2.1.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "8a5024d0-8e3d-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Tuna",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dazed",
+                    "class": "Rogue",
+                    "spec": "Outlaw",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Axtin",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Meadow",
+                    "class": "Evoker",
+                    "spec": "Preservation",
+                    "role": "healer",
+                    "raceId": 52,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Toxicant",
+                    "class": "Death Knight",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bigdam",
+                    "class": "Shaman",
+                    "spec": "Enhancement",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 10,
+                  "duration": "1:56",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T17:15:54Z"
+              },
+              {
+                "id": 19107,
+                "gameOrder": 2,
+                "status": "complete",
+                "matchId": 4115,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 1311,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2735,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 840,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 9278,
+                  "name": "Hook Point",
+                  "short_name": "HP",
+                  "wowInstanceId": 1825,
+                  "slug": "hook-point",
+                  "expansion_id": 7,
+                  "icon_url": "/images/arena-icons/1825.jpg",
+                  "patch": "8.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "61267b76-8e3e-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Tuna",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dazed",
+                    "class": "Rogue",
+                    "spec": "Outlaw",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Axtin",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Meadow",
+                    "class": "Evoker",
+                    "spec": "Preservation",
+                    "role": "healer",
+                    "raceId": 52,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Toxicant",
+                    "class": "Death Knight",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bigdam",
+                    "class": "Shaman",
+                    "spec": "Enhancement",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 10,
+                  "duration": "1:30",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T17:21:07Z"
+              },
+              {
+                "id": 19108,
+                "gameOrder": 3,
+                "status": "complete",
+                "matchId": 4115,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 1642,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2734,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 837,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 8008,
+                  "name": "Ashamane's Fall",
+                  "short_name": "AF",
+                  "wowInstanceId": 1552,
+                  "slug": "ashamanes-fall",
+                  "expansion_id": 6,
+                  "icon_url": "/images/arena-icons/1552.jpg",
+                  "patch": "7.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "15a7a142-8e3f-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Tuna",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dazed",
+                    "class": "Rogue",
+                    "spec": "Outlaw",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Axtin",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Meadow",
+                    "class": "Evoker",
+                    "spec": "Preservation",
+                    "role": "healer",
+                    "raceId": 52,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Toxicant",
+                    "class": "Death Knight",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bigdam",
+                    "class": "Shaman",
+                    "spec": "Enhancement",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 13,
+                  "duration": "3:27",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T17:28:28Z"
+              },
+              {
+                "id": 19109,
+                "gameOrder": 4,
+                "status": "complete",
+                "matchId": 4115,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 2016,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2735,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 831,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 4378,
+                  "name": "Dalaran Arena",
+                  "short_name": "DA",
+                  "wowInstanceId": 617,
+                  "slug": "dalaran-arena",
+                  "expansion_id": 2,
+                  "icon_url": "/images/arena-icons/617.jpg",
+                  "patch": "3.4.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "1019b278-8e40-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Tuna",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dazed",
+                    "class": "Rogue",
+                    "spec": "Outlaw",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Axtin",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Meadow",
+                    "class": "Evoker",
+                    "spec": "Preservation",
+                    "role": "healer",
+                    "raceId": 52,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Toxicant",
+                    "class": "Death Knight",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bigdam",
+                    "class": "Shaman",
+                    "spec": "Enhancement",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 22,
+                  "duration": "4:52",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T17:36:40Z"
+              },
+              {
+                "id": 19110,
+                "gameOrder": 5,
+                "status": "complete",
+                "matchId": 4115,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 2605,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2734,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 833,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 6296,
+                  "name": "Tol'Viron Arena",
+                  "short_name": "TVA",
+                  "wowInstanceId": 980,
+                  "slug": "tolviron-arena",
+                  "expansion_id": 4,
+                  "icon_url": "/images/arena-icons/980.jpg",
+                  "patch": "5.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "742d08d6-8e41-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Tuna",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dazed",
+                    "class": "Rogue",
+                    "spec": "Outlaw",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Axtin",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Meadow",
+                    "class": "Evoker",
+                    "spec": "Preservation",
+                    "role": "healer",
+                    "raceId": 52,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Toxicant",
+                    "class": "Death Knight",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bigdam",
+                    "class": "Shaman",
+                    "spec": "Enhancement",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 12,
+                  "duration": "3:11",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T17:44:22Z"
+              }
+            ]
+          },
+          {
+            "id": 4116,
+            "firstTeamStatus": "active",
+            "secondTeamStatus": "active",
+            "firstTeamPlaceholder": "Winner of Lower R6/M3",
+            "secondTeamPlaceholder": "Winner of Lower R6/M4",
+            "round": 7,
+            "bonusRounds": 0,
+            "match": 2,
+            "status": "complete",
+            "position": "lower",
+            "winnerTeamId": 2732,
+            "backgroundColor": "rgba(0, 199, 177, 0.5)",
+            "borderColor": "rgba(0, 199, 177, 1)",
+            "gracePeriodEndsAt": "2024-10-19T17:59:29Z",
+            "updatedAt": "2024-10-19T18:50:38Z",
+            "secondTeam": {
+              "id": 2733,
+              "seed": 9,
+              "charter_id": 40843,
+              "group_id": 2011373,
+              "group_type": 3,
+              "platoon_id": 49393,
+              "status": "active",
+              "name": "The Abjured",
+              "slug": "the-abjured",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/the-abjured.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/the-abjured"
+            },
+            "firstTeam": {
+              "id": 2732,
+              "seed": 5,
+              "charter_id": 40263,
+              "group_id": 2009652,
+              "group_type": 3,
+              "platoon_id": 48968,
+              "status": "active",
+              "name": "F Tier",
+              "slug": "f-tier",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion9/season-df-3-mdi-awc/team-logos/F_Tier.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/f-tier"
+            },
+            "winnerTeam": null,
+            "games": [
+              {
+                "id": 19111,
+                "gameOrder": 1,
+                "status": "complete",
+                "matchId": 4116,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 3610,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2732,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 836,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 7822,
+                  "name": "Nagrand Arena",
+                  "short_name": "NA",
+                  "wowInstanceId": 1505,
+                  "slug": "nagrand-arena",
+                  "expansion_id": 1,
+                  "icon_url": "/images/arena-icons/1505.jpg",
+                  "patch": "2.1.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "b019dc28-8e43-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Shaz",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 85,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Dorito",
+                    "class": "Monk",
+                    "spec": "Windwalker",
+                    "role": "dps",
+                    "raceId": 5,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Saul",
+                    "class": "Shaman",
+                    "spec": "Elemental",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 1
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Montage",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 1,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Classenvy",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Nozom",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  }
+                ],
+                "details": {
+                  "dampening": 56,
+                  "duration": "10:38",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T18:08:32Z"
+              },
+              {
+                "id": 19112,
+                "gameOrder": 2,
+                "status": "complete",
+                "matchId": 4116,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 4618,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2732,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 845,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 13971,
+                  "name": "Maldraxxus Coliseum",
+                  "short_name": "MC",
+                  "wowInstanceId": 2509,
+                  "slug": "maldraxxus-coliseum",
+                  "expansion_id": 8,
+                  "icon_url": "/images/arena-icons/2509.jpg",
+                  "patch": "9.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "121d0cf4-8e46-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Shaz",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 85,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Dorito",
+                    "class": "Monk",
+                    "spec": "Windwalker",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Saul",
+                    "class": "Shaman",
+                    "spec": "Elemental",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 1
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Montage",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 11,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Classenvy",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Nozom",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  }
+                ],
+                "details": {
+                  "dampening": 46,
+                  "duration": "8:59",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T18:24:47Z"
+              },
+              {
+                "id": 19113,
+                "gameOrder": 3,
+                "status": "complete",
+                "matchId": 4116,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 5536,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2733,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 843,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 13428,
+                  "name": "Empyrean Domain",
+                  "short_name": "ED",
+                  "wowInstanceId": 2373,
+                  "slug": "empyrean-domain",
+                  "expansion_id": 8,
+                  "icon_url": "/images/arena-icons/2373.jpg",
+                  "patch": "9.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "280e2d3e-8e48-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Shaz",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 85,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Dorito",
+                    "class": "Monk",
+                    "spec": "Windwalker",
+                    "role": "dps",
+                    "raceId": 5,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Saul",
+                    "class": "Shaman",
+                    "spec": "Elemental",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 1
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Montage",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 1,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Nozom",
+                    "class": "Warlock",
+                    "spec": "Affliction",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Classenvy",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  }
+                ],
+                "details": {
+                  "dampening": 41,
+                  "duration": "8:09",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T18:38:22Z"
+              },
+              {
+                "id": 19114,
+                "gameOrder": 4,
+                "status": "complete",
+                "matchId": 4116,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 6340,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2732,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 840,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 9278,
+                  "name": "Hook Point",
+                  "short_name": "HP",
+                  "wowInstanceId": 1825,
+                  "slug": "hook-point",
+                  "expansion_id": 7,
+                  "icon_url": "/images/arena-icons/1825.jpg",
+                  "patch": "8.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "1ecb696a-8e4a-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Shaz",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dorito",
+                    "class": "Monk",
+                    "spec": "Windwalker",
+                    "role": "dps",
+                    "raceId": 5,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Saul",
+                    "class": "Shaman",
+                    "spec": "Elemental",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 1
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Montage",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 1,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Nozom",
+                    "class": "Warlock",
+                    "spec": "Affliction",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Classenvy",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  }
+                ],
+                "details": {
+                  "dampening": 36,
+                  "duration": "7:15",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T18:50:38Z"
+              },
+              {
+                "id": 19115,
+                "gameOrder": 5,
+                "status": "skip",
+                "matchId": 4116,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:26:13Z"
+              }
+            ]
+          }
+        ],
+        "8": [
+          {
+            "id": 4117,
+            "firstTeamStatus": "active",
+            "secondTeamStatus": "active",
+            "firstTeamPlaceholder": "Loser of Upper QF/M1",
+            "secondTeamPlaceholder": "Winner of Lower R7/M1",
+            "round": 8,
+            "bonusRounds": 0,
+            "match": 1,
+            "status": "complete",
+            "position": "lower",
+            "winnerTeamId": 2729,
+            "backgroundColor": "rgba(0, 199, 177, 0.5)",
+            "borderColor": "rgba(0, 199, 177, 1)",
+            "gracePeriodEndsAt": "2024-10-19T20:48:04Z",
+            "updatedAt": "2024-10-19T21:13:05Z",
+            "secondTeam": {
+              "id": 2734,
+              "seed": 2,
+              "charter_id": 45684,
+              "group_id": 2070715,
+              "group_type": 3,
+              "platoon_id": 52133,
+              "status": "active",
+              "name": "Power Toads",
+              "slug": "power-toads",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/power-toads.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/power-toads"
+            },
+            "firstTeam": {
+              "id": 2729,
+              "seed": 4,
+              "charter_id": 45430,
+              "group_id": 2067501,
+              "group_type": 3,
+              "platoon_id": 51992,
+              "status": "active",
+              "name": "THE MOVE AGAIN",
+              "slug": "the-move-again",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/the-move.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/the-move-again"
+            },
+            "winnerTeam": null,
+            "games": [
+              {
+                "id": 19116,
+                "gameOrder": 1,
+                "status": "complete",
+                "matchId": 4117,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 13765,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 836,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 7822,
+                  "name": "Nagrand Arena",
+                  "short_name": "NA",
+                  "wowInstanceId": 1505,
+                  "slug": "nagrand-arena",
+                  "expansion_id": 1,
+                  "icon_url": "/images/arena-icons/1505.jpg",
+                  "patch": "2.1.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "6f9256c2-8e5b-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Tuna",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dazed",
+                    "class": "Rogue",
+                    "spec": "Outlaw",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Axtin",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 32,
+                  "duration": "6:39",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T20:53:53Z"
+              },
+              {
+                "id": 19117,
+                "gameOrder": 2,
+                "status": "complete",
+                "matchId": 4117,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 14475,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 837,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 8008,
+                  "name": "Ashamane's Fall",
+                  "short_name": "AF",
+                  "wowInstanceId": 1552,
+                  "slug": "ashamanes-fall",
+                  "expansion_id": 6,
+                  "icon_url": "/images/arena-icons/1552.jpg",
+                  "patch": "7.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "f897adfe-8e5c-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Tuna",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Axtin",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Dazed",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 28,
+                  "duration": "5:58",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T21:05:02Z"
+              },
+              {
+                "id": 19118,
+                "gameOrder": 3,
+                "status": "complete",
+                "matchId": 4117,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 15101,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 834,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 6732,
+                  "name": "The Tiger's Peak",
+                  "short_name": "TTP",
+                  "wowInstanceId": 1134,
+                  "slug": "the-tigers-peak",
+                  "expansion_id": 4,
+                  "icon_url": "/images/arena-icons/1134.jpg",
+                  "patch": "5.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "82a69694-8e5e-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Tuna",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Axtin",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Dazed",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 15,
+                  "duration": "3:46",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T21:13:05Z"
+              },
+              {
+                "id": 19119,
+                "gameOrder": 4,
+                "status": "skip",
+                "matchId": 4117,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:25:40Z"
+              },
+              {
+                "id": 19120,
+                "gameOrder": 5,
+                "status": "skip",
+                "matchId": 4117,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:25:47Z"
+              }
+            ]
+          },
+          {
+            "id": 4118,
+            "firstTeamStatus": "active",
+            "secondTeamStatus": "active",
+            "firstTeamPlaceholder": "Loser of Upper QF/M2",
+            "secondTeamPlaceholder": "Winner of Lower R7/M2",
+            "round": 8,
+            "bonusRounds": 0,
+            "match": 2,
+            "status": "complete",
+            "position": "lower",
+            "winnerTeamId": 2732,
+            "backgroundColor": "rgba(0, 199, 177, 0.5)",
+            "borderColor": "rgba(0, 199, 177, 1)",
+            "gracePeriodEndsAt": "2024-10-19T21:23:58Z",
+            "updatedAt": "2024-10-19T21:44:17Z",
+            "secondTeam": {
+              "id": 2732,
+              "seed": 5,
+              "charter_id": 40263,
+              "group_id": 2009652,
+              "group_type": 3,
+              "platoon_id": 48968,
+              "status": "active",
+              "name": "F Tier",
+              "slug": "f-tier",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion9/season-df-3-mdi-awc/team-logos/F_Tier.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/f-tier"
+            },
+            "firstTeam": {
+              "id": 2730,
+              "seed": 6,
+              "charter_id": 45144,
+              "group_id": 2064080,
+              "group_type": 3,
+              "platoon_id": 51793,
+              "status": "active",
+              "name": "Silk Tigers",
+              "slug": "silk-tigers",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/silk-tigers.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/silk-tigers"
+            },
+            "winnerTeam": null,
+            "games": [
+              {
+                "id": 19121,
+                "gameOrder": 1,
+                "status": "complete",
+                "matchId": 4118,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 15908,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2732,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 836,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 7822,
+                  "name": "Nagrand Arena",
+                  "short_name": "NA",
+                  "wowInstanceId": 1505,
+                  "slug": "nagrand-arena",
+                  "expansion_id": 1,
+                  "icon_url": "/images/arena-icons/1505.jpg",
+                  "patch": "2.1.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "53e82a82-8e60-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Curney",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 11,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Kalvish",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Ceralium",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Shaz",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dorito",
+                    "class": "Monk",
+                    "spec": "Windwalker",
+                    "role": "dps",
+                    "raceId": 7,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Saul",
+                    "class": "Shaman",
+                    "spec": "Elemental",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 1
+                  }
+                ],
+                "details": {
+                  "dampening": 25,
+                  "duration": "5:20",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T21:28:10Z"
+              },
+              {
+                "id": 19122,
+                "gameOrder": 2,
+                "status": "complete",
+                "matchId": 4118,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 16502,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2732,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 843,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 13428,
+                  "name": "Empyrean Domain",
+                  "short_name": "ED",
+                  "wowInstanceId": 2373,
+                  "slug": "empyrean-domain",
+                  "expansion_id": 8,
+                  "icon_url": "/images/arena-icons/2373.jpg",
+                  "patch": "9.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "b8d41ebe-8e61-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Curney",
+                    "class": "Priest",
+                    "spec": "Discipline",
+                    "role": "healer",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Kalvish",
+                    "class": "Rogue",
+                    "spec": "Outlaw",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Ceralium",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Shaz",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dorito",
+                    "class": "Monk",
+                    "spec": "Windwalker",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Saul",
+                    "class": "Shaman",
+                    "spec": "Elemental",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  }
+                ],
+                "details": {
+                  "dampening": 22,
+                  "duration": "4:56",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T21:37:56Z"
+              },
+              {
+                "id": 19123,
+                "gameOrder": 3,
+                "status": "complete",
+                "matchId": 4118,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": 17038,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2732,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 833,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 6296,
+                  "name": "Tol'Viron Arena",
+                  "short_name": "TVA",
+                  "wowInstanceId": 980,
+                  "slug": "tolviron-arena",
+                  "expansion_id": 4,
+                  "icon_url": "/images/arena-icons/980.jpg",
+                  "patch": "5.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "faa6a5f4-8e62-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Curney",
+                    "class": "Priest",
+                    "spec": "Discipline",
+                    "role": "healer",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Kalvish",
+                    "class": "Rogue",
+                    "spec": "Subtlety",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Ceralium",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Shaz",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dorito",
+                    "class": "Monk",
+                    "spec": "Windwalker",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  },
+                  {
+                    "name": "Saul",
+                    "class": "Shaman",
+                    "spec": "Elemental",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  }
+                ],
+                "details": {
+                  "dampening": 10,
+                  "duration": "2:40",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-19T21:44:17Z"
+              },
+              {
+                "id": 19124,
+                "gameOrder": 4,
+                "status": "skip",
+                "matchId": 4118,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:27:47Z"
+              },
+              {
+                "id": 19125,
+                "gameOrder": 5,
+                "status": "skip",
+                "matchId": 4118,
+                "videoId": "rMlnWIuj_yI",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:27:51Z"
+              }
+            ]
+          }
+        ],
+        "9": [
+          {
+            "id": 4119,
+            "firstTeamStatus": "active",
+            "secondTeamStatus": "active",
+            "firstTeamPlaceholder": "Winner of Lower R8/M1",
+            "secondTeamPlaceholder": "Winner of Lower R8/M2",
+            "round": 9,
+            "bonusRounds": 0,
+            "match": 1,
+            "status": "complete",
+            "position": "lower",
+            "winnerTeamId": 2729,
+            "backgroundColor": "rgba(129, 223, 255, 0.5)",
+            "borderColor": "rgba(129, 223, 255, 1)",
+            "gracePeriodEndsAt": "2024-10-20T20:50:35Z",
+            "updatedAt": "2024-10-20T21:20:47Z",
+            "secondTeam": {
+              "id": 2732,
+              "seed": 5,
+              "charter_id": 40263,
+              "group_id": 2009652,
+              "group_type": 3,
+              "platoon_id": 48968,
+              "status": "active",
+              "name": "F Tier",
+              "slug": "f-tier",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion9/season-df-3-mdi-awc/team-logos/F_Tier.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/f-tier"
+            },
+            "firstTeam": {
+              "id": 2729,
+              "seed": 4,
+              "charter_id": 45430,
+              "group_id": 2067501,
+              "group_type": 3,
+              "platoon_id": 51992,
+              "status": "active",
+              "name": "THE MOVE AGAIN",
+              "slug": "the-move-again",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/the-move.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/the-move-again"
+            },
+            "winnerTeam": null,
+            "games": [
+              {
+                "id": 19126,
+                "gameOrder": 1,
+                "status": "complete",
+                "matchId": 4119,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 13994,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 836,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 7822,
+                  "name": "Nagrand Arena",
+                  "short_name": "NA",
+                  "wowInstanceId": 1505,
+                  "slug": "nagrand-arena",
+                  "expansion_id": 1,
+                  "icon_url": "/images/arena-icons/1505.jpg",
+                  "patch": "2.1.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "e20aa55a-8f24-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Shaz",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Laros",
+                    "class": "Warrior",
+                    "spec": "Fury",
+                    "role": "dps",
+                    "raceId": 7,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dorito",
+                    "class": "Monk",
+                    "spec": "Windwalker",
+                    "role": "dps",
+                    "raceId": 5,
+                    "genderId": 1
+                  }
+                ],
+                "details": {
+                  "dampening": 32,
+                  "duration": "6:35",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T20:56:14Z"
+              },
+              {
+                "id": 19127,
+                "gameOrder": 2,
+                "status": "complete",
+                "matchId": 4119,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 14971,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 840,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 9278,
+                  "name": "Hook Point",
+                  "short_name": "HP",
+                  "wowInstanceId": 1825,
+                  "slug": "hook-point",
+                  "expansion_id": 7,
+                  "icon_url": "/images/arena-icons/1825.jpg",
+                  "patch": "8.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "1e211e46-8f27-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Shaz",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Laros",
+                    "class": "Warrior",
+                    "spec": "Arms",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dorito",
+                    "class": "Monk",
+                    "spec": "Windwalker",
+                    "role": "dps",
+                    "raceId": 5,
+                    "genderId": 1
+                  }
+                ],
+                "details": {
+                  "dampening": 13,
+                  "duration": "3:24",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T21:09:25Z"
+              },
+              {
+                "id": 19128,
+                "gameOrder": 3,
+                "status": "complete",
+                "matchId": 4119,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 15456,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 837,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 8008,
+                  "name": "Ashamane's Fall",
+                  "short_name": "AF",
+                  "wowInstanceId": 1552,
+                  "slug": "ashamanes-fall",
+                  "expansion_id": 6,
+                  "icon_url": "/images/arena-icons/1552.jpg",
+                  "patch": "7.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "61fc7b78-8f28-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Shaz",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Laros",
+                    "class": "Warrior",
+                    "spec": "Fury",
+                    "role": "dps",
+                    "raceId": 7,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dorito",
+                    "class": "Monk",
+                    "spec": "Windwalker",
+                    "role": "dps",
+                    "raceId": 5,
+                    "genderId": 1
+                  }
+                ],
+                "details": {
+                  "dampening": 33,
+                  "duration": "6:40",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T21:20:47Z"
+              },
+              {
+                "id": 19129,
+                "gameOrder": 4,
+                "status": "skip",
+                "matchId": 4119,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:27:23Z"
+              },
+              {
+                "id": 19130,
+                "gameOrder": 5,
+                "status": "skip",
+                "matchId": 4119,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:27:25Z"
+              }
+            ]
+          }
+        ],
+        "10": [
+          {
+            "id": 4120,
+            "firstTeamStatus": "active",
+            "secondTeamStatus": "active",
+            "firstTeamPlaceholder": "Loser of Upper SF",
+            "secondTeamPlaceholder": "Winner of Lower Semis",
+            "round": 10,
+            "bonusRounds": 0,
+            "match": 1,
+            "status": "complete",
+            "position": "lower",
+            "winnerTeamId": 2729,
+            "backgroundColor": "rgba(129, 223, 255, 0.5)",
+            "borderColor": "rgba(129, 223, 255, 1)",
+            "gracePeriodEndsAt": "2024-10-20T21:40:38Z",
+            "updatedAt": "2024-10-20T22:15:23Z",
+            "secondTeam": {
+              "id": 2729,
+              "seed": 4,
+              "charter_id": 45430,
+              "group_id": 2067501,
+              "group_type": 3,
+              "platoon_id": 51992,
+              "status": "active",
+              "name": "THE MOVE AGAIN",
+              "slug": "the-move-again",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/the-move.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/the-move-again"
+            },
+            "firstTeam": {
+              "id": 2731,
+              "seed": 7,
+              "charter_id": 45784,
+              "group_id": 2071797,
+              "group_type": 3,
+              "platoon_id": 52196,
+              "status": "active",
+              "name": "Mentally Damp",
+              "slug": "mentally-damp",
+              "faction": "mixed",
+              "icon_logo_url": "https://cdn.raiderio.net/images/events/expansion10/season-tww-1-mdi-awc/team-logos/mentally-damp.png",
+              "icon_logo": null,
+              "region": {
+                "name": "United States & Oceania",
+                "slug": "us",
+                "short_name": "US"
+              },
+              "subRegion": null,
+              "namespace": "arena-world-championship",
+              "eventsData": null,
+              "isMythicPlusTeam": false,
+              "teamEventProfileUrl": "/event-teams/arena-world-championship/mentally-damp"
+            },
+            "winnerTeam": null,
+            "games": [
+              {
+                "id": 19131,
+                "gameOrder": 1,
+                "status": "complete",
+                "matchId": 4120,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 16989,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 836,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 7822,
+                  "name": "Nagrand Arena",
+                  "short_name": "NA",
+                  "wowInstanceId": 1505,
+                  "slug": "nagrand-arena",
+                  "expansion_id": 1,
+                  "icon_url": "/images/arena-icons/1505.jpg",
+                  "patch": "2.1.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "2521bb2e-8f2c-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Mgxo",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bleeds",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dopamine",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 36,
+                  "duration": "7:13",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T21:47:01Z"
+              },
+              {
+                "id": 19132,
+                "gameOrder": 2,
+                "status": "complete",
+                "matchId": 4120,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 17707,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 833,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 6296,
+                  "name": "Tol'Viron Arena",
+                  "short_name": "TVA",
+                  "wowInstanceId": 980,
+                  "slug": "tolviron-arena",
+                  "expansion_id": 4,
+                  "icon_url": "/images/arena-icons/980.jpg",
+                  "patch": "5.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "2521bb2e-8f2c-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Mgxo",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bleeds",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dopamine",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 50,
+                  "duration": "9:34",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T22:01:07Z"
+              },
+              {
+                "id": 19133,
+                "gameOrder": 3,
+                "status": "complete",
+                "matchId": 4120,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": 18548,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": 2729,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": 843,
+                "affixes": [],
+                "dungeon": {
+                  "type": "arena",
+                  "id": 13428,
+                  "name": "Empyrean Domain",
+                  "short_name": "ED",
+                  "wowInstanceId": 2373,
+                  "slug": "empyrean-domain",
+                  "expansion_id": 8,
+                  "icon_url": "/images/arena-icons/2373.jpg",
+                  "patch": "9.0.0"
+                },
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": "7f1e7880-8f2f-11ef-aea4-497e39449c6c",
+                "firstTeamRoster": [
+                  {
+                    "name": "Mgxo",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Bleeds",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Dopamine",
+                    "class": "Mage",
+                    "spec": "Frost",
+                    "role": "dps",
+                    "raceId": 2,
+                    "genderId": 0
+                  }
+                ],
+                "secondTeamRoster": [
+                  {
+                    "name": "Absterge",
+                    "class": "Paladin",
+                    "spec": "Holy",
+                    "role": "healer",
+                    "raceId": 34,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Pikaboo",
+                    "class": "Druid",
+                    "spec": "Feral",
+                    "role": "dps",
+                    "raceId": 4,
+                    "genderId": 1
+                  },
+                  {
+                    "name": "Wizkx",
+                    "class": "Priest",
+                    "spec": "Shadow",
+                    "role": "dps",
+                    "raceId": 34,
+                    "genderId": 0
+                  }
+                ],
+                "details": {
+                  "dampening": 49,
+                  "duration": "9:25",
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-20T22:15:23Z"
+              },
+              {
+                "id": 19134,
+                "gameOrder": 4,
+                "status": "skip",
+                "matchId": 4120,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:28:18Z"
+              },
+              {
+                "id": 19135,
+                "gameOrder": 5,
+                "status": "skip",
+                "matchId": 4120,
+                "videoId": "Sqhp4dFTQd4",
+                "videoType": "youtube",
+                "videoTimestamp": null,
+                "gameType": "pvp",
+                "splitsType": "relative",
+                "winnerTeamId": null,
+                "description": null,
+                "descriptionBBCode": null,
+                "bracketDungeonId": null,
+                "affixes": [],
+                "dungeon": null,
+                "winnerTeam": null,
+                "syncRosterType": "wisak",
+                "syncRosterValue": null,
+                "firstTeamRoster": null,
+                "secondTeamRoster": null,
+                "details": {
+                  "dampening": null,
+                  "duration": null,
+                  "firstTeamSplit1": null,
+                  "secondTeamSplit1": null
+                },
+                "updatedAt": "2024-10-18T16:28:22Z"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "roundsInBracket": {
+    "upper": 7,
+    "lower": 10
+  },
+  "startAtRoundCount": 5,
+  "stopAtRoundCount": 0,
+  "dungeons": [
+    {
+      "id": 830,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 3968,
+        "name": "Ruins of Lordaeron",
+        "short_name": "ROL",
+        "wowInstanceId": 572,
+        "slug": "ruins-of-lordaeron",
+        "expansion_id": 1,
+        "icon_url": "/images/arena-icons/572.jpg",
+        "patch": "2.2.0"
+      }
+    },
+    {
+      "id": 831,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 4378,
+        "name": "Dalaran Arena",
+        "short_name": "DA",
+        "wowInstanceId": 617,
+        "slug": "dalaran-arena",
+        "expansion_id": 2,
+        "icon_url": "/images/arena-icons/617.jpg",
+        "patch": "3.4.0"
+      }
+    },
+    {
+      "id": 832,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 4406,
+        "name": "The Ring of Valor",
+        "short_name": "RoV",
+        "wowInstanceId": 618,
+        "slug": "the-ring-of-valor",
+        "expansion_id": 2,
+        "icon_url": "/images/arena-icons/618.jpg",
+        "patch": "3.4.0"
+      }
+    },
+    {
+      "id": 833,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 6296,
+        "name": "Tol'Viron Arena",
+        "short_name": "TVA",
+        "wowInstanceId": 980,
+        "slug": "tolviron-arena",
+        "expansion_id": 4,
+        "icon_url": "/images/arena-icons/980.jpg",
+        "patch": "5.0.0"
+      }
+    },
+    {
+      "id": 834,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 6732,
+        "name": "The Tiger's Peak",
+        "short_name": "TTP",
+        "wowInstanceId": 1134,
+        "slug": "the-tigers-peak",
+        "expansion_id": 4,
+        "icon_url": "/images/arena-icons/1134.jpg",
+        "patch": "5.0.0"
+      }
+    },
+    {
+      "id": 835,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 7816,
+        "name": "Black Rook Hold Arena",
+        "short_name": "BRHA",
+        "wowInstanceId": 1504,
+        "slug": "black-rook-hold-arena",
+        "expansion_id": 6,
+        "icon_url": "/images/arena-icons/1504.jpg",
+        "patch": "7.0.0"
+      }
+    },
+    {
+      "id": 836,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 7822,
+        "name": "Nagrand Arena",
+        "short_name": "NA",
+        "wowInstanceId": 1505,
+        "slug": "nagrand-arena",
+        "expansion_id": 1,
+        "icon_url": "/images/arena-icons/1505.jpg",
+        "patch": "2.1.0"
+      }
+    },
+    {
+      "id": 837,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 8008,
+        "name": "Ashamane's Fall",
+        "short_name": "AF",
+        "wowInstanceId": 1552,
+        "slug": "ashamanes-fall",
+        "expansion_id": 6,
+        "icon_url": "/images/arena-icons/1552.jpg",
+        "patch": "7.0.0"
+      }
+    },
+    {
+      "id": 838,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 8482,
+        "name": "Blade's Edge Arena",
+        "short_name": "BEA",
+        "wowInstanceId": 1672,
+        "slug": "blades-edge-arena",
+        "expansion_id": 6,
+        "icon_url": "/images/arena-icons/1672.jpg",
+        "patch": "7.2.0"
+      }
+    },
+    {
+      "id": 839,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 8624,
+        "name": "Shado-Pan Showdown",
+        "short_name": "SPS",
+        "wowInstanceId": 1170,
+        "slug": "shadopan-showdown",
+        "expansion_id": 6,
+        "icon_url": "/images/arena-icons/1170.jpg",
+        "patch": "7.2.0"
+      }
+    },
+    {
+      "id": 840,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 9278,
+        "name": "Hook Point",
+        "short_name": "HP",
+        "wowInstanceId": 1825,
+        "slug": "hook-point",
+        "expansion_id": 7,
+        "icon_url": "/images/arena-icons/1825.jpg",
+        "patch": "8.0.0"
+      }
+    },
+    {
+      "id": 841,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 9992,
+        "name": "Mugambala",
+        "short_name": "MUG",
+        "wowInstanceId": 1911,
+        "slug": "mugambala",
+        "expansion_id": 7,
+        "icon_url": "/images/arena-icons/1911.jpg",
+        "patch": "8.0.0"
+      }
+    },
+    {
+      "id": 842,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 10497,
+        "name": "The Robodrome",
+        "short_name": "ROBO",
+        "wowInstanceId": 2167,
+        "slug": "the-robodrome",
+        "expansion_id": 7,
+        "icon_url": "/images/arena-icons/2167.jpg",
+        "patch": "8.2.0"
+      }
+    },
+    {
+      "id": 843,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 13428,
+        "name": "Empyrean Domain",
+        "short_name": "ED",
+        "wowInstanceId": 2373,
+        "slug": "empyrean-domain",
+        "expansion_id": 8,
+        "icon_url": "/images/arena-icons/2373.jpg",
+        "patch": "9.0.0"
+      }
+    },
+    {
+      "id": 844,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 13970,
+        "name": "Enigma Arena",
+        "short_name": "EA",
+        "wowInstanceId": 2511,
+        "slug": "enigma-arena",
+        "expansion_id": 8,
+        "icon_url": "/images/arena-icons/2511.jpg",
+        "patch": "9.2.0"
+      }
+    },
+    {
+      "id": 845,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 13971,
+        "name": "Maldraxxus Coliseum",
+        "short_name": "MC",
+        "wowInstanceId": 2509,
+        "slug": "maldraxxus-coliseum",
+        "expansion_id": 8,
+        "icon_url": "/images/arena-icons/2509.jpg",
+        "patch": "9.0.0"
+      }
+    },
+    {
+      "id": 846,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 14083,
+        "name": "Enigma Crucible",
+        "short_name": "EC",
+        "wowInstanceId": 2547,
+        "slug": "enigma-crucible",
+        "expansion_id": 8,
+        "icon_url": "/images/arena-icons/2547.jpg",
+        "patch": "9.2.0"
+      }
+    },
+    {
+      "id": 847,
+      "minMythicLevel": null,
+      "maxMythicLevel": null,
+      "affixes": [],
+      "showDungeonAt": null,
+      "showAffixesAt": null,
+      "dungeon": {
+        "type": "arena",
+        "id": 14436,
+        "name": "Nokhudon Proving Grounds",
+        "short_name": "NPG",
+        "wowInstanceId": 2563,
+        "slug": "nokhudon-proving-grounds",
+        "expansion_id": 9,
+        "icon_url": "/images/arena-icons/2563.jpg",
+        "patch": "10.0.0"
+      }
+    }
+  ],
+  "rulesetSeasonSlug": "",
+  "rulesetType": "",
+  "rulesetRealmType": "live",
+  "rulesetRestrictsSpecs": false,
+  "rulesetScoringAlgorithm": "",
+  "rulesetTimedRunsOnly": false,
+  "rulesetMinRequiredRuns": 1,
+  "rulesetQualifyByStartTime": false,
+  "rulesetMaxScoredDungeons": null,
+  "rulesetMinKeystoneLevel": null,
+  "rulesetMaxKeystoneLevel": null,
+  "requiresRegistration": true
+}

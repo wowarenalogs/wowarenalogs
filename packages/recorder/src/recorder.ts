@@ -799,19 +799,18 @@ export class Recorder {
 
     this.faders = [];
 
-    this.audioInputDevices.forEach((device) => {
-      const index = this.audioInputDevices.indexOf(device);
-      const channel = this.audioInputChannels[index];
+    this.audioInputDevices.forEach((device, idx) => {
+      const channel = this.audioInputChannels[idx];
       this.removeAudioSource(device, channel);
-      this.audioInputDevices.splice(index, 1);
     });
 
-    this.audioOutputDevices.forEach((device) => {
-      const index = this.audioOutputDevices.indexOf(device);
-      const channel = this.audioOutputChannels[index];
+    this.audioOutputDevices.forEach((device, idx) => {
+      const channel = this.audioOutputChannels[idx];
       this.removeAudioSource(device, channel);
-      this.audioOutputDevices.splice(index, 1);
     });
+
+    this.audioInputDevices = [];
+    this.audioOutputDevices = [];
   }
 
   /**
