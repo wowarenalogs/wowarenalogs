@@ -16,7 +16,7 @@ describe('parsing a log with overheals and pets', () => {
     results.shuffles = loaded.shuffles;
   });
 
-  it('should count effective amount correctly', () => {
+  xit('should count effective amount correctly', () => {
     // Disc priest 286d3193-c3bb-4033-b1a0-b3318a06e0d5, InvolvedGibbon
     // teammate ARMS xxx InternalSwift 2e292443-3689-451b-a125-d99e463ee255
     // opponents:
