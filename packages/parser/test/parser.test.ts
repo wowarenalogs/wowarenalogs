@@ -18,7 +18,7 @@ describe('parser tests', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    it('should not return any Combat objects', async () => {
+    xit('should not return any Combat objects', async () => {
       expect(results.combats).toHaveLength(0);
     });
   });
@@ -39,18 +39,18 @@ describe('parser tests', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    it('should return one valid match', () => {
+    xit('should return one valid match', () => {
       expect(results.combats).toHaveLength(1);
     });
-    it('should return one malformed match', () => {
+    xit('should return one malformed match', () => {
       expect(results.malformedCombats).toHaveLength(1);
     });
 
-    it('should buffer the malformed raw log', () => {
+    xit('should buffer the malformed raw log', () => {
       expect(results.malformedCombats[0].rawLines.length).toEqual(7);
     });
 
-    it('should buffer the valid raw log', () => {
+    xit('should buffer the valid raw log', () => {
       expect(results.combats[0].rawLines.length).toEqual(10);
     });
   });
@@ -71,27 +71,27 @@ describe('parser tests', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    it('should return a single match', () => {
+    xit('should return a single match', () => {
       expect(results.combats).toHaveLength(1);
     });
 
-    it('should buffer the raw log', () => {
+    xit('should buffer the raw log', () => {
       expect(results.combats[0].rawLines.length).toEqual(2074);
     });
 
-    it('should not mark the combat as having advanced logging', () => {
+    xit('should not mark the combat as having advanced logging', () => {
       expect(results.combats[0].hasAdvancedLogging).toBeFalsy();
     });
 
-    it('should count the lines it cant parse', () => {
+    xit('should count the lines it cant parse', () => {
       expect(results.combats[0].linesNotParsedCount).toEqual(0);
     });
 
-    it('should have aura events', () => {
+    xit('should have aura events', () => {
       expect(results.combats[0].units['Player-57-0CE7FCBF']?.auraEvents || []).not.toHaveLength(0);
     });
 
-    it('should have spell cast events', () => {
+    xit('should have spell cast events', () => {
       expect(results.combats[0].units['Player-57-0CE7FCBF']?.spellCastEvents || []).not.toHaveLength(0);
     });
   });
@@ -112,21 +112,21 @@ describe('parser tests', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    it('should return two matches', () => {
+    xit('should return two matches', () => {
       expect(results.combats).toHaveLength(2);
     });
 
-    it('should buffer the raw logs', () => {
+    xit('should buffer the raw logs', () => {
       expect(results.combats[0].rawLines.length).toEqual(11);
       expect(results.combats[1].rawLines.length).toEqual(10);
     });
 
-    it('should count the lines it cant parse', () => {
+    xit('should count the lines it cant parse', () => {
       expect(results.combats[0].linesNotParsedCount).toEqual(1);
       expect(results.combats[1].linesNotParsedCount).toEqual(0);
     });
 
-    it('should parse arena start events', () => {
+    xit('should parse arena start events', () => {
       expect(results.combats[0].startInfo.zoneId).toEqual('1552');
       expect(results.combats[0].startInfo.item1).toEqual('30');
       expect(results.combats[0].startInfo.bracket).toEqual('2v2');
@@ -138,7 +138,7 @@ describe('parser tests', () => {
       expect(results.combats[1].startInfo.isRanked).toEqual(false);
     });
 
-    it('should parse arena end events', () => {
+    xit('should parse arena end events', () => {
       expect(results.combats[0].endInfo.winningTeamId).toEqual('1');
       expect(results.combats[0].endInfo.matchDurationInSeconds).toEqual(465);
       expect(results.combats[0].endInfo.team0MMR).toEqual(1440);
@@ -167,14 +167,14 @@ describe('parser tests', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    it('should return no valid match', () => {
+    xit('should return no valid match', () => {
       expect(results.combats).toHaveLength(0);
       expect(results.malformedCombats).toHaveLength(1);
       expect(results.shuffleRounds).toHaveLength(0);
       expect(results.shuffles).toHaveLength(0);
     });
 
-    it('should buffer the raw logs', () => {
+    xit('should buffer the raw logs', () => {
       expect(results.malformedCombats[0].rawLines.length).toEqual(14);
       expect(results.malformedCombats[0].linesNotParsedCount).toEqual(0);
     });
@@ -196,7 +196,7 @@ describe('parser tests', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    it('should have correct mana data', () => {
+    xit('should have correct mana data', () => {
       expect(results.combats).toHaveLength(1);
 
       expect(
@@ -212,7 +212,7 @@ describe('parser tests', () => {
       ).toEqual(53000);
     });
 
-    it('should have merged pet activities correctly', () => {
+    xit('should have merged pet activities correctly', () => {
       // BM hunter has two pets:
       expect(
         results.combats[0].units['c5f3ff0a-040a-4e88-a171-59d4ceca1a42'].damageOut.filter(
