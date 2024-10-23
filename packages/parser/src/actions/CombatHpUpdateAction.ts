@@ -23,7 +23,7 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
       throw new Error('Event not supported as CombatHpUpdateAction: ' + logLine.raw);
     }
 
-    const wowVersionOffset = wowVersion === 'retail' ? 0 : -1;
+    const wowVersionOffset = wowVersion === 'retail' ? 2 : -1;
 
     if (logLine.event === 'SWING_DAMAGE') {
       this.amount = -1 * logLine.parameters[25 + wowVersionOffset];
