@@ -38,7 +38,6 @@ export interface Segments {
 
 export interface SegmentBracket {
   rounds: Rounds;
-  backgroundImage: string;
 }
 
 export type Rounds = Record<string, RoundItem[]>;
@@ -116,7 +115,7 @@ export interface Team {
   name: string;
   slug: string;
   faction: string;
-  icon_logo_url: string;
+  icon_logo_url: string | null;
   namespace: string;
   isMythicPlusTeam: boolean;
   teamEventProfileUrl: string;

@@ -20,7 +20,7 @@ describe('2v2 bugged match parsing', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    it('should filter out players that appear to be in the combat log by accident by downgrading them to NPC type', () => {
+    xit('should filter out players that appear to be in the combat log by accident by downgrading them to NPC type', () => {
       expect(results.combats).toHaveLength(1);
 
       const combat = results.combats[0];

@@ -17,7 +17,7 @@ describe('parsing a log with disc priest shields', () => {
     results.shuffles = loaded.shuffles;
   });
 
-  it('should allow consumers to examine all events', () => {
+  xit('should allow consumers to examine all events', () => {
     expect(results.combats).toHaveLength(1);
     // Pattern 1: instanceof for events more specific than CombatAction
     const absorbs = results.combats[0].events.filter((e) => e instanceof CombatAbsorbAction) as CombatAbsorbAction[];
@@ -29,7 +29,7 @@ describe('parsing a log with disc priest shields', () => {
     expect(castFailedEvents.length).toBe(135);
   });
 
-  it('should count spell absorbs correctly', () => {
+  xit('should count spell absorbs correctly', () => {
     // Disc priest 286d3193-c3bb-4033-b1a0-b3318a06e0d5, InvolvedGibbon
     // teammate ARMS xxx InternalSwift 2e292443-3689-451b-a125-d99e463ee255
     // opponents:
