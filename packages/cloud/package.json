@@ -48,7 +48,7 @@
     "md5": "^2.3.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
-    "node-fetch": "2.3.0",
+    "node-fetch": "2.6.7",
     "prisma": "^4.9.0",
     "rxjs": "^6.6.6",
     "superagent": "^8.0.4",
