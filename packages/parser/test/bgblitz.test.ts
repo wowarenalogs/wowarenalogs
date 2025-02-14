@@ -18,7 +18,7 @@ describe('BG Blitz parsing', () => {
       results = loadLogFile('bg_blitz.txt');
     });
 
-    xit('Should emit activity start and bg info for battleground parses', () => {
+    it('Should emit activity start and bg info for battleground parses', () => {
       expect(results.shuffleRounds).toHaveLength(0);
       expect(results.shuffles).toHaveLength(0);
       expect(results.combats).toHaveLength(0);

@@ -20,7 +20,7 @@ describe('3v3 match parsing', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    xit('should return a single match', () => {
+    it('should return a single match', () => {
       expect(results.malformedCombats).toHaveLength(0);
       expect(results.combats).toHaveLength(1);
       expect(results.malformedCombats).toHaveLength(0);
@@ -28,26 +28,26 @@ describe('3v3 match parsing', () => {
       expect(results.shuffles).toHaveLength(0);
     });
 
-    xit('should compute the correct hash id', () => {
+    it('should compute the correct hash id', () => {
       const combat = results.combats[0];
       expect(combat.id).toEqual('69cf0aa254959c0f569c55d3a73d91a9');
       expect(combat.dataType).toBe('ArenaMatch');
       expect(combat.timezone).toBe('America/New_York');
     });
 
-    xit('reaction based fields should populate', () => {
+    it('reaction based fields should populate', () => {
       expect(results.combats[0].playerTeamId).toEqual('0');
       expect(results.combats[0].playerTeamRating).toEqual(1422);
     });
 
-    xit('should have accounting for the raw lines', () => {
+    it('should have accounting for the raw lines', () => {
       expect(results.combats[0].events.length).toBe(11);
       expect(results.combats[0].rawLines.length).toEqual(20);
       expect(results.combats[0].linesNotParsedCount).toEqual(0);
       expect(results.combats[0].hasAdvancedLogging).toBe(true);
     });
 
-    xit('should have correct combatant metadata', () => {
+    it('should have correct combatant metadata', () => {
       const combat = results.combats[0];
       expect(_.values(combat.units).filter((u) => u.type === CombatUnitType.Player).length).toBe(6);
 
@@ -77,7 +77,7 @@ describe('3v3 match parsing', () => {
       expect(combat.playerTeamRating).toBe(1422);
     });
 
-    xit('should parse arena start event', () => {
+    it('should parse arena start event', () => {
       const combat = results.combats[0];
       expect(combat.startInfo.timestamp).toBeGreaterThan(5000);
       expect(combat.startTime).toBe(combat.startInfo.timestamp);
@@ -87,7 +87,7 @@ describe('3v3 match parsing', () => {
       expect(combat.startInfo.isRanked).toEqual(true);
     });
 
-    xit('should parse arena end event', () => {
+    it('should parse arena end event', () => {
       const combat = results.combats[0];
       expect(combat.endInfo.timestamp).toBeGreaterThan(5000);
       expect(combat.endTime).toBe(combat.endInfo.timestamp);
