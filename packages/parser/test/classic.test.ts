@@ -21,27 +21,27 @@ describe('parsing a wotlk log file', () => {
     results.shuffles = loaded.shuffles;
   });
 
-  xit('should return no malformed matches', () => {
+  it('should return no malformed matches', () => {
     expect(results.malformedCombats).toHaveLength(0);
   });
-  xit('should return 2 matches', () => {
+  it('should return 2 matches', () => {
     expect(results.combats).toHaveLength(2);
   });
 
-  xit('should have 1 loss', () => {
+  it('should have 1 loss', () => {
     expect(results.combats.filter((c) => c.result === CombatResult.Lose)).toHaveLength(1);
   });
-  xit('should have 1 win', () => {
+  it('should have 1 win', () => {
     expect(results.combats.filter((c) => c.result === CombatResult.Win)).toHaveLength(1);
   });
-  xit('should have the correct class inferred', () => {
+  it('should have the correct class inferred', () => {
     expect(Object.values(results.combats[0].units).filter((u) => u.name === 'Laral-Pagle')[0].class).toEqual(
       CombatUnitClass.Druid,
     );
     expect(results.combats[0].playerId).toBe('Player-4385-03BD0BFD');
   });
 
-  xit('should have the correct bracket inferred', () => {
+  it('should have the correct bracket inferred', () => {
     expect(results.combats[0].startInfo.bracket).toEqual('2v2');
   });
 });

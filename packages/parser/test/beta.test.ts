@@ -18,7 +18,7 @@ describe('solo shuffle tests', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    xit('should return a single shuffle match with 6 rounds', () => {
+    it('should return a single shuffle match with 6 rounds', () => {
       console.log(results.combats.length);
       console.log(`num events=${results.combats[0].events.length}`);
       console.log(`num raw lines=${results.combats[0].rawLines.length}`);
