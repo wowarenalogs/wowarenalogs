@@ -422,7 +422,9 @@ export class Recorder {
     const colorRange = ERangeType.Partial; //obsRecEncoder === ESupportedEncoders.AMD_AMF_H264 ? ERangeType.Partial : ERangeType.Full;
     // TODO: not sure what to do here. I had dark/bad results on .Full with the default nv enc; made .Partial the default...
 
-    osn.VideoFactory.videoContext = {
+    // TODO: Type error happened here when upgrading packages
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (osn.VideoFactory as any).videoContext = {
       fpsNum: obsFPS,
       fpsDen: 1,
       baseWidth: width,
