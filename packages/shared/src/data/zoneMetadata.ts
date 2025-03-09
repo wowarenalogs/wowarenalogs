@@ -160,4 +160,14 @@ export const zoneMetadata: Record<string, IZoneMetadata> = {
     maxX: -1187,
     maxY: 786,
   },
+  '2759': {
+    id: '2759',
+    name: 'Cage of Carnage',
+    imageWidth: 600,
+    imageHeight: 585,
+    minX: -1307,
+    minY: 669,
+    maxX: -1187,
+    maxY: 786,
+  },
 };
