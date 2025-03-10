@@ -15,7 +15,7 @@
     "eventemitter3": "^5.0.1",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^11.1.1",
-    "obs-studio-node": "https://storage.googleapis.com/spires-log-files/obs-studio-node-0.3.21-win64-27.0.2.tar.gz",
+    "obs-studio-node": "https://storage.googleapis.com/download.wowarenalogs.com/obs-studio-node.tar.gz",
     "uiohook-napi": "^1.5.2",
     "wait-queue": "^1.1.4"
   },
