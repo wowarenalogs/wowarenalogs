@@ -23,9 +23,11 @@
     "productName": "WoW Arena Logs",
     "artifactName": "WoW-Arena-Logs-${version}.${ext}",
     "extends": null,
+    "afterSign": "./scripts/notarize.js",
     "files": [
       "packages/app/dist/**/*"
     ],
+    "includeSubNodeModules": true,
     "asarUnpack": [
       "packages/app/dist/lib/obs-studio-node/**"
     ],
@@ -36,6 +38,20 @@
       "category": "Utility",
       "target": "AppImage",
       "icon": "icon.icns"
+    },
+    "mac": {
+      "category": "public.app-category.games",
+      "target": [
+        {
+          "target": "default",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "entitlements": "./scripts/entitlements.plist",
+      "entitlementsInherit": "./scripts/entitlements.plist",
+      "darkModeSupport": true
     }
   },
   "scripts": {
@@ -77,6 +93,7 @@
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
   "devDependencies": {
+    "@electron/notarize": "^2.5.0",
     "@types/estree": "^0.0.52",
     "@types/line-reader": "^0.0.34",
     "@types/md5": "^2.3.2",
