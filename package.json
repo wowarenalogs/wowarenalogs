@@ -13,7 +13,7 @@
   "main": "packages/app/dist/main.bundle.js",
   "engines": {
     "node": ">=16",
-    "npm": ">=9"
+    "npm": ">=8.6.0"
   },
   "workspaces": [
     "packages/*"
@@ -27,6 +27,7 @@
     "files": [
       "packages/app/dist/**/*"
     ],
+    "includeSubNodeModules": true,
     "asarUnpack": [
       "packages/app/dist/lib/obs-studio-node/**"
     ],
@@ -100,7 +101,7 @@
     "concurrently": "^7.0.0",
     "cross-env": "^7.0.3",
     "electron": "^27.0.2",
-    "electron-builder": "^26.0.1",
+    "electron-builder": "^24.6.4",
     "eslint": "^8.49.0",
     "husky": "^7.0.4",
     "patch-package": "^8.0.0",
