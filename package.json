@@ -12,8 +12,8 @@
   },
   "main": "packages/app/dist/main.bundle.js",
   "engines": {
-    "node": ">=22",
-    "npm": ">=10"
+    "node": ">=16",
+    "npm": ">=9"
   },
   "workspaces": [
     "packages/*"
