@@ -12,8 +12,8 @@
   },
   "main": "packages/app/dist/main.bundle.js",
   "engines": {
-    "node": ">=16",
-    "npm": ">=8.6.0"
+    "node": ">=22",
+    "npm": ">=10"
   },
   "workspaces": [
     "packages/*"
@@ -113,10 +113,6 @@
   "resolutions": {
     "**/@typescript-eslint/eslint-plugin": "^5.60.0",
     "**/@typescript-eslint/parser": "^5.60.0"
-  },
-  "overrides": {
-    "isbinaryfile": "4.0.10",
-    "minimatch": "5.1.2"
   },
   "prettier": {
     "semi": true,
