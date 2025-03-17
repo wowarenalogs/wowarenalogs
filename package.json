@@ -85,7 +85,7 @@
     "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
   },
   "devDependencies": {
-    "@electron/notarize": "^2.5.0",
+    "@electron/notarize": "^3.0.0",
     "@types/estree": "^0.0.52",
     "@types/line-reader": "^0.0.34",
     "@types/md5": "^2.3.2",
