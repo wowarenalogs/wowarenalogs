@@ -23,7 +23,7 @@
     "productName": "WoW Arena Logs",
     "artifactName": "WoW-Arena-Logs-${version}.${ext}",
     "extends": null,
-    "afterSign": "./scripts/notarize.mjs",
+    "afterSign": "./scripts/notarize.js",
     "files": [
       "packages/app/dist/**/*"
     ],
