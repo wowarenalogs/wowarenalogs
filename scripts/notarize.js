@@ -1,6 +1,5 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
-/* eslint-disable @typescript-eslint/no-var-requires */
-const { notarize } = require('@electron/notarize');
+import { notarize } from '@electron/notarize';
 
 exports.default = async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context;
