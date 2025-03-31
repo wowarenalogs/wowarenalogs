@@ -7,6 +7,7 @@ import path from 'path';
 import { WowVersion } from '../../parser/dist/index';
 import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from './createMatchStub';
 import { logCombatStatsAsync, parseFromStringArrayAsync } from './utils';
+import { stubsWebhookArenaMatchAsync, stubsWebhookShuffleMatchAsync } from './webhooks';
 
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
 
@@ -58,6 +59,13 @@ export async function handler(file: any, _context: any) {
     } catch (e) {
       console.error(e);
     }
+    if (arenaMatch.startInfo.isRanked) {
+      try {
+        await stubsWebhookArenaMatchAsync(arenaMatch);
+      } catch (e) {
+        console.error(e);
+      }
+    }
     return;
   }
 
@@ -74,6 +82,14 @@ export async function handler(file: any, _context: any) {
         console.error(e);
       }
     });
+    if (shuffleMatch.startInfo.bracket === 'Rated Solo Shuffle') {
+      try {
+        await stubsWebhookShuffleMatchAsync(shuffleMatch);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     return;
   }
   console.log('Parser did not find useable matches');
