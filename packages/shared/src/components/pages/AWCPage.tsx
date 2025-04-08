@@ -5,14 +5,8 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import { CombatDataStub, useGetPublicMatchesQuery } from '../..';
-import EU_TWW_S1C1 from '../../data/awc/EU_TWW_S1C1.json';
-import EU_TWW_S1C2 from '../../data/awc/EU_TWW_S1C2.json';
-import EU_TWW_S1C3 from '../../data/awc/EU_TWW_S1C3.json';
-import EU_TWW_S1C4 from '../../data/awc/EU_TWW_S1C4.json';
-import NA_TWW_S1C1 from '../../data/awc/NA_TWW_S1C1.json';
-import NA_TWW_S1C2 from '../../data/awc/NA_TWW_S1C2.json';
-import NA_TWW_S1C3 from '../../data/awc/NA_TWW_S1C3.json';
-import NA_TWW_S1C4 from '../../data/awc/NA_TWW_S1C4.json';
+import EU_TWW_S2C1 from '../../data/awc/EU_TWW_S2C1.json';
+import NA_TWW_S2C1 from '../../data/awc/NA_TWW_S2C1.json';
 import { AWCMetadata, Game } from '../../data/awc/types';
 import { Utils } from '../../utils/utils';
 
@@ -41,17 +35,21 @@ const AWCTeam = ({
             / /g,
             '',
           )}` as keyof typeof CombatUnitSpec;
-          const specValue = CombatUnitSpec[specEnum] || 'Unknown';
+          const specValue = (specEnum as string) === '' ? null : CombatUnitSpec[specEnum];
           return (
             <div key={player.name} className="flex flex-row gap-1 items-center">
-              <Image
-                className="rounded"
-                src={Utils.getSpecIcon(specValue) || 'no-image'}
-                alt={'no'}
-                width={16}
-                height={16}
-              />
-              <div>{player.name}</div>
+              <>
+                {specValue && (
+                  <Image
+                    className="rounded"
+                    src={Utils.getSpecIcon(specValue) || 'no-image'}
+                    alt={'no'}
+                    width={16}
+                    height={16}
+                  />
+                )}
+                <div>{player.name}</div>
+              </>
             </div>
           );
         })}
@@ -61,153 +59,98 @@ const AWCTeam = ({
 };
 
 const matchMap = {
-  '15116': '162a77a14c42b802152570eb9917e102',
-  '15117': '0b39a6dffd320b833b5e340815e80aaf',
-  '15118': 'e755fd36553e5af5a422adc0fbc3d224',
-  '15121': '2fdd435625d055a062bd11cc6cf414d2',
-  '15122': 'f6c9032332cc6966f7a851d770aa6382',
-  '15123': '6373cb5dd76ae9bcf32c5d04ee8ec344',
-  '15136': '253373bba6458e36f3bcbe6c0d611586',
-  '15137': '14788a1d45973af1308b657cc37ff4e1',
-  '15138': '1ebd4124c8e1cb8368409be69769a54a',
-  '15166': '0efe46f6e8ab9086ef315be8add35039',
-  '15167': '09b3b337286f59ce7e23f4d2c973a8b6',
-  '15168': 'ba2bd55ca0db88673c8122d0bf10e2d0',
-  '15171': '7fa93cd92dfe9b33868116b44e32b768',
-  '15172': 'c0b43906cac7f1c471ebe1a0dd4cedc9',
-  '15173': 'b6f070eab89e8763a7ab85cc352f23bd',
-  '15174': 'ee165487073d81d3f4d3b37d11705a18',
-  '15186': '900f856438709708c9db6f6a7b7280ba',
-  '15187': 'ea147895b2ef9aba0558d572502e335f',
-  '15188': '3cc0e05f84e001353fd78eb153198dd5',
-  '15196': '5f58938e87d2d338210e463581748bbb',
-  '15197': '536560c7dbf67534105e2421a899b01d',
-  '15198': '02eb75da930da2296a6e3f124149489f',
-  '15199': 'ea253b4d66581a02b5fd03ba4398e622',
-  '15200': 'aefd3f3bf603aed1cf62dc991640ebfb',
-  '15201': '972de4929eabf382b5d96a8df0b707ea',
-  '15203': 'afaad5eb1cb27cdf179e2410251bae64',
-  '15204': '3949ec91ecb815c0af0299950cdc898e',
-  '15205': '6e397a0db18040e2ba32efd9d2d65e0d',
-  '15206': '201400d769e7300ee1d8685ff8ae689d',
-  '15207': '658be86d61d284cf8b843665d994fcbf',
-  '15208': '2e14304594f54ebc6705a9ee93f261ec',
-  '15209': '6fd94a3dc270f6d4f553523a56fe0761',
-  '16430': '5807c507abf23a3f5974ba06fbe19cbc',
-  '16431': '2343bff53265848c933428dc6ba2177e',
-  '16432': 'c0a0c5295eea7d6b8dfdbf61a8b0cea5',
-  '16433': 'a701f516373c47e2c9fc6a4cbddd019b',
-  '16434': '6b12b20aa7d055a807e74dd1e58d6d6c',
-  '16435': '11009078944aeb8a34f77d1ed004c031',
-  '16436': 'c719464b83e9e1cebedac7ee94bc316d',
-  '16437': '9ed2562ef35e6d259fb736de84f1cb6a',
-  '16450': 'b749ebd544fe373a30d76ee17a3fcf05',
-  '16451': 'a9e58e4633cf73c02ceff2db967525b9',
-  '16452': '19b1c11f90a38da8d4d7681b7811938b',
-  '16453': '7404852f0240ef3e5caf682b4b607dde',
-  '16480': 'cebf709ff7c7d77957d0b7a9c61b48fe',
-  '16481': '0393017baae64751edc5a43ef5e6c510',
-  '16482': '1596c136cf49c3ce93ac50f4221c1540',
-  '16485': '3522b9f3d53684c84d99bbb54e8c8524',
-  '16486': 'da1b79cc0b220b3b20fd52b4e48994e6',
-  '16487': '0b8c883f863ca207df08cc04ad561933',
-  '16488': 'c37b851e91f9dbe4c9ef2897f7f6b118',
-  '16500': 'f4e512775ea1291554213ae434268dd7',
-  '16501': '7c7efc2f1e1ae003a913ad01cce7ff8e',
-  '16502': '9cd9e978d28f264e3f1b8d48f54a8186',
-  '16510': '12520e47c8bc47bdbe8ad40d0ae5466d',
-  '16511': '00c4add653eea12d47c08c7751ca3eba',
-  '16512': '49176fa1bbd8e47052b73f68b4179dc9',
-  '16513': '56993be884b209de8d6eb6c863705439',
-  '16517': 'a5638540695a391bdb8792410f7c7064',
-  '16518': '0538e93617c4358f7d7c5fb164619817',
-  '16519': '0c102462d534f9c7a3606ac95fdf8391',
-  '16520': '909e71a1ff2fc9ded73d2b20da65b090',
-  '16521': '242d23c6201dba14b1b9bb4b13306e75',
-  '17162': '4458768ef7ad70ece47df2a281aa757d',
-  '17163': '536a3b260335f903571fc9acc4fa8636',
-  '17164': '2b40dbaac1aec6d5ebbf3ac7bbb612ee',
-  '17167': '045712a358c5af0401fc89b71137d833',
-  '17168': 'daeacd0fa65bb84ed2f66b7875d0393f',
-  '17169': '67ef69383222ba134264986dc5be8747',
-  '17170': '683aa9ba9894e682d9a1372fc51401e4',
-  '17171': '32eceee1dbfb027fec738a2140ded376',
-  '17182': '8bc5f25700d39e05a11561b83959b61a',
-  '17183': '345dd17b9b00e0956daa1bd99c6bd408',
-  '17184': 'a9cfa259edc6b183ee59a22556194e80',
-  '17812': 'a4a6003c220bd779147d0e9c5d9a1211',
-  '17813': 'aea09bd18f06e2a5bb23f5dd0f76585d',
-  '17814': '1017d9e888301ce6679a7eee70841bc9',
-  '17815': '593e915577947098f4e7002e312e49a2',
-  '17816': '06bd46c5248dbbcd8442e504a063d61d',
-  '17817': '15c32498084326e44340d057f6f5d81d',
-  '17818': '16caedfbf12aca13cbc57d176af79633',
-  '17819': 'c49e7d4377bbfc6f122d9ad56fb17e43',
-  '17832': 'f73026f31f0bd2816154e5ba180753fd',
-  '17833': 'e2332552d014da94fb718ba3993ee378',
-  '17834': 'd5ed2b234f5052f265c7a43c071094c0',
-  '17842': '87b205d6ce61483ac591738c2be4fbf6',
-  '17843': 'f7cce90ccfd74d04acfb5d06d114fb82',
-  '17844': 'fca9536e8cd06dd84a03c552bc5f8834',
-  '17845': 'ae89aacfabde4741e6f7990a2e272558',
-  '17846': '34e7b28755ce831c2553cf3b170181ab',
-  '17847': 'cd10e516b7fc7ec1cb824476ec6ad3e0',
-  '17848': '0993a38be1ee1a804cf40768ed203f24',
-  '17849': 'caff29ca1b88377703424218bbd551a7',
-  '17850': 'cbb89069c8a3fc29722d6325a6ccc01d',
-  '17851': '195c060eb1e0dd12f7b65b8255ec0fd7',
-  '17852': 'e9dc040cbc717360cee2bf3cdd1df8ca',
-  '18476': '8689cf0fa46f75ae5c481066a7588b7f',
-  '18477': '3e4d0e05a0634d2cabe9836f63701ac1',
-  '18478': '6051b9397bf139fabff8fcca6d3c66d7',
-  '18479': '85bd0f678b55375bb5ff034e884322f7',
-  '18481': 'be8e125b0091fe2ffcc42416b4c6f5c3',
-  '18482': 'b6134bbdafca48d107c951290bf39276',
-  '18483': '6c47bd8ccf4e1f8a05a78ee48ca0d71c',
-  '18496': 'ffbe5dacc5123ac98f92dd987063a17f',
-  '18497': 'e3106f80a2de85b066de9b4451893434',
-  '18498': '8b8fbaa0cb9017ece921c6b76e5bddad',
-  '18499': '2dc74fc05724d8eb44918053028dcd59',
-  '19126': '08c2141fa674a41a87f832cb9441fe69',
-  '19127': '3cd63d6d034bdc5818fc75af523391fc ',
-  '19128': '04820fd6348b3757b33e187e118ae173',
-  '19131': 'd1f7ce0f7c4f8e7901559650f284229d ',
-  '19132': '8a54b54ae34ab54c1ebde5c0fb5fe43a ',
-  '19133': 'ed16b476c56eee5dc774e926bfc8cedf ',
-  '19146': '488db065f6b397ddc5f8026f456bf054',
-  '19147': 'e912ce7ebe00f58985aad8a33838f18c',
-  '19148': 'd0f143df69493e3b01940f877a90e565',
-  '19156': '4e161a8e1fd9812f8245836dc94dad2a',
-  '19157': '0f548e0d4f2ece136191e993f86f4ad4',
-  '19158': '6eb2c74721c6f5b7b8b31132fafcd187',
-  '19159': '8b5e9c6d6994af06b577030a1f6295af',
-  '19160': 'e83ba59875e6f4f8d214b9471bf74f57',
-  '19161': '177b93b42807d5b07532f592b24e8756',
-  '19163': '69b073a9829c081578506c9a532f1b9b',
-  '19164': '26b0508a195ac179c5fa1b89c6c2fda9',
-  '19165': '986db609d83a3c0e69c03d737d6950f1 ',
-  '19166': '0002294353c13a2f40be5d875807e419',
-  '19167': '908734f6a8902748af95853166970d07',
+  '22848': '470490745232f06ca183b1fb65e9f7e2',
+  '22849': '0ef24fbba036bcbedfcc38f6f73b3b4f',
+  '22850': '1c6bb07aac2f989c45cbec4b435e2f5f',
+  '22851': '39b052c5a79b2184159d05a22caf3247',
+  '22852': '604568af563e119c00f0c5f8acd40dcc',
+  '22853': 'a865865fc5513995e49076699617a4f',
+  '22854': '4eca5cece34bdac9ec39f87a5f1c34dd',
+  '22855': '7be2c39a5bac64296b106a644f27f9a7',
+  '22858': 'bf0c361ab5029e48151a69a040b70e31',
+  '22859': '69e35c3ce85a9bdcfd2361e0c65ec2c4',
+  '22860': 'a6aded48bcb402ef8a4e15c660652f74',
+  '22863': '2f19d0aabde6c0914c0d532a95710708',
+  '22864': '3a55f3ea405aedc78c1ad7f4f10596c6',
+  '22865': '30317e0b43ad685855e64943d2334cb9',
+  '22868': '5438cd82c246d3058ca6111832ec98c2',
+  '22869': '5de7faeb484b326fbaa86f986629a621',
+  '22870': 'f1645750641587a99798f29fa57ea7e0',
+  '22871': 'b302e2c04e1ff90eba85aa48d01863b0',
+  '22873': 'fc666feb2a862d4ce38d7127f7643b0c',
+  '22874': '4d5ae1b52b900478ed16f372c13f89a6',
+  '22875': 'bea98fe63e647f799caa9b820fa6d7ec',
+  '22876': '9f251cd4435cbcc4bfda1be473fe984b',
+  '22878': '87a32ce6e3fbdf01b1799ca17e00427a',
+  '22879': 'bb64b010d0d50f0b522b8a496fa0cdb1',
+  '22880': '32fc5f0f1c3de520e28e251ed4f02041',
+  '22881': '8ddb42ef049da7218bb85204549df417',
+  '22882': 'f4ac8e219310da174cb170278c3b66ca',
+  '22883': '87a32ce6e3fbdf01b1799ca17e00427a',
+  '22884': '156444aacdbfd65cc1af136f18d89395',
+  '22885': '6ce7887aa2627c6205eaa271f3230ca3',
+  '22886': 'ff04d3dbb764c5036a6ffa4c0c48a2e2',
+  '22887': '4d5ae1b52b900478ed16f372c13f89a6',
+  '22888': '5d52a841e69fce087326c7a9bfd20ff1',
+  '22889': '94e7732890d4b5cd576944b898bd072c',
+  '22890': 'a531413eba68fe015cee085ba57a237b',
+  '25378': 'c0225ba02666d647cf291dc25b505d2d',
+  '25379': '2284e6dc288b787b1fc9e5d810b2d696',
+  '25380': '2c9574920ac5c7f286a04ed963e1118d',
+  '25383': '0844aaaaf928279c0ec8669a59394173',
+  '25384': 'f3beadfb036251235accd0643eb7cde3',
+  '25386': '9d805deb1b62e93ddb0444e0d66bf8b8',
+  '25388': '4207fc9f1abaff9789b1c7ae78095bf5',
+  '25389': 'f2cac4268b33a83a3a27269c7fe979ee',
+  '25391': 'c2f928a4523b97aa6c7fa188122a1106',
+  '25392': '74f886025e9698985d488071576f75da',
+  '25393': '41932400822db5ad58efacd30069cca3',
+  '25394': 'bc7ff2f65774a2c3e69ab3bcf0841d0b',
+  '25395': '6d98c4318bc8c620ac5e51ca941ac825',
+  '25398': 'e3626d236f016ed77574578bf2d96498',
+  '25399': 'dda4e2227d06e6bc366120f1a8f9697b',
+  '25400': '96a213a8a2cdf2e826265ae68518dc8f',
+  '25403': 'b1e9b884de5b18d59d2d3f443468072d',
+  '25404': '1a4229948afd209a18cf7ee52bad2949',
+  '25405': '056063ae24e6dc75e7b81aded38fac87',
+  '25406': '6b95c92db65c5b55c02857372602553a',
+  '25407': '3037b0e8ff647032b5679be89bc970c1',
+  '25409': 'd84953ecbb66eca86e888077163a6347',
+  '25410': '173bc85b88db71523b1b919ebeb6c6a4',
+  '25414': 'd8d65e65670bfb678cef134d02279daf',
+  '25415': '6c43891b00b08158c6f2e415067845a1',
+  '25416': '1716eb6bbeb00ad1a5cf284b51c349cf',
+  '25418': '836b36d8ccaeed94dde387c5324a53bb',
+  '25419': 'd064f14ac93e38940a6701bccac63283',
+  '25420': '5057ea6d958d5161913dc342a977c53c',
+  '25421': '75886025153c2abef08a66ffeab230d6',
+  '25422': '2719edeb755404a06620ecb0447bc650',
+  '25428': '9dd86b3ea2cabc013978a5ff1c6110ec',
+  '25429': '1758beecf067da466d501d96bb819e25',
+  '25430': 'a263480517a2655677a60f78f69d36ce',
+  '25431': 'b734ba0756e050f29f2957f425916aa9',
+  '25432': 'd58ce252245c7f1356058858dafcc005',
+  '25433': '0e2d9a492848202fd2f7eb7e5341fb9f',
+  '25435': 'd84adac34e4fbc2d2b572b4524eef052',
+  '25436': 'a86a71bf4e828fc02d2e7adec0f845e8',
+  '25437': 'afc501b0e6b55d4559cec594910790af',
+  '25438': '9fac0a1e50199e2d40ee9076ddbf2551',
+  '25439': '017ddc51a525994cd41abbf7009eb2a3',
 };
+
 const matchesWithLogs = Object.keys(matchMap);
 
 const metadataMap: Record<string, Record<string, AWCMetadata | null>> = {
   NA: {
-    'Season 1 Cup 1': NA_TWW_S1C1,
-    'Season 1 Cup 2': NA_TWW_S1C2,
-    'Season 1 Cup 3': NA_TWW_S1C3,
-    'Season 1 Cup 4': NA_TWW_S1C4,
+    'Season 2 Cup 1': NA_TWW_S2C1,
   },
   EU: {
-    'Season 1 Cup 1': EU_TWW_S1C1,
-    'Season 1 Cup 2': EU_TWW_S1C2,
-    'Season 1 Cup 3': EU_TWW_S1C3,
-    'Season 1 Cup 4': EU_TWW_S1C4,
+    'Season 2 Cup 1': EU_TWW_S2C1,
   },
 };
 
 const regions = ['NA', 'EU'];
-const cups = ['Season 1 Cup 1', 'Season 1 Cup 2', 'Season 1 Cup 3', 'Season 1 Cup 4'];
+const cups = ['Season 2 Cup 1'];
 
 function findClosest(timedEvents: CombatDataStub[], game: Game): CombatDataStub[] {
   if (timedEvents.length === 0) return [];
@@ -223,7 +166,7 @@ function findClosest(timedEvents: CombatDataStub[], game: Game): CombatDataStub[
     .replaceAll(' ', '');
   // console.log({ gamefingerPrint });
 
-  return timedEvents.filter((event) => {
+  const matches = timedEvents.filter((event) => {
     const fingerItems = [
       event.startInfo?.zoneId,
       Object.values(event.units)
@@ -241,6 +184,7 @@ function findClosest(timedEvents: CombatDataStub[], game: Game): CombatDataStub[
     // console.log({ eventFingerprint });
     return eventFingerprint === gamefingerPrint;
   });
+  return matches;
 }
 
 export const AWCPage = () => {
@@ -257,7 +201,7 @@ export const AWCPage = () => {
   });
 
   const [region, setRegion] = useState('NA');
-  const [cup, setCup] = useState('Season 1 Cup 1');
+  const [cup, setCup] = useState('Season 2 Cup 1');
 
   const data = metadataMap[region][cup];
   const allGames = [
@@ -329,11 +273,20 @@ export const AWCPage = () => {
           const names = closestMatches.map((a) =>
             Object.values(a.units)
               .filter((p) => p.type === CombatUnitType.Player)
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              .sort((a, b) => a.info!.teamId.localeCompare(b.info!.teamId))
               .map((p) => p.name),
           );
 
           if (closestMatches.length > 1) {
-            console.log({ game, closestMatches, names });
+            console.log('N>1:', gameDate);
+            console.log({
+              game,
+              gameRoster1: game.firstTeamRoster?.map((p) => p.name),
+              gameRoster2: game.secondTeamRoster?.map((p) => p.name),
+              closestMatches,
+              names,
+            });
           }
           return (
             <div
@@ -367,7 +320,7 @@ export const AWCPage = () => {
                       {!closestMatches[0] ? 'NO MATCH' : closestMatches[0]?.id}
                       {closestMatches.length > 1 && ' WARNING: MULTIPLE MATCHES'}
                     </div>
-                    <div>{(closestMatches[0]?.id === gameToMatchMap[game.id]).toString()}</div>
+                    <div>mapped? {(closestMatches[0]?.id === gameToMatchMap[game.id]).toString()}</div>
                   </>
                 )}
               </div>
