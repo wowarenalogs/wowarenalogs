@@ -14,8 +14,8 @@
     "release:web": "git checkout release/wowarenalogs/web && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.3",
     "@sentry/react": "^7.28.1",
+    "@apollo/client": "^3.7.3",
     "@tailwindcss/typography": "^0.5.7",
     "@wowarenalogs/parser": "^6.0.0",
     "@wowarenalogs/shared": "^1.0.0",
