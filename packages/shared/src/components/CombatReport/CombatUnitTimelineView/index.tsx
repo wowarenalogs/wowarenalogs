@@ -4,7 +4,7 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { FaSkullCrossbones } from 'react-icons/fa';
 
-import { SIGNIFICANT_DAMAGE_HEAL_THRESHOLD, Utils } from '../../../utils/utils';
+import { Utils } from '../../../utils/utils';
 import { SpecImage } from '../../common/SpecImage';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitAuraTimeline } from './CombatUnitAuraTimeline';
