@@ -51,7 +51,7 @@ const generateHpUpdateColumn = (
                 height: REPORT_TIMELINE_HEIGHT_PER_SECOND,
               }}
             >
-              {groupTotal ? Utils.printCombatNumber(Math.abs(groupTotal * 10000)) : null}
+              {groupTotal ? Utils.printCombatNumber(Math.abs(groupTotal)) : null}
             </div>
           );
         })}
