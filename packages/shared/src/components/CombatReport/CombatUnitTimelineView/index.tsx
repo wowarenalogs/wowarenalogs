@@ -4,7 +4,7 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { FaSkullCrossbones } from 'react-icons/fa';
 
-import { SIGNIFICANT_DAMAGE_HEAL_THRESHOLD, Utils } from '../../../utils/utils';
+import { Utils } from '../../../utils/utils';
 import { SpecImage } from '../../common/SpecImage';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitAuraTimeline } from './CombatUnitAuraTimeline';
@@ -35,13 +35,13 @@ const generateHpUpdateColumn = (
         height: ((endTime - startTime) / 1000) * REPORT_TIMELINE_HEIGHT_PER_SECOND,
       }}
     >
-      <div className="relative w-8">
+      <div className="relative w-12 ml-1">
         {_.map(actionGroupsBySecondMark, (group, secondMark) => {
           const groupTotal = _.sumBy(group, (action) => action.effectiveAmount);
           return (
             <div
               key={secondMark}
-              className={`flex flex-row text-xs w-8 absolute items-center ${
+              className={`flex w-full flex-row text-xs absolute items-center ${
                 align === 'LEFT' ? 'justify-start' : 'justify-end'
               } ${groupTotal >= 0 ? 'text-success' : 'text-error'}`}
               style={{
@@ -51,9 +51,7 @@ const generateHpUpdateColumn = (
                 height: REPORT_TIMELINE_HEIGHT_PER_SECOND,
               }}
             >
-              {Math.abs(groupTotal) >= SIGNIFICANT_DAMAGE_HEAL_THRESHOLD
-                ? Utils.printCombatNumber(Math.abs(groupTotal))
-                : null}
+              {groupTotal ? Utils.printCombatNumber(Math.abs(groupTotal * 10000)) : null}
             </div>
           );
         })}
@@ -289,7 +287,7 @@ export const CombatUnitTimelineView = (props: IProps) => {
           endTime,
           deathTime,
         )}
-        <div className="divider divider-horizontal mx-1" />
+        <div className="divider divider-horizontal mx-0" />
         <div
           className="w-16 flex relative"
           style={{
@@ -300,7 +298,7 @@ export const CombatUnitTimelineView = (props: IProps) => {
             ? generateHpColumn(props.unit, hpBySecondMark, endTime, deathTime)
             : generateTimeMarksColumn(startTime, endTime, combat.startTime, deathTime)}
         </div>
-        <div className="divider divider-horizontal mx-1" />
+        <div className="divider divider-horizontal mx-0" />
         {generateHpUpdateColumn(
           combat,
           props.unit,
