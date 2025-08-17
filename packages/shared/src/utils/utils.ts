@@ -206,12 +206,16 @@ export class Utils {
     if (num < 1000) {
       return `${num.toFixed()}${isCritical ? criticalMarker : ''}`;
     }
-    if (num < 10000) {
+    if (num < 1000000) {
       return `${(num / 1000).toFixed(1)}k${isCritical ? criticalMarker : ''}`;
     }
 
-    if (num >= 1000000) {
+    if (num < 1000000000) {
       return `${(num / 1000000).toFixed(2)}m${isCritical ? criticalMarker : ''}`;
+    }
+
+    if (num >= 1000000000) {
+      return `${(num / 1000000000).toFixed(1)}b${isCritical ? criticalMarker : ''}`;
     }
 
     return `${(num / 1000).toFixed()}k${isCritical ? criticalMarker : ''}`;
