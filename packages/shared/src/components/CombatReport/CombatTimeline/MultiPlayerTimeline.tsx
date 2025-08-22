@@ -21,6 +21,7 @@ interface ISpellCastTimelineEvent {
   playerId: string;
   eventKey?: string;
   logLine?: ILogLine;
+  deltaMs?: number; // Time since last spell cast for this player
 }
 
 interface IAuraEvent {
@@ -62,11 +63,24 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
     // Collect all events from all players
     const allGlobalEvents: Array<(ISpellCastTimelineEvent | IAuraEvent) & { playerId: string }> = [];
 
+    // Track last spell cast timestamp for each player to calculate deltas
+    const lastSpellCastByPlayer = new Map<string, number>();
+
     selectedPlayers.forEach((player) => {
       // Add spell events
       if (showSpells) {
-        player.spellCastEvents.forEach((event) => {
+        // Sort player's spell events by timestamp to calculate deltas correctly
+        const sortedSpellEvents = [...player.spellCastEvents].sort((a, b) => a.timestamp - b.timestamp);
+
+        sortedSpellEvents.forEach((event) => {
           if (event.spellId && event.spellName) {
+            // Calculate delta from last spell cast for this player
+            const lastCastTime = lastSpellCastByPlayer.get(player.id);
+            const deltaMs = lastCastTime ? event.timestamp - lastCastTime : undefined;
+
+            // Update last cast time for this player
+            lastSpellCastByPlayer.set(player.id, event.timestamp);
+
             allGlobalEvents.push({
               spellId: event.spellId,
               spellName: event.spellName,
@@ -78,6 +92,7 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
               targetId: event.destUnitId,
               playerId: player.id,
               logLine: event.logLine,
+              deltaMs,
             });
           }
         });
@@ -287,6 +302,14 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
             <div className="text-xs opacity-75">
               {isSuccess ? 'Cast' : isFailed ? 'Failed' : 'Started'} •
               {moment.utc(spellEvent.timeOffset).format('mm:ss.SSS')}
+              {spellEvent.deltaMs !== undefined &&
+                ` • Δ${
+                  spellEvent.deltaMs === 0
+                    ? '0s'
+                    : spellEvent.deltaMs < 1000
+                    ? `${spellEvent.deltaMs}ms`
+                    : `${(spellEvent.deltaMs / 1000).toFixed(1)}s`
+                }`}
             </div>
           </div>
           {spellEvent.targetId &&
