@@ -41,6 +41,12 @@ const COLUMN_WIDTH = 240;
 const EVENT_CARD_HEIGHT = 48; // height of each event card
 const CROSS_COLUMN_SPACING = 12; // spacing when events are in different columns
 
+// Layout spacing constants
+const COLUMN_SEPARATOR_MARGIN = 8; //margin on each side of separator
+const HEADER_BOTTOM_MARGIN = 12; // margin below headers
+const HEADER_SPEC_SPACING = 8; //  margin between spec icon and name
+const EVENT_HORIZONTAL_PADDING = 0; // for event cards
+
 interface IProps {
   selectedPlayers: ICombatUnit[];
   showSpells: boolean;
@@ -204,7 +210,11 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
       const isApplied = auraEvent.event === 'applied';
 
       return (
-        <div key={eventKey} className="absolute flex items-center" style={{ top: yPosition, left: 8, right: 8 }}>
+        <div
+          key={eventKey}
+          className="absolute flex items-center z-10"
+          style={{ top: yPosition, left: EVENT_HORIZONTAL_PADDING, right: EVENT_HORIZONTAL_PADDING }}
+        >
           <div
             className={`relative flex items-center p-1 rounded w-full ${
               isApplied ? 'bg-info bg-opacity-20 border border-info' : 'bg-neutral bg-opacity-20 border border-neutral'
@@ -246,7 +256,11 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
     const isFailed = spellEvent.event === LogEvent.SPELL_CAST_FAILED;
 
     return (
-      <div key={eventKey} className="absolute flex items-center" style={{ top: yPosition, left: 8, right: 8 }}>
+      <div
+        key={eventKey}
+        className="absolute flex items-center z-10"
+        style={{ top: yPosition, left: EVENT_HORIZONTAL_PADDING, right: EVENT_HORIZONTAL_PADDING }}
+      >
         <div
           className={`relative flex items-center p-1 rounded w-full ${
             isSuccess
@@ -291,30 +305,42 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
   };
 
   return (
-    <div className="flex flex-row gap-4">
-      {selectedPlayers.map((player) => {
+    <div className="flex flex-row">
+      {selectedPlayers.map((player, index) => {
         const events = globalTimeline.eventsByPlayer.get(player.id) || [];
         return (
-          <div key={player.id} className="flex flex-col">
-            {/* Column header */}
-            <div className="mb-4 text-center" style={{ width: COLUMN_WIDTH }}>
-              <div className="flex items-center justify-center mb-2">
-                <SpecImage specId={player.spec} size={24} />
-                <span className="ml-2 font-medium">
-                  <CombatUnitName unit={player} />
-                </span>
+          <div key={player.id} className="flex">
+            {/* Player column */}
+            <div className="flex flex-col">
+              {/* Column header */}
+              <div className="text-center" style={{ width: COLUMN_WIDTH, marginBottom: HEADER_BOTTOM_MARGIN }}>
+                <div className="flex items-center justify-center mb-2">
+                  <SpecImage specId={player.spec} size={SPELL_ICON_SIZE} />
+                  <span className="font-medium" style={{ marginLeft: HEADER_SPEC_SPACING }}>
+                    <CombatUnitName unit={player} />
+                  </span>
+                </div>
+                <div className="text-xs opacity-75">{events.length} events</div>
               </div>
-              <div className="text-xs opacity-75">{events.length} events</div>
+
+              {/* Timeline column */}
+              <div className="relative" style={{ width: COLUMN_WIDTH, minHeight: totalHeight }}>
+                {/* Events */}
+                {events.map((event: ISpellCastTimelineEvent | IAuraEvent) => renderEvent(event, player.id))}
+              </div>
             </div>
 
-            {/* Timeline column */}
-            <div className="relative" style={{ width: COLUMN_WIDTH, minHeight: totalHeight }}>
-              {/* Background line */}
-              <div className="w-1 bg-base-300 absolute left-4" style={{ height: totalHeight }} />
-
-              {/* Events */}
-              {events.map((event: ISpellCastTimelineEvent | IAuraEvent) => renderEvent(event, player.id))}
-            </div>
+            {/* Separator bar (except after the last column) */}
+            {index < selectedPlayers.length - 1 && (
+              <div
+                className="flex flex-col items-center"
+                style={{ marginLeft: COLUMN_SEPARATOR_MARGIN, marginRight: COLUMN_SEPARATOR_MARGIN }}
+              >
+                <div style={{ height: HEADER_BOTTOM_MARGIN + 32, marginBottom: HEADER_BOTTOM_MARGIN }}></div>{' '}
+                {/* Spacer to align with headers */}
+                <div className="w-px bg-base-300 flex-1" style={{ minHeight: totalHeight }}></div>
+              </div>
+            )}
           </div>
         );
       })}
