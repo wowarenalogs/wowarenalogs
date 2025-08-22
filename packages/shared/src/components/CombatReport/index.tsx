@@ -19,6 +19,7 @@ import { CombatPlayers } from './CombatPlayers';
 import { CombatReportContextProvider, useCombatReportContext } from './CombatReportContext';
 import { CombatScoreboard } from './CombatScoreboard';
 import { CombatSummary } from './CombatSummary';
+import { CombatTimeline } from './CombatTimeline';
 import { CombatVideo } from './CombatVideo';
 
 const CombatReplay = dynamic(
@@ -137,6 +138,14 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
         >
           Replay
         </a>
+        <a
+          className={`tab ${activeTab === 'timeline' ? 'tab-active' : ''}`}
+          onClick={() => {
+            setActiveTab('timeline');
+          }}
+        >
+          Timeline
+        </a>
         {isShuffle && (
           <a
             className={`tab ${activeTab === 'scoreboard' ? 'tab-active' : ''}`}
@@ -176,6 +185,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
           {activeTab === 'death' && <CombatDeathReports />}
           {activeTab === 'curves' && <CombatCurves />}
           {activeTab === 'replay' && <CombatReplay />}
+          {activeTab === 'timeline' && <CombatTimeline />}
           {activeTab === 'scoreboard' && <CombatScoreboard />}
           {activeTab === 'video' && <CombatVideo />}
           {activeTab === 'logview' && <CombatLogView />}
