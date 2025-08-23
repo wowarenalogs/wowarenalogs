@@ -11,6 +11,7 @@ export const CombatTimeline = () => {
   );
   const [showAuras, setShowAuras] = useState<boolean>(false);
   const [showSpells, setShowSpells] = useState<boolean>(true);
+  const [showInterrupts, setShowInterrupts] = useState<boolean>(true);
 
   const selectedPlayers = useMemo(() => {
     return players.filter((p) => selectedPlayerIds.has(p.id));
@@ -45,6 +46,17 @@ export const CombatTimeline = () => {
                 className="checkbox checkbox-sm"
                 checked={showAuras}
                 onChange={(e) => setShowAuras(e.target.checked)}
+              />
+            </label>
+          </div>
+          <div className="form-control">
+            <label className="label cursor-pointer">
+              <span className="label-text mr-2">Show Interrupts</span>
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={showInterrupts}
+                onChange={(e) => setShowInterrupts(e.target.checked)}
               />
             </label>
           </div>
@@ -87,7 +99,12 @@ export const CombatTimeline = () => {
           </p>
         </div>
 
-        <MultiPlayerTimeline selectedPlayers={selectedPlayers} showSpells={showSpells} showAuras={showAuras} />
+        <MultiPlayerTimeline
+          selectedPlayers={selectedPlayers}
+          showSpells={showSpells}
+          showAuras={showAuras}
+          showInterrupts={showInterrupts}
+        />
       </div>
     </div>
   );

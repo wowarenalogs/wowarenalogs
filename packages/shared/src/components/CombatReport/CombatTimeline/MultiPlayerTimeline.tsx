@@ -1,4 +1,4 @@
-import { getClassColor, ICombatUnit, ILogLine, LogEvent } from '@wowarenalogs/parser';
+import { CombatExtraSpellAction, getClassColor, ICombatUnit, ILogLine, LogEvent } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
 import Image from 'next/image';
@@ -9,6 +9,7 @@ import { SpecImage } from '../../common/SpecImage';
 import { useCombatReportContext } from '../CombatReportContext';
 
 interface ISpellCastTimelineEvent {
+  type: 'spellcast';
   spellId: string;
   spellName: string;
   timestamp: number;
@@ -36,6 +37,20 @@ interface IAuraEvent {
   eventKey?: string;
 }
 
+interface IInterruptEvent {
+  type: 'interrupt';
+  spellId: string;
+  spellName: string;
+  interruptedSpellId: string;
+  interruptedSpellName: string;
+  timestamp: number;
+  timeOffset: number;
+  playerId: string; // The player who interrupted
+  targetId: string; // The player who was interrupted
+  logLine: ILogLine;
+  eventKey?: string;
+}
+
 const SPELL_ICON_SIZE = 24;
 const COLUMN_WIDTH = 240;
 const EVENT_CARD_HEIGHT = 48; // height of each event card
@@ -51,16 +66,17 @@ interface IProps {
   selectedPlayers: ICombatUnit[];
   showSpells: boolean;
   showAuras: boolean;
+  showInterrupts: boolean;
 }
 
-export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: IProps) => {
+export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, showInterrupts }: IProps) => {
   const { combat } = useCombatReportContext();
   // Create a global chronological timeline with position assignments
   const globalTimeline = useMemo(() => {
     if (!combat) return { allEvents: [], eventsByPlayer: new Map(), positionMap: new Map() };
 
     // Collect all events from all players
-    const allGlobalEvents: Array<(ISpellCastTimelineEvent | IAuraEvent) & { playerId: string }> = [];
+    const allGlobalEvents: Array<(ISpellCastTimelineEvent | IAuraEvent | IInterruptEvent) & { playerId: string }> = [];
 
     // Track last spell cast timestamp for each player to calculate deltas
     const lastSpellCastByPlayer = new Map<string, number>();
@@ -86,6 +102,7 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
             lastSpellCastByPlayer.set(player.id, event.timestamp);
 
             allGlobalEvents.push({
+              type: 'spellcast',
               spellId: event.spellId,
               spellName: event.spellName,
               timestamp: event.timestamp,
@@ -129,12 +146,73 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
       }
     });
 
+    // Add interrupt events from player action data
+    if (showInterrupts) {
+      selectedPlayers.forEach((player) => {
+        // Add interrupt events where this player interrupted someone
+        player.actionOut.forEach((action) => {
+          if (action.logLine.event === LogEvent.SPELL_INTERRUPT) {
+            const castAction = action as CombatExtraSpellAction;
+            // For SPELL_INTERRUPT, the interrupting spell is in parameters[8] and [9]
+            // The interrupted spell is in parameters[11] and [12]
+            const spellId = castAction.spellId;
+            const spellName = castAction.spellName;
+            const interruptedSpellId = castAction.extraSpellId;
+            const interruptedSpellName = castAction.extraSpellName;
+
+            if (spellId && spellName && interruptedSpellId && interruptedSpellName) {
+              allGlobalEvents.push({
+                type: 'interrupt',
+                spellId,
+                spellName,
+                interruptedSpellId,
+                interruptedSpellName,
+                timestamp: action.timestamp,
+                timeOffset: action.timestamp - combat.startTime,
+                playerId: player.id,
+                targetId: action.destUnitId,
+                logLine: action.logLine,
+              });
+            }
+          }
+        });
+
+        // Add interrupt events where this player was interrupted
+        player.actionIn.forEach((action) => {
+          if (action.logLine.event === LogEvent.SPELL_INTERRUPT) {
+            const castAction = action as CombatExtraSpellAction;
+            // For SPELL_INTERRUPT, the interrupting spell is in parameters[8] and [9]
+            // The interrupted spell is in parameters[11] and [12]
+            const spellId = castAction.spellId;
+            const spellName = castAction.spellName;
+            const interruptedSpellId = castAction.extraSpellId;
+            const interruptedSpellName = castAction.extraSpellName;
+
+            if (spellId && spellName && interruptedSpellId && interruptedSpellName) {
+              allGlobalEvents.push({
+                type: 'interrupt',
+                spellId,
+                spellName,
+                interruptedSpellId,
+                interruptedSpellName,
+                timestamp: action.timestamp,
+                timeOffset: action.timestamp - combat.startTime,
+                playerId: player.id,
+                targetId: action.destUnitId,
+                logLine: action.logLine,
+              });
+            }
+          }
+        });
+      });
+    }
+
     // Sort all events globally by timestamp
     const sortedGlobalEvents = _.sortBy(allGlobalEvents, 'timestamp');
 
     // Create position map using smart spacing algorithm
     const positionMap = new Map<string, number>(); // event key -> y position
-    const eventsByPlayer = new Map<string, Array<ISpellCastTimelineEvent | IAuraEvent>>();
+    const eventsByPlayer = new Map<string, Array<ISpellCastTimelineEvent | IAuraEvent | IInterruptEvent>>();
 
     // Initialize player event arrays
     selectedPlayers.forEach((player) => {
@@ -152,7 +230,10 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
     let lastEventTimestamp = 0; // Track timestamp of last event placed
 
     // Track duplicate keys to log them
-    const keyTracker = new Map<string, Array<(ISpellCastTimelineEvent | IAuraEvent) & { playerId: string }>>();
+    const keyTracker = new Map<
+      string,
+      Array<(ISpellCastTimelineEvent | IAuraEvent | IInterruptEvent) & { playerId: string }>
+    >();
 
     sortedGlobalEvents.forEach((event, index) => {
       // Use the original log line ID as the event key for uniqueness
@@ -206,7 +287,7 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
       eventsByPlayer,
       positionMap,
     };
-  }, [selectedPlayers, combat, showSpells, showAuras]);
+  }, [selectedPlayers, combat, showSpells, showAuras, showInterrupts]);
 
   // Calculate total height needed based on the last event position
   const totalHeight = useMemo(() => {
@@ -274,6 +355,55 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
               <div className="text-sm font-medium truncate">{auraEvent.spellName}</div>
               <div className="text-xs opacity-75">
                 {isApplied ? 'Aura Gained' : 'Aura Removed'} •{moment.utc(auraEvent.timeOffset).format('mm:ss.SSS')}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if ('type' in event && event.type === 'interrupt') {
+      const interruptEvent = event as unknown as IInterruptEvent;
+      // For interrupt events, the playerId is the player whose timeline this event appears on
+      // If playerId matches the source (interrupter), they interrupted someone
+      // If playerId matches the target (interrupted), they were interrupted
+      const isInterrupter = interruptEvent.playerId === interruptEvent.logLine.parameters[0]?.toString(); // srcUnitId
+
+      return (
+        <div
+          key={eventKey}
+          className="absolute flex items-center z-10"
+          style={{ top: yPosition, left: EVENT_HORIZONTAL_PADDING, right: EVENT_HORIZONTAL_PADDING }}
+        >
+          <div
+            className={`relative flex items-center p-1 rounded w-full ${
+              isInterrupter
+                ? 'bg-success bg-opacity-20 border border-success'
+                : 'bg-error bg-opacity-20 border border-error'
+            }`}
+            title={`${interruptEvent.spellName} interrupted ${interruptEvent.interruptedSpellName} at ${moment
+              .utc(interruptEvent.timeOffset)
+              .format('mm:ss.SSS')}`}
+          >
+            <div className="w-6 h-6 mr-2 relative">
+              <Image
+                className="rounded"
+                src={Utils.getSpellIcon(interruptEvent.spellId) ?? 'https://images.wowarenalogs.com/spells/0.jpg'}
+                width={SPELL_ICON_SIZE}
+                height={SPELL_ICON_SIZE}
+                alt={interruptEvent.spellName}
+              />
+              <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-xs flex items-center justify-center bg-error text-error-content">
+                ⚡
+              </div>
+            </div>
+            <div className="flex flex-col flex-1 min-w-0">
+              <div className="text-sm font-medium truncate">{interruptEvent.spellName}</div>
+              <div className="text-xs opacity-75">
+                {isInterrupter ? 'Interrupted cast' : 'Was Interrupted'} •{' '}
+                {moment.utc(interruptEvent.timeOffset).format('mm:ss.SSS')}
+                <br />
+                <span className="opacity-60">→ {interruptEvent.interruptedSpellName}</span>
               </div>
             </div>
           </div>

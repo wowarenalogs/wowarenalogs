@@ -70,8 +70,8 @@ export type ICombatantInfoStub = Pick<
  * * absorbsIn: CombatAbsorbAction[];
  * * absorbsOut: CombatAbsorbAction[];
  * * absorbsDamaged: CombatAbsorbAction[];
- * * actionIn: ILogLine[];
- * * actionOut: ILogLine[];
+ * * actionIn: CombatAction[];
+ * * actionOut: CombatAction[];
  * * auraEvents: CombatAction[];
  * * spellCastEvents: CombatAction[];
  * * deathRecords: ILogLine[];
