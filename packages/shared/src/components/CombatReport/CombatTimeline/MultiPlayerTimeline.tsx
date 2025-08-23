@@ -41,6 +41,7 @@ const SPELL_ICON_SIZE = 24;
 const COLUMN_WIDTH = 240;
 const EVENT_CARD_HEIGHT = 48; // height of each event card
 const CROSS_COLUMN_SPACING = 12; // spacing when events are in different columns
+const EVENT_TIME_SPACING_CHUNK = 24; // extra padding when events are >1s apart chronologically
 
 // Layout spacing constants
 const COLUMN_SEPARATOR_MARGIN = 8; //margin on each side of separator
@@ -74,6 +75,11 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
 
         sortedSpellEvents.forEach((event) => {
           if (event.spellId && event.spellName) {
+            // Skip spell cast failed events
+            if (event.logLine?.event === LogEvent.SPELL_CAST_FAILED) {
+              return;
+            }
+
             // Calculate delta from last spell cast for this player
             const lastCastTime = lastSpellCastByPlayer.get(player.id);
             const deltaMs = lastCastTime ? event.timestamp - lastCastTime : undefined;
@@ -145,6 +151,7 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
     });
 
     let globalMinY = 0; // The minimum Y across all columns for chronological ordering
+    let lastEventTimestamp = 0; // Track timestamp of last event placed
 
     // Track duplicate keys to log them
     const keyTracker = new Map<string, Array<(ISpellCastTimelineEvent | IAuraEvent) & { playerId: string }>>();
@@ -169,15 +176,26 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
       // Get the current low water mark for this column
       const columnMinY = columnLowWaterMarks.get(playerId) ?? 0;
 
+      // Check if we need to add extra spacing due to time gap
+      let extraTimeSpacing = 0;
+      if (lastEventTimestamp > 0 && event.timestamp - lastEventTimestamp > 1000) {
+        const del = Math.round((event.timestamp - lastEventTimestamp) / 1000);
+        extraTimeSpacing = del * EVENT_TIME_SPACING_CHUNK;
+      }
+
       // The event must be placed at least at the global minimum Y (for chronological order)
       // and at least at the column's low water mark (to avoid overlaps in the same column)
-      const eventY = Math.max(globalMinY, columnMinY);
+      // plus any extra time-based spacing
+      const eventY = Math.max(globalMinY + extraTimeSpacing, columnMinY + extraTimeSpacing);
 
       // Update the low water mark for this column
       columnLowWaterMarks.set(playerId, eventY + EVENT_CARD_HEIGHT);
 
       // Update the global minimum Y for the next event
       globalMinY = eventY + CROSS_COLUMN_SPACING;
+
+      // Update last event timestamp
+      lastEventTimestamp = event.timestamp;
 
       positionMap.set(eventKey, eventY);
       // Store the eventKey in the event for later use in rendering
