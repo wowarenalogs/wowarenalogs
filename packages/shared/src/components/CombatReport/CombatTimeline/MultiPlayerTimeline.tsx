@@ -1,55 +1,11 @@
-import { CombatExtraSpellAction, getClassColor, ICombatUnit, ILogLine, LogEvent } from '@wowarenalogs/parser';
+import { CombatExtraSpellAction, getClassColor, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 import _ from 'lodash';
-import moment from 'moment';
-import Image from 'next/image';
 import { useMemo } from 'react';
 
-import { Utils } from '../../../utils/utils';
 import { SpecImage } from '../../common/SpecImage';
 import { useCombatReportContext } from '../CombatReportContext';
-
-interface ISpellCastTimelineEvent {
-  type: 'spellcast';
-  spellId: string;
-  spellName: string;
-  timestamp: number;
-  timeOffset: number;
-  event: LogEvent;
-  succeeded?: boolean;
-  targetName?: string;
-  targetId?: string;
-  playerId: string;
-  eventKey?: string;
-  logLine?: ILogLine;
-  deltaMs?: number; // Time since last spell cast for this player
-}
-
-interface IAuraEvent {
-  type: 'aura';
-  spellId: string;
-  spellName: string;
-  timestamp: number;
-  timeOffset: number;
-  event: 'applied' | 'removed';
-  sourceUnit?: string;
-  playerId: string;
-  logLine: ILogLine;
-  eventKey?: string;
-}
-
-interface IInterruptEvent {
-  type: 'interrupt';
-  spellId: string;
-  spellName: string;
-  interruptedSpellId: string;
-  interruptedSpellName: string;
-  timestamp: number;
-  timeOffset: number;
-  playerId: string; // The player who interrupted
-  targetId: string; // The player who was interrupted
-  logLine: ILogLine;
-  eventKey?: string;
-}
+import { AuraEvent, InterruptEvent, SpellCastEvent } from './components';
+import { getLogLineId, IAuraEvent, IInterruptEvent, ISpellCastTimelineEvent } from './utils';
 
 const SPELL_ICON_SIZE = 24;
 const COLUMN_WIDTH = 240;
@@ -71,6 +27,7 @@ interface IProps {
 
 export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, showInterrupts }: IProps) => {
   const { combat } = useCombatReportContext();
+
   // Create a global chronological timeline with position assignments
   const globalTimeline = useMemo(() => {
     if (!combat) return { allEvents: [], eventsByPlayer: new Map(), positionMap: new Map() };
@@ -239,11 +196,7 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, sh
 
     sortedGlobalEvents.forEach((event, index) => {
       // Use the original log line ID as the event key for uniqueness
-      const logLineId =
-        'type' in event
-          ? (event as IAuraEvent).logLine.id
-          : (event as ISpellCastTimelineEvent).logLine?.id ||
-            `fallback-${event.timestamp}-${event.spellId}-${event.event}-${index}`;
+      const logLineId = getLogLineId(event, index);
       const eventKey = `${event.playerId}-${logLineId}`;
       const playerId = event.playerId;
 
@@ -317,166 +270,48 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, sh
     return <div className="text-center py-8 opacity-60">Select players to view their timeline</div>;
   }
 
-  const renderEvent = (event: ISpellCastTimelineEvent | IAuraEvent, playerId: string) => {
+  const renderEvent = (event: ISpellCastTimelineEvent | IAuraEvent | IInterruptEvent, playerId: string) => {
     // Get the calculated Y position for this event using the same key logic
-    const logLineId =
-      'type' in event
-        ? (event as IAuraEvent).logLine.id
-        : (event as ISpellCastTimelineEvent).logLine?.id ||
-          `fallback-${event.timestamp}-${event.spellId}-${event.event}`;
+    const logLineId = getLogLineId(event);
     const eventKey = `${playerId}-${logLineId}`;
     const yPosition = globalTimeline.positionMap.get(eventKey) ?? 0;
 
-    if ('type' in event && event.type === 'aura') {
-      const auraEvent = event as IAuraEvent;
-      const isApplied = auraEvent.event === 'applied';
-
-      return (
-        <div
-          key={eventKey}
-          className="absolute flex items-center z-10"
-          style={{ top: yPosition, left: EVENT_HORIZONTAL_PADDING, right: EVENT_HORIZONTAL_PADDING }}
-        >
-          <div
-            className={`relative flex items-center p-1 rounded w-full ${
-              isApplied ? 'bg-info bg-opacity-20 border border-info' : 'bg-neutral bg-opacity-20 border border-neutral'
-            }`}
-            title={`${auraEvent.spellName} ${isApplied ? 'aura gained' : 'aura removed'} at ${moment
-              .utc(auraEvent.timeOffset)
-              .format('mm:ss.SSS')}${auraEvent.sourceUnit ? ` from ${auraEvent.sourceUnit}` : ''}`}
-          >
-            <div className="w-6 h-6 mr-2 relative">
-              <Image
-                className="rounded"
-                src={Utils.getSpellIcon(auraEvent.spellId) ?? 'https://images.wowarenalogs.com/spells/0.jpg'}
-                width={SPELL_ICON_SIZE}
-                height={SPELL_ICON_SIZE}
-                alt={auraEvent.spellName}
-              />
-              <div
-                className={`absolute -top-1 -right-1 w-3 h-3 rounded-full text-xs flex items-center justify-center ${
-                  isApplied ? 'bg-success text-success-content' : 'bg-error text-error-content'
-                }`}
-              >
-                {isApplied ? '+' : '−'}
-              </div>
-            </div>
-            <div className="flex flex-col flex-1 min-w-0">
-              <div className="text-sm font-medium truncate">{auraEvent.spellName}</div>
-              <div className="text-xs opacity-75">
-                {isApplied ? 'Aura Gained' : 'Aura Removed'} •{moment.utc(auraEvent.timeOffset).format('mm:ss.SSS')}
-              </div>
-            </div>
-          </div>
-        </div>
-      );
+    switch (event.type) {
+      case 'aura':
+        return (
+          <AuraEvent
+            event={event}
+            eventKey={eventKey}
+            yPosition={yPosition}
+            spellIconSize={SPELL_ICON_SIZE}
+            eventHorizontalPadding={EVENT_HORIZONTAL_PADDING}
+          />
+        );
+      case 'interrupt':
+        return (
+          <InterruptEvent
+            event={event}
+            eventKey={eventKey}
+            yPosition={yPosition}
+            spellIconSize={SPELL_ICON_SIZE}
+            eventHorizontalPadding={EVENT_HORIZONTAL_PADDING}
+          />
+        );
+      case 'spellcast':
+        return (
+          <SpellCastEvent
+            event={event}
+            eventKey={eventKey}
+            yPosition={yPosition}
+            playerId={playerId}
+            combat={combat}
+            spellIconSize={SPELL_ICON_SIZE}
+            eventHorizontalPadding={EVENT_HORIZONTAL_PADDING}
+          />
+        );
+      default:
+        return null;
     }
-
-    if ('type' in event && event.type === 'interrupt') {
-      const interruptEvent = event as unknown as IInterruptEvent;
-      // For interrupt events, the playerId is the player whose timeline this event appears on
-      // If playerId matches the source (interrupter), they interrupted someone
-      // If playerId matches the target (interrupted), they were interrupted
-      const isInterrupter = interruptEvent.playerId === interruptEvent.logLine.parameters[0]?.toString(); // srcUnitId
-
-      return (
-        <div
-          key={eventKey}
-          className="absolute flex items-center z-10"
-          style={{ top: yPosition, left: EVENT_HORIZONTAL_PADDING, right: EVENT_HORIZONTAL_PADDING }}
-        >
-          <div
-            className={`relative flex items-center p-1 rounded w-full ${
-              isInterrupter
-                ? 'bg-success bg-opacity-20 border border-success'
-                : 'bg-error bg-opacity-20 border border-error'
-            }`}
-            title={`${interruptEvent.spellName} interrupted ${interruptEvent.interruptedSpellName} at ${moment
-              .utc(interruptEvent.timeOffset)
-              .format('mm:ss.SSS')}`}
-          >
-            <div className="w-6 h-6 mr-2 relative">
-              <Image
-                className="rounded"
-                src={Utils.getSpellIcon(interruptEvent.spellId) ?? 'https://images.wowarenalogs.com/spells/0.jpg'}
-                width={SPELL_ICON_SIZE}
-                height={SPELL_ICON_SIZE}
-                alt={interruptEvent.spellName}
-              />
-              <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-xs flex items-center justify-center bg-error text-error-content">
-                ⚡
-              </div>
-            </div>
-            <div className="flex flex-col flex-1 min-w-0">
-              <div className="text-sm font-medium truncate">{interruptEvent.spellName}</div>
-              <div className="text-xs opacity-75">
-                {isInterrupter ? 'Interrupted cast' : 'Was Interrupted'} •{' '}
-                {moment.utc(interruptEvent.timeOffset).format('mm:ss.SSS')}
-                <br />
-                <span className="opacity-60">→ {interruptEvent.interruptedSpellName}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // Spell event
-    const spellEvent = event as ISpellCastTimelineEvent;
-    const isSuccess = spellEvent.event === LogEvent.SPELL_CAST_SUCCESS;
-
-    return (
-      <div
-        key={eventKey}
-        className="absolute flex items-center z-10"
-        style={{ top: yPosition, left: EVENT_HORIZONTAL_PADDING, right: EVENT_HORIZONTAL_PADDING }}
-      >
-        <div
-          className={`relative flex items-center p-1 rounded w-full ${
-            isSuccess
-              ? 'bg-success bg-opacity-20 border border-success'
-              : 'bg-warning bg-opacity-20 border border-warning'
-          }`}
-          title={`${spellEvent.spellName} - ${spellEvent.event} at ${moment
-            .utc(spellEvent.timeOffset)
-            .format('mm:ss.SSS')}${spellEvent.targetName ? ` → ${spellEvent.targetName}` : ''}`}
-        >
-          <div className="w-6 h-6 mr-2">
-            <Image
-              className="rounded"
-              src={Utils.getSpellIcon(spellEvent.spellId) ?? 'https://images.wowarenalogs.com/spells/0.jpg'}
-              width={SPELL_ICON_SIZE}
-              height={SPELL_ICON_SIZE}
-              alt={spellEvent.spellName}
-            />
-          </div>
-          <div className="flex flex-col flex-1 min-w-0">
-            <div className="text-sm font-medium truncate">{spellEvent.spellName}</div>
-            <div className="text-xs opacity-75">
-              {isSuccess ? 'Cast' : 'Started'} •{moment.utc(spellEvent.timeOffset).format('mm:ss.SSS')}
-              {spellEvent.deltaMs !== undefined &&
-                ` • Δ${
-                  spellEvent.deltaMs === 0
-                    ? '0s'
-                    : spellEvent.deltaMs < 1000
-                    ? `${spellEvent.deltaMs}ms`
-                    : `${(spellEvent.deltaMs / 1000).toFixed(1)}s`
-                }`}
-            </div>
-          </div>
-          {spellEvent.targetId &&
-            spellEvent.targetId !== '0000000000000000' &&
-            spellEvent.targetId !== '0' &&
-            combat?.units[spellEvent.targetId] &&
-            spellEvent.targetId !== playerId && (
-              <div className="flex items-center ml-2">
-                <span className="text-xs opacity-60 mr-1">→</span>
-                <SpecImage specId={combat.units[spellEvent.targetId].spec} size={16} />
-              </div>
-            )}
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -505,7 +340,9 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, sh
               {/* Timeline column */}
               <div className="relative" style={{ width: COLUMN_WIDTH, minHeight: totalHeight }}>
                 {/* Events */}
-                {events.map((event: ISpellCastTimelineEvent | IAuraEvent) => renderEvent(event, player.id))}
+                {events.map((event: ISpellCastTimelineEvent | IAuraEvent | IInterruptEvent) =>
+                  renderEvent(event, player.id),
+                )}
               </div>
             </div>
 
