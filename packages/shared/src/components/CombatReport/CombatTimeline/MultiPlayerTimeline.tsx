@@ -1,4 +1,4 @@
-import { ICombatUnit, ILogLine, LogEvent } from '@wowarenalogs/parser';
+import { getClassColor, ICombatUnit, ILogLine, LogEvent } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
 import Image from 'next/image';
@@ -7,7 +7,6 @@ import { useMemo } from 'react';
 import { Utils } from '../../../utils/utils';
 import { SpecImage } from '../../common/SpecImage';
 import { useCombatReportContext } from '../CombatReportContext';
-import { CombatUnitName } from '../CombatUnitName';
 
 interface ISpellCastTimelineEvent {
   spellId: string;
@@ -46,7 +45,6 @@ const EVENT_TIME_SPACING_CHUNK = 24; // extra padding when events are >1s apart 
 // Layout spacing constants
 const COLUMN_SEPARATOR_MARGIN = 8; //margin on each side of separator
 const HEADER_BOTTOM_MARGIN = 12; // margin below headers
-const HEADER_SPEC_SPACING = 8; //  margin between spec icon and name
 const EVENT_HORIZONTAL_PADDING = 0; // for event cards
 
 interface IProps {
@@ -286,7 +284,6 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
     // Spell event
     const spellEvent = event as ISpellCastTimelineEvent;
     const isSuccess = spellEvent.event === LogEvent.SPELL_CAST_SUCCESS;
-    const isFailed = spellEvent.event === LogEvent.SPELL_CAST_FAILED;
 
     return (
       <div
@@ -298,8 +295,6 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
           className={`relative flex items-center p-1 rounded w-full ${
             isSuccess
               ? 'bg-success bg-opacity-20 border border-success'
-              : isFailed
-              ? 'bg-error bg-opacity-20 border border-error'
               : 'bg-warning bg-opacity-20 border border-warning'
           }`}
           title={`${spellEvent.spellName} - ${spellEvent.event} at ${moment
@@ -318,8 +313,7 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
           <div className="flex flex-col flex-1 min-w-0">
             <div className="text-sm font-medium truncate">{spellEvent.spellName}</div>
             <div className="text-xs opacity-75">
-              {isSuccess ? 'Cast' : isFailed ? 'Failed' : 'Started'} •
-              {moment.utc(spellEvent.timeOffset).format('mm:ss.SSS')}
+              {isSuccess ? 'Cast' : 'Started'} •{moment.utc(spellEvent.timeOffset).format('mm:ss.SSS')}
               {spellEvent.deltaMs !== undefined &&
                 ` • Δ${
                   spellEvent.deltaMs === 0
@@ -356,10 +350,14 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
               {/* Column header */}
               <div className="text-center" style={{ width: COLUMN_WIDTH, marginBottom: HEADER_BOTTOM_MARGIN }}>
                 <div className="flex items-center justify-center mb-2">
-                  <SpecImage specId={player.spec} size={SPELL_ICON_SIZE} />
-                  <span className="font-medium" style={{ marginLeft: HEADER_SPEC_SPACING }}>
-                    <CombatUnitName unit={player} />
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6">
+                      <SpecImage specId={player.spec} size={24} />
+                    </div>
+                    <span className="font-medium" style={{ color: getClassColor(player.class) }}>
+                      {player.name.split('-')[0]}
+                    </span>
+                  </div>
                 </div>
                 <div className="text-xs opacity-75">{events.length} events</div>
               </div>
@@ -377,7 +375,7 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras }: 
                 className="flex flex-col items-center"
                 style={{ marginLeft: COLUMN_SEPARATOR_MARGIN, marginRight: COLUMN_SEPARATOR_MARGIN }}
               >
-                <div style={{ height: HEADER_BOTTOM_MARGIN + 32, marginBottom: HEADER_BOTTOM_MARGIN }}></div>{' '}
+                <div style={{ height: HEADER_BOTTOM_MARGIN + 32, marginBottom: HEADER_BOTTOM_MARGIN }}></div>
                 {/* Spacer to align with headers */}
                 <div className="w-px bg-base-300 flex-1" style={{ minHeight: totalHeight }}></div>
               </div>
