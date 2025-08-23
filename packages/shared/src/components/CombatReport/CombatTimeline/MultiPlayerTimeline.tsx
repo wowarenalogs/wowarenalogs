@@ -228,6 +228,8 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, sh
 
     let globalMinY = 0; // The minimum Y across all columns for chronological ordering
     let lastEventTimestamp = 0; // Track timestamp of last event placed
+    let lastEventY = 0; // Track Y position of last event placed
+    let lastEventColumn = ''; // Track which column the last event was in
 
     // Track duplicate keys to log them
     const keyTracker = new Map<
@@ -262,10 +264,16 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, sh
         extraTimeSpacing = del * EVENT_TIME_SPACING_CHUNK;
       }
 
-      // The event must be placed at least at the global minimum Y (for chronological order)
-      // and at least at the column's low water mark (to avoid overlaps in the same column)
-      // plus any extra time-based spacing
-      const eventY = Math.max(globalMinY + extraTimeSpacing, columnMinY + extraTimeSpacing);
+      // If this event has the same timestamp as the previous event AND was in a different column, use the same Y position
+      let eventY: number;
+      if (lastEventTimestamp > 0 && event.timestamp === lastEventTimestamp && lastEventColumn !== playerId) {
+        eventY = lastEventY;
+      } else {
+        // The event must be placed at least at the global minimum Y (for chronological order)
+        // and at least at the column's low water mark (to avoid overlaps in the same column)
+        // plus any extra time-based spacing
+        eventY = Math.max(globalMinY + extraTimeSpacing, columnMinY + extraTimeSpacing);
+      }
 
       // Update the low water mark for this column
       columnLowWaterMarks.set(playerId, eventY + EVENT_CARD_HEIGHT);
@@ -273,8 +281,10 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, sh
       // Update the global minimum Y for the next event
       globalMinY = eventY + CROSS_COLUMN_SPACING;
 
-      // Update last event timestamp
+      // Update last event timestamp, Y position, and column
       lastEventTimestamp = event.timestamp;
+      lastEventY = eventY;
+      lastEventColumn = playerId;
 
       positionMap.set(eventKey, eventY);
       // Store the eventKey in the event for later use in rendering
