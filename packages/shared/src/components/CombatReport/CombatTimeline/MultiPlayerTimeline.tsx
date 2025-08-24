@@ -110,14 +110,14 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, sh
         player.actionOut.forEach((action) => {
           if (action.logLine.event === LogEvent.SPELL_INTERRUPT) {
             const castAction = action as CombatExtraSpellAction;
-            // For SPELL_INTERRUPT, the interrupting spell is in parameters[8] and [9]
-            // The interrupted spell is in parameters[11] and [12]
+
             const spellId = castAction.spellId;
             const spellName = castAction.spellName;
             const interruptedSpellId = castAction.extraSpellId;
             const interruptedSpellName = castAction.extraSpellName;
 
             if (spellId && spellName && interruptedSpellId && interruptedSpellName) {
+              // Event for the interrupter
               allGlobalEvents.push({
                 type: 'interrupt',
                 spellId,
@@ -126,38 +126,27 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, sh
                 interruptedSpellName,
                 timestamp: action.timestamp,
                 timeOffset: action.timestamp - combat.startTime,
-                playerId: player.id,
+                playerId: player.id, // This player interrupted someone
                 targetId: action.destUnitId,
                 logLine: action.logLine,
               });
-            }
-          }
-        });
 
-        // Add interrupt events where this player was interrupted
-        player.actionIn.forEach((action) => {
-          if (action.logLine.event === LogEvent.SPELL_INTERRUPT) {
-            const castAction = action as CombatExtraSpellAction;
-            // For SPELL_INTERRUPT, the interrupting spell is in parameters[8] and [9]
-            // The interrupted spell is in parameters[11] and [12]
-            const spellId = castAction.spellId;
-            const spellName = castAction.spellName;
-            const interruptedSpellId = castAction.extraSpellId;
-            const interruptedSpellName = castAction.extraSpellName;
-
-            if (spellId && spellName && interruptedSpellId && interruptedSpellName) {
-              allGlobalEvents.push({
-                type: 'interrupt',
-                spellId,
-                spellName,
-                interruptedSpellId,
-                interruptedSpellName,
-                timestamp: action.timestamp,
-                timeOffset: action.timestamp - combat.startTime,
-                playerId: player.id,
-                targetId: action.destUnitId,
-                logLine: action.logLine,
-              });
+              // Also create an event for the interrupted player if they're in our selected players
+              const interruptedPlayer = selectedPlayers.find((p) => p.id === action.destUnitId);
+              if (interruptedPlayer) {
+                allGlobalEvents.push({
+                  type: 'interrupt',
+                  spellId,
+                  spellName,
+                  interruptedSpellId,
+                  interruptedSpellName,
+                  timestamp: action.timestamp,
+                  timeOffset: action.timestamp - combat.startTime,
+                  playerId: action.destUnitId, // The interrupted player
+                  targetId: player.id, // The interrupter
+                  logLine: action.logLine,
+                });
+              }
             }
           }
         });
@@ -340,9 +329,11 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, sh
               {/* Timeline column */}
               <div className="relative" style={{ width: COLUMN_WIDTH, minHeight: totalHeight }}>
                 {/* Events */}
-                {events.map((event: ISpellCastTimelineEvent | IAuraEvent | IInterruptEvent) =>
-                  renderEvent(event, player.id),
-                )}
+                {events.map((event: ISpellCastTimelineEvent | IAuraEvent | IInterruptEvent) => {
+                  const logLineId = getLogLineId(event);
+                  const eventKey = `${player.id}-${logLineId}`;
+                  return <div key={eventKey}>{renderEvent(event, player.id)}</div>;
+                })}
               </div>
             </div>
 
