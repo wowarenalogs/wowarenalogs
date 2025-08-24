@@ -63,8 +63,8 @@ export interface ICombatUnit {
    */
   supportHealOut: CombatSupportAction[];
 
-  actionIn: ILogLine[];
-  actionOut: ILogLine[];
+  actionIn: CombatAction[];
+  actionOut: CombatAction[];
   auraEvents: CombatAction[];
   spellCastEvents: CombatAction[];
   deathRecords: ILogLine[];
@@ -99,8 +99,8 @@ export class CombatUnit implements ICombatUnit {
   public supportHealIn: CombatSupportAction[] = [];
   public supportHealOut: CombatSupportAction[] = [];
 
-  public actionIn: ILogLine[] = [];
-  public actionOut: ILogLine[] = [];
+  public actionIn: CombatAction[] = [];
+  public actionOut: CombatAction[] = [];
   public auraEvents: CombatAction[] = [];
   public spellCastEvents: CombatAction[] = [];
   public deathRecords: ILogLine[] = [];
