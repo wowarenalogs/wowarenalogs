@@ -154,8 +154,10 @@ export class CombatGenerator {
       case LogEvent.SPELL_DISPEL:
       case LogEvent.SPELL_DISPEL_FAILED:
       case LogEvent.SPELL_EXTRA_ATTACKS:
-        srcUnit.actionOut.push(event.logLine);
-        destUnit.actionIn.push(event.logLine);
+        if (event instanceof CombatAction) {
+          srcUnit.actionOut.push(event);
+          destUnit.actionIn.push(event);
+        }
         break;
       case LogEvent.UNIT_DIED:
         if (
@@ -193,7 +195,9 @@ export class CombatGenerator {
         }
         break;
       case LogEvent.SPELL_SUMMON:
-        srcUnit.actionOut.push(event.logLine);
+        if (event instanceof CombatAction) {
+          srcUnit.actionOut.push(event);
+        }
         destUnit.proveOwner(srcUnit.id);
         break;
     }

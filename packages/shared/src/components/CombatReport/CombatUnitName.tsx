@@ -11,6 +11,7 @@ interface IProps {
   noEllipsis?: boolean;
   onClick?: () => void;
   showSpec?: boolean;
+  specSpacing?: 'tight' | 'normal' | 'loose';
 }
 
 export const CombatUnitName = ({
@@ -20,8 +21,22 @@ export const CombatUnitName = ({
   noEllipsis,
   onClick,
   showSpec = true,
+  specSpacing = 'normal',
 }: IProps) => {
   const combatReportContext = useCombatReportContext();
+
+  // Determine spacing class based on specSpacing prop
+  const getSpacingClass = () => {
+    switch (specSpacing) {
+      case 'tight':
+        return 'mr-0.5'; // 2px
+      case 'loose':
+        return 'mr-2'; // 8px
+      case 'normal':
+      default:
+        return 'mr-1'; // 4px
+    }
+  };
 
   return (
     <div
@@ -39,7 +54,7 @@ export const CombatUnitName = ({
       }}
     >
       {showSpec && (
-        <div className={`mr-1 ${isTitle ? 'w-9 h-9' : 'w-5 h-5'}`}>
+        <div className={`${getSpacingClass()} ${isTitle ? 'w-9 h-9' : 'w-5 h-5'}`}>
           <Image
             className="rounded"
             src={

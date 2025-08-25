@@ -184,10 +184,10 @@ export const CombatReportContextProvider = (props: IProps) => {
 
       mMaxOutputNumber = Math.max(mMaxOutputNumber, totalDamageOut, totalHealOut);
 
-      const totalInterruptsDone = p.actionOut.filter((l) => l.event === LogEvent.SPELL_INTERRUPT).length;
+      const totalInterruptsDone = p.actionOut.filter((l) => l.logLine.event === LogEvent.SPELL_INTERRUPT).length;
       mPlayerInterruptsDone.set(p.id, totalInterruptsDone);
 
-      const totalInterruptsTaken = p.actionIn.filter((l) => l.event === LogEvent.SPELL_INTERRUPT).length;
+      const totalInterruptsTaken = p.actionIn.filter((l) => l.logLine.event === LogEvent.SPELL_INTERRUPT).length;
       mPlayerInterruptsTaken.set(p.id, totalInterruptsTaken);
     });
     return [

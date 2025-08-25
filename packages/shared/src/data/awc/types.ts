@@ -125,7 +125,7 @@ export interface TeamRoster {
   name: string;
   class: string;
   spec: string;
-  role: string;
-  raceId: number;
-  genderId: number;
+  role: string | null;
+  raceId: number | null;
+  genderId: number | null;
 }
