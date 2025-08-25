@@ -57,6 +57,7 @@ jobs:
           CLOUDSDK_PYTHON: ${{env.pythonLocation}}\python.exe
         run: gsutil cp latest-windows.exe gs://download.wowarenalogs.com/desktop-client/
   build_on_mac:
+    if: "contains(github.event.commits[0].message, '[build-for-mac]')"
     runs-on: macos-latest
     env:
       CI: false
