@@ -1,7 +1,7 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
 
 exports.default = async function notarizing(context) {
-  const notarize = await import('../node_modules/@electron/notarize');
+  const { notarize } = await import('@electron/notarize');
 
   const { electronPlatformName, appOutDir } = context;
   if (
