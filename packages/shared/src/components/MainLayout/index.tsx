@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import Router from 'next/router';
 import NProgress from 'nprogress';
 import React, { useEffect } from 'react';
-import { TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbTrophy, TbUser } from 'react-icons/tb';
+import { TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbTrophy, TbUser, TbWand } from 'react-icons/tb';
 
 import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
@@ -85,6 +85,13 @@ export function MainLayout(props: IProps) {
           <Link href="/stats" aria-label="Competitive stats">
             <a title="Competitive stats">
               <TbChartBar size="32" />
+            </a>
+          </Link>
+        </div>
+        <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/talents' ? 'bg-base-100 text-primary' : ''}`}>
+          <Link href="/talents" aria-label="Talent Builds">
+            <a title="Talent Builds">
+              <TbWand size="32" />
             </a>
           </Link>
         </div>

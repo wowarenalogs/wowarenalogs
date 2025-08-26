@@ -69,3 +69,30 @@ model UserCharacter {
   @@unique([characterGuid])
   @@index([battlenetId], name: "battlenetId")
 }
+
+model TalentBuild {
+  id           BigInt   @id @default(autoincrement())
+  specId       Int      @db.Int2
+  talentHash   String   @db.String(256) @unique
+  talents      Json     // Store the talent array
+  pvpTalents   Json     // Store PvP talent array
+  exportString String   @db.String(512)
+
+  snapshots    TalentSnapshot[]
+}
+
+model TalentSnapshot {
+  id            BigInt   @id @default(autoincrement())
+  date          String   @db.Char(10)
+  bracket       String   @db.String(32)
+  specId        Int      @db.Int2
+  ratingMin     Int      @db.Int2
+  ratingMax     Int      @db.Int2
+  talentBuildId BigInt
+  matchCount    Int      @db.Int4
+  winCount      Int      @db.Int4
+  
+  talentBuild   TalentBuild @relation(fields: [talentBuildId], references: [id])
+  
+  @@index([date, bracket, specId, ratingMin], name: "talent_query_idx")
+}

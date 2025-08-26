@@ -31,3 +31,14 @@ functions:
           resource: projects/wowarenalogs/buckets/${self:provider.project}-log-files-prod
           failurePolicy:
             retry: {}
+
+  refreshTalentStats:
+    memorySize: 1024
+    timeout: 540s
+    handler: refreshTalentStatsHandler
+    environment:
+      ENV_SQL_URL: ${env:ENV_SQL_URL}
+    events:
+      - event:
+          eventType: providers/cloud.pubsub/eventTypes/topic.publish
+          resource: projects/${self:provider.project, ""}/topics/refresh-talent-stats-event

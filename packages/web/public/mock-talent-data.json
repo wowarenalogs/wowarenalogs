@@ -1,0 +1,329 @@
+{
+  "71": [
+    {
+      "buildId": "1",
+      "talents": [
+        { "id1": 382675, "id2": 382675, "count": 1 },
+        { "id1": 383338, "id2": 383338, "count": 1 },
+        { "id1": 382896, "id2": 382896, "count": 2 },
+        { "id1": 316825, "id2": 316825, "count": 1 },
+        { "id1": 383154, "id2": 383154, "count": 1 },
+        { "id1": 382953, "id2": 382953, "count": 1 },
+        { "id1": 382939, "id2": 382939, "count": 1 }
+      ],
+      "pvpTalents": ["198817", "199086", "198912"],
+      "exportString": "BwQAAAAAAAAAAAAAAAAAAAAAAEJhkkISSSLJSSikEAAAAAAQSSSSkEJJJRJBAAAAAAAAAAA",
+      "matchCount": 1250,
+      "winRate": 58.5,
+      "usageRate": 35.2
+    },
+    {
+      "buildId": "2",
+      "talents": [
+        { "id1": 382675, "id2": 382675, "count": 1 },
+        { "id1": 383338, "id2": 383338, "count": 1 },
+        { "id1": 316825, "id2": 316825, "count": 1 },
+        { "id1": 383154, "id2": 383154, "count": 1 },
+        { "id1": 382953, "id2": 382953, "count": 1 },
+        { "id1": 29725, "id2": 29725, "count": 1 },
+        { "id1": 384318, "id2": 384318, "count": 1 }
+      ],
+      "pvpTalents": ["199127", "199086", "198817"],
+      "exportString": "BwQAAAAAAAAAAAAAAAAAAAAAAEJhkkISSSLJSSikEAAAAAAQSSJJJJJJJRJBAAAAAAAAAAA",
+      "matchCount": 980,
+      "winRate": 52.3,
+      "usageRate": 27.6
+    },
+    {
+      "buildId": "3",
+      "talents": [
+        { "id1": 382675, "id2": 382675, "count": 1 },
+        { "id1": 316825, "id2": 316825, "count": 1 },
+        { "id1": 383154, "id2": 383154, "count": 1 },
+        { "id1": 382953, "id2": 382953, "count": 1 },
+        { "id1": 384100, "id2": 384100, "count": 1 },
+        { "id1": 383338, "id2": 383338, "count": 1 }
+      ],
+      "pvpTalents": ["384279", "199086", "198817"],
+      "exportString": "BwQAAAAAAAAAAAAAAAAAAAAAAEJhkkISLJJSSikEAAAAAAQSSSSkEJJJRJBAAAAAAAAAAA",
+      "matchCount": 650,
+      "winRate": 49.8,
+      "usageRate": 18.3
+    }
+  ],
+  "72": [
+    {
+      "buildId": "6",
+      "talents": [
+        { "id1": 383154, "id2": 383154, "count": 1 },
+        { "id1": 382675, "id2": 382675, "count": 1 },
+        { "id1": 382896, "id2": 382896, "count": 2 },
+        { "id1": 384100, "id2": 384100, "count": 1 },
+        { "id1": 383338, "id2": 383338, "count": 1 }
+      ],
+      "pvpTalents": ["199261", "199202", "199203"],
+      "exportString": "BgQAAAAAAAAAAAAAAAAAAAAAAIJJJJJJJJJkkESSQAAAAAgkEkkkk0SSSiSCAAAAAAAAAA",
+      "matchCount": 890,
+      "winRate": 56.7,
+      "usageRate": 42.3
+    },
+    {
+      "buildId": "7",
+      "talents": [
+        { "id1": 383154, "id2": 383154, "count": 1 },
+        { "id1": 382675, "id2": 382675, "count": 1 },
+        { "id1": 383338, "id2": 383338, "count": 1 },
+        { "id1": 384100, "id2": 384100, "count": 1 }
+      ],
+      "pvpTalents": ["199261", "385125", "199203"],
+      "exportString": "BgQAAAAAAAAAAAAAAAAAAAAAAIJJJJJJJJJkkESSQAAAAAgkESSSSiSSSCSCAAAAAAAAAA",
+      "matchCount": 750,
+      "winRate": 51.2,
+      "usageRate": 35.6
+    }
+  ],
+  "256": [
+    {
+      "buildId": "9",
+      "talents": [
+        { "id1": 373481, "id2": 373481, "count": 1 },
+        { "id1": 390677, "id2": 390677, "count": 1 },
+        { "id1": 373342, "id2": 373342, "count": 1 },
+        { "id1": 390941, "id2": 390941, "count": 2 },
+        { "id1": 193063, "id2": 193063, "count": 1 }
+      ],
+      "pvpTalents": ["197862", "197871", "214205"],
+      "exportString": "BAQAAAAAAAAAAAAAAAAAAAAAAAAAAMzMzMzGjx0MzMGjZDAAAAAAzMzYZmZmBzMAAA",
+      "matchCount": 2100,
+      "winRate": 62.3,
+      "usageRate": 55.4
+    },
+    {
+      "buildId": "10",
+      "talents": [
+        { "id1": 373481, "id2": 373481, "count": 1 },
+        { "id1": 390677, "id2": 390677, "count": 1 },
+        { "id1": 373342, "id2": 373342, "count": 1 },
+        { "id1": 193063, "id2": 193063, "count": 1 }
+      ],
+      "pvpTalents": ["197862", "197871", "123040"],
+      "exportString": "BAQAAAAAAAAAAAAAAAAAAAAAAAAAAMzMzMzGjxYMzMGjZDAAAAAAzMzYZmZmBzMAAA",
+      "matchCount": 1690,
+      "winRate": 58.1,
+      "usageRate": 44.6
+    }
+  ],
+  "259": [
+    {
+      "buildId": "11",
+      "talents": [
+        { "id1": 382500, "id2": 382500, "count": 1 },
+        { "id1": 381802, "id2": 381802, "count": 2 },
+        { "id1": 382514, "id2": 382514, "count": 1 },
+        { "id1": 385627, "id2": 385627, "count": 1 },
+        { "id1": 381542, "id2": 381542, "count": 1 }
+      ],
+      "pvpTalents": ["197000", "197009", "198128"],
+      "exportString": "BIQAAAAAAAAAAAAAAAAAAAAAAEIiQSSSSSaCkEkGkIAAAAAA0SSCJJRSSSaCAAAAAAAA",
+      "matchCount": 1450,
+      "winRate": 59.8,
+      "usageRate": 61.2
+    },
+    {
+      "buildId": "12",
+      "talents": [
+        { "id1": 382500, "id2": 382500, "count": 1 },
+        { "id1": 381802, "id2": 381802, "count": 1 },
+        { "id1": 382514, "id2": 382514, "count": 1 },
+        { "id1": 385627, "id2": 385627, "count": 1 }
+      ],
+      "pvpTalents": ["141558", "197009", "198128"],
+      "exportString": "BIQAAAAAAAAAAAAAAAAAAAAAAEISSSSSSSSCkEkGkIAAAAAA0SSSJJRSSSaCAAAAAAAA",
+      "matchCount": 920,
+      "winRate": 54.2,
+      "usageRate": 38.8
+    }
+  ],
+  "253": [
+    {
+      "buildId": "13",
+      "talents": [
+        { "id1": 378007, "id2": 378007, "count": 1 },
+        { "id1": 378905, "id2": 378905, "count": 1 },
+        { "id1": 389654, "id2": 389654, "count": 1 },
+        { "id1": 378760, "id2": 378760, "count": 2 },
+        { "id1": 385638, "id2": 385638, "count": 1 }
+      ],
+      "pvpTalents": ["202589", "202797", "356707"],
+      "exportString": "BYPAAAAAAAAAAAAAAAAAAAAAlQokEJJSSJJJiIRSSCAAAAAAAplkkISSSCJRJJAAAAAAA",
+      "matchCount": 1780,
+      "winRate": 57.3,
+      "usageRate": 68.5
+    },
+    {
+      "buildId": "14",
+      "talents": [
+        { "id1": 378007, "id2": 378007, "count": 1 },
+        { "id1": 378905, "id2": 378905, "count": 1 },
+        { "id1": 385638, "id2": 385638, "count": 1 },
+        { "id1": 389654, "id2": 389654, "count": 1 }
+      ],
+      "pvpTalents": ["202589", "693", "202797"],
+      "exportString": "BYPAAAAAAAAAAAAAAAAAAAAAlQokEJJRSJJJiIRSSCAAAAAAAplkSSSSCJRJJAAAAAAA",
+      "matchCount": 820,
+      "winRate": 51.9,
+      "usageRate": 31.5
+    }
+  ],
+  "577": [
+    {
+      "buildId": "15",
+      "talents": [
+        { "id1": 388113, "id2": 388113, "count": 1 },
+        { "id1": 388121, "id2": 388121, "count": 1 },
+        { "id1": 388114, "id2": 388114, "count": 2 },
+        { "id1": 320374, "id2": 320374, "count": 1 },
+        { "id1": 389799, "id2": 389799, "count": 1 }
+      ],
+      "pvpTalents": ["205604", "205629", "206649"],
+      "exportString": "BEkAAAAAAAAAAAAAAAAAAAAAAkSCJJJkQSSSSJRSCAAAAJJJRSSSSJJJBAAAAAAAAA",
+      "matchCount": 2350,
+      "winRate": 61.4,
+      "usageRate": 72.3
+    },
+    {
+      "buildId": "16",
+      "talents": [
+        { "id1": 388113, "id2": 388113, "count": 1 },
+        { "id1": 388121, "id2": 388121, "count": 1 },
+        { "id1": 320374, "id2": 320374, "count": 1 },
+        { "id1": 389799, "id2": 389799, "count": 1 }
+      ],
+      "pvpTalents": ["205604", "357406", "206649"],
+      "exportString": "BEkAAAAAAAAAAAAAAAAAAAAAAkSCJJJJkQSSSSJRSCAAAAJJJRSCSSJJJBAAAAAAAAA",
+      "matchCount": 900,
+      "winRate": 55.6,
+      "usageRate": 27.7
+    }
+  ],
+  "262": [
+    {
+      "buildId": "17",
+      "talents": [
+        { "id1": 381730, "id2": 381730, "count": 1 },
+        { "id1": 381683, "id2": 381683, "count": 1 },
+        { "id1": 381755, "id2": 381755, "count": 1 },
+        { "id1": 381761, "id2": 381761, "count": 2 },
+        { "id1": 381708, "id2": 381708, "count": 1 }
+      ],
+      "pvpTalents": ["204385", "204261", "730"],
+      "exportString": "BYQAAAAAAAAAAAAAAAAAAAAAAAmZmZGzmZmZGGjBzAAAAAAmZMMzMmZmZGmZmZmhZA",
+      "matchCount": 1920,
+      "winRate": 60.4,
+      "usageRate": 74.1
+    },
+    {
+      "buildId": "18",
+      "talents": [
+        { "id1": 381730, "id2": 381730, "count": 1 },
+        { "id1": 381683, "id2": 381683, "count": 1 },
+        { "id1": 381708, "id2": 381708, "count": 1 }
+      ],
+      "pvpTalents": ["204385", "728", "204330"],
+      "exportString": "BYQAAAAAAAAAAAAAAAAAAAAAAAmZGzmZmZGGmZjBzAAAAAAmZMmZmZmZGmZmZmhZA",
+      "matchCount": 670,
+      "winRate": 53.2,
+      "usageRate": 25.9
+    }
+  ],
+  "268": [
+    {
+      "buildId": "19",
+      "talents": [
+        { "id1": 387184, "id2": 387184, "count": 1 },
+        { "id1": 386958, "id2": 386958, "count": 1 },
+        { "id1": 386937, "id2": 386937, "count": 1 },
+        { "id1": 322101, "id2": 322101, "count": 1 },
+        { "id1": 387625, "id2": 387625, "count": 1 }
+      ],
+      "pvpTalents": ["206572", "202107", "202162"],
+      "exportString": "BwsAAAAAAAAAAAAAAAAAAAAAAAAAAAmhkkkkGGzYmxMzMmZmZmxkZmhZGAAAAAA",
+      "matchCount": 1120,
+      "winRate": 55.8,
+      "usageRate": 58.3
+    },
+    {
+      "buildId": "20",
+      "talents": [
+        { "id1": 387184, "id2": 387184, "count": 1 },
+        { "id1": 386958, "id2": 386958, "count": 1 },
+        { "id1": 322101, "id2": 322101, "count": 1 }
+      ],
+      "pvpTalents": ["202335", "202107", "202162"],
+      "exportString": "BwsAAAAAAAAAAAAAAAAAAAAAAAAAAAmhkEkkkGGzYMzMzYmZmZGTmZmhZGAAAAAA",
+      "matchCount": 800,
+      "winRate": 50.1,
+      "usageRate": 41.7
+    }
+  ],
+  "103": [
+    {
+      "buildId": "21",
+      "talents": [
+        { "id1": 391974, "id2": 391974, "count": 1 },
+        { "id1": 391978, "id2": 391978, "count": 1 },
+        { "id1": 391709, "id2": 391709, "count": 1 },
+        { "id1": 202021, "id2": 202021, "count": 1 },
+        { "id1": 391888, "id2": 391888, "count": 1 }
+      ],
+      "pvpTalents": ["201259", "200947", "620"],
+      "exportString": "BkQAAAAAAAAAAAAAAAAAAAAAAMmxMzMbjZGjZmhZGGzMzMAAAAAAsMjZMzMzMzYMA",
+      "matchCount": 2200,
+      "winRate": 63.5,
+      "usageRate": 78.2
+    },
+    {
+      "buildId": "22",
+      "talents": [
+        { "id1": 391974, "id2": 391974, "count": 1 },
+        { "id1": 391978, "id2": 391978, "count": 1 },
+        { "id1": 202021, "id2": 202021, "count": 1 }
+      ],
+      "pvpTalents": ["305497", "200947", "620"],
+      "exportString": "BkQAAAAAAAAAAAAAAAAAAAAAAMmxMbjZGjZmhZGGzMzMAAAAAAsMjZMzMzMzYMA",
+      "matchCount": 615,
+      "winRate": 54.7,
+      "usageRate": 21.8
+    }
+  ],
+  "64": [
+    {
+      "buildId": "23",
+      "talents": [
+        { "id1": 381743, "id2": 381743, "count": 1 },
+        { "id1": 381735, "id2": 381735, "count": 1 },
+        { "id1": 382268, "id2": 382268, "count": 1 },
+        { "id1": 381708, "id2": 381708, "count": 1 },
+        { "id1": 382148, "id2": 382148, "count": 1 }
+      ],
+      "pvpTalents": ["206931", "389713", "66"],
+      "exportString": "BoQAAAAAAAAAAAAAAAAAAAAAAGAzMzMzMmZZGzMzwMAAAAAAMLTYmZmZmZGzYMA",
+      "matchCount": 1450,
+      "winRate": 57.3,
+      "usageRate": 52.7
+    },
+    {
+      "buildId": "24",
+      "talents": [
+        { "id1": 381743, "id2": 381743, "count": 1 },
+        { "id1": 382268, "id2": 382268, "count": 1 },
+        { "id1": 381708, "id2": 381708, "count": 1 }
+      ],
+      "pvpTalents": ["389764", "389713", "66"],
+      "exportString": "BoQAAAAAAAAAAAAAAAAAAAAAAGAzMzMzYmZmZGzMzwMAAAAAAMLTMmZmZmZGzYMA",
+      "matchCount": 1300,
+      "winRate": 54.8,
+      "usageRate": 47.3
+    }
+  ]
+}
