@@ -24,6 +24,20 @@ describe('pipeline component tests', () => {
     });
   });
 
+  describe('disregards lines that cant decode timestamp', () => {
+    it('should disregard lines that cant decode timestamp', () => {
+      const log =
+        '8/21/2025 20:42:12.655-5  SPELL_H8/21/2025 20:52:27.945-5  SPELL_PERIODIC_DAMAGE,Player-1427-0E9F4382,"Tokahn-Ragnaros-US",0x548,0x80000000,Player-60-0C61A73C,"Hyl-Stormrage-US",0x512,0x80000020,262115,"Deep Wounds",0x1,Player-60-0C61A73C,0000000000000000,12274966,17737390,137387,13440,44030,3056,0,0,3,246,300,0,2854.58,2273.85,0,3.8525,714,92256,125417,-1,1,0,0,0,nil,nil,nil,ST';
+      let logLine = null;
+      from([log])
+        .pipe(stringToLogLine('America/New_York'))
+        .forEach((line) => (logLine = line));
+
+      expect(typeof logLine).toEqual('string');
+      expect(logLine).not.toBeNull();
+    });
+  });
+
   describe('jsonparse', () => {
     xit('handles interior quote escaped strings with commas', () => {
       const errors = [];
@@ -60,9 +74,9 @@ describe('pipeline component tests', () => {
   });
 
   describe('advanced log format', () => {
-    xit('should parse retail logs correctly', () => {
+    it('should parse retail logs correctly', () => {
       const log =
-        '2/6/2024 00:39:34.038  SPELL_DAMAGE,Player-57-0ABB28BC,"Raikendk-Illidan",0x10548,0x0,Player-57-0BDDB09C,"Notórious-Illidan",0x512,0x0,253597,"Inexorable Assault",0x10,Player-57-0BDDB09C,0000000000000000,21506,22520,898,342,524,0,0,8513,8513,0,-2022.75,6669.33,0,4.8573,125,206,203,-1,16,0,0,0,nil,nil,nil';
+        '8/21/2025 20:49:32.841-5  SPELL_DAMAGE,Player-60-0C61A73C,"Hyl-Stormrage-US",0x548,0x80000000,Player-1136-093E6286,"Durriesmate-Bonechewer-US",0x512,0x80000020,423193,"Sanguine Blades",0x1,Player-1136-093E6286,0000000000000000,18702887,19809416,28559,136647,110430,3162,0,0,0,2756250,2756250,0,2856.62,2228.20,0,2.3046,715,29012,57434,-1,1,0,0,0,nil,nil,nil,ST';
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
@@ -72,14 +86,15 @@ describe('pipeline component tests', () => {
       //
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
       console.log({ action, pow: action.advancedActorPowers });
-      expect(action.amount).toEqual(-206);
+      expect(typeof logLine).toEqual('object'); // as in, not a string
+      expect(action.amount).toEqual(-29012);
       expect(action.isCritical).toEqual(false);
       expect(action.advanced).toEqual(true);
-      expect(action.advancedActorCurrentHp).toEqual(21506);
-      expect(action.advancedActorMaxHp).toEqual(22520);
-      expect(action.advancedActorPositionX).toEqual(-2022.75);
-      expect(action.advancedActorPositionY).toEqual(6669.33);
-      expect(action.advancedActorItemLevel).toEqual(125);
+      expect(action.advancedActorCurrentHp).toEqual(18702887);
+      expect(action.advancedActorMaxHp).toEqual(19809416);
+      expect(action.advancedActorPositionX).toEqual(2856.62);
+      expect(action.advancedActorPositionY).toEqual(2228.2);
+      expect(action.advancedActorItemLevel).toEqual(715);
     });
 
     //10/22/2024 22:59:24.125-4  SPELL_DAMAGE,Player-60-0EB1BFB0,"Armsw-Stormrage-US",0x511,0x0,Creature-0-3023-2552-309-219250-00019822F3,"PvP Training Dummy",0x10a28,0x0,126664,"Charge",0x1,Creature-0-3023-2552-309-219250-00019822F3,0000000000000000,3299605,9915288,0,0,42857,0,0,0,1,0,0,0,2322.07,-2759.81,0,3.0012,80,15573,22247,-1,1,0,0,0,nil,nil,nil,ST
