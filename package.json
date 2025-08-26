@@ -12,7 +12,7 @@
   },
   "main": "packages/app/dist/main.bundle.js",
   "engines": {
-    "node": ">=18",
+    "node": ">=22",
     "npm": ">=8.6.0"
   },
   "workspaces": [
