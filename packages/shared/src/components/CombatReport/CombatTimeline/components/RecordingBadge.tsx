@@ -9,5 +9,3 @@ export const RecordingBadge = ({ className = '' }: IProps) => {
     </span>
   );
 };
-
-
