@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 
 import { SpecImage } from '../../common/SpecImage';
 import { useCombatReportContext } from '../CombatReportContext';
-import { AuraEvent, InterruptEvent, SpellCastEvent } from './components';
+import { AuraEvent, DeathBadge, InterruptEvent, RecordingBadge, SpellCastEvent } from './components';
 import { getLogLineId, IAuraEvent, IInterruptEvent, ISpellCastTimelineEvent } from './utils';
 
 const SPELL_ICON_SIZE = 24;
@@ -321,9 +321,15 @@ export const MultiPlayerTimeline = ({ selectedPlayers, showSpells, showAuras, sh
                     <span className="font-medium" style={{ color: getClassColor(player.class) }}>
                       {player.name.split('-')[0]}
                     </span>
+                    {combat.playerId === player.id && <RecordingBadge />}
+                    <DeathBadge deathCount={player.deathRecords.length} />
                   </div>
                 </div>
-                <div className="text-xs opacity-75">{events.length} events</div>
+                <div className="text-xs opacity-75">
+                  {events.length} events
+                  {player.deathRecords.length > 0 &&
+                    ` • ${player.deathRecords.length} death${player.deathRecords.length > 1 ? 's' : ''}`}
+                </div>
               </div>
 
               {/* Timeline column */}

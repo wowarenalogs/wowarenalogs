@@ -2,7 +2,7 @@ import { pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { parseWowToJSON } from '../../jsonparse';
-import { logDebug } from '../../logger';
+import { logDebug, logInfo } from '../../logger';
 import { ILogLine, LogEvent } from '../../types';
 
 const LINE_PARSER = /^(.*)? {2}([A-Z_]+),(.+)\s*$/;
@@ -46,6 +46,11 @@ export const stringToLogLine = (timezone: string) => {
       const jsonParameters = parseWowToJSON(regex_matches[eventIndex + 1]);
       const decodedDate = new Date(correctPositiveTZInfo(tsString));
       const timestamp = decodedDate.getTime();
+
+      if (timestamp === null || isNaN(timestamp)) {
+        logInfo('INVALID TIMESTAMP', tsString);
+        return line;
+      }
 
       return {
         id: (nextId++).toFixed(),
