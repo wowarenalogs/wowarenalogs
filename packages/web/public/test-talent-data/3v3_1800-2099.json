@@ -1,0 +1,79 @@
+{
+  "71": [
+    {
+      "buildId": "71_1",
+      "talents": [
+        {
+          "id1": 90001,
+          "id2": 90001,
+          "count": 1
+        },
+        {
+          "id1": 90002,
+          "id2": 90002,
+          "count": 1
+        },
+        {
+          "id1": 90003,
+          "id2": 90003,
+          "count": 2
+        },
+        {
+          "id1": 90004,
+          "id2": 90004,
+          "count": 1
+        },
+        {
+          "id1": 90005,
+          "id2": 90005,
+          "count": 1
+        }
+      ],
+      "pvpTalents": [
+        "91001",
+        "91002",
+        "91003"
+      ],
+      "exportString": "TEST_EXPORT_71_1",
+      "matchCount": 2,
+      "winRate": 100,
+      "usageRate": 100
+    }
+  ],
+  "256": [
+    {
+      "buildId": "256_1",
+      "talents": [
+        {
+          "id1": 90039,
+          "id2": 90039,
+          "count": 1
+        },
+        {
+          "id1": 90040,
+          "id2": 90040,
+          "count": 1
+        },
+        {
+          "id1": 90041,
+          "id2": 90041,
+          "count": 1
+        },
+        {
+          "id1": 90042,
+          "id2": 90042,
+          "count": 1
+        }
+      ],
+      "pvpTalents": [
+        "91027",
+        "91028",
+        "91029"
+      ],
+      "exportString": "TEST_EXPORT_256_1",
+      "matchCount": 1,
+      "winRate": 100,
+      "usageRate": 100
+    }
+  ]
+}

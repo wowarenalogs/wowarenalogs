@@ -14,7 +14,8 @@
     "start:generate-map-image": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/generateMapImage.js",
     "start:delete-oldest": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/deleteOldMatches.js",
     "test:refresh-competitive-stats": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_competitive_stats.js",
-    "test:refresh-spell-icons": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js"
+    "test:refresh-spell-icons": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js",
+    "test:refresh-talent-stats": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_talent_stats.js"
   },
   "devDependencies": {
     "@types/node": "^14.14.31",
@@ -23,6 +24,7 @@
     "@types/uuid": "^8.3.0",
     "add": "^2.0.6",
     "eslint-config-wowarenalogs": "*",
+    "playwright": "^1.55.0",
     "serverless": "^3.25.1",
     "serverless-google-cloudfunctions": "^4.3.1",
     "tsup": "^7.2.0"
