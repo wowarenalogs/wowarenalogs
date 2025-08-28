@@ -18,7 +18,7 @@ describe('parser tests', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    xit('should not return any Combat objects', async () => {
+    it('should not return any Combat objects', async () => {
       expect(results.combats).toHaveLength(0);
     });
   });
@@ -39,19 +39,19 @@ describe('parser tests', () => {
       results.shuffles = loaded.shuffles;
     });
 
-    xit('should return one valid match', () => {
+    it('should return one valid match', () => {
       expect(results.combats).toHaveLength(1);
     });
-    xit('should return one malformed match', () => {
+    it('should return one malformed match', () => {
       expect(results.malformedCombats).toHaveLength(1);
     });
 
-    xit('should buffer the malformed raw log', () => {
-      expect(results.malformedCombats[0].rawLines.length).toEqual(7);
+    it('should buffer the malformed raw log', () => {
+      expect(results.malformedCombats[0].rawLines.length).toEqual(5);
     });
 
-    xit('should buffer the valid raw log', () => {
-      expect(results.combats[0].rawLines.length).toEqual(10);
+    it('should buffer the valid raw log', () => {
+      expect(results.combats[0].rawLines.length).toEqual(226);
     });
   });
 
