@@ -1,6 +1,5 @@
 import { ICombatUnit, ILogLine } from '@wowarenalogs/parser';
 import _ from 'lodash';
-import moment from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useCombatReportContext } from '../CombatReportContext';
