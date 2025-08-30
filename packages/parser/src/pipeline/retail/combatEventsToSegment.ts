@@ -69,8 +69,9 @@ export const combatEventsToSegment = () => {
             logTrace(
               `combatEventsToSegment.TIMEOUT|START isStart=${event instanceof ArenaMatchStart} ets=${
                 event.timestamp
-              } lts=${lastTimestamp}`,
+              } lts=${lastTimestamp} deltaS=${(event.timestamp - lastTimestamp) / 1000}`,
             );
+            logTrace(currentBuffer.lines[currentBuffer.lines.length - 1]);
             emitCurrentBuffer();
           }
 
