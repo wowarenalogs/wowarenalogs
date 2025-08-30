@@ -121,25 +121,27 @@ describe('pipeline component tests', () => {
       expect(action.isCritical).toEqual(true);
     });
 
-    xit('should parse SWING_DAMAGE for crit=false', () => {
-      const log = `1/16/2024 10:29:10.293  SWING_DAMAGE,Player-3209-0B7ABE8D,"Tokari-Azralon",0x512,0x20,Player-127-0A64DF62,"Billgluckman-Drak'Tharon",0x10548,0x0,Player-3209-0B7ABE8D,0000000000000000,349620,349620,11105,1420,8393,0,1,507,1000,0,1288.34,1644.27,0,3.2055,418,3502,6288,-1,1,0,0,0,nil,nil,nil`;
+    it('should parse SWING_DAMAGE for crit=false', () => {
+      const log = `8/30/2025 09:00:14.436-4  SWING_DAMAGE,Player-60-0F7BEF5D,"Elementoldyu-Stormrage-US",0x511,0x80000000,Creature-0-4220-1-520-114840-00003283C4,"PvP Training Dummy",0x10a28,0x80000000,Player-60-0F7BEF5D,0000000000000000,18247768,18247768,33911,140212,101548,3128,0,0,11,0,175,0,2116.85,-4620.22,85,5.0170,718,13886,19837,-1,1,0,0,0,nil,nil,nil`;
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
       expect(logLine).not.toBeNull();
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.amount).toEqual(-13886);
       expect(action.isCritical).toEqual(false);
     });
 
-    xit('should parse SWING_DAMAGE for crit=true', () => {
-      const log = `1/16/2024 10:29:10.293  SWING_DAMAGE,Player-3209-0B7ABE8D,"Tokari-Azralon",0x512,0x20,Player-127-0A64DF62,"Billgluckman-Drak'Tharon",0x10548,0x0,Player-3209-0B7ABE8D,0000000000000000,349620,349620,11105,1420,8393,0,1,507,1000,0,1288.34,1644.27,0,3.2055,418,3502,6288,-1,1,0,0,0,1,nil,nil`;
+    it('should parse SWING_DAMAGE for crit=true', () => {
+      const log = `8/30/2025 09:00:16.353-4  SWING_DAMAGE,Player-60-0F7BEF5D,"Elementoldyu-Stormrage-US",0x511,0x80000000,Creature-0-4220-1-520-114840-00003283C4,"PvP Training Dummy",0x10a28,0x80000000,Player-60-0F7BEF5D,0000000000000000,18247768,18247768,33911,140212,101548,3128,0,0,11,0,175,0,2116.85,-4620.22,85,5.0170,718,26061,18614,-1,1,0,0,0,1,nil,nil`;
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
       expect(logLine).not.toBeNull();
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.amount).toEqual(-26061);
       expect(action.isCritical).toEqual(true);
     });
 
