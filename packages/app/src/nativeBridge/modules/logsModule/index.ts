@@ -24,7 +24,7 @@ interface ILastKnownCombatLogState {
 
 interface IBridge {
   watcher?: ReturnType<typeof createLogWatcher>;
-  logParsers?: Map<string, WoWCombatLogParser>;
+  logParsers: Map<string, WoWCombatLogParser>;
 }
 
 const bridgeState: {
@@ -33,11 +33,11 @@ const bridgeState: {
 } = {
   retail: {
     watcher: undefined,
-    logParsers: undefined,
+    logParsers: new Map(),
   },
   classic: {
     watcher: undefined,
-    logParsers: undefined,
+    logParsers: new Map(),
   },
 };
 
@@ -148,12 +148,14 @@ export class LogsModule extends NativeBridgeModule {
 
   @moduleFunction({ isRequired: true })
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
-    const bridge = bridgeState[wowVersion] as IBridge; // why can TS not figure this out?
+    const bridge = bridgeState[wowVersion] as IBridge;
     if (bridge.watcher) {
       bridge.watcher.close();
     }
 
-    bridge.logParsers = new Map();
+    // If we start watching an entirely different folder, clear the parsers
+    bridge.logParsers.clear();
+
     const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
 
     bridge.watcher = createLogWatcher(wowDirectory, process.platform);
@@ -229,13 +231,13 @@ export class LogsModule extends NativeBridgeModule {
     bridgeState.retail.logParsers?.forEach((parser) => {
       parser.removeAllListeners();
     });
-    bridgeState.retail.logParsers = undefined;
+    bridgeState.retail.logParsers.clear();
     bridgeState.retail.watcher = undefined;
     bridgeState.classic.watcher?.close();
     bridgeState.classic.logParsers?.forEach((parser) => {
       parser.removeAllListeners();
     });
-    bridgeState.classic.logParsers = undefined;
+    bridgeState.classic.logParsers.clear();
     bridgeState.classic.watcher = undefined;
   }
 
