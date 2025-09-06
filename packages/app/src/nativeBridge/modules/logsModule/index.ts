@@ -26,7 +26,7 @@ interface ILastKnownCombatLogState {
 
 interface IBridge {
   watcher?: ReturnType<typeof createLogWatcher>;
-  logParsers?: Map<string, WoWCombatLogParser>;
+  logParsers: Map<string, WoWCombatLogParser>;
   wowLogsDirectoryFullPath?: string;
   latestWarnedAtMs?: number;
 }
@@ -37,11 +37,11 @@ const bridgeState: {
 } = {
   retail: {
     watcher: undefined,
-    logParsers: undefined,
+    logParsers: new Map(),
   },
   classic: {
     watcher: undefined,
-    logParsers: undefined,
+    logParsers: new Map(),
   },
 };
 
@@ -154,7 +154,7 @@ export class LogsModule extends NativeBridgeModule {
 
   public registerLogParserForFile(mainWindow: BrowserWindow, logFile: string, wowVersion: WowVersion) {
     const parser = new WoWCombatLogParser(wowVersion);
-    bridgeState.retail.logParsers?.set(logFile, parser);
+    bridgeState[wowVersion].logParsers.set(logFile, parser);
 
     parser.on('activity_started', (event) => {
       this.handleActivityStarted(mainWindow, event);
@@ -180,12 +180,14 @@ export class LogsModule extends NativeBridgeModule {
 
   @moduleFunction({ isRequired: true })
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
-    const bridge = bridgeState[wowVersion] as IBridge; // why can TS not figure this out?
+    const bridge = bridgeState[wowVersion] as IBridge;
     if (bridge.watcher) {
       bridge.watcher.close();
     }
 
-    bridge.logParsers = new Map();
+    // If we start watching an entirely different folder, clear the parsers
+    bridge.logParsers.clear();
+
     const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
     bridge.wowLogsDirectoryFullPath = wowLogsDirectoryFullPath;
     bridge.latestWarnedAtMs = 0;
@@ -216,10 +218,6 @@ export class LogsModule extends NativeBridgeModule {
     });
 
     const processStats = async (path: string, stats: Stats | undefined) => {
-      if (!bridge.logParsers) {
-        throw new Error('No log parser');
-      }
-
       const lastKnownState = lastKnownFileStats.get(path) || {
         lastFileCreationTime: 0,
         lastFileSize: 0,
@@ -267,18 +265,18 @@ export class LogsModule extends NativeBridgeModule {
   @moduleFunction({ isRequired: true })
   public async stopLogWatcher(_mainWindow: BrowserWindow) {
     bridgeState.retail.watcher?.close();
-    bridgeState.retail.logParsers?.forEach((parser) => {
+    bridgeState.retail.logParsers.forEach((parser) => {
       parser.removeAllListeners();
     });
-    bridgeState.retail.logParsers = undefined;
+    bridgeState.retail.logParsers.clear();
     bridgeState.retail.watcher = undefined;
     bridgeState.retail.wowLogsDirectoryFullPath = undefined;
     bridgeState.retail.latestWarnedAtMs = 0;
     bridgeState.classic.watcher?.close();
-    bridgeState.classic.logParsers?.forEach((parser) => {
+    bridgeState.classic.logParsers.forEach((parser) => {
       parser.removeAllListeners();
     });
-    bridgeState.classic.logParsers = undefined;
+    bridgeState.classic.logParsers.clear();
     bridgeState.classic.watcher = undefined;
     bridgeState.classic.wowLogsDirectoryFullPath = undefined;
     bridgeState.classic.latestWarnedAtMs = 0;
