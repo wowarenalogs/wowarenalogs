@@ -228,7 +228,6 @@ export class LogsModule extends NativeBridgeModule {
       let parseOK = false;
 
       const parser = bridge.logParsers.get(path) || this.registerLogParserForFile(mainWindow, path, wowVersion);
-
       if (
         // we are reading the same file if the creation time is close enough
         fileCreationTimeDelta < 1 &&

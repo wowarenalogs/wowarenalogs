@@ -44,5 +44,5 @@ if (app && app.isPackaged) {
     console.log(e);
   }
 }
-
+winstonLogger.add(new winston.transports.File({ filename: path.join('log.txt'), level: 'info' }));
 export const logger = winstonLogger;
