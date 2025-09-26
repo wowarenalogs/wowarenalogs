@@ -184,10 +184,7 @@ export class LogsModule extends NativeBridgeModule {
     });
 
     const processStats = async (path: string, stats: Stats | undefined) => {
-      if (!bridge.logParsers) {
-        throw new Error('No log parser');
-      }
-
+      logger.info(`processStats path=${path} stats=${stats?.size} parsers=${bridge.logParsers.size}`);
       const lastKnownState = lastKnownFileStats.get(path) || {
         lastFileCreationTime: 0,
         lastFileSize: 0,
@@ -198,7 +195,6 @@ export class LogsModule extends NativeBridgeModule {
       let parseOK = false;
 
       const parser = bridge.logParsers.get(path) || this.registerLogParserForFile(mainWindow, path, wowVersion);
-
       if (
         // we are reading the same file if the creation time is close enough
         fileCreationTimeDelta < 1 &&
