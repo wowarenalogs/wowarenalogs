@@ -43,8 +43,6 @@ jobs:
         uses: actions/checkout@v3
       - name: inst
         run: pip install requests
-      - name: find
-        run: python echo.py
       - name: setup node
         uses: actions/setup-node@v3
         with:
