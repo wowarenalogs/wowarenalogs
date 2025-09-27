@@ -17,6 +17,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22
+      - name: install node-gyp
+        run: npm i -g node-gyp@latest
       - name: clean npm cache
         run: npm cache clean -f
       - name: install dependencies
