@@ -17,7 +17,7 @@
     "test:refresh-spell-icons": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^22",
     "@types/node-fetch": "2.3.0",
     "@types/superagent": "^4.1.16",
     "@types/uuid": "^8.3.0",

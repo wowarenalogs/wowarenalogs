@@ -92,7 +92,7 @@
     "@types/ps-node": "^0.1.2",
     "concurrently": "^7.0.0",
     "cross-env": "^7.0.3",
-    "electron": "^28",
+    "electron": "^38",
     "electron-builder": "^25.1.8",
     "eslint": "^8.49.0",
     "husky": "^7.0.4",
