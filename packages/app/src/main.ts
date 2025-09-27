@@ -9,6 +9,9 @@ import { BASE_REMOTE_URL } from './constants';
 import { globalStates } from './nativeBridge/modules/common/globalStates';
 import { nativeBridgeRegistry } from './nativeBridge/registry';
 
+// eslint-disable-next-line no-console
+console.log(process.versions);
+
 function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
 
