@@ -12,18 +12,6 @@ jobs:
       CSC_LINK: ${{ secrets.CSC_LINK }}
       CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
     steps:
-      - name: setup python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: gcloud auth
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-      - name: setup gcloud
-        uses: google-github-actions/setup-gcloud@v1
-        env:
-          CLOUDSDK_PYTHON: ${{env.pythonLocation}}\python.exe
       - name: checkout
         uses: actions/checkout@v3
       - name: setup node
@@ -51,16 +39,6 @@ jobs:
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
     steps:
-      - name: setup python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: gcloud auth
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-      - name: setup gcloud
-        uses: google-github-actions/setup-gcloud@v1
       - name: checkout
         uses: actions/checkout@v3
       - name: setup node
@@ -85,16 +63,6 @@ jobs:
       CI: false
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: setup python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: gcloud auth
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-      - name: setup gcloud
-        uses: google-github-actions/setup-gcloud@v1
       - name: checkout
         uses: actions/checkout@v3
       - name: setup node
