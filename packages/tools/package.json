@@ -12,7 +12,7 @@
     "start:simlog": "dotenv -- ts-node --files ./src/simlog.ts"
   },
   "devDependencies": {
-    "@types/node": "^14.14.31",
+    "@types/node": "^20",
     "@types/node-fetch": "2.3.0",
     "eslint-config-wowarenalogs": "*",
     "dotenv": "^16.0.3",
