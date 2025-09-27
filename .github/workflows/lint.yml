@@ -11,14 +11,10 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3
-      - name: install canvas deps
-        run: sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
       - name: setup node
         uses: actions/setup-node@v3
         with:
           node-version: 22
-      - name: install node-gyp
-        run: npm i -g node-gyp@latest
       - name: clean npm cache
         run: npm cache clean -f
       - name: install dependencies
