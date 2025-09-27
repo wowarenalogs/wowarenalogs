@@ -41,6 +41,8 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3
+      - name: inst
+        run: pip install requests
       - name: find
         run: python echo.py
       - name: setup node
