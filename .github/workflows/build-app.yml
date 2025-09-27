@@ -1,4 +1,4 @@
-name: release-app
+name: build-app
 on:
   pull_request:
     branches:
