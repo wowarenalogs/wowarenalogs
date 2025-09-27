@@ -103,6 +103,9 @@ export const CombatReportContextProvider = (props: IProps) => {
       let ccStack = 0;
       for (let i = 0; i < p.auraEvents.length; ++i) {
         const event = p.auraEvents[i];
+        if (!event?.logLine) {
+          continue;
+        }
         const spellId = event.spellId || '';
         if (!ccSpellIds.has(spellId)) {
           continue;
@@ -132,6 +135,9 @@ export const CombatReportContextProvider = (props: IProps) => {
         let targetTimeInCC = 0;
         for (let i = 0; i < target.auraEvents.length; ++i) {
           const event = target.auraEvents[i];
+          if (!event?.logLine) {
+            continue;
+          }
           const spellId = event.spellId || '';
           if (!ccSpellIds.has(spellId) || event.srcUnitId !== p.id) {
             continue;
@@ -157,39 +163,42 @@ export const CombatReportContextProvider = (props: IProps) => {
       mPlayerCCOutput.set(p.id, totalCCOutput);
 
       const totalDamageOut = p.damageOut.reduce((sum, action) => {
-        return sum + Math.abs(action.effectiveAmount);
+        return sum + Math.abs(action?.effectiveAmount ?? 0);
       }, 0);
       mPlayerTotalDamageOut.set(p.id, totalDamageOut);
 
       const totalSupportIn = p.supportDamageIn.reduce((sum, action) => {
-        return sum + Math.abs(action.effectiveAmount);
+        return sum + Math.abs(action?.effectiveAmount ?? 0);
       }, 0);
       mPlayerTotalSupportIn.set(p.id, totalSupportIn);
 
       const totalHealOut = p.healOut.reduce((sum, action) => {
-        if (action.logLine.event === 'SPELL_PERIODIC_HEAL') {
-          // TODO: the parser needs to give us more info about overhealing
-          return sum + (action.logLine.parameters[30] - action.logLine.parameters[32]);
+        if (!action) {
+          return sum;
         }
-        if (action.logLine.event === 'SPELL_HEAL') {
+        const logLine = action.logLine;
+        if (logLine?.event === 'SPELL_PERIODIC_HEAL' || logLine?.event === 'SPELL_HEAL') {
           // TODO: the parser needs to give us more info about overhealing
-          return sum + (action.logLine.parameters[30] - action.logLine.parameters[32]);
+          const rawAmount = Number(logLine.parameters?.[30] ?? 0);
+          const overheal = Number(logLine.parameters?.[32] ?? 0);
+          return sum + (rawAmount - overheal);
         }
-        return sum + Math.abs(action.effectiveAmount);
+        return sum + Math.abs(action.effectiveAmount ?? 0);
       }, 0);
       const totalPrevented = p.absorbsOut.reduce((sum, action) => {
-        return sum + Math.abs(action.effectiveAmount);
+        return sum + Math.abs(action?.effectiveAmount ?? 0);
       }, 0);
       mPlayerTotalHealOut.set(p.id, totalHealOut + totalPrevented);
 
       mMaxOutputNumber = Math.max(mMaxOutputNumber, totalDamageOut, totalHealOut);
 
-      const totalInterruptsDone = p.actionOut.filter((l) => l.logLine.event === LogEvent.SPELL_INTERRUPT).length;
+      const totalInterruptsDone = p.actionOut.filter((l) => l?.logLine?.event === LogEvent.SPELL_INTERRUPT).length;
       mPlayerInterruptsDone.set(p.id, totalInterruptsDone);
 
-      const totalInterruptsTaken = p.actionIn.filter((l) => l.logLine.event === LogEvent.SPELL_INTERRUPT).length;
+      const totalInterruptsTaken = p.actionIn.filter((l) => l?.logLine?.event === LogEvent.SPELL_INTERRUPT).length;
       mPlayerInterruptsTaken.set(p.id, totalInterruptsTaken);
     });
+
     return [
       mPlayers,
       mFriends,
