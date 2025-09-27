@@ -314,6 +314,16 @@ export class Recorder {
   static async loadOBSLibraries() {
     osn = await import('obs-studio-node');
     await VideoProcessQueue.LoadFFMpegLibraries();
+    // eslint-disable-next-line no-console
+    console.log('Loading noobs...,');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const noobs: any = await import('noobs');
+    // eslint-disable-next-line no-console
+    noobs.Init('D:\\Github\\wowarenalogs\\packages\\app\\node_modules\\noobs\\dist', 'D:\\Video', (e: any) =>
+      console.log(e),
+    );
+    // eslint-disable-next-line no-console
+    console.log({ noobs });
   }
 
   /**

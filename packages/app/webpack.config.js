@@ -11,6 +11,7 @@ module.exports = {
   output: {
     filename: 'main.bundle.js',
     path: path.resolve(__dirname, 'dist'),
+    assetModuleFilename: '[path][name].[ext]',
   },
   module: {
     rules: [
@@ -23,9 +24,19 @@ module.exports = {
       },
       {
         test: /\.node$/,
+        generator: {
+          filename: '[path][name][ext]',
+        },
         use: {
           loader: 'node-loader',
+          options: {
+            name: '[name].[ext]',
+          },
         },
+      },
+      {
+        type: 'asset/resource',
+        test: /\.(ini|dll|exe|effect|png|cube)$/,
       },
     ],
   },
