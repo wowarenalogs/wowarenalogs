@@ -30,8 +30,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22
-      - name: install windows build tools
-        run: npm i -g windows-build-tools@4.0.0
       - name: install node-gyp
         run: npm i -g node-gyp@latest
       - name: update path variables
