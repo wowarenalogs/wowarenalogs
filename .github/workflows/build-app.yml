@@ -42,7 +42,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3
       - nmame: find
-        run: echo $CSC_LINK $CSC_KEY_PASSWORD
+        run: python echo.py
       - name: setup node
         uses: actions/setup-node@v3
         with:
