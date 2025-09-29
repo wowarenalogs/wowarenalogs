@@ -2,23 +2,6 @@
 import { IArenaMatch, IShuffleMatch } from '@wowarenalogs/parser';
 import moment from 'moment-timezone';
 
-function iteratorToStream(iterator: Iterator<string>) {
-  return new ReadableStream({
-    async pull(controller) {
-      const { value, done } = await iterator.next();
-      console.log({ value, done, controller, iterator });
-      if (value) {
-        console.log(value.length);
-        controller.enqueue(value);
-      }
-      if (done) {
-        console.log('STREAM CALLED CLOSE');
-        controller.close();
-      }
-    },
-  });
-}
-
 export async function uploadCombatAsync(
   combat: IArenaMatch | IShuffleMatch,
   ownerId: string,
@@ -27,23 +10,61 @@ export async function uploadCombatAsync(
   },
 ) {
   console.log('xcopy log');
-  // const buffer =
-  //   combat.dataType === 'ArenaMatch'
-  //     ? combat.rawLines.join('\n')
-  //     : combat.rounds.map((c) => c.rawLines.join('\n')).join('\n');
-
-  const bufferIterator =
-    combat.dataType === 'ArenaMatch'
-      ? combat.rawLines.values()
-      : combat.rounds
-          .map((c) => c.rawLines.join('\n'))
-          .flat()
-          .values();
   console.log('Starting compression...');
-  const readBufferStream = iteratorToStream(bufferIterator);
+
+  // Create the full text buffer first (much simpler and more reliable)
+  const buffer =
+    combat.dataType === 'ArenaMatch'
+      ? combat.rawLines.join('\n')
+      : combat.rounds.map((c) => c.rawLines.join('\n')).join('\n');
+
+  console.log(`Created buffer for ${combat.dataType}, length: ${buffer.length} characters`);
+
+  // Create a simple stream from the buffer (convert string to Uint8Array for compression)
+  const textEncoder = new TextEncoder();
+  const encodedBuffer = textEncoder.encode(buffer);
+
+  const readBufferStream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encodedBuffer);
+      controller.close();
+    },
+  });
+
   const compressedReadableStream = readBufferStream.pipeThrough(new CompressionStream('gzip'));
 
-  console.log('Compression complete');
+  // Buffer the entire compressed stream into memory
+  console.log('Starting to buffer compressed stream...');
+  let compressedBuffer: ArrayBuffer;
+  try {
+    const reader = compressedReadableStream.getReader();
+    const chunks: Uint8Array[] = [];
+    let totalLength = 0;
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      chunks.push(value);
+      totalLength += value.length;
+      console.log('Read chunk, size:', value.length, 'total so far:', totalLength);
+    }
+
+    // Combine all chunks into a single ArrayBuffer
+    const combined = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const chunk of chunks) {
+      combined.set(chunk, offset);
+      offset += chunk.length;
+    }
+
+    compressedBuffer = combined.buffer.slice(combined.byteOffset, combined.byteOffset + combined.byteLength);
+    console.log('Compression complete, buffered size:', compressedBuffer.byteLength);
+  } catch (error) {
+    console.error('Error during compression/buffering:', error);
+    throw error;
+  }
 
   const headers: Record<string, string> = {
     'content-type': 'text/plain;charset=UTF-8',
@@ -64,12 +85,10 @@ export async function uploadCombatAsync(
   const signedUploadUrl = jsonResponse.url;
 
   await fetch(signedUploadUrl, {
-    duplex: 'half',
     method: 'PUT',
-    body: compressedReadableStream,
+    body: compressedBuffer,
     headers,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any);
+  });
 
   return jsonResponse;
 }
