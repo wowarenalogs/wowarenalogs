@@ -8,8 +8,10 @@
       "https://wowarenalogs.com"
     ],
     "method": ["GET", "PUT"],
+    "headers": ["*"],
     "responseHeader": [
       "Content-Type",
+      "Content-Encoding",
       "x-goog-meta-ownerid",
       "x-goog-meta-wow-version",
       "x-goog-meta-wow-patch-rev",

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, protocol } from 'electron';
+import { app, BrowserWindow, dialog, netLog, protocol } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { autoUpdater } from 'electron-updater';
 import { closeSync, openSync, readSync, statSync } from 'fs-extra';
@@ -8,6 +8,8 @@ import path from 'path';
 import { BASE_REMOTE_URL } from './constants';
 import { globalStates } from './nativeBridge/modules/common/globalStates';
 import { nativeBridgeRegistry } from './nativeBridge/registry';
+
+netLog.startLogging('D:\\net-log-file.json');
 
 // Print versions because it's not always obvious what version of Node Electron is using
 // eslint-disable-next-line no-console
