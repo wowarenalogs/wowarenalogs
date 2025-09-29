@@ -32,39 +32,7 @@ export async function uploadCombatAsync(
   });
 
   const compressedReadableStream = readBufferStream.pipeThrough(new CompressionStream('gzip'));
-
-  // Buffer the entire compressed stream into memory
-  console.log('Starting to buffer compressed stream...');
-  let compressedBuffer: ArrayBuffer;
-  try {
-    const reader = compressedReadableStream.getReader();
-    const chunks: Uint8Array[] = [];
-    let totalLength = 0;
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      chunks.push(value);
-      totalLength += value.length;
-      console.log('Read chunk, size:', value.length, 'total so far:', totalLength);
-    }
-
-    // Combine all chunks into a single ArrayBuffer
-    const combined = new Uint8Array(totalLength);
-    let offset = 0;
-    for (const chunk of chunks) {
-      combined.set(chunk, offset);
-      offset += chunk.length;
-    }
-
-    compressedBuffer = combined.buffer.slice(combined.byteOffset, combined.byteOffset + combined.byteLength);
-    console.log('Compression complete, buffered size:', compressedBuffer.byteLength);
-  } catch (error) {
-    console.error('Error during compression/buffering:', error);
-    throw error;
-  }
+  console.log('Created compressed stream, ready to upload directly');
 
   const headers: Record<string, string> = {
     'content-type': 'text/plain;charset=UTF-8',
@@ -84,11 +52,15 @@ export async function uploadCombatAsync(
   const jsonResponse = (await storageSignerResponse.json()) as { id: string; url: string; matchExists: boolean };
   const signedUploadUrl = jsonResponse.url;
 
+  console.log('Starting streaming upload...');
   await fetch(signedUploadUrl, {
+    duplex: 'half',
     method: 'PUT',
-    body: compressedBuffer,
+    body: compressedReadableStream,
     headers,
-  });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any);
+  console.log('Upload complete!');
 
   return jsonResponse;
 }
