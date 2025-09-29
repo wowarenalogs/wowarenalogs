@@ -9,25 +9,30 @@ export async function uploadCombatAsync(
     patchRevision?: string;
   },
 ) {
-  console.log('xcopy log');
-  console.log('Starting compression...');
+  console.log('Starting compressed upload...');
 
-  // Create the full text buffer first (much simpler and more reliable)
-  const buffer =
-    combat.dataType === 'ArenaMatch'
-      ? combat.rawLines.join('\n')
-      : combat.rounds.map((c) => c.rawLines.join('\n')).join('\n');
+  // Create iterator for all lines
+  const allLines = combat.dataType === 'ArenaMatch' ? combat.rawLines : combat.rounds.flatMap((c) => c.rawLines);
 
-  console.log(`Created buffer for ${combat.dataType}, length: ${buffer.length} characters`);
+  console.log(`Streaming ${combat.dataType} with ${allLines.length} lines directly to compression`);
 
-  // Create a simple stream from the buffer (convert string to Uint8Array for compression)
+  // Stream lines directly without buffering the full text
   const textEncoder = new TextEncoder();
-  const encodedBuffer = textEncoder.encode(buffer);
+  let lineIndex = 0;
 
   const readBufferStream = new ReadableStream({
-    start(controller) {
-      controller.enqueue(encodedBuffer);
-      controller.close();
+    pull(controller) {
+      if (lineIndex >= allLines.length) {
+        controller.close();
+        return;
+      }
+
+      const line = allLines[lineIndex];
+      const lineWithNewline = lineIndex === allLines.length - 1 ? line : line + '\n';
+      const encodedLine = textEncoder.encode(lineWithNewline);
+
+      controller.enqueue(encodedLine);
+      lineIndex++;
     },
   });
 
