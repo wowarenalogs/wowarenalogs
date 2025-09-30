@@ -31,7 +31,7 @@ Our frontend, both /packages/desktop and /packages/web, use Next.js as the frame
 The easiest way to do this is by creating a `.env.local` file under both /packages/desktop and /packages/web, and put in the following content:
 
 ```
-NEXTAUTH_SECRET=wowarenalogs_not_really_a_secret
+NEXTAUTH_SECRET=wowarenalogs_not_real_secret
 BLIZZARD_CLIENT_ID=dummy_client_id
 BLIZZARD_CLIENT_SECRET=dummy_client_secret
 ```

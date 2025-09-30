@@ -2,9 +2,6 @@
   "name": "@wowarenalogs/web",
   "version": "1.0.0",
   "private": true,
-  "engines": {
-    "node": ">=16"
-  },
   "scripts": {
     "dev:web": "cross-env NODE_ENV=development next dev",
     "start:web": "next start",

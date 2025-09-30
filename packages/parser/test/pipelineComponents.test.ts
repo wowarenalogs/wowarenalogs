@@ -13,12 +13,12 @@ import { ILogLine } from '../src/types';
 
 describe('pipeline component tests', () => {
   describe('timezone on construction', () => {
-    xit('should use moment default if an invalid tz string is passed', () => {
+    it('should use moment default if an invalid tz string is passed', () => {
       const parser = new WoWCombatLogParser('retail', 'America/Goldshire');
       expect(parser._timezone).toBe(moment.tz.guess());
     });
 
-    xit('should set a normal timezone', () => {
+    it('should set a normal timezone', () => {
       const parser = new WoWCombatLogParser('retail', 'America/New_York');
       expect(parser._timezone).toBe('America/New_York');
     });
@@ -39,7 +39,7 @@ describe('pipeline component tests', () => {
   });
 
   describe('jsonparse', () => {
-    xit('handles interior quote escaped strings with commas', () => {
+    it('handles interior quote escaped strings with commas', () => {
       const errors = [];
       const parser = new WoWCombatLogParser('retail', 'America/New_York');
       parser.on('parser_error', (err) => {
@@ -58,7 +58,7 @@ describe('pipeline component tests', () => {
   });
 
   describe('dedup', () => {
-    xit('should remove duplicate lines', () => {
+    it('should remove duplicate lines', () => {
       const inputLines = fs
         .readFileSync(path.join(__dirname, 'testlogs', 'test_dedup.txt'))
         .toString()
@@ -97,91 +97,51 @@ describe('pipeline component tests', () => {
       expect(action.advancedActorItemLevel).toEqual(715);
     });
 
-    //10/22/2024 22:59:24.125-4  SPELL_DAMAGE,Player-60-0EB1BFB0,"Armsw-Stormrage-US",0x511,0x0,Creature-0-3023-2552-309-219250-00019822F3,"PvP Training Dummy",0x10a28,0x0,126664,"Charge",0x1,Creature-0-3023-2552-309-219250-00019822F3,0000000000000000,3299605,9915288,0,0,42857,0,0,0,1,0,0,0,2322.07,-2759.81,0,3.0012,80,15573,22247,-1,1,0,0,0,nil,nil,nil,ST
-    xit('should parse SPELL_DAMAGE for crit=true', () => {
-      const log =
-        '10/22/2024 22:59:24.125-4  SPELL_DAMAGE,Player-60-0EB1BFB0,"Armsw-Stormrage-US",0x511,0x0,Creature-0-3023-2552-309-219250-00019822F3,"PvP Training Dummy",0x10a28,0x0,126664,"Charge",0x1,Creature-0-3023-2552-309-219250-00019822F3,0000000000000000,3299605,9915288,0,0,42857,0,0,0,1,0,0,0,2322.07,-2759.81,0,3.0012,80,15573,22247,-1,1,0,0,0,nil,nil,nil,ST';
+    it('should parse _HEAL for crit=false', () => {
+      const log = `8/30/2025 08:56:38.899-4  SPELL_HEAL,Player-60-0F7BEF5D,"Elementoldyu-Stormrage-US",0x511,0x80000000,Player-60-0F7BEF5D,"Elementoldyu-Stormrage-US",0x511,0x80000000,8004,"Healing Surge",0x8,Player-60-0F7BEF5D,0000000000000000,8395030,11003190,29328,98531,83118,2380,0,0,11,0,175,0,2107.07,-4614.00,85,6.2192,664,873002,873002,0,0,nil`;
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
-
       expect(logLine).not.toBeNull();
-
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
-      expect(action.amount).toEqual(-15573);
+      expect(action.effectiveAmount).toEqual(873002);
       expect(action.isCritical).toEqual(false);
     });
 
-    xit('should parse SPELL_DAMAGE for crit=true', () => {
-      const log =
-        '2/6/2024 00:39:34.038  SPELL_DAMAGE,Player-57-0ABB28BC,"Raikendk-Illidan",0x10548,0x0,Player-57-0BDDB09C,"Notórious-Illidan",0x512,0x0,253597,"Inexorable Assault",0x10,Player-57-0BDDB09C,0000000000000000,21506,22520,898,342,524,0,0,8513,8513,0,-2022.75,6669.33,0,4.8573,125,206,203,-1,16,5,4,2,1,3,nil';
+    it('should parse _HEAL for crit=true', () => {
+      const log = `8/30/2025 08:56:40.501-4  SPELL_HEAL,Player-60-0F7BEF5D,"Elementoldyu-Stormrage-US",0x511,0x80000000,Player-60-0F7BEF5D,"Elementoldyu-Stormrage-US",0x511,0x80000000,8004,"Healing Surge",0x8,Player-60-0F7BEF5D,0000000000000000,10267251,11003190,29328,98531,83118,2380,0,0,11,0,175,0,2107.07,-4614.00,85,6.2192,664,1760154,1760154,0,0,1`;
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
-
       expect(logLine).not.toBeNull();
-
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
-      expect(action.amount).toEqual(-206);
+      expect(action.effectiveAmount).toEqual(1760154);
       expect(action.isCritical).toEqual(true);
     });
 
-    xit('should parse COMBATANT_INFO with weird talent data', () => {
-      // See: [,(102378,126441,1) section
-      // array of talents has some weird first entry that is an empty object and prints as an empty string :\
-      const log =
-        '9/27/2024 21:15:17.791-8  COMBATANT_INFO,Player-57-0D7FB856,0,12056,58463,330404,16207,0,0,0,2072,2072,2072,0,0,4825,4825,4825,0,8729,18376,18376,18376,36664,253,[,(102378,126441,1),(94987,117584,1),(94957,117554,1),(94959,123779,1),(94960,117557,1),(94961,117558,1),(94968,117565,1),(94974,117571,1),(94982,117579,1),(94983,117580,1),(94986,117583,1),(94993,117590,1),(99832,123348,1),(102292,126352,1),(102336,126397,1),(102337,126398,1),(102339,126400,1),(102340,126402,1),(102343,126405,1),(102344,126406,1),(102345,126407,1),(102346,126408,1),(102347,126409,1),(102348,126410,2),(102349,126411,1),(102351,126413,1),(102352,126414,1),(102353,126415,1),(102354,126416,1),(102357,126419,1),(102358,126420,1),(102360,126422,1),(102361,126423,1),(102364,126426,2),(102365,126427,1),(102367,126430,2),(102368,126431,1),(102369,126432,1),(102373,126436,1),(102376,126439,1),(102377,126440,1),(102380,126443,1),(102381,126444,1),(102386,126449,1),(102387,126450,1),(102388,126451,1),(102390,126453,1),(102391,126454,1),(102393,126457,1),(102395,126459,1),(102396,126460,2),(102397,126461,1),(102401,126465,1),(102403,126467,1),(102404,126468,1),(102405,126469,1),(102406,126470,1),(102407,126471,1),(102408,126472,1),(102409,126473,1),(102410,126474,1),(102411,126475,1),(102414,126478,1),(102415,126480,1),(102416,126481,1),(102417,126482,1),(102418,126483,1),(102421,126486,1),(102422,126488,1),(102739,126830,1)],(0,202746,356719,203340),[(212020,639,(),(11086,10273,10837,10832,11087,10371,1498,10876),()),(218431,626,(),(10289,11084,10837,10832,1485),()),(218380,626,(),(10289,11084,1485),()),(0,0,(),(),()),(217135,639,(),(11318,9626,10842,10520,8960,8794),()),(218415,626,(),(10289,11084,10837,10832,1485),()),(218407,626,(),(10289,11084,1485),()),(217134,639,(),(11318,9625,10842,10520,8960,8794),()),(223838,636,(),(10278,11141,10377,10837,10832,3172,10255),()),(218369,626,(),(10289,11084,1485),()),(218428,626,(),(10289,11084,10837,10832,1485),()),(218427,626,(),(10289,11084,10837,10832,1485),()),(218422,626,(),(10289,11084,1485),()),(218421,626,(),(10289,11084,1485),()),(223842,636,(),(10278,11141,10377,3172,10255),()),(218446,626,(),(10289,11084,1485),()),(0,0,(),(),()),(5976,1,(),(),())],[Player-86-0A3DB8BD,21562,Player-57-0D702BDD,1126],125,38,1204,209';
-      let logLine = null;
-      from([log])
-        .pipe(stringToLogLine('America/New_York'))
-        .forEach((line) => (logLine = line));
-
-      expect(logLine).not.toBeNull();
-    });
-
-    xit('should parse _HEAL for crit=false', () => {
-      const log = `1/16/2024 10:29:00.116  SPELL_PERIODIC_HEAL,Player-57-0D68496B,"Gumbys-Illidan",0x548,0x0,Player-3693-0A0860FC,"Currency-Kel'Thuzad",0x548,0x0,61295,"Riptide",0x8,Player-3693-0A0860FC,0000000000000000,409530,409530,10726,1421,8309,0,1,0,1000,0,1275.36,1664.57,0,0.1180,417,2988,2988,2988,0,nil`;
+    it('should parse SWING_DAMAGE for crit=false', () => {
+      const log = `8/30/2025 09:00:14.436-4  SWING_DAMAGE,Player-60-0F7BEF5D,"Elementoldyu-Stormrage-US",0x511,0x80000000,Creature-0-4220-1-520-114840-00003283C4,"PvP Training Dummy",0x10a28,0x80000000,Player-60-0F7BEF5D,0000000000000000,18247768,18247768,33911,140212,101548,3128,0,0,11,0,175,0,2116.85,-4620.22,85,5.0170,718,13886,19837,-1,1,0,0,0,nil,nil,nil`;
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
       expect(logLine).not.toBeNull();
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.amount).toEqual(-13886);
       expect(action.isCritical).toEqual(false);
     });
 
-    xit('should parse _HEAL for crit=true', () => {
-      const log = `1/16/2024 10:29:00.116  SPELL_PERIODIC_HEAL,Player-57-0D68496B,"Gumbys-Illidan",0x548,0x0,Player-3693-0A0860FC,"Currency-Kel'Thuzad",0x548,0x0,61295,"Riptide",0x8,Player-3693-0A0860FC,0000000000000000,409530,409530,10726,1421,8309,0,1,0,1000,0,1275.36,1664.57,0,0.1180,417,2988,2988,2988,0,1`;
+    it('should parse SWING_DAMAGE for crit=true', () => {
+      const log = `8/30/2025 09:00:16.353-4  SWING_DAMAGE,Player-60-0F7BEF5D,"Elementoldyu-Stormrage-US",0x511,0x80000000,Creature-0-4220-1-520-114840-00003283C4,"PvP Training Dummy",0x10a28,0x80000000,Player-60-0F7BEF5D,0000000000000000,18247768,18247768,33911,140212,101548,3128,0,0,11,0,175,0,2116.85,-4620.22,85,5.0170,718,26061,18614,-1,1,0,0,0,1,nil,nil`;
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
         .forEach((line) => (logLine = line));
       expect(logLine).not.toBeNull();
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
-      expect(action.isCritical).toEqual(true);
-    });
-
-    xit('should parse SWING_DAMAGE for crit=false', () => {
-      const log = `1/16/2024 10:29:10.293  SWING_DAMAGE,Player-3209-0B7ABE8D,"Tokari-Azralon",0x512,0x20,Player-127-0A64DF62,"Billgluckman-Drak'Tharon",0x10548,0x0,Player-3209-0B7ABE8D,0000000000000000,349620,349620,11105,1420,8393,0,1,507,1000,0,1288.34,1644.27,0,3.2055,418,3502,6288,-1,1,0,0,0,nil,nil,nil`;
-      let logLine = null;
-      from([log])
-        .pipe(stringToLogLine('America/New_York'))
-        .forEach((line) => (logLine = line));
-      expect(logLine).not.toBeNull();
-      const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
-      expect(action.isCritical).toEqual(false);
-    });
-
-    xit('should parse SWING_DAMAGE for crit=true', () => {
-      const log = `1/16/2024 10:29:10.293  SWING_DAMAGE,Player-3209-0B7ABE8D,"Tokari-Azralon",0x512,0x20,Player-127-0A64DF62,"Billgluckman-Drak'Tharon",0x10548,0x0,Player-3209-0B7ABE8D,0000000000000000,349620,349620,11105,1420,8393,0,1,507,1000,0,1288.34,1644.27,0,3.2055,418,3502,6288,-1,1,0,0,0,1,nil,nil`;
-      let logLine = null;
-      from([log])
-        .pipe(stringToLogLine('America/New_York'))
-        .forEach((line) => (logLine = line));
-      expect(logLine).not.toBeNull();
-      const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
+      expect(action.amount).toEqual(-26061);
       expect(action.isCritical).toEqual(true);
     });
 
@@ -277,26 +237,6 @@ describe('pipeline component tests', () => {
 
       const action = new PartyKill(logLine as unknown as ILogLine);
       expect(action.destUnitName).toBe('BrokenPython');
-    });
-
-    xit('should parse Classic log correctly', () => {
-      const log =
-        '5/21/2024 16:35:39.437  SPELL_DAMAGE,Player-4395-01C5EEA8,"Assinoth-Whitemane",0x511,0x0,Player-4700-01A0750A,"Darshath-Kirtonos",0x10548,0x0,17348,"Hemorrhage",0x1,Player-4700-01A0750A,0000000000000000,89,100,28,327,957,0,4844,7239,0,4028.03,2925.57,0,4.7879,75,371,389,-1,1,0,0,0,nil,nil,nil';
-      let logLine = null;
-      from([log])
-        .pipe(stringToLogLine('America/New_York'))
-        .forEach((line) => (logLine = line));
-
-      expect(logLine).not.toBeNull();
-
-      const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'classic');
-      expect(action.amount).toEqual(-371);
-      expect(action.advanced).toEqual(true);
-      expect(action.advancedActorCurrentHp).toEqual(89);
-      expect(action.advancedActorMaxHp).toEqual(100);
-      expect(action.advancedActorPositionX).toEqual(4028.03);
-      expect(action.advancedActorPositionY).toEqual(2925.57);
-      expect(action.advancedActorItemLevel).toEqual(75);
     });
 
     // These two lines produced the combat text:

@@ -61,13 +61,9 @@ export const LatestMatchMonitor = () => {
           >
             Manually import log files
           </button>
-          <label htmlFor="toggle-troubleshooter" className="btn btn-link text-base-content">
-            Not seeing your matches?
-          </label>
           {window.wowarenalogs.platform === 'win32' && (
             <div className="flex flex-col">
               <div className="flex flex-row items-center gap-2">
-                <div className="badge badge-lg badge-primary">NEW</div>
                 <h1 className="text-2xl font-bold">Want to record video?</h1>
               </div>
               <Link href="/settings">
@@ -75,6 +71,20 @@ export const LatestMatchMonitor = () => {
               </Link>
             </div>
           )}
+          <label htmlFor="toggle-troubleshooter" className="btn btn-link text-base-content">
+            Not seeing your matches?
+          </label>
+          <div>
+            <button
+              className="btn btn-sm btn-primary text-white"
+              onClick={() => {
+                window.wowarenalogs.links?.openExternalURL('https://www.patreon.com/armsperson');
+              }}
+            >
+              WoW Arena Logs is ad free, open source, and supported by the community. If you can, please consider
+              supporting us on Patreon.
+            </button>
+          </div>
         </div>
       </div>
 
