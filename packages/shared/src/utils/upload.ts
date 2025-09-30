@@ -63,8 +63,9 @@ export async function uploadCombatAsync(
     method: 'PUT',
     body: compressedReadableStream,
     headers,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any);
+  } as {
+    duplex: string; // jank polyfill for the weird typings here. param is required for stream requests.
+  } & RequestInit);
   console.log('Upload complete!');
 
   return jsonResponse;

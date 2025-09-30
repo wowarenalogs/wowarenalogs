@@ -8,7 +8,6 @@
       "https://wowarenalogs.com"
     ],
     "method": ["GET", "PUT"],
-    "headers": ["*"],
     "responseHeader": [
       "Content-Type",
       "Content-Encoding",
