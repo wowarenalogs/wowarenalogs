@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { IArenaMatch, IShuffleMatch } from '@wowarenalogs/parser';
 import moment from 'moment-timezone';
 
@@ -8,13 +9,39 @@ export async function uploadCombatAsync(
     patchRevision?: string;
   },
 ) {
-  const buffer =
-    combat.dataType === 'ArenaMatch'
-      ? combat.rawLines.join('\n')
-      : combat.rounds.map((c) => c.rawLines.join('\n')).join('\n');
+  console.log('Starting compressed upload...');
+
+  // Create iterator for all lines
+  const allLines = combat.dataType === 'ArenaMatch' ? combat.rawLines : combat.rounds.flatMap((c) => c.rawLines);
+
+  console.log(`Streaming ${combat.dataType} with ${allLines.length} lines directly to compression`);
+
+  // Stream lines directly without buffering the full text
+  const textEncoder = new TextEncoder();
+  let lineIndex = 0;
+
+  const readBufferStream = new ReadableStream({
+    pull(controller) {
+      if (lineIndex >= allLines.length) {
+        controller.close();
+        return;
+      }
+
+      const line = allLines[lineIndex];
+      const lineWithNewline = lineIndex === allLines.length - 1 ? line : line + '\n';
+      const encodedLine = textEncoder.encode(lineWithNewline);
+
+      controller.enqueue(encodedLine);
+      lineIndex++;
+    },
+  });
+
+  const compressedReadableStream = readBufferStream.pipeThrough(new CompressionStream('gzip'));
+  console.log('Created compressed stream, ready to upload directly');
 
   const headers: Record<string, string> = {
     'content-type': 'text/plain;charset=UTF-8',
+    'content-encoding': 'gzip',
     'x-goog-meta-wow-version': combat.wowVersion,
     'x-goog-meta-ownerid': ownerId,
     'x-goog-meta-starttime-utc': combat.startTime.toString(),
@@ -30,11 +57,16 @@ export async function uploadCombatAsync(
   const jsonResponse = (await storageSignerResponse.json()) as { id: string; url: string; matchExists: boolean };
   const signedUploadUrl = jsonResponse.url;
 
+  console.log('Starting streaming upload...');
   await fetch(signedUploadUrl, {
+    duplex: 'half',
     method: 'PUT',
-    body: buffer,
+    body: compressedReadableStream,
     headers,
-  });
+  } as {
+    duplex: string; // jank polyfill for the weird typings here. param is required for stream requests.
+  } & RequestInit);
+  console.log('Upload complete!');
 
   return jsonResponse;
 }
