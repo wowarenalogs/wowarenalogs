@@ -2,7 +2,7 @@
   "name": "wowarenalogs",
   "productName": "WoW Arena Logs",
   "license": "MIT",
-  "version": "5.4.0",
+  "version": "6.0.0",
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
@@ -12,7 +12,7 @@
   },
   "main": "packages/app/dist/main.bundle.js",
   "engines": {
-    "node": ">=16",
+    "node": ">=22",
     "npm": ">=8.6.0"
   },
   "workspaces": [
@@ -92,7 +92,7 @@
     "@types/ps-node": "^0.1.2",
     "concurrently": "^7.0.0",
     "cross-env": "^7.0.3",
-    "electron": "^27.0.2",
+    "electron": "^38",
     "electron-builder": "^25.1.8",
     "eslint": "^8.49.0",
     "husky": "^7.0.4",

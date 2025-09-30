@@ -1,0 +1,82 @@
+name: build-app
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  build_on_win:
+    runs-on: windows-latest
+    env:
+      CI: false
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CSC_LINK: ${{ secrets.CSC_LINK }}
+      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - name: install node-gyp
+        run: npm i -g node-gyp@latest
+      - name: update path variables
+        run: set 'path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin'
+      - name: clean npm cache
+        run: npm cache clean -f
+      - name: install dependencies
+        run: npm ci
+      - name: build for windows
+        run: npm run build:app:windows
+  build_on_mac:
+    if: "contains(github.event.commits[0].message, '[build-for-mac]')"
+    runs-on: macos-latest
+    env:
+      CI: false
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CSC_LINK: ${{ secrets.CSC_LINK }}
+      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: inst
+        run: pip install requests
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - name: update node_canvas deps
+        run: brew install pkg-config cairo pango libpng jpeg giflib librsvg
+      - name: install node-gyp
+        run: npm i -g node-gyp@latest
+      - name: clean npm cache
+        run: npm cache clean -f
+      - name: install dependencies
+        run: npm ci
+      - name: install dmg-license
+        run: npm i dmg-license
+      - name: build for mac
+        run: npm run build:app:mac
+  build_on_linux:
+    runs-on: ubuntu-latest
+    env:
+      CI: false
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - name: install node-gyp
+        run: npm i -g node-gyp@latest
+      - name: clean npm cache
+        run: npm cache clean -f
+      - name: install dependencies
+        run: npm ci
+      - name: build for linux
+        run: npm run build:app:linux

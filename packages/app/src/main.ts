@@ -9,6 +9,10 @@ import { BASE_REMOTE_URL } from './constants';
 import { globalStates } from './nativeBridge/modules/common/globalStates';
 import { nativeBridgeRegistry } from './nativeBridge/registry';
 
+// Print versions because it's not always obvious what version of Node Electron is using
+// eslint-disable-next-line no-console
+console.log(process.versions);
+
 function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
 
