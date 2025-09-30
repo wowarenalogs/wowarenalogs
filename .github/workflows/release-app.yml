@@ -29,7 +29,7 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 22
       - name: install windows build tools
         run: npm i -g windows-build-tools@4.0.0
       - name: install node-gyp
@@ -83,7 +83,7 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 22
       - name: update node_canvas deps
         run: brew install pkg-config cairo pango libpng jpeg giflib librsvg
       - name: install node-gyp
@@ -126,7 +126,7 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 22
       - name: install node-gyp
         run: npm i -g node-gyp@latest
       - name: clean npm cache

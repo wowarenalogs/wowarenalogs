@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=16"
+    "node": ">=22"
   },
   "scripts": {
     "dev:desktop": "cross-env NODE_ENV=development next dev",

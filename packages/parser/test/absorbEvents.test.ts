@@ -17,24 +17,28 @@ describe('parsing a log with disc priest shields', () => {
     results.shuffles = loaded.shuffles;
   });
 
-  xit('should allow consumers to examine all events', () => {
+  it('should allow consumers to examine all events', () => {
     expect(results.combats).toHaveLength(1);
     // Pattern 1: instanceof for events more specific than CombatAction
     const absorbs = results.combats[0].events.filter((e) => e instanceof CombatAbsorbAction) as CombatAbsorbAction[];
-    expect(absorbs.length).toBe(198);
-    expect(absorbs.filter((a) => a.absorbedAmount > 200).length).toBe(183);
+    expect(absorbs.length).toBe(78);
+    expect(absorbs.filter((a) => a.absorbedAmount > 450000).length).toBe(7);
 
     // Pattern 2: events by name from logline values
     const castFailedEvents = results.combats[0].events.filter((e) => e.logLine.event === 'SPELL_CAST_FAILED');
-    expect(castFailedEvents.length).toBe(135);
+    expect(castFailedEvents.length).toBe(45);
   });
 
-  xit('should count spell absorbs correctly', () => {
-    // Disc priest 286d3193-c3bb-4033-b1a0-b3318a06e0d5, InvolvedGibbon
-    // teammate ARMS xxx InternalSwift 2e292443-3689-451b-a125-d99e463ee255
+  it('should count spell absorbs correctly', () => {
+    // Disc priest Player-11-0E932E68,"Whitejudas-Tichondrius-US"
+    const discPriestId = 'Player-11-0E932E68';
+    const discPriestTeammateId = 'Player-11-0E6358FC';
+    // teammate surv Player-11-0E6358FC,"Miahunt-Tichondrius-US"
     // opponents:
-    // BM ExternalSwordtail c5f3ff0a-040a-4e88-a171-59d4ceca1a42
-    // RET PromisingPigeon 28ba73a6-fc64-4a47-844e-5e0d813d5a49
+    // MM Toiphatjack Player-11-0E8D6834,"Tophatjack-Tichondrius-US"
+    const enemyMMId = 'Player-11-0E8D6834';
+    // Boomy Pepeggas Player-63-0CAF140F,"Pepeggas-Ysera-US"
+    // const enemyBoomyId = 'Player-63-0CAF140F';
 
     // Absorbs out should only be counting shields the caster owns
     Object.keys(results.combats[0].units).forEach((k) => {
@@ -50,27 +54,33 @@ describe('parsing a log with disc priest shields', () => {
       });
     });
 
-    // ExternalSwordtail casts Flayed Shot on InternalSwift a shield cast by InvolvedGibbon absorbs it
-    const sampleCast = results.combats[0].units['286d3193-c3bb-4033-b1a0-b3318a06e0d5'].absorbsOut[5];
+    // 8/31/2025 01:31:31.4909  SPELL_ABSORBED,Player-11-0E8D6834,"Tophatjack-Tichondrius-US",0x548,0x80000000,Player-11-0E6358FC,"Miahunt-Tichondrius-US",0x10512,0x80000008,257045,"속사",0x1,Player-11-0E932E68,"Whitejudas-Tichondrius-US",0x511,0x80000010,17,"신의 권능: 보호막",0x2,121934,506362,nil
 
-    expect(sampleCast.shieldSpellName).toBe('Power Word: Shield');
-    expect(sampleCast.destUnitName).toBe('InternalSwift');
-    expect(sampleCast.srcUnitName).toBe('ExternalSwordtail');
-    expect(sampleCast.shieldOwnerUnitName).toBe('InvolvedGibbon');
+    // enemyMMId casts 257045 (rapid fire) on discPriestTeammateId a shield cast by discPriestId absorbs it
+    // with 121934 (power word shield)
+    const sampleCast = results.combats[0].units[discPriestId].absorbsOut[28];
 
-    // Total absorb by LiberalWildebeast
-    const totalAbs = results.combats[0].units['286d3193-c3bb-4033-b1a0-b3318a06e0d5'].absorbsOut.reduce(
+    expect(sampleCast.spellId).toBe('257045');
+    expect(sampleCast.destUnitName).toBe('Miahunt-Tichondrius-US');
+    expect(sampleCast.srcUnitName).toBe('Tophatjack-Tichondrius-US');
+    expect(sampleCast.shieldSpellId).toBe('17');
+    expect(sampleCast.shieldSpellName).toBe('신의 권능: 보호막');
+    expect(sampleCast.shieldOwnerUnitName).toBe('Whitejudas-Tichondrius-US');
+
+    // Total absorb by disc
+    const totalAbs = results.combats[0].units[discPriestId].absorbsOut.reduce(
       (prev, cur) => prev + cur.absorbedAmount,
       0,
     );
-    expect(totalAbs).toBe(97139);
+    expect(totalAbs).toBe(12582429);
 
-    // Total absorb-damage by DearShark
-    const totalDamageAbs = results.combats[0].units['2e292443-3689-451b-a125-d99e463ee255'].absorbsDamaged.reduce(
+    // Total absorb-damage by discPriestTeammate
+    const totalDamageAbs = results.combats[0].units[discPriestTeammateId].absorbsDamaged.reduce(
       (prev, cur) => prev + cur.absorbedAmount,
       0,
     );
-    expect(totalDamageAbs).toBe(87929);
-    expect(results.combats[0].units['2e292443-3689-451b-a125-d99e463ee255'].absorbsDamaged.length).toBe(37);
+    expect(totalDamageAbs).toBe(855664);
+
+    expect(results.combats[0].units[enemyMMId].absorbsDamaged.length).toBe(38);
   });
 });

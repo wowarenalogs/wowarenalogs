@@ -17,6 +17,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "noErrorTruncation": true,
-    "jsx": "react-jsx"
+    "jsx": "react"
   }
 }
