@@ -50,11 +50,17 @@ export async function handler(file: any, _context: any) {
       return;
     }
     const stub = createStubDTOFromArenaMatch(arenaMatch, ownerId, logObjectUrl);
+    console.time('firestore.doc');
     const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
+    console.timeEnd('firestore.doc');
     console.log(`writing ${matchStubsFirestore}/${stub.id}`);
+    console.time('firestore.set');
     await document.set(instanceToPlain(stub));
+    console.timeEnd('firestore.set');
     try {
+      console.time('logCombatStatsAsync');
       await logCombatStatsAsync(arenaMatch, stub, ownerId);
+      console.timeEnd('logCombatStatsAsync');
     } catch (e) {
       console.error(e);
     }
@@ -66,10 +72,16 @@ export async function handler(file: any, _context: any) {
     const stubs = createStubDTOFromShuffleMatch(shuffleMatch, ownerId, logObjectUrl);
     stubs.forEach(async ([stub, round]) => {
       console.log(`processing stub ${stub.id}`);
+      console.time('firestore.doc');
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
+      console.timeEnd('firestore.doc');
+      console.time('firestore.set');
       await document.set(instanceToPlain(stub));
+      console.timeEnd('firestore.set');
       try {
+        console.time('logCombatStatsAsync');
         await logCombatStatsAsync(round, stub, ownerId);
+        console.timeEnd('logCombatStatsAsync');
       } catch (e) {
         console.error(e);
       }
