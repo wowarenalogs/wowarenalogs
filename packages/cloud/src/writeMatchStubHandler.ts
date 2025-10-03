@@ -26,8 +26,11 @@ export async function handler(file: any, _context: any) {
   const fileUrl = `https://storage.googleapis.com/${file.bucket}/${file.name}`;
 
   console.log(`Opening ${fileUrl}`);
+  console.time('fetch log file');
   const response = await fetch(fileUrl);
   const textBuffer = await response.text();
+  console.timeEnd('fetch log file');
+  console.log(`Read ${textBuffer.length} bytes from ${fileUrl}`);
 
   const ownerId = response.headers.get('x-goog-meta-ownerid') || 'unknown-uploader';
   const wowVersion = (response.headers.get('x-goog-meta-wow-version') || 'retail') as WowVersion;
@@ -36,7 +39,9 @@ export async function handler(file: any, _context: any) {
   console.log(`Reading file: ${response.status} ${textBuffer.slice(0, 50)}`);
   console.log(`Parsed timezone ${logTimezone}`);
 
+  console.time('parseFromStringArrayAsync');
   const parseResults = await parseFromStringArrayAsync(textBuffer.split('\n'), wowVersion, logTimezone);
+  console.timeEnd('parseFromStringArrayAsync');
   console.log(
     `Parsed arenaMatchesLength=${parseResults.arenaMatches.length} shuffleMatchesLength=${parseResults.shuffleMatches.length}`,
   );

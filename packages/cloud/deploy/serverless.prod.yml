@@ -3,7 +3,7 @@ service: gcp-wowarenalogs
 provider:
   name: google
   stage: prod
-  runtime: nodejs18
+  runtime: nodejs20
   region: us-central1
   project: wowarenalogs
   credentials: wowarenalogs.json
