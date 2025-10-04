@@ -24,7 +24,7 @@
   "dependencies": {
     "@amplitude/analytics-browser": "^2.3.3",
     "@apollo/client": "^3.6.9",
-    "@google-cloud/firestore": "^5.0.2",
+    "@google-cloud/firestore": "^6.2.0",
     "@google-cloud/storage": "^6.7.0",
     "@inlet/react-pixi": "^6.8.0",
     "@tailwindcss/typography": "^0.5.7",
