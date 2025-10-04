@@ -23,6 +23,7 @@ const firestore = new Firestore({
 // In the Google code they actually type file as `data:{}`
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handler(file: any, _context: any) {
+  console.time('writeMatchHandler');
   const fileUrl = `https://storage.googleapis.com/${file.bucket}/${file.name}`;
 
   console.log(`Opening ${fileUrl}`);
@@ -52,6 +53,7 @@ export async function handler(file: any, _context: any) {
     console.log(arenaMatch.startInfo.bracket);
     if (arenaMatch.startInfo.bracket === 'Rated BG') {
       console.log('RBG detected, skipping');
+      console.timeEnd('writeMatchHandler');
       return;
     }
     const stub = createStubDTOFromArenaMatch(arenaMatch, ownerId, logObjectUrl);
@@ -69,29 +71,34 @@ export async function handler(file: any, _context: any) {
     } catch (e) {
       console.error(e);
     }
+    console.log('match writring done');
+    console.timeEnd('writeMatchHandler');
     return;
   }
 
   if (parseResults.shuffleMatches.length > 0) {
+    console.time('writing shuffle match data');
     const shuffleMatch = parseResults.shuffleMatches[0];
     const stubs = createStubDTOFromShuffleMatch(shuffleMatch, ownerId, logObjectUrl);
-    stubs.forEach(async ([stub, round]) => {
+    const promises = stubs.map(async ([stub, round]) => {
       console.log(`processing stub ${stub.id}`);
-      console.time('firestore.doc');
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
-      console.timeEnd('firestore.doc');
-      console.time('firestore.set');
+      console.time(`firestore.set-${round.id}`);
       await document.set(instanceToPlain(stub));
-      console.timeEnd('firestore.set');
+      console.timeEnd(`firestore.set-${round.id}`);
       try {
-        console.time('logCombatStatsAsync');
+        console.time(`logCombatStatsAsync-${round.id}`);
         await logCombatStatsAsync(round, stub, ownerId);
-        console.timeEnd('logCombatStatsAsync');
+        console.timeEnd(`logCombatStatsAsync-${round.id}`);
       } catch (e) {
         console.error(e);
       }
     });
+    await Promise.allSettled(promises);
+    console.timeEnd('writing shuffle match data');
+    console.timeEnd('writeMatchHandler');
     return;
   }
   console.log('Parser did not find useable matches');
+  console.timeEnd('writeMatchHandler');
 }

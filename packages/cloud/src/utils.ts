@@ -59,6 +59,10 @@ export function parseFromStringArrayAsync(
 }
 
 export const logCombatStatsAsync = async (combat: AtomicArenaCombat, stub: FirebaseDTO, ownerId: string) => {
+  if (process.env.ENV_GCP_PROJECT !== 'wowarenalogs') {
+    console.log('Not in production, skipping combat stats logging');
+    return;
+  }
   const prisma = new PrismaClient();
 
   const averageMMR = stub.extra.matchAverageMMR;

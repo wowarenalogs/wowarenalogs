@@ -3,6 +3,20 @@
 # Common configuration and functions for WoW Arena Logs Cloud Functions deployment
 # This file contains shared variables and functions used by both dev and prod deployment scripts
 
+# Some notes on 1-time config:
+
+# grant pub/sub role to csa
+# SERVICE_ACCOUNT="$(gcloud storage service-agent --project=wowarenalogs)"
+# gcloud projects add-iam-policy-binding wowarenalogs --member="serviceAccount:${SERVICE_ACCOUNT}@gs-project-accounts.iam.gserviceaccount.com" --role="roles/pubsub.publisher"
+
+# grant service account token creator role to csa
+# gcloud projects add-iam-policy-binding PROJECT_ID \
+#     --member=serviceAccount:service-PROJECT_NUMBER@gcp-sa-pubsub.iam.gserviceaccount.com \
+#     --role=roles/iam.serviceAccountTokenCreator
+
+# project number lookup:
+# gcloud projects describe PROJECT_ID --format='value(projectNumber)'
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -19,6 +33,26 @@ SERVICE_NAME="gcp-wowarenalogs"
 check_gcloud() {
     if ! command -v gcloud &> /dev/null; then
         echo -e "${RED}Error: gcloud CLI is not installed. Please install it first.${NC}"
+        exit 1
+    fi
+}
+
+# Function to check required environment variables
+check_env_vars() {
+    local environment=$1  # "dev" or "prod"
+    local missing_vars=()
+    
+    # ENV_SQL_URL is only required for production
+    if [ "${environment}" = "prod" ] && [ -z "${ENV_SQL_URL:-}" ]; then
+        missing_vars+=("ENV_SQL_URL")
+    fi
+    
+    if [ ${#missing_vars[@]} -ne 0 ]; then
+        echo -e "${RED}Error: Required environment variables are not set:${NC}"
+        for var in "${missing_vars[@]}"; do
+            echo -e "${RED}  - ${var}${NC}"
+        done
+        echo -e "${YELLOW}Please set these environment variables before running the deployment script.${NC}"
         exit 1
     fi
 }

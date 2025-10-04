@@ -15,13 +15,14 @@ HANDLER="writeMatchStubHandler"
 BUCKET_NAME="${PROJECT_ID}-log-files-prod"
 CREDENTIALS_FILE="wowarenalogs-public-dev.json"
 
-# Environment variables for the function
-ENV_VARS="ENV_MATCH_STUBS_FIRESTORE=match-stubs-prod,ENV_LOG_FILES_BUCKET=${BUCKET_NAME},ENV_GCP_PROJECT=${PROJECT_ID},ENV_SERVICE_NAME=${SERVICE_NAME},ENV_SQL_URL=${ENV_SQL_URL}"
+# Environment variables for the function (ENV_SQL_URL excluded for dev)
+ENV_VARS="ENV_MATCH_STUBS_FIRESTORE=match-stubs-prod,ENV_LOG_FILES_BUCKET=${BUCKET_NAME},ENV_GCP_PROJECT=${PROJECT_ID},ENV_SERVICE_NAME=${SERVICE_NAME}"
 
 echo -e "${GREEN}Starting deployment of ${FUNCTION_NAME} to ${PROJECT_ID} (Development)...${NC}"
 
 # Check prerequisites
 check_gcloud
+check_env_vars "dev"
 
 # Set up authentication
 setup_auth ${PROJECT_ID} ${CREDENTIALS_FILE}

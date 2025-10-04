@@ -21,7 +21,7 @@ This directory contains deployment scripts that replace the serverless framework
 1. **Google Cloud SDK**: Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
 2. **Authentication**: Ensure you're authenticated with the appropriate Google Cloud project
 3. **Node.js and npm**: Required for building the functions
-4. **Environment Variables**: Set `ENV_SQL_URL` environment variable
+4. **Environment Variables**: Set `ENV_SQL_URL` environment variable (required for production only)
 
 ## Usage
 
@@ -159,7 +159,7 @@ provider:
 1. **Authentication errors**: Run `gcloud auth login` and `gcloud auth application-default login`
 2. **Permission errors**: Ensure your account has Cloud Functions Admin and Storage Admin roles
 3. **Build errors**: Make sure all dependencies are installed with `npm install`
-4. **Environment variables**: Ensure `ENV_SQL_URL` is set in your environment
+4. **Environment variables**: Ensure `ENV_SQL_URL` is set in your environment (production only)
 
 ### Verification
 
@@ -177,4 +177,4 @@ gcloud functions describe writeMatchStub --region=us-central1
 
 Make sure to set the following environment variables before running the scripts:
 
-- `ENV_SQL_URL`: Database connection string for your environment
+- `ENV_SQL_URL`: Database connection string for your environment (production only)

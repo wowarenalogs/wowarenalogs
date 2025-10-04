@@ -20,6 +20,7 @@ echo -e "${GREEN}Starting deployment of Cloud Functions to ${PROJECT_ID} (Produc
 
 # Check prerequisites
 check_gcloud
+check_env_vars "prod"
 
 # Set up authentication
 setup_auth ${PROJECT_ID} ${CREDENTIALS_FILE}
