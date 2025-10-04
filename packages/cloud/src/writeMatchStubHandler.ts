@@ -80,12 +80,14 @@ export async function handler(file: any, _context: any) {
     console.time('writing shuffle match data');
     const shuffleMatch = parseResults.shuffleMatches[0];
     const stubs = createStubDTOFromShuffleMatch(shuffleMatch, ownerId, logObjectUrl);
-    const promises = stubs.map(async ([stub, round]) => {
+    const firestorePromises = stubs.map(async ([stub, round]) => {
       console.log(`processing stub ${stub.id}`);
       const document = firestore.doc(`${matchStubsFirestore}/${stub.id}`);
       console.time(`firestore.set-${round.id}`);
       await document.set(instanceToPlain(stub));
       console.timeEnd(`firestore.set-${round.id}`);
+    });
+    const prismaPromises = stubs.map(async ([stub, round]) => {
       try {
         console.time(`logCombatStatsAsync-${round.id}`);
         await logCombatStatsAsync(round, stub, ownerId);
@@ -94,7 +96,7 @@ export async function handler(file: any, _context: any) {
         console.error(e);
       }
     });
-    await Promise.allSettled(promises);
+    await Promise.allSettled([...firestorePromises, ...prismaPromises]);
     console.timeEnd('writing shuffle match data');
     console.timeEnd('writeMatchHandler');
     return;

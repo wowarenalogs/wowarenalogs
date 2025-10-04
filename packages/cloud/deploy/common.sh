@@ -7,7 +7,7 @@
 
 # grant pub/sub role to csa
 # SERVICE_ACCOUNT="$(gcloud storage service-agent --project=wowarenalogs)"
-# gcloud projects add-iam-policy-binding wowarenalogs --member="serviceAccount:${SERVICE_ACCOUNT}@gs-project-accounts.iam.gserviceaccount.com" --role="roles/pubsub.publisher"
+# gcloud projects add-iam-policy-binding wowarenalogs --member="serviceAccount:${SERVICE_ACCOUNT}" --role="roles/pubsub.publisher"
 
 # grant service account token creator role to csa
 # gcloud projects add-iam-policy-binding PROJECT_ID \
@@ -110,6 +110,7 @@ deploy_storage_function() {
         --memory=${MEMORY} \
         --set-env-vars="${env_vars}" \
         --trigger-bucket=${bucket_name} \
+        --trigger-location=us \
         --retry \
         --max-instances=100
 }
