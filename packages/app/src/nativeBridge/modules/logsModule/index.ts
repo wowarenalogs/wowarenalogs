@@ -24,7 +24,7 @@ interface ILastKnownCombatLogState {
 
 interface IBridge {
   watcher?: ReturnType<typeof createLogWatcher>;
-  logParser?: WoWCombatLogParser;
+  logParsers: Map<string, WoWCombatLogParser>;
 }
 
 const bridgeState: {
@@ -33,11 +33,11 @@ const bridgeState: {
 } = {
   retail: {
     watcher: undefined,
-    logParser: undefined,
+    logParsers: new Map(),
   },
   classic: {
     watcher: undefined,
-    logParser: undefined,
+    logParsers: new Map(),
   },
 };
 
@@ -120,14 +120,42 @@ export class LogsModule extends NativeBridgeModule {
       });
   }
 
+  public registerLogParserForFile(mainWindow: BrowserWindow, logFile: string, wowVersion: WowVersion) {
+    const parser = new WoWCombatLogParser(wowVersion);
+    bridgeState.retail.logParsers?.set(logFile, parser);
+
+    parser.on('activity_started', (event) => {
+      this.handleActivityStarted(mainWindow, event);
+    });
+    parser.on('arena_match_ended', (combat) => {
+      this.handleNewCombat(mainWindow, combat);
+    });
+    parser.on('solo_shuffle_round_ended', (combat) => {
+      this.handleSoloShuffleRoundEnded(mainWindow, combat);
+    });
+    parser.on('solo_shuffle_ended', (combat) => {
+      this.handleSoloShuffleEnded(mainWindow, combat);
+    });
+    parser.on('battleground_ended', (data) => this.handleBattlegroundEnded(mainWindow, data));
+    parser.on('malformed_arena_match_detected', (combat) => {
+      this.handleMalformedCombatDetected(mainWindow, combat);
+    });
+    parser.on('parser_error', (error) => {
+      this.handleParserError(mainWindow, error);
+    });
+    return parser;
+  }
+
   @moduleFunction({ isRequired: true })
   public async startLogWatcher(mainWindow: BrowserWindow, wowDirectory: string, wowVersion: WowVersion) {
-    const bridge = bridgeState[wowVersion] as IBridge; // why can TS not figure this out?
+    const bridge = bridgeState[wowVersion] as IBridge;
     if (bridge.watcher) {
       bridge.watcher.close();
     }
 
-    bridge.logParser = new WoWCombatLogParser(wowVersion);
+    // If we start watching an entirely different folder, clear the parsers
+    bridge.logParsers.clear();
+
     const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
 
     bridge.watcher = createLogWatcher(wowDirectory, process.platform);
@@ -138,25 +166,6 @@ export class LogsModule extends NativeBridgeModule {
     if (!logsExist) {
       mkdirSync(wowLogsDirectoryFullPath);
     }
-    bridge.logParser.on('activity_started', (event) => {
-      this.handleActivityStarted(mainWindow, event);
-    });
-    bridge.logParser.on('arena_match_ended', (combat) => {
-      this.handleNewCombat(mainWindow, combat);
-    });
-    bridge.logParser.on('solo_shuffle_round_ended', (combat) => {
-      this.handleSoloShuffleRoundEnded(mainWindow, combat);
-    });
-    bridge.logParser.on('solo_shuffle_ended', (combat) => {
-      this.handleSoloShuffleEnded(mainWindow, combat);
-    });
-    bridge.logParser.on('battleground_ended', (data) => this.handleBattlegroundEnded(mainWindow, data));
-    bridge.logParser.on('malformed_arena_match_detected', (combat) => {
-      this.handleMalformedCombatDetected(mainWindow, combat);
-    });
-    bridge.logParser.on('parser_error', (error) => {
-      this.handleParserError(mainWindow, error);
-    });
 
     const lastKnownFileStats = new Map<string, ILastKnownCombatLogState>();
 
@@ -174,11 +183,8 @@ export class LogsModule extends NativeBridgeModule {
       updateLastKnownStats(fullLogPath, stats);
     });
 
-    const processStats = (path: string, stats: Stats | undefined) => {
-      if (!bridge.logParser) {
-        throw new Error('No log parser');
-      }
-
+    const processStats = async (path: string, stats: Stats | undefined) => {
+      logger.info(`processStats path=${path} stats=${stats?.size} parsers=${bridge.logParsers.size}`);
       const lastKnownState = lastKnownFileStats.get(path) || {
         lastFileCreationTime: 0,
         lastFileSize: 0,
@@ -188,18 +194,19 @@ export class LogsModule extends NativeBridgeModule {
 
       let parseOK = false;
 
+      const parser = bridge.logParsers.get(path) || this.registerLogParserForFile(mainWindow, path, wowVersion);
       if (
         // we are reading the same file if the creation time is close enough
         fileCreationTimeDelta < 1 &&
         // and size is larger than before
         fileSizeDelta >= 0
       ) {
-        parseOK = DesktopUtils.parseLogFileChunk(bridge.logParser, path, lastKnownState.lastFileSize, fileSizeDelta);
+        parseOK = DesktopUtils.parseLogFileChunk(parser, path, lastKnownState.lastFileSize, fileSizeDelta);
       } else {
         // we are now reading a new combat log file, resetting states
-        bridge.logParser.resetParserStates(wowVersion);
+        parser.resetParserStates(wowVersion);
 
-        parseOK = DesktopUtils.parseLogFileChunk(bridge.logParser, path, 0, stats?.size || 0);
+        parseOK = DesktopUtils.parseLogFileChunk(parser, path, 0, stats?.size || 0);
       }
 
       if (parseOK) {
@@ -217,12 +224,16 @@ export class LogsModule extends NativeBridgeModule {
   @moduleFunction({ isRequired: true })
   public async stopLogWatcher(_mainWindow: BrowserWindow) {
     bridgeState.retail.watcher?.close();
-    bridgeState.retail.logParser?.removeAllListeners();
-    bridgeState.retail.logParser = undefined;
+    bridgeState.retail.logParsers?.forEach((parser) => {
+      parser.removeAllListeners();
+    });
+    bridgeState.retail.logParsers.clear();
     bridgeState.retail.watcher = undefined;
     bridgeState.classic.watcher?.close();
-    bridgeState.classic.logParser?.removeAllListeners();
-    bridgeState.classic.logParser = undefined;
+    bridgeState.classic.logParsers?.forEach((parser) => {
+      parser.removeAllListeners();
+    });
+    bridgeState.classic.logParsers.clear();
     bridgeState.classic.watcher = undefined;
   }
 

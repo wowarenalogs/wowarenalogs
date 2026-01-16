@@ -2,6 +2,8 @@ import { WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
 import { closeSync, existsSync, openSync, readFileSync, readSync } from 'fs-extra';
 import { join } from 'path';
 
+import { logger } from '../../../logger';
+
 const chunkParitialsBuffer: Record<string, string> = {};
 
 export class DesktopUtils {
@@ -73,6 +75,7 @@ export class DesktopUtils {
             chunkParitialsBuffer[path] = line;
           }
         } else {
+          logger.info(`${path}: ${line.slice(0, 48)}`);
           parser.parseLine(line);
         }
       });
