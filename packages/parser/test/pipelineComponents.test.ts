@@ -76,7 +76,7 @@ describe('pipeline component tests', () => {
   describe('advanced log format', () => {
     it('should parse retail logs correctly', () => {
       const log =
-        '8/21/2025 20:49:32.841-5  SPELL_DAMAGE,Player-60-0C61A73C,"Hyl-Stormrage-US",0x548,0x80000000,Player-1136-093E6286,"Durriesmate-Bonechewer-US",0x512,0x80000020,423193,"Sanguine Blades",0x1,Player-1136-093E6286,0000000000000000,18702887,19809416,28559,136647,110430,3162,0,0,0,2756250,2756250,0,2856.62,2228.20,0,2.3046,715,29012,57434,-1,1,0,0,0,nil,nil,nil,ST';
+        '1/20/2026 21:25:47.506-5  SPELL_DAMAGE,Player-125-0AB19177,"Burnininate-ShadowCouncil-US",0x511,0x80000000,Creature-0-3131-2552-69-219250-00017032DE,"PvP Training Dummy",0x10a28,0x80000000,362969,"Azure Strike",0x50,Creature-0-3131-2552-69-219250-00017032DE,0000000000000000,94830,236416,0,0,377,0,0,0,1,0,0,0,2291.19,-2791.73,2339,1.6471,80,2950,2949,-1,80,0,0,0,nil,nil,nil,AOE';
       let logLine = null;
       from([log])
         .pipe(stringToLogLine('America/New_York'))
@@ -87,14 +87,14 @@ describe('pipeline component tests', () => {
       const action = new CombatHpUpdateAction(logLine as unknown as ILogLine, 'retail');
       console.log({ action, pow: action.advancedActorPowers });
       expect(typeof logLine).toEqual('object'); // as in, not a string
-      expect(action.amount).toEqual(-29012);
+      expect(action.amount).toEqual(-2950);
       expect(action.isCritical).toEqual(false);
       expect(action.advanced).toEqual(true);
-      expect(action.advancedActorCurrentHp).toEqual(18702887);
-      expect(action.advancedActorMaxHp).toEqual(19809416);
-      expect(action.advancedActorPositionX).toEqual(2856.62);
-      expect(action.advancedActorPositionY).toEqual(2228.2);
-      expect(action.advancedActorItemLevel).toEqual(715);
+      expect(action.advancedActorCurrentHp).toEqual(94830);
+      expect(action.advancedActorMaxHp).toEqual(236416);
+      expect(action.advancedActorPositionX).toEqual(2291.19);
+      expect(action.advancedActorPositionY).toEqual(-2791.73);
+      expect(action.advancedActorItemLevel).toEqual(80);
     });
 
     it('should parse _HEAL for crit=false', () => {
