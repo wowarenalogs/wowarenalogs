@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import Router from 'next/router';
 import NProgress from 'nprogress';
 import React, { useEffect } from 'react';
-import { TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbTrophy, TbUser } from 'react-icons/tb';
+import { TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbUser } from 'react-icons/tb';
 
 import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
