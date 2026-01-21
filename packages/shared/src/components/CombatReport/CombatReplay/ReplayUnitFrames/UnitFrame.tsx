@@ -65,6 +65,7 @@ const POWER_BY_SPEC: Record<CombatUnitSpec, CombatUnitPowerType> = {
 
   [CombatUnitSpec.DemonHunter_Havoc]: CombatUnitPowerType.Fury,
   [CombatUnitSpec.DemonHunter_Vengeance]: CombatUnitPowerType.Fury,
+  [CombatUnitSpec.DemonHunter_Devourer]: CombatUnitPowerType.Fury,
 
   [CombatUnitSpec.Druid_Restoration]: CombatUnitPowerType.Mana,
   [CombatUnitSpec.Druid_Balance]: CombatUnitPowerType.LunarPower,

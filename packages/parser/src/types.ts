@@ -151,6 +151,7 @@ export enum CombatUnitSpec {
   DeathKnight_Unholy = '252',
   DemonHunter_Havoc = '577',
   DemonHunter_Vengeance = '581',
+  DemonHunter_Devourer = '1480',
   Druid_Balance = '102',
   Druid_Feral = '103',
   Druid_Guardian = '104',

@@ -333,6 +333,7 @@ export class CombatData extends CombatGenerator {
             break;
           case CombatUnitSpec.DemonHunter_Havoc:
           case CombatUnitSpec.DemonHunter_Vengeance:
+          case CombatUnitSpec.DemonHunter_Devourer:
             unitClass = CombatUnitClass.DemonHunter;
             break;
           case CombatUnitSpec.Druid_Balance:
