@@ -3,17 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "gcp-build": "prisma generate",
-    "deploy:dev": "dotenv -- node ./cloud/test/test_env_for_deploy.js && dotenv -- serverless deploy --config serverless.dev.yml",
-    "deploy:prod": "dotenv -- node ./cloud/test/test_env_for_deploy.js && dotenv -- serverless deploy --config serverless.prod.yml"
+    "gcp-build": "prisma generate"
   },
   "dependencies": {
     "@google-analytics/data": "^3.1.2",
-    "@google-cloud/firestore": "^6.4.1",
-    "@google-cloud/functions-framework": "^3.1.2",
-    "@google-cloud/storage": "^6.7.0",
+    "@google-cloud/firestore": "^7.11",
+    "@google-cloud/storage": "^7.17",
     "@prisma/client": "^4.9.0",
-    "aws-sdk": "^2.834.0",
     "canvas": "^3",
     "class-transformer": "^0.5.0",
     "cross-env": "^7.0.3",
