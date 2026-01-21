@@ -40,6 +40,7 @@ export const awcSpells: Record<CombatUnitSpec, string[]> = {
     '49206',
   ],
   [CombatUnitSpec.DemonHunter_Havoc]: ['198589', '191427', '196718', '196555', '205604', '206803', '323639'],
+  [CombatUnitSpec.DemonHunter_Devourer]: ['198589', '191427', '196718', '196555', '205604', '206803', '323639'],
   [CombatUnitSpec.DemonHunter_Vengeance]: ['198589', '191427', '323639'],
   [CombatUnitSpec.Druid_Balance]: [
     '5211',

@@ -138,6 +138,7 @@ export class Utils {
         return CombatUnitClass.Monk;
       case CombatUnitSpec.DemonHunter_Havoc:
       case CombatUnitSpec.DemonHunter_Vengeance:
+      case CombatUnitSpec.DemonHunter_Devourer:
         return CombatUnitClass.DemonHunter;
       case CombatUnitSpec.Evoker_Devastation:
       case CombatUnitSpec.Evoker_Preservation:
