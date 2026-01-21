@@ -6,6 +6,7 @@ import moment from 'moment';
 import path from 'path';
 
 import { BASE_REMOTE_URL } from './constants';
+import { logger } from './logger';
 import { globalStates } from './nativeBridge/modules/common/globalStates';
 import { nativeBridgeRegistry } from './nativeBridge/registry';
 
@@ -110,7 +111,31 @@ if (!isFirstInstance) {
     const win = createWindow();
 
     if (app.isPackaged) {
-      autoUpdater.on('update-downloaded', () => {
+      autoUpdater.on('error', (error) => {
+        logger.error(`AutoUpdater error: ${error.message}`);
+        if (error.stack) {
+          logger.error(`AutoUpdater error stack: ${error.stack}`);
+        }
+      });
+
+      autoUpdater.on('checking-for-update', () => {
+        logger.info('AutoUpdater: Checking for updates...');
+      });
+
+      autoUpdater.on('update-available', (info) => {
+        logger.info(`AutoUpdater: Update available - version ${info.version}`);
+      });
+
+      autoUpdater.on('update-not-available', (info) => {
+        logger.info(`AutoUpdater: No update available - current version ${info.version}`);
+      });
+
+      autoUpdater.on('download-progress', (progress) => {
+        logger.info(`AutoUpdater: Download progress - ${progress.percent.toFixed(1)}%`);
+      });
+
+      autoUpdater.on('update-downloaded', (info) => {
+        logger.info(`AutoUpdater: Update downloaded - version ${info.version}`);
         globalStates.isUpdateAvailable = true;
 
         dialog
