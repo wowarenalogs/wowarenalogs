@@ -251,7 +251,7 @@ export interface CombatantInfo {
   interestingAurasJSON: string;
   item28: number;
   item29: number;
-  item12: number;
+  item9: number;
   personalRating: number;
   highestPvpTier: number;
 }
