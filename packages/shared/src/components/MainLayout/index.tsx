@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Router from 'next/router';
 import NProgress from 'nprogress';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbUser } from 'react-icons/tb';
 
 import { useAuth } from '../../hooks/AuthContext';
@@ -13,10 +13,33 @@ interface IProps {
   children?: React.ReactNode[] | React.ReactNode;
 }
 
+function isVersionLessThan(version: string, target: string): boolean {
+  const vParts = version.split('.').map(Number);
+  const tParts = target.split('.').map(Number);
+  for (let i = 0; i < Math.max(vParts.length, tParts.length); i++) {
+    const v = vParts[i] || 0;
+    const t = tParts[i] || 0;
+    if (v < t) return true;
+    if (v > t) return false;
+  }
+  return false;
+}
+
 export function MainLayout(props: IProps) {
   const router = useRouter();
   const auth = useAuth();
   const clientContext = useClientContext();
+  const [showUpgradeBanner, setShowUpgradeBanner] = useState(false);
+
+  useEffect(() => {
+    if (clientContext.isDesktop && window.wowarenalogs?.app?.getVersion) {
+      window.wowarenalogs.app.getVersion().then((version: string) => {
+        if (isVersionLessThan(version, '12.1')) {
+          setShowUpgradeBanner(true);
+        }
+      });
+    }
+  }, [clientContext.isDesktop]);
 
   useEffect(() => {
     NProgress.configure({
@@ -154,6 +177,11 @@ export function MainLayout(props: IProps) {
       <div className="flex-1 flex flex-col bg-base-100 text-base-content relative">
         <div className="absolute w-full h-full flex flex-col">{props.children}</div>
       </div>
+      {showUpgradeBanner && (
+        <div className="absolute bottom-0 left-0 right-0 z-50 bg-warning text-warning-content text-center py-2 px-4 font-semibold">
+          Upgrade to 12.1 or higher immediately for the Midnight patch.
+        </div>
+      )}
     </div>
   );
 }
