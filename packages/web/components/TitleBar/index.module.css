@@ -1,0 +1,18 @@
+.title-bar-logo {
+  margin-left: 8px;
+  margin-top: 8px;
+  width: 113px;
+  height: 18px;
+  background-image: url(./title.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.title-bar-buttons {
+  -webkit-app-region: no-drag;
+}
+
+.title-bar-drag {
+  -webkit-app-region: drag;
+}
