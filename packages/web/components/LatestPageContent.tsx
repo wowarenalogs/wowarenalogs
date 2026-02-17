@@ -1,20 +1,20 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { LatestMatchMonitor } from '../../components/LatestMatchMonitor';
-import { useAppConfig } from '../../hooks/AppConfigContext';
+import { useAppConfig } from '../hooks/AppConfigContext';
+import { LatestMatchMonitor } from './LatestMatchMonitor';
 
-const Page = () => {
+const LatestPageContent = () => {
   const { appConfig, isLoading } = useAppConfig();
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && !appConfig?.wowDirectory) {
-      router.push('/desktop');
+      router.push('/');
     }
   }, [router, appConfig, isLoading]);
 
   return <LatestMatchMonitor />;
 };
 
-export default Page;
+export default LatestPageContent;

@@ -2,8 +2,8 @@ import { getAnalyticsDeviceId, LoadingScreen, useClientContext } from '@wowarena
 import { useCallback, useEffect, useState } from 'react';
 import { FaDiscord, FaPatreon } from 'react-icons/fa';
 
-import RecordingSettings from '../../components/Settings/RecordingSettings';
-import { useAppConfig } from '../../hooks/AppConfigContext';
+import RecordingSettings from '../components/Settings/RecordingSettings';
+import { useAppConfig } from '../hooks/AppConfigContext';
 
 const Page = () => {
   const { isLoading, appConfig, updateAppConfig } = useAppConfig();

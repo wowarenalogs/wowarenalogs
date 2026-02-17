@@ -6,6 +6,7 @@ import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { SessionProvider, SessionProviderProps } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
 import WebLayout from '../components/WebLayout';
@@ -59,11 +60,16 @@ const queryClient = new QueryClient({
 
 function App(props: AppProps<SessionProviderProps>) {
   const router = useRouter();
-  const isDesktopRoute = router.pathname.startsWith('/desktop');
+  const [isDesktop, setIsDesktop] = useState(false);
 
-  if (isDesktopRoute) {
+  useEffect(() => {
+    // Detect if running in Electron via the bridge
+    setIsDesktop(typeof window !== 'undefined' && !!window.wowarenalogs?.app);
+  }, []);
+
+  if (isDesktop) {
     // Desktop login bypass
-    if (router.pathname.indexOf('/login') > -1) {
+    if (router.pathname.indexOf('/login') > -1 || router.pathname.indexOf('/desktop_login') > -1) {
       return <props.Component {...props.pageProps} />;
     }
     return (

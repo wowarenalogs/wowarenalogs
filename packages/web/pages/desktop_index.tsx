@@ -2,7 +2,7 @@ import { logAnalyticsEvent } from '@wowarenalogs/shared/src';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { useAppConfig } from '../../hooks/AppConfigContext';
+import { useAppConfig } from '../hooks/AppConfigContext';
 
 const Page = () => {
   const router = useRouter();
@@ -25,11 +25,11 @@ const Page = () => {
   useEffect(() => {
     if (!isLoading) {
       if (!window.wowarenalogs.app?.getVersion) {
-        router.push('/desktop/upgrade');
+        router.push('/upgrade');
       } else if (appConfig.wowDirectory && appConfig.tosAccepted) {
-        router.push('/desktop/latest');
+        router.push('/latest');
       } else {
-        router.push('/desktop/first_time_setup');
+        router.push('/first_time_setup');
       }
     }
   }, [isLoading, appConfig, router]);

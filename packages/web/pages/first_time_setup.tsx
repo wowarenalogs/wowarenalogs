@@ -1,4 +1,4 @@
-import { FirstTimeSetup } from '../../components/FirstTimeSetup';
+import { FirstTimeSetup } from '../components/FirstTimeSetup';
 
 const Page = () => {
   return <FirstTimeSetup />;
