@@ -22,7 +22,7 @@
   "dependencies": {
     "fengari-web": "^0.1.4",
     "fs-extra": "^11.1.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "lua-in-js": "^2.2.0",
     "node-fetch": "2.3.0",
     "typescript": "^4.1.5"

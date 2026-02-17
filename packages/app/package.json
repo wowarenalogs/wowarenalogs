@@ -35,7 +35,7 @@
     "electron-devtools-installer": "^3.2.0",
     "electron-updater": "^6.1.4",
     "fs-extra": "^10.1.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "moment": "^2.29.1",
     "node-fetch": "^2.6.7",
     "node-loader": "^2.0.0",

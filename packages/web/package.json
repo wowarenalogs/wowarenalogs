@@ -17,7 +17,7 @@
     "@wowarenalogs/parser": "^6.0.0",
     "@wowarenalogs/shared": "^1.0.0",
     "daisyui": "^2.33.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "next": "12.3.5",
     "next-auth": "^4.9.0",
     "next-seo": "^5.15.0",
