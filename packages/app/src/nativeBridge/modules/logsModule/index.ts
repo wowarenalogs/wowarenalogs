@@ -1,13 +1,13 @@
 import {
   IActivityStarted,
   IArenaMatch,
+  IBattlegroundCombat,
   IMalformedCombatData,
   IShuffleMatch,
   IShuffleRound,
   WoWCombatLogParser,
   WowVersion,
 } from '@wowarenalogs/parser';
-import { IBattlegroundCombat } from '@wowarenalogs/parser/dist/CombatData';
 import { BrowserWindow, dialog } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
