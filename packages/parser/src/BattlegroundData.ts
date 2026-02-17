@@ -119,7 +119,7 @@ export class BattlegroundData extends CombatGenerator {
           critMelee: 0,
           critRanged: 0,
           critSpell: 0,
-          item12: 0,
+          item9: 0,
           speed: 0,
           lifesteal: 0,
           hasteMelee: 0,
