@@ -14,8 +14,8 @@
   },
   "scripts": {
     "start": "npx tsdx watch",
-    "build": "npx tsdx build",
-    "build:parser": "npx tsdx build",
+    "build": "npx tsdx build --tsconfig tsconfig.build.json",
+    "build:parser": "npx tsdx build --tsconfig tsconfig.build.json",
     "test": "npx tsdx test",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",

@@ -1,16 +1,50 @@
+import { logAnalyticsEvent } from '@wowarenalogs/shared/src';
 import type { NextPage } from 'next';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+
+import { useAppConfig } from '../hooks/AppConfigContext';
 
 const Home: NextPage = () => {
   const [os, setOs] = useState('windows');
+  const router = useRouter();
+  const { isLoading, appConfig } = useAppConfig();
+  const [isDesktop, setIsDesktop] = useState(false);
+
   useEffect(() => {
     if (navigator.platform.toUpperCase().indexOf('MAC') === 0) {
       setOs('mac');
     } else if (navigator.platform.toUpperCase().indexOf('LINUX') === 0) {
       setOs('linux');
     }
+    setIsDesktop(!!window.wowarenalogs?.app);
   }, []);
+
+  // Desktop app startup flow
+  useEffect(() => {
+    if (!isDesktop) return;
+    if (!window.wowarenalogs.app?.getVersion) {
+      logAnalyticsEvent('event_AppLaunch', { appVersion: 'unknown' });
+    } else {
+      window.wowarenalogs.app.getVersion().then((version) => {
+        logAnalyticsEvent('event_AppLaunch', { appVersion: version });
+      });
+    }
+  }, [isDesktop]);
+
+  useEffect(() => {
+    if (!isDesktop || isLoading) return;
+    if (!window.wowarenalogs.app?.getVersion) {
+      router.push('/upgrade');
+    } else if (appConfig.wowDirectory && appConfig.tosAccepted) {
+      router.push('/latest');
+    } else {
+      router.push('/first_time_setup');
+    }
+  }, [isDesktop, isLoading, appConfig, router]);
+
+  if (isDesktop) return <div />;
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center">
