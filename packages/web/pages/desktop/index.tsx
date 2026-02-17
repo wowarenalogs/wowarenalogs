@@ -25,11 +25,11 @@ const Page = () => {
   useEffect(() => {
     if (!isLoading) {
       if (!window.wowarenalogs.app?.getVersion) {
-        router.push('/upgrade');
+        router.push('/desktop/upgrade');
       } else if (appConfig.wowDirectory && appConfig.tosAccepted) {
-        router.push('/latest');
+        router.push('/desktop/latest');
       } else {
-        router.push('/first_time_setup');
+        router.push('/desktop/first_time_setup');
       }
     }
   }, [isLoading, appConfig, router]);

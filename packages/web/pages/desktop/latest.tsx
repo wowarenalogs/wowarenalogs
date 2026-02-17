@@ -10,7 +10,7 @@ const Page = () => {
 
   useEffect(() => {
     if (!isLoading && !appConfig?.wowDirectory) {
-      router.push('/');
+      router.push('/desktop');
     }
   }, [router, appConfig, isLoading]);
 
