@@ -85,6 +85,15 @@ function App(props: AppProps<SessionProviderProps>) {
     );
   }
 
+  // Auth routes get a minimal layout (no sidebar/nav) — especially for popup windows
+  if (router.pathname === '/login' || router.pathname.startsWith('/api/auth')) {
+    return (
+      <SessionProvider session={props.pageProps.session}>
+        <props.Component {...props.pageProps} />
+      </SessionProvider>
+    );
+  }
+
   // Normal web layout
   return (
     <SessionProvider session={props.pageProps.session}>
