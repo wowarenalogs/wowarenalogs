@@ -30,9 +30,6 @@ export const LatestMatchMonitor = () => {
       <div className="hero">
         <div className="hero-content text-center flex flex-col pb-16">
           <h1 className="text-5xl font-bold">Ready for battle</h1>
-          <div className="text-2xl font-bold text-red-400 badge badge-lg badge-error p-5 my-4">
-            Expect service disruptions until Midnight launch!
-          </div>
           <p className="py-6">Please keep WoW Arena Logs running. Your latest match will be reported here.</p>
           {needs470Upgrade && (
             <button
