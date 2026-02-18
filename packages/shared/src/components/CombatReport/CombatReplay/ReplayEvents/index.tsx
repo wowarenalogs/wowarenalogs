@@ -89,6 +89,7 @@ export const ReplayEvents = (props: IProps) => {
     const items: CombatEvent[] = [];
     from(context.combat?.rawLines || [])
       .pipe(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         stringToLogLine(context.combat?.timezone || moment.tz.guess()) as any,
         logLineToCombatEvent('retail'),
         filter(isCombatEvent),
