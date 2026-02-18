@@ -89,7 +89,7 @@ export const ReplayEvents = (props: IProps) => {
     const items: CombatEvent[] = [];
     from(context.combat?.rawLines || [])
       .pipe(
-        stringToLogLine(context.combat?.timezone || moment.tz.guess()),
+        stringToLogLine(context.combat?.timezone || moment.tz.guess()) as any,
         logLineToCombatEvent('retail'),
         filter(isCombatEvent),
       )

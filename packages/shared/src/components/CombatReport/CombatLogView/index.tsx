@@ -38,7 +38,7 @@ export const CombatLogView = () => {
         className="input input-bordered w-full"
         onChange={(evt) => {
           from([evt.target.value])
-            .pipe(stringToLogLine(combat.timezone))
+            .pipe(stringToLogLine(combat.timezone) as any)
             .forEach((line) => {
               // eslint-disable-next-line no-console
               console.log(line);
