@@ -94,17 +94,17 @@ export const ReplayEvents = (props: IProps) => {
       filter(isCombatEvent),
     );
     events$.subscribe((e: CombatEvent) => {
-        if (filters.gcdsOnly) {
-          if (wantedUnitIsCaster(e) && isGCDsModeEvent(e)) {
-            items.push(e);
-          }
-        } else if (
-          (isWantedDamageOrHeal(e) || isExtraSpellAction(e) || isPlayerDeath(e) || isWantedAura(e) || isAuraDose(e)) &&
-          isWantedUnit(e)
-        ) {
+      if (filters.gcdsOnly) {
+        if (wantedUnitIsCaster(e) && isGCDsModeEvent(e)) {
           items.push(e);
         }
-      });
+      } else if (
+        (isWantedDamageOrHeal(e) || isExtraSpellAction(e) || isPlayerDeath(e) || isWantedAura(e) || isAuraDose(e)) &&
+        isWantedUnit(e)
+      ) {
+        items.push(e);
+      }
+    });
 
     return items;
   }, [context.combat, context.players, filters, props.filterByUnitId]);
