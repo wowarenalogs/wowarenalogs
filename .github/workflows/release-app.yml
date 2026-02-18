@@ -120,11 +120,13 @@ jobs:
       - name: setup gcloud
         uses: google-github-actions/setup-gcloud@v1
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev libpixman-1-dev
       - name: install node-gyp
         run: npm i -g node-gyp@latest
       - name: clean npm cache
