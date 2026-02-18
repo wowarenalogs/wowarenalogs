@@ -121,8 +121,8 @@ export function MainLayout(props: IProps) {
             selectedNavMenuKey === '/profile'
               ? 'bg-base-100 text-primary'
               : auth.isLoadingAuthData || auth.isAuthenticated
-              ? ''
-              : 'bg-error text-error-content'
+                ? ''
+                : 'bg-error text-error-content'
           }`}
         >
           {auth.isAuthenticated ? (

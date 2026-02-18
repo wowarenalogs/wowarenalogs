@@ -47,8 +47,8 @@ export const StatsPage = () => {
         {tab === 'tier-list'
           ? `${bracket} Spec Tier List`
           : tab === 'spec-stats'
-          ? `${bracket} Spec Leaderboard`
-          : `${bracket} Comp Leaderboard`}
+            ? `${bracket} Spec Leaderboard`
+            : `${bracket} Comp Leaderboard`}
       </title>
       <DownloadPromotion />
       <div className="flex flex-col md:flex-row gap-2 items-center z-50">

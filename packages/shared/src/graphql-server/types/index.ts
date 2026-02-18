@@ -78,8 +78,10 @@ export type ICombatantInfoStub = Pick<
  * * consciousDeathRecords: ILogLine[];
  * * advancedActions: CombatAdvancedAction[];
  */
-export interface ICombatUnitStub
-  extends Pick<ICombatUnit, 'id' | 'name' | 'reaction' | 'affiliation' | 'type' | 'class' | 'spec'> {
+export interface ICombatUnitStub extends Pick<
+  ICombatUnit,
+  'id' | 'name' | 'reaction' | 'affiliation' | 'type' | 'class' | 'spec'
+> {
   info?: ICombatantInfoStub;
 }
 
