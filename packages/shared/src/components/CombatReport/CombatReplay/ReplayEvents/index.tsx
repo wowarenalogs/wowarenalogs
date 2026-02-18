@@ -93,7 +93,7 @@ export const ReplayEvents = (props: IProps) => {
         logLineToCombatEvent('retail'),
         filter(isCombatEvent),
       )
-      .subscribe((e) => {
+      .subscribe((e: CombatEvent) => {
         if (filters.gcdsOnly) {
           if (wantedUnitIsCaster(e) && isGCDsModeEvent(e)) {
             items.push(e);
