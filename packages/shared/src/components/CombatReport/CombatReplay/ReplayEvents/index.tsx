@@ -88,23 +88,25 @@ export const ReplayEvents = (props: IProps) => {
 
     const items: CombatEvent[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const events$: any = from(context.combat?.rawLines || []).pipe(
-      stringToLogLine(context.combat?.timezone || moment.tz.guess()),
-      logLineToCombatEvent('retail'),
-      filter(isCombatEvent),
-    );
-    events$.subscribe((e: CombatEvent) => {
-      if (filters.gcdsOnly) {
-        if (wantedUnitIsCaster(e) && isGCDsModeEvent(e)) {
+    const rawLines$: any = from(context.combat?.rawLines || []);
+    rawLines$
+      .pipe(
+        stringToLogLine(context.combat?.timezone || moment.tz.guess()),
+        logLineToCombatEvent('retail'),
+        filter(isCombatEvent),
+      )
+      .subscribe((e: CombatEvent) => {
+        if (filters.gcdsOnly) {
+          if (wantedUnitIsCaster(e) && isGCDsModeEvent(e)) {
+            items.push(e);
+          }
+        } else if (
+          (isWantedDamageOrHeal(e) || isExtraSpellAction(e) || isPlayerDeath(e) || isWantedAura(e) || isAuraDose(e)) &&
+          isWantedUnit(e)
+        ) {
           items.push(e);
         }
-      } else if (
-        (isWantedDamageOrHeal(e) || isExtraSpellAction(e) || isPlayerDeath(e) || isWantedAura(e) || isAuraDose(e)) &&
-        isWantedUnit(e)
-      ) {
-        items.push(e);
-      }
-    });
+      });
 
     return items;
   }, [context.combat, context.players, filters, props.filterByUnitId]);
