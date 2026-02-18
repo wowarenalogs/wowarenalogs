@@ -263,7 +263,6 @@ export function CombatReplay() {
                 </Stage>
               )}
             >
-              {/* @ts-expect-error @inlet/react-pixi types incompatible with React 18 */}
               <ReplayViewport
                 key={combat.id}
                 width={replayContainerRef.clientWidth}
