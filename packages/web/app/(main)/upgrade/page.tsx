@@ -1,4 +1,6 @@
-export default function Page() {
+'use client';
+
+export default function UpgradePage() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
       <div className="hero">

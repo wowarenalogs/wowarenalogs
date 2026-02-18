@@ -1,12 +1,13 @@
+'use client';
+
 import { logAnalyticsEvent } from '@wowarenalogs/shared/src';
-import type { NextPage } from 'next';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { useAppConfig } from '../hooks/AppConfigContext';
+import { useAppConfig } from '../../hooks/AppConfigContext';
 
-const Home: NextPage = () => {
+export default function Home() {
   const [os, setOs] = useState('windows');
   const router = useRouter();
   const { isLoading, appConfig } = useAppConfig();
@@ -21,7 +22,6 @@ const Home: NextPage = () => {
     setIsDesktop(!!window.wowarenalogs?.app);
   }, []);
 
-  // Desktop app startup flow
   useEffect(() => {
     if (!isDesktop) return;
     if (!window.wowarenalogs.app?.getVersion) {
@@ -88,6 +88,4 @@ const Home: NextPage = () => {
       </div>
     </div>
   );
-};
-
-export default Home;
+}

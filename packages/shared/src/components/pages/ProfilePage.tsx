@@ -1,7 +1,7 @@
 import { CombatUnitSpec, getClassColor } from '@wowarenalogs/parser';
 import { LoadingScreen, useAuth, useGetUserCharactersQuery } from '@wowarenalogs/shared';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { TbLoader } from 'react-icons/tb';
 

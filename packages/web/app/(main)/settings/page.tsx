@@ -1,11 +1,13 @@
+'use client';
+
 import { getAnalyticsDeviceId, LoadingScreen, useClientContext } from '@wowarenalogs/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { FaDiscord, FaPatreon } from 'react-icons/fa';
 
-import RecordingSettings from '../components/Settings/RecordingSettings';
-import { useAppConfig } from '../hooks/AppConfigContext';
+import RecordingSettings from '../../../components/Settings/RecordingSettings';
+import { useAppConfig } from '../../../hooks/AppConfigContext';
 
-const Page = () => {
+export default function SettingsPage() {
   const { isLoading, appConfig, updateAppConfig } = useAppConfig();
   const clientContext = useClientContext();
   const [appVersion, setAppVersion] = useState('');
@@ -160,6 +162,4 @@ const Page = () => {
       {window.wowarenalogs.platform === 'win32' && window.wowarenalogs.obs && <RecordingSettings />}
     </div>
   );
-};
-
-export default Page;
+}

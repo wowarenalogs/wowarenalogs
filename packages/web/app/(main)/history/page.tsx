@@ -1,3 +1,5 @@
+'use client';
+
 import { CombatStubList, LoadingScreen, useAuth } from '@wowarenalogs/shared';
 import { LocalRemoteHybridCombat } from '@wowarenalogs/shared/src/components/CombatStubList/rows';
 import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryError';
@@ -7,7 +9,7 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { TbLoader } from 'react-icons/tb';
 
-const Page = () => {
+export default function HistoryPage() {
   const { isLoadingAuthData, isAuthenticated } = useAuth();
   const matchesQuery = useGetMyMatchesQuery();
 
@@ -49,6 +51,4 @@ const Page = () => {
       <QuerryError query={matchesQuery} />
     </div>
   );
-};
-
-export default Page;
+}

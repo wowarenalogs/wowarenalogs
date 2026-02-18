@@ -5,13 +5,14 @@
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "5.60.0",
     "@typescript-eslint/parser": "5.60.0",
-    "eslint-config-next": "^12.1.1",
+    "eslint-config-next": "^15.3.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-node": "^0.3.7",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
-    "next": "12.3.5"
+    "next": "^15.3.0",
+    "synckit": "^0.8.8"
   },
   "publishConfig": {
     "access": "public"

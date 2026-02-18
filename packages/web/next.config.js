@@ -1,10 +1,19 @@
-const withTM = require('next-transpile-modules')(['@wowarenalogs/shared']);
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  transpilePackages: ['@wowarenalogs/shared'],
+  typescript: {
+    // @inlet/react-pixi has type incompatibilities with React 18 types.
+    // These are safe to ignore as they only affect the desktop replay feature.
+    ignoreBuildErrors: true,
+  },
   images: {
-    domains: ['images.wowarenalogs.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.wowarenalogs.com',
+      },
+    ],
     unoptimized: true,
   },
   async headers() {
@@ -37,4 +46,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withTM(nextConfig);
+module.exports = nextConfig;

@@ -66,8 +66,8 @@ export const LatestMatchMonitor = () => {
               <div className="flex flex-row items-center gap-2">
                 <h1 className="text-2xl font-bold">Want to record video?</h1>
               </div>
-              <Link href="/settings">
-                <button className="btn btn-sm btn-outline">Video settings</button>
+              <Link href="/settings" className="btn btn-sm btn-outline">
+                Video settings
               </Link>
             </div>
           )}

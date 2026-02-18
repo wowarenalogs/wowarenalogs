@@ -1,13 +1,15 @@
+'use client';
+
 import { CombatResult } from '@wowarenalogs/parser';
 import { useAuth } from '@wowarenalogs/shared';
 import { LogoutButton } from '@wowarenalogs/shared/src/components/common/LogoutButton';
 import { useGetMyMatchesQuery, useGetProfileQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 
-import { LoginButton } from '../components/Login/LoginButton';
-import { useAppConfig } from '../hooks/AppConfigContext';
-import { useLocalCombats } from '../hooks/LocalCombatsContext';
+import { LoginButton } from '../../../components/Login/LoginButton';
+import { useAppConfig } from '../../../hooks/AppConfigContext';
+import { useLocalCombats } from '../../../hooks/LocalCombatsContext';
 
-const Debug = () => {
+export default function DebugPage() {
   const auth = useAuth();
 
   const platform = typeof window !== 'undefined' ? window.wowarenalogs.platform : '';
@@ -122,6 +124,4 @@ const Debug = () => {
       </div>
     </div>
   );
-};
-
-export default Debug;
+}

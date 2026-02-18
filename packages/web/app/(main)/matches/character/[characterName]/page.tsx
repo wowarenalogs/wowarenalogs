@@ -1,16 +1,19 @@
+'use client';
+
 import { CombatStubList } from '@wowarenalogs/shared';
 import { LocalRemoteHybridCombat } from '@wowarenalogs/shared/src/components/CombatStubList/rows';
-import { LoadingPage } from '@wowarenalogs/shared/src/components/common/LoadingPage';
 import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryError';
 import { useGetCharacterMatchesLazyQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { TbLoader, TbRocketOff } from 'react-icons/tb';
 
-const Page = () => {
-  const router = useRouter();
-  const { realm, characterName } = router.query;
+export default function CharacterMatchesPage() {
+  const params = useParams<{ characterName: string }>();
+  const searchParams = useSearchParams();
+  const characterName = params.characterName;
+  const realm = searchParams.get('realm');
 
   const [exec, matchesQuery] = useGetCharacterMatchesLazyQuery({
     variables: {
@@ -32,10 +35,12 @@ const Page = () => {
     }
   }, [realm, characterName, exec]);
 
-  const isLoading = matchesQuery.loading || !router.isReady;
-
-  if (isLoading) {
-    return <LoadingPage />;
+  if (matchesQuery.loading) {
+    return (
+      <div className="flex flex-row items-center justify-center animate-loader h-[300px]">
+        <TbLoader color="gray" size={60} className="animate-spin-slow" />
+      </div>
+    );
   }
 
   const remoteCombats = (matchesQuery.data?.characterMatches.combats || []).map((c) => ({
@@ -70,6 +75,4 @@ const Page = () => {
       <QuerryError query={matchesQuery} />
     </div>
   );
-};
-
-export default Page;
+}
