@@ -1,0 +1,4616 @@
+{
+  "activityStarts": [
+    {
+      "arenaMatchStartInfo": {
+        "bracket": "2v2",
+        "isRanked": true,
+        "item1": "30",
+        "logLine": {
+          "event": "ARENA_MATCH_START",
+          "id": "5",
+          "parameters": [
+            1552,
+            30,
+            "2v2",
+            1
+          ],
+          "raw": "1/18/2024 23:02:21.959  ARENA_MATCH_START,1552,30,2v2,1",
+          "timestamp": 1705636941959,
+          "timezone": "America/New_York"
+        },
+        "timestamp": 1705636941959,
+        "zoneId": "1552"
+      },
+      "dataType": "ActivityStarted"
+    },
+    {
+      "arenaMatchStartInfo": {
+        "bracket": "3v3",
+        "isRanked": false,
+        "item1": "30",
+        "logLine": {
+          "event": "ARENA_MATCH_START",
+          "id": "20",
+          "parameters": [
+            1551,
+            30,
+            "3v3",
+            0
+          ],
+          "raw": "1/19/2024 23:02:21.959  ARENA_MATCH_START,1551,30,3v3,0",
+          "timestamp": 1705723341959,
+          "timezone": "America/New_York"
+        },
+        "timestamp": 1705723341959,
+        "zoneId": "1551"
+      },
+      "dataType": "ActivityStarted"
+    }
+  ],
+  "battlegrounds": [],
+  "combats": [
+    {
+      "dataType": "ArenaMatch",
+      "durationInSeconds": 465,
+      "endInfo": {
+        "matchDurationInSeconds": 465,
+        "team0MMR": 1440,
+        "team1MMR": 1437,
+        "timestamp": 1705637047191,
+        "winningTeamId": "1"
+      },
+      "endTime": 1705637047191,
+      "events": [
+        {
+          "advanced": true,
+          "advancedActorCurrentHp": 20000,
+          "advancedActorFacing": 79,
+          "advancedActorId": "Player-57-0CE7FCBF",
+          "advancedActorItemLevel": 168,
+          "advancedActorMaxHp": 30000,
+          "advancedActorPositionX": 0,
+          "advancedActorPositionY": 0,
+          "advancedActorPowers": [
+            {
+              "current": 0,
+              "max": 100,
+              "type": "0"
+            }
+          ],
+          "advancedOwnerId": "0",
+          "amount": 1,
+          "destUnitFlags": "0x10548",
+          "destUnitId": "Player-1171-0837B895",
+          "destUnitName": "Varclave-WyrmrestAccord",
+          "effectiveAmount": 1,
+          "isCritical": false,
+          "logLine": {
+            "event": "SPELL_DAMAGE",
+            "id": "10",
+            "parameters": [
+              "Player-57-0CE7FCBF",
+              "Loktaar-Illidan",
+              "0x511",
+              "0x0",
+              "Player-1171-0837B895",
+              "Varclave-WyrmrestAccord",
+              "0x10548",
+              "0x0",
+              126664,
+              "Charge",
+              "0x1",
+              "Player-57-0CE7FCBF",
+              0,
+              20000,
+              30000,
+              0,
+              0,
+              0,
+              0,
+              -1,
+              0,
+              0,
+              0,
+              100,
+              300,
+              0,
+              0,
+              0,
+              79,
+              168,
+              -1,
+              1,
+              0,
+              0,
+              0,
+              "nil",
+              "nil",
+              "nil"
+            ],
+            "raw": "1/18/2024 23:02:34.751  SPELL_DAMAGE,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,126664,\"Charge\",0x1,Player-57-0CE7FCBF,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,100.00,300.00,0,0.0000,0,79,168,-1,1,0,0,0,nil,nil,nil",
+            "timestamp": 1705636954751,
+            "timezone": "America/New_York"
+          },
+          "spellId": "126664",
+          "spellName": "Charge",
+          "spellSchoolId": "0x1",
+          "srcUnitFlags": "0x511",
+          "srcUnitId": "Player-57-0CE7FCBF",
+          "srcUnitName": "Loktaar-Illidan",
+          "timestamp": 1705636954751
+        },
+        {
+          "advanced": true,
+          "advancedActorCurrentHp": 20000,
+          "advancedActorFacing": 2223,
+          "advancedActorId": "Player-57-0CF07095",
+          "advancedActorItemLevel": 3227,
+          "advancedActorMaxHp": 30000,
+          "advancedActorPositionX": 0,
+          "advancedActorPositionY": 0,
+          "advancedActorPowers": [
+            {
+              "current": 0,
+              "max": 200,
+              "type": "0"
+            }
+          ],
+          "advancedOwnerId": "0",
+          "amount": 1,
+          "destUnitFlags": "0x10548",
+          "destUnitId": "Player-1171-0837B895",
+          "destUnitName": "Varclave-WyrmrestAccord",
+          "effectiveAmount": 1,
+          "isCritical": false,
+          "logLine": {
+            "event": "SPELL_DAMAGE",
+            "id": "11",
+            "parameters": [
+              "Player-57-0CF07095",
+              "Palita-Illidan",
+              "0x512",
+              "0x0",
+              "Player-1171-0837B895",
+              "Varclave-WyrmrestAccord",
+              "0x10548",
+              "0x0",
+              275773,
+              "Judgment",
+              "0x2",
+              "Player-57-0CF07095",
+              0,
+              20000,
+              30000,
+              0,
+              0,
+              0,
+              0,
+              -1,
+              0,
+              0,
+              0,
+              200,
+              200,
+              0,
+              0,
+              0,
+              2223,
+              3227,
+              -1,
+              2,
+              0,
+              0,
+              0,
+              "nil",
+              "nil",
+              "nil"
+            ],
+            "raw": "1/18/2024 23:02:36.053  SPELL_DAMAGE,Player-57-0CF07095,\"Palita-Illidan\",0x512,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,275773,\"Judgment\",0x2,Player-57-0CF07095,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,200.00,200.00,0,0.0000,0,2223,3227,-1,2,0,0,0,nil,nil,nil",
+            "timestamp": 1705636956053,
+            "timezone": "America/New_York"
+          },
+          "spellId": "275773",
+          "spellName": "Judgment",
+          "spellSchoolId": "0x2",
+          "srcUnitFlags": "0x512",
+          "srcUnitId": "Player-57-0CF07095",
+          "srcUnitName": "Palita-Illidan",
+          "timestamp": 1705636956053
+        },
+        {
+          "advanced": true,
+          "advancedActorCurrentHp": 20000,
+          "advancedActorFacing": 3430,
+          "advancedActorId": "Player-47-08506C21",
+          "advancedActorItemLevel": 3430,
+          "advancedActorMaxHp": 30000,
+          "advancedActorPositionX": 0,
+          "advancedActorPositionY": 0,
+          "advancedActorPowers": [
+            {
+              "current": 0,
+              "max": 300,
+              "type": "0"
+            }
+          ],
+          "advancedOwnerId": "0",
+          "amount": 0,
+          "destUnitFlags": "0x10548",
+          "destUnitId": "Player-1171-0837B895",
+          "destUnitName": "Varclave-WyrmrestAccord",
+          "effectiveAmount": -1,
+          "isCritical": false,
+          "logLine": {
+            "event": "SPELL_HEAL",
+            "id": "12",
+            "parameters": [
+              "Player-47-08506C21",
+              "Lerenor-Eitrigg",
+              "0x548",
+              "0x0",
+              "Player-1171-0837B895",
+              "Varclave-WyrmrestAccord",
+              "0x10548",
+              "0x0",
+              25914,
+              "Holy Shock",
+              "0x2",
+              "Player-47-08506C21",
+              0,
+              20000,
+              30000,
+              0,
+              0,
+              0,
+              0,
+              -1,
+              0,
+              0,
+              0,
+              300,
+              100,
+              0,
+              0,
+              0,
+              3430,
+              3430,
+              0,
+              0,
+              1
+            ],
+            "raw": "1/18/2024 23:03:21.089  SPELL_HEAL,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,25914,\"Holy Shock\",0x2,Player-47-08506C21,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,300.00,100.00,0,0.0000,0,3430,3430,0,0,1",
+            "timestamp": 1705637001089,
+            "timezone": "America/New_York"
+          },
+          "spellId": "25914",
+          "spellName": "Holy Shock",
+          "spellSchoolId": "0x2",
+          "srcUnitFlags": "0x548",
+          "srcUnitId": "Player-47-08506C21",
+          "srcUnitName": "Lerenor-Eitrigg",
+          "timestamp": 1705637001089
+        },
+        {
+          "destUnitFlags": "0x511",
+          "destUnitId": "Player-57-0CE7FCBF",
+          "destUnitName": "Loktaar-Illidan",
+          "logLine": {
+            "event": "UNIT_DIED",
+            "id": "13",
+            "parameters": [
+              0,
+              "nil",
+              "0x80000000",
+              "0x80000000",
+              "Player-57-0CE7FCBF",
+              "Loktaar-Illidan",
+              "0x511",
+              "0x0",
+              0
+            ],
+            "raw": "1/18/2024 23:03:59.838  UNIT_DIED,0000000000000000,nil,0x80000000,0x80000000,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,0",
+            "timestamp": 1705637039838,
+            "timezone": "America/New_York"
+          },
+          "spellId": null,
+          "spellName": null,
+          "spellSchoolId": null,
+          "srcUnitFlags": "0x80000000",
+          "srcUnitId": "0",
+          "srcUnitName": "nil",
+          "timestamp": 1705637039838
+        }
+      ],
+      "hasAdvancedLogging": true,
+      "id": "ecff9e3fa706a9636036b273f5d4b944",
+      "linesNotParsedCount": 1,
+      "playerId": "",
+      "playerTeamId": "0",
+      "playerTeamRating": 1440,
+      "rawLines": [
+        "1/18/2024 23:02:21.959  ARENA_MATCH_START,1552,30,2v2,1",
+        "1/18/2024 23:02:21.959  COMBATANT_INFO,Player-57-0CF07095,0,447,158,1591,1410,0,0,0,0,449,449,449,0,0,80,80,80,0,27,1011,1011,1011,1679,65,(223306,157047,20066,114154,223817,248033,156910),(0,216327,210294,199452),[(178352,207,(),(7193,6631,1479,6646),()),(178387,207,(),(7193,6618,1479,6646),()),(175872,197,(),(6780,1511,6646),()),(4330,1,(),(6835),()),(175853,197,(6217,0,0),(6794,1511,6646),()),(175875,197,(),(6780,1511,6646),()),(171416,210,(),(7059,6717,6647,6650,1507),()),(175893,207,(6207,0,0),(6627,1479,6646),()),(175881,197,(6219,0,0),(6787,1511,6646),()),(175898,207,(6210,0,0),(6627,6652,1479,6646),()),(178293,197,(6170,0,0),(6787,1511,6646),()),(178381,207,(6170,0,0),(7193,6618,1479,6646),()),(178334,197,(),(6780,1511,6646),()),(184052,197,(),(6787,1511,6646),()),(175888,207,(6208,0,0),(6652,6618,1479,6646),()),(178481,197,(6229,0,0),(7237,1511,6646),()),(178490,197,(),(7151,1511,6646),()),(69209,1,(),(),())],[Player-57-0CF07095,156910],58,30,1515,2",
+        "1/18/2024 23:02:21.959  COMBATANT_INFO,Player-57-0CE7FCBF,0,1082,307,1482,305,0,0,0,0,228,228,228,0,30,435,435,435,0,41,932,932,932,1090,71,(29725,107570,281001,197690,262161,107574,262150),(0,198817,236077,198500),[(178352,207,(),(7193,6631,1479,6646),()),(178448,207,(),(6618,6652,6935,1479,6646),(173129,120)),(175909,207,(),(6652,6627,1479,6646),()),(0,0,(),(),()),(171412,210,(6230,0,0),(6958,6650,6649,6717,1507),()),(178377,207,(),(6627,6652,7194,1479,6646),()),(175867,184,(),(6796,1498,6646),()),(175856,184,(),(6782,1498,6646),()),(175881,184,(6222,0,0),(6789,1498,6646),()),(180104,187,(6205,0,0),(6808,6652,1501,6646),()),(184142,207,(6170,0,0),(6652,7193,1492,6646),()),(175916,207,(6170,0,0),(7193,6618,1479,6646),()),(184052,184,(),(6789,1498,6646),()),(175884,184,(),(6782,1498,6646),()),(178265,184,(6204,0,0),(6789,1498,6646),()),(178476,184,(6229,0,0),(6775,1498,6646),()),(0,0,(),(),()),(0,0,(),(),())],[Player-57-0CF07095,53563,Player-57-0CE7FCBF,197690],46,30,1433,2",
+        "1/18/2024 23:02:21.959  COMBATANT_INFO,Player-47-08506C21,1,447,158,1369,1244,0,0,0,0,397,397,397,0,0,29,29,29,0,65,921,921,921,1614,65,(223306,157047,20066,114154,223817,248033,156910),(0,199452,216327,210294),[(175850,177,(),(6797,1491,6616),()),(178387,207,(),(6618,42,7194,1479,6646),()),(175872,171,(),(6784,1485,6616),()),(0,0,(),(),()),(178793,171,(),(6806,6652,1485,4785),()),(175912,207,(),(7193,6627,1479,6646),()),(171416,190,(),(7059,6716,6650,6647,1487),()),(178358,207,(),(6627,1479,6646),()),(175881,184,(),(6789,1498,6646),()),(175861,184,(),(6782,1498,6646),()),(173131,151,(6169,0,0),(),(173123,118)),(178381,207,(6170,0,0),(7193,6618,1479,6646),()),(178334,164,(),(6785,1478,6616),()),(184052,171,(),(6791,1485,6616),()),(175851,177,(6208,0,0),(6790,1491,6616),()),(178481,171,(6226,0,0),(7233,1485,6616),()),(174311,207,(),(7132,1479,6646),()),(45585,1,(),(),())],[Player-47-08506C21,53563,Player-1171-0837B895,6673],52,30,1425,2",
+        "1/18/2024 23:02:21.959  COMBATANT_INFO,Player-1171-0837B895,1,1160,308,1688,304,0,0,0,0,66,66,66,0,0,697,697,697,0,39,900,900,900,1160,71,(29725,107570,281001,197690,262161,107574,262150),(0,236077,198500,198817),[(175887,207,(),(7193,6631,1479,6646),()),(175885,197,(),(6787,1511,6646),()),(178374,207,(),(6652,6627,1479,6646),()),(3428,1,(),(),()),(175890,207,(6216,0,0),(43,6631,1479,6646),()),(179893,197,(),(7201,1514,6646),()),(175904,207,(),(6631,6652,1479,6646),()),(175893,207,(),(6627,1479,6646),()),(178383,207,(),(7193,6618,1479,6646),()),(171414,235,(6210,0,0),(6970,6649,6650,6758,1532),()),(183037,200,(6170,0,0),(6805,6652,6935),(173129,120)),(175916,207,(6166,0,0),(6652,6935,6618,1479,6646),(173128,120)),(178386,207,(),(40,6627,1479,6646),()),(181333,207,(),(6618,1479,6646),()),(179623,197,(),(7201,1514,6646),()),(178476,197,(6229,0,0),(6773,1511,6646),()),(0,0,(),(),()),(178336,40,(),(),())],[Player-47-08506C21,156910,Player-1171-0837B895,6673,Player-1171-0837B895,197690,Player-1171-0837B895,335282],32,30,1442,2",
+        "1/18/2024 23:02:34.647  SPELL_INVALID,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,337824,\"Shock Barrier\",0x2,552,838,1",
+        "1/18/2024 23:02:34.751  SPELL_DAMAGE,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,126664,\"Charge\",0x1,Player-57-0CE7FCBF,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,100.00,300.00,0,0.0000,0,79,168,-1,1,0,0,0,nil,nil,nil",
+        "1/18/2024 23:02:36.053  SPELL_DAMAGE,Player-57-0CF07095,\"Palita-Illidan\",0x512,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,275773,\"Judgment\",0x2,Player-57-0CF07095,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,200.00,200.00,0,0.0000,0,2223,3227,-1,2,0,0,0,nil,nil,nil",
+        "1/18/2024 23:03:21.089  SPELL_HEAL,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,25914,\"Holy Shock\",0x2,Player-47-08506C21,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,300.00,100.00,0,0.0000,0,3430,3430,0,0,1",
+        "1/18/2024 23:03:59.838  UNIT_DIED,0000000000000000,nil,0x80000000,0x80000000,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,0",
+        "1/18/2024 23:04:07.191  ARENA_MATCH_END,1,465,1440,1437"
+      ],
+      "result": 2,
+      "startInfo": {
+        "bracket": "2v2",
+        "isRanked": true,
+        "item1": "30",
+        "timestamp": 1705636941959,
+        "zoneId": "1552"
+      },
+      "startTime": 1705636941959,
+      "timezone": "America/New_York",
+      "units": {
+        "0": {
+          "absorbsDamaged": [],
+          "absorbsIn": [],
+          "absorbsOut": [],
+          "actionIn": [],
+          "actionOut": [],
+          "advancedActions": [],
+          "affiliation": 0,
+          "auraEvents": [],
+          "class": 0,
+          "classProofs": {},
+          "consciousDeathRecords": [],
+          "damageIn": [],
+          "damageOut": [],
+          "deathRecords": [],
+          "endTime": 1705637039838,
+          "healIn": [],
+          "healOut": [],
+          "id": "0",
+          "isActive": false,
+          "isWellFormed": false,
+          "name": "nil",
+          "ownerId": "",
+          "reaction": 0,
+          "reactionProofs": {},
+          "spec": "0",
+          "spellCastEvents": [],
+          "startTime": 0,
+          "supportDamageIn": [],
+          "supportDamageOut": [],
+          "supportHealIn": [],
+          "supportHealOut": [],
+          "type": 0,
+          "typeProofs": {}
+        },
+        "Player-1171-0837B895": {
+          "absorbsDamaged": [],
+          "absorbsIn": [],
+          "absorbsOut": [],
+          "actionIn": [],
+          "actionOut": [],
+          "advancedActions": [],
+          "affiliation": 0,
+          "auraEvents": [],
+          "class": 1,
+          "classProofs": {},
+          "consciousDeathRecords": [],
+          "damageIn": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 79,
+              "advancedActorId": "Player-57-0CE7FCBF",
+              "advancedActorItemLevel": 168,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 100,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "10",
+                "parameters": [
+                  "Player-57-0CE7FCBF",
+                  "Loktaar-Illidan",
+                  "0x511",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  126664,
+                  "Charge",
+                  "0x1",
+                  "Player-57-0CE7FCBF",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  100,
+                  300,
+                  0,
+                  0,
+                  0,
+                  79,
+                  168,
+                  -1,
+                  1,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/18/2024 23:02:34.751  SPELL_DAMAGE,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,126664,\"Charge\",0x1,Player-57-0CE7FCBF,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,100.00,300.00,0,0.0000,0,79,168,-1,1,0,0,0,nil,nil,nil",
+                "timestamp": 1705636954751,
+                "timezone": "America/New_York"
+              },
+              "spellId": "126664",
+              "spellName": "Charge",
+              "spellSchoolId": "0x1",
+              "srcUnitFlags": "0x511",
+              "srcUnitId": "Player-57-0CE7FCBF",
+              "srcUnitName": "Loktaar-Illidan",
+              "timestamp": 1705636954751
+            },
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 2223,
+              "advancedActorId": "Player-57-0CF07095",
+              "advancedActorItemLevel": 3227,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 200,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "11",
+                "parameters": [
+                  "Player-57-0CF07095",
+                  "Palita-Illidan",
+                  "0x512",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  275773,
+                  "Judgment",
+                  "0x2",
+                  "Player-57-0CF07095",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  200,
+                  200,
+                  0,
+                  0,
+                  0,
+                  2223,
+                  3227,
+                  -1,
+                  2,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/18/2024 23:02:36.053  SPELL_DAMAGE,Player-57-0CF07095,\"Palita-Illidan\",0x512,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,275773,\"Judgment\",0x2,Player-57-0CF07095,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,200.00,200.00,0,0.0000,0,2223,3227,-1,2,0,0,0,nil,nil,nil",
+                "timestamp": 1705636956053,
+                "timezone": "America/New_York"
+              },
+              "spellId": "275773",
+              "spellName": "Judgment",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x512",
+              "srcUnitId": "Player-57-0CF07095",
+              "srcUnitName": "Palita-Illidan",
+              "timestamp": 1705636956053
+            }
+          ],
+          "damageOut": [],
+          "deathRecords": [],
+          "endTime": 1705637001089,
+          "healIn": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 3430,
+              "advancedActorId": "Player-47-08506C21",
+              "advancedActorItemLevel": 3430,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 300,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 0,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": -1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_HEAL",
+                "id": "12",
+                "parameters": [
+                  "Player-47-08506C21",
+                  "Lerenor-Eitrigg",
+                  "0x548",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  25914,
+                  "Holy Shock",
+                  "0x2",
+                  "Player-47-08506C21",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  300,
+                  100,
+                  0,
+                  0,
+                  0,
+                  3430,
+                  3430,
+                  0,
+                  0,
+                  1
+                ],
+                "raw": "1/18/2024 23:03:21.089  SPELL_HEAL,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,25914,\"Holy Shock\",0x2,Player-47-08506C21,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,300.00,100.00,0,0.0000,0,3430,3430,0,0,1",
+                "timestamp": 1705637001089,
+                "timezone": "America/New_York"
+              },
+              "spellId": "25914",
+              "spellName": "Holy Shock",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x548",
+              "srcUnitId": "Player-47-08506C21",
+              "srcUnitName": "Lerenor-Eitrigg",
+              "timestamp": 1705637001089
+            }
+          ],
+          "healOut": [],
+          "id": "Player-1171-0837B895",
+          "info": {
+            "agility": 308,
+            "armor": 1160,
+            "avoidance": 0,
+            "block": 0,
+            "critMelee": 66,
+            "critRanged": 66,
+            "critSpell": 66,
+            "dodge": 0,
+            "equipment": [
+              {
+                "bonuses": [
+                  "7193",
+                  "6631",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175887",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6787",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175885",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6652",
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178374",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "3428",
+                "ilvl": 1
+              },
+              {
+                "bonuses": [
+                  "43",
+                  "6631",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6216",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175890",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7201",
+                  "1514",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "179893",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6631",
+                  "6652",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175904",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175893",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178383",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6970",
+                  "6649",
+                  "6650",
+                  "6758",
+                  "1532"
+                ],
+                "enchants": [
+                  "6210",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "171414",
+                "ilvl": 235
+              },
+              {
+                "bonuses": [
+                  "6805",
+                  "6652",
+                  "6935"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [
+                  "173129",
+                  "120"
+                ],
+                "id": "183037",
+                "ilvl": 200
+              },
+              {
+                "bonuses": [
+                  "6652",
+                  "6935",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6166",
+                  "0",
+                  "0"
+                ],
+                "gems": [
+                  "173128",
+                  "120"
+                ],
+                "id": "175916",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "40",
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178386",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "181333",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7201",
+                  "1514",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "179623",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6773",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [
+                  "6229",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178476",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "0",
+                "ilvl": 0
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "178336",
+                "ilvl": 40
+              }
+            ],
+            "hasteMelee": 697,
+            "hasteRanged": 697,
+            "hasteSpell": 697,
+            "highestPvpTier": 2,
+            "intelligence": 304,
+            "interestingAurasJSON": "[\"Player-47-08506C21\",156910,\"Player-1171-0837B895\",6673,\"Player-1171-0837B895\",197690,\"Player-1171-0837B895\",335282]",
+            "item28": 32,
+            "item29": 30,
+            "item9": 0,
+            "lifesteal": 0,
+            "mastery": 39,
+            "parry": 0,
+            "personalRating": 1442,
+            "pvpTalents": [
+              "0",
+              "236077",
+              "198500",
+              "198817"
+            ],
+            "specId": "71",
+            "speed": 0,
+            "stamina": 1688,
+            "strength": 1160,
+            "talents": [
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {}
+            ],
+            "teamId": "1",
+            "versatilityDamageTaken": 900,
+            "versatilityDamgeDone": 900,
+            "versatilityHealingDone": 900
+          },
+          "isActive": false,
+          "isWellFormed": false,
+          "name": "Varclave-WyrmrestAccord",
+          "ownerId": "",
+          "reaction": 2,
+          "reactionProofs": {},
+          "spec": "71",
+          "spellCastEvents": [],
+          "startTime": 0,
+          "supportDamageIn": [],
+          "supportDamageOut": [],
+          "supportHealIn": [],
+          "supportHealOut": [],
+          "type": 1,
+          "typeProofs": {}
+        },
+        "Player-47-08506C21": {
+          "absorbsDamaged": [],
+          "absorbsIn": [],
+          "absorbsOut": [],
+          "actionIn": [],
+          "actionOut": [],
+          "advancedActions": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 3430,
+              "advancedActorId": "Player-47-08506C21",
+              "advancedActorItemLevel": 3430,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 300,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 0,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": -1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_HEAL",
+                "id": "12",
+                "parameters": [
+                  "Player-47-08506C21",
+                  "Lerenor-Eitrigg",
+                  "0x548",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  25914,
+                  "Holy Shock",
+                  "0x2",
+                  "Player-47-08506C21",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  300,
+                  100,
+                  0,
+                  0,
+                  0,
+                  3430,
+                  3430,
+                  0,
+                  0,
+                  1
+                ],
+                "raw": "1/18/2024 23:03:21.089  SPELL_HEAL,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,25914,\"Holy Shock\",0x2,Player-47-08506C21,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,300.00,100.00,0,0.0000,0,3430,3430,0,0,1",
+                "timestamp": 1705637001089,
+                "timezone": "America/New_York"
+              },
+              "spellId": "25914",
+              "spellName": "Holy Shock",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x548",
+              "srcUnitId": "Player-47-08506C21",
+              "srcUnitName": "Lerenor-Eitrigg",
+              "timestamp": 1705637001089
+            }
+          ],
+          "affiliation": 0,
+          "auraEvents": [],
+          "class": 4,
+          "classProofs": {},
+          "consciousDeathRecords": [],
+          "damageIn": [],
+          "damageOut": [],
+          "deathRecords": [],
+          "endTime": 1705637001089,
+          "healIn": [],
+          "healOut": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 3430,
+              "advancedActorId": "Player-47-08506C21",
+              "advancedActorItemLevel": 3430,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 300,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 0,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": -1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_HEAL",
+                "id": "12",
+                "parameters": [
+                  "Player-47-08506C21",
+                  "Lerenor-Eitrigg",
+                  "0x548",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  25914,
+                  "Holy Shock",
+                  "0x2",
+                  "Player-47-08506C21",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  300,
+                  100,
+                  0,
+                  0,
+                  0,
+                  3430,
+                  3430,
+                  0,
+                  0,
+                  1
+                ],
+                "raw": "1/18/2024 23:03:21.089  SPELL_HEAL,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,25914,\"Holy Shock\",0x2,Player-47-08506C21,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,300.00,100.00,0,0.0000,0,3430,3430,0,0,1",
+                "timestamp": 1705637001089,
+                "timezone": "America/New_York"
+              },
+              "spellId": "25914",
+              "spellName": "Holy Shock",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x548",
+              "srcUnitId": "Player-47-08506C21",
+              "srcUnitName": "Lerenor-Eitrigg",
+              "timestamp": 1705637001089
+            }
+          ],
+          "id": "Player-47-08506C21",
+          "info": {
+            "agility": 158,
+            "armor": 1614,
+            "avoidance": 0,
+            "block": 0,
+            "critMelee": 397,
+            "critRanged": 397,
+            "critSpell": 397,
+            "dodge": 0,
+            "equipment": [
+              {
+                "bonuses": [
+                  "6797",
+                  "1491",
+                  "6616"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175850",
+                "ilvl": 177
+              },
+              {
+                "bonuses": [
+                  "6618",
+                  "42",
+                  "7194",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178387",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6784",
+                  "1485",
+                  "6616"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175872",
+                "ilvl": 171
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "0",
+                "ilvl": 0
+              },
+              {
+                "bonuses": [
+                  "6806",
+                  "6652",
+                  "1485",
+                  "4785"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178793",
+                "ilvl": 171
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175912",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7059",
+                  "6716",
+                  "6650",
+                  "6647",
+                  "1487"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "171416",
+                "ilvl": 190
+              },
+              {
+                "bonuses": [
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178358",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6789",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175881",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6782",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175861",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [],
+                "enchants": [
+                  "6169",
+                  "0",
+                  "0"
+                ],
+                "gems": [
+                  "173123",
+                  "118"
+                ],
+                "id": "173131",
+                "ilvl": 151
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178381",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6785",
+                  "1478",
+                  "6616"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178334",
+                "ilvl": 164
+              },
+              {
+                "bonuses": [
+                  "6791",
+                  "1485",
+                  "6616"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "184052",
+                "ilvl": 171
+              },
+              {
+                "bonuses": [
+                  "6790",
+                  "1491",
+                  "6616"
+                ],
+                "enchants": [
+                  "6208",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175851",
+                "ilvl": 177
+              },
+              {
+                "bonuses": [
+                  "7233",
+                  "1485",
+                  "6616"
+                ],
+                "enchants": [
+                  "6226",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178481",
+                "ilvl": 171
+              },
+              {
+                "bonuses": [
+                  "7132",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "174311",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "45585",
+                "ilvl": 1
+              }
+            ],
+            "hasteMelee": 29,
+            "hasteRanged": 29,
+            "hasteSpell": 29,
+            "highestPvpTier": 2,
+            "intelligence": 1244,
+            "interestingAurasJSON": "[\"Player-47-08506C21\",53563,\"Player-1171-0837B895\",6673]",
+            "item28": 52,
+            "item29": 30,
+            "item9": 0,
+            "lifesteal": 0,
+            "mastery": 65,
+            "parry": 0,
+            "personalRating": 1425,
+            "pvpTalents": [
+              "0",
+              "199452",
+              "216327",
+              "210294"
+            ],
+            "specId": "65",
+            "speed": 0,
+            "stamina": 1369,
+            "strength": 447,
+            "talents": [
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {}
+            ],
+            "teamId": "1",
+            "versatilityDamageTaken": 921,
+            "versatilityDamgeDone": 921,
+            "versatilityHealingDone": 921
+          },
+          "isActive": false,
+          "isWellFormed": false,
+          "name": "Lerenor-Eitrigg",
+          "ownerId": "0",
+          "reaction": 2,
+          "reactionProofs": {},
+          "spec": "65",
+          "spellCastEvents": [],
+          "startTime": 0,
+          "supportDamageIn": [],
+          "supportDamageOut": [],
+          "supportHealIn": [],
+          "supportHealOut": [],
+          "type": 1,
+          "typeProofs": {}
+        },
+        "Player-57-0CE7FCBF": {
+          "absorbsDamaged": [],
+          "absorbsIn": [],
+          "absorbsOut": [],
+          "actionIn": [],
+          "actionOut": [],
+          "advancedActions": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 79,
+              "advancedActorId": "Player-57-0CE7FCBF",
+              "advancedActorItemLevel": 168,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 100,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "10",
+                "parameters": [
+                  "Player-57-0CE7FCBF",
+                  "Loktaar-Illidan",
+                  "0x511",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  126664,
+                  "Charge",
+                  "0x1",
+                  "Player-57-0CE7FCBF",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  100,
+                  300,
+                  0,
+                  0,
+                  0,
+                  79,
+                  168,
+                  -1,
+                  1,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/18/2024 23:02:34.751  SPELL_DAMAGE,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,126664,\"Charge\",0x1,Player-57-0CE7FCBF,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,100.00,300.00,0,0.0000,0,79,168,-1,1,0,0,0,nil,nil,nil",
+                "timestamp": 1705636954751,
+                "timezone": "America/New_York"
+              },
+              "spellId": "126664",
+              "spellName": "Charge",
+              "spellSchoolId": "0x1",
+              "srcUnitFlags": "0x511",
+              "srcUnitId": "Player-57-0CE7FCBF",
+              "srcUnitName": "Loktaar-Illidan",
+              "timestamp": 1705636954751
+            }
+          ],
+          "affiliation": 0,
+          "auraEvents": [],
+          "class": 1,
+          "classProofs": {},
+          "consciousDeathRecords": [],
+          "damageIn": [],
+          "damageOut": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 79,
+              "advancedActorId": "Player-57-0CE7FCBF",
+              "advancedActorItemLevel": 168,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 100,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "10",
+                "parameters": [
+                  "Player-57-0CE7FCBF",
+                  "Loktaar-Illidan",
+                  "0x511",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  126664,
+                  "Charge",
+                  "0x1",
+                  "Player-57-0CE7FCBF",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  100,
+                  300,
+                  0,
+                  0,
+                  0,
+                  79,
+                  168,
+                  -1,
+                  1,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/18/2024 23:02:34.751  SPELL_DAMAGE,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,126664,\"Charge\",0x1,Player-57-0CE7FCBF,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,100.00,300.00,0,0.0000,0,79,168,-1,1,0,0,0,nil,nil,nil",
+                "timestamp": 1705636954751,
+                "timezone": "America/New_York"
+              },
+              "spellId": "126664",
+              "spellName": "Charge",
+              "spellSchoolId": "0x1",
+              "srcUnitFlags": "0x511",
+              "srcUnitId": "Player-57-0CE7FCBF",
+              "srcUnitName": "Loktaar-Illidan",
+              "timestamp": 1705636954751
+            }
+          ],
+          "deathRecords": [
+            {
+              "event": "UNIT_DIED",
+              "id": "13",
+              "parameters": [
+                0,
+                "nil",
+                "0x80000000",
+                "0x80000000",
+                "Player-57-0CE7FCBF",
+                "Loktaar-Illidan",
+                "0x511",
+                "0x0",
+                0
+              ],
+              "raw": "1/18/2024 23:03:59.838  UNIT_DIED,0000000000000000,nil,0x80000000,0x80000000,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,0",
+              "timestamp": 1705637039838,
+              "timezone": "America/New_York"
+            }
+          ],
+          "endTime": 1705637039838,
+          "healIn": [],
+          "healOut": [],
+          "id": "Player-57-0CE7FCBF",
+          "info": {
+            "agility": 307,
+            "armor": 1090,
+            "avoidance": 0,
+            "block": 0,
+            "critMelee": 228,
+            "critRanged": 228,
+            "critSpell": 228,
+            "dodge": 0,
+            "equipment": [
+              {
+                "bonuses": [
+                  "7193",
+                  "6631",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178352",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6618",
+                  "6652",
+                  "6935",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [
+                  "173129",
+                  "120"
+                ],
+                "id": "178448",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6652",
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175909",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "0",
+                "ilvl": 0
+              },
+              {
+                "bonuses": [
+                  "6958",
+                  "6650",
+                  "6649",
+                  "6717",
+                  "1507"
+                ],
+                "enchants": [
+                  "6230",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "171412",
+                "ilvl": 210
+              },
+              {
+                "bonuses": [
+                  "6627",
+                  "6652",
+                  "7194",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178377",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6796",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175867",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6782",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175856",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6789",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [
+                  "6222",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175881",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6808",
+                  "6652",
+                  "1501",
+                  "6646"
+                ],
+                "enchants": [
+                  "6205",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "180104",
+                "ilvl": 187
+              },
+              {
+                "bonuses": [
+                  "6652",
+                  "7193",
+                  "1492",
+                  "6646"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "184142",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175916",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6789",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "184052",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6782",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175884",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6789",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [
+                  "6204",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178265",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6775",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [
+                  "6229",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178476",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "0",
+                "ilvl": 0
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "0",
+                "ilvl": 0
+              }
+            ],
+            "hasteMelee": 435,
+            "hasteRanged": 435,
+            "hasteSpell": 435,
+            "highestPvpTier": 2,
+            "intelligence": 305,
+            "interestingAurasJSON": "[\"Player-57-0CF07095\",53563,\"Player-57-0CE7FCBF\",197690]",
+            "item28": 46,
+            "item29": 30,
+            "item9": 0,
+            "lifesteal": 30,
+            "mastery": 41,
+            "parry": 0,
+            "personalRating": 1433,
+            "pvpTalents": [
+              "0",
+              "198817",
+              "236077",
+              "198500"
+            ],
+            "specId": "71",
+            "speed": 0,
+            "stamina": 1482,
+            "strength": 1082,
+            "talents": [
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {}
+            ],
+            "teamId": "0",
+            "versatilityDamageTaken": 932,
+            "versatilityDamgeDone": 932,
+            "versatilityHealingDone": 932
+          },
+          "isActive": false,
+          "isWellFormed": false,
+          "name": "Loktaar-Illidan",
+          "ownerId": "0",
+          "reaction": 1,
+          "reactionProofs": {},
+          "spec": "71",
+          "spellCastEvents": [],
+          "startTime": 0,
+          "supportDamageIn": [],
+          "supportDamageOut": [],
+          "supportHealIn": [],
+          "supportHealOut": [],
+          "type": 1,
+          "typeProofs": {}
+        },
+        "Player-57-0CF07095": {
+          "absorbsDamaged": [],
+          "absorbsIn": [],
+          "absorbsOut": [],
+          "actionIn": [],
+          "actionOut": [],
+          "advancedActions": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 2223,
+              "advancedActorId": "Player-57-0CF07095",
+              "advancedActorItemLevel": 3227,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 200,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "11",
+                "parameters": [
+                  "Player-57-0CF07095",
+                  "Palita-Illidan",
+                  "0x512",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  275773,
+                  "Judgment",
+                  "0x2",
+                  "Player-57-0CF07095",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  200,
+                  200,
+                  0,
+                  0,
+                  0,
+                  2223,
+                  3227,
+                  -1,
+                  2,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/18/2024 23:02:36.053  SPELL_DAMAGE,Player-57-0CF07095,\"Palita-Illidan\",0x512,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,275773,\"Judgment\",0x2,Player-57-0CF07095,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,200.00,200.00,0,0.0000,0,2223,3227,-1,2,0,0,0,nil,nil,nil",
+                "timestamp": 1705636956053,
+                "timezone": "America/New_York"
+              },
+              "spellId": "275773",
+              "spellName": "Judgment",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x512",
+              "srcUnitId": "Player-57-0CF07095",
+              "srcUnitName": "Palita-Illidan",
+              "timestamp": 1705636956053
+            }
+          ],
+          "affiliation": 0,
+          "auraEvents": [],
+          "class": 4,
+          "classProofs": {},
+          "consciousDeathRecords": [],
+          "damageIn": [],
+          "damageOut": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 2223,
+              "advancedActorId": "Player-57-0CF07095",
+              "advancedActorItemLevel": 3227,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 200,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "11",
+                "parameters": [
+                  "Player-57-0CF07095",
+                  "Palita-Illidan",
+                  "0x512",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  275773,
+                  "Judgment",
+                  "0x2",
+                  "Player-57-0CF07095",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  200,
+                  200,
+                  0,
+                  0,
+                  0,
+                  2223,
+                  3227,
+                  -1,
+                  2,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/18/2024 23:02:36.053  SPELL_DAMAGE,Player-57-0CF07095,\"Palita-Illidan\",0x512,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,275773,\"Judgment\",0x2,Player-57-0CF07095,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,200.00,200.00,0,0.0000,0,2223,3227,-1,2,0,0,0,nil,nil,nil",
+                "timestamp": 1705636956053,
+                "timezone": "America/New_York"
+              },
+              "spellId": "275773",
+              "spellName": "Judgment",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x512",
+              "srcUnitId": "Player-57-0CF07095",
+              "srcUnitName": "Palita-Illidan",
+              "timestamp": 1705636956053
+            }
+          ],
+          "deathRecords": [],
+          "endTime": 1705636956053,
+          "healIn": [],
+          "healOut": [],
+          "id": "Player-57-0CF07095",
+          "info": {
+            "agility": 158,
+            "armor": 1679,
+            "avoidance": 0,
+            "block": 0,
+            "critMelee": 449,
+            "critRanged": 449,
+            "critSpell": 449,
+            "dodge": 0,
+            "equipment": [
+              {
+                "bonuses": [
+                  "7193",
+                  "6631",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178352",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178387",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6780",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175872",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6835"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "4330",
+                "ilvl": 1
+              },
+              {
+                "bonuses": [
+                  "6794",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [
+                  "6217",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175853",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6780",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175875",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "7059",
+                  "6717",
+                  "6647",
+                  "6650",
+                  "1507"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "171416",
+                "ilvl": 210
+              },
+              {
+                "bonuses": [
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6207",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175893",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6787",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [
+                  "6219",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175881",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6627",
+                  "6652",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6210",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175898",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6787",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178293",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178381",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6780",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178334",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6787",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "184052",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6652",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6208",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175888",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7237",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [
+                  "6229",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178481",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "7151",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178490",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "69209",
+                "ilvl": 1
+              }
+            ],
+            "hasteMelee": 80,
+            "hasteRanged": 80,
+            "hasteSpell": 80,
+            "highestPvpTier": 2,
+            "intelligence": 1410,
+            "interestingAurasJSON": "[\"Player-57-0CF07095\",156910]",
+            "item28": 58,
+            "item29": 30,
+            "item9": 0,
+            "lifesteal": 0,
+            "mastery": 27,
+            "parry": 0,
+            "personalRating": 1515,
+            "pvpTalents": [
+              "0",
+              "216327",
+              "210294",
+              "199452"
+            ],
+            "specId": "65",
+            "speed": 0,
+            "stamina": 1591,
+            "strength": 447,
+            "talents": [
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {}
+            ],
+            "teamId": "0",
+            "versatilityDamageTaken": 1011,
+            "versatilityDamgeDone": 1011,
+            "versatilityHealingDone": 1011
+          },
+          "isActive": false,
+          "isWellFormed": false,
+          "name": "Palita-Illidan",
+          "ownerId": "0",
+          "reaction": 1,
+          "reactionProofs": {},
+          "spec": "65",
+          "spellCastEvents": [],
+          "startTime": 0,
+          "supportDamageIn": [],
+          "supportDamageOut": [],
+          "supportHealIn": [],
+          "supportHealOut": [],
+          "type": 1,
+          "typeProofs": {}
+        }
+      },
+      "winningTeamId": "1",
+      "wowVersion": "retail"
+    },
+    {
+      "dataType": "ArenaMatch",
+      "durationInSeconds": 465,
+      "endInfo": {
+        "matchDurationInSeconds": 465,
+        "team0MMR": 1333,
+        "team1MMR": 1437,
+        "timestamp": 1705723365191,
+        "winningTeamId": "0"
+      },
+      "endTime": 1705723365191,
+      "events": [
+        {
+          "advanced": true,
+          "advancedActorCurrentHp": 20000,
+          "advancedActorFacing": 79,
+          "advancedActorId": "Player-57-0CE7FCBF",
+          "advancedActorItemLevel": 168,
+          "advancedActorMaxHp": 30000,
+          "advancedActorPositionX": 0,
+          "advancedActorPositionY": 0,
+          "advancedActorPowers": [
+            {
+              "current": 0,
+              "max": 100,
+              "type": "0"
+            }
+          ],
+          "advancedOwnerId": "0",
+          "amount": 1,
+          "destUnitFlags": "0x10548",
+          "destUnitId": "Player-1171-0837B895",
+          "destUnitName": "Varclave-WyrmrestAccord",
+          "effectiveAmount": 1,
+          "isCritical": false,
+          "logLine": {
+            "event": "SPELL_DAMAGE",
+            "id": "25",
+            "parameters": [
+              "Player-57-0CE7FCBF",
+              "Loktaar-Illidan",
+              "0x511",
+              "0x0",
+              "Player-1171-0837B895",
+              "Varclave-WyrmrestAccord",
+              "0x10548",
+              "0x0",
+              126664,
+              "Charge",
+              "0x1",
+              "Player-57-0CE7FCBF",
+              0,
+              20000,
+              30000,
+              0,
+              0,
+              0,
+              0,
+              -1,
+              0,
+              0,
+              0,
+              100,
+              300,
+              0,
+              0,
+              0,
+              79,
+              168,
+              -1,
+              1,
+              0,
+              0,
+              0,
+              "nil",
+              "nil",
+              "nil"
+            ],
+            "raw": "1/19/2024 23:02:34.751  SPELL_DAMAGE,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,126664,\"Charge\",0x1,Player-57-0CE7FCBF,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,100.00,300.00,0,0.0000,0,79,168,-1,1,0,0,0,nil,nil,nil",
+            "timestamp": 1705723354751,
+            "timezone": "America/New_York"
+          },
+          "spellId": "126664",
+          "spellName": "Charge",
+          "spellSchoolId": "0x1",
+          "srcUnitFlags": "0x511",
+          "srcUnitId": "Player-57-0CE7FCBF",
+          "srcUnitName": "Loktaar-Illidan",
+          "timestamp": 1705723354751
+        },
+        {
+          "advanced": true,
+          "advancedActorCurrentHp": 20000,
+          "advancedActorFacing": 2223,
+          "advancedActorId": "Player-57-0CF07095",
+          "advancedActorItemLevel": 3227,
+          "advancedActorMaxHp": 30000,
+          "advancedActorPositionX": 0,
+          "advancedActorPositionY": 0,
+          "advancedActorPowers": [
+            {
+              "current": 0,
+              "max": 200,
+              "type": "0"
+            }
+          ],
+          "advancedOwnerId": "0",
+          "amount": 1,
+          "destUnitFlags": "0x10548",
+          "destUnitId": "Player-1171-0837B895",
+          "destUnitName": "Varclave-WyrmrestAccord",
+          "effectiveAmount": 1,
+          "isCritical": false,
+          "logLine": {
+            "event": "SPELL_DAMAGE",
+            "id": "26",
+            "parameters": [
+              "Player-57-0CF07095",
+              "Palita-Illidan",
+              "0x512",
+              "0x0",
+              "Player-1171-0837B895",
+              "Varclave-WyrmrestAccord",
+              "0x10548",
+              "0x0",
+              275773,
+              "Judgment",
+              "0x2",
+              "Player-57-0CF07095",
+              0,
+              20000,
+              30000,
+              0,
+              0,
+              0,
+              0,
+              -1,
+              0,
+              0,
+              0,
+              200,
+              200,
+              0,
+              0,
+              0,
+              2223,
+              3227,
+              -1,
+              2,
+              0,
+              0,
+              0,
+              "nil",
+              "nil",
+              "nil"
+            ],
+            "raw": "1/19/2024 23:02:36.053  SPELL_DAMAGE,Player-57-0CF07095,\"Palita-Illidan\",0x512,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,275773,\"Judgment\",0x2,Player-57-0CF07095,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,200.00,200.00,0,0.0000,0,2223,3227,-1,2,0,0,0,nil,nil,nil",
+            "timestamp": 1705723356053,
+            "timezone": "America/New_York"
+          },
+          "spellId": "275773",
+          "spellName": "Judgment",
+          "spellSchoolId": "0x2",
+          "srcUnitFlags": "0x512",
+          "srcUnitId": "Player-57-0CF07095",
+          "srcUnitName": "Palita-Illidan",
+          "timestamp": 1705723356053
+        },
+        {
+          "advanced": true,
+          "advancedActorCurrentHp": 20000,
+          "advancedActorFacing": 3430,
+          "advancedActorId": "Player-47-08506C21",
+          "advancedActorItemLevel": 3430,
+          "advancedActorMaxHp": 30000,
+          "advancedActorPositionX": 0,
+          "advancedActorPositionY": 0,
+          "advancedActorPowers": [
+            {
+              "current": 0,
+              "max": 300,
+              "type": "0"
+            }
+          ],
+          "advancedOwnerId": "0",
+          "amount": 0,
+          "destUnitFlags": "0x10548",
+          "destUnitId": "Player-1171-0837B895",
+          "destUnitName": "Varclave-WyrmrestAccord",
+          "effectiveAmount": -1,
+          "isCritical": false,
+          "logLine": {
+            "event": "SPELL_HEAL",
+            "id": "27",
+            "parameters": [
+              "Player-47-08506C21",
+              "Lerenor-Eitrigg",
+              "0x548",
+              "0x0",
+              "Player-1171-0837B895",
+              "Varclave-WyrmrestAccord",
+              "0x10548",
+              "0x0",
+              25914,
+              "Holy Shock",
+              "0x2",
+              "Player-47-08506C21",
+              0,
+              20000,
+              30000,
+              0,
+              0,
+              0,
+              0,
+              -1,
+              0,
+              0,
+              0,
+              300,
+              100,
+              0,
+              0,
+              0,
+              3430,
+              3430,
+              0,
+              0,
+              1
+            ],
+            "raw": "1/19/2024 23:02:40.089  SPELL_HEAL,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,25914,\"Holy Shock\",0x2,Player-47-08506C21,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,300.00,100.00,0,0.0000,0,3430,3430,0,0,1",
+            "timestamp": 1705723360089,
+            "timezone": "America/New_York"
+          },
+          "spellId": "25914",
+          "spellName": "Holy Shock",
+          "spellSchoolId": "0x2",
+          "srcUnitFlags": "0x548",
+          "srcUnitId": "Player-47-08506C21",
+          "srcUnitName": "Lerenor-Eitrigg",
+          "timestamp": 1705723360089
+        },
+        {
+          "destUnitFlags": "0x511",
+          "destUnitId": "Player-57-0CE7FCBF",
+          "destUnitName": "Loktaar-Illidan",
+          "logLine": {
+            "event": "UNIT_DIED",
+            "id": "28",
+            "parameters": [
+              0,
+              "nil",
+              "0x80000000",
+              "0x80000000",
+              "Player-57-0CE7FCBF",
+              "Loktaar-Illidan",
+              "0x511",
+              "0x0",
+              0
+            ],
+            "raw": "1/19/2024 23:02:44.838  UNIT_DIED,0000000000000000,nil,0x80000000,0x80000000,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,0",
+            "timestamp": 1705723364838,
+            "timezone": "America/New_York"
+          },
+          "spellId": null,
+          "spellName": null,
+          "spellSchoolId": null,
+          "srcUnitFlags": "0x80000000",
+          "srcUnitId": "0",
+          "srcUnitName": "nil",
+          "timestamp": 1705723364838
+        }
+      ],
+      "hasAdvancedLogging": true,
+      "id": "1cbedd4cadd0ea12ba32fe5689dec3d3",
+      "linesNotParsedCount": 0,
+      "playerId": "",
+      "playerTeamId": "0",
+      "playerTeamRating": 1333,
+      "rawLines": [
+        "1/19/2024 23:02:21.959  ARENA_MATCH_START,1551,30,3v3,0",
+        "1/19/2024 23:02:21.959  COMBATANT_INFO,Player-57-0CF07095,0,447,158,1591,1410,0,0,0,0,449,449,449,0,0,80,80,80,0,27,1011,1011,1011,1679,65,(223306,157047,20066,114154,223817,248033,156910),(0,216327,210294,199452),[(178352,207,(),(7193,6631,1479,6646),()),(178387,207,(),(7193,6618,1479,6646),()),(175872,197,(),(6780,1511,6646),()),(4330,1,(),(6835),()),(175853,197,(6217,0,0),(6794,1511,6646),()),(175875,197,(),(6780,1511,6646),()),(171416,210,(),(7059,6717,6647,6650,1507),()),(175893,207,(6207,0,0),(6627,1479,6646),()),(175881,197,(6219,0,0),(6787,1511,6646),()),(175898,207,(6210,0,0),(6627,6652,1479,6646),()),(178293,197,(6170,0,0),(6787,1511,6646),()),(178381,207,(6170,0,0),(7193,6618,1479,6646),()),(178334,197,(),(6780,1511,6646),()),(184052,197,(),(6787,1511,6646),()),(175888,207,(6208,0,0),(6652,6618,1479,6646),()),(178481,197,(6229,0,0),(7237,1511,6646),()),(178490,197,(),(7151,1511,6646),()),(69209,1,(),(),())],[Player-57-0CF07095,156910],58,30,1515,2",
+        "1/19/2024 23:02:21.959  COMBATANT_INFO,Player-57-0CE7FCBF,0,1082,307,1482,305,0,0,0,0,228,228,228,0,30,435,435,435,0,41,932,932,932,1090,71,(29725,107570,281001,197690,262161,107574,262150),(0,198817,236077,198500),[(178352,207,(),(7193,6631,1479,6646),()),(178448,207,(),(6618,6652,6935,1479,6646),(173129,120)),(175909,207,(),(6652,6627,1479,6646),()),(0,0,(),(),()),(171412,210,(6230,0,0),(6958,6650,6649,6717,1507),()),(178377,207,(),(6627,6652,7194,1479,6646),()),(175867,184,(),(6796,1498,6646),()),(175856,184,(),(6782,1498,6646),()),(175881,184,(6222,0,0),(6789,1498,6646),()),(180104,187,(6205,0,0),(6808,6652,1501,6646),()),(184142,207,(6170,0,0),(6652,7193,1492,6646),()),(175916,207,(6170,0,0),(7193,6618,1479,6646),()),(184052,184,(),(6789,1498,6646),()),(175884,184,(),(6782,1498,6646),()),(178265,184,(6204,0,0),(6789,1498,6646),()),(178476,184,(6229,0,0),(6775,1498,6646),()),(0,0,(),(),()),(0,0,(),(),())],[Player-57-0CF07095,53563,Player-57-0CE7FCBF,197690],46,30,1433,2",
+        "1/19/2024 23:02:21.959  COMBATANT_INFO,Player-47-08506C21,1,447,158,1369,1244,0,0,0,0,397,397,397,0,0,29,29,29,0,65,921,921,921,1614,65,(223306,157047,20066,114154,223817,248033,156910),(0,199452,216327,210294),[(175850,177,(),(6797,1491,6616),()),(178387,207,(),(6618,42,7194,1479,6646),()),(175872,171,(),(6784,1485,6616),()),(0,0,(),(),()),(178793,171,(),(6806,6652,1485,4785),()),(175912,207,(),(7193,6627,1479,6646),()),(171416,190,(),(7059,6716,6650,6647,1487),()),(178358,207,(),(6627,1479,6646),()),(175881,184,(),(6789,1498,6646),()),(175861,184,(),(6782,1498,6646),()),(173131,151,(6169,0,0),(),(173123,118)),(178381,207,(6170,0,0),(7193,6618,1479,6646),()),(178334,164,(),(6785,1478,6616),()),(184052,171,(),(6791,1485,6616),()),(175851,177,(6208,0,0),(6790,1491,6616),()),(178481,171,(6226,0,0),(7233,1485,6616),()),(174311,207,(),(7132,1479,6646),()),(45585,1,(),(),())],[Player-47-08506C21,53563,Player-1171-0837B895,6673],52,30,1425,2",
+        "1/19/2024 23:02:21.959  COMBATANT_INFO,Player-1171-0837B895,1,1160,308,1688,304,0,0,0,0,66,66,66,0,0,697,697,697,0,39,900,900,900,1160,71,(29725,107570,281001,197690,262161,107574,262150),(0,236077,198500,198817),[(175887,207,(),(7193,6631,1479,6646),()),(175885,197,(),(6787,1511,6646),()),(178374,207,(),(6652,6627,1479,6646),()),(3428,1,(),(),()),(175890,207,(6216,0,0),(43,6631,1479,6646),()),(179893,197,(),(7201,1514,6646),()),(175904,207,(),(6631,6652,1479,6646),()),(175893,207,(),(6627,1479,6646),()),(178383,207,(),(7193,6618,1479,6646),()),(171414,235,(6210,0,0),(6970,6649,6650,6758,1532),()),(183037,200,(6170,0,0),(6805,6652,6935),(173129,120)),(175916,207,(6166,0,0),(6652,6935,6618,1479,6646),(173128,120)),(178386,207,(),(40,6627,1479,6646),()),(181333,207,(),(6618,1479,6646),()),(179623,197,(),(7201,1514,6646),()),(178476,197,(6229,0,0),(6773,1511,6646),()),(0,0,(),(),()),(178336,40,(),(),())],[Player-47-08506C21,156910,Player-1171-0837B895,6673,Player-1171-0837B895,197690,Player-1171-0837B895,335282],32,30,1442,2",
+        "1/19/2024 23:02:34.751  SPELL_DAMAGE,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,126664,\"Charge\",0x1,Player-57-0CE7FCBF,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,100.00,300.00,0,0.0000,0,79,168,-1,1,0,0,0,nil,nil,nil",
+        "1/19/2024 23:02:36.053  SPELL_DAMAGE,Player-57-0CF07095,\"Palita-Illidan\",0x512,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,275773,\"Judgment\",0x2,Player-57-0CF07095,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,200.00,200.00,0,0.0000,0,2223,3227,-1,2,0,0,0,nil,nil,nil",
+        "1/19/2024 23:02:40.089  SPELL_HEAL,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,25914,\"Holy Shock\",0x2,Player-47-08506C21,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,300.00,100.00,0,0.0000,0,3430,3430,0,0,1",
+        "1/19/2024 23:02:44.838  UNIT_DIED,0000000000000000,nil,0x80000000,0x80000000,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,0",
+        "1/19/2024 23:02:45.191  ARENA_MATCH_END,0,465,1333,1437"
+      ],
+      "result": 3,
+      "startInfo": {
+        "bracket": "3v3",
+        "isRanked": false,
+        "item1": "30",
+        "timestamp": 1705723341959,
+        "zoneId": "1551"
+      },
+      "startTime": 1705723341959,
+      "timezone": "America/New_York",
+      "units": {
+        "0": {
+          "absorbsDamaged": [],
+          "absorbsIn": [],
+          "absorbsOut": [],
+          "actionIn": [],
+          "actionOut": [],
+          "advancedActions": [],
+          "affiliation": 0,
+          "auraEvents": [],
+          "class": 0,
+          "classProofs": {},
+          "consciousDeathRecords": [],
+          "damageIn": [],
+          "damageOut": [],
+          "deathRecords": [],
+          "endTime": 1705723364838,
+          "healIn": [],
+          "healOut": [],
+          "id": "0",
+          "isActive": false,
+          "isWellFormed": false,
+          "name": "nil",
+          "ownerId": "",
+          "reaction": 0,
+          "reactionProofs": {},
+          "spec": "0",
+          "spellCastEvents": [],
+          "startTime": 0,
+          "supportDamageIn": [],
+          "supportDamageOut": [],
+          "supportHealIn": [],
+          "supportHealOut": [],
+          "type": 0,
+          "typeProofs": {}
+        },
+        "Player-1171-0837B895": {
+          "absorbsDamaged": [],
+          "absorbsIn": [],
+          "absorbsOut": [],
+          "actionIn": [],
+          "actionOut": [],
+          "advancedActions": [],
+          "affiliation": 0,
+          "auraEvents": [],
+          "class": 1,
+          "classProofs": {},
+          "consciousDeathRecords": [],
+          "damageIn": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 79,
+              "advancedActorId": "Player-57-0CE7FCBF",
+              "advancedActorItemLevel": 168,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 100,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "25",
+                "parameters": [
+                  "Player-57-0CE7FCBF",
+                  "Loktaar-Illidan",
+                  "0x511",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  126664,
+                  "Charge",
+                  "0x1",
+                  "Player-57-0CE7FCBF",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  100,
+                  300,
+                  0,
+                  0,
+                  0,
+                  79,
+                  168,
+                  -1,
+                  1,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/19/2024 23:02:34.751  SPELL_DAMAGE,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,126664,\"Charge\",0x1,Player-57-0CE7FCBF,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,100.00,300.00,0,0.0000,0,79,168,-1,1,0,0,0,nil,nil,nil",
+                "timestamp": 1705723354751,
+                "timezone": "America/New_York"
+              },
+              "spellId": "126664",
+              "spellName": "Charge",
+              "spellSchoolId": "0x1",
+              "srcUnitFlags": "0x511",
+              "srcUnitId": "Player-57-0CE7FCBF",
+              "srcUnitName": "Loktaar-Illidan",
+              "timestamp": 1705723354751
+            },
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 2223,
+              "advancedActorId": "Player-57-0CF07095",
+              "advancedActorItemLevel": 3227,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 200,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "26",
+                "parameters": [
+                  "Player-57-0CF07095",
+                  "Palita-Illidan",
+                  "0x512",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  275773,
+                  "Judgment",
+                  "0x2",
+                  "Player-57-0CF07095",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  200,
+                  200,
+                  0,
+                  0,
+                  0,
+                  2223,
+                  3227,
+                  -1,
+                  2,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/19/2024 23:02:36.053  SPELL_DAMAGE,Player-57-0CF07095,\"Palita-Illidan\",0x512,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,275773,\"Judgment\",0x2,Player-57-0CF07095,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,200.00,200.00,0,0.0000,0,2223,3227,-1,2,0,0,0,nil,nil,nil",
+                "timestamp": 1705723356053,
+                "timezone": "America/New_York"
+              },
+              "spellId": "275773",
+              "spellName": "Judgment",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x512",
+              "srcUnitId": "Player-57-0CF07095",
+              "srcUnitName": "Palita-Illidan",
+              "timestamp": 1705723356053
+            }
+          ],
+          "damageOut": [],
+          "deathRecords": [],
+          "endTime": 1705723360089,
+          "healIn": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 3430,
+              "advancedActorId": "Player-47-08506C21",
+              "advancedActorItemLevel": 3430,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 300,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 0,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": -1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_HEAL",
+                "id": "27",
+                "parameters": [
+                  "Player-47-08506C21",
+                  "Lerenor-Eitrigg",
+                  "0x548",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  25914,
+                  "Holy Shock",
+                  "0x2",
+                  "Player-47-08506C21",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  300,
+                  100,
+                  0,
+                  0,
+                  0,
+                  3430,
+                  3430,
+                  0,
+                  0,
+                  1
+                ],
+                "raw": "1/19/2024 23:02:40.089  SPELL_HEAL,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,25914,\"Holy Shock\",0x2,Player-47-08506C21,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,300.00,100.00,0,0.0000,0,3430,3430,0,0,1",
+                "timestamp": 1705723360089,
+                "timezone": "America/New_York"
+              },
+              "spellId": "25914",
+              "spellName": "Holy Shock",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x548",
+              "srcUnitId": "Player-47-08506C21",
+              "srcUnitName": "Lerenor-Eitrigg",
+              "timestamp": 1705723360089
+            }
+          ],
+          "healOut": [],
+          "id": "Player-1171-0837B895",
+          "info": {
+            "agility": 308,
+            "armor": 1160,
+            "avoidance": 0,
+            "block": 0,
+            "critMelee": 66,
+            "critRanged": 66,
+            "critSpell": 66,
+            "dodge": 0,
+            "equipment": [
+              {
+                "bonuses": [
+                  "7193",
+                  "6631",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175887",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6787",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175885",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6652",
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178374",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "3428",
+                "ilvl": 1
+              },
+              {
+                "bonuses": [
+                  "43",
+                  "6631",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6216",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175890",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7201",
+                  "1514",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "179893",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6631",
+                  "6652",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175904",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175893",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178383",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6970",
+                  "6649",
+                  "6650",
+                  "6758",
+                  "1532"
+                ],
+                "enchants": [
+                  "6210",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "171414",
+                "ilvl": 235
+              },
+              {
+                "bonuses": [
+                  "6805",
+                  "6652",
+                  "6935"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [
+                  "173129",
+                  "120"
+                ],
+                "id": "183037",
+                "ilvl": 200
+              },
+              {
+                "bonuses": [
+                  "6652",
+                  "6935",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6166",
+                  "0",
+                  "0"
+                ],
+                "gems": [
+                  "173128",
+                  "120"
+                ],
+                "id": "175916",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "40",
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178386",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "181333",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7201",
+                  "1514",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "179623",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6773",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [
+                  "6229",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178476",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "0",
+                "ilvl": 0
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "178336",
+                "ilvl": 40
+              }
+            ],
+            "hasteMelee": 697,
+            "hasteRanged": 697,
+            "hasteSpell": 697,
+            "highestPvpTier": 2,
+            "intelligence": 304,
+            "interestingAurasJSON": "[\"Player-47-08506C21\",156910,\"Player-1171-0837B895\",6673,\"Player-1171-0837B895\",197690,\"Player-1171-0837B895\",335282]",
+            "item28": 32,
+            "item29": 30,
+            "item9": 0,
+            "lifesteal": 0,
+            "mastery": 39,
+            "parry": 0,
+            "personalRating": 1442,
+            "pvpTalents": [
+              "0",
+              "236077",
+              "198500",
+              "198817"
+            ],
+            "specId": "71",
+            "speed": 0,
+            "stamina": 1688,
+            "strength": 1160,
+            "talents": [
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {}
+            ],
+            "teamId": "1",
+            "versatilityDamageTaken": 900,
+            "versatilityDamgeDone": 900,
+            "versatilityHealingDone": 900
+          },
+          "isActive": false,
+          "isWellFormed": false,
+          "name": "Varclave-WyrmrestAccord",
+          "ownerId": "",
+          "reaction": 2,
+          "reactionProofs": {},
+          "spec": "71",
+          "spellCastEvents": [],
+          "startTime": 0,
+          "supportDamageIn": [],
+          "supportDamageOut": [],
+          "supportHealIn": [],
+          "supportHealOut": [],
+          "type": 1,
+          "typeProofs": {}
+        },
+        "Player-47-08506C21": {
+          "absorbsDamaged": [],
+          "absorbsIn": [],
+          "absorbsOut": [],
+          "actionIn": [],
+          "actionOut": [],
+          "advancedActions": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 3430,
+              "advancedActorId": "Player-47-08506C21",
+              "advancedActorItemLevel": 3430,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 300,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 0,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": -1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_HEAL",
+                "id": "27",
+                "parameters": [
+                  "Player-47-08506C21",
+                  "Lerenor-Eitrigg",
+                  "0x548",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  25914,
+                  "Holy Shock",
+                  "0x2",
+                  "Player-47-08506C21",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  300,
+                  100,
+                  0,
+                  0,
+                  0,
+                  3430,
+                  3430,
+                  0,
+                  0,
+                  1
+                ],
+                "raw": "1/19/2024 23:02:40.089  SPELL_HEAL,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,25914,\"Holy Shock\",0x2,Player-47-08506C21,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,300.00,100.00,0,0.0000,0,3430,3430,0,0,1",
+                "timestamp": 1705723360089,
+                "timezone": "America/New_York"
+              },
+              "spellId": "25914",
+              "spellName": "Holy Shock",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x548",
+              "srcUnitId": "Player-47-08506C21",
+              "srcUnitName": "Lerenor-Eitrigg",
+              "timestamp": 1705723360089
+            }
+          ],
+          "affiliation": 0,
+          "auraEvents": [],
+          "class": 4,
+          "classProofs": {},
+          "consciousDeathRecords": [],
+          "damageIn": [],
+          "damageOut": [],
+          "deathRecords": [],
+          "endTime": 1705723360089,
+          "healIn": [],
+          "healOut": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 3430,
+              "advancedActorId": "Player-47-08506C21",
+              "advancedActorItemLevel": 3430,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 300,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 0,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": -1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_HEAL",
+                "id": "27",
+                "parameters": [
+                  "Player-47-08506C21",
+                  "Lerenor-Eitrigg",
+                  "0x548",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  25914,
+                  "Holy Shock",
+                  "0x2",
+                  "Player-47-08506C21",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  300,
+                  100,
+                  0,
+                  0,
+                  0,
+                  3430,
+                  3430,
+                  0,
+                  0,
+                  1
+                ],
+                "raw": "1/19/2024 23:02:40.089  SPELL_HEAL,Player-47-08506C21,\"Lerenor-Eitrigg\",0x548,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,25914,\"Holy Shock\",0x2,Player-47-08506C21,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,300.00,100.00,0,0.0000,0,3430,3430,0,0,1",
+                "timestamp": 1705723360089,
+                "timezone": "America/New_York"
+              },
+              "spellId": "25914",
+              "spellName": "Holy Shock",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x548",
+              "srcUnitId": "Player-47-08506C21",
+              "srcUnitName": "Lerenor-Eitrigg",
+              "timestamp": 1705723360089
+            }
+          ],
+          "id": "Player-47-08506C21",
+          "info": {
+            "agility": 158,
+            "armor": 1614,
+            "avoidance": 0,
+            "block": 0,
+            "critMelee": 397,
+            "critRanged": 397,
+            "critSpell": 397,
+            "dodge": 0,
+            "equipment": [
+              {
+                "bonuses": [
+                  "6797",
+                  "1491",
+                  "6616"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175850",
+                "ilvl": 177
+              },
+              {
+                "bonuses": [
+                  "6618",
+                  "42",
+                  "7194",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178387",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6784",
+                  "1485",
+                  "6616"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175872",
+                "ilvl": 171
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "0",
+                "ilvl": 0
+              },
+              {
+                "bonuses": [
+                  "6806",
+                  "6652",
+                  "1485",
+                  "4785"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178793",
+                "ilvl": 171
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175912",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7059",
+                  "6716",
+                  "6650",
+                  "6647",
+                  "1487"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "171416",
+                "ilvl": 190
+              },
+              {
+                "bonuses": [
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178358",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6789",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175881",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6782",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175861",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [],
+                "enchants": [
+                  "6169",
+                  "0",
+                  "0"
+                ],
+                "gems": [
+                  "173123",
+                  "118"
+                ],
+                "id": "173131",
+                "ilvl": 151
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178381",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6785",
+                  "1478",
+                  "6616"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178334",
+                "ilvl": 164
+              },
+              {
+                "bonuses": [
+                  "6791",
+                  "1485",
+                  "6616"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "184052",
+                "ilvl": 171
+              },
+              {
+                "bonuses": [
+                  "6790",
+                  "1491",
+                  "6616"
+                ],
+                "enchants": [
+                  "6208",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175851",
+                "ilvl": 177
+              },
+              {
+                "bonuses": [
+                  "7233",
+                  "1485",
+                  "6616"
+                ],
+                "enchants": [
+                  "6226",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178481",
+                "ilvl": 171
+              },
+              {
+                "bonuses": [
+                  "7132",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "174311",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "45585",
+                "ilvl": 1
+              }
+            ],
+            "hasteMelee": 29,
+            "hasteRanged": 29,
+            "hasteSpell": 29,
+            "highestPvpTier": 2,
+            "intelligence": 1244,
+            "interestingAurasJSON": "[\"Player-47-08506C21\",53563,\"Player-1171-0837B895\",6673]",
+            "item28": 52,
+            "item29": 30,
+            "item9": 0,
+            "lifesteal": 0,
+            "mastery": 65,
+            "parry": 0,
+            "personalRating": 1425,
+            "pvpTalents": [
+              "0",
+              "199452",
+              "216327",
+              "210294"
+            ],
+            "specId": "65",
+            "speed": 0,
+            "stamina": 1369,
+            "strength": 447,
+            "talents": [
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {}
+            ],
+            "teamId": "1",
+            "versatilityDamageTaken": 921,
+            "versatilityDamgeDone": 921,
+            "versatilityHealingDone": 921
+          },
+          "isActive": false,
+          "isWellFormed": false,
+          "name": "Lerenor-Eitrigg",
+          "ownerId": "0",
+          "reaction": 2,
+          "reactionProofs": {},
+          "spec": "65",
+          "spellCastEvents": [],
+          "startTime": 0,
+          "supportDamageIn": [],
+          "supportDamageOut": [],
+          "supportHealIn": [],
+          "supportHealOut": [],
+          "type": 1,
+          "typeProofs": {}
+        },
+        "Player-57-0CE7FCBF": {
+          "absorbsDamaged": [],
+          "absorbsIn": [],
+          "absorbsOut": [],
+          "actionIn": [],
+          "actionOut": [],
+          "advancedActions": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 79,
+              "advancedActorId": "Player-57-0CE7FCBF",
+              "advancedActorItemLevel": 168,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 100,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "25",
+                "parameters": [
+                  "Player-57-0CE7FCBF",
+                  "Loktaar-Illidan",
+                  "0x511",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  126664,
+                  "Charge",
+                  "0x1",
+                  "Player-57-0CE7FCBF",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  100,
+                  300,
+                  0,
+                  0,
+                  0,
+                  79,
+                  168,
+                  -1,
+                  1,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/19/2024 23:02:34.751  SPELL_DAMAGE,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,126664,\"Charge\",0x1,Player-57-0CE7FCBF,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,100.00,300.00,0,0.0000,0,79,168,-1,1,0,0,0,nil,nil,nil",
+                "timestamp": 1705723354751,
+                "timezone": "America/New_York"
+              },
+              "spellId": "126664",
+              "spellName": "Charge",
+              "spellSchoolId": "0x1",
+              "srcUnitFlags": "0x511",
+              "srcUnitId": "Player-57-0CE7FCBF",
+              "srcUnitName": "Loktaar-Illidan",
+              "timestamp": 1705723354751
+            }
+          ],
+          "affiliation": 0,
+          "auraEvents": [],
+          "class": 1,
+          "classProofs": {},
+          "consciousDeathRecords": [],
+          "damageIn": [],
+          "damageOut": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 79,
+              "advancedActorId": "Player-57-0CE7FCBF",
+              "advancedActorItemLevel": 168,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 100,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "25",
+                "parameters": [
+                  "Player-57-0CE7FCBF",
+                  "Loktaar-Illidan",
+                  "0x511",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  126664,
+                  "Charge",
+                  "0x1",
+                  "Player-57-0CE7FCBF",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  100,
+                  300,
+                  0,
+                  0,
+                  0,
+                  79,
+                  168,
+                  -1,
+                  1,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/19/2024 23:02:34.751  SPELL_DAMAGE,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,126664,\"Charge\",0x1,Player-57-0CE7FCBF,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,100.00,300.00,0,0.0000,0,79,168,-1,1,0,0,0,nil,nil,nil",
+                "timestamp": 1705723354751,
+                "timezone": "America/New_York"
+              },
+              "spellId": "126664",
+              "spellName": "Charge",
+              "spellSchoolId": "0x1",
+              "srcUnitFlags": "0x511",
+              "srcUnitId": "Player-57-0CE7FCBF",
+              "srcUnitName": "Loktaar-Illidan",
+              "timestamp": 1705723354751
+            }
+          ],
+          "deathRecords": [
+            {
+              "event": "UNIT_DIED",
+              "id": "28",
+              "parameters": [
+                0,
+                "nil",
+                "0x80000000",
+                "0x80000000",
+                "Player-57-0CE7FCBF",
+                "Loktaar-Illidan",
+                "0x511",
+                "0x0",
+                0
+              ],
+              "raw": "1/19/2024 23:02:44.838  UNIT_DIED,0000000000000000,nil,0x80000000,0x80000000,Player-57-0CE7FCBF,\"Loktaar-Illidan\",0x511,0x0,0",
+              "timestamp": 1705723364838,
+              "timezone": "America/New_York"
+            }
+          ],
+          "endTime": 1705723364838,
+          "healIn": [],
+          "healOut": [],
+          "id": "Player-57-0CE7FCBF",
+          "info": {
+            "agility": 307,
+            "armor": 1090,
+            "avoidance": 0,
+            "block": 0,
+            "critMelee": 228,
+            "critRanged": 228,
+            "critSpell": 228,
+            "dodge": 0,
+            "equipment": [
+              {
+                "bonuses": [
+                  "7193",
+                  "6631",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178352",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6618",
+                  "6652",
+                  "6935",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [
+                  "173129",
+                  "120"
+                ],
+                "id": "178448",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6652",
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175909",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "0",
+                "ilvl": 0
+              },
+              {
+                "bonuses": [
+                  "6958",
+                  "6650",
+                  "6649",
+                  "6717",
+                  "1507"
+                ],
+                "enchants": [
+                  "6230",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "171412",
+                "ilvl": 210
+              },
+              {
+                "bonuses": [
+                  "6627",
+                  "6652",
+                  "7194",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178377",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6796",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175867",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6782",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175856",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6789",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [
+                  "6222",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175881",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6808",
+                  "6652",
+                  "1501",
+                  "6646"
+                ],
+                "enchants": [
+                  "6205",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "180104",
+                "ilvl": 187
+              },
+              {
+                "bonuses": [
+                  "6652",
+                  "7193",
+                  "1492",
+                  "6646"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "184142",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175916",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6789",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "184052",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6782",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175884",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6789",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [
+                  "6204",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178265",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [
+                  "6775",
+                  "1498",
+                  "6646"
+                ],
+                "enchants": [
+                  "6229",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178476",
+                "ilvl": 184
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "0",
+                "ilvl": 0
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "0",
+                "ilvl": 0
+              }
+            ],
+            "hasteMelee": 435,
+            "hasteRanged": 435,
+            "hasteSpell": 435,
+            "highestPvpTier": 2,
+            "intelligence": 305,
+            "interestingAurasJSON": "[\"Player-57-0CF07095\",53563,\"Player-57-0CE7FCBF\",197690]",
+            "item28": 46,
+            "item29": 30,
+            "item9": 0,
+            "lifesteal": 30,
+            "mastery": 41,
+            "parry": 0,
+            "personalRating": 1433,
+            "pvpTalents": [
+              "0",
+              "198817",
+              "236077",
+              "198500"
+            ],
+            "specId": "71",
+            "speed": 0,
+            "stamina": 1482,
+            "strength": 1082,
+            "talents": [
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {}
+            ],
+            "teamId": "0",
+            "versatilityDamageTaken": 932,
+            "versatilityDamgeDone": 932,
+            "versatilityHealingDone": 932
+          },
+          "isActive": false,
+          "isWellFormed": false,
+          "name": "Loktaar-Illidan",
+          "ownerId": "0",
+          "reaction": 1,
+          "reactionProofs": {},
+          "spec": "71",
+          "spellCastEvents": [],
+          "startTime": 0,
+          "supportDamageIn": [],
+          "supportDamageOut": [],
+          "supportHealIn": [],
+          "supportHealOut": [],
+          "type": 1,
+          "typeProofs": {}
+        },
+        "Player-57-0CF07095": {
+          "absorbsDamaged": [],
+          "absorbsIn": [],
+          "absorbsOut": [],
+          "actionIn": [],
+          "actionOut": [],
+          "advancedActions": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 2223,
+              "advancedActorId": "Player-57-0CF07095",
+              "advancedActorItemLevel": 3227,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 200,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "26",
+                "parameters": [
+                  "Player-57-0CF07095",
+                  "Palita-Illidan",
+                  "0x512",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  275773,
+                  "Judgment",
+                  "0x2",
+                  "Player-57-0CF07095",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  200,
+                  200,
+                  0,
+                  0,
+                  0,
+                  2223,
+                  3227,
+                  -1,
+                  2,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/19/2024 23:02:36.053  SPELL_DAMAGE,Player-57-0CF07095,\"Palita-Illidan\",0x512,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,275773,\"Judgment\",0x2,Player-57-0CF07095,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,200.00,200.00,0,0.0000,0,2223,3227,-1,2,0,0,0,nil,nil,nil",
+                "timestamp": 1705723356053,
+                "timezone": "America/New_York"
+              },
+              "spellId": "275773",
+              "spellName": "Judgment",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x512",
+              "srcUnitId": "Player-57-0CF07095",
+              "srcUnitName": "Palita-Illidan",
+              "timestamp": 1705723356053
+            }
+          ],
+          "affiliation": 0,
+          "auraEvents": [],
+          "class": 4,
+          "classProofs": {},
+          "consciousDeathRecords": [],
+          "damageIn": [],
+          "damageOut": [
+            {
+              "advanced": true,
+              "advancedActorCurrentHp": 20000,
+              "advancedActorFacing": 2223,
+              "advancedActorId": "Player-57-0CF07095",
+              "advancedActorItemLevel": 3227,
+              "advancedActorMaxHp": 30000,
+              "advancedActorPositionX": 0,
+              "advancedActorPositionY": 0,
+              "advancedActorPowers": [
+                {
+                  "current": 0,
+                  "max": 200,
+                  "type": "0"
+                }
+              ],
+              "advancedOwnerId": "0",
+              "amount": 1,
+              "destUnitFlags": "0x10548",
+              "destUnitId": "Player-1171-0837B895",
+              "destUnitName": "Varclave-WyrmrestAccord",
+              "effectiveAmount": 1,
+              "isCritical": false,
+              "logLine": {
+                "event": "SPELL_DAMAGE",
+                "id": "26",
+                "parameters": [
+                  "Player-57-0CF07095",
+                  "Palita-Illidan",
+                  "0x512",
+                  "0x0",
+                  "Player-1171-0837B895",
+                  "Varclave-WyrmrestAccord",
+                  "0x10548",
+                  "0x0",
+                  275773,
+                  "Judgment",
+                  "0x2",
+                  "Player-57-0CF07095",
+                  0,
+                  20000,
+                  30000,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1,
+                  0,
+                  0,
+                  0,
+                  200,
+                  200,
+                  0,
+                  0,
+                  0,
+                  2223,
+                  3227,
+                  -1,
+                  2,
+                  0,
+                  0,
+                  0,
+                  "nil",
+                  "nil",
+                  "nil"
+                ],
+                "raw": "1/19/2024 23:02:36.053  SPELL_DAMAGE,Player-57-0CF07095,\"Palita-Illidan\",0x512,0x0,Player-1171-0837B895,\"Varclave-WyrmrestAccord\",0x10548,0x0,275773,\"Judgment\",0x2,Player-57-0CF07095,0000000000000000,20000,30000,0,0,0,0,-1,0,0,0,200.00,200.00,0,0.0000,0,2223,3227,-1,2,0,0,0,nil,nil,nil",
+                "timestamp": 1705723356053,
+                "timezone": "America/New_York"
+              },
+              "spellId": "275773",
+              "spellName": "Judgment",
+              "spellSchoolId": "0x2",
+              "srcUnitFlags": "0x512",
+              "srcUnitId": "Player-57-0CF07095",
+              "srcUnitName": "Palita-Illidan",
+              "timestamp": 1705723356053
+            }
+          ],
+          "deathRecords": [],
+          "endTime": 1705723356053,
+          "healIn": [],
+          "healOut": [],
+          "id": "Player-57-0CF07095",
+          "info": {
+            "agility": 158,
+            "armor": 1679,
+            "avoidance": 0,
+            "block": 0,
+            "critMelee": 449,
+            "critRanged": 449,
+            "critSpell": 449,
+            "dodge": 0,
+            "equipment": [
+              {
+                "bonuses": [
+                  "7193",
+                  "6631",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178352",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178387",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6780",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175872",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6835"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "4330",
+                "ilvl": 1
+              },
+              {
+                "bonuses": [
+                  "6794",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [
+                  "6217",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175853",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6780",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "175875",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "7059",
+                  "6717",
+                  "6647",
+                  "6650",
+                  "1507"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "171416",
+                "ilvl": 210
+              },
+              {
+                "bonuses": [
+                  "6627",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6207",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175893",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6787",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [
+                  "6219",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175881",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6627",
+                  "6652",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6210",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175898",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6787",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178293",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "7193",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6170",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178381",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "6780",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178334",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6787",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "184052",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "6652",
+                  "6618",
+                  "1479",
+                  "6646"
+                ],
+                "enchants": [
+                  "6208",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "175888",
+                "ilvl": 207
+              },
+              {
+                "bonuses": [
+                  "7237",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [
+                  "6229",
+                  "0",
+                  "0"
+                ],
+                "gems": [],
+                "id": "178481",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [
+                  "7151",
+                  "1511",
+                  "6646"
+                ],
+                "enchants": [],
+                "gems": [],
+                "id": "178490",
+                "ilvl": 197
+              },
+              {
+                "bonuses": [],
+                "enchants": [],
+                "gems": [],
+                "id": "69209",
+                "ilvl": 1
+              }
+            ],
+            "hasteMelee": 80,
+            "hasteRanged": 80,
+            "hasteSpell": 80,
+            "highestPvpTier": 2,
+            "intelligence": 1410,
+            "interestingAurasJSON": "[\"Player-57-0CF07095\",156910]",
+            "item28": 58,
+            "item29": 30,
+            "item9": 0,
+            "lifesteal": 0,
+            "mastery": 27,
+            "parry": 0,
+            "personalRating": 1515,
+            "pvpTalents": [
+              "0",
+              "216327",
+              "210294",
+              "199452"
+            ],
+            "specId": "65",
+            "speed": 0,
+            "stamina": 1591,
+            "strength": 447,
+            "talents": [
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {}
+            ],
+            "teamId": "0",
+            "versatilityDamageTaken": 1011,
+            "versatilityDamgeDone": 1011,
+            "versatilityHealingDone": 1011
+          },
+          "isActive": false,
+          "isWellFormed": false,
+          "name": "Palita-Illidan",
+          "ownerId": "0",
+          "reaction": 1,
+          "reactionProofs": {},
+          "spec": "65",
+          "spellCastEvents": [],
+          "startTime": 0,
+          "supportDamageIn": [],
+          "supportDamageOut": [],
+          "supportHealIn": [],
+          "supportHealOut": [],
+          "type": 1,
+          "typeProofs": {}
+        }
+      },
+      "winningTeamId": "0",
+      "wowVersion": "retail"
+    }
+  ],
+  "malformedCombats": [],
+  "parserErrors": [],
+  "shuffleRounds": [],
+  "shuffles": []
+}
