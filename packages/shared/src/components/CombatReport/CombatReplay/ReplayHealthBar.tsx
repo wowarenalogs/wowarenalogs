@@ -1,4 +1,5 @@
-/// <reference path="../../../types/inlet-react-pixi.d.ts" />
+import './pixi-compat';
+
 import { Container, Sprite } from '@inlet/react-pixi';
 import { CombatUnitReaction } from '@wowarenalogs/parser';
 
