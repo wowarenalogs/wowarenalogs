@@ -1,1 +1,24 @@
-{"name":"@wowarenalogs/recorder","version":"1.0.0","description":"","main":"./src/index.ts","author":"WoW Arena Logs","scripts":{"build:recorder":"tsc","lint":"eslint . --max-warnings 0","lint:fix":"eslint . --fix"},"dependencies":{"@ffmpeg-installer/ffmpeg":"^1.1.0","electron-store":"^8.1.0","eventemitter3":"^5.0.1","fs-extra":"^11.1.1","uiohook-napi":"^1.5.2","wait-queue":"^1.1.4"},"optionalDependencies":{"noobs":"^0.0.184"},"devDependencies":{}}
+{
+  "name": "@wowarenalogs/recorder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.ts",
+  "author": "WoW Arena Logs",
+  "scripts": {
+    "build:recorder": "tsc",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "electron-store": "^8.1.0",
+    "eventemitter3": "^5.0.1",
+    "fs-extra": "^11.1.1",
+    "uiohook-napi": "^1.5.2",
+    "wait-queue": "^1.1.4"
+  },
+  "optionalDependencies": {
+    "noobs": "^0.0.184"
+  },
+  "devDependencies": {}
+}
