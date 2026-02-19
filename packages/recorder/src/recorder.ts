@@ -1,7 +1,7 @@
 import { BrowserWindow, screen } from 'electron';
 import fs from 'fs';
 import { isEqual } from 'lodash';
-import noobs, { type Signal } from 'noobs';
+import type { ObsListItem, ObsProperty, Signal } from 'noobs';
 import path from 'path';
 import { v4 as uuidfn } from 'uuid';
 import WaitQueue from 'wait-queue';
@@ -37,6 +37,20 @@ import {
   tryUnlink,
 } from './util';
 import VideoProcessQueue from './videoProcessQueue';
+
+type NoobsModule = typeof import('noobs') extends { default: infer D } ? D : never;
+let noobsModule: NoobsModule | null = null;
+
+function getNoobs(): NoobsModule {
+  if (noobsModule) return noobsModule;
+  if (process.platform !== 'win32') {
+    throw new Error('OBS recording (noobs) is only supported on Windows');
+  }
+  // Lazy load so optional dependency doesn't break npm install on non-Windows (CI)
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  noobsModule = require('noobs').default as NoobsModule;
+  return noobsModule;
+}
 
 /**
  * Class for handing the interface between Warcraft Recorder and OBS.
@@ -113,7 +127,7 @@ export class Recorder {
   private uuid: string = uuidfn();
 
   /**
-   * Name of the video capture source in noobs.
+   * Name of the video capture source in getNoobs().
    */
   private videoSourceName: string | undefined;
 
@@ -175,7 +189,7 @@ export class Recorder {
   };
 
   /**
-   * Name of the overlay image source in noobs.
+   * Name of the overlay image source in getNoobs().
    */
   private overlayImageSourceName: string | undefined;
 
@@ -277,16 +291,16 @@ export class Recorder {
         throw new Error(`Path to noobs does not exist ${noobsPath}`);
       }
 
-      noobs.Init(noobsPath, logPath, (signal: Signal) => this.handleSignal(signal));
-      noobs.SetBuffering(true);
+      getNoobs().Init(noobsPath, logPath, (signal: Signal) => this.handleSignal(signal));
+      getNoobs().SetBuffering(true);
 
       const hwnd = this.mainWindow.getNativeWindowHandle();
-      noobs.InitPreview(hwnd);
+      getNoobs().InitPreview(hwnd);
 
       this.createOverlayImageSource();
 
-      noobs.CreateSource(Recorder.AUDIO_ENUM_INPUT_SOURCE, 'wasapi_input_capture');
-      noobs.CreateSource(Recorder.AUDIO_ENUM_OUTPUT_SOURCE, 'wasapi_output_capture');
+      getNoobs().CreateSource(Recorder.AUDIO_ENUM_INPUT_SOURCE, 'wasapi_input_capture');
+      getNoobs().CreateSource(Recorder.AUDIO_ENUM_OUTPUT_SOURCE, 'wasapi_output_capture');
 
       this.obsInitialized = true;
       if (this.recordingStateChangedCallback) {
@@ -314,8 +328,8 @@ export class Recorder {
     this.resolution = obsOutputResolution as keyof typeof obsResolutions;
     const { height, width } = obsResolutions[this.resolution];
 
-    noobs.ResetVideoContext(obsFPS, width, height);
-    noobs.SetRecordingCfg(path.normalize(this.bufferStorageDir), 'mkv');
+    getNoobs().ResetVideoContext(obsFPS, width, height);
+    getNoobs().SetRecordingCfg(path.normalize(this.bufferStorageDir), 'mkv');
 
     const encoderSettings: Record<string, number | string> = {
       rate_control: 'VBR',
@@ -325,7 +339,7 @@ export class Recorder {
     if (obsRecEncoder === ESupportedEncoders.AMD_AMF_H264) {
       encoderSettings['Bitrate.Peak'] = obsKBitRate * 1000 * 1.5;
     }
-    noobs.SetVideoEncoder(obsRecEncoder, encoderSettings);
+    getNoobs().SetVideoEncoder(obsRecEncoder, encoderSettings);
     Recorder.logger.info(`[Recorder] Video encoder: ${obsRecEncoder} settings: ${JSON.stringify(encoderSettings)}`);
   }
 
@@ -380,8 +394,8 @@ export class Recorder {
     const { obsCaptureMode, monitorIndex, captureCursor } = config;
 
     if (this.videoSourceName) {
-      noobs.RemoveSourceFromScene(this.videoSourceName);
-      noobs.DeleteSource(this.videoSourceName);
+      getNoobs().RemoveSourceFromScene(this.videoSourceName);
+      getNoobs().DeleteSource(this.videoSourceName);
       this.videoSourceName = undefined;
       this.videoScaleFactor = { x: 1, y: 1 };
     }
@@ -396,7 +410,7 @@ export class Recorder {
       throw new Error(`[Recorder] Unexpected mode: ${obsCaptureMode}`);
     }
 
-    noobs.AddSourceToScene(this.videoSourceName);
+    getNoobs().AddSourceToScene(this.videoSourceName);
 
     if (this.videoSourceSizeInterval) {
       clearInterval(this.videoSourceSizeInterval);
@@ -413,9 +427,9 @@ export class Recorder {
    */
   private createMonitorCaptureSource(monitorIndex: number, captureCursor: boolean): string {
     Recorder.logger.info('[Recorder] Configuring OBS for Monitor Capture');
-    const name = noobs.CreateSource('WR Monitor Capture', 'monitor_capture');
-    noobs.SetSourceSettings(name, {
-      ...noobs.GetSourceSettings(name),
+    const name = getNoobs().CreateSource('WR Monitor Capture', 'monitor_capture');
+    getNoobs().SetSourceSettings(name, {
+      ...getNoobs().GetSourceSettings(name),
       monitor: monitorIndex,
       capture_cursor: captureCursor,
     });
@@ -427,21 +441,23 @@ export class Recorder {
    */
   private createGameCaptureSource(captureCursor: boolean): string {
     Recorder.logger.info('[Recorder] Configuring OBS for Game Capture');
-    const name = noobs.CreateSource('WR Game Capture', 'game_capture');
-    const properties = noobs.GetSourceProperties(name);
-    const windowProp = properties.find((p) => p.name === 'window');
+    const name = getNoobs().CreateSource('WR Game Capture', 'game_capture');
+    const properties = getNoobs().GetSourceProperties(name);
+    const windowProp = properties.find((p: ObsProperty) => p.name === 'window');
     let window = 'World of Warcraft:waApplication Window:Wow.exe';
     if (windowProp && windowProp.type === 'list') {
       const windows = windowProp.items
-        .filter((item) => item.name.includes('[Wow.exe]: World of Warcraft') || item.name.includes('魔兽世界'))
-        .sort((a, b) => String(a.name).localeCompare(String(b.name)))
+        .filter(
+          (item: ObsListItem) => item.name.includes('[Wow.exe]: World of Warcraft') || item.name.includes('魔兽世界'),
+        )
+        .sort((a: ObsListItem, b: ObsListItem) => String(a.name).localeCompare(String(b.name)))
         .reverse();
       if (windows.length) {
         window = String(windows[0].value);
       }
     }
-    noobs.SetSourceSettings(name, {
-      ...noobs.GetSourceSettings(name),
+    getNoobs().SetSourceSettings(name, {
+      ...getNoobs().GetSourceSettings(name),
       capture_mode: 'window',
       allow_transparency: true,
       priority: 1,
@@ -456,9 +472,9 @@ export class Recorder {
    */
   private createWindowCaptureSource(captureCursor: boolean): string {
     Recorder.logger.info('[Recorder] Configuring OBS for Window Capture');
-    const name = noobs.CreateSource('WR Window Capture', 'window_capture');
-    noobs.SetSourceSettings(name, {
-      ...noobs.GetSourceSettings(name),
+    const name = getNoobs().CreateSource('WR Window Capture', 'window_capture');
+    getNoobs().SetSourceSettings(name, {
+      ...getNoobs().GetSourceSettings(name),
       cursor: captureCursor,
       window: 'World of Warcraft:waApplication Window:Wow.exe',
       method: 2,
@@ -471,9 +487,9 @@ export class Recorder {
    */
   private createOverlayImageSource() {
     Recorder.logger.info('[Recorder] Create image source for chat overlay');
-    this.overlayImageSourceName = noobs.CreateSource('WR Chat Overlay', 'image_source');
-    noobs.SetSourceSettings(this.overlayImageSourceName, {
-      ...noobs.GetSourceSettings(this.overlayImageSourceName),
+    this.overlayImageSourceName = getNoobs().CreateSource('WR Chat Overlay', 'image_source');
+    getNoobs().SetSourceSettings(this.overlayImageSourceName, {
+      ...getNoobs().GetSourceSettings(this.overlayImageSourceName),
       file: getAssetPath('poster', 'chat-cover.png'),
     });
   }
@@ -489,7 +505,7 @@ export class Recorder {
 
     const { audioInputDevices, audioOutputDevices, micVolume, speakerVolume, obsForceMono } = config;
 
-    noobs.SetForceMono(obsForceMono);
+    getNoobs().SetForceMono(obsForceMono);
 
     const maxInputs = 3;
     const maxOutputs = 5;
@@ -500,10 +516,10 @@ export class Recorder {
       .slice(0, maxInputs)
       .forEach((id) => {
         Recorder.logger.info(`[Recorder] Adding input source ${id}`);
-        const name = noobs.CreateSource(`mic-${id.slice(0, 20)}`, TAudioSourceType.input);
-        noobs.SetSourceSettings(name, { ...noobs.GetSourceSettings(name), device_id: id });
-        noobs.SetSourceVolume(name, micVolume);
-        noobs.AddSourceToScene(name);
+        const name = getNoobs().CreateSource(`mic-${id.slice(0, 20)}`, TAudioSourceType.input);
+        getNoobs().SetSourceSettings(name, { ...getNoobs().GetSourceSettings(name), device_id: id });
+        getNoobs().SetSourceVolume(name, micVolume);
+        getNoobs().AddSourceToScene(name);
         this.audioInputSourceNames.push(name);
       });
 
@@ -519,10 +535,10 @@ export class Recorder {
       .slice(0, maxOutputs)
       .forEach((id) => {
         Recorder.logger.info(`[Recorder] Adding output source ${id}`);
-        const name = noobs.CreateSource(`desktop-${id.slice(0, 20)}`, TAudioSourceType.output);
-        noobs.SetSourceSettings(name, { ...noobs.GetSourceSettings(name), device_id: id });
-        noobs.SetSourceVolume(name, speakerVolume);
-        noobs.AddSourceToScene(name);
+        const name = getNoobs().CreateSource(`desktop-${id.slice(0, 20)}`, TAudioSourceType.output);
+        getNoobs().SetSourceSettings(name, { ...getNoobs().GetSourceSettings(name), device_id: id });
+        getNoobs().SetSourceVolume(name, speakerVolume);
+        getNoobs().AddSourceToScene(name);
         this.audioOutputSourceNames.push(name);
       });
   }
@@ -539,8 +555,8 @@ export class Recorder {
     Recorder.logger.info('[Recorder] Removing OBS audio sources...');
 
     [...this.audioInputSourceNames, ...this.audioOutputSourceNames].forEach((name) => {
-      noobs.RemoveSourceFromScene(name);
-      noobs.DeleteSource(name);
+      getNoobs().RemoveSourceFromScene(name);
+      getNoobs().DeleteSource(name);
     });
     this.audioInputSourceNames = [];
     this.audioOutputSourceNames = [];
@@ -563,17 +579,17 @@ export class Recorder {
 
     this.removeAudioSources();
     if (this.overlayImageSourceName) {
-      noobs.RemoveSourceFromScene(this.overlayImageSourceName);
-      noobs.DeleteSource(this.overlayImageSourceName);
+      getNoobs().RemoveSourceFromScene(this.overlayImageSourceName);
+      getNoobs().DeleteSource(this.overlayImageSourceName);
       this.overlayImageSourceName = undefined;
     }
     if (this.videoSourceName) {
-      noobs.RemoveSourceFromScene(this.videoSourceName);
-      noobs.DeleteSource(this.videoSourceName);
+      getNoobs().RemoveSourceFromScene(this.videoSourceName);
+      getNoobs().DeleteSource(this.videoSourceName);
       this.videoSourceName = undefined;
     }
-    noobs.DeleteSource(Recorder.AUDIO_ENUM_INPUT_SOURCE);
-    noobs.DeleteSource(Recorder.AUDIO_ENUM_OUTPUT_SOURCE);
+    getNoobs().DeleteSource(Recorder.AUDIO_ENUM_INPUT_SOURCE);
+    getNoobs().DeleteSource(Recorder.AUDIO_ENUM_OUTPUT_SOURCE);
 
     this.wroteQueue.empty();
     this.wroteQueue.clearListeners();
@@ -581,7 +597,7 @@ export class Recorder {
     this.startQueue.clearListeners();
 
     try {
-      noobs.Shutdown();
+      getNoobs().Shutdown();
     } catch (e) {
       Recorder.logger.warn(`[Recorder] Exception shutting down noobs: ${e}`);
     }
@@ -629,7 +645,7 @@ export class Recorder {
   public async stopBuffer() {
     Recorder.logger.info('[Recorder] Stop recording buffer');
     this.cancelBufferTimers();
-    noobs.ForceStopRecording();
+    getNoobs().ForceStopRecording();
     this.cleanupBuffer(1);
   }
 
@@ -763,7 +779,7 @@ export class Recorder {
     }
 
     this.isRecording = false;
-    noobs.ForceStopRecording();
+    getNoobs().ForceStopRecording();
     await this.startBuffer();
   }
 
@@ -800,7 +816,7 @@ export class Recorder {
       return;
     }
 
-    noobs.StartBuffer();
+    getNoobs().StartBuffer();
 
     const startRace = await Promise.race([
       this.startQueue.shift(),
@@ -825,8 +841,8 @@ export class Recorder {
 
     this.wroteQueue.empty();
     const rounded = Math.round(backtrackSeconds);
-    noobs.StartRecording(rounded);
-    noobs.StopRecording();
+    getNoobs().StartRecording(rounded);
+    getNoobs().StopRecording();
 
     const stopRace = await Promise.race([
       this.wroteQueue.shift().then((a) => Recorder.logger.info(`[Recorder] got wrote signal: ${a.id}`)),
@@ -842,7 +858,7 @@ export class Recorder {
       throw error;
     }
 
-    const bufferFile = noobs.GetLastRecording();
+    const bufferFile = getNoobs().GetLastRecording();
     if (!bufferFile) {
       throw new Error('[Recorder] GetLastRecording returned empty');
     }
@@ -858,14 +874,14 @@ export class Recorder {
       throw new Error('[Recorder] OBS not initialized');
     }
 
-    const props = noobs.GetSourceProperties(Recorder.AUDIO_ENUM_INPUT_SOURCE);
-    const deviceProp = props.find((p) => p.name === 'device_id');
+    const props = getNoobs().GetSourceProperties(Recorder.AUDIO_ENUM_INPUT_SOURCE);
+    const deviceProp = props.find((p: ObsProperty) => p.name === 'device_id');
     if (!deviceProp || deviceProp.type !== 'list') {
       return [];
     }
     return deviceProp.items
-      .filter((item) => item.value !== 'default')
-      .map((item) => ({ id: String(item.value), description: item.name }));
+      .filter((item: ObsListItem) => item.value !== 'default')
+      .map((item: ObsListItem) => ({ id: String(item.value), description: item.name }));
   }
 
   /**
@@ -877,14 +893,14 @@ export class Recorder {
       throw new Error('[Recorder] OBS not initialized');
     }
 
-    const props = noobs.GetSourceProperties(Recorder.AUDIO_ENUM_OUTPUT_SOURCE);
-    const deviceProp = props.find((p) => p.name === 'device_id');
+    const props = getNoobs().GetSourceProperties(Recorder.AUDIO_ENUM_OUTPUT_SOURCE);
+    const deviceProp = props.find((p: ObsProperty) => p.name === 'device_id');
     if (!deviceProp || deviceProp.type !== 'list') {
       return [];
     }
     return deviceProp.items
-      .filter((item) => item.value !== 'default')
-      .map((item) => ({ id: String(item.value), description: item.name }));
+      .filter((item: ObsListItem) => item.value !== 'default')
+      .map((item: ObsListItem) => ({ id: String(item.value), description: item.name }));
   }
 
   /**
@@ -895,7 +911,7 @@ export class Recorder {
       throw new Error('[Recorder] OBS not initialized');
     }
 
-    const encoders = noobs.ListVideoEncoders();
+    const encoders = getNoobs().ListVideoEncoders();
     Recorder.logger.info(`[Recorder] Available encoders: ${encoders}`);
     return encoders;
   }
@@ -928,7 +944,7 @@ export class Recorder {
       return;
     }
 
-    const pos = noobs.GetSourcePos(this.videoSourceName);
+    const pos = getNoobs().GetSourcePos(this.videoSourceName);
     if (pos.width === 0 || pos.height === 0) {
       return;
     }
@@ -941,7 +957,7 @@ export class Recorder {
     if (!isEqual(this.videoScaleFactor, newScaleFactor)) {
       Recorder.logger.info(`[Recorder] Rescaling from ${this.videoScaleFactor} to ${newScaleFactor}`);
       this.videoScaleFactor = newScaleFactor;
-      noobs.SetSourcePos(this.videoSourceName, {
+      getNoobs().SetSourcePos(this.videoSourceName, {
         ...pos,
         scaleX: newScaleFactor.x,
         scaleY: newScaleFactor.y,
@@ -980,7 +996,7 @@ export class Recorder {
       Recorder.logger.warn('[Recorder] Preview display not created');
       return;
     }
-    noobs.HidePreview();
+    getNoobs().HidePreview();
   }
 
   /**
@@ -1007,8 +1023,8 @@ export class Recorder {
     const { scaleFactor } = currentScreen;
     this.previewLocation = { width, height, xPos, yPos };
 
-    noobs.ConfigurePreview(xPos * scaleFactor, yPos * scaleFactor, width * scaleFactor, height * scaleFactor);
-    noobs.ShowPreview();
+    getNoobs().ConfigurePreview(xPos * scaleFactor, yPos * scaleFactor, width * scaleFactor, height * scaleFactor);
+    getNoobs().ShowPreview();
   }
 
   /**
@@ -1034,7 +1050,7 @@ export class Recorder {
       return;
     }
 
-    noobs.RemoveSourceFromScene(this.overlayImageSourceName);
+    getNoobs().RemoveSourceFromScene(this.overlayImageSourceName);
 
     if (!chatOverlayEnabled) {
       return;
@@ -1045,8 +1061,8 @@ export class Recorder {
     const toCropX = (baseWidth - chatOverlayWidth) / 2;
     const toCropY = (baseHeight - chatOverlayHeight) / 2;
 
-    noobs.AddSourceToScene(this.overlayImageSourceName);
-    noobs.SetSourcePos(this.overlayImageSourceName, {
+    getNoobs().AddSourceToScene(this.overlayImageSourceName);
+    getNoobs().SetSourcePos(this.overlayImageSourceName, {
       x: chatOverlayXPosition,
       y: chatOverlayYPosition,
       scaleX: 1,
