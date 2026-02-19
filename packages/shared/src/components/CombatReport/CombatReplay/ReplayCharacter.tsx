@@ -1,12 +1,11 @@
-import './pixi-compat';
-
-import { Container, Sprite } from '@inlet/react-pixi';
+import { Sprite } from '@inlet/react-pixi';
 import { AtomicArenaCombat, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useMemo } from 'react';
 
 import { spellIdToPriority } from '../../../data/spellTags';
 import { Utils } from '../../../utils/utils';
+import { Container } from './pixi-compat';
 import { ReplayCastBar } from './ReplayCastBar';
 import { ReplayHealthBar } from './ReplayHealthBar';
 // import { ReplayHpNumbers } from './ReplayHpNumbers';

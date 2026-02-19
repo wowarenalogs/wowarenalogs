@@ -1,11 +1,10 @@
-import './pixi-compat';
-
-import { Container, Sprite } from '@inlet/react-pixi';
+import { Sprite } from '@inlet/react-pixi';
 import { ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useMemo } from 'react';
 
 import { useCombatReportContext } from '../CombatReportContext';
+import { Container } from './pixi-compat';
 
 interface IProps {
   unit: ICombatUnit;
