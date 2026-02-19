@@ -1,3 +1,4 @@
+/// <reference path="../../../types/inlet-react-pixi.d.ts" />
 import { Container, Text } from '@inlet/react-pixi';
 import { CombatHpUpdateAction, ICombatUnit } from '@wowarenalogs/parser';
 import { TextStyle } from 'pixi.js';

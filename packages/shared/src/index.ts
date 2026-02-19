@@ -1,5 +1,3 @@
-import './types/inlet-react-pixi';
-
 export { CombatReport } from './components/CombatReport';
 export { LoadingScreen } from './components/LoadingScreen';
 export { MainLayout } from './components/MainLayout';
