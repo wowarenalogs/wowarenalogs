@@ -2,7 +2,7 @@
   "name": "wowarenalogs",
   "productName": "WoW Arena Logs",
   "license": "MIT",
-  "version": "12.1.0",
+  "version": "12.2.0",
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
@@ -102,6 +102,10 @@
     "tsdx": "^0.14.1",
     "typescript": "^4.6.3",
     "wait-on": "^7.2.0"
+  },
+  "overrides": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "resolutions": {
     "**/@typescript-eslint/eslint-plugin": "^5.60.0",

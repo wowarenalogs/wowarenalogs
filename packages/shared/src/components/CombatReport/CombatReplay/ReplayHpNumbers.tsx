@@ -1,8 +1,9 @@
-import { Container, Text } from '@inlet/react-pixi';
+import { Text } from '@inlet/react-pixi';
 import { CombatHpUpdateAction, ICombatUnit } from '@wowarenalogs/parser';
 import { TextStyle } from 'pixi.js';
 
 import { useCombatReportContext } from '../CombatReportContext';
+import { Container } from './pixi-compat';
 
 interface IProps {
   unit: ICombatUnit;

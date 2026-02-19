@@ -102,6 +102,6 @@ export const createLogWatcher = (wowDirectory: string, platform: string) => {
   return platform === 'darwin'
     ? new MacLogWatcher(wowDirectory)
     : platform === 'linux'
-    ? new LinuxLogWatcher(wowDirectory)
-    : new WindowsLogWatcher(wowDirectory);
+      ? new LinuxLogWatcher(wowDirectory)
+      : new WindowsLogWatcher(wowDirectory);
 };

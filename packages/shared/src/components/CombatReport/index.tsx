@@ -1,6 +1,6 @@
 import { AtomicArenaCombat } from '@wowarenalogs/parser';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FaShare } from 'react-icons/fa';
 import { TbChevronLeft, TbCopy } from 'react-icons/tb';
@@ -40,6 +40,7 @@ interface IProps {
 export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; roundId?: string }) => {
   const clientContext = useClientContext();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: user } = useGetProfileQuery();
   const { combat, activeTab, setActiveTab, activePlayerId, viewerIsOwner } = useCombatReportContext();
 
@@ -74,7 +75,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
     <div className="w-full h-full flex flex-col p-2 animate-fadein">
       <DownloadPromotion />
       <div className="flex flex-row items-center px-2">
-        {router.query.source ? (
+        {searchParams.get('source') ? (
           <div className="pt-1 pr-2">
             <TbChevronLeft className="text-2xl cursor-pointer hover:text-primary" onClick={() => router.back()} />
           </div>

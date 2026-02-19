@@ -1,4 +1,3 @@
-import { pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { parseWowToJSON } from '../../jsonparse';
@@ -22,44 +21,42 @@ function correctPositiveTZInfo(timestamp: string): string {
 }
 
 export const stringToLogLine = (timezone: string) => {
-  return pipe(
-    map((line: string): ILogLine | string => {
-      const regex_matches = line.match(LINE_PARSER);
+  return map((line: string): ILogLine | string => {
+    const regex_matches = line.match(LINE_PARSER);
 
-      // not a valid line
-      if (!regex_matches || regex_matches.length === 0) {
-        logDebug(`INVALID LINE: ${line}`);
-        return line;
-      }
+    // not a valid line
+    if (!regex_matches || regex_matches.length === 0) {
+      logDebug(`INVALID LINE: ${line}`);
+      return line;
+    }
 
-      const tsString = regex_matches[1];
-      const eventIndex = 2;
-      const eventName = regex_matches[eventIndex];
+    const tsString = regex_matches[1];
+    const eventIndex = 2;
+    const eventName = regex_matches[eventIndex];
 
-      // unsupported event
-      if (!(eventName in LogEvent)) {
-        logDebug(`UNSUPPORTED EVENT: ${eventName}`);
-        return line;
-      }
+    // unsupported event
+    if (!(eventName in LogEvent)) {
+      logDebug(`UNSUPPORTED EVENT: ${eventName}`);
+      return line;
+    }
 
-      const event = LogEvent[eventName as keyof typeof LogEvent];
-      const jsonParameters = parseWowToJSON(regex_matches[eventIndex + 1]);
-      const decodedDate = new Date(correctPositiveTZInfo(tsString));
-      const timestamp = decodedDate.getTime();
+    const event = LogEvent[eventName as keyof typeof LogEvent];
+    const jsonParameters = parseWowToJSON(regex_matches[eventIndex + 1]);
+    const decodedDate = new Date(correctPositiveTZInfo(tsString));
+    const timestamp = decodedDate.getTime();
 
-      if (timestamp === null || isNaN(timestamp)) {
-        logInfo('INVALID TIMESTAMP', tsString);
-        return line;
-      }
+    if (timestamp === null || isNaN(timestamp)) {
+      logInfo('INVALID TIMESTAMP', tsString);
+      return line;
+    }
 
-      return {
-        id: (nextId++).toFixed(),
-        timestamp,
-        event,
-        parameters: jsonParameters.data,
-        raw: line,
-        timezone,
-      };
-    }),
-  );
+    return {
+      id: (nextId++).toFixed(),
+      timestamp,
+      event,
+      parameters: jsonParameters.data,
+      raw: line,
+      timezone,
+    };
+  });
 };

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { CombatUnitSpec, CombatUnitType } from '@wowarenalogs/parser';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { CombatDataStub, useGetPublicMatchesQuery } from '../..';

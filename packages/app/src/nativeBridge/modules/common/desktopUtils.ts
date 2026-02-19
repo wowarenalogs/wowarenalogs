@@ -42,7 +42,7 @@ export class DesktopUtils {
       lines.forEach((line) => {
         parser.parseLine(line);
       });
-    } catch (e) {
+    } catch (_e) {
       // TODO: try to come up with some strategy to avoid these
       // Can reproduce by copy+pasting a new log file into wow folder while logger is watching (win32)
       // There are still some transient bugs
@@ -76,7 +76,7 @@ export class DesktopUtils {
           parser.parseLine(line);
         }
       });
-    } catch (e) {
+    } catch (_e) {
       // TODO: try to come up with some strategy to avoid these
       // Can reproduce by copy+pasting a new log file into wow folder while logger is watching (win32)
       // There are still some transient bugs

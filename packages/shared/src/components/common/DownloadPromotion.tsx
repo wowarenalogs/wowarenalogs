@@ -20,8 +20,8 @@ export const DownloadPromotion = () => {
           Get WoW Arena Logs and start analyzing your own arena matches today!
         </div>
         <div className="flex-none">
-          <Link href="/">
-            <a className="btn btn-sm btn-outline">Download</a>
+          <Link href="/" className="btn btn-sm btn-outline">
+            Download
           </Link>
           <button
             className="btn btn-sm btn-ghost"

@@ -3,6 +3,7 @@ import PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
 interface IReplayViewportProps {
+  children?: React.ReactNode;
   width: number;
   height: number;
   worldWidth: number;
