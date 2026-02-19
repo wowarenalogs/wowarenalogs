@@ -446,7 +446,7 @@ export class Recorder {
     const windowProp = properties.find((p: ObsProperty) => p.name === 'window');
     let window = 'World of Warcraft:waApplication Window:Wow.exe';
     if (windowProp && windowProp.type === 'list') {
-      const windows = windowProp.items
+      const windows = (windowProp.items ?? [])
         .filter(
           (item: ObsListItem) => item.name.includes('[Wow.exe]: World of Warcraft') || item.name.includes('魔兽世界'),
         )
@@ -879,7 +879,7 @@ export class Recorder {
     if (!deviceProp || deviceProp.type !== 'list') {
       return [];
     }
-    return deviceProp.items
+    return (deviceProp.items ?? [])
       .filter((item: ObsListItem) => item.value !== 'default')
       .map((item: ObsListItem) => ({ id: String(item.value), description: item.name }));
   }
@@ -898,7 +898,7 @@ export class Recorder {
     if (!deviceProp || deviceProp.type !== 'list') {
       return [];
     }
-    return deviceProp.items
+    return (deviceProp.items ?? [])
       .filter((item: ObsListItem) => item.value !== 'default')
       .map((item: ObsListItem) => ({ id: String(item.value), description: item.name }));
   }
