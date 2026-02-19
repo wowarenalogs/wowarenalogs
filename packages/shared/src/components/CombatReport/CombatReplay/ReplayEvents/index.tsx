@@ -87,15 +87,13 @@ export const ReplayEvents = (props: IProps) => {
     };
 
     const items: CombatEvent[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rawLines$: any = from(context.combat?.rawLines || []);
-    rawLines$
+    from(context.combat?.rawLines || [])
       .pipe(
         stringToLogLine(context.combat?.timezone || moment.tz.guess()),
         logLineToCombatEvent('retail'),
         filter(isCombatEvent),
       )
-      .subscribe((e: CombatEvent) => {
+      .subscribe((e) => {
         if (filters.gcdsOnly) {
           if (wantedUnitIsCaster(e) && isGCDsModeEvent(e)) {
             items.push(e);

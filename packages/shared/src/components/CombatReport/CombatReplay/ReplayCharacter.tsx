@@ -4,9 +4,6 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 
 import { spellIdToPriority } from '../../../data/spellTags';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PixiContainer = Container as any;
 import { Utils } from '../../../utils/utils';
 import { ReplayCastBar } from './ReplayCastBar';
 import { ReplayHealthBar } from './ReplayHealthBar';
@@ -186,7 +183,7 @@ export function ReplayCharacter(props: IProps) {
   })();
 
   return (
-    <PixiContainer key={props.unit.id} x={pos.x} y={pos.y}>
+    <Container key={props.unit.id} x={pos.x} y={pos.y}>
       <Sprite
         image={
           props.unit.spec === CombatUnitSpec.None
@@ -211,6 +208,6 @@ export function ReplayCharacter(props: IProps) {
       <ReplayCastBar unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
       {/* <ReplaySpellCasts unit={props.unit} currentTimeOffset={props.currentTimeOffset} /> */}
       {/* <ReplayHpNumbers unit={props.unit} currentTimeOffset={props.currentTimeOffset} /> */}
-    </PixiContainer>
+    </Container>
   );
 }

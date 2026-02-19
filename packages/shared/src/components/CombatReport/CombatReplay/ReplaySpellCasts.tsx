@@ -4,9 +4,6 @@ import { useMemo } from 'react';
 
 import { useCombatReportContext } from '../CombatReportContext';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PixiContainer = Container as any;
-
 interface IProps {
   unit: ICombatUnit;
   currentTimeOffset: number;
@@ -74,10 +71,10 @@ export const ReplaySpellCasts = (props: IProps) => {
     }));
 
   return (
-    <PixiContainer x={X_OFFSET} y={Y_OFFSET}>
+    <Container x={X_OFFSET} y={Y_OFFSET}>
       {spellCasts.map((s) => {
         return <ReplaySpellCast key={s.event.logLine.id} renderState={s} />;
       })}
-    </PixiContainer>
+    </Container>
   );
 };

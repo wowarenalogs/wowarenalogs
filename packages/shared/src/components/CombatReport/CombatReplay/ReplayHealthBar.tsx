@@ -12,13 +12,10 @@ const BAR_HEIGHT = 1.2;
 const BAR_Y_OFFSET = -2.2;
 const BAR_INNER_PADDING = 0.2;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PixiContainer = Container as any;
-
 export const ReplayHealthBar = (props: IProps) => {
   const hpPercentage = Math.min(1, props.current / props.max);
   return (
-    <PixiContainer x={BAR_WIDTH * -0.5} y={BAR_Y_OFFSET - BAR_HEIGHT}>
+    <Container x={BAR_WIDTH * -0.5} y={BAR_Y_OFFSET - BAR_HEIGHT}>
       <Sprite image="https://images.wowarenalogs.com/common/white.png" width={BAR_WIDTH} height={BAR_HEIGHT} />
       <Sprite
         image="https://images.wowarenalogs.com/common/white.png"
@@ -28,6 +25,6 @@ export const ReplayHealthBar = (props: IProps) => {
         height={BAR_HEIGHT - 2 * BAR_INNER_PADDING}
         tint={props.reaction === CombatUnitReaction.Friendly ? 0x49aa19 : 0xa61d24}
       />
-    </PixiContainer>
+    </Container>
   );
 };

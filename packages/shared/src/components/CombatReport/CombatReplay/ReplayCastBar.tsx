@@ -5,9 +5,6 @@ import { useMemo } from 'react';
 
 import { useCombatReportContext } from '../CombatReportContext';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PixiContainer = Container as any;
-
 interface IProps {
   unit: ICombatUnit;
   currentTimeOffset: number;
@@ -134,7 +131,7 @@ export const ReplayCastBar = (props: IProps) => {
   }
 
   return (
-    <PixiContainer
+    <Container
       x={BAR_WIDTH * -0.5}
       y={BAR_Y_OFFSET - BAR_HEIGHT}
       alpha={renderState.casting ? 1 : 1 - renderState.progress}
@@ -172,6 +169,6 @@ export const ReplayCastBar = (props: IProps) => {
         x={-ICON_SIZE - BAR_INNER_PADDING}
         y={-(ICON_SIZE - BAR_HEIGHT) / 2}
       />
-    </PixiContainer>
+    </Container>
   );
 };
