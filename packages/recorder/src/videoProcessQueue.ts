@@ -1,4 +1,4 @@
-import { ffprobe, FfprobeData } from 'fluent-ffmpeg';
+import { spawn } from 'child_process';
 import { existsSync } from 'fs-extra';
 import path from 'path';
 
@@ -8,7 +8,7 @@ import { ManagerMessageBus } from './messageBus';
 import { ILogger, VideoQueueItem } from './types';
 import { fixPathWhenPackaged, getThumbnailFileNameForVideo, tryUnlink, writeMetadataFile } from './util';
 
-let ffmpeg: typeof import('fluent-ffmpeg');
+const getFfmpegPath = () => fixPathWhenPackaged(path.join(__dirname, 'lib', 'noobs', 'bin', 'ffmpeg.exe'));
 
 export default class VideoProcessQueue {
   private messageBus: ManagerMessageBus;
@@ -22,18 +22,15 @@ export default class VideoProcessQueue {
   private cfg = ConfigService.getInstance();
 
   static async LoadFFMpegLibraries() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ffmpeg = (await import('fluent-ffmpeg')).default;
+    // No-op: we use ffmpeg/ffprobe via spawn only
   }
 
   constructor(bus: ManagerMessageBus) {
     this.messageBus = bus;
-    const ffmpegPath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'obs-studio-node', 'ffmpeg.exe'));
-
-    ffmpeg.setFfmpegPath(ffmpegPath);
-    const ffmpegOK = existsSync(ffmpegPath);
-    if (!ffmpegOK) throw new Error(`Could not find ffmpeg at ${ffmpegPath}`);
-
+    const ffmpegPath = getFfmpegPath();
+    if (!existsSync(ffmpegPath)) {
+      throw new Error(`Could not find ffmpeg at ${ffmpegPath}`);
+    }
     this.setupVideoProcessingQueue();
   }
 
@@ -135,41 +132,71 @@ export default class VideoProcessQueue {
   }
 
   private static async calculateFrameCompensation(initialFile: string, relativeStart: number): Promise<number> {
+    const ffprobePath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'noobs', 'bin', 'ffprobe.exe'));
+    const args = [
+      '-skip_frame',
+      'nokey',
+      '-read_intervals',
+      `%+${relativeStart}`,
+      '-select_streams',
+      'v:0',
+      '-show_frames',
+      '-v',
+      'quiet',
+      '-print_format',
+      'ini',
+      initialFile,
+    ];
+    VideoProcessQueue.logger.info(`[VideoProcessQueue] ffprobe ${args.join(' ')}`);
+
     return new Promise((resolve, reject) => {
-      VideoProcessQueue.logger.info(
-        `[VideoProcessQueue] ffprobe ['-skip_frame', 'nokey', '-read_intervals', %+${relativeStart}, '-select_streams', 'v:0', '-show_frames']`,
-      );
-      ffprobe(
-        initialFile,
-        ['-skip_frame', 'nokey', '-read_intervals', `%+${relativeStart}`, '-select_streams', 'v:0', '-show_frames'],
-        (error, data) => {
-          if (error) {
-            reject(error);
-          } else {
-            const shimmedData = data as FfprobeData & {
-              frames: { key_frame: number; best_effort_timestamp_time: number }[];
-            };
-            if (!shimmedData.frames || shimmedData.frames.length === 0) {
-              reject(`Could not find frame data from ffprobe on ${initialFile}`);
-            } else {
-              resolve(relativeStart - shimmedData.frames[shimmedData.frames.length - 1].best_effort_timestamp_time);
-            }
-          }
-        },
-      );
+      const proc = spawn(ffprobePath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+      let stdout = '';
+      let stderr = '';
+      proc.stdout?.on('data', (chunk) => {
+        stdout += chunk.toString();
+      });
+      proc.stderr?.on('data', (chunk) => {
+        stderr += chunk.toString();
+      });
+      proc.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(`ffprobe exited ${code}: ${stderr || stdout}`));
+          return;
+        }
+        const lastTimestamp = VideoProcessQueue.parseLastFrameTimestamp(stdout);
+        if (lastTimestamp === null) {
+          reject(new Error(`Could not find frame data from ffprobe on ${initialFile}`));
+          return;
+        }
+        resolve(relativeStart - lastTimestamp);
+      });
+      proc.on('error', reject);
     });
   }
 
   /**
-   * Takes an input MP4 file, trims the footage from the start of the video so
-   * that the output is desiredDuration seconds. Some ugly async/await stuff
-   * here. Some interesting implementation details around ffmpeg in comments
-   * below.
-   *
-   * @param {string} initialFile path to initial MP4 file
-   * @param {string} finalDir path to output directory
-   * @param {number} desiredDuration seconds to cut down to
-   * @returns full path of the final video file
+   * Parse ffprobe -show_frames INI output and return best_effort_timestamp_time of the last frame (seconds).
+   */
+  private static parseLastFrameTimestamp(stdout: string): number | null {
+    const frames: number[] = [];
+    const block = /\[FRAME\]([\s\S]*?)(?=\[FRAME\]|$)/gi;
+    let m: RegExpExecArray | null;
+    while ((m = block.exec(stdout)) !== null) {
+      const section = m[1];
+      const timeMatch = section.match(/best_effort_timestamp_time=([\d.]+)/i);
+      if (timeMatch) {
+        frames.push(parseFloat(timeMatch[1]));
+      }
+    }
+    return frames.length > 0 ? frames[frames.length - 1]! : null;
+  }
+
+  /**
+   * Takes an input video file, trims from relativeStart for desiredDuration seconds.
+   * Uses stream copy (no re-encode). See:
+   * https://superuser.com/questions/377343/cut-part-from-video-file-from-start-position-to-end-position-with-ffmpeg
+   * https://superuser.com/questions/1167958/video-cut-with-missing-frames-in-ffmpeg?rq=1
    */
   private static async cutVideo(
     initialFile: string,
@@ -178,97 +205,88 @@ export default class VideoProcessQueue {
     relativeStart: number,
     desiredDuration: number,
   ): Promise<string> {
-    const videoFileName = path.basename(initialFile, '.mp4');
+    const videoFileName = path.basename(initialFile, path.extname(initialFile));
     const videoFilenameSuffix = outputFilename ? ` - ${outputFilename}` : '';
     const baseVideoFilename = VideoProcessQueue.sanitizeFilename(videoFileName + videoFilenameSuffix);
     const finalVideoPath = path.join(finalDir, `${baseVideoFilename}.mp4`);
 
-    return new Promise<string>((resolve) => {
-      if (relativeStart < 0) {
-        VideoProcessQueue.logger.info(
-          `[VideoProcessQueue] Avoiding error by rejecting negative start: ${relativeStart}`,
-        );
-        // eslint-disable-next-line no-param-reassign
-        relativeStart = 0;
-      }
+    if (relativeStart < 0) {
+      VideoProcessQueue.logger.info(`[VideoProcessQueue] Avoiding error by rejecting negative start: ${relativeStart}`);
+      relativeStart = 0;
+    }
 
-      VideoProcessQueue.logger.info(
-        `[VideoProcessQueue] Desired duration: ${desiredDuration}, Relative start time: ${relativeStart}`,
-      );
+    VideoProcessQueue.logger.info(
+      `[VideoProcessQueue] ffmpeg cut ${initialFile} -> ${finalVideoPath} -ss ${relativeStart} -t ${desiredDuration}`,
+    );
 
-      // It's crucial that we don't re-encode the video here as that
-      // would spin the CPU and delay the replay being available. I
-      // did try this with re-encoding as it has compression benefits
-      // but took literally ages. My CPU was maxed out for nearly the
-      // same elapsed time as the recording.
-      //
-      // We ensure that we don't re-encode by passing the "-c copy"
-      // option to ffmpeg. Read about it here:
-      // https://superuser.com/questions/377343/cut-part-from-video-file-from-start-position-to-end-position-with-ffmpeg
-      //
-      // This thread has a brilliant summary why we need "-avoid_negative_ts make_zero":
-      // https://superuser.com/questions/1167958/video-cut-with-missing-frames-in-ffmpeg?rq=1
-      VideoProcessQueue.logger.info(
-        `[VideoProcessQueue] ffmpeg call ${initialFile} input: -ss ${relativeStart}, -t ${desiredDuration} output: -t ${desiredDuration}, '-c:v copy', '-c:a copy', '-avoid_negative_ts make_zero' `,
-      );
+    const ffmpegPath = getFfmpegPath();
+    const args = [
+      '-y',
+      '-i',
+      initialFile,
+      '-ss',
+      relativeStart.toString(),
+      '-t',
+      desiredDuration.toString(),
+      '-c:v',
+      'copy',
+      '-c:a',
+      'copy',
+      '-avoid_negative_ts',
+      'make_zero',
+      '-movflags',
+      '+faststart',
+      finalVideoPath,
+    ];
 
-      ffmpeg(initialFile)
-        .inputOptions([`-ss ${relativeStart}`, `-t ${desiredDuration}`])
-        .outputOptions([`-t ${desiredDuration}`, '-c:v copy', '-c:a copy', '-avoid_negative_ts make_zero'])
-        .output(finalVideoPath)
-
-        // Handle the end of the FFmpeg cutting.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .on('end', async (err: any) => {
-          if (err) {
-            VideoProcessQueue.logger.info(`[VideoProcessQueue] FFmpeg video cut error (1): ${err}`);
-            throw new Error('FFmpeg error when cutting video (1)');
-          } else {
-            VideoProcessQueue.logger.info('[VideoProcessQueue] FFmpeg cut video succeeded');
-            resolve(finalVideoPath);
-          }
-        })
-
-        // Handle an error with the FFmpeg cutting. Not sure if we
-        // need this as well as the above but being careful.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .on('error', (err: any) => {
-          VideoProcessQueue.logger.info(`[VideoProcessQueue] FFmpeg video cut error (2): ${err}`);
-          throw new Error('FFmpeg error when cutting video (2)');
-        })
-        .run();
+    return new Promise<string>((resolve, reject) => {
+      const proc = spawn(ffmpegPath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+      let stderr = '';
+      proc.stderr?.on('data', (chunk) => {
+        stderr += chunk.toString();
+      });
+      proc.on('close', (code) => {
+        if (code === 0) {
+          VideoProcessQueue.logger.info('[VideoProcessQueue] FFmpeg cut video succeeded');
+          resolve(finalVideoPath);
+        } else {
+          VideoProcessQueue.logger.error(`[VideoProcessQueue] FFmpeg cut failed code=${code}: ${stderr}`);
+          reject(new Error(`FFmpeg cut failed with code ${code}`));
+        }
+      });
+      proc.on('error', (err) => {
+        VideoProcessQueue.logger.error(`[VideoProcessQueue] FFmpeg spawn error: ${err}`);
+        reject(err);
+      });
     });
   }
 
   /**
-   * Takes an input video file and writes a screenshot a second into the
-   * video to disk. Going further into the file seems computationally
-   * expensive, so we avoid that.
-   *
-   * @param {string} video full path to initial MP4 file
-   * @param {string} output path to output directory
+   * Takes an input video file and writes a screenshot at the start (0s) to disk.
    */
-  private static async getThumbnail(video: string) {
+  private static async getThumbnail(video: string): Promise<void> {
     const thumbnailPath = getThumbnailFileNameForVideo(video);
-    const thumbnailFile = path.basename(thumbnailPath);
-    const thumbnailDir = path.dirname(thumbnailPath);
+    const ffmpegPath = getFfmpegPath();
+    const args = ['-y', '-i', video, '-ss', '0', '-vframes', '1', '-f', 'image2', thumbnailPath];
 
-    return new Promise<void>((resolve) => {
-      ffmpeg(video)
-        .on('end', () => {
+    return new Promise<void>((resolve, reject) => {
+      const proc = spawn(ffmpegPath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+      let stderr = '';
+      proc.stderr?.on('data', (chunk) => {
+        stderr += chunk.toString();
+      });
+      proc.on('close', (code) => {
+        if (code === 0) {
           VideoProcessQueue.logger.info(`[VideoProcessQueue] Got thumbnail for ${video}`);
           resolve();
-        })
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .on('error', (err: any) => {
-          VideoProcessQueue.logger.error(`[VideoProcessQueue] Error getting thumbnail for video=${video} err=${err}`);
-          throw new Error(err);
-        })
-        .screenshots({
-          timestamps: [0],
-          folder: thumbnailDir,
-          filename: thumbnailFile,
-        });
+        } else {
+          VideoProcessQueue.logger.error(
+            `[VideoProcessQueue] Error getting thumbnail for video=${video} code=${code}: ${stderr}`,
+          );
+          reject(new Error(`FFmpeg thumbnail failed with code ${code}`));
+        }
+      });
+      proc.on('error', reject);
     });
   }
 }
