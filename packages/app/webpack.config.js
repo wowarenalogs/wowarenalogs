@@ -12,6 +12,9 @@ module.exports = {
     filename: 'main.bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
+  externals: {
+    noobs: 'commonjs2 noobs',
+  },
   module: {
     rules: [
       {

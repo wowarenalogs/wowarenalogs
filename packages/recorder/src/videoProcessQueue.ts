@@ -189,7 +189,8 @@ export default class VideoProcessQueue {
         frames.push(parseFloat(timeMatch[1]));
       }
     }
-    return frames.length > 0 ? frames[frames.length - 1]! : null;
+    const last = frames[frames.length - 1];
+    return last !== undefined ? last : null;
   }
 
   /**
