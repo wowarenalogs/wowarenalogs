@@ -1,12 +1,13 @@
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { TbChevronLeft, TbLoader } from 'react-icons/tb';
 
 export function LoadingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   return (
     <div className="w-full h-full flex flex-col p-2 animate-loader">
       <div className="flex flex-row items-center px-2">
-        {router.query.source ? (
+        {searchParams.get('source') ? (
           <div className="pt-1 pr-2">
             <TbChevronLeft className="text-2xl cursor-pointer hover:text-primary" onClick={() => router.back()} />
           </div>

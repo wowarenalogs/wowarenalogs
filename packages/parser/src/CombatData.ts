@@ -529,7 +529,7 @@ export class CombatData extends CombatGenerator {
   }
 
   public end(wasTimeout?: boolean) {
-    _.forEach(this.units, (unit) => {
+    Object.values(this.units).forEach((unit) => {
       unit.endActivity();
       if (this.combatantMetadata.has(unit.id)) {
         const metadata = this.combatantMetadata.get(unit.id);
@@ -548,7 +548,7 @@ export class CombatData extends CombatGenerator {
     // To resolve it we will inspect the units of the match and any 'Player' units who weren't represented
     // in the COMBATANT_INFO events are downgraded to NPCs ;)
     if (this.wowVersion === 'retail') {
-      _.forEach(this.units, (unit) => {
+      Object.values(this.units).forEach((unit) => {
         if (unit.type === CombatUnitType.Player) {
           if (!unit.info) {
             unit.type = CombatUnitType.NPC;
@@ -562,7 +562,7 @@ export class CombatData extends CombatGenerator {
     }
 
     // merge pet output activities into their owners
-    _.forEach(this.units, (unit) => {
+    Object.values(this.units).forEach((unit) => {
       if (unit.type !== CombatUnitType.Player && unit.ownerId.length) {
         const owner = this.units[unit.ownerId];
         if (!owner) {
@@ -584,7 +584,7 @@ export class CombatData extends CombatGenerator {
     });
 
     // units are finalized, check playerTeam info
-    _.forEach(this.units, (unit) => {
+    Object.values(this.units).forEach((unit) => {
       const metadata = this.combatantMetadata.get(unit.id);
       if (metadata) {
         if (unit.reaction === CombatUnitReaction.Friendly) {
@@ -594,7 +594,7 @@ export class CombatData extends CombatGenerator {
     });
 
     // a valid arena combat should have at least two friendly units and two hostile units
-    const playerUnits = Array.from(_.values(this.units)).filter((unit) => unit.type === CombatUnitType.Player);
+    const playerUnits = Array.from(Object.values(this.units)).filter((unit) => unit.type === CombatUnitType.Player);
     const deadPlayerCount = playerUnits.filter((p) => p.deathRecords.length > 0).length;
 
     const recordingPlayer = playerUnits.find((p) => p.affiliation === CombatUnitAffiliation.Mine);

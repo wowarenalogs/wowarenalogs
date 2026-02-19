@@ -1,5 +1,5 @@
 import { LoadingScreen, logAnalyticsEvent, useClientContext } from '@wowarenalogs/shared';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';

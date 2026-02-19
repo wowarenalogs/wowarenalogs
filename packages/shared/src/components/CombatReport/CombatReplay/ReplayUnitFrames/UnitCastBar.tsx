@@ -24,8 +24,8 @@ export const UnitCastBar = (props: IUnitFrameRenderData) => {
           backgroundColor: props.castingSpell.casting
             ? CAST_BAR_PROGRESS_COLOR
             : props.castingSpell.succeeded
-            ? CAST_BAR_SUCCESS_COLOR
-            : CAST_BAR_FAILURE_COLOR,
+              ? CAST_BAR_SUCCESS_COLOR
+              : CAST_BAR_FAILURE_COLOR,
           width: `${((props.castingSpell.casting ? props.castingSpell.progress : 1) * 100).toFixed()}%`,
         }}
       />

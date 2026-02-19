@@ -1,7 +1,7 @@
 import { graphqlServer } from '@wowarenalogs/shared/src/graphql-server';
-import { NextApiRequest, NextApiResponse, NextConfig } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export const config: NextConfig = {
+export const config = {
   api: {
     bodyParser: false,
   },

@@ -51,7 +51,7 @@
     "prisma": "^4.9.0",
     "rxjs": "^6.6.6",
     "superagent": "^8.0.4",
-    "ts-node": "^9.1.1",
+    "ts-node": "^10.9.0",
     "typescript": "^4.1.5",
     "uuid": "^8.3.2"
   }

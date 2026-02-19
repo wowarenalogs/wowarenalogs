@@ -61,8 +61,8 @@ export const SpellCastEvent = ({
                 event.deltaMs === 0
                   ? '0s'
                   : event.deltaMs < 1000
-                  ? `${event.deltaMs}ms`
-                  : `${(event.deltaMs / 1000).toFixed(1)}s`
+                    ? `${event.deltaMs}ms`
+                    : `${(event.deltaMs / 1000).toFixed(1)}s`
               }`}
           </div>
         </div>

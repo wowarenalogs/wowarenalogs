@@ -217,7 +217,7 @@ export function buildQueryHelpers(
   com: IArenaMatch | IShuffleRound,
   excludePartialCombinations = false,
 ): SpecIndexFields {
-  const unitsList = _.values(com.units).map((c) => ({
+  const unitsList = Object.values(com.units).map((c) => ({
     id: c.id,
     name: c.name,
     info: c.info,
@@ -296,10 +296,7 @@ export function getEffectiveDps(units: ICombatUnit[], effectiveDuration: number)
 }
 
 export function getBurstDps(units: ICombatUnit[], burstWindow = 3000) {
-  const allDamageOut = _.sortBy(
-    units.flatMap((p) => p.damageOut),
-    (d) => d.timestamp,
-  );
+  const allDamageOut = units.flatMap((p) => p.damageOut).sort((a, b) => a.timestamp - b.timestamp);
 
   let l = 0;
   let r = 0;

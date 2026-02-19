@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 import { TbArrowDown } from 'react-icons/tb';
 import { useQuery } from 'react-query';
@@ -56,9 +56,7 @@ export default function CompStats(props: { activeBracket: string; sortKey: strin
   const sortKey = SUPPORTED_SORT_KEYS.has(props.sortKey) ? props.sortKey : 'total';
   const setSortKey = useCallback(
     (key: string) => {
-      router.push(`/stats?tab=comp-stats&bracket=${props.activeBracket}&sortKey=${key}`, undefined, {
-        shallow: true,
-      });
+      router.push(`/stats?tab=comp-stats&bracket=${props.activeBracket}&sortKey=${key}`);
     },
     [props.activeBracket, router],
   );

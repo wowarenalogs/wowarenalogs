@@ -10,11 +10,13 @@ jobs:
       CI: false
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev libpixman-1-dev
       - name: clean npm cache
         run: npm cache clean -f
       - name: install dependencies

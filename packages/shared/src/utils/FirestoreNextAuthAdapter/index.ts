@@ -38,7 +38,7 @@ export function FirestoreNextAuthAdapter(client: firestore.Firestore): Adapter {
   const VerificationTokens = client.collection('verificationTokens');
 
   return {
-    async createUser(newUser) {
+    async createUser(newUser: Omit<AdapterUser, 'id'>) {
       const userRef = await Users.add(stripUndefined(newUser));
       const snapshot = await userRef.get();
       const user = docSnapshotToObject<AdapterUser>(snapshot);
@@ -102,13 +102,13 @@ export function FirestoreNextAuthAdapter(client: firestore.Firestore): Adapter {
       });
     },
 
-    async linkAccount(account) {
+    async linkAccount(account: AdapterAccount) {
       const accountRef = await Accounts.add(stripUndefined(account));
       const accountSnapshot = await accountRef.get();
       return docSnapshotToObject<AdapterAccount>(accountSnapshot);
     },
 
-    async unlinkAccount({ provider, providerAccountId }) {
+    async unlinkAccount({ provider, providerAccountId }: { provider: string; providerAccountId: string }) {
       const accountQuery = Accounts.where('provider', '==', provider)
         .where('providerAccountId', '==', providerAccountId)
         .limit(1);
