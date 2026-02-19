@@ -10,8 +10,7 @@
     "eslint-import-resolver-node": "^0.3.7",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^5.0.0",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
-    "synckit": "^0.8.8"
+    "eslint-plugin-simple-import-sort": "^10.0.0"
   },
   "publishConfig": {
     "access": "public"
