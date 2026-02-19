@@ -145,8 +145,8 @@ export const ReplayCastBar = (props: IProps) => {
           renderState.casting
             ? CAST_BAR_BACKGROUND_COLOR
             : renderState.succeeded
-            ? CAST_BAR_SUCCESS_COLOR
-            : CAST_BAR_FAILURE_COLOR
+              ? CAST_BAR_SUCCESS_COLOR
+              : CAST_BAR_FAILURE_COLOR
         }
       />
       <Sprite
@@ -159,8 +159,8 @@ export const ReplayCastBar = (props: IProps) => {
           renderState.casting
             ? CAST_BAR_PROGRESS_COLOR
             : renderState.succeeded
-            ? CAST_BAR_SUCCESS_COLOR
-            : CAST_BAR_FAILURE_COLOR
+              ? CAST_BAR_SUCCESS_COLOR
+              : CAST_BAR_FAILURE_COLOR
         }
       />
       <Sprite
