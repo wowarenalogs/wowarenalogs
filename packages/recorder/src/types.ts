@@ -123,6 +123,72 @@ export type TPreviewPosition = {
   yPos: number;
 };
 
+export type ObsListItem = {
+  name: string;
+  value: string | number | boolean;
+};
+
+export type ObsProperty = {
+  name: string;
+  type: string;
+  items?: ObsListItem[];
+};
+
+export type Signal = {
+  id: string;
+};
+
+export type Noobs = {
+  Init: (path: string, logPath: string, signalCallback: (signal: Signal) => void) => void;
+  SetBuffering: (buffering: boolean) => void;
+  InitPreview: (hwnd: Buffer) => void;
+  CreateSource: (name: string, type: string) => string;
+  DeleteSource: (name: string) => void;
+  AddSourceToScene: (name: string) => void;
+  RemoveSourceFromScene: (name: string) => void;
+  ResetVideoContext: (fps: number, width: number, height: number) => void;
+  SetRecordingCfg: (path: string, format: string) => void;
+  SetVideoEncoder: (encoder: string, settings: Record<string, number | string>) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  GetSourceSettings: (name: string) => Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  SetSourceSettings: (name: string, settings: Record<string, any>) => void;
+  GetSourceProperties: (name: string) => ObsProperty[];
+  SetForceMono: (force: boolean) => void;
+  SetSourceVolume: (name: string, volume: number) => void;
+  Shutdown: () => void;
+  StartBuffer: () => void;
+  ForceStopRecording: () => void;
+  StartRecording: (backtrackSeconds: number) => void;
+  StopRecording: () => void;
+  GetLastRecording: () => string;
+  ListVideoEncoders: () => string[];
+  GetSourcePos: (name: string) => {
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+    scaleX: number;
+    scaleY: number;
+  };
+  SetSourcePos: (
+    name: string,
+    pos: {
+      x?: number;
+      y?: number;
+      scaleX?: number;
+      scaleY?: number;
+      cropLeft?: number;
+      cropRight?: number;
+      cropTop?: number;
+      cropBottom?: number;
+    },
+  ) => void;
+  HidePreview: () => void;
+  ConfigurePreview: (x: number, y: number, width: number, height: number) => void;
+  ShowPreview: () => void;
+};
+
 export type ConfigStage = {
   name: string;
   initial: boolean;

@@ -1,7 +1,6 @@
 import { BrowserWindow, screen } from 'electron';
 import fs from 'fs';
 import { isEqual } from 'lodash';
-import type { ObsListItem, ObsProperty, Signal } from 'noobs';
 import path from 'path';
 import { v4 as uuidfn } from 'uuid';
 import WaitQueue from 'wait-queue';
@@ -17,11 +16,15 @@ import {
   ILogger,
   IOBSDevice,
   MicStatus,
+  Noobs,
   ObsAudioConfig,
   ObsBaseConfig,
+  ObsListItem,
   ObsOverlayConfig,
+  ObsProperty,
   ObsVideoConfig,
   RecStatus,
+  Signal,
   TAudioSourceType,
   TPreviewPosition,
 } from './types';
@@ -38,18 +41,17 @@ import {
 } from './util';
 import VideoProcessQueue from './videoProcessQueue';
 
-type NoobsModule = typeof import('noobs') extends { default: infer D } ? D : never;
-let noobsModule: NoobsModule | null = null;
+let noobsModule: Noobs | null = null;
 
-function getNoobs(): NoobsModule {
+function getNoobs(): Noobs {
   if (noobsModule) return noobsModule;
   if (process.platform !== 'win32') {
     throw new Error('OBS recording (noobs) is only supported on Windows');
   }
   // Lazy load so optional dependency doesn't break npm install on non-Windows (CI)
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  noobsModule = require('noobs').default as NoobsModule;
-  return noobsModule;
+  noobsModule = require('noobs');
+  return noobsModule as Noobs;
 }
 
 /**
