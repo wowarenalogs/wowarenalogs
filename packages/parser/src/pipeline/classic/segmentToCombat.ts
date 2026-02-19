@@ -18,10 +18,10 @@ export const segmentToCombat = () => {
         });
         combat.end();
 
-        const friendlyTeamCount = _.values(combat.units).filter(
+        const friendlyTeamCount = Object.values(combat.units).filter(
           (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Friendly,
         ).length;
-        const enemyTeamCount = _.values(combat.units).filter(
+        const enemyTeamCount = Object.values(combat.units).filter(
           (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Hostile,
         ).length;
         const biggestTeam = Math.max(friendlyTeamCount, enemyTeamCount);

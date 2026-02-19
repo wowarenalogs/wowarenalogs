@@ -148,7 +148,7 @@ export class BattlegroundData extends CombatGenerator {
   }
 
   public end(wasTimeout?: boolean) {
-    _.forEach(this.units, (unit) => {
+    Object.values(this.units).forEach((unit) => {
       unit.endActivity();
       if (this.combatantMetadata.has(unit.id)) {
         const metadata = this.combatantMetadata.get(unit.id);
@@ -166,7 +166,7 @@ export class BattlegroundData extends CombatGenerator {
     // HACK: Mark players with participationCount<5 spell cast events as NPCs
     // this is due to the insane amount of noise that will be in these logs from tracking by zone change
     // the ZONE_CHANGED event fires at the *end* of the entire loading cycle for a new zone so you get lots of aura updates first
-    _.forEach(this.units, (unit) => {
+    Object.values(this.units).forEach((unit) => {
       const participationCount = unit.spellCastEvents.length + unit.damageOut.length + unit.healOut.length;
       if (participationCount < 5) {
         unit.type = CombatUnitType.NPC;
@@ -174,7 +174,7 @@ export class BattlegroundData extends CombatGenerator {
     });
 
     // merge pet output activities into their owners
-    _.forEach(this.units, (unit) => {
+    Object.values(this.units).forEach((unit) => {
       if (unit.type !== CombatUnitType.Player && unit.ownerId.length) {
         const owner = this.units[unit.ownerId];
         if (!owner) {
@@ -196,7 +196,7 @@ export class BattlegroundData extends CombatGenerator {
     });
 
     // units are finalized, check playerTeam info
-    _.forEach(this.units, (unit) => {
+    Object.values(this.units).forEach((unit) => {
       const metadata = this.combatantMetadata.get(unit.id);
       if (metadata) {
         if (unit.reaction === CombatUnitReaction.Friendly) {
@@ -206,7 +206,7 @@ export class BattlegroundData extends CombatGenerator {
     });
 
     // a valid arena combat should have at least two friendly units and two hostile units
-    const playerUnits = Array.from(_.values(this.units)).filter((unit) => unit.type === CombatUnitType.Player);
+    const playerUnits = Array.from(Object.values(this.units)).filter((unit) => unit.type === CombatUnitType.Player);
     const deadPlayerCount = playerUnits.filter((p) => p.deathRecords.length > 0).length;
 
     const recordingPlayer = playerUnits.find((p) => p.affiliation === CombatUnitAffiliation.Mine);

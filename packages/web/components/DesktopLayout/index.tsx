@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ClientContextProvider,
   getAnalyticsDeviceId,
@@ -7,10 +9,8 @@ import {
   MainLayout,
 } from '@wowarenalogs/shared';
 import { AuthProvider } from '@wowarenalogs/shared';
-import { AppProps } from 'next/app';
-import Head from 'next/head';
 import Script from 'next/script';
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 import { LocalCombatsContextProvider } from '../../hooks/LocalCombatsContext';
@@ -32,7 +32,7 @@ export const DesktopLayout = !window.wowarenalogs
   ? () => {
       return null;
     }
-  : ({ Component, pageProps }: AppProps) => {
+  : ({ children }: { children: ReactNode }) => {
       const { isLoading, appConfig } = useAppConfig();
 
       useEffect(() => {
@@ -72,15 +72,6 @@ export const DesktopLayout = !window.wowarenalogs
 
       return (
         <>
-          <Head>
-            <meta key="charset" charSet="utf-8" />
-            <link key="icon" rel="icon" href="/favicon.ico" />
-            <meta key="viewport" name="viewport" content="width=device-width, initial-scale=1" />
-            <meta key="theme-color" name="theme-color" content="#000000" />
-            <link type="text/css" href="https://wow.zamimg.com/css/basic.css?16" rel="stylesheet" />
-            <script key="wowhead0">{'window.whTooltips = { colorLinks: true, iconSize: true };'}</script>
-            <script key="wowhead1" async src="https://wow.zamimg.com/widgets/power.js" />
-          </Head>
           <Script src="https://www.googletagmanager.com/gtag/js?id=G-Z6E8QS4ENW" strategy="afterInteractive" />
           <Script id="google-analytics" strategy="afterInteractive">
             {`
@@ -104,7 +95,6 @@ export const DesktopLayout = !window.wowarenalogs
                 })
                 .catch(() => {
                   // catching this promise rejection is necessary to not crash the app.
-                  // but there's nothing we need to do here.
                 });
             }}
             localFlags={appConfig.flags || []}
@@ -114,7 +104,7 @@ export const DesktopLayout = !window.wowarenalogs
                 <LocalCombatsContextProvider>
                   <div className="w-screen h-screen flex flex-col bg-base-300 overflow-hidden">
                     <TitleBar />
-                    <MainLayout>{isLoading ? <LoadingScreen /> : <Component {...pageProps} />}</MainLayout>
+                    <MainLayout>{isLoading ? <LoadingScreen /> : children}</MainLayout>
                   </div>
                 </LocalCombatsContextProvider>
               </VideoRecordingContextProvider>

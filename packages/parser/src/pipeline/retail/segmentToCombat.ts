@@ -98,7 +98,7 @@ function decodeShuffleRound(
     recentScoreboardBuffer = [];
   }
 
-  const players = _.values(combat.units).filter((a) => a.type === CombatUnitType.Player);
+  const players = Object.values(combat.units).filter((a) => a.type === CombatUnitType.Player);
 
   const playerDeaths = players
     .map((unit) => ({

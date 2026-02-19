@@ -1,8 +1,7 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import base64url from 'base64url';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
-import { NextSeo } from 'next-seo';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { TbArrowBigUpLines, TbLoader, TbRocketOff } from 'react-icons/tb';
 
@@ -43,25 +42,21 @@ const DEFAULT_FILTERS: IPublicMatchesFilters = {
 
 export const SearchPage = () => {
   const router = useRouter();
-  const { page, search } = router.query;
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const page = searchParams.get('page');
+  const search = searchParams.get('search');
   const pageNum = parseInt(page?.toString() || '0');
 
   const filters = useMemo(() => {
     return search ? (JSON.parse(base64url.decode(search as string)) as IPublicMatchesFilters) : DEFAULT_FILTERS;
   }, [search]);
 
-  // log analytics events whenever the filters change
   useEffect(() => {
-    if (!router.isReady) {
-      return;
-    }
-
-    // following predefined schema by google analytics convention.
-    // see https://developers.google.com/analytics/devguides/collection/ga4/reference/events?client_type=gtag#search
     logAnalyticsEvent('search', {
       search_term: filters.bracket,
     });
-  }, [filters, router.isReady]);
+  }, [filters]);
 
   const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
   const matchesQuery = useGetPublicMatchesQuery({
@@ -76,17 +71,7 @@ export const SearchPage = () => {
   });
   const setFilters = (newFilters: IPublicMatchesFilters) => {
     const newSearchParams = base64url.encode(JSON.stringify(newFilters));
-    router.push(
-      {
-        pathname: router.pathname,
-        query: {
-          page: '0',
-          search: newSearchParams,
-        },
-      },
-      undefined,
-      { shallow: true },
-    );
+    router.push(`${pathname}?page=0&search=${newSearchParams}`);
   };
 
   function addToOne(s: CombatUnitSpec): void {
@@ -117,16 +102,9 @@ export const SearchPage = () => {
     setFilters(DEFAULT_FILTERS);
   }
 
-  if (!router.isReady) {
-    return null;
-  }
-
   return (
     <div className="transition-all px-4 mt-4 overflow-y-auto overflow-visible">
-      <NextSeo
-        title="Find Matches"
-        description="View recent matches played by the community. Filter by bracket, rating, and specs."
-      />
+      <title>Find Matches</title>
       <div className="p-4 rounded bg-base-300">
         <BracketSelector
           bracket={filters.bracket}
@@ -229,13 +207,7 @@ export const SearchPage = () => {
               <button
                 className="btn btn-outline btn-sm"
                 onClick={() => {
-                  router.push({
-                    pathname: router.pathname,
-                    query: {
-                      page: 0,
-                      search,
-                    },
-                  });
+                  router.push(`${pathname}?page=0&search=${search}`);
                 }}
               >
                 First
@@ -245,13 +217,7 @@ export const SearchPage = () => {
               <button
                 className="btn btn-outline btn-sm"
                 onClick={() => {
-                  router.push({
-                    pathname: router.pathname,
-                    query: {
-                      page: pageNum - 1,
-                      search,
-                    },
-                  });
+                  router.push(`${pathname}?page=${pageNum - 1}&search=${search}`);
                 }}
               >
                 Previous
@@ -260,13 +226,7 @@ export const SearchPage = () => {
             <button
               className="btn btn-outline btn-sm"
               onClick={() => {
-                router.push({
-                  pathname: router.pathname,
-                  query: {
-                    page: pageNum + 1,
-                    search,
-                  },
-                });
+                router.push(`${pathname}?page=${pageNum + 1}&search=${search}`);
               }}
             >
               Next Page

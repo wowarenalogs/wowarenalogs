@@ -17,8 +17,8 @@
     "@graphql-codegen/typescript-operations": "^2.5.5",
     "@graphql-codegen/typescript-react-apollo": "^3.3.5",
     "@types/nprogress": "^0.2.0",
-    "@types/react": "^17.0.43",
-    "@types/react-dom": "^17.0.14",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
     "eslint-config-wowarenalogs": "*"
   },
   "dependencies": {
@@ -38,18 +38,16 @@
     "lru-cache": "^7.14.1",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
-    "next": "12.3.5",
-    "next-auth": "^4.9.0",
-    "next-seo": "^5.15.0",
-    "next-transpile-modules": "^9.0.0",
+    "next": "^15.3.0",
+    "next-auth": "^4.24.0",
     "nprogress": "^0.2.0",
     "pixi-viewport": "^4.37.0",
     "pixi.js": "^6.5.8",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "react-icons": "^4.3.1",
     "react-query": "^3.39.2",
-    "recharts": "^2.1.16",
+    "recharts": "^3.7.0",
     "rxjs": "^6.6.6"
   }
 }

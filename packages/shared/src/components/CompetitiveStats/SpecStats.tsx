@@ -1,6 +1,6 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useCallback, useRef } from 'react';
 import { TbArrowDown, TbChartLine } from 'react-icons/tb';
 import { useQuery } from 'react-query';
@@ -51,10 +51,6 @@ export default function SpecStats(props: {
         `/stats?tab=spec-stats&bracket=${props.activeBracket}&sortKey=${key}&minRating=${props.minRating}&maxRating=${
           props.maxRating
         }&trendChartSpecs=${props.trendChartSpecs.join(`,`)}&trendChartStat=${props.trendChartStat}`,
-        undefined,
-        {
-          shallow: true,
-        },
       );
     },
     [props.activeBracket, props.minRating, props.maxRating, router, props.trendChartSpecs, props.trendChartStat],
@@ -68,10 +64,6 @@ export default function SpecStats(props: {
         `/stats?tab=spec-stats&bracket=${props.activeBracket}&sortKey=${sortKey}&minRating=${
           props.minRating
         }&maxRating=${props.maxRating}&trendChartSpecs=${specs.join(`,`)}&trendChartStat=${props.trendChartStat}`,
-        undefined,
-        {
-          shallow: true,
-        },
       );
     },
     [props.activeBracket, props.minRating, props.maxRating, router, props.trendChartStat, sortKey],
@@ -82,10 +74,6 @@ export default function SpecStats(props: {
         `/stats?tab=spec-stats&bracket=${props.activeBracket}&sortKey=${sortKey}&minRating=${
           props.minRating
         }&maxRating=${props.maxRating}&trendChartSpecs=${props.trendChartSpecs.join(`,`)}&trendChartStat=${stat}`,
-        undefined,
-        {
-          shallow: true,
-        },
       );
     },
     [props.activeBracket, props.minRating, props.maxRating, router, props.trendChartSpecs, sortKey],

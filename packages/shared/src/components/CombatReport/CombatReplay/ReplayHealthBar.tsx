@@ -1,5 +1,7 @@
-import { Container, Sprite } from '@inlet/react-pixi';
+import { Sprite } from '@inlet/react-pixi';
 import { CombatUnitReaction } from '@wowarenalogs/parser';
+
+import { Container } from './pixi-compat';
 
 interface IProps {
   current: number;

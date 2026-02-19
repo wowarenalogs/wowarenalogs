@@ -16,7 +16,6 @@ const firestore = new Firestore({
       : undefined,
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function firestoreDocToMatchStub(stub: ICombatDataStub): ICombatDataStub {
   return stub;
 }

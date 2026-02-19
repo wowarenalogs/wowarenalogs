@@ -185,7 +185,7 @@ export class CombatUnit implements ICombatUnit {
       this.typeProofs.forEach((value, key) => {
         proofs.push([key, value]);
       });
-      const sorted = _.sortBy(proofs, (proof) => -proof[1]);
+      const sorted = proofs.sort((a, b) => b[1] - a[1]);
       this.type = sorted[0][0];
     }
 
@@ -194,7 +194,7 @@ export class CombatUnit implements ICombatUnit {
       this.reactionProofs.forEach((value, key) => {
         proofs.push([key, value]);
       });
-      const sorted = _.sortBy(proofs, (proof) => -proof[1]);
+      const sorted = proofs.sort((a, b) => b[1] - a[1]);
       this.reaction = sorted[0][0];
     }
 
@@ -203,7 +203,7 @@ export class CombatUnit implements ICombatUnit {
       this.classProofs.forEach((value, key) => {
         proofs.push([key, value]);
       });
-      const sorted = _.sortBy(proofs, (proof) => -proof[1]);
+      const sorted = proofs.sort((a, b) => b[1] - a[1]);
       this.class = sorted[0][0];
     }
 

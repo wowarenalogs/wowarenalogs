@@ -92,10 +92,10 @@ export default function TierList(props: { activeBracket: string; minRating: numb
         s.representation >= 0.02 && s.winRate >= 0.52
           ? 'S'
           : s.representation <= 0.01 && s.winRate <= 0.49
-          ? 'C'
-          : s.representation <= 0.01 || s.winRate <= 0.49
-          ? 'B'
-          : 'A',
+            ? 'C'
+            : s.representation <= 0.01 || s.winRate <= 0.49
+              ? 'B'
+              : 'A',
     }));
   }, [props.activeBracket, specStats]);
 
@@ -123,10 +123,10 @@ export default function TierList(props: { activeBracket: string; minRating: numb
                     tier === 'S'
                       ? 'rgb(255, 127, 127)'
                       : tier === 'A'
-                      ? 'rgb(255, 191, 127)'
-                      : tier === 'B'
-                      ? 'rgb(255, 223, 127)'
-                      : 'rgb(191, 255, 127)',
+                        ? 'rgb(255, 191, 127)'
+                        : tier === 'B'
+                          ? 'rgb(255, 223, 127)'
+                          : 'rgb(191, 255, 127)',
                 }}
               >
                 <div className="w-4 md:w-16 h-16 text-black flex items-center justify-center">{tier}</div>

@@ -1,6 +1,0 @@
-node_modules
-dist
-build
-graphql/generated/graphql.tsx
-.eslintrc.js
-*.config.js

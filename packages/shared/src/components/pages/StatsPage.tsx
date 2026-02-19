@@ -1,7 +1,6 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
-import { NextSeo } from 'next-seo';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { TbCaretDown, TbInfoCircle } from 'react-icons/tb';
 
 import { DownloadPromotion } from '../common/DownloadPromotion';
@@ -29,36 +28,28 @@ const printRatingRange = (min: number, max: number) => {
 
 export const StatsPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const bracket = (router.query.bracket as string) ?? 'Rated Solo Shuffle';
-  const tab = (router.query.tab as string) ?? 'tier-list';
-  const sortKey = (router.query.sortKey as string) ?? 'total';
-  const minRating = parseInt((router.query.minRating as string) ?? '0');
-  const maxRating = parseInt((router.query.maxRating as string) ?? '4999');
-  const trendChartStat = (router.query.trendChartStat as ChartableStat) ?? 'representation';
-  const trendChartSpecs = ((router.query.trendChartSpecs as string) ?? '')
+  const bracket = searchParams.get('bracket') ?? 'Rated Solo Shuffle';
+  const tab = searchParams.get('tab') ?? 'tier-list';
+  const sortKey = searchParams.get('sortKey') ?? 'total';
+  const minRating = parseInt(searchParams.get('minRating') ?? '0');
+  const maxRating = parseInt(searchParams.get('maxRating') ?? '4999');
+  const trendChartStat = (searchParams.get('trendChartStat') as ChartableStat) ?? 'representation';
+  const trendChartSpecs = (searchParams.get('trendChartSpecs') ?? '')
     .split(',')
     .filter((s) => s)
     .map((s) => s as CombatUnitSpec);
 
   return (
     <div className="flex flex-col px-4 py-2 w-full h-full items-stretch">
-      <NextSeo
-        title={
-          tab === 'tier-list'
-            ? `${bracket} Spec Tier List`
-            : tab === 'spec-stats'
+      <title>
+        {tab === 'tier-list'
+          ? `${bracket} Spec Tier List`
+          : tab === 'spec-stats'
             ? `${bracket} Spec Leaderboard`
-            : `${bracket} Comp Leaderboard`
-        }
-        description={
-          tab === 'tier-list'
-            ? `What specs perform the best in ${bracket} matches?`
-            : tab === 'spec-stats'
-            ? `Performance statistics for ${bracket} specs.`
-            : `Performance statistics for ${bracket} comps.`
-        }
-      />
+            : `${bracket} Comp Leaderboard`}
+      </title>
       <DownloadPromotion />
       <div className="flex flex-col md:flex-row gap-2 items-center z-50">
         <Dropdown
@@ -70,8 +61,6 @@ export const StatsPage = () => {
                 `/stats?tab=${tab}&bracket=${b}&sortKey=${sortKey}&minRating=${minRating}&maxRating=${maxRating}&trendChartStat=${trendChartStat}&trendChartSpecs=${trendChartSpecs.join(
                   `,`,
                 )}`,
-                undefined,
-                { shallow: true },
               );
             },
           }))}
@@ -90,8 +79,6 @@ export const StatsPage = () => {
                 `/stats?tab=${tab}&bracket=${bracket}&sortKey=${sortKey}&minRating=${r[0]}&maxRating=${
                   r[1]
                 }&trendChartStat=${trendChartStat}&trendChartSpecs=${trendChartSpecs.join(`,`)}`,
-                undefined,
-                { shallow: true },
               );
             },
           }))}
@@ -109,8 +96,6 @@ export const StatsPage = () => {
                 `/stats?tab=tier-list&bracket=${bracket}&sortKey=${sortKey}&minRating=${minRating}&maxRating=${maxRating}&trendChartStat=${trendChartStat}&trendChartSpecs=${trendChartSpecs.join(
                   `,`,
                 )}`,
-                undefined,
-                { shallow: true },
               );
             }}
           >
@@ -123,8 +108,6 @@ export const StatsPage = () => {
                 `/stats?tab=spec-stats&bracket=${bracket}&sortKey=${sortKey}&minRating=${minRating}&maxRating=${maxRating}&trendChartStat=${trendChartStat}&trendChartSpecs=${trendChartSpecs.join(
                   `,`,
                 )}`,
-                undefined,
-                { shallow: true },
               );
             }}
           >
@@ -137,8 +120,6 @@ export const StatsPage = () => {
                 `/stats?tab=comp-stats&bracket=${bracket}&sortKey=${sortKey}&minRating=0&maxRating=4999&trendChartStat=${trendChartStat}&trendChartSpecs=${trendChartSpecs.join(
                   `,`,
                 )}`,
-                undefined,
-                { shallow: true },
               );
             }}
           >
