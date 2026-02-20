@@ -437,11 +437,23 @@ export class Recorder {
   private createMonitorCaptureSource(monitorIndex: number, captureCursor: boolean): string {
     Recorder.logger.info('[Recorder] Configuring OBS for Monitor Capture');
     const name = getNoobs().CreateSource('WR Monitor Capture', 'monitor_capture');
-    getNoobs().SetSourceSettings(name, {
+    const properties = getNoobs().GetSourceProperties(name);
+    const monitorProp = properties.find((p: ObsProperty) => p.name === 'monitor' || p.name === 'monitor_id');
+    const methodProp = properties.find((p: ObsProperty) => p.name === 'method');
+    const monitorItem =
+      monitorProp && monitorProp.type === 'list'
+        ? monitorProp.items?.[Math.max(0, Math.min(monitorIndex, (monitorProp.items?.length ?? 1) - 1))]
+        : undefined;
+    const methodItem = methodProp && methodProp.type === 'list' ? methodProp.items?.[0] : undefined;
+
+    const settings = {
       ...getNoobs().GetSourceSettings(name),
-      monitor: monitorIndex,
       capture_cursor: captureCursor,
-    });
+      ...(monitorProp?.name ? { [monitorProp.name]: monitorItem?.value ?? monitorIndex } : { monitor: monitorIndex }),
+      ...(methodProp?.name && methodItem ? { [methodProp.name]: methodItem.value } : {}),
+    };
+
+    getNoobs().SetSourceSettings(name, settings);
     return name;
   }
 
@@ -465,14 +477,15 @@ export class Recorder {
         window = String(windows[0].value);
       }
     }
-    getNoobs().SetSourceSettings(name, {
+    const settings = {
       ...getNoobs().GetSourceSettings(name),
       capture_mode: 'window',
       allow_transparency: true,
       priority: 1,
       capture_cursor: captureCursor,
       window,
-    });
+    };
+    getNoobs().SetSourceSettings(name, settings);
     return name;
   }
 
@@ -482,12 +495,29 @@ export class Recorder {
   private createWindowCaptureSource(captureCursor: boolean): string {
     Recorder.logger.info('[Recorder] Configuring OBS for Window Capture');
     const name = getNoobs().CreateSource('WR Window Capture', 'window_capture');
-    getNoobs().SetSourceSettings(name, {
+    const properties = getNoobs().GetSourceProperties(name);
+    const windowProp = properties.find((p: ObsProperty) => p.name === 'window');
+    const methodProp = properties.find((p: ObsProperty) => p.name === 'method');
+    const priorityProp = properties.find((p: ObsProperty) => p.name === 'priority');
+
+    const windowItem =
+      windowProp && windowProp.type === 'list'
+        ? windowProp.items?.find(
+            (item) => item.name.includes('[Wow.exe]: World of Warcraft') || item.name.includes('魔兽世界'),
+          ) ?? windowProp.items?.[0]
+        : undefined;
+    const methodItem = methodProp && methodProp.type === 'list' ? methodProp.items?.[0] : undefined;
+    const priorityItem = priorityProp && priorityProp.type === 'list' ? priorityProp.items?.[0] : undefined;
+
+    const settings = {
       ...getNoobs().GetSourceSettings(name),
       cursor: captureCursor,
-      window: 'World of Warcraft:waApplication Window:Wow.exe',
-      method: 2,
-    });
+      ...(windowProp?.name ? { [windowProp.name]: windowItem?.value } : { window: 'World of Warcraft:waApplication Window:Wow.exe' }),
+      ...(methodProp?.name && methodItem ? { [methodProp.name]: methodItem.value } : { method: 2 }),
+      ...(priorityProp?.name && priorityItem ? { [priorityProp.name]: priorityItem.value } : {}),
+    };
+
+    getNoobs().SetSourceSettings(name, settings);
     return name;
   }
 
