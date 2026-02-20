@@ -758,6 +758,7 @@ export class Recorder {
       retries--;
     }
 
+    getNoobs().StartRecording(0);
     this.updateStatus('Recording');
     this.cancelBufferTimers();
     this.isRecording = true;
@@ -779,9 +780,8 @@ export class Recorder {
 
     const { overrun } = activity;
     const activityDuration = (activity.endDate.getTime() - activity.startDate.getTime()) / 1000;
-    const backtrackSeconds = activityDuration + overrun;
 
-    Recorder.logger.info(`[Recorder] Stop recording after overrun: ${overrun}s, backtrack: ${backtrackSeconds}s`);
+    Recorder.logger.info(`[Recorder] Stop recording after overrun: ${overrun}s`);
     const { promise, resolveHelper } = deferredPromiseHelper<void>();
     this.overrunPromise = promise;
     this.updateStatus('Overrunning');
@@ -793,7 +793,8 @@ export class Recorder {
 
     let bufferFile: string;
     try {
-      bufferFile = await this.saveBufferToFile(backtrackSeconds);
+      getNoobs().StopRecording();
+      bufferFile = await this.saveBufferToFile();
     } catch (e) {
       Recorder.logger.error('[Recorder] Unable to save buffer file');
       resolveHelper();
@@ -889,14 +890,10 @@ export class Recorder {
    * Save the last `backtrackSeconds` seconds of the buffer to a file, stop the recording,
    * and return the path to the file. Waits for the wrote signal.
    */
-  private async saveBufferToFile(backtrackSeconds: number): Promise<string> {
-    Recorder.logger.info(`[Recorder] Saving buffer to file, backtrack=${backtrackSeconds}s`);
+  private async saveBufferToFile(): Promise<string> {
+    Recorder.logger.info('[Recorder] Saving recording to file');
 
     this.wroteQueue.empty();
-    const rounded = Math.round(backtrackSeconds);
-    getNoobs().StartRecording(rounded);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    getNoobs().StopRecording();
 
     const waitForRecordingFile = async (): Promise<string> => {
       const maxWaitMs = 30000;
