@@ -247,7 +247,7 @@ export class Recorder {
    * ensures FFmpeg libraries are loaded. MUST be called before Recorder is constructed!
    */
   static async loadOBSLibraries() {
-    await VideoProcessQueue.LoadFFMpegLibraries();
+    // No-op: ffmpeg/ffprobe are spawned directly.
   }
 
   /**

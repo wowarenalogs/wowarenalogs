@@ -21,10 +21,6 @@ export default class VideoProcessQueue {
 
   private cfg = ConfigService.getInstance();
 
-  static async LoadFFMpegLibraries() {
-    // No-op: we use ffmpeg/ffprobe via spawn only
-  }
-
   constructor(bus: ManagerMessageBus) {
     this.messageBus = bus;
     const ffmpegPath = getFfmpegPath();
