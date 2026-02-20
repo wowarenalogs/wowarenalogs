@@ -78,8 +78,8 @@ export class ObsModule extends NativeBridgeModule {
   }
 
   @moduleFunction()
-  public async startRecording(_mainWindow: BrowserWindow) {
-    this.manager?.recorder.start();
+  public async startRecording(_mainWindow: BrowserWindow, backtrackSeconds = 0) {
+    this.manager?.recorder.start(backtrackSeconds);
   }
 
   @moduleFunction()

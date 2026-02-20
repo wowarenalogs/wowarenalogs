@@ -730,7 +730,7 @@ export class Recorder {
    * OBS isn't in a Recording state but is about to be, so we will sleep
    * for a second and retry to avoid missing recordings if so.
    */
-  public async start() {
+  public async start(backtrackSeconds = 0) {
     Recorder.logger.info('[Recorder] Start recording by cancelling buffer restart');
 
     if (this.isOverruning) {
@@ -758,7 +758,8 @@ export class Recorder {
       retries--;
     }
 
-    getNoobs().StartRecording(0);
+    const roundedBacktrack = Math.max(0, Math.round(backtrackSeconds));
+    getNoobs().StartRecording(roundedBacktrack);
     this.updateStatus('Recording');
     this.cancelBufferTimers();
     this.isRecording = true;

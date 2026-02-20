@@ -424,7 +424,7 @@ const RecordingSettings = () => {
               className="btn"
               onClick={async () => {
                 await window.wowarenalogs.obs?.startBuffer?.();
-                window.wowarenalogs.obs?.startRecording?.();
+                window.wowarenalogs.obs?.startRecording?.(0);
               }}
             >
               Test Start Recording
