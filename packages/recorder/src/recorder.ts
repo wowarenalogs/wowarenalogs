@@ -360,8 +360,11 @@ export class Recorder {
 
       case EOBSOutputSignal.Starting:
       case 'starting':
-        this.obsState = ERecordingState.Starting;
-        this.updateStatus('ReadyToRecord');
+        // Some noobs versions emit "starting" after "start". Don't regress state.
+        if (this.obsState !== ERecordingState.Recording) {
+          this.obsState = ERecordingState.Starting;
+          this.updateStatus('ReadyToRecord');
+        }
         break;
 
       case EOBSOutputSignal.Stop:
