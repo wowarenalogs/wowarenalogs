@@ -159,6 +159,11 @@ export class Recorder {
   private audioOutputSourceNames: string[] = [];
 
   /**
+   * Cache for encoder logging to reduce noise.
+   */
+  private lastEncodersLogged: string | undefined;
+
+  /**
    * WaitQueue object for storing signalling from OBS. We only care about
    * start signals here which indicate the recording has started.
    */
@@ -958,7 +963,11 @@ export class Recorder {
     }
 
     const encoders = getNoobs().ListVideoEncoders();
-    Recorder.logger.info(`[Recorder] Available encoders: ${encoders}`);
+    const encodersKey = encoders.join(',');
+    if (this.lastEncodersLogged !== encodersKey) {
+      this.lastEncodersLogged = encodersKey;
+      Recorder.logger.info(`[Recorder] Available encoders: ${encodersKey}`);
+    }
     return encoders;
   }
 
