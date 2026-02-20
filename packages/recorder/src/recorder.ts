@@ -351,6 +351,8 @@ export class Recorder {
     switch (obsSignal.id) {
       case EOBSOutputSignal.Start:
       case 'start':
+      case EOBSOutputSignal.Activate:
+      case 'activate':
         this.startQueue.push(obsSignal);
         this.obsState = ERecordingState.Recording;
         this.updateStatus('ReadyToRecord');
