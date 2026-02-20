@@ -30,8 +30,8 @@ import {
 } from './types';
 import {
   deferredPromiseHelper,
-  getNoobsDistPath,
   getAssetPath,
+  getNoobsDistPath,
   getPromiseBomb,
   getSortedVideos,
   // TODO: fix uiohook
@@ -485,7 +485,7 @@ export class Recorder {
     }
     const captureModeItem =
       captureModeProp && captureModeProp.type === 'list'
-        ? captureModeProp.items?.find((item) => String(item.value) === 'window') ?? captureModeProp.items?.[0]
+        ? (captureModeProp.items?.find((item) => String(item.value) === 'window') ?? captureModeProp.items?.[0])
         : undefined;
 
     const settings = {
@@ -494,7 +494,9 @@ export class Recorder {
       priority: 1,
       capture_cursor: captureCursor,
       window,
-      ...(captureModeProp?.name && captureModeItem ? { [captureModeProp.name]: captureModeItem.value } : { capture_mode: 'window' }),
+      ...(captureModeProp?.name && captureModeItem
+        ? { [captureModeProp.name]: captureModeItem.value }
+        : { capture_mode: 'window' }),
     };
     getNoobs().SetSourceSettings(name, settings);
     return name;
@@ -513,9 +515,9 @@ export class Recorder {
 
     const windowItem =
       windowProp && windowProp.type === 'list'
-        ? windowProp.items?.find(
+        ? (windowProp.items?.find(
             (item) => item.name.includes('[Wow.exe]: World of Warcraft') || item.name.includes('魔兽世界'),
-          ) ?? windowProp.items?.[0]
+          ) ?? windowProp.items?.[0])
         : undefined;
     const methodItem = methodProp && methodProp.type === 'list' ? methodProp.items?.[0] : undefined;
     const priorityItem = priorityProp && priorityProp.type === 'list' ? priorityProp.items?.[0] : undefined;
@@ -523,7 +525,9 @@ export class Recorder {
     const settings = {
       ...getNoobs().GetSourceSettings(name),
       cursor: captureCursor,
-      ...(windowProp?.name ? { [windowProp.name]: windowItem?.value } : { window: 'World of Warcraft:waApplication Window:Wow.exe' }),
+      ...(windowProp?.name
+        ? { [windowProp.name]: windowItem?.value }
+        : { window: 'World of Warcraft:waApplication Window:Wow.exe' }),
       ...(methodProp?.name && methodItem ? { [methodProp.name]: methodItem.value } : { method: 2 }),
       ...(priorityProp?.name && priorityItem ? { [priorityProp.name]: priorityItem.value } : {}),
     };
