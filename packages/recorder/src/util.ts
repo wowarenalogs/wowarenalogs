@@ -285,6 +285,35 @@ export const fixPathWhenPackaged = (pathSpec: string) => {
   return pathSpec.replace('app.asar', 'app.asar.unpacked');
 };
 
+export const getNoobsDistPath = (): string => {
+  const candidates: string[] = [];
+
+  if (process.env.OBS_REPACKED_PATH) {
+    candidates.push(path.resolve(process.env.OBS_REPACKED_PATH));
+  }
+
+  // Packaged app path (copied into dist/lib/noobs)
+  candidates.push(fixPathWhenPackaged(path.join(__dirname, 'lib', 'noobs')));
+
+  // Local dev install via node_modules/noobs/dist
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const pkgPath = require.resolve('noobs/package.json');
+    candidates.push(path.join(path.dirname(pkgPath), 'dist'));
+  } catch {
+    // ignore; optional dependency may not be installed
+  }
+
+  candidates.push(path.join(process.cwd(), 'node_modules', 'noobs', 'dist'));
+
+  const resolved = candidates.find((candidate) => existsSync(candidate));
+  if (!resolved) {
+    throw new Error(`Path to noobs does not exist. Tried: ${candidates.join(', ')}`);
+  }
+
+  return resolved;
+};
+
 /**
  * Find and return the flavour of WoW that the log directory
  * belongs to by means of the '.flavor.info' file.

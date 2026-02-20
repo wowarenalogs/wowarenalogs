@@ -6,9 +6,9 @@ import path from 'path';
 import ConfigService from './configService';
 import { ManagerMessageBus } from './messageBus';
 import { ILogger, VideoQueueItem } from './types';
-import { fixPathWhenPackaged, getThumbnailFileNameForVideo, tryUnlink, writeMetadataFile } from './util';
+import { getNoobsDistPath, getThumbnailFileNameForVideo, tryUnlink, writeMetadataFile } from './util';
 
-const getFfmpegPath = () => fixPathWhenPackaged(path.join(__dirname, 'lib', 'noobs', 'bin', 'ffmpeg.exe'));
+const getFfmpegPath = () => path.join(getNoobsDistPath(), 'bin', 'ffmpeg.exe');
 
 export default class VideoProcessQueue {
   private messageBus: ManagerMessageBus;
@@ -132,7 +132,7 @@ export default class VideoProcessQueue {
   }
 
   private static async calculateFrameCompensation(initialFile: string, relativeStart: number): Promise<number> {
-    const ffprobePath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'noobs', 'bin', 'ffprobe.exe'));
+    const ffprobePath = path.join(getNoobsDistPath(), 'bin', 'ffprobe.exe');
     const args = [
       '-skip_frame',
       'nokey',

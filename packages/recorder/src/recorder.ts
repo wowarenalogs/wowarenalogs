@@ -30,7 +30,7 @@ import {
 } from './types';
 import {
   deferredPromiseHelper,
-  fixPathWhenPackaged,
+  getNoobsDistPath,
   getAssetPath,
   getPromiseBomb,
   getSortedVideos,
@@ -285,8 +285,8 @@ export class Recorder {
     Recorder.logger.info(`[Recorder] Initializing OBS (noobs) ${this.uuid}`);
 
     try {
-      const noobsPath = fixPathWhenPackaged(path.join(__dirname, 'lib', 'noobs'));
-      const logPath = fixPathWhenPackaged(path.join(__dirname, 'logs'));
+      const noobsPath = getNoobsDistPath();
+      const logPath = noobsPath;
 
       Recorder.logger.info(`[Recorder] noobs path=${noobsPath} logPath=${logPath}`);
       if (!fs.existsSync(noobsPath)) {
