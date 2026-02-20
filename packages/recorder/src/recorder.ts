@@ -465,6 +465,7 @@ export class Recorder {
     const name = getNoobs().CreateSource('WR Game Capture', 'game_capture');
     const properties = getNoobs().GetSourceProperties(name);
     const windowProp = properties.find((p: ObsProperty) => p.name === 'window');
+    const captureModeProp = properties.find((p: ObsProperty) => p.name === 'capture_mode' || p.name === 'mode');
     let window = 'World of Warcraft:waApplication Window:Wow.exe';
     if (windowProp && windowProp.type === 'list') {
       const windows = (windowProp.items ?? [])
@@ -477,13 +478,18 @@ export class Recorder {
         window = String(windows[0].value);
       }
     }
+    const captureModeItem =
+      captureModeProp && captureModeProp.type === 'list'
+        ? captureModeProp.items?.find((item) => String(item.value) === 'window') ?? captureModeProp.items?.[0]
+        : undefined;
+
     const settings = {
       ...getNoobs().GetSourceSettings(name),
-      capture_mode: 'window',
       allow_transparency: true,
       priority: 1,
       capture_cursor: captureCursor,
       window,
+      ...(captureModeProp?.name && captureModeItem ? { [captureModeProp.name]: captureModeItem.value } : { capture_mode: 'window' }),
     };
     getNoobs().SetSourceSettings(name, settings);
     return name;
