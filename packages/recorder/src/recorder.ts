@@ -900,45 +900,24 @@ export class Recorder {
     Recorder.logger.info('[Recorder] Saving recording to file');
 
     this.wroteQueue.empty();
-    const lastRecordingBeforeStop = getNoobs().GetLastRecording();
-    Recorder.logger.info(`[Recorder] Last recording before stop: ${lastRecordingBeforeStop || 'none'}`);
-
-    const waitForRecordingFile = async (): Promise<string> => {
-      const maxWaitMs = 30000;
-      const pollEveryMs = 250;
-      const tries = Math.ceil(maxWaitMs / pollEveryMs);
-      for (let i = 0; i < tries; i++) {
-        const path = getNoobs().GetLastRecording();
-        if (path && path !== lastRecordingBeforeStop) {
-          Recorder.logger.info(`[Recorder] New recording path observed: ${path}`);
-        }
-        if (path && path !== lastRecordingBeforeStop && fs.existsSync(path)) {
-          return path;
-        }
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => setTimeout(resolve, pollEveryMs));
-      }
-      throw new Error('[Recorder] OBS timeout waiting for video file');
-    };
-
-    const stopRace = await Promise.race([
+    const wroteRace = await Promise.race([
       this.wroteQueue.shift().then((a) => Recorder.logger.info(`[Recorder] got wrote signal: ${a.id}`)),
-      waitForRecordingFile(),
-      getPromiseBomb(30000, '[Recorder] OBS timeout waiting for video file'),
+      getPromiseBomb(5000, '[Recorder] OBS timeout waiting for wrote'),
     ]);
 
     try {
-      await stopRace;
+      await wroteRace;
       this.wroteQueue.empty();
     } catch (error) {
-      Recorder.logger.error(`[Recorder] Failed to get video file: ${String(error)}`);
-      this.updateStatus('FatalError', String(error));
-      throw error;
+      Recorder.logger.warn(`[Recorder] Proceeding without wrote signal: ${String(error)}`);
     }
 
     const bufferFile = getNoobs().GetLastRecording();
     if (!bufferFile) {
       throw new Error('[Recorder] GetLastRecording returned empty');
+    }
+    if (!fs.existsSync(bufferFile)) {
+      Recorder.logger.warn(`[Recorder] Recording path does not exist yet: ${bufferFile}`);
     }
     return bufferFile;
   }
