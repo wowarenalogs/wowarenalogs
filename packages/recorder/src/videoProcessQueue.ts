@@ -70,6 +70,12 @@ export default class VideoProcessQueue {
       return;
     }
 
+    VideoProcessQueue.logger.info(`[VideoProcessQueue] Processing bufferFile=${data.bufferFile}`);
+    VideoProcessQueue.logger.info(`[VideoProcessQueue] Output dir=${this.cfg.get<string>('storagePath')}`);
+    VideoProcessQueue.logger.info(
+      `[VideoProcessQueue] Cut params start=${data.relativeStart}s duration=${data.duration}s filename=${data.filename}`,
+    );
+
     const videoPath = await VideoProcessQueue.cutVideo(
       data.bufferFile,
       this.cfg.get<string>('storagePath'),
@@ -77,6 +83,7 @@ export default class VideoProcessQueue {
       data.relativeStart,
       data.duration,
     );
+    VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut complete -> ${videoPath}`);
 
     try {
       const compensation = await VideoProcessQueue.calculateFrameCompensation(data.bufferFile, data.relativeStart);
