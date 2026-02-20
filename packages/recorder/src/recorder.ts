@@ -91,6 +91,7 @@ export class Recorder {
    * This is undefined if isOverruning is false.
    */
   private overrunPromise: Promise<void> | undefined;
+  private overrunResolve: (() => void) | undefined;
 
   /**
    * Timer object to trigger a restart of the buffer. We do this on an
@@ -738,9 +739,16 @@ export class Recorder {
     Recorder.logger.info('[Recorder] Start recording by cancelling buffer restart');
 
     if (this.isOverruning) {
+      if (!this.isRecording && this.overrunResolve) {
+        Recorder.logger.warn('[Recorder] Overrun flag set but not recording; clearing stale state');
+        this.overrunResolve();
+        this.overrunResolve = undefined;
+        this.isOverruning = false;
+      } else {
       Recorder.logger.info('[Recorder] Overrunning from last game');
       await this.overrunPromise;
       Recorder.logger.info('[Recorder] Finished with last game overrun');
+      }
     }
 
     Recorder.logger.info(`[Recorder] ready check isRecording=${this.isRecording} obsState=${this.obsState}`);
@@ -780,6 +788,12 @@ export class Recorder {
 
     if (!this.isRecording) {
       Recorder.logger.warn('[Recorder] Stop recording called but not recording');
+      if (this.isOverruning && this.overrunResolve) {
+        Recorder.logger.warn('[Recorder] Clearing stale overrun state');
+        this.overrunResolve();
+        this.overrunResolve = undefined;
+        this.isOverruning = false;
+      }
       return;
     }
 
@@ -789,6 +803,7 @@ export class Recorder {
     Recorder.logger.info(`[Recorder] Stop recording after overrun: ${overrun}s`);
     const { promise, resolveHelper } = deferredPromiseHelper<void>();
     this.overrunPromise = promise;
+    this.overrunResolve = resolveHelper;
     this.updateStatus('Overrunning');
     this.isOverruning = true;
 
@@ -803,6 +818,7 @@ export class Recorder {
     } catch (e) {
       Recorder.logger.error('[Recorder] Unable to save buffer file');
       resolveHelper();
+      this.overrunResolve = undefined;
       this.isOverruning = false;
       return;
     }
@@ -813,6 +829,7 @@ export class Recorder {
     }
 
     resolveHelper();
+    this.overrunResolve = undefined;
     this.isOverruning = false;
 
     const duration = activity.overrun + activityDuration;
