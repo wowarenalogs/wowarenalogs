@@ -243,14 +243,6 @@ export class Recorder {
   }
 
   /**
-   * Load OBS/recording libraries. Noobs is imported statically; this mainly
-   * ensures FFmpeg libraries are loaded. MUST be called before Recorder is constructed!
-   */
-  static async loadOBSLibraries() {
-    // No-op: ffmpeg/ffprobe are spawned directly.
-  }
-
-  /**
    * Contructor.
    *
    * @param mainWindow main app window for IPC interaction
