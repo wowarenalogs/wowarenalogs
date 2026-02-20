@@ -680,7 +680,6 @@ export class Recorder {
   public async stopBuffer() {
     Recorder.logger.info('[Recorder] Stop recording buffer');
     getNoobs().ForceStopRecording();
-    this.cleanupBuffer(1);
   }
 
   /**
