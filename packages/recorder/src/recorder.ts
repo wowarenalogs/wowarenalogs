@@ -736,6 +736,11 @@ export class Recorder {
       Recorder.logger.info('[Recorder] Finished with last game overrun');
     }
 
+    if (this.obsState === ERecordingState.Offline) {
+      Recorder.logger.info('[Recorder] OBS offline, attempting to start buffer');
+      await this.startOBS();
+    }
+
     Recorder.logger.info(`[Recorder] ready check isRecording=${this.isRecording} obsState=${this.obsState}`);
     let rdy = !this.isRecording && this.obsState === ERecordingState.Recording;
     let retries = 5;
@@ -863,6 +868,8 @@ export class Recorder {
       return;
     }
 
+    this.obsState = ERecordingState.Starting;
+    this.updateStatus('ReadyToRecord');
     getNoobs().StartBuffer();
 
     const startRace = await Promise.race([
