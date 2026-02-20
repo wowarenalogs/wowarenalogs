@@ -72,6 +72,7 @@ export type NativeApi = {
     selectFolder?: OmitFirstArg<ObsModule['selectFolder']>;
     startRecordingEngine?: OmitFirstArg<ObsModule['startRecordingEngine']>;
     stopRecordingEngine?: OmitFirstArg<ObsModule['stopRecordingEngine']>;
+    startBuffer?: OmitFirstArg<ObsModule['startBuffer']>;
     drawPreviewWindow?: OmitFirstArg<ObsModule['drawPreviewWindow']>;
     hidePreviewWindow?: OmitFirstArg<ObsModule['hidePreviewWindow']>;
     startRecording?: OmitFirstArg<ObsModule['startRecording']>;

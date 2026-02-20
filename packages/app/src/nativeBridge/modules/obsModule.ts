@@ -47,6 +47,11 @@ export class ObsModule extends NativeBridgeModule {
   }
 
   @moduleFunction()
+  public async startBuffer(_mainWindow: BrowserWindow): Promise<void> {
+    await this.manager?.recorder.startBuffer();
+  }
+
+  @moduleFunction()
   public stopRecordingEngine(_mainWindow: BrowserWindow): void {
     if (!this.manager) return;
 
