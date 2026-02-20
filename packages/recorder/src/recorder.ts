@@ -897,8 +897,24 @@ export class Recorder {
     getNoobs().StartRecording(rounded);
     getNoobs().StopRecording();
 
+    const waitForRecordingFile = async (): Promise<string> => {
+      const maxWaitMs = 30000;
+      const pollEveryMs = 250;
+      const tries = Math.ceil(maxWaitMs / pollEveryMs);
+      for (let i = 0; i < tries; i++) {
+        const path = getNoobs().GetLastRecording();
+        if (path && fs.existsSync(path)) {
+          return path;
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => setTimeout(resolve, pollEveryMs));
+      }
+      throw new Error('[Recorder] OBS timeout waiting for video file');
+    };
+
     const stopRace = await Promise.race([
       this.wroteQueue.shift().then((a) => Recorder.logger.info(`[Recorder] got wrote signal: ${a.id}`)),
+      waitForRecordingFile(),
       getPromiseBomb(30000, '[Recorder] OBS timeout waiting for video file'),
     ]);
 
