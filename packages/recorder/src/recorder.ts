@@ -856,10 +856,8 @@ export class Recorder {
     this.startQueue.empty();
     getNoobs().StartBuffer();
 
-    const startRace = await Promise.race([
-      this.startQueue.shift(),
-      getPromiseBomb(30000, '[Recorder] OBS timeout waiting for start'),
-    ]);
+    const timeoutBomb = getPromiseBomb(30000, '[Recorder] OBS timeout waiting for start');
+    const startRace = await Promise.race([this.startQueue.shift(), timeoutBomb]);
 
     try {
       await startRace;
@@ -867,6 +865,9 @@ export class Recorder {
     } catch (error) {
       Recorder.logger.error(`[Recorder] Failed to start OBS: ${String(error)}`);
       this.updateStatus('FatalError', String(error));
+    } finally {
+      // Prevent unhandled rejections if the timeout fires after a successful start
+      timeoutBomb.catch(() => undefined);
     }
   }
 
@@ -878,6 +879,7 @@ export class Recorder {
     Recorder.logger.info('[Recorder] Saving recording to file');
 
     this.wroteQueue.empty();
+    const lastRecordingBeforeStop = getNoobs().GetLastRecording();
 
     const waitForRecordingFile = async (): Promise<string> => {
       const maxWaitMs = 30000;
@@ -885,7 +887,7 @@ export class Recorder {
       const tries = Math.ceil(maxWaitMs / pollEveryMs);
       for (let i = 0; i < tries; i++) {
         const path = getNoobs().GetLastRecording();
-        if (path && fs.existsSync(path)) {
+        if (path && path !== lastRecordingBeforeStop && fs.existsSync(path)) {
           return path;
         }
         // eslint-disable-next-line no-await-in-loop
