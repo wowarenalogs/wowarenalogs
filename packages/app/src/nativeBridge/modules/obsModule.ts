@@ -1,4 +1,4 @@
-import { ConfigurationSchema, IActivity, Manager, Recorder, RecStatus, VideoQueueItem } from '@wowarenalogs/recorder';
+import { ConfigurationSchema, IActivity, Manager, RecStatus, VideoQueueItem } from '@wowarenalogs/recorder';
 import type { ArenaMatchMetadata, ShuffleMatchMetadata } from '@wowarenalogs/shared';
 import checkDiskSpace from 'check-disk-space';
 import { BrowserWindow, dialog } from 'electron';
