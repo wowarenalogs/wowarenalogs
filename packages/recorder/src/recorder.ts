@@ -880,6 +880,7 @@ export class Recorder {
 
     this.wroteQueue.empty();
     const lastRecordingBeforeStop = getNoobs().GetLastRecording();
+    Recorder.logger.info(`[Recorder] Last recording before stop: ${lastRecordingBeforeStop || 'none'}`);
 
     const waitForRecordingFile = async (): Promise<string> => {
       const maxWaitMs = 30000;
@@ -887,6 +888,9 @@ export class Recorder {
       const tries = Math.ceil(maxWaitMs / pollEveryMs);
       for (let i = 0; i < tries; i++) {
         const path = getNoobs().GetLastRecording();
+        if (path && path !== lastRecordingBeforeStop) {
+          Recorder.logger.info(`[Recorder] New recording path observed: ${path}`);
+        }
         if (path && path !== lastRecordingBeforeStop && fs.existsSync(path)) {
           return path;
         }
