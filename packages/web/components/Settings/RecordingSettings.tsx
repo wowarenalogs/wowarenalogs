@@ -422,8 +422,9 @@ const RecordingSettings = () => {
           <div className="flex gap-2">
             <button
               className="btn"
-              onClick={() => {
-                window.wowarenalogs.obs?.startRecording?.();
+              onClick={async () => {
+                await window.wowarenalogs.obs?.startBuffer?.();
+                window.wowarenalogs.obs?.startRecording?.(0);
               }}
             >
               Test Start Recording

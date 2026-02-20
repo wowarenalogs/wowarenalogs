@@ -15,6 +15,7 @@ wowarenalogs.json
 gcp_service_account.json
 
 build/
+win-capture/
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
