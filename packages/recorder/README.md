@@ -1,5 +1,7 @@
 # OBS Recording Engine
 
+Recording is implemented using [noobs](https://github.com/aza547/noobs) (Native bindings to libobs). The sections below about OSN are kept for historical reference.
+
 ## fix uio-hook library importing using \_\_dirname causing issues with webpack
 
 this causes "no native build was found..."

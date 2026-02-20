@@ -1,4 +1,4 @@
-import { ConfigurationSchema, IActivity, Manager, Recorder, RecStatus, VideoQueueItem } from '@wowarenalogs/recorder';
+import { ConfigurationSchema, IActivity, Manager, RecStatus, VideoQueueItem } from '@wowarenalogs/recorder';
 import type { ArenaMatchMetadata, ShuffleMatchMetadata } from '@wowarenalogs/shared';
 import checkDiskSpace from 'check-disk-space';
 import { BrowserWindow, dialog } from 'electron';
@@ -32,18 +32,21 @@ export class ObsModule extends NativeBridgeModule {
     if (this.manager) return;
 
     if (process.platform === 'win32') {
-      Recorder.loadOBSLibraries().then(() => {
-        this.manager = new Manager(mainWindow);
-        this.manager.subscribeToConfigurationUpdates((newValue, _oldValue) => {
-          this.configUpdated(mainWindow, newValue);
-        });
-        this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
-        this.manager.messageBus.on('video-written', (video) => {
-          this.videoRecorded(mainWindow, video);
-          this.checkDiskSpace(mainWindow);
-        });
+      this.manager = new Manager(mainWindow);
+      this.manager.subscribeToConfigurationUpdates((newValue, _oldValue) => {
+        this.configUpdated(mainWindow, newValue);
+      });
+      this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
+      this.manager.messageBus.on('video-written', (video) => {
+        this.videoRecorded(mainWindow, video);
+        this.checkDiskSpace(mainWindow);
       });
     }
+  }
+
+  @moduleFunction()
+  public async startBuffer(_mainWindow: BrowserWindow): Promise<void> {
+    await this.manager?.recorder.startBuffer();
   }
 
   @moduleFunction()
@@ -73,8 +76,8 @@ export class ObsModule extends NativeBridgeModule {
   }
 
   @moduleFunction()
-  public async startRecording(_mainWindow: BrowserWindow) {
-    this.manager?.recorder.start();
+  public async startRecording(_mainWindow: BrowserWindow, backtrackSeconds = 0) {
+    this.manager?.recorder.start(backtrackSeconds);
   }
 
   @moduleFunction()
