@@ -332,9 +332,6 @@ export class Recorder {
 
     getNoobs().ResetVideoContext(obsFPS, width, height);
     getNoobs().SetRecordingCfg(path.normalize(this.bufferStorageDir), 'mkv');
-    if (getNoobs().SetRecordingDir) {
-      getNoobs().SetRecordingDir(path.normalize(this.bufferStorageDir));
-    }
 
     const encoderSettings: Record<string, number | string> = {
       rate_control: 'VBR',
@@ -898,7 +895,7 @@ export class Recorder {
     this.wroteQueue.empty();
     const rounded = Math.round(backtrackSeconds);
     getNoobs().StartRecording(rounded);
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     getNoobs().StopRecording();
 
     const waitForRecordingFile = async (): Promise<string> => {
