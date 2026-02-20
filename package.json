@@ -29,7 +29,7 @@
     ],
     "includeSubNodeModules": true,
     "asarUnpack": [
-      "packages/app/dist/lib/obs-studio-node/**"
+      "packages/app/dist/lib/noobs/**"
     ],
     "directories": {
       "buildResources": "packages/app/assets"

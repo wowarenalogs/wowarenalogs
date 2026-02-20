@@ -196,7 +196,10 @@ export const LocalCombatsContextProvider = (props: IProps) => {
           if (!currentActivity) {
             if (activityStartedEvent.arenaMatchStartInfo?.zoneId) {
               currentActivity = activityStartedEvent;
-              window.wowarenalogs.obs?.startRecording?.();
+              const startTimestamp = activityStartedEvent.arenaMatchStartInfo?.timestamp;
+              const startedAt = startTimestamp ? new Date(startTimestamp).getTime() : Date.now();
+              const backtrackSeconds = Math.max(0, (Date.now() - startedAt) / 1000);
+              window.wowarenalogs.obs?.startRecording?.(backtrackSeconds);
             }
           }
         });
