@@ -378,7 +378,7 @@ export class Recorder {
       case 'deactivate':
         this.obsState = ERecordingState.Offline;
         this.updateStatus('WaitingForWoW');
-        if (obsSignal.id === EOBSOutputSignal.Deactivate || obsSignal.id === 'deactivate') {
+        if (obsSignal.id === EOBSOutputSignal.Deactivate) {
           this.deactivateQueue.push(obsSignal);
         }
         break;
@@ -493,7 +493,7 @@ export class Recorder {
     }
     const captureModeItem =
       captureModeProp && captureModeProp.type === 'list'
-        ? (captureModeProp.items?.find((item) => String(item.value) === 'window') ?? captureModeProp.items?.[0])
+        ? captureModeProp.items?.find((item) => String(item.value) === 'window') ?? captureModeProp.items?.[0]
         : undefined;
 
     const settings = {
@@ -523,9 +523,9 @@ export class Recorder {
 
     const windowItem =
       windowProp && windowProp.type === 'list'
-        ? (windowProp.items?.find(
+        ? windowProp.items?.find(
             (item) => item.name.includes('[Wow.exe]: World of Warcraft') || item.name.includes('魔兽世界'),
-          ) ?? windowProp.items?.[0])
+          ) ?? windowProp.items?.[0]
         : undefined;
     const methodItem = methodProp && methodProp.type === 'list' ? methodProp.items?.[0] : undefined;
     const priorityItem = priorityProp && priorityProp.type === 'list' ? priorityProp.items?.[0] : undefined;
@@ -718,9 +718,9 @@ export class Recorder {
         this.overrunResolve = undefined;
         this.isOverruning = false;
       } else {
-      Recorder.logger.info('[Recorder] Overrunning from last game');
-      await this.overrunPromise;
-      Recorder.logger.info('[Recorder] Finished with last game overrun');
+        Recorder.logger.info('[Recorder] Overrunning from last game');
+        await this.overrunPromise;
+        Recorder.logger.info('[Recorder] Finished with last game overrun');
       }
     }
 
