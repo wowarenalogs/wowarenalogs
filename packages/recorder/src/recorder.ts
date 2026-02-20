@@ -176,6 +176,11 @@ export class Recorder {
   private wroteQueue = new WaitQueue<Signal>();
 
   /**
+   * WaitQueue object for storing deactivate signals from OBS.
+   */
+  private deactivateQueue = new WaitQueue<Signal>();
+
+  /**
    * Bool tracking if the preview exists yet.
    */
   private previewCreated = false;
@@ -373,6 +378,9 @@ export class Recorder {
       case 'deactivate':
         this.obsState = ERecordingState.Offline;
         this.updateStatus('WaitingForWoW');
+        if (obsSignal.id === EOBSOutputSignal.Deactivate || obsSignal.id === 'deactivate') {
+          this.deactivateQueue.push(obsSignal);
+        }
         break;
 
       case EOBSOutputSignal.Stopping:
@@ -649,6 +657,8 @@ export class Recorder {
     this.wroteQueue.clearListeners();
     this.startQueue.empty();
     this.startQueue.clearListeners();
+    this.deactivateQueue.empty();
+    this.deactivateQueue.clearListeners();
 
     try {
       getNoobs().Shutdown();
@@ -786,7 +796,18 @@ export class Recorder {
     }
 
     if (!closedWow) {
-      Recorder.logger.info('[Recorder] WoW not closed, so starting buffer');
+      Recorder.logger.info('[Recorder] WoW not closed, waiting for deactivate to restart buffer');
+      const deactivateRace = await Promise.race([
+        this.deactivateQueue.shift(),
+        getPromiseBomb(30000, '[Recorder] OBS timeout waiting for deactivate'),
+      ]);
+      try {
+        await deactivateRace;
+        this.deactivateQueue.empty();
+      } catch (error) {
+        Recorder.logger.warn(`[Recorder] Failed waiting for deactivate: ${String(error)}`);
+      }
+      Recorder.logger.info('[Recorder] Restarting buffer after deactivate');
       await this.startBuffer();
     }
 
