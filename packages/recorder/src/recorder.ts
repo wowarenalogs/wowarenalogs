@@ -414,6 +414,13 @@ export class Recorder {
 
     getNoobs().AddSourceToScene(this.videoSourceName);
 
+    // Refresh the preview now that a video source exists in the scene.
+    // InitPreview is called during initializeOBS before any sources are added,
+    // so the preview renders black until we re-show it with content.
+    if (this.previewCreated) {
+      this.showPreviewMemory();
+    }
+
     if (this.videoSourceSizeInterval) {
       clearInterval(this.videoSourceSizeInterval);
     }
