@@ -271,7 +271,7 @@ export class Recorder {
 
     if (!fs.existsSync(bufferStoragePath)) {
       Recorder.logger.info(`[Recorder] Creating dir: ${bufferStoragePath}`);
-      fs.mkdirSync(bufferStoragePath);
+      fs.mkdirSync(bufferStoragePath, { recursive: true });
     } else {
       Recorder.logger.info('[Recorder] Clean out buffer');
       this.cleanupBuffer(0);
@@ -332,6 +332,9 @@ export class Recorder {
 
     getNoobs().ResetVideoContext(obsFPS, width, height);
     getNoobs().SetRecordingCfg(path.normalize(this.bufferStorageDir), 'mkv');
+    if (getNoobs().SetRecordingDir) {
+      getNoobs().SetRecordingDir(path.normalize(this.bufferStorageDir));
+    }
 
     const encoderSettings: Record<string, number | string> = {
       rate_control: 'VBR',
@@ -895,6 +898,7 @@ export class Recorder {
     this.wroteQueue.empty();
     const rounded = Math.round(backtrackSeconds);
     getNoobs().StartRecording(rounded);
+    await new Promise((resolve) => setTimeout(resolve, 250));
     getNoobs().StopRecording();
 
     const waitForRecordingFile = async (): Promise<string> => {

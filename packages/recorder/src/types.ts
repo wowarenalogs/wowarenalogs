@@ -148,6 +148,7 @@ export type Noobs = {
   RemoveSourceFromScene: (name: string) => void;
   ResetVideoContext: (fps: number, width: number, height: number) => void;
   SetRecordingCfg: (path: string, format: string) => void;
+  SetRecordingDir?: (path: string) => void;
   SetVideoEncoder: (encoder: string, settings: Record<string, number | string>) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   GetSourceSettings: (name: string) => Record<string, any>;
