@@ -858,11 +858,14 @@ export class Recorder {
   private async startOBS() {
     Recorder.logger.info('[Recorder] Start OBS buffer called');
 
-    if (this.obsState !== ERecordingState.Offline) {
+    if (this.obsState !== ERecordingState.Offline && this.obsState !== ERecordingState.Starting) {
       Recorder.logger.warn(`[Recorder] OBS can't start, state is: ${this.obsState}`);
       return;
     }
 
+    this.obsState = ERecordingState.Starting;
+    this.updateStatus('ReadyToRecord');
+    this.startQueue.empty();
     getNoobs().StartBuffer();
 
     const startRace = await Promise.race([
