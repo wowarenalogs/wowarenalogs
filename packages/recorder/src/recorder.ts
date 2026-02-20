@@ -94,12 +94,6 @@ export class Recorder {
   private overrunResolve: (() => void) | undefined;
 
   /**
-   * Timer object to trigger a restart of the buffer. We do this on an
-   * interval so we aren't building up massive files.
-   */
-  private bufferRestartIntervalID: ReturnType<typeof setInterval> | undefined;
-
-  /**
    * Reference back to the mainWindow object for updating the app status icon.
    */
   private mainWindow: BrowserWindow;
@@ -678,20 +672,6 @@ export class Recorder {
     }
 
     await this.startOBS();
-
-    // Some very specific timings can cause us to end up here with an
-    // active timer, and we don't want to end up with two at all costs.
-    // So cancel any. See issue 350.
-    this.cancelBufferTimers();
-
-    // We store off this timer as a member variable as we will cancel
-    // it when a real game is detected.
-    this.bufferRestartIntervalID = setInterval(
-      () => {
-        this.restartBuffer();
-      },
-      5 * 60 * 1000, // 5m
-    );
   }
 
   /**
@@ -699,30 +679,9 @@ export class Recorder {
    */
   public async stopBuffer() {
     Recorder.logger.info('[Recorder] Stop recording buffer');
-    this.cancelBufferTimers();
     getNoobs().ForceStopRecording();
     this.cleanupBuffer(1);
   }
-
-  /**
-   * Restarts the buffer recording.
-   */
-  private async restartBuffer() {
-    Recorder.logger.info('[Recorder] Restart recording buffer');
-    await this.stopBuffer();
-    await this.startBuffer();
-  }
-
-  /**
-   * Cancel buffer timers. This can include any combination of:
-   *  - _bufferRestartIntervalID: the interval on which we periodically restart the buffer
-   */
-  private cancelBufferTimers = () => {
-    if (this.bufferRestartIntervalID) {
-      Recorder.logger.info('[Recorder] Buffer restart interval cleared');
-      clearInterval(this.bufferRestartIntervalID);
-    }
-  };
 
   /**
    * Start recording for real, this basically just cancels pending
@@ -773,7 +732,6 @@ export class Recorder {
     const roundedBacktrack = Math.max(0, Math.round(backtrackSeconds));
     getNoobs().StartRecording(roundedBacktrack);
     this.updateStatus('Recording');
-    this.cancelBufferTimers();
     this.isRecording = true;
   }
 
