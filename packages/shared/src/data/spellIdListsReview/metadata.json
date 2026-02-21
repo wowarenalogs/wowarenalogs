@@ -1,0 +1,28 @@
+{
+  "generatedAt": "2026-02-21T17:03:26.955Z",
+  "sources": {
+    "spell": "https://wago.tools/db2/Spell/csv",
+    "spellMisc": "https://wago.tools/db2/SpellMisc/csv",
+    "spellName": "https://wago.tools/db2/SpellName/csv"
+  },
+  "bitDefinitions": {
+    "important": {
+      "attributeId": 491,
+      "column": "Attributes_15",
+      "mask": 2048,
+      "bitIndexInColumn": 11
+    },
+    "externalDefensive": {
+      "attributeId": 499,
+      "column": "Attributes_15",
+      "mask": 524288,
+      "bitIndexInColumn": 19
+    },
+    "bigDefensive": {
+      "attributeId": 512,
+      "column": "Attributes_16",
+      "mask": 1,
+      "bitIndexInColumn": 0
+    }
+  }
+}

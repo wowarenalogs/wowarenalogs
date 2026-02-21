@@ -7,6 +7,7 @@ const WAGO_DB2_BASE = 'https://wago.tools/db2';
 const SOURCE_TABLES = {
   spell: `${WAGO_DB2_BASE}/Spell/csv`,
   spellMisc: `${WAGO_DB2_BASE}/SpellMisc/csv`,
+  spellName: `${WAGO_DB2_BASE}/SpellName/csv`,
 };
 
 // Attribute ids sourced from:
@@ -25,6 +26,7 @@ interface IGeneratedSpellIdLists {
   sources: {
     spellCsv: string;
     spellMiscCsv: string;
+    spellNameCsv: string;
   };
   bitDefinitions: {
     important: IBitDefinition;
@@ -36,6 +38,30 @@ interface IGeneratedSpellIdLists {
   externalDefensiveSpellIds: string[];
   bigDefensiveSpellIds: string[];
   externalOrBigDefensiveSpellIds: string[];
+}
+
+interface INamedSpell {
+  spellId: string;
+  name: string;
+}
+
+interface IGeneratedSpellIdListsWithNames {
+  generatedAt: string;
+  sources: {
+    spellCsv: string;
+    spellMiscCsv: string;
+    spellNameCsv: string;
+  };
+  bitDefinitions: {
+    important: IBitDefinition;
+    externalDefensive: IBitDefinition;
+    bigDefensive: IBitDefinition;
+  };
+  allSpells: INamedSpell[];
+  importantSpells: INamedSpell[];
+  externalDefensiveSpells: INamedSpell[];
+  bigDefensiveSpells: INamedSpell[];
+  externalOrBigDefensiveSpells: INamedSpell[];
 }
 
 interface IBitDefinition {
@@ -126,7 +152,8 @@ function uniqueSortedNumericStrings(spellIds: string[]): string[] {
 }
 
 function getBitDefinition(attributeId: number): IBitDefinition {
-  const bitIndexOverall = attributeId - 1;
+  // SimC spell attribute ids are 0-based indices into the Attributes_* bitfield.
+  const bitIndexOverall = attributeId;
   const columnIndex = Math.floor(bitIndexOverall / 32);
   const bitIndexInColumn = bitIndexOverall % 32;
   return {
@@ -142,11 +169,19 @@ function hasAttributeFlag(row: CsvRow, bitDef: IBitDefinition): boolean {
   return (value & bitDef.mask) !== 0;
 }
 
+function enrichWithNames(spellIds: string[], namesById: Map<string, string>): INamedSpell[] {
+  return spellIds.map((spellId) => ({
+    spellId,
+    name: namesById.get(spellId) || '',
+  }));
+}
+
 async function main() {
-  console.log('Downloading Spell + SpellMisc CSV data from wago.tools');
-  const [spellRows, spellMiscRows] = await Promise.all([
+  console.log('Downloading Spell + SpellMisc + SpellName CSV data from wago.tools');
+  const [spellRows, spellMiscRows, spellNameRows] = await Promise.all([
     loadCsv(SOURCE_TABLES.spell),
     loadCsv(SOURCE_TABLES.spellMisc),
+    loadCsv(SOURCE_TABLES.spellName),
   ]);
 
   const allSpellIds = uniqueSortedNumericStrings(spellRows.map((r) => r.ID));
@@ -168,12 +203,17 @@ async function main() {
     ...externalDefensiveSpellIds,
     ...bigDefensiveSpellIds,
   ]);
+  const spellNamesById = new Map<string, string>();
+  spellNameRows.forEach((row) => {
+    spellNamesById.set(row.ID, row.Name_lang || '');
+  });
 
   const output: IGeneratedSpellIdLists = {
     generatedAt: new Date().toISOString(),
     sources: {
       spellCsv: SOURCE_TABLES.spell,
       spellMiscCsv: SOURCE_TABLES.spellMisc,
+      spellNameCsv: SOURCE_TABLES.spellName,
     },
     bitDefinitions: {
       important: importantBitDef,
@@ -186,10 +226,54 @@ async function main() {
     bigDefensiveSpellIds,
     externalOrBigDefensiveSpellIds,
   };
+  const reviewOutput: IGeneratedSpellIdListsWithNames = {
+    generatedAt: output.generatedAt,
+    sources: output.sources,
+    bitDefinitions: output.bitDefinitions,
+    allSpells: enrichWithNames(allSpellIds, spellNamesById),
+    importantSpells: enrichWithNames(importantSpellIds, spellNamesById),
+    externalDefensiveSpells: enrichWithNames(externalDefensiveSpellIds, spellNamesById),
+    bigDefensiveSpells: enrichWithNames(bigDefensiveSpellIds, spellNamesById),
+    externalOrBigDefensiveSpells: enrichWithNames(externalOrBigDefensiveSpellIds, spellNamesById),
+  };
 
   const outputPath = path.resolve(__dirname, '../../shared/src/data/spellIdLists.json');
+  const reviewOutputPath = path.resolve(__dirname, '../../shared/src/data/spellIdListsWithNames.json');
+  const reviewDirPath = path.resolve(__dirname, '../../shared/src/data/spellIdListsReview');
+  await fs.ensureDir(reviewDirPath);
   await fs.writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`);
+  await fs.writeFile(reviewOutputPath, `${JSON.stringify(reviewOutput, null, 2)}\n`);
+  await fs.writeFile(
+    path.resolve(reviewDirPath, 'metadata.json'),
+    `${JSON.stringify(
+      {
+        generatedAt: output.generatedAt,
+        sources: output.sources,
+        bitDefinitions: output.bitDefinitions,
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  await fs.writeFile(
+    path.resolve(reviewDirPath, 'importantSpellsWithNames.json'),
+    `${JSON.stringify(reviewOutput.importantSpells, null, 2)}\n`,
+  );
+  await fs.writeFile(
+    path.resolve(reviewDirPath, 'externalDefensiveSpellsWithNames.json'),
+    `${JSON.stringify(reviewOutput.externalDefensiveSpells, null, 2)}\n`,
+  );
+  await fs.writeFile(
+    path.resolve(reviewDirPath, 'bigDefensiveSpellsWithNames.json'),
+    `${JSON.stringify(reviewOutput.bigDefensiveSpells, null, 2)}\n`,
+  );
+  await fs.writeFile(
+    path.resolve(reviewDirPath, 'externalOrBigDefensiveSpellsWithNames.json'),
+    `${JSON.stringify(reviewOutput.externalOrBigDefensiveSpells, null, 2)}\n`,
+  );
   console.log(`Wrote spell id lists to ${outputPath}`);
+  console.log(`Wrote spell id review lists to ${reviewOutputPath}`);
+  console.log(`Wrote per-category review files to ${reviewDirPath}`);
   console.log(`allSpellIds: ${allSpellIds.length}`);
   console.log(`importantSpellIds: ${importantSpellIds.length}`);
   console.log(`externalDefensiveSpellIds: ${externalDefensiveSpellIds.length}`);
