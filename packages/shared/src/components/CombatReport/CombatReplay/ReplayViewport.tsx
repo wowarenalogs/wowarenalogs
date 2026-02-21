@@ -1,4 +1,5 @@
 import { extend, useApplication } from '@pixi/react';
+import type { EventSystem, Ticker } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import type { ComponentType, ReactNode, Ref } from 'react';
 import { useEffect, useRef } from 'react';
@@ -10,19 +11,11 @@ type ViewportElementProps = {
   screenHeight: number;
   worldWidth: number;
   worldHeight: number;
+  events: EventSystem;
+  ticker?: Ticker;
   children?: ReactNode;
 };
 const ViewportElement = 'viewport' as unknown as ComponentType<ViewportElementProps>;
-type RendererWithEvents = {
-  events?: unknown;
-  plugins?: {
-    interaction?: unknown;
-  };
-};
-type ViewportWithLegacyInteraction = Viewport & {
-  events?: unknown;
-  interaction?: unknown;
-};
 
 interface IReplayViewportProps {
   children?: React.ReactNode;
@@ -35,6 +28,7 @@ interface IReplayViewportProps {
 export const ReplayViewport = (props: IReplayViewportProps) => {
   const { app } = useApplication();
   const viewportRef = useRef<Viewport | null>(null);
+  const events = app?.renderer?.events as EventSystem | undefined;
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -52,30 +46,12 @@ export const ReplayViewport = (props: IReplayViewportProps) => {
       return;
     }
 
-    viewport.screenWidth = props.width;
-    viewport.screenHeight = props.height;
-    viewport.worldWidth = props.worldWidth;
-    viewport.worldHeight = props.worldHeight;
+    viewport.resize(props.width, props.height, props.worldWidth, props.worldHeight);
   }, [props.width, props.height, props.worldWidth, props.worldHeight]);
 
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    if (!viewport || !app) {
-      return;
-    }
-
-    const renderer = app.renderer as RendererWithEvents;
-    const viewportWithInteraction = viewport as ViewportWithLegacyInteraction;
-    const events = renderer?.events;
-    if (events) {
-      viewportWithInteraction.events = events;
-    }
-
-    const interaction = renderer?.plugins?.interaction;
-    if (interaction) {
-      viewportWithInteraction.interaction = interaction;
-    }
-  }, [app]);
+  if (!events) {
+    return null;
+  }
 
   return (
     <ViewportElement
@@ -84,6 +60,8 @@ export const ReplayViewport = (props: IReplayViewportProps) => {
       screenHeight={props.height}
       worldWidth={props.worldWidth}
       worldHeight={props.worldHeight}
+      events={events}
+      ticker={app?.ticker}
     >
       {props.children}
     </ViewportElement>
