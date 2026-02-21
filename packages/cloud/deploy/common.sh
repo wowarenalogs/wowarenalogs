@@ -110,7 +110,7 @@ deploy_storage_function() {
         --memory=${MEMORY} \
         --set-env-vars="${env_vars}" \
         --trigger-bucket=${bucket_name} \
-        --trigger-location=us \
+        --trigger-location=${REGION} \
         --retry \
         --max-instances=100
 }
