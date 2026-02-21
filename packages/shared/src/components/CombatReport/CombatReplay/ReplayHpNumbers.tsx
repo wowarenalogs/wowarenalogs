@@ -1,9 +1,7 @@
-import { Text } from '@inlet/react-pixi';
 import { CombatHpUpdateAction, ICombatUnit } from '@wowarenalogs/parser';
 import { TextStyle } from 'pixi.js';
 
 import { useCombatReportContext } from '../CombatReportContext';
-import { Container } from './pixi-compat';
 
 interface IProps {
   unit: ICombatUnit;
@@ -30,7 +28,7 @@ const ReplayHpNumber = (props: { renderState: IHpNumberRenderState }) => {
   const isDamage = props.renderState.event.amount < 0;
 
   return (
-    <Text
+    <pixiText
       text={(isDamage ? '' : '+') + props.renderState.event.effectiveAmount.toFixed()}
       x={0}
       y={y}
@@ -59,8 +57,14 @@ export const ReplayHpNumbers = (props: IProps) => {
 
   const MIN_NUMBER = combat.wowVersion === 'retail' ? 3000 : 300;
 
+  const outgoingDamage = props.unit.damageOut.filter(
+    (e): e is CombatHpUpdateAction => e instanceof CombatHpUpdateAction,
+  );
+
   const numbers = props.unit.damageIn
     .concat(props.unit.healIn)
+    .concat(outgoingDamage)
+    .concat(props.unit.healOut)
     .filter((e) => {
       const eventTimeOffset = e.timestamp - combat.startTime;
       return (
@@ -75,10 +79,10 @@ export const ReplayHpNumbers = (props: IProps) => {
     }));
 
   return (
-    <Container x={X_OFFSET} y={Y_OFFSET}>
+    <pixiContainer x={X_OFFSET} y={Y_OFFSET}>
       {numbers.map((s) => {
         return <ReplayHpNumber key={s.event.logLine.id} renderState={s} />;
       })}
-    </Container>
+    </pixiContainer>
   );
 };

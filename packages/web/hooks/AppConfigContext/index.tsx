@@ -53,8 +53,18 @@ export const AppConfigContextProvider = (props: IProps) => {
   const updateAppConfig = (updater: (prevAppConfig: IAppConfig) => IAppConfig) => {
     setAppConfig((prev) => {
       const newConfig = updater(prev);
-      window.wowarenalogs.app?.setOpenAtLogin(newConfig.launchAtStartup ?? false);
-      localStorage.setItem(APP_CONFIG_STORAGE_KEY, JSON.stringify(newConfig));
+      try {
+        window.wowarenalogs.app?.setOpenAtLogin(newConfig.launchAtStartup ?? false);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('[AppConfig] Failed to update open-at-login', error);
+      }
+      try {
+        localStorage.setItem(APP_CONFIG_STORAGE_KEY, JSON.stringify(newConfig));
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('[AppConfig] Failed to persist app config', error);
+      }
       return newConfig;
     });
   };
@@ -82,9 +92,21 @@ export const AppConfigContextProvider = (props: IProps) => {
 
   useEffect(() => {
     const impl = async () => {
-      const appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
+      let appConfigJson: string | null = null;
+      try {
+        appConfigJson = localStorage.getItem(APP_CONFIG_STORAGE_KEY);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('[AppConfig] Failed to read app config from storage', error);
+      }
       if (appConfigJson) {
-        const storedConfig = JSON.parse(appConfigJson) as IAppConfig;
+        let storedConfig: IAppConfig = {};
+        try {
+          storedConfig = JSON.parse(appConfigJson) as IAppConfig;
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('[AppConfig] Failed to parse app config JSON', error);
+        }
 
         const [windowX, windowY] = (await window.wowarenalogs.win?.getWindowPosition()) ?? [];
         const [windowWidth, windowHeight] = (await window.wowarenalogs.win?.getWindowSize()) ?? [];

@@ -159,7 +159,7 @@ const RecordingSettings = () => {
     checkAudioDevices();
   }, []);
 
-  const engineStarted = recordingStatus !== 'EngineNotStarted';
+  const engineStarted = !!appConfig.enableVideoRecording;
 
   const showDebugInfo = process.env.NODE_ENV === 'development' && clientContext.isDesktop;
 
@@ -199,42 +199,49 @@ const RecordingSettings = () => {
                   type="checkbox"
                   className="checkbox"
                   checked={engineStarted}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      window.wowarenalogs.obs?.startRecordingEngine?.();
-                      if (!recordingConfig?.storagePath) {
-                        if (appConfig.wowDirectory) {
-                          window.wowarenalogs.obs?.setConfig?.(
-                            'storagePath',
-                            appConfig.wowDirectory.startsWith('/') || appConfig.wowDirectory.startsWith('~')
-                              ? appConfig.wowDirectory + '/Logs'
-                              : appConfig.wowDirectory + '\\Logs',
-                          );
-                        } else {
-                          window.alert('You haven\'t set your WoW path yet. Please do so in the "Basics" section.');
+                  onChange={async (e) => {
+                    const shouldEnable = e.target.checked;
+                    updateAppConfig((prev) => {
+                      return {
+                        ...prev,
+                        enableVideoRecording: shouldEnable,
+                      };
+                    });
+
+                    try {
+                      if (shouldEnable) {
+                        await window.wowarenalogs.obs?.startRecordingEngine?.();
+                        if (!recordingConfig?.storagePath) {
+                          if (appConfig.wowDirectory) {
+                            await window.wowarenalogs.obs?.setConfig?.(
+                              'storagePath',
+                              appConfig.wowDirectory.startsWith('/') || appConfig.wowDirectory.startsWith('~')
+                                ? appConfig.wowDirectory + '/Logs'
+                                : appConfig.wowDirectory + '\\Logs',
+                            );
+                          } else {
+                            window.alert('You haven\'t set your WoW path yet. Please do so in the "Basics" section.');
+                          }
                         }
+                      } else if (window.wowarenalogs.obs?.stopRecordingEngine) {
+                        await window.wowarenalogs.obs.stopRecordingEngine();
+                      } else {
+                        window.alert(
+                          'You are running an old version of the app that does not support this operation. Please update your WoW Arena Logs to the latest version.',
+                        );
                       }
+                    } catch (error) {
+                      // eslint-disable-next-line no-console
+                      console.error('[RecordingSettings] Failed to toggle video recording', error);
                       updateAppConfig((prev) => {
                         return {
                           ...prev,
-                          enableVideoRecording: true,
+                          enableVideoRecording: !shouldEnable,
                         };
                       });
-                    } else if (window.wowarenalogs.obs?.stopRecordingEngine) {
-                      window.wowarenalogs.obs.stopRecordingEngine();
-                      updateAppConfig((prev) => {
-                        return {
-                          ...prev,
-                          enableVideoRecording: false,
-                        };
-                      });
-                    } else {
-                      window.alert(
-                        'You are running an old version of the app that does not support this operation. Please update your WoW Arena Logs to the latest version.',
-                      );
                     }
 
-                    checkAudioDevices();
+                    await checkAudioDevices();
                   }}
                 />
                 <span className="label-text">Enable video recording</span>

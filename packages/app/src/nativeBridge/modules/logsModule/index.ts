@@ -8,6 +8,7 @@ import {
   WoWCombatLogParser,
   WowVersion,
 } from '@wowarenalogs/parser';
+import checkDiskSpace from 'check-disk-space';
 import { BrowserWindow, dialog } from 'electron';
 import { existsSync, mkdirSync, readdirSync, Stats, statSync } from 'fs-extra';
 import { join } from 'path';
@@ -15,6 +16,7 @@ import { join } from 'path';
 import { logger } from '../../../logger';
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../../module';
 import { DesktopUtils } from '../common/desktopUtils';
+import { toDriveLabel } from '../common/driveUtils';
 import { createLogWatcher } from './logWatcher';
 
 interface ILastKnownCombatLogState {
@@ -25,6 +27,8 @@ interface ILastKnownCombatLogState {
 interface IBridge {
   watcher?: ReturnType<typeof createLogWatcher>;
   logParser?: WoWCombatLogParser;
+  wowLogsDirectoryFullPath?: string;
+  latestWarnedAtMs?: number;
 }
 
 const bridgeState: {
@@ -42,6 +46,8 @@ const bridgeState: {
 };
 
 const READ_TIMEOUT_MS = 300000;
+const LOGS_DISK_SPACE_THRESHOLD = 1e9; // ~1gb
+const LOGS_DISK_ALERT_COOLDOWN_MS = 60000;
 
 @nativeBridgeModule('logs')
 export class LogsModule extends NativeBridgeModule {
@@ -68,6 +74,32 @@ export class LogsModule extends NativeBridgeModule {
       }
     }
     return;
+  }
+
+  private async checkDiskSpaceAndNotify(mainWindow: BrowserWindow, wowVersion: WowVersion): Promise<void> {
+    const bridge = bridgeState[wowVersion];
+    if (!bridge.wowLogsDirectoryFullPath) {
+      return;
+    }
+
+    const details = await checkDiskSpace(bridge.wowLogsDirectoryFullPath);
+    if (details.free >= LOGS_DISK_SPACE_THRESHOLD) {
+      return;
+    }
+
+    const now = Date.now();
+    const latestWarnedAt = bridge.latestWarnedAtMs ?? 0;
+    if (now - latestWarnedAt < LOGS_DISK_ALERT_COOLDOWN_MS) {
+      return;
+    }
+
+    bridge.latestWarnedAtMs = now;
+    this.handleLogStorageDiskSpaceBecameCritical(
+      mainWindow,
+      wowVersion,
+      details.free,
+      toDriveLabel(bridge.wowLogsDirectoryFullPath, details.diskPath),
+    );
   }
 
   @moduleFunction({ isRequired: true })
@@ -129,6 +161,8 @@ export class LogsModule extends NativeBridgeModule {
 
     bridge.logParser = new WoWCombatLogParser(wowVersion);
     const wowLogsDirectoryFullPath = join(wowDirectory, 'Logs');
+    bridge.wowLogsDirectoryFullPath = wowLogsDirectoryFullPath;
+    bridge.latestWarnedAtMs = 0;
 
     bridge.watcher = createLogWatcher(wowDirectory, process.platform);
 
@@ -211,6 +245,13 @@ export class LogsModule extends NativeBridgeModule {
       const absolutePath = join(wowLogsDirectoryFullPath, fileName);
       const stats = statSync(absolutePath);
       processStats(absolutePath, stats);
+      this.checkDiskSpaceAndNotify(mainWindow, wowVersion).catch((err: unknown) => {
+        logger.error(`checkDiskSpaceAndNotify failed for wowVersion=${wowVersion}: ${String(err)}`);
+      });
+    });
+
+    this.checkDiskSpaceAndNotify(mainWindow, wowVersion).catch((err: unknown) => {
+      logger.error(`checkDiskSpaceAndNotify failed for wowVersion=${wowVersion}: ${String(err)}`);
     });
   }
 
@@ -220,10 +261,25 @@ export class LogsModule extends NativeBridgeModule {
     bridgeState.retail.logParser?.removeAllListeners();
     bridgeState.retail.logParser = undefined;
     bridgeState.retail.watcher = undefined;
+    bridgeState.retail.wowLogsDirectoryFullPath = undefined;
+    bridgeState.retail.latestWarnedAtMs = 0;
     bridgeState.classic.watcher?.close();
     bridgeState.classic.logParser?.removeAllListeners();
     bridgeState.classic.logParser = undefined;
     bridgeState.classic.watcher = undefined;
+    bridgeState.classic.wowLogsDirectoryFullPath = undefined;
+    bridgeState.classic.latestWarnedAtMs = 0;
+  }
+
+  @moduleFunction()
+  public async triggerLowDiskSpaceAlertForTesting(
+    mainWindow: BrowserWindow,
+    wowVersion: WowVersion = 'retail',
+    bytesRemaining: number = LOGS_DISK_SPACE_THRESHOLD - 1,
+  ) {
+    const bridge = bridgeState[wowVersion];
+    const driveLabel = toDriveLabel(bridge.wowLogsDirectoryFullPath ?? '');
+    this.handleLogStorageDiskSpaceBecameCritical(mainWindow, wowVersion, bytesRemaining, driveLabel);
   }
 
   @moduleEvent('on')
@@ -263,6 +319,16 @@ export class LogsModule extends NativeBridgeModule {
 
   @moduleEvent('on')
   public handleLogReadingTimeout(_mainWindow: BrowserWindow, _wowVersion: WowVersion, _timeoutSeconds: number) {
+    return;
+  }
+
+  @moduleEvent('on')
+  public handleLogStorageDiskSpaceBecameCritical(
+    _mainWindow: BrowserWindow,
+    _wowVersion: WowVersion,
+    _bytesRemaining: number,
+    _driveLabel?: string,
+  ) {
     return;
   }
 }

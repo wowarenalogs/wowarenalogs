@@ -21,7 +21,7 @@ export default function DebugPage() {
   const matchesQuery = useGetMyMatchesQuery();
 
   return (
-    <div className="mt-8 text-base-content">
+    <div className="mt-8 h-[calc(100vh-2rem)] overflow-y-auto pb-16 text-base-content">
       <div className="flex flex-row justify-between">
         <div className="flex flex-col">
           <div>Platform: {platform}</div>
@@ -119,6 +119,14 @@ export default function DebugPage() {
             }}
           >
             Clear WoW Folder Setting
+          </button>
+          <button
+            className="btn"
+            onClick={() => {
+              window.wowarenalogs.logs?.triggerLowDiskSpaceAlertForTesting?.('retail', 500e6);
+            }}
+          >
+            Test Low Log Disk Alert
           </button>
         </div>
       </div>

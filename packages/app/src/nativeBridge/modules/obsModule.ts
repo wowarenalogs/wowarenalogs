@@ -7,6 +7,7 @@ import path from 'path';
 
 import { logger } from '../../logger';
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
+import { toDriveLabel } from './common/driveUtils';
 
 const DISK_SPACE_THRESHOLD = 2e9; // ~2gb
 
@@ -16,6 +17,20 @@ Manager.configureLogging(logger);
 @nativeBridgeModule('obs')
 export class ObsModule extends NativeBridgeModule {
   private manager: Manager | null = null;
+  private lifecycleTask: Promise<void> = Promise.resolve();
+  private engineEnabled = false;
+
+  private runLifecycleTask(task: () => Promise<void> | void): Promise<void> {
+    const run = this.lifecycleTask.then(async () => {
+      await task();
+    });
+
+    this.lifecycleTask = run.catch((error) => {
+      logger.error(`[ObsModule] Lifecycle task failed: ${String(error)}`);
+    });
+
+    return run;
+  }
 
   @moduleFunction()
   public async selectFolder(_mainWindow: BrowserWindow, title: string) {
@@ -28,35 +43,45 @@ export class ObsModule extends NativeBridgeModule {
   }
 
   @moduleFunction()
-  public startRecordingEngine(mainWindow: BrowserWindow): void {
-    if (this.manager) return;
+  public async startRecordingEngine(mainWindow: BrowserWindow): Promise<void> {
+    await this.runLifecycleTask(async () => {
+      this.engineEnabled = true;
+      if (this.manager) {
+        await this.manager.resume();
+        this.recorderStatusUpdated(mainWindow, this.manager.recorder.recorderStatus);
+        return;
+      }
 
-    if (process.platform === 'win32') {
-      this.manager = new Manager(mainWindow);
-      this.manager.subscribeToConfigurationUpdates((newValue, _oldValue) => {
-        this.configUpdated(mainWindow, newValue);
-      });
-      this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
-      this.manager.messageBus.on('video-written', (video) => {
-        this.videoRecorded(mainWindow, video);
-        this.checkDiskSpace(mainWindow);
-      });
-    }
+      if (process.platform === 'win32') {
+        this.manager = new Manager(mainWindow);
+        this.manager.subscribeToConfigurationUpdates((newValue, _oldValue) => {
+          this.configUpdated(mainWindow, newValue);
+        });
+        this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
+        this.manager.messageBus.on('video-written', (video) => {
+          this.videoRecorded(mainWindow, video);
+          this.checkDiskSpace(mainWindow);
+        });
+      }
+    });
   }
 
   @moduleFunction()
   public async startBuffer(_mainWindow: BrowserWindow): Promise<void> {
+    if (!this.engineEnabled) return;
     await this.manager?.recorder.startBuffer();
   }
 
   @moduleFunction()
-  public stopRecordingEngine(_mainWindow: BrowserWindow): void {
-    if (!this.manager) return;
+  public async stopRecordingEngine(mainWindow: BrowserWindow): Promise<void> {
+    await this.runLifecycleTask(async () => {
+      if (!this.manager) return;
 
-    this.manager.recorder.hidePreview();
-    this.manager.messageBus.removeAllListeners();
-    this.manager.recorder.shutdownOBS();
-    this.manager = null;
+      this.engineEnabled = false;
+      this.manager.recorder.hidePreview();
+      await this.manager.pause();
+      this.recorderStatusUpdated(mainWindow, 'EngineNotStarted');
+    });
   }
 
   @moduleFunction()
@@ -77,11 +102,13 @@ export class ObsModule extends NativeBridgeModule {
 
   @moduleFunction()
   public async startRecording(_mainWindow: BrowserWindow, backtrackSeconds = 0) {
+    if (!this.engineEnabled) return;
     this.manager?.recorder.start(backtrackSeconds);
   }
 
   @moduleFunction()
   public async stopRecording(_mainWindow: BrowserWindow, activity: IActivity) {
+    if (!this.engineEnabled) return;
     this.manager?.recorder.stop(activity);
   }
 
@@ -106,11 +133,16 @@ export class ObsModule extends NativeBridgeModule {
 
   @moduleFunction()
   public async getRecorderStatus(_mainWindow: BrowserWindow) {
+    if (!this.engineEnabled) return 'EngineNotStarted';
     return this.manager?.recorder.recorderStatus || 'EngineNotStarted';
   }
 
   @moduleEvent('on')
-  public recorderStatusUpdated(_mainWindow: BrowserWindow, _status: RecStatus, _err?: string): void {
+  public recorderStatusUpdated(
+    _mainWindow: BrowserWindow,
+    _status: RecStatus | 'EngineNotStarted',
+    _err?: string,
+  ): void {
     return;
   }
 
@@ -125,7 +157,7 @@ export class ObsModule extends NativeBridgeModule {
   }
 
   @moduleEvent('on')
-  public diskSpaceBecameCritical(_mainWindow: BrowserWindow, _bytesRemaining: number) {
+  public diskSpaceBecameCritical(_mainWindow: BrowserWindow, _bytesRemaining: number, _driveLabel?: string) {
     return;
   }
 
@@ -157,10 +189,11 @@ export class ObsModule extends NativeBridgeModule {
    */
   async checkDiskSpace(mainWindow: BrowserWindow) {
     if (this.manager?.getConfiguration().storagePath) {
-      const details = await this.getDiskSpaceDetails(this.manager?.getConfiguration().storagePath);
+      const storagePath = this.manager?.getConfiguration().storagePath;
+      const details = await this.getDiskSpaceDetails(storagePath);
       if (details.free < DISK_SPACE_THRESHOLD) {
         // warn
-        this.diskSpaceBecameCritical(mainWindow, details.free);
+        this.diskSpaceBecameCritical(mainWindow, details.free, toDriveLabel(storagePath, details.diskPath));
       }
     }
   }

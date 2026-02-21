@@ -2,7 +2,7 @@
   "name": "wowarenalogs",
   "productName": "WoW Arena Logs",
   "license": "MIT",
-  "version": "12.2.0",
+  "version": "12.3.0",
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
@@ -29,6 +29,8 @@
     ],
     "includeSubNodeModules": true,
     "asarUnpack": [
+      "packages/app/dist/node_modules/noobs/**",
+      "packages/app/dist/dist/**",
       "packages/app/dist/lib/noobs/**"
     ],
     "directories": {
@@ -104,8 +106,8 @@
     "wait-on": "^7.2.0"
   },
   "overrides": {
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "resolutions": {
     "**/@typescript-eslint/eslint-plugin": "^5.60.0",
@@ -117,5 +119,9 @@
     "singleQuote": true,
     "printWidth": 120,
     "tabWidth": 2
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   }
 }

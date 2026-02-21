@@ -21,6 +21,7 @@ export type NativeApi = {
     importLogFiles: OmitFirstArg<LogsModule['importLogFiles']>;
     startLogWatcher: OmitFirstArg<LogsModule['startLogWatcher']>;
     stopLogWatcher: OmitFirstArg<LogsModule['stopLogWatcher']>;
+    triggerLowDiskSpaceAlertForTesting?: OmitFirstArg<LogsModule['triggerLowDiskSpaceAlertForTesting']>;
     handleActivityStarted?: (callback: AsEventFunction<LogsModule['handleActivityStarted']>) => void;
     removeAll_handleActivityStarted_listeners?: () => void;
     handleNewCombat: (callback: AsEventFunction<LogsModule['handleNewCombat']>) => void;
@@ -37,6 +38,10 @@ export type NativeApi = {
     removeAll_handleParserError_listeners: () => void;
     handleLogReadingTimeout?: (callback: AsEventFunction<LogsModule['handleLogReadingTimeout']>) => void;
     removeAll_handleLogReadingTimeout_listeners?: () => void;
+    handleLogStorageDiskSpaceBecameCritical?: (
+      callback: AsEventFunction<LogsModule['handleLogStorageDiskSpaceBecameCritical']>,
+    ) => void;
+    removeAll_handleLogStorageDiskSpaceBecameCritical_listeners?: () => void;
   };
   bnet?: { login: OmitFirstArg<BnetModule['login']> };
   fs?: {

@@ -23,7 +23,15 @@
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
-  "module": "dist/wow-combat-log-parser.esm.js",
+  "module": "dist/parser.esm.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/parser.esm.js",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "size-limit": [
     {
       "path": "dist/wow-combat-log-parser.cjs.production.min.js",
