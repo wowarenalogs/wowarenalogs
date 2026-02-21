@@ -1,7 +1,7 @@
 {
   "algorithm": "sha256",
-  "hash": "e6293b74f30ed8e492cd73ed1f1f356d30126778739cda62d757ef1160c8bbdf",
-  "input": "D:\\Github\\wowarenalogs\\packages\\parser\\scripts\\ca245a5f148e6a7ae7dc952706c5d03a.txt",
+  "hash": "a816c773d4c081dd75c094409434b84165790330ce4b8297067adb39f187cced",
+  "input": "perf/fixtures/ca245a5f148e6a7ae7dc952706c5d03a.txt",
   "timezone": "America/New_York",
   "counts": {
     "combats": 0,
