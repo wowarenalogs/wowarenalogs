@@ -197,13 +197,13 @@ export function MainLayout(props: IProps) {
             </div>
             {vodDiskWarning && (
               <div>
-                VOD drive {vodDiskWarning.driveLabel ?? '(unknown)'}: {(vodDiskWarning.bytesRemaining / 1e9).toFixed(1)}{' '}
+                VOD drive {vodDiskWarning.driveLabel ?? '(unknown)'} {(vodDiskWarning.bytesRemaining / 1e9).toFixed(1)}{' '}
                 GB free
               </div>
             )}
             {logDiskWarning && (
               <div>
-                Log drive {logDiskWarning.driveLabel ?? '(unknown)'}: {(logDiskWarning.bytesRemaining / 1e9).toFixed(1)}{' '}
+                Log drive {logDiskWarning.driveLabel ?? '(unknown)'} {(logDiskWarning.bytesRemaining / 1e9).toFixed(1)}{' '}
                 GB free
               </div>
             )}
