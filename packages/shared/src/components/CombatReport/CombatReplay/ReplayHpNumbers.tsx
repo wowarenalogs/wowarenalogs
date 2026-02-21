@@ -59,8 +59,14 @@ export const ReplayHpNumbers = (props: IProps) => {
 
   const MIN_NUMBER = combat.wowVersion === 'retail' ? 3000 : 300;
 
+  const outgoingDamage = props.unit.damageOut.filter(
+    (e): e is CombatHpUpdateAction => e instanceof CombatHpUpdateAction,
+  );
+
   const numbers = props.unit.damageIn
     .concat(props.unit.healIn)
+    .concat(outgoingDamage)
+    .concat(props.unit.healOut)
     .filter((e) => {
       const eventTimeOffset = e.timestamp - combat.startTime;
       return (
