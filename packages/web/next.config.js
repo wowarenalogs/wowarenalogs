@@ -3,8 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@wowarenalogs/shared'],
   typescript: {
-    // @inlet/react-pixi has type incompatibilities with React 18 types.
-    // These are safe to ignore as they only affect the desktop replay feature.
+    // @pixi/react types can lag React versions; these are safe to ignore since
+    // they only affect the desktop replay feature.
     ignoreBuildErrors: true,
   },
   images: {
