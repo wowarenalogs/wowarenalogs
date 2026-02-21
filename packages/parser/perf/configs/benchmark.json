@@ -5,7 +5,7 @@
   "runs": 5,
   "iterations": 1,
   "warmup": 1,
-  "measureMemory": false,
+  "measureMemory": true,
   "updateSnapshots": false,
   "skipCompare": true
 }
