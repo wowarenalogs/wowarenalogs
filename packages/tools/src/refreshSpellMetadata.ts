@@ -3,7 +3,23 @@ import * as luainjs from 'lua-in-js';
 import fetch from 'node-fetch';
 import path from 'path';
 
+function extractSpellIdsFromSpellCsv(csv: string): Set<string> {
+  const ids = new Set<string>();
+  const matches = csv.matchAll(/(?:^|\n)(\d+),/g);
+  for (const match of matches) {
+    ids.add(match[1]);
+  }
+  return ids;
+}
+
 async function main() {
+  const spellCsvResponse = await fetch('https://wago.tools/db2/Spell/csv');
+  if (spellCsvResponse.status !== 200) {
+    throw new Error(`Failed to fetch Spell.csv: ${spellCsvResponse.status} ${spellCsvResponse.statusText}`);
+  }
+  const spellCsv = await spellCsvResponse.text();
+  const validSpellIds = extractSpellIdsFromSpellCsv(spellCsv);
+
   const response = await fetch('https://raw.githubusercontent.com/jordonwow/bigdebuffs/master/BigDebuffs_Mainline.lua');
   if (response.status !== 200) {
     throw new Error(`Failed to fetch BigDebuffs_Mainline.lua: ${response.status} ${response.statusText}`);
@@ -20,13 +36,20 @@ async function main() {
 
   const rawSpellsData = addon['Spells'] as Record<string, unknown>;
   const spells: Record<string, unknown> = {};
+  let droppedUnknownSpellIdCount = 0;
   Object.keys(rawSpellsData).forEach((spellId) => {
     if (!rawSpellsData[spellId]) {
       delete rawSpellsData[spellId];
     } else {
-      spells[(parseInt(spellId, 10) + 1).toFixed()] = rawSpellsData[spellId];
+      const normalizedSpellId = (parseInt(spellId, 10) + 1).toFixed();
+      if (validSpellIds.has(normalizedSpellId)) {
+        spells[normalizedSpellId] = rawSpellsData[spellId];
+      } else {
+        droppedUnknownSpellIdCount += 1;
+      }
     }
   });
+  console.log(`Dropped ${droppedUnknownSpellIdCount} spell metadata entries not present in Spell.csv`);
 
   const outputPath = path.resolve(__dirname, '../../shared/src/data/spells.json');
   await fs.writeFile(outputPath, JSON.stringify(spells, null, 2));

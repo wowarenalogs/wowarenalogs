@@ -6,7 +6,7 @@ import { CombatUnitSpec } from '@wowarenalogs/parser';
   the AWC tournament, the name awcSpells is used.
 */
 //
-export const awcSpells: Record<CombatUnitSpec, string[]> = {
+export const awcSpellsBySpec: Record<CombatUnitSpec, string[]> = {
   // These spells should be tracked for all specs
   // Trinkets, neutral spells (covenant abilities went here)
   '0': [],
@@ -335,3 +335,9 @@ export const awcSpells: Record<CombatUnitSpec, string[]> = {
   [CombatUnitSpec.Evoker_Devastation]: [],
   [CombatUnitSpec.Evoker_Preservation]: ['357170', '363534', '363916', '370553', '370960', '374348'],
 };
+
+// Flat list used by the replay tracker and tools-side data ingestion.
+export const awcSpellIds = [...new Set(Object.values(awcSpellsBySpec).flat())];
+
+// Backwards-compatible alias while callers migrate to `awcSpellIds`.
+export const awcSpells = awcSpellsBySpec;

@@ -368,7 +368,7 @@ export const UnitFrame = (props: IProps) => {
   })();
 
   // Build list of trackable spells
-  const trackableSpells = useMemo(() => computeTrackableSpellsForUnit(props.unit), [props.unit]);
+  const trackableSpells = useMemo(() => computeTrackableSpellsForUnit(), []);
 
   // Spell casts to track cooldowns for the Spell Tracker (AWC frame)
   const trackedSpellCasts = useMemo(() => {

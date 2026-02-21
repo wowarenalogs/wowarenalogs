@@ -75,6 +75,7 @@
     "build:sql": "npm run build:sql --workspaces --if-present",
     "build:parser": "npm run build:parser --workspaces --if-present",
     "build:recorder": "npm run build:recorder --workspaces --if-present",
+    "start:generateSpellIdLists": "npm run start:generateSpellIdLists --workspaces --if-present",
     "start:refreshSpellMetadata": "npm run start:refreshSpellMetadata --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
