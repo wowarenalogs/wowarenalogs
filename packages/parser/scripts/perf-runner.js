@@ -244,9 +244,11 @@ function parseLog(inputPath, timezone) {
 }
 
 function buildSnapshotRecord(parsed, inputPath, timezone) {
+  const serialized = JSON.stringify(parsed);
   return {
     algorithm: 'sha256',
     hash: computeStableHash(parsed),
+    bytes: Buffer.byteLength(serialized, 'utf8'),
     input: inputPath,
     timezone,
     counts: {

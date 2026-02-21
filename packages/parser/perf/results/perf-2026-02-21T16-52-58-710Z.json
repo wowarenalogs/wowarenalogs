@@ -1,5 +1,5 @@
 {
-  "runId": "2026-02-21T16-23-46-382Z",
+  "runId": "2026-02-21T16-52-58-710Z",
   "node": "v25.6.1",
   "platform": "darwin",
   "arch": "arm64",
@@ -14,6 +14,7 @@
       "snapshotRecord": {
         "algorithm": "sha256",
         "hash": "7fbd9ce4a63bec7f11bc18ed9935e1d1c878097d9349ce0cd0357acf8c039eaa",
+        "bytes": 388380969,
         "input": "perf/fixtures/ca245a5f148e6a7ae7dc952706c5d03a.txt",
         "timezone": "America/New_York",
         "counts": {
@@ -28,33 +29,33 @@
       },
       "iterations": [
         {
-          "wallMs": 314.492417,
-          "cpuUserMs": 378.543,
-          "cpuSystemMs": 11.603,
+          "wallMs": 308.126459,
+          "cpuUserMs": 371.813,
+          "cpuSystemMs": 11.223,
           "memory": null
         },
         {
-          "wallMs": 313.002583,
-          "cpuUserMs": 372.183,
-          "cpuSystemMs": 5.138,
+          "wallMs": 310.942625,
+          "cpuUserMs": 369.876,
+          "cpuSystemMs": 6.728,
           "memory": null
         },
         {
-          "wallMs": 312.347333,
-          "cpuUserMs": 360.492,
-          "cpuSystemMs": 11.534,
+          "wallMs": 330.774417,
+          "cpuUserMs": 428.247,
+          "cpuSystemMs": 23.497,
           "memory": null
         },
         {
-          "wallMs": 309.033125,
-          "cpuUserMs": 339.612,
-          "cpuSystemMs": 11.506,
+          "wallMs": 303.9075,
+          "cpuUserMs": 344.572,
+          "cpuSystemMs": 5.35,
           "memory": null
         },
         {
-          "wallMs": 308.313833,
-          "cpuUserMs": 342.609,
-          "cpuSystemMs": 12.688,
+          "wallMs": 302.611042,
+          "cpuUserMs": 333.74,
+          "cpuSystemMs": 11.091,
           "memory": null
         }
       ]
