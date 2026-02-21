@@ -1,17 +1,109 @@
 /* eslint-disable no-console */
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
-const { WoWCombatLogParser } = require('../dist');
+import { WoWCombatLogParser } from '../dist';
+
+type ParserEventPayload = unknown;
+
+interface ParserErrorPayload {
+  message?: string;
+  name?: string;
+}
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const DEFAULT_SUITE = 'default';
 const DEFAULT_OUTPUT_DIR = path.resolve(ROOT_DIR, 'perf/results');
 const DEFAULT_SUITES_PATH = path.resolve(ROOT_DIR, 'perf/suites.json');
 
-function parseArgs(argv) {
-  const options = {
+interface CliOptions {
+  suite: string;
+  fixture: string | null;
+  snapshot: string | null;
+  timezone: string | null;
+  outputDir: string;
+  updateSnapshots: boolean;
+  skipCompare: boolean;
+  iterations: number;
+  warmup: number;
+  measureMemory: boolean;
+  help: boolean;
+}
+
+interface SuiteFixture {
+  id: string;
+  input: string;
+  snapshot: string;
+}
+
+interface SuiteConfig {
+  timezone?: string;
+  fixtures: SuiteFixture[];
+}
+
+type SuitesManifest = Record<string, SuiteConfig>;
+
+interface WorkItem {
+  id: string;
+  input: string;
+  snapshot: string | null;
+  timezone: string | null;
+}
+
+interface ParsedResult {
+  combats: ParserEventPayload[];
+  malformedCombats: ParserEventPayload[];
+  shuffleRounds: ParserEventPayload[];
+  shuffles: ParserEventPayload[];
+  activityStarts: ParserEventPayload[];
+  battlegrounds: ParserEventPayload[];
+  parserErrors: Array<{ message: string; name: string }>;
+}
+
+interface SnapshotRecord {
+  algorithm: 'sha256';
+  hash: string;
+  bytes: number;
+  input: string;
+  timezone: string | null;
+  counts: {
+    combats: number;
+    malformedCombats: number;
+    shuffleRounds: number;
+    shuffles: number;
+    activityStarts: number;
+    battlegrounds: number;
+    parserErrors: number;
+  };
+}
+
+interface IterationResult {
+  wallMs: number;
+  cpuUserMs: number;
+  cpuSystemMs: number;
+  memory: { start: NodeJS.MemoryUsage; end: NodeJS.MemoryUsage } | null;
+}
+
+interface FixtureRunResult {
+  id: string;
+  input: string;
+  snapshot: string | null;
+  timezone: string | null;
+  snapshotRecord: SnapshotRecord;
+  iterations: IterationResult[];
+}
+
+interface SummaryStats {
+  min: number;
+  max: number;
+  mean: number;
+  median: number;
+  p95: number;
+}
+
+function parseArgs(argv: string[]): CliOptions {
+  const options: CliOptions = {
     suite: DEFAULT_SUITE,
     fixture: null,
     snapshot: null,
@@ -73,37 +165,37 @@ function parseArgs(argv) {
   return options;
 }
 
-function loadSuites() {
+function loadSuites(): SuitesManifest {
   if (!fs.existsSync(DEFAULT_SUITES_PATH)) {
     throw new Error(`Missing suite manifest: ${DEFAULT_SUITES_PATH}`);
   }
-  return JSON.parse(fs.readFileSync(DEFAULT_SUITES_PATH, 'utf8'));
+  return JSON.parse(fs.readFileSync(DEFAULT_SUITES_PATH, 'utf8')) as SuitesManifest;
 }
 
-function resolvePath(relOrAbs) {
+function resolvePath(relOrAbs: string | null): string | null {
   if (!relOrAbs) return null;
   return path.isAbsolute(relOrAbs) ? relOrAbs : path.resolve(ROOT_DIR, relOrAbs);
 }
 
-function ensureParentDir(filePath) {
+function ensureParentDir(filePath: string): void {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
 }
 
-function maybeGc() {
+function maybeGc(): void {
   if (typeof global.gc === 'function') {
     global.gc();
   }
 }
 
-function computeStableHash(value) {
+function computeStableHash(value: unknown): string {
   const hash = crypto.createHash('sha256');
-  const seen = new WeakSet();
+  const seen = new WeakSet<object>();
 
-  function update(str) {
+  function update(str: string): void {
     hash.update(str);
   }
 
-  function walk(currentValue) {
+  function walk(currentValue: unknown): void {
     if (currentValue === null) {
       update('null;');
       return;
@@ -139,11 +231,12 @@ function computeStableHash(value) {
       return;
     }
 
-    if (seen.has(currentValue)) {
+    const objectValue = currentValue as object;
+    if (seen.has(objectValue)) {
       update('[Circular];');
       return;
     }
-    seen.add(currentValue);
+    seen.add(objectValue);
 
     if (Array.isArray(currentValue)) {
       update('[;');
@@ -152,27 +245,27 @@ function computeStableHash(value) {
         update(',;');
       });
       update('];');
-      seen.delete(currentValue);
+      seen.delete(objectValue);
       return;
     }
 
     if (currentValue instanceof Date) {
       update(`date:${currentValue.toISOString()};`);
-      seen.delete(currentValue);
+      seen.delete(objectValue);
       return;
     }
 
     if (Buffer.isBuffer(currentValue)) {
       update(`buf:${currentValue.toString('hex')};`);
-      seen.delete(currentValue);
+      seen.delete(objectValue);
       return;
     }
 
     update('{;');
-    Object.keys(currentValue)
+    Object.keys(currentValue as Record<string, unknown>)
       .sort()
       .forEach((key) => {
-        const child = currentValue[key];
+        const child = (currentValue as Record<string, unknown>)[key];
         if (typeof child === 'undefined' || typeof child === 'function' || typeof child === 'symbol') {
           return;
         }
@@ -181,22 +274,22 @@ function computeStableHash(value) {
         update(',;');
       });
     update('};');
-    seen.delete(currentValue);
+    seen.delete(objectValue);
   }
 
   walk(value);
   return hash.digest('hex');
 }
 
-function readSnapshotHash(snapshotPath) {
+function readSnapshotHash(snapshotPath: string): string | null {
   const content = fs.readFileSync(snapshotPath, 'utf8').trim();
   if (!content) {
     return null;
   }
 
   try {
-    const parsed = JSON.parse(content);
-    if (parsed && typeof parsed.hash === 'string') {
+    const parsed = JSON.parse(content) as { hash?: unknown };
+    if (typeof parsed.hash === 'string') {
       return parsed.hash;
     }
   } catch (_error) {
@@ -206,14 +299,14 @@ function readSnapshotHash(snapshotPath) {
   return content;
 }
 
-function readLogLines(inputPath) {
+function readLogLines(inputPath: string): string[] {
   const content = fs.readFileSync(inputPath, 'utf8');
   return content.split('\n');
 }
 
-function parseLog(inputPath, timezone) {
+function parseLog(inputPath: string, timezone: string | null): ParsedResult {
   const parser = new WoWCombatLogParser(null, timezone);
-  const parsed = {
+  const parsed: ParsedResult = {
     combats: [],
     malformedCombats: [],
     shuffleRounds: [],
@@ -230,9 +323,10 @@ function parseLog(inputPath, timezone) {
   parser.on('activity_started', (data) => parsed.activityStarts.push(data));
   parser.on('battleground_ended', (data) => parsed.battlegrounds.push(data));
   parser.on('parser_error', (error) => {
+    const typedError = error as ParserErrorPayload;
     parsed.parserErrors.push({
-      message: error.message,
-      name: error.name,
+      message: typedError.message ?? 'Unknown parser error',
+      name: typedError.name ?? 'Error',
     });
   });
 
@@ -243,7 +337,7 @@ function parseLog(inputPath, timezone) {
   return parsed;
 }
 
-function buildSnapshotRecord(parsed, inputPath, timezone) {
+function buildSnapshotRecord(parsed: ParsedResult, inputPath: string, timezone: string | null): SnapshotRecord {
   const serialized = JSON.stringify(parsed);
   return {
     algorithm: 'sha256',
@@ -263,12 +357,12 @@ function buildSnapshotRecord(parsed, inputPath, timezone) {
   };
 }
 
-function formatBytes(bytes) {
+function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-function printMemoryDelta(before, after) {
-  const keys = ['rss', 'heapTotal', 'heapUsed', 'external', 'arrayBuffers'];
+function printMemoryDelta(before: NodeJS.MemoryUsage, after: NodeJS.MemoryUsage): void {
+  const keys: Array<keyof NodeJS.MemoryUsage> = ['rss', 'heapTotal', 'heapUsed', 'external', 'arrayBuffers'];
   keys.forEach((key) => {
     const delta = after[key] - before[key];
     const deltaPrefix = delta >= 0 ? '+' : '-';
@@ -280,8 +374,10 @@ function printMemoryDelta(before, after) {
   });
 }
 
-function statsFrom(values) {
-  if (!values.length) return null;
+function statsFrom(values: number[]): SummaryStats {
+  if (!values.length) {
+    throw new Error('Cannot compute stats from empty values');
+  }
   const sorted = [...values].sort((a, b) => a - b);
   const sum = sorted.reduce((acc, v) => acc + v, 0);
   const mean = sum / sorted.length;
@@ -296,11 +392,11 @@ function statsFrom(values) {
   };
 }
 
-function printHelp() {
+function printHelp(): void {
   console.log('Parse combat logs, compare snapshots, and collect perf metrics.');
   console.log('');
   console.log('Usage:');
-  console.log('  node scripts/perf-runner.js [options]');
+  console.log('  npx ts-node scripts/perf-runner.ts [options]');
   console.log('');
   console.log('Options:');
   console.log('  --suite <name>        Suite from perf/suites.json (default: default)');
@@ -315,18 +411,19 @@ function printHelp() {
   console.log('  --measure-memory      Print process memory before/after each run');
   console.log('  -h, --help            Show this help');
   console.log('');
-  console.log('CPU profiling: run with `node --cpu-prof --cpu-prof-dir <dir> scripts/perf-runner.js ...`');
+  console.log(
+    'CPU profiling: run with `node --cpu-prof --cpu-prof-dir <dir> -r ts-node/register scripts/perf-runner.ts ...`',
+  );
 }
 
-function resolveWorkItems(options, suites) {
+function resolveWorkItems(options: CliOptions, suites: SuitesManifest): WorkItem[] {
   if (options.fixture) {
     const inputPath = options.fixture;
-    const snapshotPath = options.snapshot;
     return [
       {
         id: path.basename(inputPath, path.extname(inputPath)),
         input: inputPath,
-        snapshot: snapshotPath,
+        snapshot: options.snapshot,
         timezone: options.timezone,
       },
     ];
@@ -341,19 +438,19 @@ function resolveWorkItems(options, suites) {
     id: fixture.id,
     input: fixture.input,
     snapshot: fixture.snapshot,
-    timezone: options.timezone || suite.timezone,
+    timezone: options.timezone || suite.timezone || null,
   }));
 }
 
-function runFixture(fixture, options) {
+function runFixture(fixture: WorkItem, options: CliOptions): FixtureRunResult {
   const inputPath = resolvePath(fixture.input);
   const snapshotPath = resolvePath(fixture.snapshot);
   if (!inputPath || !fs.existsSync(inputPath)) {
     throw new Error(`Missing input file: ${inputPath}`);
   }
 
-  const iterations = [];
-  let snapshotRecord = null;
+  const iterations: IterationResult[] = [];
+  let snapshotRecord: SnapshotRecord | null = null;
 
   for (let i = 0; i < options.warmup; i += 1) {
     maybeGc();
@@ -384,12 +481,16 @@ function runFixture(fixture, options) {
     });
   }
 
+  if (!snapshotRecord) {
+    throw new Error(`No snapshot generated for ${fixture.id}`);
+  }
+
   if (options.updateSnapshots) {
     if (!snapshotPath) {
       throw new Error('Missing snapshot path for --update-snapshots');
     }
     ensureParentDir(snapshotPath);
-    fs.writeFileSync(snapshotPath, JSON.stringify(snapshotRecord, null, 2) + '\n', 'utf8');
+    fs.writeFileSync(snapshotPath, `${JSON.stringify(snapshotRecord, null, 2)}\n`, 'utf8');
     console.log(`Updated snapshot: ${snapshotPath}`);
   } else if (snapshotPath && !options.skipCompare) {
     if (!fs.existsSync(snapshotPath)) {
@@ -415,39 +516,56 @@ function runFixture(fixture, options) {
   };
 }
 
-function printSummary(result) {
+function printSummary(result: FixtureRunResult): void {
   const wall = statsFrom(result.iterations.map((item) => item.wallMs));
   const cpuUser = statsFrom(result.iterations.map((item) => item.cpuUserMs));
   const cpuSystem = statsFrom(result.iterations.map((item) => item.cpuSystemMs));
 
   console.log(`Fixture: ${result.id}`);
-  console.log(`  wall ms (min/median/p95/max): ${wall.min.toFixed(2)} / ${wall.median.toFixed(2)} / ${wall.p95.toFixed(2)} / ${wall.max.toFixed(2)}`);
-  console.log(`  cpu user ms (min/median/p95/max): ${cpuUser.min.toFixed(2)} / ${cpuUser.median.toFixed(2)} / ${cpuUser.p95.toFixed(2)} / ${cpuUser.max.toFixed(2)}`);
-  console.log(`  cpu sys ms (min/median/p95/max): ${cpuSystem.min.toFixed(2)} / ${cpuSystem.median.toFixed(2)} / ${cpuSystem.p95.toFixed(2)} / ${cpuSystem.max.toFixed(2)}`);
+  console.log(
+    `  wall ms (min/median/p95/max): ${wall.min.toFixed(2)} / ${wall.median.toFixed(2)} / ${wall.p95.toFixed(2)} / ${wall.max.toFixed(2)}`,
+  );
+  console.log(
+    `  cpu user ms (min/median/p95/max): ${cpuUser.min.toFixed(2)} / ${cpuUser.median.toFixed(2)} / ${cpuUser.p95.toFixed(2)} / ${cpuUser.max.toFixed(2)}`,
+  );
+  console.log(
+    `  cpu sys ms (min/median/p95/max): ${cpuSystem.min.toFixed(2)} / ${cpuSystem.median.toFixed(2)} / ${cpuSystem.p95.toFixed(2)} / ${cpuSystem.max.toFixed(2)}`,
+  );
 
   if (result.iterations[0].memory) {
     console.log('  memory usage per iteration (start -> end):');
     result.iterations.forEach((entry, index) => {
+      if (!entry.memory) {
+        return;
+      }
       console.log(`  iteration ${index + 1}:`);
       printMemoryDelta(entry.memory.start, entry.memory.end);
     });
   }
 }
 
-function run() {
+function run(): void {
   const options = parseArgs(process.argv.slice(2));
   if (options.help) {
     printHelp();
     process.exit(0);
   }
 
-  const suites = options.fixture ? null : loadSuites();
-  const workItems = resolveWorkItems(options, suites || {});
+  const suites = options.fixture ? {} : loadSuites();
+  const workItems = resolveWorkItems(options, suites);
 
   ensureParentDir(path.join(options.outputDir, 'placeholder.txt'));
 
   const runId = new Date().toISOString().replace(/[:.]/g, '-');
-  const runOutput = {
+  const runOutput: {
+    runId: string;
+    node: string;
+    platform: NodeJS.Platform;
+    arch: string;
+    iterations: number;
+    warmup: number;
+    results: FixtureRunResult[];
+  } = {
     runId,
     node: process.version,
     platform: process.platform,
@@ -464,13 +582,17 @@ function run() {
   });
 
   const outputPath = path.join(options.outputDir, `perf-${runId}.json`);
-  fs.writeFileSync(outputPath, JSON.stringify(runOutput, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(outputPath, `${JSON.stringify(runOutput, null, 2)}\n`, 'utf8');
   console.log(`Wrote perf results: ${outputPath}`);
 }
 
 try {
   run();
-} catch (error) {
-  console.error(error.message || error);
+} catch (error: unknown) {
+  if (error instanceof Error) {
+    console.error(error.message);
+  } else {
+    console.error(error);
+  }
   process.exit(1);
 }

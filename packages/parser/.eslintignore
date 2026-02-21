@@ -3,4 +3,3 @@ dist
 build
 .eslintrc.js
 *.config.js
-scripts/perf-runner.js
