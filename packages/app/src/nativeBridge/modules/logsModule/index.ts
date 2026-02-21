@@ -16,6 +16,7 @@ import { join } from 'path';
 import { logger } from '../../../logger';
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../../module';
 import { DesktopUtils } from '../common/desktopUtils';
+import { toDriveLabel } from '../common/driveUtils';
 import { createLogWatcher } from './logWatcher';
 
 interface ILastKnownCombatLogState {
@@ -47,23 +48,6 @@ const bridgeState: {
 const READ_TIMEOUT_MS = 300000;
 const LOGS_DISK_SPACE_THRESHOLD = 1e9; // ~1gb
 const LOGS_DISK_ALERT_COOLDOWN_MS = 60000;
-
-function toDriveLabel(absPath: string, diskPath?: string): string {
-  if (diskPath) {
-    const normalizedDisk = diskPath.replace(/\//g, '\\').toUpperCase();
-    const match = normalizedDisk.match(/^([A-Z]:)/);
-    if (match) {
-      return `${match[1]}\\`;
-    }
-    return normalizedDisk;
-  }
-  const normalizedPath = absPath.replace(/\//g, '\\').toUpperCase();
-  const match = normalizedPath.match(/^([A-Z]:)/);
-  if (match?.[1]) {
-    return `${match[1]}\\`;
-  }
-  return absPath || 'unknown';
-}
 
 @nativeBridgeModule('logs')
 export class LogsModule extends NativeBridgeModule {

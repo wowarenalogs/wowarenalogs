@@ -7,25 +7,9 @@ import path from 'path';
 
 import { logger } from '../../logger';
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
+import { toDriveLabel } from './common/driveUtils';
 
 const DISK_SPACE_THRESHOLD = 2e9; // ~2gb
-
-function toDriveLabel(absPath: string, diskPath?: string): string {
-  if (diskPath) {
-    const normalizedDisk = diskPath.replace(/\//g, '\\').toUpperCase();
-    const match = normalizedDisk.match(/^([A-Z]:)/);
-    if (match) {
-      return `${match[1]}\\`;
-    }
-    return normalizedDisk;
-  }
-  const normalizedPath = absPath.replace(/\//g, '\\').toUpperCase();
-  const match = normalizedPath.match(/^([A-Z]:)/);
-  if (match?.[1]) {
-    return `${match[1]}\\`;
-  }
-  return absPath;
-}
 
 // Static method to inject logger across OBS modules that will need it
 Manager.configureLogging(logger);
