@@ -2,64 +2,50 @@
 
 This document outlines how to generate the spellEffects.json file used by WAL for cooldown and duration information of spells
 
-Note that this is currently only supported on the Windows platform.
+Spell DB2 data is now pulled directly from https://wago.tools during generation.
+By default tools use build `12.0.1.66044`; override with environment variable `WAGO_BUILD`.
 
-## 1. Pull the simc repo
+Key source endpoints include:
 
-Pull the repo for simc at https://github.com/simulationcraft/simc
+- https://wago.tools/db2/Spell/csv
+- https://wago.tools/db2/SpellMisc/csv
 
-Checkout the branch associated with the current expansion
+The generator also pulls related DB2 tables required for reconstruction (SpellCooldowns, SpellDuration, SpellCategory, SpellCategories, SpellCastTimes, SpellEffect, SpellName, SpellMisc).
 
-File paths will assume that you have pulled this repo in a sibling folder to wowarenalogs e.g.:
+`spellEffects.json` fields are reconstructed from DB2 as follows:
 
-```
-somepath/wowarenalogs/
-somepath/simc/
-```
+- `name`: `SpellName.Name_lang` by `SpellID`
+- `cooldownSeconds`: `SpellCooldowns.RecoveryTime` (fallback `CategoryRecoveryTime`) by `SpellID`
+- `charges`: `SpellCategories.ChargeCategory` -> `SpellCategory.MaxCharges` and `SpellCategory.ChargeRecoveryTime`
+- `durationSeconds`: `SpellMisc.DurationIndex` -> `SpellDuration.Duration`
 
-## 2. Find the current game version
+`SpellCastTimes` and `SpellEffect` are also pulled for parity with the old extract workflow and for coverage validation while generating.
 
-The easiest place is underneath the "PLAY" button on the bnet launcher. It should be in the format
+## 1. Run the effects json generator
 
-XX.X.X.XXXXX
-
-e.g:
-
-10.1.7.51886
-
-## 3. Run the database generation
-
-This step will download the most recent spells databases for extraction.
-
-Execute
-
-```
-/simc/casc_extract/WinGenerateSpellData.bat
-```
-
-This will take some time.
-
-## 4. Run the python casc extractor
-
-This will extract the spell information into JSON files for easier consumption.
-
-Replace the game version string in tools/scripts/extract.bat with the most recent one you pulled from step (2)
-
-Copy the python script into simc/dbc_extract3
-
-Move to simc/dbc_extract3 as a working directory and execute extract.bat
-
-This should generate a number of .json files in that folder.
-
-## 5. Run the effects json parser
-
-Assuming everything is in the correct folder, you can return to the wowarenalogs repo and run
+From the wowarenalogs repo root, run:
 
 ```
 npm run start:generateSpellsData
 ```
 
-and this will generate a brand new spellEffects.json file in the repo.
+This downloads fresh DB2 CSV data from wago.tools and writes a brand new `packages/shared/src/data/spellEffects.json`.
+
+## 2. Generate spell id lists from DB2 flags
+
+From the wowarenalogs repo root, run:
+
+```
+npm run start:generateSpellIdLists
+```
+
+This downloads `Spell.csv` and `SpellMisc.csv` and writes `packages/shared/src/data/spellIdLists.json` with:
+
+- `allSpellIds` (all ids from `Spell.csv`)
+- `importantSpellIds` (SimC spell attribute `491`)
+- `externalDefensiveSpellIds` (SimC spell attribute `499`)
+- `bigDefensiveSpellIds` (SimC spell attribute `512`)
+- `externalOrBigDefensiveSpellIds` (union of external + big defensive)
 
 # Running a sim log
 

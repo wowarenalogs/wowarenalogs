@@ -1,0 +1,1042 @@
+[
+  {
+    "spellId": "118",
+    "name": "Polymorph"
+  },
+  {
+    "spellId": "498",
+    "name": "Divine Protection"
+  },
+  {
+    "spellId": "642",
+    "name": "Divine Shield"
+  },
+  {
+    "spellId": "871",
+    "name": "Shield Wall"
+  },
+  {
+    "spellId": "1044",
+    "name": "Blessing of Freedom"
+  },
+  {
+    "spellId": "5277",
+    "name": "Evasion"
+  },
+  {
+    "spellId": "8178",
+    "name": "Grounding Totem"
+  },
+  {
+    "spellId": "12472",
+    "name": "Icy Veins"
+  },
+  {
+    "spellId": "13750",
+    "name": "Adrenaline Rush"
+  },
+  {
+    "spellId": "19236",
+    "name": "Desperate Prayer"
+  },
+  {
+    "spellId": "22812",
+    "name": "Barkskin"
+  },
+  {
+    "spellId": "31850",
+    "name": "Ardent Defender"
+  },
+  {
+    "spellId": "31884",
+    "name": "Avenging Wrath"
+  },
+  {
+    "spellId": "45438",
+    "name": "Ice Block"
+  },
+  {
+    "spellId": "48707",
+    "name": "Anti-Magic Shell"
+  },
+  {
+    "spellId": "48792",
+    "name": "Icebound Fortitude"
+  },
+  {
+    "spellId": "49028",
+    "name": "Dancing Rune Weapon"
+  },
+  {
+    "spellId": "50334",
+    "name": "Berserk"
+  },
+  {
+    "spellId": "51271",
+    "name": "Pillar of Frost"
+  },
+  {
+    "spellId": "51533",
+    "name": "Feral Spirit"
+  },
+  {
+    "spellId": "55233",
+    "name": "Vampiric Blood"
+  },
+  {
+    "spellId": "55342",
+    "name": "Mirror Image"
+  },
+  {
+    "spellId": "64843",
+    "name": "Divine Hymn"
+  },
+  {
+    "spellId": "79140",
+    "name": "Vendetta"
+  },
+  {
+    "spellId": "102543",
+    "name": "Incarnation: Avatar of Ashamane"
+  },
+  {
+    "spellId": "102558",
+    "name": "Incarnation: Guardian of Ursoc"
+  },
+  {
+    "spellId": "102560",
+    "name": "Incarnation: Chosen of Elune"
+  },
+  {
+    "spellId": "104773",
+    "name": "Unending Resolve"
+  },
+  {
+    "spellId": "106951",
+    "name": "Berserk"
+  },
+  {
+    "spellId": "107574",
+    "name": "Avatar"
+  },
+  {
+    "spellId": "108271",
+    "name": "Astral Shift"
+  },
+  {
+    "spellId": "108280",
+    "name": "Healing Tide Totem"
+  },
+  {
+    "spellId": "109304",
+    "name": "Exhilaration"
+  },
+  {
+    "spellId": "110909",
+    "name": "Alter Time"
+  },
+  {
+    "spellId": "115203",
+    "name": "Fortifying Brew"
+  },
+  {
+    "spellId": "115310",
+    "name": "Revival"
+  },
+  {
+    "spellId": "118038",
+    "name": "Die by the Sword"
+  },
+  {
+    "spellId": "121471",
+    "name": "Shadow Blades"
+  },
+  {
+    "spellId": "132578",
+    "name": "Invoke Niuzao, the Black Ox"
+  },
+  {
+    "spellId": "134536",
+    "name": "Slippy"
+  },
+  {
+    "spellId": "134789",
+    "name": "Fallen Kin"
+  },
+  {
+    "spellId": "137639",
+    "name": "Storm, Earth, and Fire"
+  },
+  {
+    "spellId": "141396",
+    "name": "Intensifying Assault"
+  },
+  {
+    "spellId": "141401",
+    "name": "Precision Artillery"
+  },
+  {
+    "spellId": "141558",
+    "name": "Mecha Armor Alpha"
+  },
+  {
+    "spellId": "142756",
+    "name": "Mecha-Armor: Beta"
+  },
+  {
+    "spellId": "142777",
+    "name": "Mecha-Armor: Gamma"
+  },
+  {
+    "spellId": "142778",
+    "name": "Mecha-Armor: Delta"
+  },
+  {
+    "spellId": "142779",
+    "name": "Mecha-Armor: Epsilon"
+  },
+  {
+    "spellId": "142780",
+    "name": "Mecha-Armor: Omega"
+  },
+  {
+    "spellId": "142795",
+    "name": "Better, Stronger, Faster"
+  },
+  {
+    "spellId": "152953",
+    "name": "Blinding Light"
+  },
+  {
+    "spellId": "184364",
+    "name": "Enraged Regeneration"
+  },
+  {
+    "spellId": "185422",
+    "name": "Shadow Dance"
+  },
+  {
+    "spellId": "187827",
+    "name": "Metamorphosis"
+  },
+  {
+    "spellId": "190319",
+    "name": "Combustion"
+  },
+  {
+    "spellId": "191427",
+    "name": "Metamorphosis"
+  },
+  {
+    "spellId": "192249",
+    "name": "Storm Elemental"
+  },
+  {
+    "spellId": "194223",
+    "name": "Celestial Alignment"
+  },
+  {
+    "spellId": "194249",
+    "name": "Voidform"
+  },
+  {
+    "spellId": "198067",
+    "name": "Fire Elemental"
+  },
+  {
+    "spellId": "198144",
+    "name": "Ice Form"
+  },
+  {
+    "spellId": "198589",
+    "name": "Blur"
+  },
+  {
+    "spellId": "204018",
+    "name": "Blessing of Spellwarding"
+  },
+  {
+    "spellId": "204021",
+    "name": "Fiery Brand"
+  },
+  {
+    "spellId": "205180",
+    "name": "Summon Darkglare"
+  },
+  {
+    "spellId": "212295",
+    "name": "Nether Ward"
+  },
+  {
+    "spellId": "212800",
+    "name": "Blur"
+  },
+  {
+    "spellId": "216331",
+    "name": "Avenging Crusader"
+  },
+  {
+    "spellId": "228260",
+    "name": "Voidform"
+  },
+  {
+    "spellId": "231895",
+    "name": "Avenging Wrath"
+  },
+  {
+    "spellId": "243435",
+    "name": "Fortifying Brew"
+  },
+  {
+    "spellId": "248831",
+    "name": "Dread Screech"
+  },
+  {
+    "spellId": "264735",
+    "name": "Survival of the Fittest"
+  },
+  {
+    "spellId": "265187",
+    "name": "Summon Demonic Tyrant"
+  },
+  {
+    "spellId": "266779",
+    "name": "Coordinated Assault"
+  },
+  {
+    "spellId": "275699",
+    "name": "Apocalypse"
+  },
+  {
+    "spellId": "288613",
+    "name": "Trueshot"
+  },
+  {
+    "spellId": "297850",
+    "name": "Revival"
+  },
+  {
+    "spellId": "305395",
+    "name": "Blessing of Freedom"
+  },
+  {
+    "spellId": "323538",
+    "name": "Anima Bolt"
+  },
+  {
+    "spellId": "326450",
+    "name": "Loyal Beasts"
+  },
+  {
+    "spellId": "335235",
+    "name": "Summon Infernal"
+  },
+  {
+    "spellId": "342246",
+    "name": "Alter Time"
+  },
+  {
+    "spellId": "350101",
+    "name": "Chains of Damnation"
+  },
+  {
+    "spellId": "350922",
+    "name": "Menacing Shout"
+  },
+  {
+    "spellId": "351119",
+    "name": "Shuriken Blitz"
+  },
+  {
+    "spellId": "355057",
+    "name": "Cry of Mrrggllrrgg"
+  },
+  {
+    "spellId": "355139",
+    "name": "Invigorate"
+  },
+  {
+    "spellId": "355934",
+    "name": "Hard Light Barrier"
+  },
+  {
+    "spellId": "356407",
+    "name": "Ancient Dread"
+  },
+  {
+    "spellId": "357260",
+    "name": "Unstable Rift"
+  },
+  {
+    "spellId": "357404",
+    "name": "Dischordant Song"
+  },
+  {
+    "spellId": "358131",
+    "name": "Lightning Nova"
+  },
+  {
+    "spellId": "359844",
+    "name": "Call of the Wild"
+  },
+  {
+    "spellId": "360194",
+    "name": "Deathmark"
+  },
+  {
+    "spellId": "360952",
+    "name": "Coordinated Assault"
+  },
+  {
+    "spellId": "361175",
+    "name": "Midnight"
+  },
+  {
+    "spellId": "363916",
+    "name": "Obsidian Scales"
+  },
+  {
+    "spellId": "365350",
+    "name": "Arcane Surge"
+  },
+  {
+    "spellId": "365362",
+    "name": "Arcane Surge"
+  },
+  {
+    "spellId": "367679",
+    "name": "Summon Blasphemy"
+  },
+  {
+    "spellId": "375087",
+    "name": "Dragonrage"
+  },
+  {
+    "spellId": "377362",
+    "name": "Precognition"
+  },
+  {
+    "spellId": "377572",
+    "name": "Coordinated Assault"
+  },
+  {
+    "spellId": "378464",
+    "name": "Nullifying Shroud"
+  },
+  {
+    "spellId": "383410",
+    "name": "Celestial Alignment"
+  },
+  {
+    "spellId": "387278",
+    "name": "Summon Darkglare"
+  },
+  {
+    "spellId": "388392",
+    "name": "Monotonous Lecture"
+  },
+  {
+    "spellId": "388615",
+    "name": "Restoral"
+  },
+  {
+    "spellId": "388862",
+    "name": "Surge"
+  },
+  {
+    "spellId": "389539",
+    "name": "Sentinel"
+  },
+  {
+    "spellId": "389654",
+    "name": "Master Handler"
+  },
+  {
+    "spellId": "389660",
+    "name": "Snake Bite"
+  },
+  {
+    "spellId": "389722",
+    "name": "Recklessness"
+  },
+  {
+    "spellId": "390414",
+    "name": "Incarnation: Chosen of Elune"
+  },
+  {
+    "spellId": "391109",
+    "name": "Dark Ascension"
+  },
+  {
+    "spellId": "393860",
+    "name": "[DNT]Liang Test"
+  },
+  {
+    "spellId": "395267",
+    "name": "Invoke Niuzao, the Black Ox"
+  },
+  {
+    "spellId": "403876",
+    "name": "Divine Protection"
+  },
+  {
+    "spellId": "408558",
+    "name": "Phase Shift"
+  },
+  {
+    "spellId": "414658",
+    "name": "Ice Cold"
+  },
+  {
+    "spellId": "414944",
+    "name": "Battle Roar"
+  },
+  {
+    "spellId": "423051",
+    "name": "Burning Light"
+  },
+  {
+    "spellId": "424419",
+    "name": "Battle Cry"
+  },
+  {
+    "spellId": "424773",
+    "name": "Sporogenesis"
+  },
+  {
+    "spellId": "427356",
+    "name": "Greater Heal"
+  },
+  {
+    "spellId": "432967",
+    "name": "Alarm Shrill"
+  },
+  {
+    "spellId": "433841",
+    "name": "Venom Volley"
+  },
+  {
+    "spellId": "434802",
+    "name": "Horrifying Shrill"
+  },
+  {
+    "spellId": "442210",
+    "name": "Silken Restraints"
+  },
+  {
+    "spellId": "443069",
+    "name": "Well of Flame"
+  },
+  {
+    "spellId": "444743",
+    "name": "Fireball Volley"
+  },
+  {
+    "spellId": "446657",
+    "name": "Burning Light"
+  },
+  {
+    "spellId": "448248",
+    "name": "Revolting Volley"
+  },
+  {
+    "spellId": "449734",
+    "name": "Acidic Eruption"
+  },
+  {
+    "spellId": "451026",
+    "name": "Darkness Comes"
+  },
+  {
+    "spellId": "452099",
+    "name": "Congealed Darkness"
+  },
+  {
+    "spellId": "454351",
+    "name": "Avenging Wrath"
+  },
+  {
+    "spellId": "454373",
+    "name": "Avenging Wrath"
+  },
+  {
+    "spellId": "461796",
+    "name": "Reload"
+  },
+  {
+    "spellId": "462508",
+    "name": "Dark Prayer"
+  },
+  {
+    "spellId": "468966",
+    "name": "Polymorph"
+  },
+  {
+    "spellId": "472736",
+    "name": "Debilitating Shriek"
+  },
+  {
+    "spellId": "473663",
+    "name": "Pulsing Shriek"
+  },
+  {
+    "spellId": "473794",
+    "name": "Poison Blades"
+  },
+  {
+    "spellId": "1214780",
+    "name": "Maximum Distortion"
+  },
+  {
+    "spellId": "1216589",
+    "name": "Heartstop Poison"
+  },
+  {
+    "spellId": "1216848",
+    "name": "Fire Spit"
+  },
+  {
+    "spellId": "1217605",
+    "name": "Void Metamorphosis"
+  },
+  {
+    "spellId": "1217989",
+    "name": "Felshield"
+  },
+  {
+    "spellId": "1227373",
+    "name": "Shattershell"
+  },
+  {
+    "spellId": "1229474",
+    "name": "Gorge"
+  },
+  {
+    "spellId": "1229510",
+    "name": "Arcing Zap"
+  },
+  {
+    "spellId": "1230289",
+    "name": "Illicit Infusion"
+  },
+  {
+    "spellId": "1230302",
+    "name": "Self-Destruct"
+  },
+  {
+    "spellId": "1231871",
+    "name": "Shockwave Slam"
+  },
+  {
+    "spellId": "1232221",
+    "name": "Death Throes"
+  },
+  {
+    "spellId": "1232760",
+    "name": "Crystal Lacerations"
+  },
+  {
+    "spellId": "1236574",
+    "name": "Tranquility"
+  },
+  {
+    "spellId": "1238147",
+    "name": "Mending Tides"
+  },
+  {
+    "spellId": "1238158",
+    "name": "Lightboom Pollination"
+  },
+  {
+    "spellId": "1238294",
+    "name": "Disorienting Screech"
+  },
+  {
+    "spellId": "1238392",
+    "name": "Piercing Screech"
+  },
+  {
+    "spellId": "1239874",
+    "name": "Frigid Wrath"
+  },
+  {
+    "spellId": "1243852",
+    "name": "Light Eruption"
+  },
+  {
+    "spellId": "1243854",
+    "name": "Void Eruption"
+  },
+  {
+    "spellId": "1245752",
+    "name": "Triple Technique"
+  },
+  {
+    "spellId": "1246541",
+    "name": "Null Binding"
+  },
+  {
+    "spellId": "1246664",
+    "name": "Revitalizing Waters"
+  },
+  {
+    "spellId": "1246918",
+    "name": "Cosmic Barrier"
+  },
+  {
+    "spellId": "1246965",
+    "name": "Psychic Shroud"
+  },
+  {
+    "spellId": "1249017",
+    "name": "Fearsome Cry"
+  },
+  {
+    "spellId": "1249265",
+    "name": "Umbral Collapse"
+  },
+  {
+    "spellId": "1249639",
+    "name": "Mana Battery"
+  },
+  {
+    "spellId": "1249796",
+    "name": "Shattered Sky"
+  },
+  {
+    "spellId": "1250646",
+    "name": "Takedown"
+  },
+  {
+    "spellId": "1251331",
+    "name": "The Dark Archangel"
+  },
+  {
+    "spellId": "1251361",
+    "name": "Shadow's Advance"
+  },
+  {
+    "spellId": "1251390",
+    "name": "Safeguard"
+  },
+  {
+    "spellId": "1251392",
+    "name": "Safeguard"
+  },
+  {
+    "spellId": "1251583",
+    "name": "March of the Endless"
+  },
+  {
+    "spellId": "1251703",
+    "name": "Takedown"
+  },
+  {
+    "spellId": "1251789",
+    "name": "Cosmic Fracture"
+  },
+  {
+    "spellId": "1252204",
+    "name": "Leech Veil"
+  },
+  {
+    "spellId": "1252436",
+    "name": "Void Lash"
+  },
+  {
+    "spellId": "1252952",
+    "name": "Void Burst"
+  },
+  {
+    "spellId": "1254088",
+    "name": "Shadow Fracture"
+  },
+  {
+    "spellId": "1254294",
+    "name": "Pyroblast"
+  },
+  {
+    "spellId": "1255156",
+    "name": "Fearsome Cry"
+  },
+  {
+    "spellId": "1255377",
+    "name": "Repel"
+  },
+  {
+    "spellId": "1255743",
+    "name": "Total Eclipse"
+  },
+  {
+    "spellId": "1256008",
+    "name": "Hex"
+  },
+  {
+    "spellId": "1256027",
+    "name": "Terrifying Power"
+  },
+  {
+    "spellId": "1256093",
+    "name": "Shadowveil Annihilation"
+  },
+  {
+    "spellId": "1256174",
+    "name": "Umbral Rage"
+  },
+  {
+    "spellId": "1256276",
+    "name": "Deep Corruption"
+  },
+  {
+    "spellId": "1256358",
+    "name": "Devouring Essence"
+  },
+  {
+    "spellId": "1256388",
+    "name": "Mortal Tear"
+  },
+  {
+    "spellId": "1256533",
+    "name": "Shadow Crash"
+  },
+  {
+    "spellId": "1257126",
+    "name": "Corespark Overload"
+  },
+  {
+    "spellId": "1257984",
+    "name": "Nascent Energy"
+  },
+  {
+    "spellId": "1258514",
+    "name": "Blinding Light"
+  },
+  {
+    "spellId": "1258681",
+    "name": "Nullify"
+  },
+  {
+    "spellId": "1258810",
+    "name": "Twin Emperor Penguins"
+  },
+  {
+    "spellId": "1258811",
+    "name": "Twin Emperor Penguins"
+  },
+  {
+    "spellId": "1258997",
+    "name": "Plungegrip"
+  },
+  {
+    "spellId": "1260197",
+    "name": "Curse of Dread"
+  },
+  {
+    "spellId": "1260742",
+    "name": "Withering Siphon"
+  },
+  {
+    "spellId": "1260831",
+    "name": "Sullen Shadowball"
+  },
+  {
+    "spellId": "1261287",
+    "name": "Cosmic Barrier"
+  },
+  {
+    "spellId": "1261329",
+    "name": "Withering Siphon"
+  },
+  {
+    "spellId": "1261559",
+    "name": "Divine Protection"
+  },
+  {
+    "spellId": "1261704",
+    "name": "Ghastly Crash"
+  },
+  {
+    "spellId": "1261758",
+    "name": "Ghastly Strike"
+  },
+  {
+    "spellId": "1262075",
+    "name": "Coalescing Malediction"
+  },
+  {
+    "spellId": "1262523",
+    "name": "Summon Voidcaller"
+  },
+  {
+    "spellId": "1262525",
+    "name": "Horrifying Blast"
+  },
+  {
+    "spellId": "1262526",
+    "name": "Abyssal Enhancement"
+  },
+  {
+    "spellId": "1262776",
+    "name": "Shadow's Advance"
+  },
+  {
+    "spellId": "1263292",
+    "name": "Shrink"
+  },
+  {
+    "spellId": "1263601",
+    "name": "Submit to the Void"
+  },
+  {
+    "spellId": "1263741",
+    "name": "Wildroot Weave"
+  },
+  {
+    "spellId": "1263775",
+    "name": "Fixate"
+  },
+  {
+    "spellId": "1263970",
+    "name": "Heaven's Lance"
+  },
+  {
+    "spellId": "1264106",
+    "name": "Felstorm"
+  },
+  {
+    "spellId": "1264114",
+    "name": "Empowered Felshield"
+  },
+  {
+    "spellId": "1264693",
+    "name": "Terror Wave"
+  },
+  {
+    "spellId": "1266104",
+    "name": "Shadow Strikes"
+  },
+  {
+    "spellId": "1267274",
+    "name": "Void Portal"
+  },
+  {
+    "spellId": "1270189",
+    "name": "Twilight Bond"
+  },
+  {
+    "spellId": "1270250",
+    "name": "Twilight Fury"
+  },
+  {
+    "spellId": "1270294",
+    "name": "Mystic Brand"
+  },
+  {
+    "spellId": "1270766",
+    "name": "Hex"
+  },
+  {
+    "spellId": "1270852",
+    "name": "Diminish"
+  },
+  {
+    "spellId": "1271074",
+    "name": "Icy Blast"
+  },
+  {
+    "spellId": "1271385",
+    "name": "Spouting Floret"
+  },
+  {
+    "spellId": "1271479",
+    "name": "Netherburst"
+  },
+  {
+    "spellId": "1271678",
+    "name": "Shade Bomb"
+  },
+  {
+    "spellId": "1272265",
+    "name": "Mangling Claws"
+  },
+  {
+    "spellId": "1275056",
+    "name": "Nexus Shield"
+  },
+  {
+    "spellId": "1275059",
+    "name": "Black Miasma"
+  },
+  {
+    "spellId": "1277341",
+    "name": "Piercing Shriek"
+  },
+  {
+    "spellId": "1278156",
+    "name": "Temporal Sands"
+  },
+  {
+    "spellId": "1278893",
+    "name": "Death Bolt"
+  },
+  {
+    "spellId": "1280088",
+    "name": "Devouring Essence"
+  },
+  {
+    "spellId": "1280958",
+    "name": "Glacial Ray"
+  },
+  {
+    "spellId": "1282138",
+    "name": "Shade Bomb"
+  },
+  {
+    "spellId": "1282249",
+    "name": "Cosmic Fission"
+  },
+  {
+    "spellId": "1282415",
+    "name": "Void Eruption"
+  },
+  {
+    "spellId": "1282416",
+    "name": "Light Eruption"
+  },
+  {
+    "spellId": "1282665",
+    "name": "Void Lash"
+  },
+  {
+    "spellId": "1282722",
+    "name": "Nullify"
+  },
+  {
+    "spellId": "1284095",
+    "name": "Submit to the Void"
+  },
+  {
+    "spellId": "1284932",
+    "name": "Terminate"
+  },
+  {
+    "spellId": "1284934",
+    "name": "Terminate"
+  },
+  {
+    "spellId": "1285978",
+    "name": "Safeguard"
+  },
+  {
+    "spellId": "1286142",
+    "name": "Memories of Alleria"
+  },
+  {
+    "spellId": "1286143",
+    "name": "Memories of Alleria"
+  },
+  {
+    "spellId": "1286276",
+    "name": "Terminate"
+  }
+]
