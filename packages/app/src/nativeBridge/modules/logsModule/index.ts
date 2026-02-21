@@ -48,6 +48,23 @@ const READ_TIMEOUT_MS = 300000;
 const LOGS_DISK_SPACE_THRESHOLD = 1e9; // ~1gb
 const LOGS_DISK_ALERT_COOLDOWN_MS = 60000;
 
+function toDriveLabel(absPath: string, diskPath?: string): string {
+  if (diskPath) {
+    const normalizedDisk = diskPath.replace(/\//g, '\\').toUpperCase();
+    const match = normalizedDisk.match(/^([A-Z]:)/);
+    if (match) {
+      return match[1];
+    }
+    return normalizedDisk;
+  }
+  const normalizedPath = absPath.replace(/\//g, '\\').toUpperCase();
+  const match = normalizedPath.match(/^([A-Z]:)/);
+  if (match?.[1]) {
+    return match[1];
+  }
+  return absPath || 'unknown';
+}
+
 @nativeBridgeModule('logs')
 export class LogsModule extends NativeBridgeModule {
   protected lastChangeEventTime = new Date();
@@ -93,7 +110,12 @@ export class LogsModule extends NativeBridgeModule {
     }
 
     bridge.latestWarnedAtMs = now;
-    this.handleLogStorageDiskSpaceBecameCritical(mainWindow, wowVersion, details.free);
+    this.handleLogStorageDiskSpaceBecameCritical(
+      mainWindow,
+      wowVersion,
+      details.free,
+      toDriveLabel(bridge.wowLogsDirectoryFullPath, details.diskPath),
+    );
   }
 
   @moduleFunction({ isRequired: true })
@@ -271,7 +293,9 @@ export class LogsModule extends NativeBridgeModule {
     wowVersion: WowVersion = 'retail',
     bytesRemaining: number = LOGS_DISK_SPACE_THRESHOLD - 1,
   ) {
-    this.handleLogStorageDiskSpaceBecameCritical(mainWindow, wowVersion, bytesRemaining);
+    const bridge = bridgeState[wowVersion];
+    const driveLabel = toDriveLabel(bridge.wowLogsDirectoryFullPath ?? '');
+    this.handleLogStorageDiskSpaceBecameCritical(mainWindow, wowVersion, bytesRemaining, driveLabel);
   }
 
   @moduleEvent('on')
@@ -319,6 +343,7 @@ export class LogsModule extends NativeBridgeModule {
     _mainWindow: BrowserWindow,
     _wowVersion: WowVersion,
     _bytesRemaining: number,
+    _driveLabel?: string,
   ) {
     return;
   }

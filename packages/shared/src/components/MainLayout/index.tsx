@@ -31,8 +31,8 @@ export function MainLayout(props: IProps) {
   const clientContext = useClientContext();
   const prevPathRef = useRef(pathname);
   const [showUpgradeBanner, setShowUpgradeBanner] = useState(false);
-  const [vodDiskSpaceRemaining, setVodDiskSpaceRemaining] = useState(-1);
-  const [logDiskSpaceRemaining, setLogDiskSpaceRemaining] = useState(-1);
+  const [vodDiskWarning, setVodDiskWarning] = useState<{ bytesRemaining: number; driveLabel?: string } | null>(null);
+  const [logDiskWarning, setLogDiskWarning] = useState<{ bytesRemaining: number; driveLabel?: string } | null>(null);
 
   useEffect(() => {
     if (clientContext.isDesktop && window.wowarenalogs?.app?.getVersion) {
@@ -64,9 +64,11 @@ export function MainLayout(props: IProps) {
       return;
     }
 
-    window.wowarenalogs.obs?.diskSpaceBecameCritical?.((_evt, freeBytes) => setVodDiskSpaceRemaining(freeBytes));
-    window.wowarenalogs.logs?.handleLogStorageDiskSpaceBecameCritical?.((_evt, _wowVersion, freeBytes) =>
-      setLogDiskSpaceRemaining(freeBytes),
+    window.wowarenalogs.obs?.diskSpaceBecameCritical?.((_evt, freeBytes, driveLabel) =>
+      setVodDiskWarning({ bytesRemaining: freeBytes, driveLabel }),
+    );
+    window.wowarenalogs.logs?.handleLogStorageDiskSpaceBecameCritical?.((_evt, _wowVersion, freeBytes, driveLabel) =>
+      setLogDiskWarning({ bytesRemaining: freeBytes, driveLabel }),
     );
 
     return () => {
@@ -124,25 +126,6 @@ export function MainLayout(props: IProps) {
             <TbChartBar size="32" />
           </Link>
         </div>
-        {(vodDiskSpaceRemaining > -1 || logDiskSpaceRemaining > -1) && (
-          <div className="m-1 rounded bg-error p-2 text-[10px] font-semibold leading-tight text-error-content">
-            <div className="mb-1 flex items-center gap-1">
-              <TbAlertTriangle size="14" />
-              <span>Low disk space</span>
-            </div>
-            {vodDiskSpaceRemaining > -1 && <div>VODs: {(vodDiskSpaceRemaining / 1e9).toFixed(1)} GB free</div>}
-            {logDiskSpaceRemaining > -1 && <div>Logs: {(logDiskSpaceRemaining / 1e9).toFixed(1)} GB free</div>}
-            <button
-              className="mt-1 underline"
-              onClick={() => {
-                setVodDiskSpaceRemaining(-1);
-                setLogDiskSpaceRemaining(-1);
-              }}
-            >
-              dismiss
-            </button>
-          </div>
-        )}
         <div className="flex-1" />
         {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
           <div
@@ -195,6 +178,35 @@ export function MainLayout(props: IProps) {
       </div>
       <div className="flex-1 flex flex-col bg-base-100 text-base-content relative">
         <div className="absolute w-full h-full flex flex-col">{props.children}</div>
+        {(vodDiskWarning || logDiskWarning) && (
+          <div className="absolute right-4 top-4 z-40 max-w-sm rounded border border-error/60 bg-base-100 p-3 text-sm shadow-xl">
+            <div className="mb-2 flex items-center gap-2 font-semibold text-error">
+              <TbAlertTriangle size="18" />
+              <span>Low disk space</span>
+            </div>
+            {vodDiskWarning && (
+              <div>
+                VOD drive {vodDiskWarning.driveLabel ?? '(unknown)'}: {(vodDiskWarning.bytesRemaining / 1e9).toFixed(1)}{' '}
+                GB free
+              </div>
+            )}
+            {logDiskWarning && (
+              <div>
+                Log drive {logDiskWarning.driveLabel ?? '(unknown)'}: {(logDiskWarning.bytesRemaining / 1e9).toFixed(1)}{' '}
+                GB free
+              </div>
+            )}
+            <button
+              className="mt-2 text-xs underline"
+              onClick={() => {
+                setVodDiskWarning(null);
+                setLogDiskWarning(null);
+              }}
+            >
+              dismiss
+            </button>
+          </div>
+        )}
       </div>
       {showUpgradeBanner && (
         <div className="absolute bottom-0 left-0 right-0 z-50 bg-warning text-warning-content text-center py-2 px-4 font-semibold">

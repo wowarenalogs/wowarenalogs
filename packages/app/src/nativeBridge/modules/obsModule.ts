@@ -10,6 +10,20 @@ import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } f
 
 const DISK_SPACE_THRESHOLD = 2e9; // ~2gb
 
+function toDriveLabel(absPath: string, diskPath?: string): string {
+  if (diskPath) {
+    const normalizedDisk = diskPath.replace(/\//g, '\\').toUpperCase();
+    const match = normalizedDisk.match(/^([A-Z]:)/);
+    if (match) {
+      return match[1];
+    }
+    return normalizedDisk;
+  }
+  const normalizedPath = absPath.replace(/\//g, '\\').toUpperCase();
+  const match = normalizedPath.match(/^([A-Z]:)/);
+  return match?.[1] ?? absPath;
+}
+
 // Static method to inject logger across OBS modules that will need it
 Manager.configureLogging(logger);
 
@@ -125,7 +139,7 @@ export class ObsModule extends NativeBridgeModule {
   }
 
   @moduleEvent('on')
-  public diskSpaceBecameCritical(_mainWindow: BrowserWindow, _bytesRemaining: number) {
+  public diskSpaceBecameCritical(_mainWindow: BrowserWindow, _bytesRemaining: number, _driveLabel?: string) {
     return;
   }
 
@@ -157,10 +171,11 @@ export class ObsModule extends NativeBridgeModule {
    */
   async checkDiskSpace(mainWindow: BrowserWindow) {
     if (this.manager?.getConfiguration().storagePath) {
-      const details = await this.getDiskSpaceDetails(this.manager?.getConfiguration().storagePath);
+      const storagePath = this.manager?.getConfiguration().storagePath;
+      const details = await this.getDiskSpaceDetails(storagePath);
       if (details.free < DISK_SPACE_THRESHOLD) {
         // warn
-        this.diskSpaceBecameCritical(mainWindow, details.free);
+        this.diskSpaceBecameCritical(mainWindow, details.free, toDriveLabel(storagePath, details.diskPath));
       }
     }
   }
