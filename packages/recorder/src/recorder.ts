@@ -43,6 +43,27 @@ import VideoProcessQueue from './videoProcessQueue';
 
 let noobsModule: Noobs | null = null;
 
+const resolveNoobsModule = (mod: unknown): Noobs => {
+  const candidate =
+    (mod as { default?: unknown; noobs?: unknown } | null)?.default ??
+    (mod as { noobs?: unknown } | null)?.noobs ??
+    mod;
+
+  if (candidate && typeof (candidate as Noobs).Init === 'function') {
+    return candidate as Noobs;
+  }
+
+  if (typeof candidate === 'function') {
+    const instance = (candidate as () => unknown)();
+    if (instance && typeof (instance as Noobs).Init === 'function') {
+      return instance as Noobs;
+    }
+  }
+
+  const keys = mod && typeof mod === 'object' ? Object.keys(mod as Record<string, unknown>) : [];
+  throw new Error(`Invalid noobs module shape (Init missing). Keys: ${keys.join(', ') || 'none'}`);
+};
+
 function getNoobs(): Noobs {
   if (noobsModule) return noobsModule;
   if (process.platform !== 'win32') {
@@ -50,8 +71,9 @@ function getNoobs(): Noobs {
   }
   // Lazy load so optional dependency doesn't break npm install on non-Windows (CI)
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  noobsModule = require('noobs');
-  return noobsModule as Noobs;
+  const mod = require('noobs');
+  noobsModule = resolveNoobsModule(mod);
+  return noobsModule;
 }
 
 /**
