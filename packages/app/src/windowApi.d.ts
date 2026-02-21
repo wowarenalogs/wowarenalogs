@@ -37,6 +37,10 @@ export type NativeApi = {
     removeAll_handleParserError_listeners: () => void;
     handleLogReadingTimeout?: (callback: AsEventFunction<LogsModule['handleLogReadingTimeout']>) => void;
     removeAll_handleLogReadingTimeout_listeners?: () => void;
+    handleLogStorageDiskSpaceBecameCritical?: (
+      callback: AsEventFunction<LogsModule['handleLogStorageDiskSpaceBecameCritical']>,
+    ) => void;
+    removeAll_handleLogStorageDiskSpaceBecameCritical_listeners?: () => void;
   };
   bnet?: { login: OmitFirstArg<BnetModule['login']> };
   fs?: {

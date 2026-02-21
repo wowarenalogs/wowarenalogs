@@ -36,6 +36,10 @@ export const modulesApi = {
       ipcRenderer.on('wowarenalogs:logs:handleLogReadingTimeout', callback),
     removeAll_handleLogReadingTimeout_listeners: () =>
       ipcRenderer.removeAllListeners('wowarenalogs:logs:handleLogReadingTimeout'),
+    handleLogStorageDiskSpaceBecameCritical: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:logs:handleLogStorageDiskSpaceBecameCritical', callback),
+    removeAll_handleLogStorageDiskSpaceBecameCritical_listeners: () =>
+      ipcRenderer.removeAllListeners('wowarenalogs:logs:handleLogStorageDiskSpaceBecameCritical'),
   },
   bnet: { login: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:bnet:login', ...args) },
   fs: {
