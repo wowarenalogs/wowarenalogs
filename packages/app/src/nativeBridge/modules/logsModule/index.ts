@@ -265,6 +265,15 @@ export class LogsModule extends NativeBridgeModule {
     bridgeState.classic.latestWarnedAtMs = 0;
   }
 
+  @moduleFunction()
+  public async triggerLowDiskSpaceAlertForTesting(
+    mainWindow: BrowserWindow,
+    wowVersion: WowVersion = 'retail',
+    bytesRemaining: number = LOGS_DISK_SPACE_THRESHOLD - 1,
+  ) {
+    this.handleLogStorageDiskSpaceBecameCritical(mainWindow, wowVersion, bytesRemaining);
+  }
+
   @moduleEvent('on')
   public handleActivityStarted(_mainWindow: BrowserWindow, _event: IActivityStarted) {
     return;

@@ -120,6 +120,14 @@ export default function DebugPage() {
           >
             Clear WoW Folder Setting
           </button>
+          <button
+            className="btn"
+            onClick={() => {
+              window.wowarenalogs.logs?.triggerLowDiskSpaceAlertForTesting?.('retail', 500e6);
+            }}
+          >
+            Test Low Log Disk Alert
+          </button>
         </div>
       </div>
     </div>

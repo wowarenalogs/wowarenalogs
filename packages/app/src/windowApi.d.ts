@@ -21,6 +21,7 @@ export type NativeApi = {
     importLogFiles: OmitFirstArg<LogsModule['importLogFiles']>;
     startLogWatcher: OmitFirstArg<LogsModule['startLogWatcher']>;
     stopLogWatcher: OmitFirstArg<LogsModule['stopLogWatcher']>;
+    triggerLowDiskSpaceAlertForTesting?: OmitFirstArg<LogsModule['triggerLowDiskSpaceAlertForTesting']>;
     handleActivityStarted?: (callback: AsEventFunction<LogsModule['handleActivityStarted']>) => void;
     removeAll_handleActivityStarted_listeners?: () => void;
     handleNewCombat: (callback: AsEventFunction<LogsModule['handleNewCombat']>) => void;
