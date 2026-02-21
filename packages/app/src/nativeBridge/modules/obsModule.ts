@@ -15,13 +15,16 @@ function toDriveLabel(absPath: string, diskPath?: string): string {
     const normalizedDisk = diskPath.replace(/\//g, '\\').toUpperCase();
     const match = normalizedDisk.match(/^([A-Z]:)/);
     if (match) {
-      return match[1];
+      return `${match[1]}\\`;
     }
     return normalizedDisk;
   }
   const normalizedPath = absPath.replace(/\//g, '\\').toUpperCase();
   const match = normalizedPath.match(/^([A-Z]:)/);
-  return match?.[1] ?? absPath;
+  if (match?.[1]) {
+    return `${match[1]}\\`;
+  }
+  return absPath;
 }
 
 // Static method to inject logger across OBS modules that will need it
