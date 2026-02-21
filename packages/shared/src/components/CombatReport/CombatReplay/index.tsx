@@ -1,3 +1,5 @@
+'use client';
+
 import { Sprite, Stage } from '@inlet/react-pixi';
 import { CombatUnitType } from '@wowarenalogs/parser';
 import _ from 'lodash';
