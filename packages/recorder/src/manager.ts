@@ -67,6 +67,42 @@ export class Manager {
 
   public messageBus: ManagerMessageBus;
 
+  private destroyed = false;
+
+  private readonly onWowStartedBound = () => this.onWowStarted();
+
+  private readonly onWowStoppedBound = () => this.onWowStopped();
+
+  private readonly onPreviewBound = (_event: Electron.IpcMainEvent, args: unknown[]) => {
+    if (this.destroyed) {
+      return;
+    }
+    if (args[0] === 'show') {
+      this.recorder.showPreview(args[1] as number, args[2] as number, args[3] as number, args[4] as number);
+    } else if (args[0] === 'hide') {
+      this.recorder.hidePreview();
+    }
+  };
+
+  private readonly onBeforeQuitBound = () => {
+    Manager.logger.info('[Manager] Running before-quit actions');
+    this.recorder.shutdownOBS();
+    // uIOhook.stop(); // TODO: fix uiohook
+  };
+
+  private readonly onSuspendBound = () => {
+    Manager.logger.info('[Manager] Detected Windows is going to sleep.');
+    this.onWowStopped();
+  };
+
+  private readonly onResumeBound = () => {
+    Manager.logger.info('[Manager] Detected Windows waking up from a sleep.');
+    if (this.destroyed) {
+      return;
+    }
+    this.poller.start();
+  };
+
   public static configureLogging(logger: ILogger) {
     Manager.logger = logger;
     Recorder.logger = logger;
@@ -134,8 +170,8 @@ export class Manager {
     this.mainWindow = mainWindow;
     this.recorder = new Recorder(mainWindow, this.messageBus);
 
-    this.poller.on('wowProcessStart', () => this.onWowStarted());
-    this.poller.on('wowProcessStop', () => this.onWowStopped());
+    this.poller.on('wowProcessStart', this.onWowStartedBound);
+    this.poller.on('wowProcessStop', this.onWowStoppedBound);
 
     this.manage();
   }
@@ -149,6 +185,10 @@ export class Manager {
    * invalid configuration requests to the Recorder class.
    */
   public async manage() {
+    if (this.destroyed) {
+      return;
+    }
+
     if (this.active) {
       Manager.logger.info('[Manager] Queued a manage call');
       this.queued = true;
@@ -172,9 +212,16 @@ export class Manager {
    * validates the new config and then applies it.
    */
   private async internalManage() {
+    if (this.destroyed) {
+      return;
+    }
+
     Manager.logger.info('[Manager] Internal manage');
 
     for (let i = 0; i < this.stages.length; i++) {
+      if (this.destroyed) {
+        return;
+      }
       const stage = this.stages[i];
       const newConfig = stage.get(this.cfg);
       const configChanged = !isEqual(newConfig, stage.current);
@@ -220,6 +267,10 @@ export class Manager {
    * the audio sources and starts the buffer recording.
    */
   private async onWowStarted() {
+    if (this.destroyed) {
+      return;
+    }
+
     Manager.logger.info('[Manager] Detected WoW running, or Windows active again');
     const config = getObsAudioConfig(this.cfg);
     this.recorder.configureAudioSources(config);
@@ -232,6 +283,10 @@ export class Manager {
    * allow Windows to go to sleep with WR running.
    */
   private async onWowStopped() {
+    if (this.destroyed) {
+      return;
+    }
+
     Manager.logger.info('[Manager] Detected WoW not running, or Windows going inactive');
 
     if (this.recorder) {
@@ -392,34 +447,64 @@ export class Manager {
   private setupListeners() {
     // The OBS preview window is tacked on-top of the UI so we call this often
     // whenever we need to move, resize, show or hide it.
-    ipcMain.on('preview', (_event, args) => {
-      if (args[0] === 'show') {
-        this.recorder.showPreview(args[1], args[2], args[3], args[4]);
-      } else if (args[0] === 'hide') {
-        this.recorder.hidePreview();
-      }
-    });
+    ipcMain.on('preview', this.onPreviewBound);
 
     // Important we shutdown OBS on the before-quit event as if we get closed by
     // the installer we want to ensure we shutdown OBS, this is common when
     // upgrading the app. See issue 325 and 338.
-    app.on('before-quit', () => {
-      Manager.logger.info('[Manager] Running before-quit actions');
-      this.recorder.shutdownOBS();
-      // uIOhook.stop(); // TODO: fix uiohook
-    });
+    app.on('before-quit', this.onBeforeQuitBound);
 
     // If Windows is going to sleep, we don't want to confuse OBS. Stop the
     // recording as if WoW has been closed, and resume it once Windows has
     // resumed.
-    powerMonitor.on('suspend', () => {
-      Manager.logger.info('[Manager] Detected Windows is going to sleep.');
-      this.onWowStopped();
-    });
+    powerMonitor.on('suspend', this.onSuspendBound);
+    powerMonitor.on('resume', this.onResumeBound);
+  }
 
-    powerMonitor.on('resume', () => {
-      Manager.logger.info('[Manager] Detected Windows waking up from a sleep.');
-      this.poller.start();
-    });
+  public async destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    this.destroyed = true;
+    Manager.logger.info('[Manager] Destroying manager');
+
+    this.poller.off('wowProcessStart', this.onWowStartedBound);
+    this.poller.off('wowProcessStop', this.onWowStoppedBound);
+    this.poller.reset();
+    ipcMain.off('preview', this.onPreviewBound);
+    app.off('before-quit', this.onBeforeQuitBound);
+    powerMonitor.off('suspend', this.onSuspendBound);
+    powerMonitor.off('resume', this.onResumeBound);
+
+    try {
+      if (this.recorder.obsState !== ERecordingState.Offline) {
+        await this.recorder.stopBuffer();
+      }
+    } catch (error) {
+      Manager.logger.warn(`[Manager] Exception stopping buffer during destroy: ${String(error)}`);
+    }
+
+    try {
+      this.recorder.shutdownOBS();
+    } catch (error) {
+      Manager.logger.warn(`[Manager] Exception shutting down OBS during destroy: ${String(error)}`);
+    }
+  }
+
+  public async pause() {
+    if (this.destroyed) {
+      return;
+    }
+    this.poller.reset();
+    await this.onWowStopped();
+    this.refreshStatus(false);
+  }
+
+  public async resume() {
+    if (this.destroyed) {
+      return;
+    }
+    this.poller.start();
+    this.refreshStatus(false);
   }
 }
