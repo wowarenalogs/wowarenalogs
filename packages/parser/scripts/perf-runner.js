@@ -18,6 +18,7 @@ function parseArgs(argv) {
     timezone: null,
     outputDir: DEFAULT_OUTPUT_DIR,
     updateSnapshots: false,
+    skipCompare: false,
     iterations: 1,
     warmup: 0,
     measureMemory: false,
@@ -51,6 +52,8 @@ function parseArgs(argv) {
       i += 1;
     } else if (arg === '--update-snapshots') {
       options.updateSnapshots = true;
+    } else if (arg === '--skip-compare') {
+      options.skipCompare = true;
     } else if (arg === '--measure-memory') {
       options.measureMemory = true;
     } else if (arg === '--help' || arg === '-h') {
@@ -306,6 +309,7 @@ function printHelp() {
   console.log('  --iterations <n>      Number of measured iterations (default: 1)');
   console.log('  --warmup <n>          Warmup iterations (default: 0)');
   console.log('  --update-snapshots    Replace snapshots with current output');
+  console.log('  --skip-compare        Skip snapshot compare (still records hash)');
   console.log('  --measure-memory      Print process memory before/after each run');
   console.log('  -h, --help            Show this help');
   console.log('');
@@ -385,7 +389,7 @@ function runFixture(fixture, options) {
     ensureParentDir(snapshotPath);
     fs.writeFileSync(snapshotPath, JSON.stringify(snapshotRecord, null, 2) + '\n', 'utf8');
     console.log(`Updated snapshot: ${snapshotPath}`);
-  } else if (snapshotPath) {
+  } else if (snapshotPath && !options.skipCompare) {
     if (!fs.existsSync(snapshotPath)) {
       throw new Error(`Snapshot not found: ${snapshotPath}`);
     }
@@ -393,8 +397,10 @@ function runFixture(fixture, options) {
     if (expectedHash !== snapshotRecord.hash) {
       throw new Error(`Snapshot mismatch for ${fixture.id}. Expected ${expectedHash}, got ${snapshotRecord.hash}.`);
     }
-  } else {
+  } else if (!snapshotPath) {
     console.log(`No snapshot specified for ${fixture.id}; skipping compare.`);
+  } else if (options.skipCompare) {
+    console.log(`Snapshot compare skipped for ${fixture.id}.`);
   }
 
   return {

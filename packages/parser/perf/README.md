@@ -18,6 +18,12 @@ npm run perf:update -w @wowarenalogs/parser
 npm run perf:bench -w @wowarenalogs/parser
 ```
 
+If you want warmup iterations but do not want snapshot mismatches to fail the run, add `--skip-compare`:
+
+```bash
+node scripts/perf-runner.js --iterations 5 --warmup 1 --skip-compare
+```
+
 ## Memory Metrics
 
 ```bash

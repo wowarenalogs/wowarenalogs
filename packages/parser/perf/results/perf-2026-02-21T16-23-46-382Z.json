@@ -1,0 +1,63 @@
+{
+  "runId": "2026-02-21T16-23-46-382Z",
+  "node": "v25.6.1",
+  "platform": "darwin",
+  "arch": "arm64",
+  "iterations": 5,
+  "warmup": 1,
+  "results": [
+    {
+      "id": "shuffle_6_rounds",
+      "input": "perf/fixtures/ca245a5f148e6a7ae7dc952706c5d03a.txt",
+      "snapshot": "perf/snapshots/ca245a5f148e6a7ae7dc952706c5d03a.snapshot.json",
+      "timezone": "America/New_York",
+      "snapshotRecord": {
+        "algorithm": "sha256",
+        "hash": "7fbd9ce4a63bec7f11bc18ed9935e1d1c878097d9349ce0cd0357acf8c039eaa",
+        "input": "perf/fixtures/ca245a5f148e6a7ae7dc952706c5d03a.txt",
+        "timezone": "America/New_York",
+        "counts": {
+          "combats": 0,
+          "malformedCombats": 0,
+          "shuffleRounds": 6,
+          "shuffles": 1,
+          "activityStarts": 6,
+          "battlegrounds": 0,
+          "parserErrors": 0
+        }
+      },
+      "iterations": [
+        {
+          "wallMs": 314.492417,
+          "cpuUserMs": 378.543,
+          "cpuSystemMs": 11.603,
+          "memory": null
+        },
+        {
+          "wallMs": 313.002583,
+          "cpuUserMs": 372.183,
+          "cpuSystemMs": 5.138,
+          "memory": null
+        },
+        {
+          "wallMs": 312.347333,
+          "cpuUserMs": 360.492,
+          "cpuSystemMs": 11.534,
+          "memory": null
+        },
+        {
+          "wallMs": 309.033125,
+          "cpuUserMs": 339.612,
+          "cpuSystemMs": 11.506,
+          "memory": null
+        },
+        {
+          "wallMs": 308.313833,
+          "cpuUserMs": 342.609,
+          "cpuSystemMs": 12.688,
+          "memory": null
+        }
+      ]
+    }
+  ]
+}
