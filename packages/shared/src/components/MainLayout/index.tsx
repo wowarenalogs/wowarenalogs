@@ -3,7 +3,17 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import NProgress from 'nprogress';
 import React, { useEffect, useRef, useState } from 'react';
-import { TbAlertTriangle, TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbUser } from 'react-icons/tb';
+import {
+  TbAlertTriangle,
+  TbBug,
+  TbChartBar,
+  TbHistory,
+  TbHome,
+  TbSearch,
+  TbSettings,
+  TbSwords,
+  TbUser,
+} from 'react-icons/tb';
 
 import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
@@ -64,11 +74,12 @@ export function MainLayout(props: IProps) {
       return;
     }
 
-    window.wowarenalogs.obs?.diskSpaceBecameCritical?.((_evt, freeBytes, driveLabel) =>
+    window.wowarenalogs.obs?.diskSpaceBecameCritical?.((_evt: unknown, freeBytes: number, driveLabel?: string) =>
       setVodDiskWarning({ bytesRemaining: freeBytes, driveLabel }),
     );
-    window.wowarenalogs.logs?.handleLogStorageDiskSpaceBecameCritical?.((_evt, _wowVersion, freeBytes, driveLabel) =>
-      setLogDiskWarning({ bytesRemaining: freeBytes, driveLabel }),
+    window.wowarenalogs.logs?.handleLogStorageDiskSpaceBecameCritical?.(
+      (_evt: unknown, _wowVersion: unknown, freeBytes: number, driveLabel?: string) =>
+        setLogDiskWarning({ bytesRemaining: freeBytes, driveLabel }),
     );
 
     return () => {
