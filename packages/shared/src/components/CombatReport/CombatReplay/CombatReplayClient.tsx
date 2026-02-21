@@ -4,7 +4,7 @@ import { Application, extend, useApplication } from '@pixi/react';
 import { CombatUnitType } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
-import { Application as PixiApplication, Container, Sprite, Text } from 'pixi.js';
+import { Application as PixiApplication, Container, Sprite, Text, Ticker } from 'pixi.js';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { FaSkullCrossbones } from 'react-icons/fa';
 import { TbPlayerPause, TbPlayerPlay } from 'react-icons/tb';
@@ -90,10 +90,15 @@ export function CombatReplayClient() {
 
   useEffect(() => {
     if (pixiApp && combat) {
+      const ticker = pixiApp.ticker ?? Ticker.shared;
+      if (!ticker) {
+        return;
+      }
+
       const onTick = () => {
         if (!paused) {
           setSliderPos((prev) => {
-            const result = prev + (pixiApp.ticker.deltaMS || 0) * speed;
+            const result = prev + (ticker.deltaMS || 0) * speed;
             if (result < combat.endTime - combat.startTime) {
               return result;
             } else {
@@ -101,7 +106,7 @@ export function CombatReplayClient() {
             }
           });
           setCurrentTimeOffset((prev) => {
-            const result = prev + (pixiApp.ticker.deltaMS || 0) * speed;
+            const result = prev + (ticker.deltaMS || 0) * speed;
             if (result < combat.endTime - combat.startTime) {
               return result;
             } else {
@@ -110,11 +115,9 @@ export function CombatReplayClient() {
           });
         }
       };
-      pixiApp.ticker.add(onTick);
+      ticker.add(onTick);
       return () => {
-        if (pixiApp.ticker) {
-          pixiApp.ticker.remove(onTick);
-        }
+        ticker.remove(onTick);
       };
     }
     return;
