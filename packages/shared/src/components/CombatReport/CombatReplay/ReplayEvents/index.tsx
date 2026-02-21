@@ -38,7 +38,7 @@ export const ReplayEvents = (props: IProps) => {
   const [highlightEvent, setHighlightEvent] = useState<CombatEvent | null>(null);
   const [filters, setFilters] = useState<ReplayEventFilters>({
     significantAurasOnly: true,
-    significantDamageHealOnly: true,
+    significantDamageHealOnly: false,
     gcdsOnly: false,
   });
 

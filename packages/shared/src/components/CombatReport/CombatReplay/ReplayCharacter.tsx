@@ -8,8 +8,6 @@ import { Utils } from '../../../utils/utils';
 import { Container } from './pixi-compat';
 import { ReplayCastBar } from './ReplayCastBar';
 import { ReplayHealthBar } from './ReplayHealthBar';
-import { ReplayHpNumbers } from './ReplayHpNumbers';
-import { ReplaySpellCasts } from './ReplaySpellCasts';
 
 interface IProps {
   combat: AtomicArenaCombat;
@@ -207,8 +205,6 @@ export function ReplayCharacter(props: IProps) {
       ) : null}
       <ReplayHealthBar current={hp.current} max={hp.max} reaction={props.unit.reaction} />
       <ReplayCastBar unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
-      <ReplaySpellCasts unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
-      <ReplayHpNumbers unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
     </Container>
   );
 }
