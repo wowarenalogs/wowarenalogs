@@ -43,18 +43,16 @@ const ReplaySpellCast = (props: { renderState: ISpellCastRenderState }) => {
 
   const texture = useTexture(`https://images.wowarenalogs.com/spells/${props.renderState.event.spellId}.jpg`);
 
-  return (
-    texture ? (
-      <pixiSprite
-        x={x}
-        y={y}
-        width={ICON_SIZE}
-        height={ICON_SIZE}
-        texture={texture}
-        alpha={props.renderState.progress < 0.5 ? 1 : 1 - (props.renderState.progress - 0.5)}
-      />
-    ) : null
-  );
+  return texture ? (
+    <pixiSprite
+      x={x}
+      y={y}
+      width={ICON_SIZE}
+      height={ICON_SIZE}
+      texture={texture}
+      alpha={props.renderState.progress < 0.5 ? 1 : 1 - (props.renderState.progress - 0.5)}
+    />
+  ) : null;
 };
 
 export const ReplaySpellCasts = (props: IProps) => {

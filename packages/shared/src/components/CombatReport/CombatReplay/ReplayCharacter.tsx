@@ -4,9 +4,9 @@ import { useMemo } from 'react';
 
 import { spellIdToPriority } from '../../../data/spellTags';
 import { Utils } from '../../../utils/utils';
+import { useTexture } from './pixi-assets';
 import { ReplayCastBar } from './ReplayCastBar';
 import { ReplayHealthBar } from './ReplayHealthBar';
-import { useTexture } from './pixi-assets';
 
 interface IProps {
   combat: AtomicArenaCombat;

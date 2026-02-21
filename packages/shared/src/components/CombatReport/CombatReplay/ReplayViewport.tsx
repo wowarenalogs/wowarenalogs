@@ -1,6 +1,6 @@
 import { extend, useApplication } from '@pixi/react';
-import { useEffect, useRef } from 'react';
 import { Viewport } from 'pixi-viewport';
+import { useEffect, useRef } from 'react';
 
 extend({ Viewport });
 

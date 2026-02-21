@@ -1,7 +1,6 @@
 import { CombatUnitReaction } from '@wowarenalogs/parser';
 import { Texture } from 'pixi.js';
 
-
 interface IProps {
   current: number;
   max: number;

@@ -127,11 +127,13 @@ export const ReplayCastBar = (props: IProps) => {
     return justFinished;
   })();
 
+  const spellTexture = useTexture(
+    renderState ? `https://images.wowarenalogs.com/spells/${renderState.spellId}.jpg` : null,
+  );
+
   if (!renderState) {
     return null;
   }
-
-  const spellTexture = useTexture(`https://images.wowarenalogs.com/spells/${renderState.spellId}.jpg`);
 
   return (
     <pixiContainer

@@ -11,13 +11,13 @@ import { TbPlayerPause, TbPlayerPlay } from 'react-icons/tb';
 
 import { zoneMetadata } from '../../../data/zoneMetadata';
 import { CombatReportContext, useCombatReportContext } from '../CombatReportContext';
+import { useTexture } from './pixi-assets';
 import { ReplayCharacter } from './ReplayCharacter';
 import { ReplayDampeningTracker } from './ReplayDampeningTracker';
 import { ReplayEvents } from './ReplayEvents';
 import { ReplaySpeedDropdown } from './ReplaySpeedDropdown';
 import { ReplayUnitFrames } from './ReplayUnitFrames';
 import { ReplayViewport } from './ReplayViewport';
-import { useTexture } from './pixi-assets';
 
 extend({ Container, Sprite, Text });
 
@@ -265,12 +265,7 @@ export function CombatReplayClient() {
             <ContextBridge
               Context={CombatReportContext}
               render={(children) => (
-                <Application
-                  resizeTo={replayContainerRef}
-                  antialias
-                  autoDensity
-                  backgroundAlpha={0}
-                >
+                <Application resizeTo={replayContainerRef} antialias autoDensity backgroundAlpha={0}>
                   <PixiAppBridge onApp={setPixiApp} />
                   {children}
                 </Application>
