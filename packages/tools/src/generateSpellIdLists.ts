@@ -238,11 +238,9 @@ async function main() {
   };
 
   const outputPath = path.resolve(__dirname, '../../shared/src/data/spellIdLists.json');
-  const reviewOutputPath = path.resolve(__dirname, '../../shared/src/data/spellIdListsWithNames.json');
   const reviewDirPath = path.resolve(__dirname, '../../shared/src/data/spellIdListsReview');
   await fs.ensureDir(reviewDirPath);
   await fs.writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`);
-  await fs.writeFile(reviewOutputPath, `${JSON.stringify(reviewOutput, null, 2)}\n`);
   await fs.writeFile(
     path.resolve(reviewDirPath, 'metadata.json'),
     `${JSON.stringify(
@@ -272,7 +270,6 @@ async function main() {
     `${JSON.stringify(reviewOutput.externalOrBigDefensiveSpells, null, 2)}\n`,
   );
   console.log(`Wrote spell id lists to ${outputPath}`);
-  console.log(`Wrote spell id review lists to ${reviewOutputPath}`);
   console.log(`Wrote per-category review files to ${reviewDirPath}`);
   console.log(`allSpellIds: ${allSpellIds.length}`);
   console.log(`importantSpellIds: ${importantSpellIds.length}`);
