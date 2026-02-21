@@ -1,6 +1,5 @@
 import { canUseFeature, CombatReport, features } from '@wowarenalogs/shared';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 import { useLocalCombats } from '../../hooks/LocalCombatsContext';
@@ -8,23 +7,10 @@ import { useLocalCombats } from '../../hooks/LocalCombatsContext';
 export const LatestMatchMonitor = () => {
   const localCombats = useLocalCombats();
   const { appConfig } = useAppConfig();
-  const [vodDiskSpaceRemaining, setVodDiskSpaceRemaining] = useState(-1);
-  const [logDiskSpaceRemaining, setLogDiskSpaceRemaining] = useState(-1);
 
   const latestLocalCombat = localCombats.localCombats.length
     ? localCombats.localCombats[localCombats.localCombats.length - 1]
     : null;
-
-  useEffect(() => {
-    window.wowarenalogs.obs?.diskSpaceBecameCritical?.((_evt, freeBytes) => setVodDiskSpaceRemaining(freeBytes));
-    window.wowarenalogs.logs?.handleLogStorageDiskSpaceBecameCritical?.((_evt, _wowVersion, freeBytes) =>
-      setLogDiskSpaceRemaining(freeBytes),
-    );
-    return () => {
-      window.wowarenalogs.obs?.removeAll_diskSpaceBecameCritical_listeners?.();
-      window.wowarenalogs.logs?.removeAll_handleLogStorageDiskSpaceBecameCritical_listeners?.();
-    };
-  }, []);
 
   if (latestLocalCombat) {
     return <CombatReport combat={latestLocalCombat} matchId={latestLocalCombat.id} viewerIsOwner={true} />;
@@ -49,24 +35,6 @@ export const LatestMatchMonitor = () => {
           {canUseFeature(features.skipUploads, undefined, appConfig.flags) && (
             <div className="text-2xl font-bold text-red-400 badge badge-lg badge-error p-5">
               Logs are NOT being automatically uploaded to WoW Arena Logs!
-            </div>
-          )}
-          {vodDiskSpaceRemaining > -1 && (
-            <div className="text-2xl font-bold text-red-400 badge badge-lg badge-error p-5">
-              You have only {(vodDiskSpaceRemaining / 1e6).toFixed(1)} Mbytes disk space remaining. Vods may fail to
-              record!{' '}
-              <button className="button pl-2" onClick={() => setVodDiskSpaceRemaining(-1)}>
-                dismiss
-              </button>
-            </div>
-          )}
-          {logDiskSpaceRemaining > -1 && (
-            <div className="text-2xl font-bold text-red-400 badge badge-lg badge-error p-5">
-              You have only {(logDiskSpaceRemaining / 1e6).toFixed(1)} Mbytes disk space remaining on your WoW Logs
-              drive. Combat logs may stop being written!{' '}
-              <button className="button pl-2" onClick={() => setLogDiskSpaceRemaining(-1)}>
-                dismiss
-              </button>
             </div>
           )}
           <button

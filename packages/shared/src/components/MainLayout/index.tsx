@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import NProgress from 'nprogress';
 import React, { useEffect, useRef, useState } from 'react';
-import { TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbUser } from 'react-icons/tb';
+import { TbAlertTriangle, TbBug, TbChartBar, TbHistory, TbHome, TbSearch, TbSettings, TbSwords, TbUser } from 'react-icons/tb';
 
 import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
@@ -31,6 +31,8 @@ export function MainLayout(props: IProps) {
   const clientContext = useClientContext();
   const prevPathRef = useRef(pathname);
   const [showUpgradeBanner, setShowUpgradeBanner] = useState(false);
+  const [vodDiskSpaceRemaining, setVodDiskSpaceRemaining] = useState(-1);
+  const [logDiskSpaceRemaining, setLogDiskSpaceRemaining] = useState(-1);
 
   useEffect(() => {
     if (clientContext.isDesktop && window.wowarenalogs?.app?.getVersion) {
@@ -56,6 +58,22 @@ export function MainLayout(props: IProps) {
       prevPathRef.current = pathname;
     }
   }, [pathname, searchParams]);
+
+  useEffect(() => {
+    if (!clientContext.isDesktop || !window.wowarenalogs) {
+      return;
+    }
+
+    window.wowarenalogs.obs?.diskSpaceBecameCritical?.((_evt, freeBytes) => setVodDiskSpaceRemaining(freeBytes));
+    window.wowarenalogs.logs?.handleLogStorageDiskSpaceBecameCritical?.((_evt, _wowVersion, freeBytes) =>
+      setLogDiskSpaceRemaining(freeBytes),
+    );
+
+    return () => {
+      window.wowarenalogs.obs?.removeAll_diskSpaceBecameCritical_listeners?.();
+      window.wowarenalogs.logs?.removeAll_handleLogStorageDiskSpaceBecameCritical_listeners?.();
+    };
+  }, [clientContext.isDesktop]);
 
   const selectedNavMenuKey = pathname === '' ? '/' : pathname;
   const matchSource = searchParams.get('source');
@@ -106,6 +124,25 @@ export function MainLayout(props: IProps) {
             <TbChartBar size="32" />
           </Link>
         </div>
+        {(vodDiskSpaceRemaining > -1 || logDiskSpaceRemaining > -1) && (
+          <div className="m-1 rounded bg-error p-2 text-[10px] font-semibold leading-tight text-error-content">
+            <div className="mb-1 flex items-center gap-1">
+              <TbAlertTriangle size="14" />
+              <span>Low disk space</span>
+            </div>
+            {vodDiskSpaceRemaining > -1 && <div>VODs: {(vodDiskSpaceRemaining / 1e9).toFixed(1)} GB free</div>}
+            {logDiskSpaceRemaining > -1 && <div>Logs: {(logDiskSpaceRemaining / 1e9).toFixed(1)} GB free</div>}
+            <button
+              className="mt-1 underline"
+              onClick={() => {
+                setVodDiskSpaceRemaining(-1);
+                setLogDiskSpaceRemaining(-1);
+              }}
+            >
+              dismiss
+            </button>
+          </div>
+        )}
         <div className="flex-1" />
         {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
           <div
