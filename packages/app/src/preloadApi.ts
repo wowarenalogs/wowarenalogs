@@ -6,6 +6,8 @@ export const modulesApi = {
     importLogFiles: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:logs:importLogFiles', ...args),
     startLogWatcher: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:logs:startLogWatcher', ...args),
     stopLogWatcher: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:logs:stopLogWatcher', ...args),
+    triggerLowDiskSpaceAlertForTesting: (...args: any[]) =>
+      ipcRenderer.invoke('wowarenalogs:logs:triggerLowDiskSpaceAlertForTesting', ...args),
     handleActivityStarted: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
       ipcRenderer.on('wowarenalogs:logs:handleActivityStarted', callback),
     removeAll_handleActivityStarted_listeners: () =>
@@ -36,6 +38,10 @@ export const modulesApi = {
       ipcRenderer.on('wowarenalogs:logs:handleLogReadingTimeout', callback),
     removeAll_handleLogReadingTimeout_listeners: () =>
       ipcRenderer.removeAllListeners('wowarenalogs:logs:handleLogReadingTimeout'),
+    handleLogStorageDiskSpaceBecameCritical: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:logs:handleLogStorageDiskSpaceBecameCritical', callback),
+    removeAll_handleLogStorageDiskSpaceBecameCritical_listeners: () =>
+      ipcRenderer.removeAllListeners('wowarenalogs:logs:handleLogStorageDiskSpaceBecameCritical'),
   },
   bnet: { login: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:bnet:login', ...args) },
   fs: {
