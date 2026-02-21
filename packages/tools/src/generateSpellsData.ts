@@ -13,6 +13,8 @@ const SOURCE_TABLES = {
   spellCooldowns: `${WAGO_DB2_BASE}/SpellCooldowns/csv`,
   spellCategory: `${WAGO_DB2_BASE}/SpellCategory/csv`,
   spellCategories: `${WAGO_DB2_BASE}/SpellCategories/csv`,
+  spellCastTimes: `${WAGO_DB2_BASE}/SpellCastTimes/csv`,
+  spellEffect: `${WAGO_DB2_BASE}/SpellEffect/csv`,
   spellName: `${WAGO_DB2_BASE}/SpellName/csv`,
   spellDuration: `${WAGO_DB2_BASE}/SpellDuration/csv`,
   spellMisc: `${WAGO_DB2_BASE}/SpellMisc/csv`,
@@ -36,9 +38,12 @@ let spellCDs: {
   cooldown: number;
 }[] = [];
 let spellDurations: { id: number; durationMs: number }[] = [];
+let spellCastTimes: { id: number; baseMs: number; minimumMs: number }[] = [];
+let spellEffects: { spellId: number; difficultyId: number }[] = [];
 let spellMiscInfo: {
   spellId: number;
   difficultyId: number;
+  castingTimeId: number;
   durationId: number;
 }[] = [];
 
@@ -140,15 +145,25 @@ function choosePreferredByDifficulty<T extends { difficultyId: number }>(current
 }
 
 async function loadFiles() {
-  const [spellCooldownRows, spellCategoryRows, spellCategoriesRows, spellNameRows, spellDurationRows, spellMiscRows] =
-    await Promise.all([
-      loadCsv(SOURCE_TABLES.spellCooldowns),
-      loadCsv(SOURCE_TABLES.spellCategory),
-      loadCsv(SOURCE_TABLES.spellCategories),
-      loadCsv(SOURCE_TABLES.spellName),
-      loadCsv(SOURCE_TABLES.spellDuration),
-      loadCsv(SOURCE_TABLES.spellMisc),
-    ]);
+  const [
+    spellCooldownRows,
+    spellCategoryRows,
+    spellCategoriesRows,
+    spellCastTimeRows,
+    spellEffectRows,
+    spellNameRows,
+    spellDurationRows,
+    spellMiscRows,
+  ] = await Promise.all([
+    loadCsv(SOURCE_TABLES.spellCooldowns),
+    loadCsv(SOURCE_TABLES.spellCategory),
+    loadCsv(SOURCE_TABLES.spellCategories),
+    loadCsv(SOURCE_TABLES.spellCastTimes),
+    loadCsv(SOURCE_TABLES.spellEffect),
+    loadCsv(SOURCE_TABLES.spellName),
+    loadCsv(SOURCE_TABLES.spellDuration),
+    loadCsv(SOURCE_TABLES.spellMisc),
+  ]);
 
   spellCDs = spellCooldownRows.map((r) => ({
     spellId: toInt(r.SpellID),
@@ -178,10 +193,20 @@ async function loadFiles() {
     id: toInt(r.ID),
     durationMs: toInt(r.Duration),
   }));
+  spellCastTimes = spellCastTimeRows.map((r) => ({
+    id: toInt(r.ID),
+    baseMs: toInt(r.Base),
+    minimumMs: toInt(r.Minimum),
+  }));
+  spellEffects = spellEffectRows.map((r) => ({
+    spellId: toInt(r.SpellID),
+    difficultyId: toInt(r.DifficultyID),
+  }));
 
   spellMiscInfo = spellMiscRows.map((r) => ({
     spellId: toInt(r.SpellID),
     difficultyId: toInt(r.DifficultyID),
+    castingTimeId: toInt(r.CastingTimeIndex),
     durationId: toInt(r.DurationIndex),
   }));
 }
@@ -206,6 +231,8 @@ const spellMiscBySpellId = new Map<number, { difficultyId: number; durationId: n
 const spellCategoriesBySpellId = new Map<number, { difficultyId: number; chargeCategoryId: number }>();
 const spellCategoryById = new Map<number, { maxCharges: number; chargeRecoveryTime: number }>();
 const spellDurationById = new Map<number, number>();
+const spellCastTimeById = new Map<number, { baseMs: number; minimumMs: number }>();
+const spellEffectsBySpellId = new Map<number, number>();
 
 function findName(id: number): string {
   const maybeMatch = spellNameById.get(id);
@@ -275,16 +302,34 @@ function buildIndexes() {
   spellDurations.forEach((row) => {
     spellDurationById.set(row.id, row.durationMs);
   });
+  spellCastTimes.forEach((row) => {
+    spellCastTimeById.set(row.id, { baseMs: row.baseMs, minimumMs: row.minimumMs });
+  });
+  spellEffects.forEach((row) => {
+    spellEffectsBySpellId.set(row.spellId, (spellEffectsBySpellId.get(row.spellId) || 0) + 1);
+  });
 }
 
 async function main() {
   console.log('Loading data files from wago.tools');
   await loadFiles();
   buildIndexes();
+  console.log(
+    `Loaded tables: cooldowns=${spellCDs.length} categories=${spellCategory.length} categoryLinks=${spellCategories.length} castTimes=${spellCastTimes.length} effects=${spellEffects.length} names=${spellNames.length} durations=${spellDurations.length} misc=${spellMiscInfo.length}`,
+  );
 
   console.log('Parsing spells');
+  let withCastTimeMetadata = 0;
+  let withEffectRows = 0;
   spellIds.forEach((spellId) => {
     const spellIdInt = Number.parseInt(spellId, 10);
+    const miscInfo = spellMiscBySpellId.get(spellIdInt);
+    if (miscInfo?.castingTimeId && spellCastTimeById.has(miscInfo.castingTimeId)) {
+      withCastTimeMetadata += 1;
+    }
+    if ((spellEffectsBySpellId.get(spellIdInt) || 0) > 0) {
+      withEffectRows += 1;
+    }
     newEffectsLibrary[spellId] = {
       spellId,
       name: findName(spellIdInt),
@@ -299,6 +344,7 @@ async function main() {
     newEffectsLibrary[spellId].cooldownSeconds =
       newEffectsLibrary[spellId].charges?.chargeCooldownSeconds || newEffectsLibrary[spellId].cooldownSeconds;
   });
+  console.log(`Coverage for tracked spell ids: castTimeMetadata=${withCastTimeMetadata} effectRows=${withEffectRows}`);
 
   console.log('Writing updated spell effects data');
   const outputPath = path.resolve(__dirname, '../../shared/src/data/spellEffects.json');

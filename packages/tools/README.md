@@ -9,7 +9,16 @@ Key source endpoints include:
 - https://wago.tools/db2/Spell/csv
 - https://wago.tools/db2/SpellMisc/csv
 
-The generator also pulls related DB2 tables required for cooldown/charges/duration (SpellCooldowns, SpellCategory, SpellCategories, SpellName, SpellDuration).
+The generator also pulls related DB2 tables required for reconstruction (SpellCooldowns, SpellDuration, SpellCategory, SpellCategories, SpellCastTimes, SpellEffect, SpellName, SpellMisc).
+
+`spellEffects.json` fields are reconstructed from DB2 as follows:
+
+- `name`: `SpellName.Name_lang` by `SpellID`
+- `cooldownSeconds`: `SpellCooldowns.RecoveryTime` (fallback `CategoryRecoveryTime`) by `SpellID`
+- `charges`: `SpellCategories.ChargeCategory` -> `SpellCategory.MaxCharges` and `SpellCategory.ChargeRecoveryTime`
+- `durationSeconds`: `SpellMisc.DurationIndex` -> `SpellDuration.Duration`
+
+`SpellCastTimes` and `SpellEffect` are also pulled for parity with the old extract workflow and for coverage validation while generating.
 
 ## 1. Run the effects json generator
 
