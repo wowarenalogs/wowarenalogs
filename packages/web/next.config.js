@@ -1,10 +1,12 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@wowarenalogs/shared'],
   typescript: {
-    // @inlet/react-pixi has type incompatibilities with React 18 types.
-    // These are safe to ignore as they only affect the desktop replay feature.
+    // @pixi/react JSX types currently don't cover our custom pixi* tags
+    // in this workspace build, so keep type-check bypass enabled for web build.
     ignoreBuildErrors: true,
   },
   images: {
@@ -43,6 +45,14 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  webpack(config) {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@wowarenalogs/parser': path.resolve(__dirname, '..', 'parser', 'dist', 'parser.esm.js'),
+    };
+
+    return config;
   },
 };
 

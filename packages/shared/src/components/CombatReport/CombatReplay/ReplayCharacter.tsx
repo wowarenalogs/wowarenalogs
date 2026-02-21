@@ -1,15 +1,13 @@
-import { Sprite } from '@inlet/react-pixi';
 import { AtomicArenaCombat, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useMemo } from 'react';
 
 import { spellIdToPriority } from '../../../data/spellTags';
 import { Utils } from '../../../utils/utils';
-import { Container } from './pixi-compat';
+import { useTexture } from './pixi-assets';
 import { ReplayCastBar } from './ReplayCastBar';
 import { ReplayHealthBar } from './ReplayHealthBar';
-// import { ReplayHpNumbers } from './ReplayHpNumbers';
-// import { ReplaySpellCasts } from './ReplaySpellCasts';
+import { ReplayHpNumbers } from './ReplayHpNumbers';
 
 interface IProps {
   combat: AtomicArenaCombat;
@@ -183,21 +181,28 @@ export function ReplayCharacter(props: IProps) {
     );
   })();
 
+  const classIconUrl =
+    props.unit.spec === CombatUnitSpec.None
+      ? Utils.getClassIcon(props.unit.class)
+      : Utils.getSpecIcon(props.unit.spec) || '';
+  const classIconTexture = useTexture(classIconUrl || null);
+  const auraTexture = useTexture(
+    highlightAura ? `https://images.wowarenalogs.com/spells/${highlightAura.aura.spellId}.jpg` : null,
+  );
+
   return (
-    <Container key={props.unit.id} x={pos.x} y={pos.y}>
-      <Sprite
-        image={
-          props.unit.spec === CombatUnitSpec.None
-            ? Utils.getClassIcon(props.unit.class)
-            : Utils.getSpecIcon(props.unit.spec) || ''
-        }
-        width={PLAYER_UNIT_SIZE}
-        height={PLAYER_UNIT_SIZE}
-        anchor={{ x: 0.5, y: 0.5 }}
-      />
-      {highlightAura ? (
-        <Sprite
-          image={`https://images.wowarenalogs.com/spells/${highlightAura.aura.spellId}.jpg`}
+    <pixiContainer key={props.unit.id} x={pos.x} y={pos.y}>
+      {classIconTexture ? (
+        <pixiSprite
+          texture={classIconTexture}
+          width={PLAYER_UNIT_SIZE}
+          height={PLAYER_UNIT_SIZE}
+          anchor={{ x: 0.5, y: 0.5 }}
+        />
+      ) : null}
+      {highlightAura && auraTexture ? (
+        <pixiSprite
+          texture={auraTexture}
           width={PLAYER_UNIT_SIZE * 0.8}
           height={PLAYER_UNIT_SIZE * 0.8}
           anchor={{ x: 0.5, y: 0.5 }}
@@ -205,10 +210,9 @@ export function ReplayCharacter(props: IProps) {
           y={-3.0}
         />
       ) : null}
+      <ReplayHpNumbers unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
       <ReplayHealthBar current={hp.current} max={hp.max} reaction={props.unit.reaction} />
       <ReplayCastBar unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
-      {/* <ReplaySpellCasts unit={props.unit} currentTimeOffset={props.currentTimeOffset} /> */}
-      {/* <ReplayHpNumbers unit={props.unit} currentTimeOffset={props.currentTimeOffset} /> */}
-    </Container>
+    </pixiContainer>
   );
 }

@@ -1,9 +1,8 @@
-import { Sprite } from '@inlet/react-pixi';
 import { CombatAction, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 import { useMemo } from 'react';
 
 import { useCombatReportContext } from '../CombatReportContext';
-import { Container } from './pixi-compat';
+import { useTexture } from './pixi-assets';
 
 interface IProps {
   unit: ICombatUnit;
@@ -42,16 +41,18 @@ const ReplaySpellCast = (props: { renderState: ISpellCastRenderState }) => {
     initialYVelocity * props.renderState.progress +
     (Y_ACCELERATION * props.renderState.progress * props.renderState.progress) / 2;
 
-  return (
-    <Sprite
+  const texture = useTexture(`https://images.wowarenalogs.com/spells/${props.renderState.event.spellId}.jpg`);
+
+  return texture ? (
+    <pixiSprite
       x={x}
       y={y}
       width={ICON_SIZE}
       height={ICON_SIZE}
-      image={`https://images.wowarenalogs.com/spells/${props.renderState.event.spellId}.jpg`}
+      texture={texture}
       alpha={props.renderState.progress < 0.5 ? 1 : 1 - (props.renderState.progress - 0.5)}
     />
-  );
+  ) : null;
 };
 
 export const ReplaySpellCasts = (props: IProps) => {
@@ -72,10 +73,10 @@ export const ReplaySpellCasts = (props: IProps) => {
     }));
 
   return (
-    <Container x={X_OFFSET} y={Y_OFFSET}>
+    <pixiContainer x={X_OFFSET} y={Y_OFFSET}>
       {spellCasts.map((s) => {
         return <ReplaySpellCast key={s.event.logLine.id} renderState={s} />;
       })}
-    </Container>
+    </pixiContainer>
   );
 };
