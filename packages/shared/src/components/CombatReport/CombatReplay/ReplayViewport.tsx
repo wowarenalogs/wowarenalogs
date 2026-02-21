@@ -1,4 +1,4 @@
-import { extend, useApplication } from '@pixi/react';
+import { extend } from '@pixi/react';
 import type { EventSystem, Ticker } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import type { ComponentType, ReactNode, Ref } from 'react';
@@ -23,12 +23,12 @@ interface IReplayViewportProps {
   height: number;
   worldWidth: number;
   worldHeight: number;
+  events: EventSystem;
+  ticker?: Ticker;
 }
 
 export const ReplayViewport = (props: IReplayViewportProps) => {
-  const { app } = useApplication();
   const viewportRef = useRef<Viewport | null>(null);
-  const events = app?.renderer?.events as EventSystem | undefined;
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -49,10 +49,6 @@ export const ReplayViewport = (props: IReplayViewportProps) => {
     viewport.resize(props.width, props.height, props.worldWidth, props.worldHeight);
   }, [props.width, props.height, props.worldWidth, props.worldHeight]);
 
-  if (!events) {
-    return null;
-  }
-
   return (
     <ViewportElement
       ref={viewportRef}
@@ -60,8 +56,8 @@ export const ReplayViewport = (props: IReplayViewportProps) => {
       screenHeight={props.height}
       worldWidth={props.worldWidth}
       worldHeight={props.worldHeight}
-      events={events}
-      ticker={app?.ticker}
+      events={props.events}
+      ticker={props.ticker}
     >
       {props.children}
     </ViewportElement>

@@ -5,8 +5,8 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@wowarenalogs/shared'],
   typescript: {
-    // @pixi/react types can lag React versions; these are safe to ignore since
-    // they only affect the desktop replay feature.
+    // @pixi/react JSX types currently don't cover our custom pixi* tags
+    // in this workspace build, so keep type-check bypass enabled for web build.
     ignoreBuildErrors: true,
   },
   images: {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Application, extend, useApplication } from '@pixi/react';
+import { Application, extend } from '@pixi/react';
 import { CombatUnitType } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
@@ -43,28 +43,15 @@ const ContextBridge = ({
   Context,
   render,
 }: {
-  children: ReactElement;
+  children: ReactElement | null;
   Context: typeof CombatReportContext;
-  render: (children: ReactElement) => ReactElement;
+  render: (children: ReactElement | null) => ReactElement;
 }) => {
   return (
     <Context.Consumer>
       {(value) => render(<Context.Provider value={value}>{children}</Context.Provider>)}
     </Context.Consumer>
   );
-};
-
-const PixiAppBridge = ({ onApp }: { onApp: (app: PixiApplication | null) => void }) => {
-  const { app } = useApplication();
-
-  useEffect(() => {
-    onApp(app ?? null);
-    return () => {
-      onApp(null);
-    };
-  }, [app, onApp]);
-
-  return null;
 };
 
 export function CombatReplayClient() {
@@ -175,6 +162,7 @@ export function CombatReplayClient() {
     () => _.flatten(players.map((p) => p.deathRecords)).sort((a, b) => a.timestamp - b.timestamp),
     [players],
   );
+  const viewportEvents = pixiApp?.renderer?.events;
 
   if (!combat) {
     return null;
@@ -268,43 +256,52 @@ export function CombatReplayClient() {
             <ContextBridge
               Context={CombatReportContext}
               render={(children) => (
-                <Application resizeTo={replayContainerRef} antialias autoDensity backgroundAlpha={0}>
-                  <PixiAppBridge onApp={setPixiApp} />
+                <Application
+                  resizeTo={replayContainerRef}
+                  antialias
+                  autoDensity
+                  backgroundAlpha={0}
+                  onInit={(app) => setPixiApp(app as PixiApplication)}
+                >
                   {children}
                 </Application>
               )}
             >
-              <ReplayViewport
-                key={combat.id}
-                width={replayContainerRef.clientWidth}
-                height={replayContainerRef.clientHeight}
-                worldWidth={worldWidth + 2 * VIEWPORT_PADDING + VIEWPORT_X_OFFSET}
-                worldHeight={worldHeight + 2 * VIEWPORT_PADDING}
-              >
-                {zone && zoneTexture ? (
-                  <pixiSprite
-                    texture={zoneTexture}
-                    width={zone.imageWidth / 5}
-                    height={zone.imageHeight / 5}
-                    x={-zone.maxX - worldMinX + VIEWPORT_PADDING + VIEWPORT_X_OFFSET}
-                    y={zone.minY - worldMinY + VIEWPORT_PADDING}
-                  />
-                ) : null}
-                {players.map((p) => {
-                  return (
-                    <ReplayCharacter
-                      combat={combat}
-                      key={p.id}
-                      unit={p}
-                      currentTimeOffset={currentTimeOffset}
-                      gamePositionToRenderPosition={(gameX, gameY) => ({
-                        x: -gameX - worldMinX + VIEWPORT_PADDING + VIEWPORT_X_OFFSET,
-                        y: gameY - worldMinY + VIEWPORT_PADDING,
-                      })}
+              {pixiApp && viewportEvents ? (
+                <ReplayViewport
+                  key={combat.id}
+                  width={replayContainerRef.clientWidth}
+                  height={replayContainerRef.clientHeight}
+                  worldWidth={worldWidth + 2 * VIEWPORT_PADDING + VIEWPORT_X_OFFSET}
+                  worldHeight={worldHeight + 2 * VIEWPORT_PADDING}
+                  events={viewportEvents}
+                  ticker={pixiApp.ticker}
+                >
+                  {zone && zoneTexture ? (
+                    <pixiSprite
+                      texture={zoneTexture}
+                      width={zone.imageWidth / 5}
+                      height={zone.imageHeight / 5}
+                      x={-zone.maxX - worldMinX + VIEWPORT_PADDING + VIEWPORT_X_OFFSET}
+                      y={zone.minY - worldMinY + VIEWPORT_PADDING}
                     />
-                  );
-                })}
-              </ReplayViewport>
+                  ) : null}
+                  {players.map((p) => {
+                    return (
+                      <ReplayCharacter
+                        combat={combat}
+                        key={p.id}
+                        unit={p}
+                        currentTimeOffset={currentTimeOffset}
+                        gamePositionToRenderPosition={(gameX, gameY) => ({
+                          x: -gameX - worldMinX + VIEWPORT_PADDING + VIEWPORT_X_OFFSET,
+                          y: gameY - worldMinY + VIEWPORT_PADDING,
+                        })}
+                      />
+                    );
+                  })}
+                </ReplayViewport>
+              ) : null}
             </ContextBridge>
           ) : null}
         </div>
