@@ -92,7 +92,7 @@ interface IterationResult {
   wallMs: number;
   cpuUserMs: number;
   cpuSystemMs: number;
-  memory: { start: NodeJS.MemoryUsage; end: NodeJS.MemoryUsage } | null;
+  memory: { start: NodeJS.MemoryUsage; end: NodeJS.MemoryUsage; peak: NodeJS.MemoryUsage } | null;
 }
 
 interface FixtureRunResult {
@@ -123,6 +123,7 @@ interface RunFixtureSummary {
   cpuUserMs: SummaryStats;
   cpuSystemMs: SummaryStats;
   memoryDelta: Record<MemoryStatKey, SummaryStats> | null;
+  memoryPeakDelta: Record<MemoryStatKey, SummaryStats> | null;
 }
 
 interface FixtureAggregate {
@@ -132,6 +133,7 @@ interface FixtureAggregate {
   cpuUserMs: AggregateStats;
   cpuSystemMs: AggregateStats;
   memoryDelta: Record<MemoryStatKey, AggregateStats> | null;
+  memoryPeakDelta: Record<MemoryStatKey, AggregateStats> | null;
 }
 
 interface RunOutput {
@@ -421,7 +423,7 @@ function readLogLines(inputPath: string): string[] {
   return content.split('\n');
 }
 
-function parseLog(inputPath: string, timezone: string | null): ParsedResult {
+function parseLog(inputPath: string, timezone: string | null, onLineParsed?: () => void): ParsedResult {
   const parser = new WoWCombatLogParser(null, timezone ?? undefined);
   const parsed: ParsedResult = {
     combats: [],
@@ -448,8 +450,12 @@ function parseLog(inputPath: string, timezone: string | null): ParsedResult {
   });
 
   const lines = readLogLines(inputPath);
-  lines.forEach((line) => parser.parseLine(line));
+  lines.forEach((line) => {
+    parser.parseLine(line);
+    onLineParsed?.();
+  });
   parser.flush();
+  onLineParsed?.();
 
   return parsed;
 }
@@ -478,14 +484,18 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-function printMemoryDelta(before: NodeJS.MemoryUsage, after: NodeJS.MemoryUsage): void {
+function printMemoryStats(start: NodeJS.MemoryUsage, end: NodeJS.MemoryUsage, peak: NodeJS.MemoryUsage): void {
   const keys: Array<keyof NodeJS.MemoryUsage> = ['rss', 'heapTotal', 'heapUsed', 'external', 'arrayBuffers'];
   keys.forEach((key) => {
-    const delta = after[key] - before[key];
+    const delta = end[key] - start[key];
+    const peakDelta = peak[key] - start[key];
     const deltaPrefix = delta >= 0 ? '+' : '-';
+    const peakDeltaPrefix = peakDelta >= 0 ? '+' : '-';
     console.log(
-      `  ${key}: start=${formatBytes(before[key])} end=${formatBytes(after[key])} delta=${deltaPrefix}${formatBytes(
-        Math.abs(delta),
+      `  ${key}: start=${formatBytes(start[key])} end=${formatBytes(end[key])} peak=${formatBytes(
+        peak[key],
+      )} delta=${deltaPrefix}${formatBytes(Math.abs(delta))} peakDelta=${peakDeltaPrefix}${formatBytes(
+        Math.abs(peakDelta),
       )}`,
     );
   });
@@ -577,14 +587,27 @@ function runFixture(fixture: WorkItem, config: RunnerConfig, updateSnapshots: bo
   for (let i = 0; i < config.iterations; i += 1) {
     maybeGc();
     const memStart = config.measureMemory ? process.memoryUsage() : null;
+    const memPeak = memStart ? { ...memStart } : null;
+    const capturePeakMemory = (): void => {
+      if (!memPeak) {
+        return;
+      }
+      const sample = process.memoryUsage();
+      MEMORY_STAT_KEYS.forEach((key) => {
+        if (sample[key] > memPeak[key]) {
+          memPeak[key] = sample[key];
+        }
+      });
+    };
     const wallStart = process.hrtime.bigint();
     const cpuStart = process.cpuUsage();
 
-    const parsed = parseLog(inputPath, fixture.timezone);
+    const parsed = parseLog(inputPath, fixture.timezone, capturePeakMemory);
 
     const wallEnd = process.hrtime.bigint();
     const cpuDiff = process.cpuUsage(cpuStart);
     const memEnd = config.measureMemory ? process.memoryUsage() : null;
+    capturePeakMemory();
 
     if (!snapshotRecord) {
       snapshotRecord = buildSnapshotRecord(parsed, fixture.input, fixture.timezone);
@@ -594,7 +617,7 @@ function runFixture(fixture: WorkItem, config: RunnerConfig, updateSnapshots: bo
       wallMs: Number(wallEnd - wallStart) / 1e6,
       cpuUserMs: cpuDiff.user / 1000,
       cpuSystemMs: cpuDiff.system / 1000,
-      memory: memStart && memEnd ? { start: memStart, end: memEnd } : null,
+      memory: memStart && memEnd && memPeak ? { start: memStart, end: memEnd, peak: memPeak } : null,
     });
   }
 
@@ -635,10 +658,14 @@ function runFixture(fixture: WorkItem, config: RunnerConfig, updateSnapshots: bo
 
 function summarizeFixtureRun(result: FixtureRunResult): RunFixtureSummary {
   const memoryIterations = result.iterations.filter(
-    (item): item is IterationResult & { memory: { start: NodeJS.MemoryUsage; end: NodeJS.MemoryUsage } } =>
-      item.memory !== null,
+    (
+      item,
+    ): item is IterationResult & {
+      memory: { start: NodeJS.MemoryUsage; end: NodeJS.MemoryUsage; peak: NodeJS.MemoryUsage };
+    } => item.memory !== null,
   );
   let memoryDelta: Record<MemoryStatKey, SummaryStats> | null = null;
+  let memoryPeakDelta: Record<MemoryStatKey, SummaryStats> | null = null;
 
   if (memoryIterations.length > 0) {
     memoryDelta = {
@@ -650,6 +677,15 @@ function summarizeFixtureRun(result: FixtureRunResult): RunFixtureSummary {
         memoryIterations.map((item) => item.memory.end.arrayBuffers - item.memory.start.arrayBuffers),
       ),
     };
+    memoryPeakDelta = {
+      rss: statsFrom(memoryIterations.map((item) => item.memory.peak.rss - item.memory.start.rss)),
+      heapTotal: statsFrom(memoryIterations.map((item) => item.memory.peak.heapTotal - item.memory.start.heapTotal)),
+      heapUsed: statsFrom(memoryIterations.map((item) => item.memory.peak.heapUsed - item.memory.start.heapUsed)),
+      external: statsFrom(memoryIterations.map((item) => item.memory.peak.external - item.memory.start.external)),
+      arrayBuffers: statsFrom(
+        memoryIterations.map((item) => item.memory.peak.arrayBuffers - item.memory.start.arrayBuffers),
+      ),
+    };
   }
 
   return {
@@ -658,6 +694,7 @@ function summarizeFixtureRun(result: FixtureRunResult): RunFixtureSummary {
     cpuUserMs: statsFrom(result.iterations.map((item) => item.cpuUserMs)),
     cpuSystemMs: statsFrom(result.iterations.map((item) => item.cpuSystemMs)),
     memoryDelta,
+    memoryPeakDelta,
   };
 }
 
@@ -682,7 +719,7 @@ function printFixtureSummary(result: FixtureRunResult): void {
         return;
       }
       console.log(`  iteration ${index + 1}:`);
-      printMemoryDelta(entry.memory.start, entry.memory.end);
+      printMemoryStats(entry.memory.start, entry.memory.end, entry.memory.peak);
     });
   }
 }
@@ -695,6 +732,7 @@ function aggregateAcrossRuns(allRuns: FixtureRunResult[][]): FixtureAggregate[] 
       cpuUserMean: number[];
       cpuSystemMean: number[];
       memoryDeltaMeanByKey: Record<MemoryStatKey, number[]>;
+      memoryPeakDeltaMeanByKey: Record<MemoryStatKey, number[]>;
     }
   >();
 
@@ -707,6 +745,13 @@ function aggregateAcrossRuns(allRuns: FixtureRunResult[][]): FixtureAggregate[] 
           cpuUserMean: [],
           cpuSystemMean: [],
           memoryDeltaMeanByKey: {
+            rss: [],
+            heapTotal: [],
+            heapUsed: [],
+            external: [],
+            arrayBuffers: [],
+          },
+          memoryPeakDeltaMeanByKey: {
             rss: [],
             heapTotal: [],
             heapUsed: [],
@@ -730,6 +775,12 @@ function aggregateAcrossRuns(allRuns: FixtureRunResult[][]): FixtureAggregate[] 
           entry.memoryDeltaMeanByKey[key].push(memoryDelta[key].mean);
         });
       }
+      if (summary.memoryPeakDelta) {
+        const memoryPeakDelta = summary.memoryPeakDelta;
+        MEMORY_STAT_KEYS.forEach((key) => {
+          entry.memoryPeakDeltaMeanByKey[key].push(memoryPeakDelta[key].mean);
+        });
+      }
     });
   });
 
@@ -738,6 +789,7 @@ function aggregateAcrossRuns(allRuns: FixtureRunResult[][]): FixtureAggregate[] 
     const cpuUser = statsFrom(values.cpuUserMean);
     const cpuSystem = statsFrom(values.cpuSystemMean);
     const hasMemory = MEMORY_STAT_KEYS.every((key) => values.memoryDeltaMeanByKey[key].length > 0);
+    const hasPeakMemory = MEMORY_STAT_KEYS.every((key) => values.memoryPeakDeltaMeanByKey[key].length > 0);
     const memoryDelta = hasMemory
       ? {
           rss: (() => {
@@ -758,6 +810,30 @@ function aggregateAcrossRuns(allRuns: FixtureRunResult[][]): FixtureAggregate[] 
           })(),
           arrayBuffers: (() => {
             const value = statsFrom(values.memoryDeltaMeanByKey.arrayBuffers);
+            return { min: value.min, max: value.max, mean: value.mean, median: value.median };
+          })(),
+        }
+      : null;
+    const memoryPeakDelta = hasPeakMemory
+      ? {
+          rss: (() => {
+            const value = statsFrom(values.memoryPeakDeltaMeanByKey.rss);
+            return { min: value.min, max: value.max, mean: value.mean, median: value.median };
+          })(),
+          heapTotal: (() => {
+            const value = statsFrom(values.memoryPeakDeltaMeanByKey.heapTotal);
+            return { min: value.min, max: value.max, mean: value.mean, median: value.median };
+          })(),
+          heapUsed: (() => {
+            const value = statsFrom(values.memoryPeakDeltaMeanByKey.heapUsed);
+            return { min: value.min, max: value.max, mean: value.mean, median: value.median };
+          })(),
+          external: (() => {
+            const value = statsFrom(values.memoryPeakDeltaMeanByKey.external);
+            return { min: value.min, max: value.max, mean: value.mean, median: value.median };
+          })(),
+          arrayBuffers: (() => {
+            const value = statsFrom(values.memoryPeakDeltaMeanByKey.arrayBuffers);
             return { min: value.min, max: value.max, mean: value.mean, median: value.median };
           })(),
         }
@@ -785,6 +861,7 @@ function aggregateAcrossRuns(allRuns: FixtureRunResult[][]): FixtureAggregate[] 
         median: cpuSystem.median,
       },
       memoryDelta,
+      memoryPeakDelta,
     };
   });
 }
@@ -812,6 +889,16 @@ function printAggregateSummary(aggregate: FixtureAggregate[]): void {
       console.log('  memory delta avg/median/min/max (run-level means):');
       MEMORY_STAT_KEYS.forEach((key) => {
         const stats = memoryDelta[key];
+        console.log(
+          `    ${key}: ${formatBytes(stats.mean)} / ${formatBytes(stats.median)} / ${formatBytes(stats.min)} / ${formatBytes(stats.max)}`,
+        );
+      });
+    }
+    if (item.memoryPeakDelta) {
+      const memoryPeakDelta = item.memoryPeakDelta;
+      console.log('  memory peak delta avg/median/min/max (run-level means):');
+      MEMORY_STAT_KEYS.forEach((key) => {
+        const stats = memoryPeakDelta[key];
         console.log(
           `    ${key}: ${formatBytes(stats.mean)} / ${formatBytes(stats.median)} / ${formatBytes(stats.min)} / ${formatBytes(stats.max)}`,
         );
