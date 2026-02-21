@@ -1,4 +1,3 @@
-import { awcSpellIds } from '../../../../data/awcSpells';
 import { IMinedSpell } from '../../../../data/spellEffectData';
 import { SpellIcon } from '../../SpellIcon';
 import { IUnitFrameRenderData } from './UnitFrame';
@@ -9,10 +8,6 @@ type CooldownInfo = {
   charges?: number;
   cooldownPercent?: number;
 };
-
-export function computeTrackableSpellsForUnit() {
-  return awcSpellIds;
-}
 
 function computeChargeInfo(
   casts: ISpellCast[],
