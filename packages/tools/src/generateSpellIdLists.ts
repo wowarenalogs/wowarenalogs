@@ -144,7 +144,10 @@ function hasAttributeFlag(row: CsvRow, bitDef: IBitDefinition): boolean {
 
 async function main() {
   console.log('Downloading Spell + SpellMisc CSV data from wago.tools');
-  const [spellRows, spellMiscRows] = await Promise.all([loadCsv(SOURCE_TABLES.spell), loadCsv(SOURCE_TABLES.spellMisc)]);
+  const [spellRows, spellMiscRows] = await Promise.all([
+    loadCsv(SOURCE_TABLES.spell),
+    loadCsv(SOURCE_TABLES.spellMisc),
+  ]);
 
   const allSpellIds = uniqueSortedNumericStrings(spellRows.map((r) => r.ID));
 

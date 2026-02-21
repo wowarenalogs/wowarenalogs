@@ -36,7 +36,6 @@ async function main() {
 
   const rawSpellsData = addon['Spells'] as Record<string, unknown>;
   const spells: Record<string, unknown> = {};
-  let droppedUnknownSpellIdCount = 0;
   Object.keys(rawSpellsData).forEach((spellId) => {
     if (!rawSpellsData[spellId]) {
       delete rawSpellsData[spellId];
@@ -44,12 +43,9 @@ async function main() {
       const normalizedSpellId = (parseInt(spellId, 10) + 1).toFixed();
       if (validSpellIds.has(normalizedSpellId)) {
         spells[normalizedSpellId] = rawSpellsData[spellId];
-      } else {
-        droppedUnknownSpellIdCount += 1;
       }
     }
   });
-  console.log(`Dropped ${droppedUnknownSpellIdCount} spell metadata entries not present in Spell.csv`);
 
   const outputPath = path.resolve(__dirname, '../../shared/src/data/spells.json');
   await fs.writeFile(outputPath, JSON.stringify(spells, null, 2));
