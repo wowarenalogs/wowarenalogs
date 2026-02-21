@@ -29,6 +29,8 @@
     ],
     "includeSubNodeModules": true,
     "asarUnpack": [
+      "packages/app/dist/node_modules/noobs/**",
+      "packages/app/dist/dist/**",
       "packages/app/dist/lib/noobs/**"
     ],
     "directories": {

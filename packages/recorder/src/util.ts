@@ -292,7 +292,10 @@ export const getNoobsDistPath = (): string => {
     candidates.push(path.resolve(process.env.OBS_REPACKED_PATH));
   }
 
-  // Packaged app path (copied into dist/lib/noobs)
+  // Packaged app path (aligned with vodojo: copied into dist/dist)
+  candidates.push(fixPathWhenPackaged(path.join(__dirname, 'dist')));
+
+  // Legacy packaged app path (older WAL builds)
   candidates.push(fixPathWhenPackaged(path.join(__dirname, 'lib', 'noobs')));
 
   // Local dev install via node_modules/noobs/dist
