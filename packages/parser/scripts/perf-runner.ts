@@ -18,9 +18,11 @@ const ROOT_DIR = path.resolve(SCRIPT_DIR, '..');
 const DEFAULT_SUITE = 'default';
 const DEFAULT_OUTPUT_DIR = path.resolve(ROOT_DIR, 'perf/results');
 const DEFAULT_SUITES_PATH = path.resolve(ROOT_DIR, 'perf/suites.json');
+const DEFAULT_CONFIG_PATH = path.resolve(ROOT_DIR, 'perf/configs/default.json');
 
-interface CliOptions {
+interface RunnerConfig {
   suite: string;
+  suitesPath: string;
   fixture: string | null;
   snapshot: string | null;
   timezone: string | null;
@@ -30,6 +32,12 @@ interface CliOptions {
   iterations: number;
   warmup: number;
   measureMemory: boolean;
+  runs: number;
+}
+
+interface CliOptions {
+  configPath: string | null;
+  overrides: Partial<RunnerConfig>;
   help: boolean;
 }
 
@@ -104,18 +112,53 @@ interface SummaryStats {
   p95: number;
 }
 
+interface RunFixtureSummary {
+  id: string;
+  wallMs: SummaryStats;
+  cpuUserMs: SummaryStats;
+  cpuSystemMs: SummaryStats;
+}
+
+interface FixtureAggregate {
+  id: string;
+  runs: number;
+  wallMs: Omit<SummaryStats, 'p95'>;
+  cpuUserMs: Omit<SummaryStats, 'p95'>;
+  cpuSystemMs: Omit<SummaryStats, 'p95'>;
+}
+
+interface RunOutput {
+  runId: string;
+  node: string;
+  platform: NodeJS.Platform;
+  arch: string;
+  config: RunnerConfig;
+  runs: Array<{
+    runIndex: number;
+    results: FixtureRunResult[];
+  }>;
+  aggregateByFixture: FixtureAggregate[];
+}
+
+const DEFAULT_CONFIG: RunnerConfig = {
+  suite: DEFAULT_SUITE,
+  suitesPath: path.relative(ROOT_DIR, DEFAULT_SUITES_PATH),
+  fixture: null,
+  snapshot: null,
+  timezone: null,
+  outputDir: DEFAULT_OUTPUT_DIR,
+  updateSnapshots: false,
+  skipCompare: false,
+  iterations: 1,
+  warmup: 0,
+  measureMemory: false,
+  runs: 1,
+};
+
 function parseArgs(argv: string[]): CliOptions {
   const options: CliOptions = {
-    suite: DEFAULT_SUITE,
-    fixture: null,
-    snapshot: null,
-    timezone: null,
-    outputDir: DEFAULT_OUTPUT_DIR,
-    updateSnapshots: false,
-    skipCompare: false,
-    iterations: 1,
-    warmup: 0,
-    measureMemory: false,
+    configPath: null,
+    overrides: {},
     help: false,
   };
 
@@ -123,33 +166,42 @@ function parseArgs(argv: string[]): CliOptions {
     const arg = argv[i];
     const next = argv[i + 1];
 
-    if (arg === '--suite' && next) {
-      options.suite = next;
+    if (arg === '--config' && next) {
+      options.configPath = path.resolve(process.cwd(), next);
+      i += 1;
+    } else if (arg === '--suite' && next) {
+      options.overrides.suite = next;
+      i += 1;
+    } else if (arg === '--suites' && next) {
+      options.overrides.suitesPath = next;
       i += 1;
     } else if (arg === '--fixture' && next) {
-      options.fixture = next;
+      options.overrides.fixture = next;
       i += 1;
     } else if (arg === '--snapshot' && next) {
-      options.snapshot = next;
+      options.overrides.snapshot = next;
       i += 1;
     } else if (arg === '--timezone' && next) {
-      options.timezone = next;
+      options.overrides.timezone = next;
       i += 1;
     } else if (arg === '--output-dir' && next) {
-      options.outputDir = path.resolve(process.cwd(), next);
+      options.overrides.outputDir = next;
       i += 1;
     } else if (arg === '--iterations' && next) {
-      options.iterations = Number(next);
+      options.overrides.iterations = Number(next);
       i += 1;
     } else if (arg === '--warmup' && next) {
-      options.warmup = Number(next);
+      options.overrides.warmup = Number(next);
+      i += 1;
+    } else if (arg === '--runs' && next) {
+      options.overrides.runs = Number(next);
       i += 1;
     } else if (arg === '--update-snapshots') {
-      options.updateSnapshots = true;
+      options.overrides.updateSnapshots = true;
     } else if (arg === '--skip-compare') {
-      options.skipCompare = true;
+      options.overrides.skipCompare = true;
     } else if (arg === '--measure-memory') {
-      options.measureMemory = true;
+      options.overrides.measureMemory = true;
     } else if (arg === '--help' || arg === '-h') {
       options.help = true;
     } else {
@@ -157,21 +209,7 @@ function parseArgs(argv: string[]): CliOptions {
     }
   }
 
-  if (!Number.isFinite(options.iterations) || options.iterations < 1) {
-    throw new Error('--iterations must be a positive number');
-  }
-  if (!Number.isFinite(options.warmup) || options.warmup < 0) {
-    throw new Error('--warmup must be a non-negative number');
-  }
-
   return options;
-}
-
-function loadSuites(): SuitesManifest {
-  if (!fs.existsSync(DEFAULT_SUITES_PATH)) {
-    throw new Error(`Missing suite manifest: ${DEFAULT_SUITES_PATH}`);
-  }
-  return JSON.parse(fs.readFileSync(DEFAULT_SUITES_PATH, 'utf8')) as SuitesManifest;
 }
 
 function resolvePath(relOrAbs: string | null): string | null {
@@ -187,6 +225,75 @@ function maybeGc(): void {
   if (typeof global.gc === 'function') {
     global.gc();
   }
+}
+
+function parseJsonFile(filePath: string): unknown {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function loadConfig(configPath: string | null): RunnerConfig {
+  let fileConfig: Partial<RunnerConfig> = {};
+
+  if (configPath) {
+    if (!fs.existsSync(configPath)) {
+      throw new Error(`Config file not found: ${configPath}`);
+    }
+    fileConfig = parseJsonFile(configPath) as Partial<RunnerConfig>;
+  }
+
+  const merged: RunnerConfig = {
+    ...DEFAULT_CONFIG,
+    ...fileConfig,
+  };
+
+  const resolvedOutputDir = resolvePath(merged.outputDir);
+  const resolvedSuitesPath = resolvePath(merged.suitesPath);
+
+  if (!resolvedOutputDir || !resolvedSuitesPath) {
+    throw new Error('Invalid config paths');
+  }
+
+  merged.outputDir = resolvedOutputDir;
+  merged.suitesPath = resolvedSuitesPath;
+
+  return merged;
+}
+
+function applyOverrides(config: RunnerConfig, overrides: Partial<RunnerConfig>): RunnerConfig {
+  const merged: RunnerConfig = {
+    ...config,
+    ...overrides,
+  };
+
+  const resolvedOutputDir = resolvePath(merged.outputDir);
+  const resolvedSuitesPath = resolvePath(merged.suitesPath);
+
+  if (!resolvedOutputDir || !resolvedSuitesPath) {
+    throw new Error('Invalid override paths');
+  }
+
+  merged.outputDir = resolvedOutputDir;
+  merged.suitesPath = resolvedSuitesPath;
+  return merged;
+}
+
+function validateConfig(config: RunnerConfig): void {
+  if (!Number.isFinite(config.iterations) || config.iterations < 1) {
+    throw new Error('`iterations` must be a positive number');
+  }
+  if (!Number.isFinite(config.warmup) || config.warmup < 0) {
+    throw new Error('`warmup` must be a non-negative number');
+  }
+  if (!Number.isFinite(config.runs) || config.runs < 1) {
+    throw new Error('`runs` must be a positive number');
+  }
+}
+
+function loadSuites(suitesPath: string): SuitesManifest {
+  if (!fs.existsSync(suitesPath)) {
+    throw new Error(`Missing suite manifest: ${suitesPath}`);
+  }
+  return parseJsonFile(suitesPath) as SuitesManifest;
 }
 
 function computeStableHash(value: unknown): string {
@@ -401,51 +508,51 @@ function printHelp(): void {
   console.log('Usage:');
   console.log('  npx ts-node scripts/perf-runner.ts [options]');
   console.log('');
+  console.log('Recommended: place settings in a config JSON and use --config.');
+  console.log('');
   console.log('Options:');
-  console.log('  --suite <name>        Suite from perf/suites.json (default: default)');
+  console.log('  --config <path>       Runner config file (default: perf/configs/default.json)');
+  console.log('  --runs <n>            Number of full suite runs');
+  console.log('  --iterations <n>      Iterations per fixture within each run');
+  console.log('  --warmup <n>          Warmup iterations before measured iterations');
+  console.log('  --suite <name>        Suite from suites manifest');
+  console.log('  --suites <path>       Suite manifest path');
   console.log('  --fixture <path>      Run a single fixture instead of a suite');
   console.log('  --snapshot <path>     Snapshot path when using --fixture');
   console.log('  --timezone <tz>       Timezone override');
   console.log('  --output-dir <path>   Directory for perf results JSON');
-  console.log('  --iterations <n>      Number of measured iterations (default: 1)');
-  console.log('  --warmup <n>          Warmup iterations (default: 0)');
   console.log('  --update-snapshots    Replace snapshots with current output');
-  console.log('  --skip-compare        Skip snapshot compare (still records hash)');
+  console.log('  --skip-compare        Skip snapshot compare');
   console.log('  --measure-memory      Print process memory before/after each run');
   console.log('  -h, --help            Show this help');
-  console.log('');
-  console.log(
-    'CPU profiling: run with `node --cpu-prof --cpu-prof-dir <dir> -r ts-node/register scripts/perf-runner.ts ...`',
-  );
 }
 
-function resolveWorkItems(options: CliOptions, suites: SuitesManifest): WorkItem[] {
-  if (options.fixture) {
-    const inputPath = options.fixture;
+function resolveWorkItems(config: RunnerConfig, suites: SuitesManifest): WorkItem[] {
+  if (config.fixture) {
     return [
       {
-        id: path.basename(inputPath, path.extname(inputPath)),
-        input: inputPath,
-        snapshot: options.snapshot,
-        timezone: options.timezone,
+        id: path.basename(config.fixture, path.extname(config.fixture)),
+        input: config.fixture,
+        snapshot: config.snapshot,
+        timezone: config.timezone,
       },
     ];
   }
 
-  const suite = suites[options.suite];
+  const suite = suites[config.suite];
   if (!suite) {
-    throw new Error(`Unknown suite: ${options.suite}`);
+    throw new Error(`Unknown suite: ${config.suite}`);
   }
 
   return suite.fixtures.map((fixture) => ({
     id: fixture.id,
     input: fixture.input,
     snapshot: fixture.snapshot,
-    timezone: options.timezone || suite.timezone || null,
+    timezone: config.timezone || suite.timezone || null,
   }));
 }
 
-function runFixture(fixture: WorkItem, options: CliOptions): FixtureRunResult {
+function runFixture(fixture: WorkItem, config: RunnerConfig, updateSnapshots: boolean): FixtureRunResult {
   const inputPath = resolvePath(fixture.input);
   const snapshotPath = resolvePath(fixture.snapshot);
   if (!inputPath || !fs.existsSync(inputPath)) {
@@ -455,14 +562,14 @@ function runFixture(fixture: WorkItem, options: CliOptions): FixtureRunResult {
   const iterations: IterationResult[] = [];
   let snapshotRecord: SnapshotRecord | null = null;
 
-  for (let i = 0; i < options.warmup; i += 1) {
+  for (let i = 0; i < config.warmup; i += 1) {
     maybeGc();
     parseLog(inputPath, fixture.timezone);
   }
 
-  for (let i = 0; i < options.iterations; i += 1) {
+  for (let i = 0; i < config.iterations; i += 1) {
     maybeGc();
-    const memStart = options.measureMemory ? process.memoryUsage() : null;
+    const memStart = config.measureMemory ? process.memoryUsage() : null;
     const wallStart = process.hrtime.bigint();
     const cpuStart = process.cpuUsage();
 
@@ -470,7 +577,7 @@ function runFixture(fixture: WorkItem, options: CliOptions): FixtureRunResult {
 
     const wallEnd = process.hrtime.bigint();
     const cpuDiff = process.cpuUsage(cpuStart);
-    const memEnd = options.measureMemory ? process.memoryUsage() : null;
+    const memEnd = config.measureMemory ? process.memoryUsage() : null;
 
     if (!snapshotRecord) {
       snapshotRecord = buildSnapshotRecord(parsed, fixture.input, fixture.timezone);
@@ -488,14 +595,14 @@ function runFixture(fixture: WorkItem, options: CliOptions): FixtureRunResult {
     throw new Error(`No snapshot generated for ${fixture.id}`);
   }
 
-  if (options.updateSnapshots) {
+  if (updateSnapshots) {
     if (!snapshotPath) {
       throw new Error('Missing snapshot path for --update-snapshots');
     }
     ensureParentDir(snapshotPath);
     fs.writeFileSync(snapshotPath, `${JSON.stringify(snapshotRecord, null, 2)}\n`, 'utf8');
     console.log(`Updated snapshot: ${snapshotPath}`);
-  } else if (snapshotPath && !options.skipCompare) {
+  } else if (snapshotPath && !config.skipCompare) {
     if (!fs.existsSync(snapshotPath)) {
       throw new Error(`Snapshot not found: ${snapshotPath}`);
     }
@@ -505,7 +612,7 @@ function runFixture(fixture: WorkItem, options: CliOptions): FixtureRunResult {
     }
   } else if (!snapshotPath) {
     console.log(`No snapshot specified for ${fixture.id}; skipping compare.`);
-  } else if (options.skipCompare) {
+  } else if (config.skipCompare) {
     console.log(`Snapshot compare skipped for ${fixture.id}.`);
   }
 
@@ -519,20 +626,27 @@ function runFixture(fixture: WorkItem, options: CliOptions): FixtureRunResult {
   };
 }
 
-function printSummary(result: FixtureRunResult): void {
-  const wall = statsFrom(result.iterations.map((item) => item.wallMs));
-  const cpuUser = statsFrom(result.iterations.map((item) => item.cpuUserMs));
-  const cpuSystem = statsFrom(result.iterations.map((item) => item.cpuSystemMs));
+function summarizeFixtureRun(result: FixtureRunResult): RunFixtureSummary {
+  return {
+    id: result.id,
+    wallMs: statsFrom(result.iterations.map((item) => item.wallMs)),
+    cpuUserMs: statsFrom(result.iterations.map((item) => item.cpuUserMs)),
+    cpuSystemMs: statsFrom(result.iterations.map((item) => item.cpuSystemMs)),
+  };
+}
+
+function printFixtureSummary(result: FixtureRunResult): void {
+  const summary = summarizeFixtureRun(result);
 
   console.log(`Fixture: ${result.id}`);
   console.log(
-    `  wall ms (min/median/p95/max): ${wall.min.toFixed(2)} / ${wall.median.toFixed(2)} / ${wall.p95.toFixed(2)} / ${wall.max.toFixed(2)}`,
+    `  wall ms (min/median/p95/max): ${summary.wallMs.min.toFixed(2)} / ${summary.wallMs.median.toFixed(2)} / ${summary.wallMs.p95.toFixed(2)} / ${summary.wallMs.max.toFixed(2)}`,
   );
   console.log(
-    `  cpu user ms (min/median/p95/max): ${cpuUser.min.toFixed(2)} / ${cpuUser.median.toFixed(2)} / ${cpuUser.p95.toFixed(2)} / ${cpuUser.max.toFixed(2)}`,
+    `  cpu user ms (min/median/p95/max): ${summary.cpuUserMs.min.toFixed(2)} / ${summary.cpuUserMs.median.toFixed(2)} / ${summary.cpuUserMs.p95.toFixed(2)} / ${summary.cpuUserMs.max.toFixed(2)}`,
   );
   console.log(
-    `  cpu sys ms (min/median/p95/max): ${cpuSystem.min.toFixed(2)} / ${cpuSystem.median.toFixed(2)} / ${cpuSystem.p95.toFixed(2)} / ${cpuSystem.max.toFixed(2)}`,
+    `  cpu sys ms (min/median/p95/max): ${summary.cpuSystemMs.min.toFixed(2)} / ${summary.cpuSystemMs.median.toFixed(2)} / ${summary.cpuSystemMs.p95.toFixed(2)} / ${summary.cpuSystemMs.max.toFixed(2)}`,
   );
 
   if (result.iterations[0].memory) {
@@ -547,44 +661,144 @@ function printSummary(result: FixtureRunResult): void {
   }
 }
 
+function aggregateAcrossRuns(allRuns: FixtureRunResult[][]): FixtureAggregate[] {
+  const grouped = new Map<
+    string,
+    {
+      wallMean: number[];
+      cpuUserMean: number[];
+      cpuSystemMean: number[];
+    }
+  >();
+
+  allRuns.forEach((runResults) => {
+    runResults.forEach((result) => {
+      const summary = summarizeFixtureRun(result);
+      if (!grouped.has(result.id)) {
+        grouped.set(result.id, {
+          wallMean: [],
+          cpuUserMean: [],
+          cpuSystemMean: [],
+        });
+      }
+
+      const entry = grouped.get(result.id);
+      if (!entry) {
+        return;
+      }
+
+      entry.wallMean.push(summary.wallMs.mean);
+      entry.cpuUserMean.push(summary.cpuUserMs.mean);
+      entry.cpuSystemMean.push(summary.cpuSystemMs.mean);
+    });
+  });
+
+  return Array.from(grouped.entries()).map(([id, values]) => {
+    const wall = statsFrom(values.wallMean);
+    const cpuUser = statsFrom(values.cpuUserMean);
+    const cpuSystem = statsFrom(values.cpuSystemMean);
+
+    return {
+      id,
+      runs: values.wallMean.length,
+      wallMs: {
+        min: wall.min,
+        max: wall.max,
+        mean: wall.mean,
+        median: wall.median,
+      },
+      cpuUserMs: {
+        min: cpuUser.min,
+        max: cpuUser.max,
+        mean: cpuUser.mean,
+        median: cpuUser.median,
+      },
+      cpuSystemMs: {
+        min: cpuSystem.min,
+        max: cpuSystem.max,
+        mean: cpuSystem.mean,
+        median: cpuSystem.median,
+      },
+    };
+  });
+}
+
+function printAggregateSummary(aggregate: FixtureAggregate[]): void {
+  if (!aggregate.length) {
+    return;
+  }
+
+  console.log('');
+  console.log('Aggregate across runs (run-level means):');
+  aggregate.forEach((item) => {
+    console.log(`Fixture: ${item.id} (${item.runs} runs)`);
+    console.log(
+      `  wall ms avg/median/min/max: ${item.wallMs.mean.toFixed(2)} / ${item.wallMs.median.toFixed(2)} / ${item.wallMs.min.toFixed(2)} / ${item.wallMs.max.toFixed(2)}`,
+    );
+    console.log(
+      `  cpu user ms avg/median/min/max: ${item.cpuUserMs.mean.toFixed(2)} / ${item.cpuUserMs.median.toFixed(2)} / ${item.cpuUserMs.min.toFixed(2)} / ${item.cpuUserMs.max.toFixed(2)}`,
+    );
+    console.log(
+      `  cpu sys ms avg/median/min/max: ${item.cpuSystemMs.mean.toFixed(2)} / ${item.cpuSystemMs.median.toFixed(2)} / ${item.cpuSystemMs.min.toFixed(2)} / ${item.cpuSystemMs.max.toFixed(2)}`,
+    );
+  });
+}
+
 function run(): void {
-  const options = parseArgs(process.argv.slice(2));
-  if (options.help) {
+  const cliOptions = parseArgs(process.argv.slice(2));
+  if (cliOptions.help) {
     printHelp();
     process.exit(0);
   }
 
-  const suites = options.fixture ? {} : loadSuites();
-  const workItems = resolveWorkItems(options, suites);
+  const effectiveConfigPath =
+    cliOptions.configPath || (fs.existsSync(DEFAULT_CONFIG_PATH) ? DEFAULT_CONFIG_PATH : null);
 
-  ensureParentDir(path.join(options.outputDir, 'placeholder.txt'));
+  const fileConfig = loadConfig(effectiveConfigPath);
+  const config = applyOverrides(fileConfig, cliOptions.overrides);
+  validateConfig(config);
+
+  const suites = config.fixture ? {} : loadSuites(config.suitesPath);
+  const workItems = resolveWorkItems(config, suites);
+
+  ensureParentDir(path.join(config.outputDir, 'placeholder.txt'));
 
   const runId = new Date().toISOString().replace(/[:.]/g, '-');
-  const runOutput: {
-    runId: string;
-    node: string;
-    platform: NodeJS.Platform;
-    arch: string;
-    iterations: number;
-    warmup: number;
-    results: FixtureRunResult[];
-  } = {
+  const runOutput: RunOutput = {
     runId,
     node: process.version,
     platform: process.platform,
     arch: process.arch,
-    iterations: options.iterations,
-    warmup: options.warmup,
-    results: [],
+    config,
+    runs: [],
+    aggregateByFixture: [],
   };
 
-  workItems.forEach((fixture) => {
-    const result = runFixture(fixture, options);
-    runOutput.results.push(result);
-    printSummary(result);
-  });
+  const perRunResults: FixtureRunResult[][] = [];
 
-  const outputPath = path.join(options.outputDir, `perf-${runId}.json`);
+  for (let runIndex = 1; runIndex <= config.runs; runIndex += 1) {
+    console.log(``);
+    console.log(`=== Run ${runIndex}/${config.runs} ===`);
+
+    const runResults: FixtureRunResult[] = [];
+    workItems.forEach((fixture) => {
+      const shouldUpdateSnapshots = config.updateSnapshots && runIndex === 1;
+      const result = runFixture(fixture, config, shouldUpdateSnapshots);
+      runResults.push(result);
+      printFixtureSummary(result);
+    });
+
+    perRunResults.push(runResults);
+    runOutput.runs.push({
+      runIndex,
+      results: runResults,
+    });
+  }
+
+  runOutput.aggregateByFixture = aggregateAcrossRuns(perRunResults);
+  printAggregateSummary(runOutput.aggregateByFixture);
+
+  const outputPath = path.join(config.outputDir, `perf-${runId}.json`);
   fs.writeFileSync(outputPath, `${JSON.stringify(runOutput, null, 2)}\n`, 'utf8');
   console.log(`Wrote perf results: ${outputPath}`);
 }

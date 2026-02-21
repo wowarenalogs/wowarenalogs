@@ -1,0 +1,11 @@
+{
+  "suite": "default",
+  "suitesPath": "perf/suites.json",
+  "outputDir": "perf/results",
+  "runs": 1,
+  "iterations": 1,
+  "warmup": 0,
+  "measureMemory": false,
+  "updateSnapshots": true,
+  "skipCompare": true
+}

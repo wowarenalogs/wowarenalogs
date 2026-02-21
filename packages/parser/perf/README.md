@@ -8,27 +8,54 @@ This folder contains fixtures, snapshots, and perf results for parser regression
 # Build parser first if needed
 npm run build:parser
 
-# Verify snapshots + collect metrics (1 iteration)
+# Verify snapshots + collect metrics
 npm run perf:run -w @wowarenalogs/parser
 
 # Update snapshots
 npm run perf:update -w @wowarenalogs/parser
 
-# Benchmark (5 iterations + 1 warmup)
+# Benchmark (default: 5 full runs)
 npm run perf:bench -w @wowarenalogs/parser
 ```
 
-If you want warmup iterations but do not want snapshot mismatches to fail the run, add `--skip-compare`:
+Perf runs are configured with JSON files in `perf/configs/`.
+
+## Run Configs
+
+`perf/configs/default.json` is used by default and supports:
+
+- `suite`: suite name from `perf/suites.json`
+- `suitesPath`: suite manifest path
+- `runs`: number of full suite runs
+- `iterations`: measured iterations per fixture in each run
+- `warmup`: warmup iterations per fixture in each run
+- `measureMemory`: include per-iteration memory deltas
+- `updateSnapshots`: rewrite snapshot files (first run only)
+- `skipCompare`: skip hash compare
+- `outputDir`: output directory for perf JSON
+
+Example override:
 
 ```bash
-node scripts/perf-runner.js --iterations 5 --warmup 1 --skip-compare
+npm run perf:run -w @wowarenalogs/parser -- --config perf/configs/benchmark.json
 ```
 
-## Memory Metrics
+You can still override individual fields at runtime (for ad hoc runs):
 
 ```bash
-npm run perf:memory -w @wowarenalogs/parser
+npm run perf:run -w @wowarenalogs/parser -- --runs 10 --iterations 2
 ```
+
+## Aggregates
+
+When `runs > 1`, the runner computes aggregate metrics across the run set for each fixture:
+
+- average
+- median
+- min
+- max
+
+(Computed on each run's mean metric values.)
 
 ## CPU Profiles (Flamegraphs)
 
