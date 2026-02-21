@@ -2,8 +2,9 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-import { WoWCombatLogParser } from '../dist';
+import { WoWCombatLogParser } from '../dist/index.js';
 
 type ParserEventPayload = unknown;
 
@@ -12,7 +13,8 @@ interface ParserErrorPayload {
   name?: string;
 }
 
-const ROOT_DIR = path.resolve(__dirname, '..');
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = path.resolve(SCRIPT_DIR, '..');
 const DEFAULT_SUITE = 'default';
 const DEFAULT_OUTPUT_DIR = path.resolve(ROOT_DIR, 'perf/results');
 const DEFAULT_SUITES_PATH = path.resolve(ROOT_DIR, 'perf/suites.json');
@@ -219,7 +221,8 @@ function computeStableHash(value: unknown): string {
       return;
     }
     if (type === 'bigint') {
-      update(`big:${currentValue.toString()};`);
+      const bigintValue = currentValue as bigint;
+      update(`big:${bigintValue.toString()};`);
       return;
     }
     if (type === 'undefined') {
@@ -305,7 +308,7 @@ function readLogLines(inputPath: string): string[] {
 }
 
 function parseLog(inputPath: string, timezone: string | null): ParsedResult {
-  const parser = new WoWCombatLogParser(null, timezone);
+  const parser = new WoWCombatLogParser(null, timezone ?? undefined);
   const parsed: ParsedResult = {
     combats: [],
     malformedCombats: [],
