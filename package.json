@@ -2,7 +2,7 @@
   "name": "wowarenalogs",
   "productName": "WoW Arena Logs",
   "license": "MIT",
-  "version": "12.2.0",
+  "version": "12.3.0",
   "description": "WoW Arena Logs",
   "author": "WoW Arena Logs",
   "homepage": ".",
@@ -29,6 +29,8 @@
     ],
     "includeSubNodeModules": true,
     "asarUnpack": [
+      "packages/app/dist/node_modules/noobs/**",
+      "packages/app/dist/dist/**",
       "packages/app/dist/lib/noobs/**"
     ],
     "directories": {
