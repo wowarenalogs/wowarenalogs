@@ -7,6 +7,7 @@ import path from 'path';
 
 import { logger } from '../../logger';
 import { moduleEvent, moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../module';
+import { toDriveLabel } from './common/driveUtils';
 
 const DISK_SPACE_THRESHOLD = 2e9; // ~2gb
 
@@ -125,7 +126,7 @@ export class ObsModule extends NativeBridgeModule {
   }
 
   @moduleEvent('on')
-  public diskSpaceBecameCritical(_mainWindow: BrowserWindow, _bytesRemaining: number) {
+  public diskSpaceBecameCritical(_mainWindow: BrowserWindow, _bytesRemaining: number, _driveLabel?: string) {
     return;
   }
 
@@ -157,10 +158,11 @@ export class ObsModule extends NativeBridgeModule {
    */
   async checkDiskSpace(mainWindow: BrowserWindow) {
     if (this.manager?.getConfiguration().storagePath) {
-      const details = await this.getDiskSpaceDetails(this.manager?.getConfiguration().storagePath);
+      const storagePath = this.manager?.getConfiguration().storagePath;
+      const details = await this.getDiskSpaceDetails(storagePath);
       if (details.free < DISK_SPACE_THRESHOLD) {
         // warn
-        this.diskSpaceBecameCritical(mainWindow, details.free);
+        this.diskSpaceBecameCritical(mainWindow, details.free, toDriveLabel(storagePath, details.diskPath));
       }
     }
   }

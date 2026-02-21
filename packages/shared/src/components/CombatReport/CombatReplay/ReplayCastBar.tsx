@@ -1,10 +1,10 @@
-import { Sprite } from '@inlet/react-pixi';
 import { ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 import _ from 'lodash';
+import { Texture } from 'pixi.js';
 import { useMemo } from 'react';
 
 import { useCombatReportContext } from '../CombatReportContext';
-import { Container } from './pixi-compat';
+import { useTexture } from './pixi-assets';
 
 interface IProps {
   unit: ICombatUnit;
@@ -127,18 +127,22 @@ export const ReplayCastBar = (props: IProps) => {
     return justFinished;
   })();
 
+  const spellTexture = useTexture(
+    renderState ? `https://images.wowarenalogs.com/spells/${renderState.spellId}.jpg` : null,
+  );
+
   if (!renderState) {
     return null;
   }
 
   return (
-    <Container
+    <pixiContainer
       x={BAR_WIDTH * -0.5}
       y={BAR_Y_OFFSET - BAR_HEIGHT}
       alpha={renderState.casting ? 1 : 1 - renderState.progress}
     >
-      <Sprite
-        image="https://images.wowarenalogs.com/common/white.png"
+      <pixiSprite
+        texture={Texture.WHITE}
         width={BAR_WIDTH}
         height={BAR_HEIGHT}
         tint={
@@ -149,8 +153,8 @@ export const ReplayCastBar = (props: IProps) => {
               : CAST_BAR_FAILURE_COLOR
         }
       />
-      <Sprite
-        image="https://images.wowarenalogs.com/common/white.png"
+      <pixiSprite
+        texture={Texture.WHITE}
         x={BAR_INNER_PADDING}
         y={BAR_INNER_PADDING}
         width={(BAR_WIDTH - 2 * BAR_INNER_PADDING) * (renderState.casting ? renderState.progress : 1)}
@@ -163,13 +167,15 @@ export const ReplayCastBar = (props: IProps) => {
               : CAST_BAR_FAILURE_COLOR
         }
       />
-      <Sprite
-        image={`https://images.wowarenalogs.com/spells/${renderState.spellId}.jpg`}
-        width={ICON_SIZE}
-        height={ICON_SIZE}
-        x={-ICON_SIZE - BAR_INNER_PADDING}
-        y={-(ICON_SIZE - BAR_HEIGHT) / 2}
-      />
-    </Container>
+      {spellTexture ? (
+        <pixiSprite
+          texture={spellTexture}
+          width={ICON_SIZE}
+          height={ICON_SIZE}
+          x={-ICON_SIZE - BAR_INNER_PADDING}
+          y={-(ICON_SIZE - BAR_HEIGHT) / 2}
+        />
+      ) : null}
+    </pixiContainer>
   );
 };
