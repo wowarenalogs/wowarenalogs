@@ -4,10 +4,12 @@ import fetch from 'node-fetch';
 import path from 'path';
 
 const WAGO_DB2_BASE = 'https://wago.tools/db2';
+const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66044';
+const withBuild = (tableName: string) => `${WAGO_DB2_BASE}/${tableName}/csv?build=${encodeURIComponent(WAGO_BUILD)}`;
 const SOURCE_TABLES = {
-  spell: `${WAGO_DB2_BASE}/Spell/csv`,
-  spellMisc: `${WAGO_DB2_BASE}/SpellMisc/csv`,
-  spellName: `${WAGO_DB2_BASE}/SpellName/csv`,
+  spell: withBuild('Spell'),
+  spellMisc: withBuild('SpellMisc'),
+  spellName: withBuild('SpellName'),
 };
 
 // Attribute ids sourced from:
@@ -177,7 +179,7 @@ function enrichWithNames(spellIds: string[], namesById: Map<string, string>): IN
 }
 
 async function main() {
-  console.log('Downloading Spell + SpellMisc + SpellName CSV data from wago.tools');
+  console.log(`Downloading Spell + SpellMisc + SpellName CSV data from wago.tools (build=${WAGO_BUILD})`);
   const [spellRows, spellMiscRows, spellNameRows] = await Promise.all([
     loadCsv(SOURCE_TABLES.spell),
     loadCsv(SOURCE_TABLES.spellMisc),

@@ -9,15 +9,17 @@ import taggedSpellsDump from '../../shared/src/data/spells.json';
 const taggedSpellIds = Object.keys(taggedSpellsDump);
 
 const WAGO_DB2_BASE = 'https://wago.tools/db2';
+const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66044';
+const withBuild = (tableName: string) => `${WAGO_DB2_BASE}/${tableName}/csv?build=${encodeURIComponent(WAGO_BUILD)}`;
 const SOURCE_TABLES = {
-  spellCooldowns: `${WAGO_DB2_BASE}/SpellCooldowns/csv`,
-  spellCategory: `${WAGO_DB2_BASE}/SpellCategory/csv`,
-  spellCategories: `${WAGO_DB2_BASE}/SpellCategories/csv`,
-  spellCastTimes: `${WAGO_DB2_BASE}/SpellCastTimes/csv`,
-  spellEffect: `${WAGO_DB2_BASE}/SpellEffect/csv`,
-  spellName: `${WAGO_DB2_BASE}/SpellName/csv`,
-  spellDuration: `${WAGO_DB2_BASE}/SpellDuration/csv`,
-  spellMisc: `${WAGO_DB2_BASE}/SpellMisc/csv`,
+  spellCooldowns: withBuild('SpellCooldowns'),
+  spellCategory: withBuild('SpellCategory'),
+  spellCategories: withBuild('SpellCategories'),
+  spellCastTimes: withBuild('SpellCastTimes'),
+  spellEffect: withBuild('SpellEffect'),
+  spellName: withBuild('SpellName'),
+  spellDuration: withBuild('SpellDuration'),
+  spellMisc: withBuild('SpellMisc'),
 };
 
 let spellCategory: {
@@ -311,7 +313,7 @@ function buildIndexes() {
 }
 
 async function main() {
-  console.log('Loading data files from wago.tools');
+  console.log(`Loading data files from wago.tools (build=${WAGO_BUILD})`);
   await loadFiles();
   buildIndexes();
   console.log(
