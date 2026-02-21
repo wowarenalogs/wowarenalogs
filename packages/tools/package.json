@@ -8,6 +8,7 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "start:generateSpellsData": "ts-node --files ./src/generateSpellsData.ts",
+    "start:generateSpellIdLists": "ts-node --files ./src/generateSpellIdLists.ts",
     "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts",
     "start:simlog": "dotenv -- ts-node --files ./src/simlog.ts"
   },

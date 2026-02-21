@@ -9,6 +9,7 @@ import {
 import _ from 'lodash';
 import { useMemo } from 'react';
 
+import { awcSpellIds } from '../../../../data/awcSpells';
 import { IMinedSpell, spellEffectData } from '../../../../data/spellEffectData';
 import { spellIdToPriority, trinketSpellIds } from '../../../../data/spellTags';
 import { computeAuraDurations, IAuraDuration } from '../../../../utils/auras';
@@ -18,7 +19,7 @@ import styles from './UnitFrame.module.css';
 import { UnitHpBar } from './UnitHpBar';
 import { UnitPowerBar } from './UnitPowerBar';
 import { UnitSpecIcon } from './UnitSpecIcon';
-import { computeTrackableSpellsForUnit, UnitSpellTracker } from './UnitSpellTracker';
+import { UnitSpellTracker } from './UnitSpellTracker';
 import { UnitTrinketTracker } from './UnitTrinketTracker';
 
 interface IProps {
@@ -368,7 +369,7 @@ export const UnitFrame = (props: IProps) => {
   })();
 
   // Build list of trackable spells
-  const trackableSpells = useMemo(() => computeTrackableSpellsForUnit(props.unit), [props.unit]);
+  const trackableSpells = awcSpellIds;
 
   // Spell casts to track cooldowns for the Spell Tracker (AWC frame)
   const trackedSpellCasts = useMemo(() => {
