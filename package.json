@@ -25,11 +25,13 @@
     "extends": null,
     "afterSign": "./scripts/notarize.js",
     "files": [
-      "packages/app/dist/**/*"
+      "packages/app/dist/**/*",
+      "node_modules/noobs/**"
     ],
     "includeSubNodeModules": true,
     "asarUnpack": [
-      "packages/app/dist/lib/noobs/**"
+      "packages/app/dist/lib/noobs/**",
+      "node_modules/noobs/**"
     ],
     "directories": {
       "buildResources": "packages/app/assets"

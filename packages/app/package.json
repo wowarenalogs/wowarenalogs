@@ -42,5 +42,8 @@
     "update-electron-app": "^2.0.1",
     "webpack": "^5.76.0",
     "winston": "^3.13.0"
+  },
+  "optionalDependencies": {
+    "noobs": "^0.0.184"
   }
 }
