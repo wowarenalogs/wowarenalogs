@@ -265,10 +265,6 @@ async function main() {
     path.resolve(reviewDirPath, 'bigDefensiveSpellsWithNames.json'),
     `${JSON.stringify(reviewOutput.bigDefensiveSpells, null, 2)}\n`,
   );
-  await fs.writeFile(
-    path.resolve(reviewDirPath, 'externalOrBigDefensiveSpellsWithNames.json'),
-    `${JSON.stringify(reviewOutput.externalOrBigDefensiveSpells, null, 2)}\n`,
-  );
   console.log(`Wrote spell id lists to ${outputPath}`);
   console.log(`Wrote per-category review files to ${reviewDirPath}`);
   console.log(`allSpellIds: ${allSpellIds.length}`);
