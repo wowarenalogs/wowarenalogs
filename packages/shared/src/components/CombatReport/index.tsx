@@ -15,6 +15,7 @@ import { CombatCC } from './CombatCC';
 import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
 import { CombatLogView } from './CombatLogView';
+import { CombatPerformance } from './CombatPerformance';
 import { CombatPlayers } from './CombatPlayers';
 import { CombatReportContextProvider, useCombatReportContext } from './CombatReportContext';
 import { CombatScoreboard } from './CombatScoreboard';
@@ -108,6 +109,14 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
           Players
         </a>
         <a
+          className={`tab ${activeTab === 'performance' ? 'tab-active' : ''}`}
+          onClick={() => {
+            setActiveTab('performance');
+          }}
+        >
+          Performance
+        </a>
+        <a
           className={`tab ${activeTab === 'cc' ? 'tab-active' : ''}`}
           onClick={() => {
             setActiveTab('cc');
@@ -182,6 +191,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
         <div className="mr-4 min-h-full relative flex flex-col">
           {activeTab === 'summary' && <CombatSummary />}
           {activeTab === 'players' && <CombatPlayers />}
+          {activeTab === 'performance' && <CombatPerformance />}
           {activeTab === 'cc' && <CombatCC />}
           {activeTab === 'death' && <CombatDeathReports />}
           {activeTab === 'curves' && <CombatCurves />}
