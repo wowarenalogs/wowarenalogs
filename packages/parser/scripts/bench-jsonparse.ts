@@ -41,23 +41,100 @@ console.log(`Payloads: ${payloads.length}`);
 console.log(`Warmup: ${warmupIterations} iteration(s) (${warmupParses} parses)`);
 console.log(`Runs: ${iterations} iteration(s) (${totalParses} parses)`);
 
-for (let i = 0; i < warmupIterations; i += 1) {
-  for (const payload of payloads) {
-    parseWowToJSON(payload);
+function escapeCommasLegacy(line: string): string {
+  const COMMA_SENTINEL_CHARACTER = '@';
+  const marks: number[] = [];
+  let inside_quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const c = line[i];
+    const prev_c = i > 0 ? line[i - 1] : null;
+    if (inside_quoted) {
+      if (c === '"' && (prev_c == null || prev_c !== '\\')) {
+        inside_quoted = false;
+        continue;
+      }
+      if (c === ',') {
+        marks.push(i);
+      }
+    } else if (c === '"') {
+      inside_quoted = true;
+    }
   }
+  if (marks.length === 0) {
+    return line;
+  }
+  const chars = line.split('');
+  for (const m of marks) {
+    chars[m] = COMMA_SENTINEL_CHARACTER;
+  }
+  return chars.join('');
 }
 
-const start = process.hrtime.bigint();
-for (let i = 0; i < iterations; i += 1) {
-  for (const payload of payloads) {
-    parseWowToJSON(payload);
-  }
+function unEscapeCommasLegacy(line: string): string {
+  return line.replace('@', ',');
 }
-const end = process.hrtime.bigint();
 
-const elapsedNs = Number(end - start);
-const elapsedMs = elapsedNs / 1e6;
-const perParseUs = elapsedNs / totalParses / 1e3;
+// Legacy implementation from before the optimizations (kept local to the benchmark).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseWowToJSONLegacy(logline: string): any {
+  const parametersForJson = escapeCommasLegacy(logline).split(',');
+  let buf = '';
+  for (const p of parametersForJson) {
+    if (buf) {
+      buf += ',';
+    }
+    if (/^[-0-9)(.\][]+$/g.test(p)) {
+      if (/^0+$/g.test(p)) {
+        buf += '0';
+      } else {
+        buf += p;
+      }
+    } else if (p[0] === '"') {
+      buf += p;
+    } else {
+      // eslint-disable-next-line no-useless-escape
+      const openingMarkers = /^([\(\)\]\[]+)/g;
+      // eslint-disable-next-line no-useless-escape
+      const closingMarkers = /([\(\)\]\[]+)$/g;
+      let prefix = openingMarkers.exec(p) || '';
+      let suffix = closingMarkers.exec(p) || '';
+      prefix = prefix ? prefix[0] : '';
+      suffix = suffix ? suffix[0] : '';
 
-console.log(`Elapsed: ${elapsedMs.toFixed(2)} ms`);
-console.log(`Per-parse: ${perParseUs.toFixed(2)} µs`);
+      let tempP = p.replace(openingMarkers, '');
+      tempP = tempP.replace(closingMarkers, '');
+      buf += `${prefix}"${tempP}"${suffix}`;
+    }
+  }
+  buf = buf.replace(/\(/g, '[');
+  buf = buf.replace(/\)/g, ']');
+  return JSON.parse(`{"data":[${unEscapeCommasLegacy(buf).replaceAll('[,[', '[[')}]}`);
+}
+
+function runBench(label: string, parser: (payload: string) => void) {
+  for (let i = 0; i < warmupIterations; i += 1) {
+    for (const payload of payloads) {
+      parser(payload);
+    }
+  }
+
+  const start = process.hrtime.bigint();
+  for (let i = 0; i < iterations; i += 1) {
+    for (const payload of payloads) {
+      parser(payload);
+    }
+  }
+  const end = process.hrtime.bigint();
+
+  const elapsedNs = Number(end - start);
+  const elapsedMs = elapsedNs / 1e6;
+  const perParseUs = elapsedNs / totalParses / 1e3;
+
+  console.log('');
+  console.log(label);
+  console.log(`Elapsed: ${elapsedMs.toFixed(2)} ms`);
+  console.log(`Per-parse: ${perParseUs.toFixed(2)} µs`);
+}
+
+runBench('Current parseWowToJSON', parseWowToJSON);
+runBench('Legacy parseWowToJSON', parseWowToJSONLegacy);
