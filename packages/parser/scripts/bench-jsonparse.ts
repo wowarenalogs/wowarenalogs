@@ -1,9 +1,8 @@
 /* eslint-disable no-console */
 import fs from 'fs';
+import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -58,7 +57,7 @@ const end = process.hrtime.bigint();
 
 const elapsedNs = Number(end - start);
 const elapsedMs = elapsedNs / 1e6;
-const perParseUs = (elapsedNs / totalParses) / 1e3;
+const perParseUs = elapsedNs / totalParses / 1e3;
 
 console.log(`Elapsed: ${elapsedMs.toFixed(2)} ms`);
 console.log(`Per-parse: ${perParseUs.toFixed(2)} µs`);
