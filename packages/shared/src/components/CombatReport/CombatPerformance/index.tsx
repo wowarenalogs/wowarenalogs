@@ -27,6 +27,8 @@ interface ISpellStat {
   total: number;
   hits: number;
   crits: number;
+  maxHit: number;
+  maxCritHit: number;
 }
 
 const isHpUpdateAction = (action: CombatHpUpdateAction | CombatAbsorbAction): action is CombatHpUpdateAction => {
@@ -40,11 +42,14 @@ const compileSpellStats = (actions: CombatHpUpdateAction[]) => {
     .forEach((action) => {
       const id = action.spellId ? String(action.spellId) : 'swing';
       const name = action.spellName || 'Auto Attack';
-      const entry = spellMap.get(id) || { id, name, total: 0, hits: 0, crits: 0 };
-      entry.total += Math.abs(action.effectiveAmount);
+      const amount = Math.abs(action.effectiveAmount);
+      const entry = spellMap.get(id) || { id, name, total: 0, hits: 0, crits: 0, maxHit: 0, maxCritHit: 0 };
+      entry.total += amount;
       entry.hits += 1;
+      entry.maxHit = Math.max(entry.maxHit, amount);
       if (action.isCritical) {
         entry.crits += 1;
+        entry.maxCritHit = Math.max(entry.maxCritHit, amount);
       }
       spellMap.set(id, entry);
     });
@@ -312,6 +317,8 @@ export const CombatPerformance = () => {
                 <th className="bg-base-300 text-right">Casts</th>
                 <th className="bg-base-300 text-right">Hits</th>
                 <th className="bg-base-300 text-right">Avg Hit</th>
+                <th className="bg-base-300 text-right">Max Hit</th>
+                <th className="bg-base-300 text-right">Max Crit Hit</th>
                 <th className="bg-base-300 text-right">Crit %</th>
                 <th className="bg-base-300 text-right">{rateLabel}</th>
               </tr>
@@ -331,6 +338,10 @@ export const CombatPerformance = () => {
                     <td className="bg-base-200 text-right">{spell.hits}</td>
                     <td className="bg-base-200 text-right">
                       {Utils.printCombatNumber(spell.hits ? spell.total / spell.hits : 0)}
+                    </td>
+                    <td className="bg-base-200 text-right">{Utils.printCombatNumber(spell.maxHit)}</td>
+                    <td className="bg-base-200 text-right">
+                      {spell.maxCritHit ? Utils.printCombatNumber(spell.maxCritHit) : '-'}
                     </td>
                     <td className="bg-base-200 text-right">{critRate.toFixed(1)}%</td>
                     <td className="bg-base-200 text-right">{Utils.printCombatNumber(spell.total / combatDuration)}</td>
