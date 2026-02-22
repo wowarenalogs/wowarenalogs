@@ -481,7 +481,7 @@ export class Recorder {
     }
     const captureModeItem =
       captureModeProp && captureModeProp.type === 'list'
-        ? captureModeProp.items?.find((item) => String(item.value) === 'window') ?? captureModeProp.items?.[0]
+        ? (captureModeProp.items?.find((item) => String(item.value) === 'window') ?? captureModeProp.items?.[0])
         : undefined;
 
     const settings = {
@@ -511,9 +511,9 @@ export class Recorder {
 
     const windowItem =
       windowProp && windowProp.type === 'list'
-        ? windowProp.items?.find(
+        ? (windowProp.items?.find(
             (item) => item.name.includes('[Wow.exe]: World of Warcraft') || item.name.includes('魔兽世界'),
-          ) ?? windowProp.items?.[0]
+          ) ?? windowProp.items?.[0])
         : undefined;
     const methodItem = methodProp && methodProp.type === 'list' ? methodProp.items?.[0] : undefined;
     const priorityItem = priorityProp && priorityProp.type === 'list' ? priorityProp.items?.[0] : undefined;
