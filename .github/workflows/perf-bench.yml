@@ -61,7 +61,7 @@ jobs:
 
             const workflowRun = runs.data.workflow_runs.find((run) => run.name === workflowName);
             if (!workflowRun) {
-              core.setFailed(`No successful ${workflowName} runs found on ${branch}`);
+              core.setOutput('found', 'false');
               return;
             }
 
@@ -73,15 +73,16 @@ jobs:
 
             const artifact = artifacts.data.artifacts.find((item) => item.name === artifactName);
             if (!artifact) {
-              core.setFailed(`No artifact named ${artifactName} in run ${workflowRun.id}`);
+              core.setOutput('found', 'false');
               return;
             }
 
+            core.setOutput('found', 'true');
             core.setOutput('artifact_id', String(artifact.id));
             core.setOutput('artifact_name', artifactName);
             core.setOutput('run_id', String(workflowRun.id));
       - name: download baseline artifact
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && steps.baseline.outputs.found == 'true'
         run: |
           mkdir -p /tmp/baseline
           curl -L \
@@ -91,7 +92,7 @@ jobs:
             --output /tmp/baseline.zip
           unzip -q /tmp/baseline.zip -d /tmp/baseline
       - name: download baseline artifact (windows)
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && steps.baseline.outputs.found == 'true'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path C:\baseline | Out-Null
@@ -105,13 +106,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: compare perf results
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && steps.baseline.outputs.found == 'true'
         run: node packages/parser/scripts/compare-perf.js /tmp/baseline packages/parser/perf/results "${{ matrix.os }}"
       - name: compare perf results (windows)
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && steps.baseline.outputs.found == 'true'
         shell: pwsh
         run: node packages/parser/scripts/compare-perf.js C:\baseline packages/parser/perf/results "${{ matrix.os }}"
       - name: upload perf comparison
+        if: steps.baseline.outputs.found == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: parser-perf-compare-${{ matrix.os }}
