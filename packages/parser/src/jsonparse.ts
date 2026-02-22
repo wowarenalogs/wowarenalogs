@@ -1,10 +1,41 @@
 const COMMA_SENTINEL_CHARACTER = '@';
-const NUMERIC_TOKEN = /^[-0-9)(.\][]+$/;
-const ALL_ZEROS = /^0+$/;
-// eslint-disable-next-line no-useless-escape
-const OPENING_MARKERS = /^([\(\)\]\[]+)/;
-// eslint-disable-next-line no-useless-escape
-const CLOSING_MARKERS = /([\(\)\]\[]+)$/;
+function isMarkerChar(code: number): boolean {
+  return code === 40 || code === 41 || code === 91 || code === 93; // ()[]
+}
+
+function isNumericToken(value: string): boolean {
+  if (value.length === 0) {
+    return false;
+  }
+  for (let i = 0; i < value.length; i += 1) {
+    const c = value.charCodeAt(i);
+    const isDigit = c >= 48 && c <= 57;
+    if (
+      !isDigit &&
+      c !== 45 && // -
+      c !== 40 && // (
+      c !== 41 && // )
+      c !== 46 && // .
+      c !== 91 && // [
+      c !== 93 // ]
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isAllZeros(value: string): boolean {
+  if (value.length === 0) {
+    return false;
+  }
+  for (let i = 0; i < value.length; i += 1) {
+    if (value.charCodeAt(i) !== 48) {
+      return false;
+    }
+  }
+  return true;
+}
 
 /*
     function to find commas inside quoted text in a comma-delimited line and replace them with sentinel chars
@@ -67,9 +98,9 @@ export function parseWowToJSON(logline: string): any {
   for (let i = 0; i < parametersForJson.length; i += 1) {
     const p = parametersForJson[i];
     // Does the string only contain numbers or ()[], characters?
-    if (NUMERIC_TOKEN.test(p)) {
+    if (isNumericToken(p)) {
       // Is it actually a long string of zeros? (json.parse does not like this)
-      if (ALL_ZEROS.test(p)) {
+      if (isAllZeros(p)) {
         outParts[i] = '0'; // reduce to a single zero
       } else {
         outParts[i] = p;
@@ -83,14 +114,18 @@ export function parseWowToJSON(logline: string): any {
 
         // Prefix and suffix represent the potential []() characters
         //  that are list separators in the log. Find these and save them.
-        let prefix = OPENING_MARKERS.exec(p) || '';
-        let suffix = CLOSING_MARKERS.exec(p) || '';
-        prefix = prefix ? prefix[0] : '';
-        suffix = suffix ? suffix[0] : '';
+        let start = 0;
+        let end = p.length;
+        while (start < end && isMarkerChar(p.charCodeAt(start))) {
+          start += 1;
+        }
+        while (end > start && isMarkerChar(p.charCodeAt(end - 1))) {
+          end -= 1;
+        }
 
-        // Remove the prefix/suffix from the string needing quotes
-        let tempP = p.replace(OPENING_MARKERS, '');
-        tempP = tempP.replace(CLOSING_MARKERS, '');
+        const prefix = start > 0 ? p.slice(0, start) : '';
+        const suffix = end < p.length ? p.slice(end) : '';
+        const tempP = p.slice(start, end);
 
         // Quote the non-separator bits and add the prefix/suffix back in
         outParts[i] = `${prefix}"${tempP}"${suffix}`;

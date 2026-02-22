@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import { CombatUnitPowerType, ILogLine, WowVersion } from '../types';
 import { CombatAction } from './CombatAction';
 
@@ -53,23 +51,18 @@ export class CombatAdvancedAction extends CombatAction {
 
     const wowVersionOffset = wowVersion === 'retail' ? 2 : -1;
 
-    const powerType = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 8]
-      .toString()
-      .split('|')
-      .map((v: string) => v);
-    const currentPower = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 9]
-      .toString()
-      .split('|')
-      .map((v: string) => parseInt(v));
-    const maxPower = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 10]
-      .toString()
-      .split('|')
-      .map((v: string) => parseInt(v));
-    this.advancedActorPowers = _.range(0, powerType.length).map((i) => ({
-      type: powerType[i],
-      current: currentPower[i],
-      max: maxPower[i],
-    }));
+    const powerType = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 8].toString().split('|');
+    const currentPower = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 9].toString().split('|');
+    const maxPower = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 10].toString().split('|');
+    const powers: ICombatUnitPower[] = new Array(powerType.length);
+    for (let i = 0; i < powerType.length; i += 1) {
+      powers[i] = {
+        type: powerType[i],
+        current: parseInt(currentPower[i], 10),
+        max: parseInt(maxPower[i], 10),
+      };
+    }
+    this.advancedActorPowers = powers;
 
     this.advancedActorPositionX = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 12];
     this.advancedActorPositionY = logLine.parameters[advancedLoggingOffset + wowVersionOffset + 13];
