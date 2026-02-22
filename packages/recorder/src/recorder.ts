@@ -368,6 +368,7 @@ export class Recorder {
       case EOBSOutputSignal.Deactivate:
       case 'stop':
       case 'deactivate':
+        if (obsSignal.id === 'stop') this.wroteQueue.push(obsSignal);
         this.obsState = ERecordingState.Offline;
         this.updateStatus('WaitingForWoW');
         if (obsSignal.id === EOBSOutputSignal.Deactivate) {
@@ -379,11 +380,6 @@ export class Recorder {
       case 'stopping':
         this.obsState = ERecordingState.Stopping;
         this.updateStatus('WaitingForWoW');
-        break;
-
-      case EOBSOutputSignal.Wrote:
-      case 'wrote':
-        this.wroteQueue.push(obsSignal);
         break;
 
       default:
@@ -736,6 +732,7 @@ export class Recorder {
     }
 
     const roundedBacktrack = Math.max(0, Math.round(backtrackSeconds));
+    Recorder.logger.info(`[Recorder] Starting recording with backtrack: ${roundedBacktrack}s`);
     getNoobs().StartRecording(roundedBacktrack);
     this.updateStatus('Recording');
     this.isRecording = true;
@@ -781,6 +778,7 @@ export class Recorder {
       bufferFile = await this.saveBufferToFile();
     } catch (e) {
       Recorder.logger.error('[Recorder] Unable to save buffer file');
+      Recorder.logger.error(String(e));
       resolveHelper();
       this.overrunResolve = undefined;
       this.isOverruning = false;
