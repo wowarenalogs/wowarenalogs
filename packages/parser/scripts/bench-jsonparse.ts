@@ -14,10 +14,43 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(SCRIPT_DIR, '..');
 const DEFAULT_FIXTURE = path.resolve(ROOT_DIR, 'perf/fixtures/ca245a5f148e6a7ae7dc952706c5d03a.txt');
 
-const fixturePath = process.argv[2] ? path.resolve(process.argv[2]) : DEFAULT_FIXTURE;
-const warmupIterations = Number(process.argv[3] ?? 1);
-const iterations = Number(process.argv[4] ?? 5);
-const mode = (process.argv[5] ?? 'current').toLowerCase();
+function parseArgs(argv: string[]) {
+  const args = {
+    fixturePath: DEFAULT_FIXTURE,
+    warmupIterations: 1,
+    iterations: 5,
+    mode: 'current',
+  };
+
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    const next = argv[i + 1];
+
+    if (arg === '--fixture' && next) {
+      args.fixturePath = next;
+      i += 1;
+    } else if (arg === '--warmup' && next) {
+      args.warmupIterations = Number(next);
+      i += 1;
+    } else if (arg === '--iterations' && next) {
+      args.iterations = Number(next);
+      i += 1;
+    } else if (arg === '--mode' && next) {
+      args.mode = next;
+      i += 1;
+    } else if (!arg.startsWith('--') && args.fixturePath === DEFAULT_FIXTURE) {
+      args.fixturePath = arg;
+    }
+  }
+
+  return args;
+}
+
+const parsedArgs = parseArgs(process.argv.slice(2));
+const fixturePath = path.resolve(parsedArgs.fixturePath);
+const warmupIterations = Number(parsedArgs.warmupIterations ?? 1);
+const iterations = Number(parsedArgs.iterations ?? 5);
+const mode = String(parsedArgs.mode ?? 'current').toLowerCase();
 
 const raw = fs.readFileSync(fixturePath, 'utf8');
 const lines = raw.split(/\r?\n/).filter(Boolean);
