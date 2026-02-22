@@ -108,6 +108,14 @@ export function moduleEvent(type: ModuleEventType, options?: ModuleCallOptions) 
 
     descriptor.value = (mainWindow: BrowserWindow, ...args: any[]) => {
       const eventKey = `${getModuleKey(module.name)}:${key}`;
+      if (mainWindow.isDestroyed()) {
+        return;
+      }
+
+      if (mainWindow.webContents.isDestroyed()) {
+        return;
+      }
+
       mainWindow.webContents.send(eventKey, ...args);
     };
   };
