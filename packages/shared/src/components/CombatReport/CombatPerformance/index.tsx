@@ -46,10 +46,11 @@ const compileSpellStats = (actions: CombatHpUpdateAction[]) => {
       const entry = spellMap.get(id) || { id, name, total: 0, hits: 0, crits: 0, maxHit: 0, maxCritHit: 0 };
       entry.total += amount;
       entry.hits += 1;
-      entry.maxHit = Math.max(entry.maxHit, amount);
       if (action.isCritical) {
         entry.crits += 1;
         entry.maxCritHit = Math.max(entry.maxCritHit, amount);
+      } else {
+        entry.maxHit = Math.max(entry.maxHit, amount);
       }
       spellMap.set(id, entry);
     });
