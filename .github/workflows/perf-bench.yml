@@ -1,8 +1,5 @@
 name: perf-bench
 on:
-  pull_request:
-    branches:
-      - main
   workflow_dispatch: {}
 jobs:
   parser_perf:
