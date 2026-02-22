@@ -1,12 +1,12 @@
-import { CombatAbsorbAction, CombatHpUpdateAction, CombatUnitType } from '@wowarenalogs/parser';
+import { CombatAbsorbAction, CombatHpUpdateAction } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Utils } from '../../../utils/utils';
-import { CombatUnitName } from '../CombatUnitName';
 import { CHART_TIME_INTERVAL_S, getDataPoint } from '../CombatCurves/constants';
-import { SpellIcon } from '../SpellIcon';
 import { useCombatReportContext } from '../CombatReportContext';
+import { CombatUnitName } from '../CombatUnitName';
+import { SpellIcon } from '../SpellIcon';
 import { StackedDamageChart } from './StackedDamageChart';
 
 const SERIES_COLORS = [
@@ -29,9 +29,7 @@ interface ISpellStat {
   crits: number;
 }
 
-const isHpUpdateAction = (
-  action: CombatHpUpdateAction | CombatAbsorbAction,
-): action is CombatHpUpdateAction => {
+const isHpUpdateAction = (action: CombatHpUpdateAction | CombatAbsorbAction): action is CombatHpUpdateAction => {
   return 'isCritical' in action;
 };
 
@@ -106,10 +104,7 @@ export const CombatPerformance = () => {
       if (selectedTargetId === 'all') {
         return true;
       }
-      const targetId =
-        activeMode === 'damage' || activeMode === 'healing'
-          ? action.destUnitId
-          : action.srcUnitId;
+      const targetId = activeMode === 'damage' || activeMode === 'healing' ? action.destUnitId : action.srcUnitId;
       return targetId === selectedTargetId;
     });
   }, [actionsForMode, combat, activeMode, selectedSpellId, selectedTargetId]);
@@ -184,10 +179,7 @@ export const CombatPerformance = () => {
     if (!combat || !activePlayer) return [];
     const ids = new Set<string>();
     actionsForMode.forEach((action) => {
-      const id =
-        activeMode === 'damage' || activeMode === 'healing'
-          ? action.destUnitId
-          : action.srcUnitId;
+      const id = activeMode === 'damage' || activeMode === 'healing' ? action.destUnitId : action.srcUnitId;
       if (id && combat.units[id]) {
         ids.add(id);
       }
@@ -264,16 +256,10 @@ export const CombatPerformance = () => {
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <div className="tabs tabs-boxed">
-            <a
-              className={`tab ${activeMode === 'damage' ? 'tab-active' : ''}`}
-              onClick={() => setActiveMode('damage')}
-            >
+            <a className={`tab ${activeMode === 'damage' ? 'tab-active' : ''}`} onClick={() => setActiveMode('damage')}>
               Damage Done
             </a>
-            <a
-              className={`tab ${activeMode === 'taken' ? 'tab-active' : ''}`}
-              onClick={() => setActiveMode('taken')}
-            >
+            <a className={`tab ${activeMode === 'taken' ? 'tab-active' : ''}`} onClick={() => setActiveMode('taken')}>
               Damage Taken
             </a>
             <a
@@ -347,9 +333,7 @@ export const CombatPerformance = () => {
                       {Utils.printCombatNumber(spell.hits ? spell.total / spell.hits : 0)}
                     </td>
                     <td className="bg-base-200 text-right">{critRate.toFixed(1)}%</td>
-                    <td className="bg-base-200 text-right">
-                      {Utils.printCombatNumber(spell.total / combatDuration)}
-                    </td>
+                    <td className="bg-base-200 text-right">{Utils.printCombatNumber(spell.total / combatDuration)}</td>
                   </tr>
                 );
               })}
