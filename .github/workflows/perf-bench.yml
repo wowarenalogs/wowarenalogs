@@ -41,6 +41,81 @@ jobs:
         run: npm run build:parser --workspace @wowarenalogs/parser
       - name: perf bench
         run: npm run perf:bench --workspace @wowarenalogs/parser
+      - name: lookup baseline artifact
+        id: baseline
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflowName = 'perf-bench';
+            const osName = '${{ matrix.os }}';
+            const artifactName = `parser-perf-${osName}`;
+            const branch = 'main';
+
+            const runs = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              status: 'success',
+              branch,
+              per_page: 30,
+            });
+
+            const workflowRun = runs.data.workflow_runs.find((run) => run.name === workflowName);
+            if (!workflowRun) {
+              core.setFailed(`No successful ${workflowName} runs found on ${branch}`);
+              return;
+            }
+
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: workflowRun.id,
+            });
+
+            const artifact = artifacts.data.artifacts.find((item) => item.name === artifactName);
+            if (!artifact) {
+              core.setFailed(`No artifact named ${artifactName} in run ${workflowRun.id}`);
+              return;
+            }
+
+            core.setOutput('artifact_id', String(artifact.id));
+            core.setOutput('artifact_name', artifactName);
+            core.setOutput('run_id', String(workflowRun.id));
+      - name: download baseline artifact
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p /tmp/baseline
+          curl -L \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${{ steps.baseline.outputs.artifact_id }}/zip" \
+            --output /tmp/baseline.zip
+          unzip -q /tmp/baseline.zip -d /tmp/baseline
+      - name: download baseline artifact (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path C:\baseline | Out-Null
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = "application/vnd.github+json"
+          }
+          $zipPath = "C:\baseline.zip"
+          Invoke-WebRequest -Uri "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${{ steps.baseline.outputs.artifact_id }}/zip" -OutFile $zipPath -Headers $headers
+          Expand-Archive -Path $zipPath -DestinationPath C:\baseline -Force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: compare perf results
+        if: runner.os != 'Windows'
+        run: node packages/parser/scripts/compare-perf.js /tmp/baseline packages/parser/perf/results "${{ matrix.os }}"
+      - name: compare perf results (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: node packages/parser/scripts/compare-perf.js C:\baseline packages/parser/perf/results "${{ matrix.os }}"
+      - name: upload perf comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: parser-perf-compare-${{ matrix.os }}
+          path: packages/parser/perf/results/perf-compare-${{ matrix.os }}.md
       - name: upload perf results
         uses: actions/upload-artifact@v4
         with:
