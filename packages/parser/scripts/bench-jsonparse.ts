@@ -17,6 +17,7 @@ const DEFAULT_FIXTURE = path.resolve(ROOT_DIR, 'perf/fixtures/ca245a5f148e6a7ae7
 const fixturePath = process.argv[2] ? path.resolve(process.argv[2]) : DEFAULT_FIXTURE;
 const warmupIterations = Number(process.argv[3] ?? 1);
 const iterations = Number(process.argv[4] ?? 5);
+const mode = (process.argv[5] ?? 'current').toLowerCase();
 
 const raw = fs.readFileSync(fixturePath, 'utf8');
 const lines = raw.split(/\r?\n/).filter(Boolean);
@@ -40,6 +41,7 @@ console.log(`Fixture: ${fixturePath}`);
 console.log(`Payloads: ${payloads.length}`);
 console.log(`Warmup: ${warmupIterations} iteration(s) (${warmupParses} parses)`);
 console.log(`Runs: ${iterations} iteration(s) (${totalParses} parses)`);
+console.log(`Mode: ${mode}`);
 
 function escapeCommasLegacy(line: string): string {
   const COMMA_SENTINEL_CHARACTER = '@';
@@ -136,5 +138,8 @@ function runBench(label: string, parser: (payload: string) => void) {
   console.log(`Per-parse: ${perParseUs.toFixed(2)} µs`);
 }
 
-runBench('Current parseWowToJSON', parseWowToJSON);
-runBench('Legacy parseWowToJSON', parseWowToJSONLegacy);
+if (mode === 'legacy') {
+  runBench('Legacy parseWowToJSON', parseWowToJSONLegacy);
+} else {
+  runBench('Current parseWowToJSON', parseWowToJSON);
+}
