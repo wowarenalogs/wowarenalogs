@@ -4,7 +4,6 @@ import { parseWowToJSON } from '../../jsonparse';
 import { logDebug, logInfo } from '../../logger';
 import { ILogLine, LogEvent } from '../../types';
 
-const LINE_PARSER = /^(.*)? {2}([A-Z_]+),(.+)\s*$/;
 let nextId = 0;
 
 /** Blizzard timestamp writer currently does not print any separator between the milliseconds
@@ -22,17 +21,21 @@ function correctPositiveTZInfo(timestamp: string): string {
 
 export const stringToLogLine = (timezone: string) => {
   return map((line: string): ILogLine | string => {
-    const regex_matches = line.match(LINE_PARSER);
-
-    // not a valid line
-    if (!regex_matches || regex_matches.length === 0) {
+    const separatorIndex = line.indexOf('  ');
+    if (separatorIndex === -1) {
       logDebug(`INVALID LINE: ${line}`);
       return line;
     }
 
-    const tsString = regex_matches[1];
-    const eventIndex = 2;
-    const eventName = regex_matches[eventIndex];
+    const tsString = line.slice(0, separatorIndex);
+    const rest = line.slice(separatorIndex + 2);
+    const commaIndex = rest.indexOf(',');
+    if (commaIndex === -1) {
+      logDebug(`INVALID LINE: ${line}`);
+      return line;
+    }
+
+    const eventName = rest.slice(0, commaIndex);
 
     // unsupported event
     if (!(eventName in LogEvent)) {
@@ -41,7 +44,8 @@ export const stringToLogLine = (timezone: string) => {
     }
 
     const event = LogEvent[eventName as keyof typeof LogEvent];
-    const jsonParameters = parseWowToJSON(regex_matches[eventIndex + 1]);
+    const jsonPayload = rest.slice(commaIndex + 1).trimEnd();
+    const jsonParameters = parseWowToJSON(jsonPayload);
     const decodedDate = new Date(correctPositiveTZInfo(tsString));
     const timestamp = decodedDate.getTime();
 

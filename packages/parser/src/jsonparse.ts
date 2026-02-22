@@ -1,4 +1,10 @@
 const COMMA_SENTINEL_CHARACTER = '@';
+const NUMERIC_TOKEN = /^[-0-9)(.\][]+$/;
+const ALL_ZEROS = /^0+$/;
+// eslint-disable-next-line no-useless-escape
+const OPENING_MARKERS = /^([\(\)\]\[]+)/;
+// eslint-disable-next-line no-useless-escape
+const CLOSING_MARKERS = /([\(\)\]\[]+)$/;
 
 /*
     function to find commas inside quoted text in a comma-delimited line and replace them with sentinel chars
@@ -32,17 +38,14 @@ function escape_commas(line: string): string {
       }
     }
   }
-  for (const m of marks) {
-    line = replaceAt(line, m, COMMA_SENTINEL_CHARACTER);
+  if (marks.length === 0) {
+    return line;
   }
-  return line;
-}
-
-/*
-    function to replace a single character in a string
-*/
-function replaceAt(line: string, index: number, replacement: string): string {
-  return line.slice(0, index) + replacement + line.slice(index + replacement.length);
+  const chars = line.split('');
+  for (const m of marks) {
+    chars[m] = COMMA_SENTINEL_CHARACTER;
+  }
+  return chars.join('');
 }
 
 /*
@@ -60,46 +63,41 @@ export function parseWowToJSON(logline: string): any {
     it's correctly quoted and escaped for JSON.parse to succeed
   */
   const parametersForJson = escape_commas(logline).split(',');
-  let buf = '';
-  for (const p of parametersForJson) {
-    if (buf) {
-      buf += ',';
-    }
+  const outParts = new Array(parametersForJson.length);
+  for (let i = 0; i < parametersForJson.length; i += 1) {
+    const p = parametersForJson[i];
     // Does the string only contain numbers or ()[], characters?
-    if (/^[-0-9)(.\][]+$/g.test(p)) {
+    if (NUMERIC_TOKEN.test(p)) {
       // Is it actually a long string of zeros? (json.parse does not like this)
-      if (/^0+$/g.test(p)) {
-        buf += '0'; // reduce to a single zero
+      if (ALL_ZEROS.test(p)) {
+        outParts[i] = '0'; // reduce to a single zero
       } else {
-        buf += p;
+        outParts[i] = p;
       }
     } else {
       if (p[0] === '"') {
         // This is an already quoted string, nothing to do
-        buf += p;
+        outParts[i] = p;
       } else {
         // This is a string that needs quoting
 
         // Prefix and suffix represent the potential []() characters
         //  that are list separators in the log. Find these and save them.
-        // eslint-disable-next-line no-useless-escape
-        const openingMarkers = /^([\(\)\]\[]+)/g;
-        // eslint-disable-next-line no-useless-escape
-        const closingMarkers = /([\(\)\]\[]+)$/g;
-        let prefix = openingMarkers.exec(p) || '';
-        let suffix = closingMarkers.exec(p) || '';
+        let prefix = OPENING_MARKERS.exec(p) || '';
+        let suffix = CLOSING_MARKERS.exec(p) || '';
         prefix = prefix ? prefix[0] : '';
         suffix = suffix ? suffix[0] : '';
 
         // Remove the prefix/suffix from the string needing quotes
-        let tempP = p.replace(openingMarkers, '');
-        tempP = tempP.replace(closingMarkers, '');
+        let tempP = p.replace(OPENING_MARKERS, '');
+        tempP = tempP.replace(CLOSING_MARKERS, '');
 
         // Quote the non-separator bits and add the prefix/suffix back in
-        buf += `${prefix}"${tempP}"${suffix}`;
+        outParts[i] = `${prefix}"${tempP}"${suffix}`;
       }
     }
   }
+  let buf = outParts.join(',');
   // Finally, normalize all list terminators
   buf = buf.replace(/\(/g, '[');
   buf = buf.replace(/\)/g, ']');
