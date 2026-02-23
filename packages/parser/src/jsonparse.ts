@@ -1,4 +1,41 @@
 const COMMA_SENTINEL_CHARACTER = '@';
+function isMarkerChar(code: number): boolean {
+  return code === 40 || code === 41 || code === 91 || code === 93; // ()[]
+}
+
+function isNumericToken(value: string): boolean {
+  if (value.length === 0) {
+    return false;
+  }
+  for (let i = 0; i < value.length; i += 1) {
+    const c = value.charCodeAt(i);
+    const isDigit = c >= 48 && c <= 57;
+    if (
+      !isDigit &&
+      c !== 45 && // -
+      c !== 40 && // (
+      c !== 41 && // )
+      c !== 46 && // .
+      c !== 91 && // [
+      c !== 93 // ]
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isAllZeros(value: string): boolean {
+  if (value.length === 0) {
+    return false;
+  }
+  for (let i = 0; i < value.length; i += 1) {
+    if (value.charCodeAt(i) !== 48) {
+      return false;
+    }
+  }
+  return true;
+}
 
 /*
     function to find commas inside quoted text in a comma-delimited line and replace them with sentinel chars
@@ -32,17 +69,14 @@ function escape_commas(line: string): string {
       }
     }
   }
-  for (const m of marks) {
-    line = replaceAt(line, m, COMMA_SENTINEL_CHARACTER);
+  if (marks.length === 0) {
+    return line;
   }
-  return line;
-}
-
-/*
-    function to replace a single character in a string
-*/
-function replaceAt(line: string, index: number, replacement: string): string {
-  return line.slice(0, index) + replacement + line.slice(index + replacement.length);
+  const chars = line.split('');
+  for (const m of marks) {
+    chars[m] = COMMA_SENTINEL_CHARACTER;
+  }
+  return chars.join('');
 }
 
 /*
@@ -60,46 +94,45 @@ export function parseWowToJSON(logline: string): any {
     it's correctly quoted and escaped for JSON.parse to succeed
   */
   const parametersForJson = escape_commas(logline).split(',');
-  let buf = '';
-  for (const p of parametersForJson) {
-    if (buf) {
-      buf += ',';
-    }
+  const outParts = new Array(parametersForJson.length);
+  for (let i = 0; i < parametersForJson.length; i += 1) {
+    const p = parametersForJson[i];
     // Does the string only contain numbers or ()[], characters?
-    if (/^[-0-9)(.\][]+$/g.test(p)) {
+    if (isNumericToken(p)) {
       // Is it actually a long string of zeros? (json.parse does not like this)
-      if (/^0+$/g.test(p)) {
-        buf += '0'; // reduce to a single zero
+      if (isAllZeros(p)) {
+        outParts[i] = '0'; // reduce to a single zero
       } else {
-        buf += p;
+        outParts[i] = p;
       }
     } else {
       if (p[0] === '"') {
         // This is an already quoted string, nothing to do
-        buf += p;
+        outParts[i] = p;
       } else {
         // This is a string that needs quoting
 
         // Prefix and suffix represent the potential []() characters
         //  that are list separators in the log. Find these and save them.
-        // eslint-disable-next-line no-useless-escape
-        const openingMarkers = /^([\(\)\]\[]+)/g;
-        // eslint-disable-next-line no-useless-escape
-        const closingMarkers = /([\(\)\]\[]+)$/g;
-        let prefix = openingMarkers.exec(p) || '';
-        let suffix = closingMarkers.exec(p) || '';
-        prefix = prefix ? prefix[0] : '';
-        suffix = suffix ? suffix[0] : '';
+        let start = 0;
+        let end = p.length;
+        while (start < end && isMarkerChar(p.charCodeAt(start))) {
+          start += 1;
+        }
+        while (end > start && isMarkerChar(p.charCodeAt(end - 1))) {
+          end -= 1;
+        }
 
-        // Remove the prefix/suffix from the string needing quotes
-        let tempP = p.replace(openingMarkers, '');
-        tempP = tempP.replace(closingMarkers, '');
+        const prefix = start > 0 ? p.slice(0, start) : '';
+        const suffix = end < p.length ? p.slice(end) : '';
+        const tempP = p.slice(start, end);
 
         // Quote the non-separator bits and add the prefix/suffix back in
-        buf += `${prefix}"${tempP}"${suffix}`;
+        outParts[i] = `${prefix}"${tempP}"${suffix}`;
       }
     }
   }
+  let buf = outParts.join(',');
   // Finally, normalize all list terminators
   buf = buf.replace(/\(/g, '[');
   buf = buf.replace(/\)/g, ']');
