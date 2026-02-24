@@ -735,9 +735,9 @@ export class Recorder {
       retries--;
     }
 
-    const roundedBacktrack = Math.max(0, Math.round(backtrackSeconds));
-    Recorder.logger.info(`[Recorder] Starting recording with backtrack: ${roundedBacktrack}s`);
-    getNoobs().StartRecording(roundedBacktrack);
+    const safeBacktrack = Math.max(0, backtrackSeconds);
+    Recorder.logger.info(`[Recorder] Starting recording with backtrack: ${safeBacktrack}s`);
+    getNoobs().StartRecording(safeBacktrack);
     this.updateStatus('Recording');
     this.isRecording = true;
   }
