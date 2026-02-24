@@ -735,7 +735,7 @@ export class Recorder {
       retries--;
     }
 
-    const roundedBacktrack = Math.max(0, Math.round(backtrackSeconds) + 2);
+    const roundedBacktrack = Math.max(0, Math.round(backtrackSeconds));
     Recorder.logger.info(`[Recorder] Starting recording with backtrack: ${roundedBacktrack}s`);
     getNoobs().StartRecording(roundedBacktrack);
     this.updateStatus('Recording');
@@ -810,13 +810,12 @@ export class Recorder {
     this.isOverruning = false;
 
     const duration = activity.overrun + activityDuration;
-    const backtrackTrimSeconds = 2;
     this.videoProcessQueue.queueVideo({
       bufferFile,
       metadata: activity.metadata,
       filename: activity.fileName,
-      relativeStart: backtrackTrimSeconds,
-      duration: Math.max(0, duration - backtrackTrimSeconds),
+      relativeStart: 0,
+      duration,
       compensationTimeSeconds: 0,
     });
   }
