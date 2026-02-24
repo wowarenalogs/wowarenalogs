@@ -441,10 +441,10 @@ const RecordingSettings = () => {
               onClick={async () => {
                 await window.wowarenalogs.obs?.startBuffer?.();
                 window.wowarenalogs.obs?.startRecording?.(-4.5);
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 5000));
                 const now = new Date();
                 window.wowarenalogs.obs?.stopRecording?.({
-                  startDate: new Date(now.getTime() - 1000),
+                  startDate: new Date(now.getTime() - 5000),
                   endDate: now,
                   fileName: 'test-neg-backtrack',
                   overrun: 0,
