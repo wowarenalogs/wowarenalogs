@@ -334,7 +334,6 @@ export class Recorder {
       rate_control: 'VBR',
       bitrate: obsKBitRate * 1000,
       max_bitrate: obsKBitRate * 1000,
-      // Match vodojo defaults to force frequent keyframes and avoid long frozen intros.
       keyint_sec: 1,
       CQP: 24,
       CRF: 22,
@@ -814,7 +813,6 @@ export class Recorder {
       bufferFile,
       metadata: activity.metadata,
       filename: activity.fileName,
-      relativeStart: 0,
       duration,
       compensationTimeSeconds: 0,
     });

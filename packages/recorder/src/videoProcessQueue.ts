@@ -69,25 +69,18 @@ export default class VideoProcessQueue {
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Processing bufferFile=${data.bufferFile}`);
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Output dir=${this.cfg.get<string>('storagePath')}`);
     VideoProcessQueue.logger.info(
-      `[VideoProcessQueue] Cut params start=${data.relativeStart}s duration=${data.duration}s filename=${data.filename}`,
+      `[VideoProcessQueue] Cut params start=0s duration=${data.duration}s filename=${data.filename}`,
     );
 
     const videoPath = await VideoProcessQueue.cutVideo(
       data.bufferFile,
       this.cfg.get<string>('storagePath'),
       data.filename,
-      data.relativeStart,
       data.duration,
     );
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut complete -> ${videoPath}`);
 
-    try {
-      const compensation = await VideoProcessQueue.calculateFrameCompensation(data.bufferFile, data.relativeStart);
-      VideoProcessQueue.logger.info(`[VideoProcssQueue] Cut video compensation time: ${compensation}`);
-      data.compensationTimeSeconds = compensation;
-    } catch (error) {
-      VideoProcessQueue.logger.info(`[VideoProcessingQueue] ffprobe error ${error}`);
-    }
+    data.compensationTimeSeconds = 0;
 
     if (data.metadata) {
       VideoProcessQueue.logger.info(`[Util] Write Metadata file: ${videoPath}`);
@@ -134,70 +127,9 @@ export default class VideoProcessQueue {
       .replace(/ +/g, ' '); // Replace multiple spaces with a single space
   }
 
-  private static async calculateFrameCompensation(initialFile: string, relativeStart: number): Promise<number> {
-    const ffprobePath = path.join(getNoobsDistPath(), 'bin', 'ffprobe.exe');
-    const args = [
-      '-skip_frame',
-      'nokey',
-      '-read_intervals',
-      `%+${relativeStart}`,
-      '-select_streams',
-      'v:0',
-      '-show_frames',
-      '-v',
-      'quiet',
-      '-print_format',
-      'ini',
-      initialFile,
-    ];
-    VideoProcessQueue.logger.info(`[VideoProcessQueue] ffprobe ${args.join(' ')}`);
-
-    return new Promise((resolve, reject) => {
-      const proc = spawn(ffprobePath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
-      let stdout = '';
-      let stderr = '';
-      proc.stdout?.on('data', (chunk) => {
-        stdout += chunk.toString();
-      });
-      proc.stderr?.on('data', (chunk) => {
-        stderr += chunk.toString();
-      });
-      proc.on('close', (code) => {
-        if (code !== 0) {
-          reject(new Error(`ffprobe exited ${code}: ${stderr || stdout}`));
-          return;
-        }
-        const lastTimestamp = VideoProcessQueue.parseLastFrameTimestamp(stdout);
-        if (lastTimestamp === null) {
-          reject(new Error(`Could not find frame data from ffprobe on ${initialFile}`));
-          return;
-        }
-        resolve(relativeStart - lastTimestamp);
-      });
-      proc.on('error', reject);
-    });
-  }
 
   /**
-   * Parse ffprobe -show_frames INI output and return best_effort_timestamp_time of the last frame (seconds).
-   */
-  private static parseLastFrameTimestamp(stdout: string): number | null {
-    const frames: number[] = [];
-    const block = /\[FRAME\]([\s\S]*?)(?=\[FRAME\]|$)/gi;
-    let m: RegExpExecArray | null;
-    while ((m = block.exec(stdout)) !== null) {
-      const section = m[1];
-      const timeMatch = section.match(/best_effort_timestamp_time=([\d.]+)/i);
-      if (timeMatch) {
-        frames.push(parseFloat(timeMatch[1]));
-      }
-    }
-    const last = frames[frames.length - 1];
-    return last !== undefined ? last : null;
-  }
-
-  /**
-   * Takes an input video file, trims from relativeStart for desiredDuration seconds.
+   * Takes an input video file, trims from start for desiredDuration seconds.
    * Uses stream copy (no re-encode). See:
    * https://superuser.com/questions/377343/cut-part-from-video-file-from-start-position-to-end-position-with-ffmpeg
    * https://superuser.com/questions/1167958/video-cut-with-missing-frames-in-ffmpeg?rq=1
@@ -206,7 +138,6 @@ export default class VideoProcessQueue {
     initialFile: string,
     finalDir: string,
     outputFilename: string | undefined,
-    relativeStart: number,
     desiredDuration: number,
   ): Promise<string> {
     const videoFileName = path.basename(initialFile, path.extname(initialFile));
@@ -214,21 +145,14 @@ export default class VideoProcessQueue {
     const baseVideoFilename = VideoProcessQueue.sanitizeFilename(videoFileName + videoFilenameSuffix);
     const finalVideoPath = path.join(finalDir, `${baseVideoFilename}.mp4`);
 
-    if (relativeStart < 0) {
-      VideoProcessQueue.logger.info(`[VideoProcessQueue] Avoiding error by rejecting negative start: ${relativeStart}`);
-      relativeStart = 0;
-    }
-
     const ffmpegPath = getFfmpegPath();
 
     VideoProcessQueue.logger.info(
-      `[VideoProcessQueue] ffmpeg cut ${initialFile} -> ${finalVideoPath} -ss ${relativeStart} -t ${desiredDuration}`,
+      `[VideoProcessQueue] ffmpeg cut ${initialFile} -> ${finalVideoPath} -ss 0 -t ${desiredDuration}`,
     );
 
     const args = [
       '-y',
-      '-ss',
-      relativeStart.toString(),
       '-i',
       initialFile,
       '-t',

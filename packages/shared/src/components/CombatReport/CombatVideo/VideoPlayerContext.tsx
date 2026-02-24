@@ -54,7 +54,6 @@ export const VideoPlayerContext = createContext<VideoPlayerContextType>({
 type FindVideoReturnShim =
   | {
       compensationTimeSeconds: number;
-      relativeStart: number;
       videoPath: string;
       metadata: ArenaMatchMetadata | ShuffleMatchMetadata;
     }
@@ -131,9 +130,7 @@ export const VideoPlayerContextProvider = ({ children }: { children: ReactNode }
       const metadata = videoInformation.metadata; // this is either a regular match or an entire shuffle
       return Math.max(
         0,
-        (combatTime - metadata.startTime) / 1000 +
-          videoInformation.compensationTimeSeconds +
-          (videoInformation.relativeStart < 0 ? videoInformation.relativeStart : 0),
+        (combatTime - metadata.startTime) / 1000 + videoInformation.compensationTimeSeconds,
       );
     },
     [videoInformation],
@@ -146,11 +143,7 @@ export const VideoPlayerContextProvider = ({ children }: { children: ReactNode }
       const metadata = videoInformation.metadata;
       return Math.max(
         0,
-        (videoTime -
-          videoInformation.compensationTimeSeconds -
-          (videoInformation.relativeStart < 0 ? videoInformation.relativeStart : 0)) *
-          1000 +
-          metadata.startTime,
+        (videoTime - videoInformation.compensationTimeSeconds) * 1000 + metadata.startTime,
       );
     },
     [videoInformation],
