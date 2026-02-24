@@ -335,7 +335,7 @@ export class Recorder {
     const { height, width } = obsResolutions[this.resolution];
 
     getNoobs().ResetVideoContext(obsFPS, width, height);
-    getNoobs().SetRecordingCfg(path.normalize(this.bufferStorageDir), 'mp4');
+    getNoobs().SetRecordingCfg(path.normalize(this.bufferStorageDir), 'mkv');
 
     const encoderSettings: Record<string, number | string> = {
       rate_control: 'VBR',

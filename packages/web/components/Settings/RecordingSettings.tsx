@@ -447,7 +447,6 @@ const RecordingSettings = () => {
             <button
               className="btn"
               onClick={async () => {
-                await window.wowarenalogs.obs?.startBuffer?.();
                 const startDate = new Date(Date.now() - 4500);
                 window.wowarenalogs.obs?.startRecording?.(4.5);
                 await new Promise((resolve) => setTimeout(resolve, 5000));
