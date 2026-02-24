@@ -328,12 +328,16 @@ export class Recorder {
     const { height, width } = obsResolutions[this.resolution];
 
     getNoobs().ResetVideoContext(obsFPS, width, height);
-    getNoobs().SetRecordingCfg(path.normalize(this.bufferStorageDir), 'mkv');
+    getNoobs().SetRecordingCfg(path.normalize(this.bufferStorageDir), 'mp4');
 
     const encoderSettings: Record<string, number | string> = {
       rate_control: 'VBR',
       bitrate: obsKBitRate * 1000,
       max_bitrate: obsKBitRate * 1000,
+      // Match vodojo defaults to force frequent keyframes and avoid long frozen intros.
+      keyint_sec: 1,
+      CQP: 24,
+      CRF: 22,
     };
     if (obsRecEncoder === ESupportedEncoders.AMD_AMF_H264) {
       encoderSettings['Bitrate.Peak'] = obsKBitRate * 1000 * 1.5;
@@ -731,7 +735,7 @@ export class Recorder {
       retries--;
     }
 
-    const roundedBacktrack = Math.max(0, Math.round(backtrackSeconds));
+    const roundedBacktrack = Math.max(0, Math.round(backtrackSeconds) + 2);
     Recorder.logger.info(`[Recorder] Starting recording with backtrack: ${roundedBacktrack}s`);
     getNoobs().StartRecording(roundedBacktrack);
     this.updateStatus('Recording');
@@ -806,12 +810,13 @@ export class Recorder {
     this.isOverruning = false;
 
     const duration = activity.overrun + activityDuration;
+    const backtrackTrimSeconds = 2;
     this.videoProcessQueue.queueVideo({
       bufferFile,
       metadata: activity.metadata,
       filename: activity.fileName,
-      relativeStart: 0,
-      duration,
+      relativeStart: backtrackTrimSeconds,
+      duration: Math.max(0, duration - backtrackTrimSeconds),
       compensationTimeSeconds: 0,
     });
   }

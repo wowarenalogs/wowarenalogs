@@ -219,11 +219,12 @@ export default class VideoProcessQueue {
       relativeStart = 0;
     }
 
+    const ffmpegPath = getFfmpegPath();
+
     VideoProcessQueue.logger.info(
       `[VideoProcessQueue] ffmpeg cut ${initialFile} -> ${finalVideoPath} -ss ${relativeStart} -t ${desiredDuration}`,
     );
 
-    const ffmpegPath = getFfmpegPath();
     const args = [
       '-y',
       '-i',
