@@ -230,10 +230,10 @@ export default class VideoProcessQueue {
 
     const args = [
       '-y',
-      '-ss',
-      relativeStart.toString(),
       '-i',
       initialFile,
+      '-ss',
+      relativeStart.toString(),
       '-t',
       desiredDuration.toString(),
       '-copyts',
