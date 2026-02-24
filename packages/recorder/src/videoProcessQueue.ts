@@ -138,12 +138,13 @@ export default class VideoProcessQueue {
   }
 
   private static async calculateFrameCompensation(initialFile: string, relativeStart: number): Promise<number> {
+    const safeStart = Math.max(0, relativeStart);
     const ffprobePath = path.join(getNoobsDistPath(), 'bin', 'ffprobe.exe');
     const args = [
       '-skip_frame',
       'nokey',
       '-read_intervals',
-      `%+${relativeStart}`,
+      `%+${safeStart}`,
       '-select_streams',
       'v:0',
       '-show_frames',
@@ -175,7 +176,7 @@ export default class VideoProcessQueue {
           reject(new Error(`Could not find frame data from ffprobe on ${initialFile}`));
           return;
         }
-        resolve(relativeStart - lastTimestamp);
+        resolve(safeStart - lastTimestamp);
       });
       proc.on('error', reject);
     });
@@ -224,8 +225,12 @@ export default class VideoProcessQueue {
 
     const ffmpegPath = getFfmpegPath();
 
+    const keyframeStart = await VideoProcessQueue.findNearestKeyframeStart(initialFile, relativeStart);
+    const startForCut = keyframeStart ?? relativeStart;
+    const durationForCut = Math.max(0, desiredDuration + (relativeStart - startForCut));
+
     VideoProcessQueue.logger.info(
-      `[VideoProcessQueue] ffmpeg cut ${initialFile} -> ${finalVideoPath} -ss ${relativeStart} -t ${desiredDuration}`,
+      `[VideoProcessQueue] ffmpeg cut ${initialFile} -> ${finalVideoPath} -ss ${startForCut} -t ${durationForCut}`,
     );
 
     const args = [
@@ -233,9 +238,9 @@ export default class VideoProcessQueue {
       '-i',
       initialFile,
       '-ss',
-      relativeStart.toString(),
+      startForCut.toString(),
       '-t',
-      desiredDuration.toString(),
+      durationForCut.toString(),
       '-copyts',
       '-start_at_zero',
       '-fflags',
@@ -268,6 +273,51 @@ export default class VideoProcessQueue {
         VideoProcessQueue.logger.error(`[VideoProcessQueue] FFmpeg spawn error: ${err}`);
         reject(err);
       });
+    });
+  }
+
+  private static async findNearestKeyframeStart(initialFile: string, relativeStart: number): Promise<number | null> {
+    const safeStart = Math.max(0, relativeStart);
+    const ffprobePath = path.join(getNoobsDistPath(), 'bin', 'ffprobe.exe');
+    const args = [
+      '-skip_frame',
+      'nokey',
+      '-select_streams',
+      'v:0',
+      '-show_frames',
+      '-show_entries',
+      'frame=best_effort_timestamp_time',
+      '-print_format',
+      'csv',
+      initialFile,
+    ];
+
+    return new Promise((resolve) => {
+      const proc = spawn(ffprobePath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+      let stdout = '';
+      proc.stdout?.on('data', (chunk) => {
+        stdout += chunk.toString();
+      });
+      proc.on('close', () => {
+        const times: number[] = [];
+        stdout
+          .split('\n')
+          .map((line) => line.trim())
+          .filter((line) => line && line.startsWith('frame,'))
+          .forEach((line) => {
+            const parts = line.split(',');
+            const ts = parts[parts.length - 1];
+            const val = ts ? parseFloat(ts) : NaN;
+            if (!Number.isNaN(val)) times.push(val);
+          });
+        if (times.length === 0) {
+          resolve(null);
+          return;
+        }
+        const candidate = times.filter((t) => t <= safeStart).pop();
+        resolve(candidate ?? times[0] ?? null);
+      });
+      proc.on('error', () => resolve(null));
     });
   }
 
