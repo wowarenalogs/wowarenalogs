@@ -68,6 +68,7 @@ export default class VideoProcessQueue {
 
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Processing bufferFile=${data.bufferFile}`);
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Output dir=${this.cfg.get<string>('storagePath')}`);
+    VideoProcessQueue.logMediaDuration('[VideoProcessQueue] Buffer duration', data.bufferFile);
     VideoProcessQueue.logger.info(
       `[VideoProcessQueue] Cut params start=${data.relativeStart}s duration=${data.duration}s filename=${data.filename}`,
     );
@@ -80,7 +81,7 @@ export default class VideoProcessQueue {
       data.duration,
     );
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut complete -> ${videoPath}`);
-    VideoProcessQueue.logCutDuration(videoPath);
+    VideoProcessQueue.logMediaDuration('[VideoProcessQueue] Cut duration', videoPath);
 
     try {
       const compensation = await VideoProcessQueue.calculateFrameCompensation(data.bufferFile, data.relativeStart);
@@ -270,9 +271,9 @@ export default class VideoProcessQueue {
     });
   }
 
-  private static logCutDuration(videoPath: string) {
+  private static logMediaDuration(label: string, mediaPath: string) {
     const ffmpegPath = getFfmpegPath();
-    const args = ['-hide_banner', '-i', videoPath];
+    const args = ['-hide_banner', '-i', mediaPath];
 
     const proc = spawn(ffmpegPath, args, { stdio: ['ignore', 'ignore', 'pipe'] });
     let stderr = '';
@@ -282,9 +283,9 @@ export default class VideoProcessQueue {
     proc.on('close', () => {
       const match = stderr.match(/Duration:\s+(\d{2}:\d{2}:\d{2}\.\d+)/);
       if (match) {
-        VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut duration ${match[1]} for ${videoPath}`);
+        VideoProcessQueue.logger.info(`${label} ${match[1]} for ${mediaPath}`);
       } else {
-        VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut duration unavailable for ${videoPath}`);
+        VideoProcessQueue.logger.info(`${label} unavailable for ${mediaPath}`);
       }
     });
   }
