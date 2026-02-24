@@ -80,6 +80,7 @@ export default class VideoProcessQueue {
       data.duration,
     );
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut complete -> ${videoPath}`);
+    VideoProcessQueue.logCutDuration(videoPath);
 
     try {
       const compensation = await VideoProcessQueue.calculateFrameCompensation(data.bufferFile, data.relativeStart);
@@ -266,6 +267,25 @@ export default class VideoProcessQueue {
         VideoProcessQueue.logger.error(`[VideoProcessQueue] FFmpeg spawn error: ${err}`);
         reject(err);
       });
+    });
+  }
+
+  private static logCutDuration(videoPath: string) {
+    const ffmpegPath = getFfmpegPath();
+    const args = ['-hide_banner', '-i', videoPath];
+
+    const proc = spawn(ffmpegPath, args, { stdio: ['ignore', 'ignore', 'pipe'] });
+    let stderr = '';
+    proc.stderr?.on('data', (chunk) => {
+      stderr += chunk.toString();
+    });
+    proc.on('close', () => {
+      const match = stderr.match(/Duration:\s+(\d{2}:\d{2}:\d{2}\.\d+)/);
+      if (match) {
+        VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut duration ${match[1]} for ${videoPath}`);
+      } else {
+        VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut duration unavailable for ${videoPath}`);
+      }
     });
   }
 
