@@ -205,6 +205,7 @@ export class Recorder {
    * Used to compute relativeStart for accurate combat log sync.
    */
   private recorderStartDate: Date | null = null;
+  private pendingBacktrackSeconds: number | null = null;
 
   /**
    * Names of noobs sources used only for enumerating audio devices (never added to scene).
@@ -359,6 +360,13 @@ export class Recorder {
       case 'start':
       case EOBSOutputSignal.Activate:
       case 'activate':
+        if (this.pendingBacktrackSeconds !== null) {
+          this.recorderStartDate = new Date(Date.now() - this.pendingBacktrackSeconds * 1000);
+          Recorder.logger.info(
+            `[Recorder] recorderStartDate set with backtrack=${this.pendingBacktrackSeconds}s at ${this.recorderStartDate.toISOString()}`,
+          );
+          this.pendingBacktrackSeconds = null;
+        }
         this.startQueue.push(obsSignal);
         this.obsState = ERecordingState.Recording;
         this.updateStatus('ReadyToRecord');
@@ -743,8 +751,8 @@ export class Recorder {
     const safeBacktrack = Math.max(0, backtrackSeconds);
     const backtrackPadSeconds = 2;
     const effectiveBacktrack = safeBacktrack + backtrackPadSeconds;
-    this.recorderStartDate = new Date(Date.now() - effectiveBacktrack * 1000);
     Recorder.logger.info(`[Recorder] Starting recording with backtrack: ${effectiveBacktrack}s`);
+    this.pendingBacktrackSeconds = effectiveBacktrack;
     getNoobs().StartRecording(effectiveBacktrack);
     this.updateStatus('Recording');
     this.isRecording = true;
