@@ -360,7 +360,7 @@ export class Recorder {
       case 'start':
       case EOBSOutputSignal.Activate:
       case 'activate':
-        if (this.pendingBacktrackSeconds !== null) {
+        if (this.pendingBacktrackSeconds !== null && this.recorderStartDate === null) {
           this.recorderStartDate = new Date(Date.now() - this.pendingBacktrackSeconds * 1000);
           Recorder.logger.info(
             `[Recorder] recorderStartDate set with backtrack=${this.pendingBacktrackSeconds}s at ${this.recorderStartDate.toISOString()}`,
@@ -751,7 +751,10 @@ export class Recorder {
     const safeBacktrack = Math.max(0, backtrackSeconds);
     const backtrackPadSeconds = 2;
     const effectiveBacktrack = safeBacktrack + backtrackPadSeconds;
-    Recorder.logger.info(`[Recorder] Starting recording with backtrack: ${effectiveBacktrack}s`);
+    this.recorderStartDate = new Date(Date.now() - effectiveBacktrack * 1000);
+    Recorder.logger.info(
+      `[Recorder] Starting recording with backtrack: ${effectiveBacktrack}s (recorderStartDate=${this.recorderStartDate.toISOString()})`,
+    );
     this.pendingBacktrackSeconds = effectiveBacktrack;
     getNoobs().StartRecording(effectiveBacktrack);
     this.updateStatus('Recording');
@@ -826,9 +829,15 @@ export class Recorder {
     this.isOverruning = false;
 
     const duration = activity.overrun + activityDuration;
-    const relativeStart = this.recorderStartDate
+    let relativeStart = this.recorderStartDate
       ? (activity.startDate.getTime() - this.recorderStartDate.getTime()) / 1000
       : 0;
+    if (relativeStart < 0) {
+      Recorder.logger.warn(
+        `[Recorder] relativeStart negative (${relativeStart}s). Clamping to 0; check backtrack timing.`,
+      );
+      relativeStart = 0;
+    }
     this.videoProcessQueue.queueVideo({
       bufferFile,
       metadata: activity.metadata,
