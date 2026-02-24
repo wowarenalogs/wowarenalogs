@@ -228,6 +228,9 @@ export default class VideoProcessQueue {
     const keyframeStart = await VideoProcessQueue.findNearestKeyframeStart(initialFile, relativeStart);
     const startForCut = keyframeStart ?? relativeStart;
     const durationForCut = Math.max(0, desiredDuration + (relativeStart - startForCut));
+    VideoProcessQueue.logger.info(
+      `[VideoProcessQueue] Keyframe snap requested=${relativeStart}s chosen=${startForCut}s duration=${durationForCut}s`,
+    );
 
     VideoProcessQueue.logger.info(
       `[VideoProcessQueue] ffmpeg cut ${initialFile} -> ${finalVideoPath} -ss ${startForCut} -t ${durationForCut}`,
