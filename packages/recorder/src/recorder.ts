@@ -748,7 +748,7 @@ export class Recorder {
       retries--;
     }
 
-    const safeBacktrack = Math.max(0, backtrackSeconds);
+    const safeBacktrack = Math.max(0, Math.ceil(backtrackSeconds));
     const backtrackPadSeconds = 2;
     const effectiveBacktrack = safeBacktrack + backtrackPadSeconds;
     this.recorderStartDate = new Date(Date.now() - effectiveBacktrack * 1000);
