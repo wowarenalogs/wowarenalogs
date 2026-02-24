@@ -57,6 +57,7 @@ export const DesktopLayout = !window.wowarenalogs
       useEffect(() => {
         window.wowarenalogs.obs?.videoRecorded?.((_evt, vid) => {
           logAnalyticsEvent('event_VideoRecorded', {
+            relativeStart: vid.relativeStart,
             duration: vid.duration,
             compensationTime: vid.compensationTimeSeconds,
             bracket: vid.metadata?.startInfo?.bracket,

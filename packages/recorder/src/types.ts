@@ -81,6 +81,7 @@ export type VideoQueueItem = {
   bufferFile: string;
   metadata?: Metadata;
   filename: string;
+  relativeStart: number;
   duration: number;
   compensationTimeSeconds: number;
 };

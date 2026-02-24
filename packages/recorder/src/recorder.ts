@@ -201,6 +201,12 @@ export class Recorder {
   private overlayImageSourceName: string | undefined;
 
   /**
+   * Timestamp for the start of the saved recording buffer.
+   * Used to compute relativeStart for accurate combat log sync.
+   */
+  private recorderStartDate: Date | null = null;
+
+  /**
    * Names of noobs sources used only for enumerating audio devices (never added to scene).
    */
   private static readonly AUDIO_ENUM_INPUT_SOURCE = 'WR Audio Input Enum';
@@ -735,8 +741,11 @@ export class Recorder {
     }
 
     const safeBacktrack = Math.max(0, backtrackSeconds);
-    Recorder.logger.info(`[Recorder] Starting recording with backtrack: ${safeBacktrack}s`);
-    getNoobs().StartRecording(safeBacktrack);
+    const backtrackPadSeconds = 2;
+    const effectiveBacktrack = safeBacktrack + backtrackPadSeconds;
+    this.recorderStartDate = new Date(Date.now() - effectiveBacktrack * 1000);
+    Recorder.logger.info(`[Recorder] Starting recording with backtrack: ${effectiveBacktrack}s`);
+    getNoobs().StartRecording(effectiveBacktrack);
     this.updateStatus('Recording');
     this.isRecording = true;
   }
@@ -809,10 +818,14 @@ export class Recorder {
     this.isOverruning = false;
 
     const duration = activity.overrun + activityDuration;
+    const relativeStart = this.recorderStartDate
+      ? (activity.startDate.getTime() - this.recorderStartDate.getTime()) / 1000
+      : 0;
     this.videoProcessQueue.queueVideo({
       bufferFile,
       metadata: activity.metadata,
       filename: activity.fileName,
+      relativeStart,
       duration,
       compensationTimeSeconds: 0,
     });
