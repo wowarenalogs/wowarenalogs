@@ -332,15 +332,31 @@ export class Manager {
       throw new Error('[Manager] Invalid request from frontend');
     }
 
-    if (this.recorder.obsState === ERecordingState.Recording) {
-      // We can't change this config if OBS is recording. If OBS is recording
-      // but isRecording is false, that means it's a buffer recording. Stop it
-      // briefly to change the config.
+    if (this.recorder.obsState !== ERecordingState.Offline) {
+      // We can't change this config if OBS is recording or starting/stopping.
+      // Stop the buffer and wait for OBS to go offline before reconfiguring.
       await this.recorder.stopBuffer();
+      await this.waitForObsOffline(5000);
     }
 
     this.recorder.configureBase(config);
-    this.poller.start();
+    const isWowRunning = await this.poller.checkIsWowRunning();
+    this.poller.startWithState(isWowRunning);
+    if (isWowRunning) {
+      await this.onWowStarted();
+    }
+  }
+
+  private async waitForObsOffline(timeoutMs: number) {
+    const startedAt = Date.now();
+    while (this.recorder.obsState !== ERecordingState.Offline) {
+      if (Date.now() - startedAt > timeoutMs) {
+        Manager.logger.warn('[Manager] Timed out waiting for OBS to go offline');
+        break;
+      }
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
   }
 
   /**

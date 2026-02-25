@@ -210,6 +210,7 @@ export class Recorder {
   private recordingStopWallClockMs: number | null = null;
   private recordingBacktrackRequestedSeconds: number | null = null;
   private recordingBacktrackEffectiveSeconds: number | null = null;
+  private needsRestartBuffer = false;
 
   /**
    * Names of noobs sources used only for enumerating audio devices (never added to scene).
@@ -327,7 +328,7 @@ export class Recorder {
    * user to have setup their config for, which is why it's split out.
    */
   public configureBase(config: ObsBaseConfig) {
-    const { bufferStoragePath, obsFPS, obsRecEncoder, obsKBitRate, obsOutputResolution } = config;
+    const { bufferStoragePath, obsFPS, obsRecEncoder, obsKBitRate, obsOutputResolution, obsCQP, obsCRF } = config;
 
     if (this.obsState !== ERecordingState.Offline) {
       throw new Error('[Recorder] OBS must be offline to do this');
@@ -346,8 +347,8 @@ export class Recorder {
       bitrate: obsKBitRate * 1000,
       max_bitrate: obsKBitRate * 1000,
       keyint_sec: 1,
-      CQP: 24,
-      CRF: 22,
+      CQP: obsCQP,
+      CRF: obsCRF,
     };
     if (obsRecEncoder === ESupportedEncoders.AMD_AMF_H264) {
       encoderSettings['Bitrate.Peak'] = obsKBitRate * 1000 * 1.5;
@@ -394,6 +395,11 @@ export class Recorder {
         this.updateStatus('WaitingForWoW');
         if (obsSignal.id === EOBSOutputSignal.Deactivate) {
           this.deactivateQueue.push(obsSignal);
+          if (this.needsRestartBuffer) {
+            this.needsRestartBuffer = false;
+            Recorder.logger.info('[Recorder] Restarting buffer after deactivate');
+            void this.startBuffer();
+          }
         }
         break;
 
@@ -805,6 +811,7 @@ export class Recorder {
     let bufferFile: string;
     try {
       this.recordingStopWallClockMs = Date.now();
+      this.deactivateQueue.empty(); // ensure we wait for the next deactivate
       getNoobs().StopRecording();
       bufferFile = await this.saveBufferToFile();
     } catch (e) {
@@ -817,19 +824,8 @@ export class Recorder {
     }
 
     if (!closedWow) {
-      Recorder.logger.info('[Recorder] WoW not closed, waiting for deactivate to restart buffer');
-      const deactivateRace = await Promise.race([
-        this.deactivateQueue.shift(),
-        getPromiseBomb(30000, '[Recorder] OBS timeout waiting for deactivate'),
-      ]);
-      try {
-        await deactivateRace;
-        this.deactivateQueue.empty();
-      } catch (error) {
-        Recorder.logger.warn(`[Recorder] Failed waiting for deactivate: ${String(error)}`);
-      }
-      Recorder.logger.info('[Recorder] Restarting buffer after deactivate');
-      await this.startBuffer();
+      Recorder.logger.info('[Recorder] WoW not closed, will restart buffer after deactivate');
+      this.needsRestartBuffer = true;
     }
 
     resolveHelper();
@@ -901,7 +897,7 @@ export class Recorder {
   private async startOBS() {
     Recorder.logger.info('[Recorder] Start OBS buffer called');
 
-    if (this.obsState !== ERecordingState.Offline && this.obsState !== ERecordingState.Starting) {
+    if (this.obsState !== ERecordingState.Offline) {
       Recorder.logger.warn(`[Recorder] OBS can't start, state is: ${this.obsState}`);
       return;
     }

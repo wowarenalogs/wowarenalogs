@@ -218,6 +218,8 @@ export type ObsBaseConfig = {
   obsOutputResolution: string;
   obsFPS: number;
   obsKBitRate: number;
+  obsCQP: number;
+  obsCRF: number;
   obsRecEncoder: string;
 };
 
