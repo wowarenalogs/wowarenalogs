@@ -206,6 +206,10 @@ export class Recorder {
    */
   private recorderStartDate: Date | null = null;
   private pendingBacktrackSeconds: number | null = null;
+  private recordingStartWallClockMs: number | null = null;
+  private recordingStopWallClockMs: number | null = null;
+  private recordingBacktrackRequestedSeconds: number | null = null;
+  private recordingBacktrackEffectiveSeconds: number | null = null;
 
   /**
    * Names of noobs sources used only for enumerating audio devices (never added to scene).
@@ -751,11 +755,14 @@ export class Recorder {
     const safeBacktrack = Math.max(0, Math.ceil(backtrackSeconds));
     const backtrackPadSeconds = 2;
     const effectiveBacktrack = safeBacktrack + backtrackPadSeconds;
-    this.recorderStartDate = new Date(Date.now() - effectiveBacktrack * 1000);
+    this.recordingStartWallClockMs = Date.now();
+    this.recordingBacktrackRequestedSeconds = safeBacktrack;
+    this.recordingBacktrackEffectiveSeconds = effectiveBacktrack;
+    this.recorderStartDate = new Date(Date.now() - safeBacktrack * 1000);
     Recorder.logger.info(
-      `[Recorder] Starting recording with backtrack: ${effectiveBacktrack}s (recorderStartDate=${this.recorderStartDate.toISOString()})`,
+      `[Recorder] Starting recording with backtrack: requested=${safeBacktrack}s effective=${effectiveBacktrack}s (recorderStartDate=${this.recorderStartDate.toISOString()})`,
     );
-    this.pendingBacktrackSeconds = effectiveBacktrack;
+    this.pendingBacktrackSeconds = safeBacktrack;
     getNoobs().StartRecording(effectiveBacktrack);
     this.updateStatus('Recording');
     this.isRecording = true;
@@ -797,6 +804,7 @@ export class Recorder {
 
     let bufferFile: string;
     try {
+      this.recordingStopWallClockMs = Date.now();
       getNoobs().StopRecording();
       bufferFile = await this.saveBufferToFile();
     } catch (e) {
@@ -845,6 +853,10 @@ export class Recorder {
       relativeStart,
       duration,
       compensationTimeSeconds: 0,
+      recordingStartWallClockMs: this.recordingStartWallClockMs ?? undefined,
+      recordingStopWallClockMs: this.recordingStopWallClockMs ?? undefined,
+      recordingBacktrackRequestedSeconds: this.recordingBacktrackRequestedSeconds ?? undefined,
+      recordingBacktrackEffectiveSeconds: this.recordingBacktrackEffectiveSeconds ?? undefined,
     });
   }
 

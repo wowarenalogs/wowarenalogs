@@ -55,6 +55,15 @@ type FindVideoReturnShim =
   | {
       compensationTimeSeconds: number;
       relativeStart: number;
+      recordingStartWallClockMs?: number;
+      recordingStopWallClockMs?: number;
+      recordingBacktrackRequestedSeconds?: number;
+      recordingBacktrackEffectiveSeconds?: number;
+      recordingCutStartSeconds?: number;
+      recordingFirstKeyframeTimeSeconds?: number;
+      recordingFirstKeyframeWallClockMs?: number;
+      recordingBufferDurationSeconds?: number;
+      recordingBufferStartWallClockMs?: number;
       videoPath: string;
       metadata: ArenaMatchMetadata | ShuffleMatchMetadata;
     }
@@ -129,32 +138,86 @@ export const VideoPlayerContextProvider = ({ children }: { children: ReactNode }
       if (!videoInformation || videoInformation.compensationTimeSeconds === undefined) return 0;
 
       const metadata = videoInformation.metadata; // this is either a regular match or an entire shuffle
-      return Math.max(
-        0,
-        (combatTime - metadata.startTime) / 1000 +
-          videoInformation.compensationTimeSeconds +
-          (videoInformation.relativeStart < 0 ? videoInformation.relativeStart : 0),
-      );
+      const baseStartTime = combat?.startTime ?? metadata.startTime;
+      console.log('ctime', combatTime);
+
+      if (
+        videoInformation.recordingBufferStartWallClockMs !== undefined &&
+        videoInformation.recordingCutStartSeconds !== undefined
+      ) {
+        return Math.max(
+          0,
+          (combatTime - videoInformation.recordingBufferStartWallClockMs) / 1000 -
+            videoInformation.recordingCutStartSeconds,
+        );
+      }
+
+      if (
+        videoInformation.recordingFirstKeyframeWallClockMs !== undefined &&
+        videoInformation.recordingFirstKeyframeTimeSeconds !== undefined
+      ) {
+        return Math.max(
+          0,
+          videoInformation.recordingFirstKeyframeTimeSeconds +
+            (combatTime - videoInformation.recordingFirstKeyframeWallClockMs) / 1000,
+        );
+      }
+
+      return Math.max(0, (combatTime - baseStartTime) / 1000 + videoInformation.compensationTimeSeconds);
     },
-    [videoInformation],
+    [combat?.startTime, videoInformation],
   );
+
+  console.log({
+    combatTimeToVideoTimeAtCombatStart: combat ? combatTimeToVideoTime(combat.startTime) : null,
+  });
+  console.log('combatTimeToVideoTime at 1771973076449: ', combatTimeToVideoTime(1771973076449));
+  console.log({ combat });
 
   const videoTimeToCombatTime = useCallback(
     (videoTime: number) => {
+      console.log('vtime', videoTime);
       if (!videoInformation || videoInformation.compensationTimeSeconds === undefined) return 0;
 
       const metadata = videoInformation.metadata;
-      return Math.max(
-        0,
-        (videoTime -
-          videoInformation.compensationTimeSeconds -
-          (videoInformation.relativeStart < 0 ? videoInformation.relativeStart : 0)) *
-          1000 +
-          metadata.startTime,
-      );
+      const baseStartTime = combat?.startTime ?? metadata.startTime;
+
+      if (
+        videoInformation.recordingBufferStartWallClockMs !== undefined &&
+        videoInformation.recordingCutStartSeconds !== undefined
+      ) {
+        return Math.max(
+          0,
+          videoInformation.recordingBufferStartWallClockMs +
+            (videoInformation.recordingCutStartSeconds + videoTime) * 1000,
+        );
+      }
+
+      if (
+        videoInformation.recordingFirstKeyframeWallClockMs !== undefined &&
+        videoInformation.recordingFirstKeyframeTimeSeconds !== undefined
+      ) {
+        return Math.max(
+          0,
+          videoInformation.recordingFirstKeyframeWallClockMs +
+            (videoTime - videoInformation.recordingFirstKeyframeTimeSeconds) * 1000,
+        );
+      }
+
+      return Math.max(0, (videoTime - videoInformation.compensationTimeSeconds) * 1000 + baseStartTime);
     },
-    [videoInformation],
+    [combat?.startTime, videoInformation],
   );
+
+  console.log({
+    videoInformation,
+    combatStart: combat?.startTime,
+    metadataStart: videoInformation?.metadata?.startTime,
+    combatMetaDelta: (combat?.startTime ?? 0) - (videoInformation?.metadata?.startTime ?? 0),
+    combatWallClockDelta: (combat?.startTime ?? 0) - (videoInformation?.recordingStartWallClockMs ?? 0),
+    combat0: combatTimeToVideoTime(0),
+    video0: videoTimeToCombatTime(0),
+  });
 
   return (
     <VideoPlayerContext.Provider

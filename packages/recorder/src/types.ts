@@ -84,6 +84,15 @@ export type VideoQueueItem = {
   relativeStart: number;
   duration: number;
   compensationTimeSeconds: number;
+  recordingStartWallClockMs?: number;
+  recordingStopWallClockMs?: number;
+  recordingBacktrackRequestedSeconds?: number;
+  recordingBacktrackEffectiveSeconds?: number;
+  recordingCutStartSeconds?: number;
+  recordingFirstKeyframeTimeSeconds?: number;
+  recordingFirstKeyframeWallClockMs?: number;
+  recordingBufferDurationSeconds?: number;
+  recordingBufferStartWallClockMs?: number;
 };
 
 /**

@@ -88,6 +88,20 @@ export const VideoPlayer = () => {
     };
   }, [stateChanges, videoInformation, videoTimeToCombatTime]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code !== 'KeyE') return;
+      if (!vidRef.current) return;
+      e.preventDefault();
+      vidRef.current.currentTime = Math.max(0, vidRef.current.currentTime + 1 / 60);
+      console.log('forwarded to', vidRef.current.currentTime);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+    };
+  }, []);
+
   // listen to user inputs
   useEffect(() => {
     const onPlay = () => {
@@ -97,6 +111,7 @@ export const VideoPlayer = () => {
     const onPause = () => {
       if (!vidRef.current) return;
       vidRef.current.pause();
+      console.log('paused at', vidRef.current.currentTime);
     };
     const onJumpToCombatTime = (combatTime: number) => {
       if (!vidRef.current) return;

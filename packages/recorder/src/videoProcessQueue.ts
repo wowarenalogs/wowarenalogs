@@ -68,28 +68,67 @@ export default class VideoProcessQueue {
 
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Processing bufferFile=${data.bufferFile}`);
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Output dir=${this.cfg.get<string>('storagePath')}`);
-    VideoProcessQueue.logMediaDuration('[VideoProcessQueue] Buffer duration', data.bufferFile);
+    const bufferDurationSeconds = await VideoProcessQueue.getMediaDurationSeconds(data.bufferFile);
+    if (bufferDurationSeconds !== null) {
+      data.recordingBufferDurationSeconds = bufferDurationSeconds;
+      VideoProcessQueue.logger.info(
+        `[VideoProcessQueue] Buffer duration ${bufferDurationSeconds.toFixed(2)}s for ${data.bufferFile}`,
+      );
+      if (data.recordingStopWallClockMs !== undefined) {
+        data.recordingBufferStartWallClockMs = Math.round(
+          data.recordingStopWallClockMs - bufferDurationSeconds * 1000,
+        );
+      }
+    } else {
+      VideoProcessQueue.logMediaDuration('[VideoProcessQueue] Buffer duration', data.bufferFile);
+    }
     VideoProcessQueue.logger.info(
       `[VideoProcessQueue] Cut params start=${data.relativeStart}s duration=${data.duration}s filename=${data.filename}`,
     );
 
-    const videoPath = await VideoProcessQueue.cutVideo(
+    const cutResult = await VideoProcessQueue.cutVideo(
       data.bufferFile,
       this.cfg.get<string>('storagePath'),
       data.filename,
       data.relativeStart,
       data.duration,
     );
+    const videoPath = cutResult.path;
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut complete -> ${videoPath}`);
     VideoProcessQueue.logMediaDuration('[VideoProcessQueue] Cut duration', videoPath);
-
+    const compensation = data.relativeStart - cutResult.startForCut;
+    data.compensationTimeSeconds = Number.isFinite(compensation) ? compensation : 0;
+    VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut compensation=${data.compensationTimeSeconds}s`);
+    data.recordingCutStartSeconds = cutResult.startForCut;
     try {
-      const compensation = await VideoProcessQueue.calculateFrameCompensation(data.bufferFile, data.relativeStart);
-      VideoProcessQueue.logger.info(`[VideoProcssQueue] Cut video compensation time: ${compensation}`);
-      data.compensationTimeSeconds = compensation;
+      const firstKeyframeTimeSeconds = await VideoProcessQueue.getFirstKeyframeTimeSeconds(videoPath);
+      if (firstKeyframeTimeSeconds !== null) {
+        data.recordingFirstKeyframeTimeSeconds = firstKeyframeTimeSeconds;
+        let bufferStartMs: number | null = data.recordingBufferStartWallClockMs ?? null;
+        if (
+          bufferStartMs === null &&
+          data.recordingStartWallClockMs !== undefined &&
+          data.recordingBacktrackRequestedSeconds !== undefined
+        ) {
+          bufferStartMs = data.recordingStartWallClockMs - data.recordingBacktrackRequestedSeconds * 1000;
+        } else if (
+          data.recordingStartWallClockMs !== undefined &&
+          data.recordingBacktrackRequestedSeconds !== undefined
+        ) {
+          bufferStartMs = data.recordingStartWallClockMs - data.recordingBacktrackRequestedSeconds * 1000;
+        }
+
+        if (bufferStartMs !== null) {
+          if (data.recordingBufferStartWallClockMs === undefined) {
+            data.recordingBufferStartWallClockMs = Math.round(bufferStartMs);
+          }
+          data.recordingFirstKeyframeWallClockMs = Math.round(
+            bufferStartMs + (cutResult.startForCut + firstKeyframeTimeSeconds) * 1000,
+          );
+        }
+      }
     } catch (error) {
-      VideoProcessQueue.logger.info(`[VideoProcessingQueue] ffprobe error ${error}`);
-      data.compensationTimeSeconds = 0;
+      VideoProcessQueue.logger.info(`[VideoProcessQueue] ffprobe error ${error}`);
     }
 
     if (data.metadata) {
@@ -137,69 +176,6 @@ export default class VideoProcessQueue {
       .replace(/ +/g, ' '); // Replace multiple spaces with a single space
   }
 
-  private static async calculateFrameCompensation(initialFile: string, relativeStart: number): Promise<number> {
-    const safeStart = Math.max(0, relativeStart);
-    const ffprobePath = path.join(getNoobsDistPath(), 'bin', 'ffprobe.exe');
-    const args = [
-      '-skip_frame',
-      'nokey',
-      '-read_intervals',
-      `%+${safeStart}`,
-      '-select_streams',
-      'v:0',
-      '-show_frames',
-      '-v',
-      'quiet',
-      '-print_format',
-      'ini',
-      initialFile,
-    ];
-    VideoProcessQueue.logger.info(`[VideoProcessQueue] ffprobe ${args.join(' ')}`);
-
-    return new Promise((resolve, reject) => {
-      const proc = spawn(ffprobePath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
-      let stdout = '';
-      let stderr = '';
-      proc.stdout?.on('data', (chunk) => {
-        stdout += chunk.toString();
-      });
-      proc.stderr?.on('data', (chunk) => {
-        stderr += chunk.toString();
-      });
-      proc.on('close', (code) => {
-        if (code !== 0) {
-          reject(new Error(`ffprobe exited ${code}: ${stderr || stdout}`));
-          return;
-        }
-        const lastTimestamp = VideoProcessQueue.parseLastFrameTimestamp(stdout);
-        if (lastTimestamp === null) {
-          reject(new Error(`Could not find frame data from ffprobe on ${initialFile}`));
-          return;
-        }
-        resolve(safeStart - lastTimestamp);
-      });
-      proc.on('error', reject);
-    });
-  }
-
-  /**
-   * Parse ffprobe -show_frames INI output and return best_effort_timestamp_time of the last frame (seconds).
-   */
-  private static parseLastFrameTimestamp(stdout: string): number | null {
-    const frames: number[] = [];
-    const block = /\[FRAME\]([\s\S]*?)(?=\[FRAME\]|$)/gi;
-    let m: RegExpExecArray | null;
-    while ((m = block.exec(stdout)) !== null) {
-      const section = m[1];
-      const timeMatch = section.match(/best_effort_timestamp_time=([\d.]+)/i);
-      if (timeMatch) {
-        frames.push(parseFloat(timeMatch[1]));
-      }
-    }
-    const last = frames[frames.length - 1];
-    return last !== undefined ? last : null;
-  }
-
   /**
    * Takes an input video file, trims from relativeStart for desiredDuration seconds.
    * Uses stream copy (no re-encode). See:
@@ -212,7 +188,7 @@ export default class VideoProcessQueue {
     outputFilename: string | undefined,
     relativeStart: number,
     desiredDuration: number,
-  ): Promise<string> {
+  ): Promise<{ path: string; startForCut: number }> {
     const videoFileName = path.basename(initialFile, path.extname(initialFile));
     const videoFilenameSuffix = outputFilename ? ` - ${outputFilename}` : '';
     const baseVideoFilename = VideoProcessQueue.sanitizeFilename(videoFileName + videoFilenameSuffix);
@@ -255,7 +231,7 @@ export default class VideoProcessQueue {
       finalVideoPath,
     ];
 
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<{ path: string; startForCut: number }>((resolve, reject) => {
       const proc = spawn(ffmpegPath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
       let stderr = '';
       proc.stderr?.on('data', (chunk) => {
@@ -264,7 +240,7 @@ export default class VideoProcessQueue {
       proc.on('close', (code) => {
         if (code === 0) {
           VideoProcessQueue.logger.info('[VideoProcessQueue] FFmpeg cut video succeeded');
-          resolve(finalVideoPath);
+          resolve({ path: finalVideoPath, startForCut });
         } else {
           VideoProcessQueue.logger.error(`[VideoProcessQueue] FFmpeg cut failed code=${code}: ${stderr}`);
           reject(new Error(`FFmpeg cut failed with code ${code}`));
@@ -275,6 +251,57 @@ export default class VideoProcessQueue {
         reject(err);
       });
     });
+  }
+
+  private static async getFirstKeyframeTimeSeconds(videoPath: string): Promise<number | null> {
+    const ffprobePath = path.join(getNoobsDistPath(), 'bin', 'ffprobe.exe');
+    const args = [
+      '-skip_frame',
+      'nokey',
+      '-select_streams',
+      'v:0',
+      '-show_frames',
+      '-v',
+      'quiet',
+      '-print_format',
+      'ini',
+      videoPath,
+    ];
+    VideoProcessQueue.logger.info(`[VideoProcessQueue] ffprobe ${args.join(' ')}`);
+
+    return new Promise((resolve, reject) => {
+      const proc = spawn(ffprobePath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+      let stdout = '';
+      let stderr = '';
+      proc.stdout?.on('data', (chunk) => {
+        stdout += chunk.toString();
+      });
+      proc.stderr?.on('data', (chunk) => {
+        stderr += chunk.toString();
+      });
+      proc.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(`ffprobe exited ${code}: ${stderr || stdout}`));
+          return;
+        }
+        const firstTimestamp = VideoProcessQueue.parseFirstFrameTimestamp(stdout);
+        resolve(firstTimestamp);
+      });
+      proc.on('error', reject);
+    });
+  }
+
+  /**
+   * Parse ffprobe -show_frames INI output and return best_effort_timestamp_time of the first frame (seconds).
+   */
+  private static parseFirstFrameTimestamp(stdout: string): number | null {
+    const block = /\[FRAME\]([\s\S]*?)(?=\[FRAME\]|$)/gi;
+    const m = block.exec(stdout);
+    if (!m) return null;
+    const section = m[1];
+    const timeMatch = section.match(/best_effort_timestamp_time=([\d.]+)/i);
+    if (!timeMatch) return null;
+    return parseFloat(timeMatch[1]);
   }
 
   private static async findNearestKeyframeStart(initialFile: string, relativeStart: number): Promise<number | null> {
@@ -338,6 +365,37 @@ export default class VideoProcessQueue {
       } else {
         VideoProcessQueue.logger.info(`${label} unavailable for ${mediaPath}`);
       }
+    });
+  }
+
+  private static async getMediaDurationSeconds(mediaPath: string): Promise<number | null> {
+    const ffprobePath = path.join(getNoobsDistPath(), 'bin', 'ffprobe.exe');
+    const args = [
+      '-v',
+      'error',
+      '-show_entries',
+      'format=duration',
+      '-of',
+      'default=noprint_wrappers=1:nokey=1',
+      mediaPath,
+    ];
+
+    return new Promise((resolve) => {
+      const proc = spawn(ffprobePath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+      let stdout = '';
+      proc.stdout?.on('data', (chunk) => {
+        stdout += chunk.toString();
+      });
+      proc.on('close', (code) => {
+        if (code !== 0) {
+          resolve(null);
+          return;
+        }
+        const trimmed = stdout.trim();
+        const val = trimmed ? parseFloat(trimmed) : NaN;
+        resolve(Number.isFinite(val) ? val : null);
+      });
+      proc.on('error', () => resolve(null));
     });
   }
 
