@@ -100,10 +100,7 @@ export default class VideoProcessQueue {
     data.recordingCutStartSeconds = cutResult.startForCut;
     if (data.recordingBufferStartWallClockMs === undefined) {
       let bufferStartMs: number | null = null;
-      if (
-        data.recordingStartWallClockMs !== undefined &&
-        data.recordingBacktrackRequestedSeconds !== undefined
-      ) {
+      if (data.recordingStartWallClockMs !== undefined && data.recordingBacktrackRequestedSeconds !== undefined) {
         bufferStartMs = data.recordingStartWallClockMs - data.recordingBacktrackRequestedSeconds * 1000;
       }
       if (bufferStartMs !== null) {
