@@ -4,6 +4,8 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
 import { ArenaMatchMetadata, ShuffleMatchMetadata } from '../../../types/metadata';
 import { useCombatReportContext } from '../CombatReportContext';
 
+/* eslint-disable no-console */
+
 export type VideoPlayerPlayState = 'playing' | 'paused' | 'error';
 
 interface VideoPlayerUserInputSpec {

@@ -75,9 +75,7 @@ export default class VideoProcessQueue {
         `[VideoProcessQueue] Buffer duration ${bufferDurationSeconds.toFixed(2)}s for ${data.bufferFile}`,
       );
       if (data.recordingStopWallClockMs !== undefined) {
-        data.recordingBufferStartWallClockMs = Math.round(
-          data.recordingStopWallClockMs - bufferDurationSeconds * 1000,
-        );
+        data.recordingBufferStartWallClockMs = Math.round(data.recordingStopWallClockMs - bufferDurationSeconds * 1000);
       }
     } else {
       VideoProcessQueue.logMediaDuration('[VideoProcessQueue] Buffer duration', data.bufferFile);

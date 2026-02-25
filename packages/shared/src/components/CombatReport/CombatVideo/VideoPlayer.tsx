@@ -94,6 +94,7 @@ export const VideoPlayer = () => {
       if (!vidRef.current) return;
       e.preventDefault();
       vidRef.current.currentTime = Math.max(0, vidRef.current.currentTime + 1 / 60);
+      // eslint-disable-next-line no-console
       console.log('forwarded to', vidRef.current.currentTime);
     };
     window.addEventListener('keydown', onKey);
@@ -111,6 +112,7 @@ export const VideoPlayer = () => {
     const onPause = () => {
       if (!vidRef.current) return;
       vidRef.current.pause();
+      // eslint-disable-next-line no-console
       console.log('paused at', vidRef.current.currentTime);
     };
     const onJumpToCombatTime = (combatTime: number) => {
