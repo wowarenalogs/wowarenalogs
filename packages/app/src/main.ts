@@ -1,9 +1,10 @@
 import { app, BrowserWindow, dialog, protocol } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { autoUpdater } from 'electron-updater';
-import { closeSync, openSync, readSync, statSync } from 'fs-extra';
+import { createReadStream, existsSync, statSync } from 'fs-extra';
 import moment from 'moment';
 import path from 'path';
+import { Readable } from 'stream';
 
 import { BASE_REMOTE_URL } from './constants';
 import { logger } from './logger';
@@ -53,36 +54,60 @@ function createWindow() {
   });
 
   protocol.handle('vod', async (request) => {
-    const encodedFilename = decodeURI(request.url.slice('vod://wowarenalogs/'.length, request.url.length));
+    try {
+      const encodedFilename = decodeURIComponent(request.url.slice('vod://wowarenalogs/'.length));
+      if (!encodedFilename) {
+        return new Response('', { status: 404, statusText: 'Not Found' });
+      }
 
-    const filename = atob(encodedFilename);
-    if (!filename.endsWith('.mp4')) {
-      return new Response('Only video files are allowed', { status: 400 });
+      const filename = Buffer.from(encodedFilename, 'base64').toString('utf-8');
+      if (!filename.endsWith('.mp4')) {
+        return new Response('Only video files are allowed', { status: 400 });
+      }
+      if (!existsSync(filename)) {
+        return new Response('', { status: 404, statusText: 'File Not Found' });
+      }
+
+      const stats = statSync(filename);
+      const fileSize = stats.size;
+      const rangeHeader = request.headers.get('Range');
+
+      if (rangeHeader) {
+        const rangeParts = rangeHeader.replace(/bytes=/, '').split('-');
+        const start = parseInt(rangeParts[0], 10);
+        const end = rangeParts[1] ? parseInt(rangeParts[1], 10) : fileSize - 1;
+        const chunkSize = end - start + 1;
+
+        const stream = createReadStream(filename, { start, end });
+        const body = Readable.toWeb(stream);
+
+        return new Response(body as ReadableStream, {
+          status: 206,
+          statusText: 'Partial Content',
+          headers: {
+            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunkSize.toString(),
+            'Content-Type': 'video/mp4',
+            'Cache-Control': 'no-cache',
+          },
+        });
+      }
+
+      const stream = createReadStream(filename);
+      return new Response(stream as unknown as BodyInit, {
+        status: 200,
+        headers: {
+          'Content-Length': fileSize.toString(),
+          'Accept-Ranges': 'bytes',
+          'Content-Type': 'video/mp4',
+          'Cache-Control': 'no-cache',
+        },
+      });
+    } catch (error) {
+      logger.error(`vod protocol error: ${String(error)}`);
+      return new Response('Internal Server Error', { status: 500, statusText: 'Internal Server Error' });
     }
-
-    const rangeReq = request.headers.get('Range') || 'bytes=0-';
-    const parts = rangeReq.split('=');
-    const numbers = parts[1].split('-').map((p) => parseInt(p));
-
-    const fp = openSync(filename, 'r');
-    const size = 2500000; // ~2.5mb chunks
-    const start = numbers[0] || 0;
-    const buffer = Buffer.alloc(size);
-    readSync(fp, buffer, 0, size, start);
-
-    const stats = statSync(filename);
-    const totalSize = stats.size;
-    closeSync(fp);
-
-    return new Response(buffer, {
-      status: 206,
-      statusText: 'Partial Content',
-      headers: {
-        'Content-Length': `${totalSize}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Range': `bytes ${start}-${totalSize}`,
-      },
-    });
   });
 
   nativeBridgeRegistry.startListeners(win);

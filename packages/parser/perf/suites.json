@@ -1,0 +1,12 @@
+{
+  "default": {
+    "timezone": "America/New_York",
+    "fixtures": [
+      {
+        "id": "shuffle_6_rounds",
+        "input": "perf/fixtures/ca245a5f148e6a7ae7dc952706c5d03a.txt",
+        "snapshot": "perf/snapshots/ca245a5f148e6a7ae7dc952706c5d03a.snapshot.json"
+      }
+    ]
+  }
+}

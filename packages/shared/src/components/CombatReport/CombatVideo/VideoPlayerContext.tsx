@@ -55,6 +55,13 @@ type FindVideoReturnShim =
   | {
       compensationTimeSeconds: number;
       relativeStart: number;
+      recordingStartWallClockMs?: number;
+      recordingStopWallClockMs?: number;
+      recordingBacktrackRequestedSeconds?: number;
+      recordingBacktrackEffectiveSeconds?: number;
+      recordingCutStartSeconds?: number;
+      recordingBufferDurationSeconds?: number;
+      recordingBufferStartWallClockMs?: number;
       videoPath: string;
       metadata: ArenaMatchMetadata | ShuffleMatchMetadata;
     }
@@ -126,14 +133,17 @@ export const VideoPlayerContextProvider = ({ children }: { children: ReactNode }
 
   const combatTimeToVideoTime = useCallback(
     (combatTime: number) => {
-      if (!videoInformation || videoInformation.compensationTimeSeconds === undefined) return 0;
+      if (
+        !videoInformation ||
+        videoInformation.recordingBufferStartWallClockMs === undefined ||
+        videoInformation.recordingCutStartSeconds === undefined
+      )
+        return 0;
 
-      const metadata = videoInformation.metadata; // this is either a regular match or an entire shuffle
       return Math.max(
         0,
-        (combatTime - metadata.startTime) / 1000 +
-          videoInformation.compensationTimeSeconds +
-          (videoInformation.relativeStart < 0 ? videoInformation.relativeStart : 0),
+        (combatTime - videoInformation.recordingBufferStartWallClockMs) / 1000 -
+          videoInformation.recordingCutStartSeconds,
       );
     },
     [videoInformation],
@@ -141,16 +151,17 @@ export const VideoPlayerContextProvider = ({ children }: { children: ReactNode }
 
   const videoTimeToCombatTime = useCallback(
     (videoTime: number) => {
-      if (!videoInformation || videoInformation.compensationTimeSeconds === undefined) return 0;
+      if (
+        !videoInformation ||
+        videoInformation.recordingBufferStartWallClockMs === undefined ||
+        videoInformation.recordingCutStartSeconds === undefined
+      )
+        return 0;
 
-      const metadata = videoInformation.metadata;
       return Math.max(
         0,
-        (videoTime -
-          videoInformation.compensationTimeSeconds -
-          (videoInformation.relativeStart < 0 ? videoInformation.relativeStart : 0)) *
-          1000 +
-          metadata.startTime,
+        videoInformation.recordingBufferStartWallClockMs +
+          (videoInformation.recordingCutStartSeconds + videoTime) * 1000,
       );
     },
     [videoInformation],

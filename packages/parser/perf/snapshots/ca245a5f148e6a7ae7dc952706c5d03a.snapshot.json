@@ -1,0 +1,16 @@
+{
+  "algorithm": "sha256",
+  "hash": "a816c773d4c081dd75c094409434b84165790330ce4b8297067adb39f187cced",
+  "bytes": 388312524,
+  "input": "perf/fixtures/ca245a5f148e6a7ae7dc952706c5d03a.txt",
+  "timezone": "America/New_York",
+  "counts": {
+    "combats": 0,
+    "malformedCombats": 0,
+    "shuffleRounds": 6,
+    "shuffles": 1,
+    "activityStarts": 6,
+    "battlegrounds": 0,
+    "parserErrors": 0
+  }
+}

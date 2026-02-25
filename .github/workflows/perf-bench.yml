@@ -1,0 +1,46 @@
+name: perf-bench
+on:
+  workflow_dispatch: {}
+jobs:
+  parser_perf:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+    env:
+      CI: false
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: install linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev libpixman-1-dev
+      - name: install mac dependencies
+        if: runner.os == 'macOS'
+        run: brew install pkg-config cairo pango libpng jpeg giflib librsvg
+      - name: install node-gyp
+        run: npm i -g node-gyp@latest
+      - name: update path variables
+        if: runner.os == 'Windows'
+        run: set 'path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin'
+      - name: clean npm cache
+        run: npm cache clean -f
+      - name: install dependencies
+        run: npm ci
+      - name: build parser
+        run: npm run build:parser --workspace @wowarenalogs/parser
+      - name: perf bench
+        run: npm run perf:bench --workspace @wowarenalogs/parser
+      - name: upload perf results
+        uses: actions/upload-artifact@v4
+        with:
+          name: parser-perf-${{ matrix.os }}
+          path: packages/parser/perf/results/*.json

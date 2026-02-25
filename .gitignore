@@ -143,3 +143,4 @@ dist
 .DS_Store
 
 .aider*
+packages/parser/perf/results/
