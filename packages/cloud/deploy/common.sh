@@ -25,6 +25,7 @@ NC='\033[0m' # No Color
 
 # Common configuration
 REGION="us-central1"
+STORAGE_TRIGGER_LOCATION="us"
 RUNTIME="nodejs22"
 MEMORY="1024MB"
 SERVICE_NAME="gcp-wowarenalogs"
@@ -110,7 +111,7 @@ deploy_storage_function() {
         --memory=${MEMORY} \
         --set-env-vars="${env_vars}" \
         --trigger-bucket=${bucket_name} \
-        --trigger-location=${REGION} \
+        --trigger-location=${STORAGE_TRIGGER_LOCATION} \
         --retry \
         --max-instances=100
 }
