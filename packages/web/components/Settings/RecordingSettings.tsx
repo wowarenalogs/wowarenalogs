@@ -169,7 +169,7 @@ const RecordingSettings = () => {
     setPendingBitrate(recordingConfig.obsKBitRate ?? null);
     setPendingCqp(recordingConfig.obsCQP ?? null);
     setPendingCrf(recordingConfig.obsCRF ?? null);
-  }, [recordingConfig?.obsFPS, recordingConfig?.obsKBitRate, recordingConfig?.obsCQP, recordingConfig?.obsCRF]);
+  }, [recordingConfig]);
 
   useEffect(() => {
     if (pendingFps === null) return;
