@@ -188,7 +188,7 @@ export function MainLayout(props: IProps) {
         )}
       </div>
       <div className="flex-1 flex flex-col bg-base-100 text-base-content relative">
-        <div className="absolute w-full h-full flex flex-col">{props.children}</div>
+        <div className="absolute w-full h-full flex flex-col overflow-auto">{props.children}</div>
         {(vodDiskWarning || logDiskWarning) && (
           <div className="absolute right-4 top-4 z-40 max-w-sm rounded border border-error/60 bg-base-100 p-3 text-sm shadow-xl">
             <div className="mb-2 flex items-center gap-2 font-semibold text-error">
