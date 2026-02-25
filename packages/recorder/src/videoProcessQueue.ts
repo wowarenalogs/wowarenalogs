@@ -98,35 +98,17 @@ export default class VideoProcessQueue {
     data.compensationTimeSeconds = Number.isFinite(compensation) ? compensation : 0;
     VideoProcessQueue.logger.info(`[VideoProcessQueue] Cut compensation=${data.compensationTimeSeconds}s`);
     data.recordingCutStartSeconds = cutResult.startForCut;
-    try {
-      const firstKeyframeTimeSeconds = await VideoProcessQueue.getFirstKeyframeTimeSeconds(videoPath);
-      if (firstKeyframeTimeSeconds !== null) {
-        data.recordingFirstKeyframeTimeSeconds = firstKeyframeTimeSeconds;
-        let bufferStartMs: number | null = data.recordingBufferStartWallClockMs ?? null;
-        if (
-          bufferStartMs === null &&
-          data.recordingStartWallClockMs !== undefined &&
-          data.recordingBacktrackRequestedSeconds !== undefined
-        ) {
-          bufferStartMs = data.recordingStartWallClockMs - data.recordingBacktrackRequestedSeconds * 1000;
-        } else if (
-          data.recordingStartWallClockMs !== undefined &&
-          data.recordingBacktrackRequestedSeconds !== undefined
-        ) {
-          bufferStartMs = data.recordingStartWallClockMs - data.recordingBacktrackRequestedSeconds * 1000;
-        }
-
-        if (bufferStartMs !== null) {
-          if (data.recordingBufferStartWallClockMs === undefined) {
-            data.recordingBufferStartWallClockMs = Math.round(bufferStartMs);
-          }
-          data.recordingFirstKeyframeWallClockMs = Math.round(
-            bufferStartMs + (cutResult.startForCut + firstKeyframeTimeSeconds) * 1000,
-          );
-        }
+    if (data.recordingBufferStartWallClockMs === undefined) {
+      let bufferStartMs: number | null = null;
+      if (
+        data.recordingStartWallClockMs !== undefined &&
+        data.recordingBacktrackRequestedSeconds !== undefined
+      ) {
+        bufferStartMs = data.recordingStartWallClockMs - data.recordingBacktrackRequestedSeconds * 1000;
       }
-    } catch (error) {
-      VideoProcessQueue.logger.info(`[VideoProcessQueue] ffprobe error ${error}`);
+      if (bufferStartMs !== null) {
+        data.recordingBufferStartWallClockMs = Math.round(bufferStartMs);
+      }
     }
 
     if (data.metadata) {
@@ -249,57 +231,6 @@ export default class VideoProcessQueue {
         reject(err);
       });
     });
-  }
-
-  private static async getFirstKeyframeTimeSeconds(videoPath: string): Promise<number | null> {
-    const ffprobePath = path.join(getNoobsDistPath(), 'bin', 'ffprobe.exe');
-    const args = [
-      '-skip_frame',
-      'nokey',
-      '-select_streams',
-      'v:0',
-      '-show_frames',
-      '-v',
-      'quiet',
-      '-print_format',
-      'ini',
-      videoPath,
-    ];
-    VideoProcessQueue.logger.info(`[VideoProcessQueue] ffprobe ${args.join(' ')}`);
-
-    return new Promise((resolve, reject) => {
-      const proc = spawn(ffprobePath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
-      let stdout = '';
-      let stderr = '';
-      proc.stdout?.on('data', (chunk) => {
-        stdout += chunk.toString();
-      });
-      proc.stderr?.on('data', (chunk) => {
-        stderr += chunk.toString();
-      });
-      proc.on('close', (code) => {
-        if (code !== 0) {
-          reject(new Error(`ffprobe exited ${code}: ${stderr || stdout}`));
-          return;
-        }
-        const firstTimestamp = VideoProcessQueue.parseFirstFrameTimestamp(stdout);
-        resolve(firstTimestamp);
-      });
-      proc.on('error', reject);
-    });
-  }
-
-  /**
-   * Parse ffprobe -show_frames INI output and return best_effort_timestamp_time of the first frame (seconds).
-   */
-  private static parseFirstFrameTimestamp(stdout: string): number | null {
-    const block = /\[FRAME\]([\s\S]*?)(?=\[FRAME\]|$)/gi;
-    const m = block.exec(stdout);
-    if (!m) return null;
-    const section = m[1];
-    const timeMatch = section.match(/best_effort_timestamp_time=([\d.]+)/i);
-    if (!timeMatch) return null;
-    return parseFloat(timeMatch[1]);
   }
 
   private static async findNearestKeyframeStart(initialFile: string, relativeStart: number): Promise<number | null> {

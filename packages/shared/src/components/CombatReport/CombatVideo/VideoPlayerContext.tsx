@@ -60,8 +60,6 @@ type FindVideoReturnShim =
       recordingBacktrackRequestedSeconds?: number;
       recordingBacktrackEffectiveSeconds?: number;
       recordingCutStartSeconds?: number;
-      recordingFirstKeyframeTimeSeconds?: number;
-      recordingFirstKeyframeWallClockMs?: number;
       recordingBufferDurationSeconds?: number;
       recordingBufferStartWallClockMs?: number;
       videoPath: string;
@@ -135,70 +133,38 @@ export const VideoPlayerContextProvider = ({ children }: { children: ReactNode }
 
   const combatTimeToVideoTime = useCallback(
     (combatTime: number) => {
-      if (!videoInformation || videoInformation.compensationTimeSeconds === undefined) return 0;
-
-      const metadata = videoInformation.metadata; // this is either a regular match or an entire shuffle
-      const baseStartTime = combat?.startTime ?? metadata.startTime;
-
       if (
-        videoInformation.recordingBufferStartWallClockMs !== undefined &&
-        videoInformation.recordingCutStartSeconds !== undefined
-      ) {
-        return Math.max(
-          0,
-          (combatTime - videoInformation.recordingBufferStartWallClockMs) / 1000 -
-            videoInformation.recordingCutStartSeconds,
-        );
-      }
+        !videoInformation ||
+        videoInformation.recordingBufferStartWallClockMs === undefined ||
+        videoInformation.recordingCutStartSeconds === undefined
+      )
+        return 0;
 
-      if (
-        videoInformation.recordingFirstKeyframeWallClockMs !== undefined &&
-        videoInformation.recordingFirstKeyframeTimeSeconds !== undefined
-      ) {
-        return Math.max(
-          0,
-          videoInformation.recordingFirstKeyframeTimeSeconds +
-            (combatTime - videoInformation.recordingFirstKeyframeWallClockMs) / 1000,
-        );
-      }
-
-      return Math.max(0, (combatTime - baseStartTime) / 1000 + videoInformation.compensationTimeSeconds);
+      return Math.max(
+        0,
+        (combatTime - videoInformation.recordingBufferStartWallClockMs) / 1000 -
+          videoInformation.recordingCutStartSeconds,
+      );
     },
-    [combat?.startTime, videoInformation],
+    [videoInformation],
   );
 
   const videoTimeToCombatTime = useCallback(
     (videoTime: number) => {
-      if (!videoInformation || videoInformation.compensationTimeSeconds === undefined) return 0;
-
-      const metadata = videoInformation.metadata;
-      const baseStartTime = combat?.startTime ?? metadata.startTime;
-
       if (
-        videoInformation.recordingBufferStartWallClockMs !== undefined &&
-        videoInformation.recordingCutStartSeconds !== undefined
-      ) {
-        return Math.max(
-          0,
-          videoInformation.recordingBufferStartWallClockMs +
-            (videoInformation.recordingCutStartSeconds + videoTime) * 1000,
-        );
-      }
+        !videoInformation ||
+        videoInformation.recordingBufferStartWallClockMs === undefined ||
+        videoInformation.recordingCutStartSeconds === undefined
+      )
+        return 0;
 
-      if (
-        videoInformation.recordingFirstKeyframeWallClockMs !== undefined &&
-        videoInformation.recordingFirstKeyframeTimeSeconds !== undefined
-      ) {
-        return Math.max(
-          0,
-          videoInformation.recordingFirstKeyframeWallClockMs +
-            (videoTime - videoInformation.recordingFirstKeyframeTimeSeconds) * 1000,
-        );
-      }
-
-      return Math.max(0, (videoTime - videoInformation.compensationTimeSeconds) * 1000 + baseStartTime);
+      return Math.max(
+        0,
+        videoInformation.recordingBufferStartWallClockMs +
+          (videoInformation.recordingCutStartSeconds + videoTime) * 1000,
+      );
     },
-    [combat?.startTime, videoInformation],
+    [videoInformation],
   );
 
   return (
