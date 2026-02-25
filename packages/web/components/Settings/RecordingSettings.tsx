@@ -147,6 +147,10 @@ const RecordingSettings = () => {
   const { recordingConfig, recordingStatus, recordingStatusError, encoderOptions } = useVideoRecordingContext();
   const [outputAudioOptions, setOutputAudioOptions] = useState<IOBSDevice[]>([]);
   const [inputAudioOptions, setInputAudioOptions] = useState<IOBSDevice[]>([]);
+  const [pendingFps, setPendingFps] = useState<number | null>(null);
+  const [pendingBitrate, setPendingBitrate] = useState<number | null>(null);
+  const [pendingCqp, setPendingCqp] = useState<number | null>(null);
+  const [pendingCrf, setPendingCrf] = useState<number | null>(null);
 
   async function checkAudioDevices() {
     if (window.wowarenalogs.obs?.getAudioDevices) {
@@ -158,6 +162,54 @@ const RecordingSettings = () => {
   useEffect(() => {
     checkAudioDevices();
   }, []);
+
+  useEffect(() => {
+    if (!recordingConfig) return;
+    setPendingFps(recordingConfig.obsFPS ?? null);
+    setPendingBitrate(recordingConfig.obsKBitRate ?? null);
+    setPendingCqp(recordingConfig.obsCQP ?? null);
+    setPendingCrf(recordingConfig.obsCRF ?? null);
+  }, [recordingConfig]);
+
+  useEffect(() => {
+    if (pendingFps === null) return;
+    const handle = setTimeout(() => {
+      if (pendingFps !== recordingConfig?.obsFPS) {
+        window.wowarenalogs.obs?.setConfig?.('obsFPS', pendingFps);
+      }
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [pendingFps, recordingConfig?.obsFPS]);
+
+  useEffect(() => {
+    if (pendingBitrate === null) return;
+    const handle = setTimeout(() => {
+      if (pendingBitrate !== recordingConfig?.obsKBitRate) {
+        window.wowarenalogs.obs?.setConfig?.('obsKBitRate', pendingBitrate);
+      }
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [pendingBitrate, recordingConfig?.obsKBitRate]);
+
+  useEffect(() => {
+    if (pendingCqp === null) return;
+    const handle = setTimeout(() => {
+      if (pendingCqp !== recordingConfig?.obsCQP) {
+        window.wowarenalogs.obs?.setConfig?.('obsCQP', pendingCqp);
+      }
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [pendingCqp, recordingConfig?.obsCQP]);
+
+  useEffect(() => {
+    if (pendingCrf === null) return;
+    const handle = setTimeout(() => {
+      if (pendingCrf !== recordingConfig?.obsCRF) {
+        window.wowarenalogs.obs?.setConfig?.('obsCRF', pendingCrf);
+      }
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [pendingCrf, recordingConfig?.obsCRF]);
 
   const engineStarted = !!appConfig.enableVideoRecording;
 
@@ -310,20 +362,6 @@ const RecordingSettings = () => {
                     <span className="label-text">Capture cursor</span>
                   </label>
                 </div>
-                {window.wowarenalogs.obs?.getEncoders && (
-                  <Dropdown
-                    menuItems={encoderOptions.map((k) => ({
-                      onClick: () => {
-                        window.wowarenalogs.obs?.setConfig?.('obsRecEncoder', k);
-                      },
-                      key: k,
-                      label: k,
-                    }))}
-                  >
-                    <div>{recordingConfig?.obsRecEncoder ?? 'Select encoding method'}</div>
-                    <TbCaretDown size={20} />
-                  </Dropdown>
-                )}
               </div>
               <div className="flex flex-row-reverse gap-2">
                 <input
@@ -404,14 +442,130 @@ const RecordingSettings = () => {
                     ))}
                   </div>
                 </div>
-                <div
-                  className="mt-4 btn btn-sm btn-g gap-2"
-                  onClick={() => {
-                    window.wowarenalogs.obs?.setConfig?.('audioInputDevices', '');
-                    window.wowarenalogs.obs?.setConfig?.('audioOutputDevices', '');
-                  }}
-                >
-                  Clear Audio Devices
+              </div>
+              <div className="collapse collapse-arrow border border-base-300 bg-base-200 mt-2">
+                <input type="checkbox" defaultChecked />
+                <div className="collapse-title text-base font-semibold">Advanced</div>
+                <div className="collapse-content">
+                  <div className="text-sm opacity-70 mb-2">
+                    Changes to encoder, FPS, or bitrate will restart the buffer and may briefly pause recording.
+                  </div>
+                  <div className="text-sm text-warning mb-3">
+                    CQP/CRF are advanced encoder settings. Only change them if you know what they do.
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {window.wowarenalogs.obs?.getEncoders && (
+                      <div className="flex flex-col gap-1">
+                        <div className="text-sm font-semibold">Encoder</div>
+                        <Dropdown
+                          menuItems={encoderOptions.map((k) => ({
+                            onClick: () => {
+                              window.wowarenalogs.obs?.setConfig?.('obsRecEncoder', k);
+                            },
+                            key: k,
+                            label: k,
+                          }))}
+                        >
+                          <div>{recordingConfig?.obsRecEncoder ?? 'Select encoding method'}</div>
+                          <TbCaretDown size={20} />
+                        </Dropdown>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <label className="form-control">
+                        <div className="label">
+                          <span className="label-text">FPS</span>
+                        </div>
+                        <input
+                          type="number"
+                          min={15}
+                          max={60}
+                          step={1}
+                          className="input input-sm input-bordered"
+                          value={pendingFps ?? ''}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === '') {
+                              setPendingFps(null);
+                              return;
+                            }
+                            const next = Math.max(15, Math.min(60, Math.round(Number(raw))));
+                            if (!Number.isFinite(next)) return;
+                            setPendingFps(next);
+                          }}
+                        />
+                      </label>
+                      <label className="form-control">
+                        <div className="label">
+                          <span className="label-text">Bitrate (Mbps)</span>
+                        </div>
+                        <input
+                          type="number"
+                          min={1}
+                          max={300}
+                          step={1}
+                          className="input input-sm input-bordered"
+                          value={pendingBitrate ?? ''}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === '') {
+                              setPendingBitrate(null);
+                              return;
+                            }
+                            const next = Math.max(1, Math.min(300, Math.round(Number(raw))));
+                            if (!Number.isFinite(next)) return;
+                            setPendingBitrate(next);
+                          }}
+                        />
+                      </label>
+                      <label className="form-control">
+                        <div className="label">
+                          <span className="label-text">CQP</span>
+                        </div>
+                        <input
+                          type="number"
+                          min={0}
+                          max={51}
+                          step={1}
+                          className="input input-sm input-bordered"
+                          value={pendingCqp ?? ''}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === '') {
+                              setPendingCqp(null);
+                              return;
+                            }
+                            const next = Math.max(0, Math.min(51, Math.round(Number(raw))));
+                            if (!Number.isFinite(next)) return;
+                            setPendingCqp(next);
+                          }}
+                        />
+                      </label>
+                      <label className="form-control">
+                        <div className="label">
+                          <span className="label-text">CRF</span>
+                        </div>
+                        <input
+                          type="number"
+                          min={0}
+                          max={51}
+                          step={1}
+                          className="input input-sm input-bordered"
+                          value={pendingCrf ?? ''}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === '') {
+                              setPendingCrf(null);
+                              return;
+                            }
+                            const next = Math.max(0, Math.min(51, Math.round(Number(raw))));
+                            if (!Number.isFinite(next)) return;
+                            setPendingCrf(next);
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

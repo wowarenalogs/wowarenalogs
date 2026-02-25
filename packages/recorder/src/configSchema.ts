@@ -13,6 +13,8 @@ export type ConfigurationSchema = {
   obsFPS: number;
   obsForceMono: boolean;
   obsKBitRate: number;
+  obsCQP: number;
+  obsCRF: number;
   obsCaptureMode: 'window_capture' | 'game_capture' | 'monitor_capture';
   obsRecEncoder: string;
   captureCursor: boolean;
@@ -112,6 +114,20 @@ export const configSchema: Schema<ConfigurationSchema> = {
     default: 15,
     minimum: 1,
     maximum: 300,
+  },
+  obsCQP: {
+    description: 'Encoder CQP setting. Advanced users only.',
+    type: 'integer',
+    default: 24,
+    minimum: 0,
+    maximum: 51,
+  },
+  obsCRF: {
+    description: 'Encoder CRF setting. Advanced users only.',
+    type: 'integer',
+    default: 22,
+    minimum: 0,
+    maximum: 51,
   },
   obsCaptureMode: {
     description:

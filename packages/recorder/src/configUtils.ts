@@ -24,6 +24,8 @@ const getObsBaseConfig = (cfg: ConfigService): ObsBaseConfig => {
     obsOutputResolution: cfg.get<string>('obsOutputResolution'),
     obsFPS: cfg.get<number>('obsFPS'),
     obsKBitRate: cfg.get<number>('obsKBitRate'),
+    obsCQP: cfg.get<number>('obsCQP'),
+    obsCRF: cfg.get<number>('obsCRF'),
     obsRecEncoder: cfg.get<string>('obsRecEncoder'),
   };
 };
