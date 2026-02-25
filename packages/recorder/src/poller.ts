@@ -82,6 +82,30 @@ export default class Poller extends EventEmitter {
     this.pollInterval = setInterval(() => this.poll(), 5000);
   }
 
+  startWithState(isRunning: boolean) {
+    this.reset();
+    this.isWowRunning = isRunning;
+    this.pollInterval = setInterval(() => this.poll(), 5000);
+  }
+
+  async checkIsWowRunning(): Promise<boolean> {
+    return isTaskRunning(this.processRegex);
+  }
+
+  async refreshNow(): Promise<boolean> {
+    const isNowRunning = await isTaskRunning(this.processRegex);
+
+    if (!this.isWowRunning && isNowRunning) {
+      this.isWowRunning = true;
+      this.emit('wowProcessStart');
+    } else if (this.isWowRunning && !isNowRunning) {
+      this.isWowRunning = false;
+      this.emit('wowProcessStop');
+    }
+
+    return this.isWowRunning;
+  }
+
   private poll = async () => {
     const isNowRunning = await isTaskRunning(this.processRegex);
 
