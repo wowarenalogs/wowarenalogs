@@ -201,6 +201,17 @@ export class Recorder {
   private overlayImageSourceName: string | undefined;
 
   /**
+   * Timestamp for the start of the saved recording buffer.
+   * Used to compute relativeStart for accurate combat log sync.
+   */
+  private recorderStartDate: Date | null = null;
+  private pendingBacktrackSeconds: number | null = null;
+  private recordingStartWallClockMs: number | null = null;
+  private recordingStopWallClockMs: number | null = null;
+  private recordingBacktrackRequestedSeconds: number | null = null;
+  private recordingBacktrackEffectiveSeconds: number | null = null;
+
+  /**
    * Names of noobs sources used only for enumerating audio devices (never added to scene).
    */
   private static readonly AUDIO_ENUM_INPUT_SOURCE = 'WR Audio Input Enum';
@@ -334,6 +345,9 @@ export class Recorder {
       rate_control: 'VBR',
       bitrate: obsKBitRate * 1000,
       max_bitrate: obsKBitRate * 1000,
+      keyint_sec: 1,
+      CQP: 24,
+      CRF: 22,
     };
     if (obsRecEncoder === ESupportedEncoders.AMD_AMF_H264) {
       encoderSettings['Bitrate.Peak'] = obsKBitRate * 1000 * 1.5;
@@ -350,6 +364,13 @@ export class Recorder {
       case 'start':
       case EOBSOutputSignal.Activate:
       case 'activate':
+        if (this.pendingBacktrackSeconds !== null && this.recorderStartDate === null) {
+          this.recorderStartDate = new Date(Date.now() - this.pendingBacktrackSeconds * 1000);
+          Recorder.logger.info(
+            `[Recorder] recorderStartDate set with backtrack=${this.pendingBacktrackSeconds}s at ${this.recorderStartDate.toISOString()}`,
+          );
+          this.pendingBacktrackSeconds = null;
+        }
         this.startQueue.push(obsSignal);
         this.obsState = ERecordingState.Recording;
         this.updateStatus('ReadyToRecord');
@@ -731,9 +752,18 @@ export class Recorder {
       retries--;
     }
 
-    const roundedBacktrack = Math.max(0, Math.round(backtrackSeconds));
-    Recorder.logger.info(`[Recorder] Starting recording with backtrack: ${roundedBacktrack}s`);
-    getNoobs().StartRecording(roundedBacktrack);
+    const safeBacktrack = Math.max(0, Math.ceil(backtrackSeconds));
+    const backtrackPadSeconds = 2;
+    const effectiveBacktrack = safeBacktrack + backtrackPadSeconds;
+    this.recordingStartWallClockMs = Date.now();
+    this.recordingBacktrackRequestedSeconds = safeBacktrack;
+    this.recordingBacktrackEffectiveSeconds = effectiveBacktrack;
+    this.recorderStartDate = new Date(Date.now() - safeBacktrack * 1000);
+    Recorder.logger.info(
+      `[Recorder] Starting recording with backtrack: requested=${safeBacktrack}s effective=${effectiveBacktrack}s (recorderStartDate=${this.recorderStartDate.toISOString()})`,
+    );
+    this.pendingBacktrackSeconds = safeBacktrack;
+    getNoobs().StartRecording(effectiveBacktrack);
     this.updateStatus('Recording');
     this.isRecording = true;
   }
@@ -774,6 +804,7 @@ export class Recorder {
 
     let bufferFile: string;
     try {
+      this.recordingStopWallClockMs = Date.now();
       getNoobs().StopRecording();
       bufferFile = await this.saveBufferToFile();
     } catch (e) {
@@ -806,13 +837,26 @@ export class Recorder {
     this.isOverruning = false;
 
     const duration = activity.overrun + activityDuration;
+    let relativeStart = this.recorderStartDate
+      ? (activity.startDate.getTime() - this.recorderStartDate.getTime()) / 1000
+      : 0;
+    if (relativeStart < 0) {
+      Recorder.logger.warn(
+        `[Recorder] relativeStart negative (${relativeStart}s). Clamping to 0; check backtrack timing.`,
+      );
+      relativeStart = 0;
+    }
     this.videoProcessQueue.queueVideo({
       bufferFile,
       metadata: activity.metadata,
       filename: activity.fileName,
-      relativeStart: 0,
+      relativeStart,
       duration,
       compensationTimeSeconds: 0,
+      recordingStartWallClockMs: this.recordingStartWallClockMs ?? undefined,
+      recordingStopWallClockMs: this.recordingStopWallClockMs ?? undefined,
+      recordingBacktrackRequestedSeconds: this.recordingBacktrackRequestedSeconds ?? undefined,
+      recordingBacktrackEffectiveSeconds: this.recordingBacktrackEffectiveSeconds ?? undefined,
     });
   }
 
