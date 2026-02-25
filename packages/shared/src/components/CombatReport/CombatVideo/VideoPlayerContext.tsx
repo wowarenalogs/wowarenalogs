@@ -4,8 +4,6 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
 import { ArenaMatchMetadata, ShuffleMatchMetadata } from '../../../types/metadata';
 import { useCombatReportContext } from '../CombatReportContext';
 
-/* eslint-disable no-console */
-
 export type VideoPlayerPlayState = 'playing' | 'paused' | 'error';
 
 interface VideoPlayerUserInputSpec {
@@ -141,7 +139,6 @@ export const VideoPlayerContextProvider = ({ children }: { children: ReactNode }
 
       const metadata = videoInformation.metadata; // this is either a regular match or an entire shuffle
       const baseStartTime = combat?.startTime ?? metadata.startTime;
-      console.log('ctime', combatTime);
 
       if (
         videoInformation.recordingBufferStartWallClockMs !== undefined &&
@@ -170,15 +167,8 @@ export const VideoPlayerContextProvider = ({ children }: { children: ReactNode }
     [combat?.startTime, videoInformation],
   );
 
-  console.log({
-    combatTimeToVideoTimeAtCombatStart: combat ? combatTimeToVideoTime(combat.startTime) : null,
-  });
-  console.log('combatTimeToVideoTime at 1771973076449: ', combatTimeToVideoTime(1771973076449));
-  console.log({ combat });
-
   const videoTimeToCombatTime = useCallback(
     (videoTime: number) => {
-      console.log('vtime', videoTime);
       if (!videoInformation || videoInformation.compensationTimeSeconds === undefined) return 0;
 
       const metadata = videoInformation.metadata;
@@ -210,16 +200,6 @@ export const VideoPlayerContextProvider = ({ children }: { children: ReactNode }
     },
     [combat?.startTime, videoInformation],
   );
-
-  console.log({
-    videoInformation,
-    combatStart: combat?.startTime,
-    metadataStart: videoInformation?.metadata?.startTime,
-    combatMetaDelta: (combat?.startTime ?? 0) - (videoInformation?.metadata?.startTime ?? 0),
-    combatWallClockDelta: (combat?.startTime ?? 0) - (videoInformation?.recordingStartWallClockMs ?? 0),
-    combat0: combatTimeToVideoTime(0),
-    video0: videoTimeToCombatTime(0),
-  });
 
   return (
     <VideoPlayerContext.Provider
