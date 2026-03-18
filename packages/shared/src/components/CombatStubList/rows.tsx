@@ -50,30 +50,40 @@ export function ArenaMatchRow({
       <div
         key={match.id}
         title={match.startInfo?.bracket}
-        className="btn btn-ghost h-auto min-h-0 w-full justify-start rounded-lg px-3 py-3 normal-case transition-colors duration-200"
+        className="btn btn-ghost h-auto min-h-0 w-full justify-start rounded-lg px-3 py-3 normal-case transition-colors duration-200 md:px-2 md:py-1"
       >
-        <div className="flex w-full flex-col gap-3 md:flex-row md:items-center">
-          <div className="flex min-w-0 flex-1 flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-2 text-left">
-              {viewerIsOwner ? (
-                <div className="mr-1">
-                  <ResultBadge result={match.result} />
-                </div>
-              ) : null}
-              <TimestampDisplay timestamp={match.startTime} timezone={match.timezone} />
-              <div className="badge">{match.durationInSeconds ? durationString(match.durationInSeconds) : '??'}</div>
-              <div className="badge max-w-full truncate">{zoneMetadata[match.startInfo?.zoneId || '0']?.name}</div>
-              <RatingBadge text={match.playerTeamRating || '???'} />
-            </div>
-            <div className="flex w-full justify-start md:hidden">
-              <TeamSpecs
-                units={combat.isLocal ? Object.values(combat.match.units) : combat.match.units}
-                playerTeamId={match.playerTeamId}
-                winningTeamId={match.endInfo?.winningTeamId || '0'}
-              />
-            </div>
+        <div className="flex w-full flex-col gap-3 md:hidden">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 text-left">
+            {viewerIsOwner ? (
+              <div className="mr-1">
+                <ResultBadge result={match.result} />
+              </div>
+            ) : null}
+            <TimestampDisplay timestamp={match.startTime} timezone={match.timezone} />
+            <div className="badge">{match.durationInSeconds ? durationString(match.durationInSeconds) : '??'}</div>
+            <div className="badge max-w-full truncate">{zoneMetadata[match.startInfo?.zoneId || '0']?.name}</div>
+            <RatingBadge text={match.playerTeamRating || '???'} />
           </div>
-          <div className="hidden md:ml-auto md:flex md:items-center">
+          <div className="flex w-full justify-start">
+            <TeamSpecs
+              units={combat.isLocal ? Object.values(combat.match.units) : combat.match.units}
+              playerTeamId={match.playerTeamId}
+              winningTeamId={match.endInfo?.winningTeamId || '0'}
+            />
+          </div>
+        </div>
+        <div className="hidden w-full items-center gap-1 md:flex">
+          {viewerIsOwner ? (
+            <div className="mr-1">
+              <ResultBadge result={match.result} />
+            </div>
+          ) : null}
+          <TimestampDisplay timestamp={match.startTime} timezone={match.timezone} />
+          <div className="badge">{match.durationInSeconds ? durationString(match.durationInSeconds) : '??'}</div>
+          <div className="badge">{zoneMetadata[match.startInfo?.zoneId || '0']?.name}</div>
+          <div className="flex flex-1" />
+          <RatingBadge text={match.playerTeamRating || '???'} />
+          <div className="ml-2 flex flex-row items-center align-middle">
             <TeamSpecs
               units={combat.isLocal ? Object.values(combat.match.units) : combat.match.units}
               playerTeamId={match.playerTeamId}
@@ -125,27 +135,34 @@ export function ShuffleRoundRow({
     >
       <div
         title={roundTitle}
-        className="btn btn-ghost h-auto min-h-0 w-full justify-start rounded-lg px-3 py-3 normal-case transition-colors duration-200"
+        className="btn btn-ghost h-auto min-h-0 w-full justify-start rounded-lg px-3 py-3 normal-case transition-colors duration-200 md:px-2 md:py-1"
       >
-        <div className="flex w-full flex-col gap-3 md:flex-row md:items-center">
-          <div className="flex min-w-0 flex-1 flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-2 text-left">
-              {viewerIsOwner ? <ResultBadge result={round.result} /> : null}
-              <TimestampDisplay timestamp={round.startTime} timezone={round.timezone} />
-              <div className="badge">{round.durationInSeconds ? durationString(round.durationInSeconds) : '??'}</div>
-              <div className="badge max-w-full truncate">{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
-              {round.playerTeamRating ? <RatingBadge text={round.playerTeamRating} /> : null}
-              {RoundWidget}
-            </div>
-            <div className="flex w-full justify-start md:hidden">
-              <TeamSpecs
-                units={combat.isLocal ? Object.values(combat.match.units) : combat.match.units}
-                playerTeamId={round.playerTeamId}
-                winningTeamId={round.winningTeamId}
-              />
-            </div>
+        <div className="flex w-full flex-col gap-3 md:hidden">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 text-left">
+            {viewerIsOwner ? <ResultBadge result={round.result} /> : null}
+            <TimestampDisplay timestamp={round.startTime} timezone={round.timezone} />
+            <div className="badge">{round.durationInSeconds ? durationString(round.durationInSeconds) : '??'}</div>
+            <div className="badge max-w-full truncate">{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
+            {round.playerTeamRating ? <RatingBadge text={round.playerTeamRating} /> : null}
+            {RoundWidget}
           </div>
-          <div className="hidden md:ml-auto md:flex md:items-center">
+          <div className="flex w-full justify-start">
+            <TeamSpecs
+              units={combat.isLocal ? Object.values(combat.match.units) : combat.match.units}
+              playerTeamId={round.playerTeamId}
+              winningTeamId={round.winningTeamId}
+            />
+          </div>
+        </div>
+        <div className="hidden w-full items-center gap-2 md:flex">
+          {viewerIsOwner ? <ResultBadge result={round.result} /> : null}
+          <TimestampDisplay timestamp={round.startTime} timezone={round.timezone} />
+          <div className="badge">{round.durationInSeconds ? durationString(round.durationInSeconds) : '??'}</div>
+          <div className="badge">{zoneMetadata[round.startInfo?.zoneId || '0']?.name}</div>
+          <div className="flex flex-1" />
+          {round.playerTeamRating ? <RatingBadge text={round.playerTeamRating} /> : null}
+          {RoundWidget}
+          <div className="flex flex-row align-middle">
             <TeamSpecs
               units={combat.isLocal ? Object.values(combat.match.units) : combat.match.units}
               playerTeamId={round.playerTeamId}

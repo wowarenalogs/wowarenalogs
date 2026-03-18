@@ -122,8 +122,8 @@ export const SearchPage = () => {
           />
           <div className="space-y-3">
             <div className="mt-[5px] font-semibold text-info-content opacity-50">COMPOSITION</div>
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-              <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between xl:gap-4">
+            <div className="flex flex-col gap-3 lg:hidden">
+              <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-2">
                   <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Team 1</div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -153,7 +153,7 @@ export const SearchPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center xl:ml-auto">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div className="form-control">
                   <label className="label cursor-pointer justify-start gap-3 px-0">
                     <input
@@ -174,6 +174,50 @@ export const SearchPage = () => {
                   Clear filters
                 </button>
               </div>
+            </div>
+            <div className="hidden lg:flex lg:flex-row lg:items-center">
+              <div className="flex flex-row items-center space-x-2">
+                {_.range(0, teamSize).map((s, idx) => (
+                  <SpecSelector
+                    key={`desktop-1-${idx}`}
+                    modalKey={`desktop-1-${idx}`}
+                    spec={filters.team1SpecIds[s]}
+                    addCallback={addToOne}
+                    removeCallback={remFromOne}
+                  />
+                ))}
+              </div>
+              <div className="ml-4 flex flex-row items-center space-x-2">
+                {_.range(0, teamSize).map((s, idx) => (
+                  <SpecSelector
+                    key={`desktop-2-${idx}`}
+                    modalKey={`desktop-2-${idx}`}
+                    spec={filters.team2SpecIds[s]}
+                    addCallback={addToTwo}
+                    removeCallback={remFromTwo}
+                  />
+                ))}
+              </div>
+              <div className="form-control ml-2 w-[120px]">
+                <label className="label cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={filters.winsOnly}
+                    onChange={(v) =>
+                      setFilters({
+                        ...filters,
+                        winsOnly: v.target.checked,
+                      })
+                    }
+                    className="checkbox"
+                  />
+                  <span className="label-text">Team 1 Wins</span>
+                </label>
+              </div>
+              <div className="flex flex-1" />
+              <button className="btn btn-secondary" onClick={() => clearAllFilters()}>
+                clear filters
+              </button>
             </div>
           </div>
         </div>
