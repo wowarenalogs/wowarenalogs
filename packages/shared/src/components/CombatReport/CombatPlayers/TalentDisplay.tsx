@@ -59,7 +59,8 @@ export const TalentDisplay = ({ player }: { player: ICombatUnit }) => {
       <iframe
         width={700}
         height={classHeight[player.class]}
-        src={`https://www.raidbots.com/simbot/render/talents/${exportString}?&width=700&hideexport=off&hideheader=true`}
+        style={{ borderRadius: '4px' }}
+        src={`https://www.raidbots.com/simbot/render/talents/${exportString}?&width=700&hideexport=off&hideheader=true&bgcolor=212121`}
       />
       <div className="text-lg font-bold mt-2">PvP Talents</div>
       <div className="flex flex-row flex-wrap items-center mt-2 mb-2">
