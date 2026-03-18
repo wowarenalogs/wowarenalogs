@@ -3,14 +3,34 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      build_on_win:
+        description: Build the Windows job
+        required: false
+        default: false
+        type: boolean
+      build_on_linux:
+        description: Build the Linux job
+        required: false
+        default: false
+        type: boolean
+      build_on_mac:
+        description: Build the macOS job
+        required: false
+        default: true
+        type: boolean
 jobs:
   build_on_win:
+    if: >-
+      github.event_name != 'workflow_dispatch'
+      || inputs.build_on_win
     runs-on: windows-latest
     env:
       CI: false
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CSC_LINK: ${{ secrets.CSC_LINK }}
-      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      CSC_LINK: ${{ github.event_name != 'pull_request' && secrets.CSC_LINK || '' }}
+      CSC_KEY_PASSWORD: ${{ github.event_name != 'pull_request' && secrets.CSC_KEY_PASSWORD || '' }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -29,13 +49,18 @@ jobs:
       - name: build for windows
         run: npm run build:app:windows
   build_on_mac:
-    if: "contains(github.event.commits[0].message, '[build-for-mac]')"
+    if: >-
+      github.event_name == 'workflow_dispatch' && inputs.build_on_mac
+      || github.event_name == 'pull_request' && (
+      contains(github.event.pull_request.title, '[build-for-mac]')
+      || contains(github.event.pull_request.body, '[build-for-mac]'))
     runs-on: macos-latest
     env:
       CI: false
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CSC_LINK: ${{ secrets.CSC_LINK }}
       CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      CSC_FOR_PULL_REQUEST: true
       APPLE_ID: ${{ secrets.APPLE_ID }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
@@ -60,7 +85,31 @@ jobs:
         run: npm i dmg-license
       - name: build for mac
         run: npm run build:app:mac
+      - name: verify app signature
+        run: |
+          set -euo pipefail
+          APP_PATH=$(find dist/mac-arm64 -maxdepth 1 -name "*.app" -type d | head -n 1)
+          if [ -z "${APP_PATH:-}" ]; then
+            echo "No .app found in dist/mac-arm64"
+            exit 1
+          fi
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          codesign -dv --verbose=4 "$APP_PATH" 2>&1 | tee /tmp/codesign.log
+          grep -q "TeamIdentifier=${APPLE_TEAM_ID}" /tmp/codesign.log
+          spctl --assess --type execute --verbose=4 "$APP_PATH"
+      - name: validate app notarization
+        run: |
+          set -euo pipefail
+          APP_PATH=$(find dist/mac-arm64 -maxdepth 1 -name "*.app" -type d | head -n 1)
+          if [ -z "${APP_PATH:-}" ]; then
+            echo "No .app found in dist/mac-arm64"
+            exit 1
+          fi
+          xcrun stapler validate "$APP_PATH"
   build_on_linux:
+    if: >-
+      github.event_name != 'workflow_dispatch'
+      || inputs.build_on_linux
     runs-on: ubuntu-latest
     env:
       CI: false

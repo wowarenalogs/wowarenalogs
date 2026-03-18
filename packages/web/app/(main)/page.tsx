@@ -2,8 +2,10 @@
 
 import { logAnalyticsEvent } from '@wowarenalogs/shared/src';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { TbChartBar, TbHistory, TbSearch } from 'react-icons/tb';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 
@@ -47,17 +49,40 @@ export default function Home() {
   if (isDesktop) return <div />;
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center">
+    <div className="flex flex-1 flex-col items-center justify-center px-4 py-8 md:px-6">
       <div className="hero">
-        <div className="hero-content flex-col md:flex-row gap-4">
-          <Image alt="WoW Arena Logs" src="/logo512.png" width={256} height={256} />
-          <div className="flex flex-col items-start">
-            <h1 className="text-5xl font-bold">Learn from every match.</h1>
-            <p className="py-6">
+        <div className="hero-content flex-col gap-6 md:flex-row md:gap-4">
+          <Image
+            alt="WoW Arena Logs"
+            src="/logo512.png"
+            width={256}
+            height={256}
+            className="h-32 w-32 md:h-64 md:w-64"
+          />
+          <div className="flex max-w-2xl flex-col items-start">
+            <h1 className="text-3xl font-bold leading-tight md:text-5xl">Learn from every match.</h1>
+            <p className="py-4 text-sm md:py-6 md:text-base">
               WoW Arena Logs is the best tool available to help you analyze your own arena matches and learn from the
               community.
             </p>
-            <div className="flex flex-row gap-x-4">
+            <div className="grid w-full gap-3 md:hidden">
+              <Link href="/search" className="btn btn-primary justify-start">
+                <TbSearch size={18} />
+                Search public matches
+              </Link>
+              <Link href="/stats" className="btn btn-outline justify-start">
+                <TbChartBar size={18} />
+                Browse stats
+              </Link>
+              <Link href="/history" className="btn btn-outline justify-start">
+                <TbHistory size={18} />
+                View my history
+              </Link>
+              <div className="rounded-lg border border-base-content/10 bg-base-200/50 p-3 text-sm opacity-80">
+                Use the desktop app when you want to upload and analyze your own matches automatically.
+              </div>
+            </div>
+            <div className="hidden flex-row gap-x-4 md:flex">
               <a
                 className={`btn ${os === 'windows' ? 'btn-primary' : ''}`}
                 href="https://storage.googleapis.com/download.wowarenalogs.com/desktop-client/latest-windows.exe"
