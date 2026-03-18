@@ -10,22 +10,24 @@ export function BracketSelector({ bracket, setBracket }: { bracket: Bracket; set
   const clientCtx = useClientContext();
   const brackets = canUseFeature(features.awcSearch, null, clientCtx.localFlags) ? allBracketOptions : bracketOptions;
   return (
-    <div className="flex flex-row space-x-8 mb-2">
-      <div className="flex flex-col">
-        <div className="font-semibold text-info-content opacity-50 mt-[5px] mb-[-5px]">LADDER</div>
-        <div className="flex flex-row space-x-4 m-0 p-0 items-center">
+    <div>
+      <div className="flex flex-col gap-1">
+        <div className="font-semibold text-[10px] uppercase tracking-wide text-info-content opacity-50 sm:mt-[5px] sm:text-base">
+          LADDER
+        </div>
+        <div className="m-0 flex flex-wrap items-center gap-x-3 gap-y-0.5 p-0 sm:gap-x-4 sm:gap-y-1">
           {brackets.map((o) => {
             return (
               <div className="form-control" key={o}>
-                <label className="label cursor-pointer space-x-2">
+                <label className="label cursor-pointer gap-1.5 px-0 py-0.5 sm:gap-2 sm:py-1">
                   <input
                     type="radio"
                     name="radio-10"
-                    className="radio checked:bg-primary"
-                    onClick={() => setBracket(o)}
-                    defaultChecked={bracket === o}
+                    className="radio h-3.5 w-3.5 checked:bg-primary sm:h-4 sm:w-4"
+                    onChange={() => setBracket(o)}
+                    checked={bracket === o}
                   />
-                  <span className="label-text">{o}</span>
+                  <span className="label-text text-xs sm:text-sm">{o}</span>
                 </label>
               </div>
             );
