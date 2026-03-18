@@ -3,8 +3,8 @@ const ratingOptions = [1400, 1800, 2100];
 export function RatingSelector({ minRating, setMinRating }: { minRating: number; setMinRating: (r: number) => void }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="font-semibold text-[10px] uppercase tracking-wide text-info-content opacity-50 sm:mt-[5px] sm:text-base sm:normal-case sm:tracking-normal">
-        Rating
+      <div className="font-semibold text-[10px] uppercase tracking-wide text-info-content opacity-50 sm:mt-[5px] sm:text-base">
+        RATING
       </div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 sm:gap-x-4 sm:gap-y-1">
         <div className="form-control">

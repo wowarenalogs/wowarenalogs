@@ -12,8 +12,8 @@ export function BracketSelector({ bracket, setBracket }: { bracket: Bracket; set
   return (
     <div>
       <div className="flex flex-col gap-1">
-        <div className="font-semibold text-[10px] uppercase tracking-wide text-info-content opacity-50 sm:mt-[5px] sm:text-base sm:normal-case sm:tracking-normal">
-          Ladder
+        <div className="font-semibold text-[10px] uppercase tracking-wide text-info-content opacity-50 sm:mt-[5px] sm:text-base">
+          LADDER
         </div>
         <div className="m-0 flex flex-wrap items-center gap-x-3 gap-y-0.5 p-0 sm:gap-x-4 sm:gap-y-1">
           {brackets.map((o) => {

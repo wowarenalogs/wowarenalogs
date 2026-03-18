@@ -121,8 +121,8 @@ export const SearchPage = () => {
             }}
           />
           <div className="space-y-2 sm:space-y-3">
-            <div className="font-semibold text-[10px] uppercase tracking-wide text-info-content opacity-50 sm:mt-[5px] sm:text-base sm:normal-case sm:tracking-normal">
-              Composition
+            <div className="font-semibold text-[10px] uppercase tracking-wide text-info-content opacity-50 sm:mt-[5px] sm:text-base">
+              COMPOSITION
             </div>
             <div className="flex flex-col gap-2 lg:hidden">
               <div className="flex flex-col gap-2">
@@ -173,7 +173,7 @@ export const SearchPage = () => {
                   </label>
                 </div>
                 <button className="btn btn-secondary btn-sm min-h-0 h-8 px-3" onClick={() => clearAllFilters()}>
-                  Clear filters
+                  clear filters
                 </button>
               </div>
             </div>
