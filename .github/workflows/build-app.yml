@@ -23,7 +23,7 @@ on:
 jobs:
   build_on_win:
     if: >-
-      github.event_name != workflow_dispatch
+      github.event_name != 'workflow_dispatch'
       || inputs.build_on_win
     runs-on: windows-latest
     env:
@@ -107,7 +107,7 @@ jobs:
           xcrun stapler validate "$DMG_PATH"
   build_on_linux:
     if: >-
-      github.event_name != workflow_dispatch
+      github.event_name != 'workflow_dispatch'
       || inputs.build_on_linux
     runs-on: ubuntu-latest
     env:
