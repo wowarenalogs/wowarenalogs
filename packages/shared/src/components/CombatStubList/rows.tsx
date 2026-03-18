@@ -50,7 +50,7 @@ export function ArenaMatchRow({
       <div
         key={match.id}
         title={match.startInfo?.bracket}
-        className="btn btn-ghost h-auto min-h-0 w-full justify-start rounded-lg px-3 py-3 transition-colors duration-200 md:px-2 md:py-1"
+        className="btn btn-ghost h-auto min-h-0 w-full justify-start rounded-lg border border-base-content/10 bg-base-200/40 px-3 py-3 transition-colors duration-200 md:border-0 md:bg-transparent md:px-2 md:py-1"
       >
         <div className="flex w-full flex-col gap-3 md:hidden">
           <div className="flex min-w-0 flex-wrap items-center gap-2 text-left">
@@ -135,7 +135,7 @@ export function ShuffleRoundRow({
     >
       <div
         title={roundTitle}
-        className="btn btn-ghost h-auto min-h-0 w-full justify-start rounded-lg px-3 py-3 transition-colors duration-200 md:px-2 md:py-1"
+        className="btn btn-ghost h-auto min-h-0 w-full justify-start rounded-lg border border-base-content/10 bg-base-200/40 px-3 py-3 transition-colors duration-200 md:border-0 md:bg-transparent md:px-2 md:py-1"
       >
         <div className="flex w-full flex-col gap-3 md:hidden">
           <div className="flex min-w-0 flex-wrap items-center gap-2 text-left">
