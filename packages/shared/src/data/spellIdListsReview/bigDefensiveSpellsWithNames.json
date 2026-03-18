@@ -32,6 +32,10 @@
     "name": "Ice Block"
   },
   {
+    "spellId": "47585",
+    "name": "Dispersion"
+  },
+  {
     "spellId": "48707",
     "name": "Anti-Magic Shell"
   },
@@ -78,6 +82,10 @@
   {
     "spellId": "118038",
     "name": "Die by the Sword"
+  },
+  {
+    "spellId": "186265",
+    "name": "Aspect of the Turtle"
   },
   {
     "spellId": "207771",

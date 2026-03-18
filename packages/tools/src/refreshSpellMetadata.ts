@@ -4,11 +4,11 @@ import fetch from 'node-fetch';
 import path from 'path';
 
 const WAGO_DB2_BASE = 'https://wago.tools/db2';
-const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66044';
+const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66431';
 
 function extractSpellIdsFromSpellCsv(csv: string): Set<string> {
   const ids = new Set<string>();
-  const matches = csv.matchAll(/(?:^|\n)(\d+),/g);
+  const matches = Array.from(csv.matchAll(/(?:^|\n)(\d+),/g));
   for (const match of matches) {
     ids.add(match[1]);
   }
@@ -23,9 +23,9 @@ async function main() {
   const spellCsv = await spellCsvResponse.text();
   const validSpellIds = extractSpellIdsFromSpellCsv(spellCsv);
 
-  const response = await fetch('https://raw.githubusercontent.com/jordonwow/bigdebuffs/master/BigDebuffs_Mainline.lua');
+  const response = await fetch('https://raw.githubusercontent.com/jordonwow/bigdebuffs/master/Spells/Vanilla.lua');
   if (response.status !== 200) {
-    throw new Error(`Failed to fetch BigDebuffs_Mainline.lua: ${response.status} ${response.statusText}`);
+    throw new Error(`Failed to fetch BigDebuffs spell data: ${response.status} ${response.statusText}`);
   }
 
   let text = await response.text();
