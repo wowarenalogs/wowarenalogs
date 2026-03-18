@@ -18,6 +18,7 @@ import { CombatLogView } from './CombatLogView';
 import { CombatPerformance } from './CombatPerformance';
 import { CombatPlayers } from './CombatPlayers';
 import { CombatReportContextProvider, useCombatReportContext } from './CombatReportContext';
+import { CombatReportMobile } from './CombatReportMobile';
 import { CombatScoreboard } from './CombatScoreboard';
 import { CombatSummary } from './CombatSummary';
 import { CombatTimeline } from './CombatTimeline';
@@ -44,6 +45,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
   const searchParams = useSearchParams();
   const { data: user } = useGetProfileQuery();
   const { combat, activeTab, setActiveTab, activePlayerId, viewerIsOwner } = useCombatReportContext();
+  const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(null);
 
   const [urlCopied, setUrlCopied] = useState(false);
   const reportUrl = useMemo(() => {
@@ -67,7 +69,28 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
     scrollRef.current?.scrollTo(0, 0);
   }, [activePlayerId]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const onChange = (event: MediaQueryListEvent) => {
+      setIsMobileViewport(event.matches);
+    };
+    setIsMobileViewport(mediaQuery.matches);
+    mediaQuery.addEventListener('change', onChange);
+    return () => {
+      mediaQuery.removeEventListener('change', onChange);
+    };
+  }, []);
+
   if (!combat) return null;
+  if (isMobileViewport === null) {
+    return <div className="flex flex-1 items-center justify-center">Loading match...</div>;
+  }
+  if (isMobileViewport) {
+    return <CombatReportMobile matchId={matchId} roundId={roundId} />;
+  }
 
   const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber + 1 : null;
   const isShuffle = combat.dataType === 'ShuffleRound';
