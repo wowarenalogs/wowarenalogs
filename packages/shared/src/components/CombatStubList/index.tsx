@@ -8,7 +8,7 @@ export interface IProps {
 
 export const CombatStubList = (props: IProps) => {
   return (
-    <ul className="space-y-1">
+    <ul className="space-y-2 md:space-y-1">
       {props.combats.map((c) => {
         if (!c.isShuffle) {
           return (
