@@ -106,8 +106,8 @@ export const SearchPage = () => {
   return (
     <div className="mt-2 overflow-visible overflow-y-auto px-2 transition-all sm:mt-4 sm:px-4">
       <title>Find Matches</title>
-      <div className="rounded bg-base-300 p-3 sm:p-4">
-        <div className="space-y-4">
+      <div className="rounded bg-base-300 p-2.5 sm:p-4">
+        <div className="space-y-2.5 sm:space-y-4">
           <BracketSelector
             bracket={filters.bracket}
             setBracket={(b) => {
@@ -120,12 +120,14 @@ export const SearchPage = () => {
               setFilters({ ...filters, minRating: r });
             }}
           />
-          <div className="space-y-3">
-            <div className="mt-[5px] font-semibold text-info-content opacity-50">COMPOSITION</div>
-            <div className="flex flex-col gap-3 lg:hidden">
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-col gap-2">
-                  <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Team 1</div>
+          <div className="space-y-2 sm:space-y-3">
+            <div className="font-semibold text-[10px] uppercase tracking-wide text-info-content opacity-50 sm:mt-[5px] sm:text-base sm:normal-case sm:tracking-normal">
+              Composition
+            </div>
+            <div className="flex flex-col gap-2 lg:hidden">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 shrink-0 text-[10px] font-semibold uppercase tracking-wide opacity-60">T1</div>
                   <div className="flex flex-wrap items-center gap-2">
                     {_.range(0, teamSize).map((s, idx) => (
                       <SpecSelector
@@ -138,8 +140,8 @@ export const SearchPage = () => {
                     ))}
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Team 2</div>
+                <div className="flex items-center gap-2">
+                  <div className="w-7 shrink-0 text-[10px] font-semibold uppercase tracking-wide opacity-60">T2</div>
                   <div className="flex flex-wrap items-center gap-2">
                     {_.range(0, teamSize).map((s, idx) => (
                       <SpecSelector
@@ -153,9 +155,9 @@ export const SearchPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="form-control">
-                  <label className="label cursor-pointer justify-start gap-3 px-0">
+                  <label className="label cursor-pointer justify-start gap-2 px-0 py-0.5">
                     <input
                       type="checkbox"
                       checked={filters.winsOnly}
@@ -165,12 +167,12 @@ export const SearchPage = () => {
                           winsOnly: v.target.checked,
                         })
                       }
-                      className="checkbox"
+                      className="checkbox checkbox-sm"
                     />
-                    <span className="label-text whitespace-nowrap">Team 1 Wins</span>
+                    <span className="label-text whitespace-nowrap text-xs">Team 1 Wins</span>
                   </label>
                 </div>
-                <button className="btn btn-secondary btn-sm sm:btn-md" onClick={() => clearAllFilters()}>
+                <button className="btn btn-secondary btn-sm min-h-0 h-8 px-3" onClick={() => clearAllFilters()}>
                   Clear filters
                 </button>
               </div>

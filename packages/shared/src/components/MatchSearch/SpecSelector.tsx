@@ -45,20 +45,25 @@ export function SpecSelector({
   if (spec) {
     return (
       <div
-        className={`inline-block h-[48px] w-[48px] rounded border-2 border-${SPEC_TO_CLASS[spec]} hover:border-2 hover:border-red-600 hover:opacity-20`}
+        className={`inline-block h-[40px] w-[40px] rounded border-2 border-${SPEC_TO_CLASS[spec]} hover:border-2 hover:border-red-600 hover:opacity-20 sm:h-[48px] sm:w-[48px]`}
         onClick={() => removeCallback(spec)}
       >
-        <SpecImage specId={spec} size={44} />
+        <div className="block sm:hidden">
+          <SpecImage specId={spec} size={36} />
+        </div>
+        <div className="hidden sm:block">
+          <SpecImage specId={spec} size={44} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-[48px] w-[48px]">
+    <div className="h-[40px] w-[40px] sm:h-[48px] sm:w-[48px]">
       <label
         tabIndex={0}
         htmlFor={modalId}
-        className="btn h-[48px] min-h-[48px] w-[48px] rounded border bg-primary-focus/50 p-0 text-lg hover:border-2 hover:border-accent-focus"
+        className="btn h-[40px] min-h-[40px] w-[40px] rounded border bg-primary-focus/50 p-0 text-base hover:border-2 hover:border-accent-focus sm:h-[48px] sm:min-h-[48px] sm:w-[48px] sm:text-lg"
       >
         ?
       </label>
