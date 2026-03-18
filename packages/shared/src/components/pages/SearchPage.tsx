@@ -123,7 +123,7 @@ export const SearchPage = () => {
           <div className="space-y-3">
             <div className="mt-[5px] font-semibold text-info-content opacity-50">COMPOSITION</div>
             <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-              <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between xl:gap-4">
+              <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between xl:gap-4">
                 <div className="flex flex-col gap-2">
                   <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Team 1</div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -138,7 +138,6 @@ export const SearchPage = () => {
                     ))}
                   </div>
                 </div>
-                <div className="self-center text-xs font-semibold uppercase tracking-[0.2em] opacity-50">VS</div>
                 <div className="flex flex-col gap-2">
                   <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Team 2</div>
                   <div className="flex flex-wrap items-center gap-2">

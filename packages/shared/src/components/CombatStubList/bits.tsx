@@ -48,7 +48,6 @@ export function TeamSpecs({
           <PlayerIcon key={p.id} player={p} />
         ))}
       </div>
-      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-50">VS</div>
       <div className={`flex flex-wrap items-center gap-2 rounded-lg px-1 py-1 ${rightExtraClasses}`}>
         {teamRight.map((p) => (
           <PlayerIcon key={p.id} player={p} />
