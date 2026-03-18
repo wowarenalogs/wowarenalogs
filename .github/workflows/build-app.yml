@@ -71,6 +71,27 @@ jobs:
         run: npm i dmg-license
       - name: build for mac
         run: npm run build:app:mac
+      - name: verify app signature
+        run: |
+          set -euo pipefail
+          APP_PATH=$(find dist/mac-arm64 -maxdepth 1 -name "*.app" -type d | head -n 1)
+          if [ -z "${APP_PATH:-}" ]; then
+            echo "No .app found in dist/mac-arm64"
+            exit 1
+          fi
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          codesign -dv --verbose=4 "$APP_PATH" 2>&1 | tee /tmp/codesign.log
+          grep -q "TeamIdentifier=${APPLE_TEAM_ID}" /tmp/codesign.log
+          spctl --assess --type execute --verbose=4 "$APP_PATH"
+      - name: validate dmg notarization
+        run: |
+          set -euo pipefail
+          DMG_PATH=$(find dist -maxdepth 1 -name "*.dmg" -type f | head -n 1)
+          if [ -z "${DMG_PATH:-}" ]; then
+            echo "No .dmg found in dist"
+            exit 1
+          fi
+          xcrun stapler validate "$DMG_PATH"
   build_on_linux:
     runs-on: ubuntu-latest
     env:
