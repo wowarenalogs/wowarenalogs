@@ -56,6 +56,10 @@
     "name": "Ice Block"
   },
   {
+    "spellId": "47585",
+    "name": "Dispersion"
+  },
+  {
     "spellId": "48707",
     "name": "Anti-Magic Shell"
   },
@@ -282,6 +286,22 @@
   {
     "spellId": "231895",
     "name": "Avenging Wrath"
+  },
+  {
+    "spellId": "237945",
+    "name": "Blood of the Father"
+  },
+  {
+    "spellId": "237947",
+    "name": "Berserker's Rage"
+  },
+  {
+    "spellId": "237952",
+    "name": "Ancestral Knowledge"
+  },
+  {
+    "spellId": "242733",
+    "name": "Fel Burst"
   },
   {
     "spellId": "243435",
@@ -588,10 +608,6 @@
     "name": "Maximum Distortion"
   },
   {
-    "spellId": "1216589",
-    "name": "Heartstop Poison"
-  },
-  {
     "spellId": "1216848",
     "name": "Fire Spit"
   },
@@ -634,6 +650,10 @@
   {
     "spellId": "1232760",
     "name": "Crystal Lacerations"
+  },
+  {
+    "spellId": "1233398",
+    "name": "Mad Shriek"
   },
   {
     "spellId": "1236574",
@@ -862,6 +882,10 @@
   {
     "spellId": "1262075",
     "name": "Coalescing Malediction"
+  },
+  {
+    "spellId": "1262250",
+    "name": "Felstorm"
   },
   {
     "spellId": "1262523",
