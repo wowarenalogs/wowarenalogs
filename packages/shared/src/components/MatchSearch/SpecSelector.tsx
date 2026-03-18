@@ -70,7 +70,7 @@ export function SpecSelector({
       <input type="checkbox" id={modalId} className="modal-toggle" />
       <label htmlFor={modalId} className="modal cursor-pointer">
         <div className="modal-box w-full max-w-sm p-4 sm:max-w-md">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3">
             {/* Druid is the only class with 4 specs, this handles putting all the other classes */}
             {/* into a 2 column layout and then druid at the bottom is allowed to be wider */}
             {SPEC_BY_CLASS.filter((s) => s[0][0] !== 'Druid').map((s) => {
