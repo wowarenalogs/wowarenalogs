@@ -2,17 +2,17 @@ const ratingOptions = [1400, 1800, 2100];
 
 export function RatingSelector({ minRating, setMinRating }: { minRating: number; setMinRating: (r: number) => void }) {
   return (
-    <div>
-      <div className="font-semibold text-info-content opacity-50 mt-[5px] mb-[-5px]">RATING</div>
-      <div className="flex flex-row space-x-4 items-center">
+    <div className="flex flex-col gap-1">
+      <div className="mt-[5px] font-semibold text-info-content opacity-50">RATING</div>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         <div className="form-control">
-          <label className="label cursor-pointer space-x-2">
+          <label className="label cursor-pointer gap-2 px-0 py-1">
             <input
               type="radio"
               name="radio-11"
               className="radio checked:bg-primary"
-              onClick={() => setMinRating(0)}
-              defaultChecked={minRating === 0}
+              onChange={() => setMinRating(0)}
+              checked={minRating === 0}
             />
             <span className="label-text">Any</span>
           </label>
@@ -20,13 +20,13 @@ export function RatingSelector({ minRating, setMinRating }: { minRating: number;
         {ratingOptions.map((o) => {
           return (
             <div className="form-control" key={o}>
-              <label className="label cursor-pointer space-x-2">
+              <label className="label cursor-pointer gap-2 px-0 py-1">
                 <input
                   type="radio"
                   name="radio-11"
                   className="radio checked:bg-primary"
-                  onClick={() => setMinRating(o)}
-                  defaultChecked={minRating === o}
+                  onChange={() => setMinRating(o)}
+                  checked={minRating === o}
                 />
                 <span className="label-text">{o}+</span>
               </label>

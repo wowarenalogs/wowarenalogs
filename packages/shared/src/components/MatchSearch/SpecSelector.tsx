@@ -1,5 +1,4 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
-import { useState } from 'react';
 
 import { SpecImage } from '../common/SpecImage';
 
@@ -31,13 +30,22 @@ export function SpecSelector({
   removeCallback: (s: CombatUnitSpec) => void;
   modalKey: string;
 }) {
-  const [isShowing, setIsShowing] = useState(false);
   const modalId = `modal-${modalKey}`;
+
+  function closeModal() {
+    const modalInput = document.getElementById(modalId);
+    if (modalInput instanceof HTMLInputElement) {
+      modalInput.checked = false;
+    }
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }
 
   if (spec) {
     return (
       <div
-        className={`inline-block w-[48px] h-[48px] border-${SPEC_TO_CLASS[spec]} border-2 rounded hover:opacity-20 hover:border-red-600 hover:border-2`}
+        className={`inline-block h-[48px] w-[48px] rounded border-2 border-${SPEC_TO_CLASS[spec]} hover:border-2 hover:border-red-600 hover:opacity-20`}
         onClick={() => removeCallback(spec)}
       >
         <SpecImage specId={spec} size={44} />
@@ -46,35 +54,25 @@ export function SpecSelector({
   }
 
   return (
-    <div className="dropdown w-[48px] h-[48px]">
+    <div className="h-[48px] w-[48px]">
       <label
-        onClick={() => {
-          if (isShowing) {
-            if (document.activeElement instanceof HTMLElement) {
-              document.activeElement.blur();
-            }
-          }
-          setIsShowing(!isShowing);
-        }}
         tabIndex={0}
-        onBlur={() => {
-          setIsShowing(false);
-        }}
         htmlFor={modalId}
-        className="btn bg-primary-focus/50 hover:border-accent-focus hover:border-2 w-[48px] border rounded"
+        className="btn h-[48px] min-h-[48px] w-[48px] rounded border bg-primary-focus/50 p-0 text-lg hover:border-2 hover:border-accent-focus"
       >
         ?
       </label>
       <input type="checkbox" id={modalId} className="modal-toggle" />
       <label htmlFor={modalId} className="modal cursor-pointer">
-        <div className="modal-box w-[340px] max-w-5xl">
-          <div className="grid grid-cols-2 gap-y-2 gap-x-9">
+        <div className="modal-box w-full max-w-sm p-4 sm:max-w-md">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {/* Druid is the only class with 4 specs, this handles putting all the other classes */}
             {/* into a 2 column layout and then druid at the bottom is allowed to be wider */}
             {SPEC_BY_CLASS.filter((s) => s[0][0] !== 'Druid').map((s) => {
               return (
-                <div className="" key={s[0][0]}>
-                  <div className="flex flex-row space-x-1">
+                <div key={s[0][0]}>
+                  <div className="mb-1 text-xs font-semibold uppercase tracking-wide opacity-60">{s[0][0]}</div>
+                  <div className="flex flex-wrap gap-1">
                     {s.map((a) => (
                       <div
                         className={`border-${
@@ -83,6 +81,7 @@ export function SpecSelector({
                         key={a[2]}
                         onClick={() => {
                           addCallback(a[2] as CombatUnitSpec);
+                          closeModal();
                         }}
                       >
                         <SpecImage specId={a[2]} size={36} />
@@ -96,8 +95,9 @@ export function SpecSelector({
           <div className="mt-2">
             {SPEC_BY_CLASS.filter((s) => s[0][0] === 'Druid').map((s) => {
               return (
-                <div className="" key={s[0][0]}>
-                  <div className="flex flex-row space-x-1">
+                <div key={s[0][0]}>
+                  <div className="mb-1 text-xs font-semibold uppercase tracking-wide opacity-60">{s[0][0]}</div>
+                  <div className="flex flex-wrap gap-1">
                     {s.map((a) => (
                       <div
                         className={`border-${
@@ -106,6 +106,7 @@ export function SpecSelector({
                         key={a[2]}
                         onClick={() => {
                           addCallback(a[2] as CombatUnitSpec);
+                          closeModal();
                         }}
                       >
                         <SpecImage specId={a[2]} size={36} />

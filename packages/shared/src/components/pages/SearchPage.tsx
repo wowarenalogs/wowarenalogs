@@ -51,6 +51,7 @@ export const SearchPage = () => {
   const filters = useMemo(() => {
     return search ? (JSON.parse(base64url.decode(search as string)) as IPublicMatchesFilters) : DEFAULT_FILTERS;
   }, [search]);
+  const teamSize = filters.bracket === '2v2' ? 2 : 3;
 
   useEffect(() => {
     logAnalyticsEvent('search', {
@@ -103,67 +104,78 @@ export const SearchPage = () => {
   }
 
   return (
-    <div className="transition-all px-4 mt-4 overflow-y-auto overflow-visible">
+    <div className="mt-2 overflow-visible overflow-y-auto px-2 transition-all sm:mt-4 sm:px-4">
       <title>Find Matches</title>
-      <div className="p-4 rounded bg-base-300">
-        <BracketSelector
-          bracket={filters.bracket}
-          setBracket={(b) => {
-            setFilters({ ...filters, bracket: b });
-          }}
-        />
-        <RatingSelector
-          minRating={filters.minRating}
-          setMinRating={(r) => {
-            setFilters({ ...filters, minRating: r });
-          }}
-        />
-        <div>
-          <div className="font-semibold text-info-content opacity-50 mt-[5px]">COMPOSITION</div>
-          <div className="flex flex-row items-center">
-            <div className="flex flex-row items-center space-x-2">
-              {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s, idx) => (
-                <SpecSelector
-                  key={`1-${idx}`}
-                  modalKey={`1-${idx}`}
-                  spec={filters.team1SpecIds[s]}
-                  addCallback={addToOne}
-                  removeCallback={remFromOne}
-                />
-              ))}
+      <div className="rounded bg-base-300 p-3 sm:p-4">
+        <div className="space-y-4">
+          <BracketSelector
+            bracket={filters.bracket}
+            setBracket={(b) => {
+              setFilters({ ...filters, bracket: b });
+            }}
+          />
+          <RatingSelector
+            minRating={filters.minRating}
+            setMinRating={(r) => {
+              setFilters({ ...filters, minRating: r });
+            }}
+          />
+          <div className="space-y-3">
+            <div className="mt-[5px] font-semibold text-info-content opacity-50">COMPOSITION</div>
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+              <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between xl:gap-4">
+                <div className="flex flex-col gap-2">
+                  <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Team 1</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {_.range(0, teamSize).map((s, idx) => (
+                      <SpecSelector
+                        key={`1-${idx}`}
+                        modalKey={`1-${idx}`}
+                        spec={filters.team1SpecIds[s]}
+                        addCallback={addToOne}
+                        removeCallback={remFromOne}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="self-center text-xs font-semibold uppercase tracking-[0.2em] opacity-50">VS</div>
+                <div className="flex flex-col gap-2">
+                  <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Team 2</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {_.range(0, teamSize).map((s, idx) => (
+                      <SpecSelector
+                        key={`2-${idx}`}
+                        modalKey={`2-${idx}`}
+                        spec={filters.team2SpecIds[s]}
+                        addCallback={addToTwo}
+                        removeCallback={remFromTwo}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center xl:ml-auto">
+                <div className="form-control">
+                  <label className="label cursor-pointer justify-start gap-3 px-0">
+                    <input
+                      type="checkbox"
+                      checked={filters.winsOnly}
+                      onChange={(v) =>
+                        setFilters({
+                          ...filters,
+                          winsOnly: v.target.checked,
+                        })
+                      }
+                      className="checkbox"
+                    />
+                    <span className="label-text whitespace-nowrap">Team 1 Wins</span>
+                  </label>
+                </div>
+                <button className="btn btn-secondary btn-sm sm:btn-md" onClick={() => clearAllFilters()}>
+                  Clear filters
+                </button>
+              </div>
             </div>
-            <div className="divider divider-horizontal">VS</div>
-            <div className="flex flex-row items-center space-x-2">
-              {(filters.bracket === '2v2' ? _.range(0, 2) : _.range(0, 3)).map((s, idx) => (
-                <SpecSelector
-                  key={`2-${idx}`}
-                  modalKey={`2-${idx}`}
-                  spec={filters.team2SpecIds[s]}
-                  addCallback={addToTwo}
-                  removeCallback={remFromTwo}
-                />
-              ))}
-            </div>
-            <div className="form-control w-[120px] ml-2">
-              <label className="label cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.winsOnly}
-                  onChange={(v) =>
-                    setFilters({
-                      ...filters,
-                      winsOnly: v.target.checked,
-                    })
-                  }
-                  className="checkbox"
-                />
-                <span className="label-text">Team 1 Wins</span>
-              </label>
-            </div>
-            <div className="flex flex-1" />
-            <button className="btn btn-secondary" onClick={() => clearAllFilters()}>
-              clear filters
-            </button>
           </div>
         </div>
       </div>
@@ -202,7 +214,7 @@ export const SearchPage = () => {
               </div>
             </div>
           )}
-          <div className={`btn-group grid pt-4 pb-10 ${pageNum > 0 ? 'grid-cols-3' : 'grid-cols-1'}`}>
+          <div className={`grid gap-2 pb-10 pt-4 ${pageNum > 0 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1'}`}>
             {pageNum > 0 && (
               <button
                 className="btn btn-outline btn-sm"
