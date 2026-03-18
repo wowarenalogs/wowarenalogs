@@ -50,10 +50,8 @@ jobs:
         run: npm run build:app:windows
   build_on_mac:
     if: >-
-      github.event_name == 'workflow_dispatch' && inputs.build_on_mac
-      || github.event_name == 'pull_request' && (
-      contains(github.event.pull_request.title, '[build-for-mac]')
-      || contains(github.event.pull_request.body, '[build-for-mac]'))
+      github.event_name == 'pull_request'
+      || github.event_name == 'workflow_dispatch' && inputs.build_on_mac
     runs-on: macos-latest
     env:
       CI: false

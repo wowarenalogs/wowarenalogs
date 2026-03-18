@@ -9,7 +9,7 @@ import taggedSpellsDump from '../../shared/src/data/spells.json';
 const taggedSpellIds = Object.keys(taggedSpellsDump);
 
 const WAGO_DB2_BASE = 'https://wago.tools/db2';
-const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66044';
+const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66431';
 const withBuild = (tableName: string) => `${WAGO_DB2_BASE}/${tableName}/csv?build=${encodeURIComponent(WAGO_BUILD)}`;
 const SOURCE_TABLES = {
   spellCooldowns: withBuild('SpellCooldowns'),
@@ -222,14 +222,14 @@ function collectSpellIds(): string[] {
   if (invalidIds > 0) {
     console.log(`Dropped ${invalidIds} invalid spell id entries.`);
   }
-  return [...new Set(validIds)].sort((a, b) => Number.parseInt(a, 10) - Number.parseInt(b, 10));
+  return Array.from(new Set(validIds)).sort((a, b) => Number.parseInt(a, 10) - Number.parseInt(b, 10));
 }
 
 const spellIds = collectSpellIds();
 
 const spellNameById = new Map<number, string>();
 const spellCooldownBySpellId = new Map<number, { difficultyId: number; cooldown: number; categoryCooldown: number }>();
-const spellMiscBySpellId = new Map<number, { difficultyId: number; durationId: number }>();
+const spellMiscBySpellId = new Map<number, { difficultyId: number; castingTimeId: number; durationId: number }>();
 const spellCategoriesBySpellId = new Map<number, { difficultyId: number; chargeCategoryId: number }>();
 const spellCategoryById = new Map<number, { maxCharges: number; chargeRecoveryTime: number }>();
 const spellDurationById = new Map<number, number>();
