@@ -189,8 +189,8 @@ export const SearchPage = () => {
                   />
                 ))}
               </div>
-              <div className="mx-3 text-xs font-semibold uppercase tracking-[0.2em] opacity-50">VS</div>
-              <div className="ml-4 flex flex-row items-center space-x-2">
+              <div className="divider divider-horizontal mx-2">VS</div>
+              <div className="flex flex-row items-center space-x-2">
                 {_.range(0, teamSize).map((s, idx) => (
                   <SpecSelector
                     key={`desktop-2-${idx}`}
