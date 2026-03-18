@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - release/wowarenalogs/app
+  workflow_dispatch:
+    inputs:
+      build_on_mac:
+        description: Build the macOS job
+        required: false
+        default: true
+        type: boolean
 jobs:
   build_on_win:
     runs-on: windows-latest
@@ -55,7 +62,9 @@ jobs:
           CLOUDSDK_PYTHON: ${{env.pythonLocation}}\python.exe
         run: gsutil cp latest-windows.exe gs://download.wowarenalogs.com/desktop-client/
   build_on_mac:
-    if: "contains(github.event.commits[0].message, '[build-for-mac]')"
+    if: >-
+      github.event_name == 'push'
+      || github.event_name == 'workflow_dispatch' && inputs.build_on_mac
     runs-on: macos-latest
     env:
       CI: false

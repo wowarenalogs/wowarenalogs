@@ -3,6 +3,13 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      build_on_mac:
+        description: Build the macOS job
+        required: false
+        default: true
+        type: boolean
 jobs:
   build_on_win:
     runs-on: windows-latest
@@ -29,7 +36,11 @@ jobs:
       - name: build for windows
         run: npm run build:app:windows
   build_on_mac:
-    if: "contains(github.event.commits[0].message, '[build-for-mac]')"
+    if: >-
+      github.event_name == 'workflow_dispatch' && inputs.build_on_mac
+      || github.event_name == 'pull_request' && (
+      contains(github.event.pull_request.title, '[build-for-mac]')
+      || contains(github.event.pull_request.body, '[build-for-mac]'))
     runs-on: macos-latest
     env:
       CI: false
