@@ -33,7 +33,6 @@ interface BlizRealm {
 interface BlizRealmResults {
   realms: BlizRealm[];
 }
-
 interface IProps {
   player: ICombatUnit;
 }
@@ -49,11 +48,13 @@ async function fetchAchievements(
   const realmDataCall = await fetch(
     `/api/blizzard/${region}/data/wow/connected-realm/${realmId}?namespace=dynamic-${region}&locale=${locale}`,
   );
+  if (!realmDataCall.ok) {
+    throw new Error(`Connected realm lookup failed: ${realmDataCall.status}`);
+  }
   const realmData: BlizRealmResults = await realmDataCall.json();
   // Multiple realms are returned in these requests because the servers are clustered
   // Look up the Realm based on a match to any of the region-localized names
   // We can't use RealmId because RealmId always refers to the root-realm for the realm cluster
-  // Yes it's really this bad
   // Also -- spaces are omitted for server names in the log so we must strip them from the api result
   const unitRealm = realmData.realms.find((r) => _.values(r.name).some((n) => n.replace(' ', '') === serverName));
 
@@ -71,8 +72,10 @@ async function fetchAchievements(
       },
     },
   );
+  if (!profileCall.ok) {
+    throw new Error(`Profile lookup failed: ${profileCall.status}`);
+  }
 
-  // Call blizzard api for cheevos data
   const profileData: BlizApiAchievementsResponse = await profileCall.json();
   return profileData;
 }
