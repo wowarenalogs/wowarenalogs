@@ -136,7 +136,6 @@ type MappedRaidbotsSpec = RaidbotsTalentSpec & {
 };
 
 export const nodeMaps: Record<number, MappedRaidbotsSpec> = {};
-const fullNodeMapping: Record<number, SpecNode | ClassNode | HeroNode | SubtreeNode> = {};
 
 talentIdMap.forEach((spec) => {
   nodeMaps[spec.specId] = {
@@ -144,7 +143,6 @@ talentIdMap.forEach((spec) => {
     classNodeMap: spec.classNodes.reduce(
       (prev, cur) => {
         prev[cur.id] = cur;
-        fullNodeMapping[cur.id] = cur;
         return prev;
       },
       {} as Record<number, ClassNode>,
@@ -152,7 +150,6 @@ talentIdMap.forEach((spec) => {
     specNodeMap: spec.specNodes.reduce(
       (prev, cur) => {
         prev[cur.id] = cur;
-        fullNodeMapping[cur.id] = cur;
         return prev;
       },
       {} as Record<number, SpecNode>,
@@ -160,7 +157,6 @@ talentIdMap.forEach((spec) => {
     heroNodeMap: spec.heroNodes.reduce(
       (prev, cur) => {
         prev[cur.id] = cur;
-        fullNodeMapping[cur.id] = cur;
         return prev;
       },
       {} as Record<number, HeroNode>,
@@ -168,7 +164,6 @@ talentIdMap.forEach((spec) => {
     subtreeNodeMap: spec.subTreeNodes.reduce(
       (prev, cur) => {
         prev[cur.id] = cur;
-        fullNodeMapping[cur.id] = cur;
         return prev;
       },
       {} as Record<number, SubtreeNode>,
@@ -271,17 +266,16 @@ function writeLoadoutContent(
     const isChoiceNode = treeNode?.type === 'choice' || treeNode?.type === 'subtree';
 
     if ('freeNode' in treeNode && treeNode.freeNode) {
-      addValue(exportStream, 1, 0);
+      // Granted/free nodes are "selected but not purchased" per the Blizzard export format
+      addValue(exportStream, 1, 1); // isNodeSelected = true
+      addValue(exportStream, 1, 0); // isNodePurchased = false
       continue;
     }
 
     addValue(exportStream, 1, isNodeSelected ? 1 : 0);
 
     if (isNodeSelected) {
-      // This extra addValue is in bliz code, I'm not sure why it's needed
-      // their code makes some differentiation between a talent node being "selected" vs. "purchased"
-      // but I don't see any differentiation in the game client or the combat log data :thinking:
-      addValue(exportStream, 1, isNodeSelected ? 1 : 0);
+      addValue(exportStream, 1, 1); // isNodePurchased = true
 
       addValue(exportStream, 1, isPartiallyRanked ? 1 : 0);
 
@@ -309,7 +303,7 @@ export const createExportString = (specId: number, talents: { id1: number; id2: 
   const specData = nodeMaps[specId];
 
   const treeNodes = specData.fullNodeOrder.map((n) => {
-    return fullNodeMapping[n];
+    return specData.classNodeMap[n] ?? specData.specNodeMap[n] ?? specData.heroNodeMap[n] ?? specData.subtreeNodeMap[n];
   });
 
   // console.log(`Empty tree nodes count: ${treeNodes.filter((n) => !n).length}`);
