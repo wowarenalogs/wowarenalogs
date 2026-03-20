@@ -33,6 +33,30 @@ interface BlizRealm {
 interface BlizRealmResults {
   realms: BlizRealm[];
 }
+const PVP_RANK_PATTERN = /(?:Combatant|Challenger|Rival|Duelist|Elite|Gladiator|Legend)(?: I{1,2})?:/;
+
+const PVP_TIER: Record<string, number> = {
+  Combatant: 1,
+  Challenger: 2,
+  Rival: 3,
+  Duelist: 4,
+  Elite: 5,
+  Gladiator: 6,
+  Legend: 7,
+};
+
+function getPvpTier(name: string): number {
+  for (const [title, tier] of Object.entries(PVP_TIER)) {
+    if (name.includes(title)) return tier;
+  }
+  return 0;
+}
+
+function getSeasonKey(name: string): string {
+  const colonIdx = name.indexOf(':');
+  return colonIdx >= 0 ? name.slice(colonIdx + 1).trim() : name;
+}
+
 interface IProps {
   player: ICombatUnit;
 }
@@ -118,37 +142,25 @@ export function AchievementBadge({ player }: IProps) {
     );
   }
 
-  // Filter for pvp relevant achievements
-  // sorting by .id is a strong proxy for sorting by xpac
-  const achievementsToShow = data
-    .filter((a) => a.criteria?.is_completed) // api result includes 'in-progress' achievements
-    .filter((a) => a.achievement.name.includes(' Season '))
-    .filter((a) => !a.achievement.name.includes(' Keystone '))
-    .filter((a) => !a.achievement.name.includes('Hero'))
-    .sort((a, b) => b.id - a.id)
+  const pvpAchievements = data
+    .filter((a) => a.criteria?.is_completed)
+    .filter((a) => PVP_RANK_PATTERN.test(a.achievement.name));
+
+  // Group by season (text after the colon), take highest PvP tier per season
+  const bySeason = _.groupBy(pvpAchievements, (a) => getSeasonKey(a.achievement.name));
+  const historical = _.map(bySeason, (achievements) => _.maxBy(achievements, (a) => getPvpTier(a.achievement.name)))
+    .filter((a): a is BlizApiAchievement => a !== undefined)
     .sort((a, b) => b.completed_timestamp - a.completed_timestamp)
-    .slice(0, 50);
-
-  // Groups by season + xpac
-  // assumes expansions are unique by suffixes of len 11
-  const SUFFIX_LENGTH = 20;
-  const grouping = _.groupBy(achievementsToShow, (a) =>
-    a.achievement.name.slice(a.achievement.name.length - SUFFIX_LENGTH, a.achievement.name.length),
-  );
-
-  // Flatten, taking only the best achievement (highest id) they got in each season
-  const historical = _.flatMap(grouping, (a) => a[0]).slice(0, DISPLAY_LIMIT);
+    .slice(0, DISPLAY_LIMIT);
 
   return (
     <div className="flex flex-row gap-1 animate-fadein">
-      {historical?.map((a) => {
-        if (a.achievement.name.includes('Gladiator')) {
-          <div className="badge badge-sm badge-primary" key={a.id}>
-            {a.achievement.name}
-          </div>;
-        }
+      {historical.map((a) => {
+        const tier = getPvpTier(a.achievement.name);
+        const badgeClass =
+          tier >= PVP_TIER.Gladiator ? 'badge-warning' : tier >= PVP_TIER.Duelist ? 'badge-primary' : 'badge-secondary';
         return (
-          <div className="badge badge-sm badge-secondary" key={a.id}>
+          <div className={`badge badge-sm ${badgeClass}`} key={a.id}>
             {a.achievement.name}
           </div>
         );
