@@ -144,7 +144,8 @@ export function AchievementBadge({ player }: IProps) {
 
   const pvpAchievements = data
     .filter((a) => a.criteria?.is_completed)
-    .filter((a) => PVP_RANK_PATTERN.test(a.achievement.name));
+    .filter((a) => PVP_RANK_PATTERN.test(a.achievement.name))
+    .filter((a) => !a.achievement.name.includes('Keystone'));
 
   // Group by season (text after the colon), take highest PvP tier per season
   const bySeason = _.groupBy(pvpAchievements, (a) => getSeasonKey(a.achievement.name));
