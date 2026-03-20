@@ -136,9 +136,9 @@ export function AchievementBadge({ player }: IProps) {
   if (achievementsQuery.isLoading) {
     return (
       <div className="flex flex-row gap-1 animate-fadein">
-        <div className="w-6 h-6 rounded bg-base-300 animate-pulse"></div>
-        <div className="w-6 h-6 rounded bg-base-300 animate-pulse"></div>
-        <div className="w-6 h-6 rounded bg-base-300 animate-pulse"></div>
+        <div className="w-6 h-6 rounded-full bg-base-300 animate-pulse"></div>
+        <div className="w-6 h-6 rounded-full bg-base-300 animate-pulse"></div>
+        <div className="w-6 h-6 rounded-full bg-base-300 animate-pulse"></div>
       </div>
     );
   }
@@ -168,7 +168,7 @@ export function AchievementBadge({ player }: IProps) {
         const icon = PVP_TIER_ICON[tier];
         return (
           <div className="tooltip" data-tip={a.achievement.name} key={a.id}>
-            <img src={icon} alt={a.achievement.name} className="w-6 h-6 rounded" />
+            <img src={icon} alt={a.achievement.name} className="w-6 h-6 rounded-full ring-1 ring-base-content/20" />
           </div>
         );
       })}
