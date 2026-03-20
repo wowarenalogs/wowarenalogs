@@ -24,9 +24,10 @@ function createBlizzardFetch(route: string[], namespace: string, locale: string)
     .slice(1)
     .join('/')}?namespace=${namespace}&locale=${locale}`;
   return (token: string) =>
-    fetch(encodeURI(froute + `&access_token=${token}`), {
+    fetch(encodeURI(froute), {
       headers: {
         Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
       },
     });
 }
@@ -45,6 +46,9 @@ async function refreshToken(region: string): Promise<string> {
       Authorization: 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
     },
   });
+  if (!apiResult.ok) {
+    throw new Error(`Token refresh failed for region ${region}: ${apiResult.status}`);
+  }
   const jsonResult: AuthResult = await apiResult.json();
   return jsonResult['access_token'];
 }
@@ -62,13 +66,29 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
   const apiCall = createBlizzardFetch(route as string[], namespace as string, locale as string);
-  let apiResult = await apiCall(tokens[region]);
-  if (apiResult.status === 401) {
-    // If we 401, refresh the token and try again
-    tokens[region] = await refreshToken(region);
-    apiResult = await apiCall(tokens[region]);
+  try {
+    if (tokens[region] === 'invalid') {
+      tokens[region] = await refreshToken(region);
+    }
+    let apiResult = await apiCall(tokens[region]);
+    if (apiResult.status === 401 || apiResult.status === 403) {
+      tokens[region] = await refreshToken(region);
+      apiResult = await apiCall(tokens[region]);
+    }
+    if (!apiResult.ok) {
+      res.status(apiResult.status).json({ error: `Blizzard API returned ${apiResult.status}` });
+      return;
+    }
+    const text = await apiResult.text();
+    if (!text) {
+      res.status(502).json({ error: 'Empty response from Blizzard API' });
+      return;
+    }
+    const jsonResponse = JSON.parse(text);
+    apiCache.set(key, jsonResponse);
+    res.status(200).json(jsonResponse);
+  } catch (e) {
+    console.error('Blizzard API proxy error:', e);
+    res.status(502).json({ error: 'Failed to fetch from Blizzard API' });
   }
-  const jsonResponse = await apiResult.json();
-  apiCache.set(key, jsonResponse);
-  res.status(200).json(jsonResponse);
 }
