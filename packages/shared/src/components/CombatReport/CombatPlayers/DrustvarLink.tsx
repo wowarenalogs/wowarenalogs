@@ -40,13 +40,7 @@ export function DrustvarLink({ player }: IProps) {
         );
       }}
     >
-      <img
-        height={22}
-        width={22}
-        alt="drustvar.com Link"
-        title="drustvar.com Link"
-        src={'/drustvar-favicon.png'}
-      />
+      <img height={22} width={22} alt="drustvar.com Link" title="drustvar.com Link" src={'/drustvar-favicon.png'} />
       Drustvar
     </button>
   );
