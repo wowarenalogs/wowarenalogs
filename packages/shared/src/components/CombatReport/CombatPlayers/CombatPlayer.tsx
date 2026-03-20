@@ -17,6 +17,7 @@ import { EquipmentInfo } from '../EquipmentInfo';
 import { SpellIcon } from '../SpellIcon';
 import { ArmoryLink } from './ArmoryLink';
 import { CheckPvPLink } from './CheckPvPLink';
+import { DrustvarLink } from './DrustvarLink';
 import { GearStickLink } from './GearStickLink';
 import { SeramateLink } from './SeramateLink';
 import { TalentDisplay } from './TalentDisplay';
@@ -293,6 +294,7 @@ export function CombatPlayer(props: IProps) {
         <ArmoryLink player={props.player} />
         <CheckPvPLink player={props.player} />
         <SeramateLink player={props.player} />
+        <DrustvarLink player={props.player} />
         <GearStickLink player={props.player} />
       </div>
       <div className="mt-2">
