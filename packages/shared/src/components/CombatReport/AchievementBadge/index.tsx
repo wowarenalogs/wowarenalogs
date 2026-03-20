@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useQuery } from 'react-query';
@@ -43,6 +44,17 @@ const PVP_TIER: Record<string, number> = {
   Elite: 5,
   Gladiator: 6,
   Legend: 7,
+};
+
+// Blizzard CDN icons for each PvP tier bracket (56x56 JPG)
+const PVP_TIER_ICON: Record<number, string> = {
+  1: 'https://render.worldofwarcraft.com/us/icons/56/ui_rankedpvp_02.jpg',
+  2: 'https://render.worldofwarcraft.com/us/icons/56/ui_rankedpvp_03.jpg',
+  3: 'https://render.worldofwarcraft.com/us/icons/56/ui_rankedpvp_04.jpg',
+  4: 'https://render.worldofwarcraft.com/us/icons/56/ui_rankedpvp_05.jpg',
+  5: 'https://render.worldofwarcraft.com/us/icons/56/ui_rankedpvp_06.jpg',
+  6: 'https://render.worldofwarcraft.com/us/icons/56/ui_rankedpvp_06.jpg',
+  7: 'https://render.worldofwarcraft.com/us/icons/56/ui_rankedpvp_06.jpg',
 };
 
 function getPvpTier(name: string): number {
@@ -124,22 +136,17 @@ export function AchievementBadge({ player }: IProps) {
   if (achievementsQuery.isLoading) {
     return (
       <div className="flex flex-row gap-1 animate-fadein">
-        <div className="badge badge-sm badge-secondary w-[200px] animate-pulse"></div>
-        <div className="badge badge-sm badge-secondary w-[200px] animate-pulse"></div>
-        <div className="badge badge-sm badge-secondary w-[200px] animate-pulse"></div>
+        <div className="w-6 h-6 rounded bg-base-300 animate-pulse"></div>
+        <div className="w-6 h-6 rounded bg-base-300 animate-pulse"></div>
+        <div className="w-6 h-6 rounded bg-base-300 animate-pulse"></div>
       </div>
     );
   }
 
   const data = achievementsQuery.data?.achievements || [];
 
-  // prevent layout shift
   if (data.length === 0) {
-    return (
-      <div className="flex flex-row animate-fadein">
-        <div className="badge badge-sm badge-info opacity-80">No achievements!</div>
-      </div>
-    );
+    return null;
   }
 
   const pvpAchievements = data
@@ -158,11 +165,10 @@ export function AchievementBadge({ player }: IProps) {
     <div className="flex flex-row gap-1 animate-fadein">
       {historical.map((a) => {
         const tier = getPvpTier(a.achievement.name);
-        const badgeClass =
-          tier >= PVP_TIER.Gladiator ? 'badge-warning' : tier >= PVP_TIER.Duelist ? 'badge-primary' : 'badge-secondary';
+        const icon = PVP_TIER_ICON[tier];
         return (
-          <div className={`badge badge-sm ${badgeClass}`} key={a.id}>
-            {a.achievement.name}
+          <div className="tooltip" data-tip={a.achievement.name} key={a.id}>
+            <img src={icon} alt={a.achievement.name} className="w-6 h-6 rounded" />
           </div>
         );
       })}
