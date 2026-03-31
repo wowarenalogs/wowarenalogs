@@ -35,7 +35,7 @@ const ReplayHpNumber = (props: { renderState: IHpNumberRenderState }) => {
       resolution={4}
       anchor={0.5}
       scale={0.2}
-      alpha={props.renderState.progress < 0.5 ? 1 : 1 - (props.renderState.progress - 0.5)}
+      alpha={props.renderState.progress < 0.5 ? 1 : 1 - (props.renderState.progress - 0.5) * 2}
       style={
         new TextStyle({
           align: 'center',
@@ -61,10 +61,16 @@ export const ReplayHpNumbers = (props: IProps) => {
     (e): e is CombatHpUpdateAction => e instanceof CombatHpUpdateAction,
   );
 
+  const seen = new Set<string>();
   const numbers = props.unit.damageIn
     .concat(props.unit.healIn)
     .concat(outgoingDamage)
     .concat(props.unit.healOut)
+    .filter((e) => {
+      if (seen.has(e.logLine.id)) return false;
+      seen.add(e.logLine.id);
+      return true;
+    })
     .filter((e) => {
       const eventTimeOffset = e.timestamp - combat.startTime;
       return (
