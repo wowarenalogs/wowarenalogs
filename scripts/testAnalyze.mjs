@@ -667,8 +667,14 @@ const WOW_LOG_CANDIDATES = os.platform() === 'win32'
       `${HOME}/Documents`,
     ];
 
-let logPath = process.argv[2];
-const matchIndex = parseInt(process.argv[3] ?? '-1'); // -1 = auto-pick best match
+// Parse flags from argv (supports: --list, --dry-run, positional match index)
+const rawArgs = process.argv.slice(2);
+const flagList    = rawArgs.includes('--list');
+const flagDryRun  = rawArgs.includes('--dry-run');
+const positional  = rawArgs.filter(a => !a.startsWith('--'));
+
+let logPath = positional[0];
+const matchIndex = parseInt(positional[1] ?? '-1'); // -1 = auto-pick best match
 
 // Auto-detect log if not provided
 if (!logPath) {
@@ -723,6 +729,8 @@ matches.forEach((m, i) => {
   console.log(`  [${i}] ${m.bracket.padEnd(20)} ${dur}`);
 });
 
+if (flagList) process.exit(0);
+
 // Auto-pick: prefer 3v3, then longest Solo Shuffle round
 let resolvedIndex = matchIndex;
 if (resolvedIndex < 0) {
@@ -760,10 +768,16 @@ if (!context) {
 
 console.log('\n--- CONTEXT SENT TO AI ---\n');
 console.log(context);
+
+if (flagDryRun) {
+  console.log('\n[--dry-run] Skipping AI call. Remove the flag to run analysis.');
+  process.exit(0);
+}
+
 console.log('\n--- AI ANALYSIS ---\n');
 
 if (!apiKey) {
-  console.error('ANTHROPIC_API_KEY not set — skipping AI call. Set it to get the analysis.');
+  console.error('ANTHROPIC_API_KEY not set — skipping AI call. Set it in packages/web/.env.local or as an env var.');
   process.exit(0);
 }
 
