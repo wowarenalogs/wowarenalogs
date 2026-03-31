@@ -21,6 +21,10 @@ const spellEffects = JSON.parse(
   await readFile(join(repoRoot, 'packages/shared/src/data/spellEffects.json'), 'utf8'),
 );
 
+const spellsJson = JSON.parse(
+  await readFile(join(repoRoot, 'packages/shared/src/data/spells.json'), 'utf8'),
+);
+
 // CombatUnitSpec mapping (spec numeric ID → readable name)
 const SPEC_NAMES = {
   250: 'Blood Death Knight', 251: 'Frost Death Knight', 252: 'Unholy Death Knight',
@@ -40,47 +44,37 @@ const SPEC_NAMES = {
 
 const HEALER_SPECS = new Set([105, 270, 65, 256, 257, 264, 1468]);
 
-// Major class cooldowns: spellId → { name, tag, class }
-// Built from classMetadata — only spells that have a tag AND cooldown >= 30s in spellEffects.json
-// (We read classMetadata manually from the source file to extract tagged spells)
-const classMetadataSource = await readFile(
-  join(repoRoot, 'packages/parser/src/classMetadata.ts'),
-  'utf8',
-);
+// ---- Spell classification (mirrors spellDanger.ts) --------------------------
 
-const TAGGED_SPELLS = {}; // spellId → { name, tag }
-const abilityRegex = /\{\s*spellId:\s*'(\d+)',\s*name:\s*'([^']+)',\s*tags:\s*\[([^\]]*)\]\s*\}/g;
-let m;
-while ((m = abilityRegex.exec(classMetadataSource)) !== null) {
-  const [, spellId, name, tagsStr] = m;
-  if (!tagsStr.trim()) continue;
-  const hasOffensive = tagsStr.includes('Offensive');
-  const hasDefensive = tagsStr.includes('Defensive');
-  const hasControl = tagsStr.includes('Control');
-  if (!hasOffensive && !hasDefensive && !hasControl) continue;
+const MAX_CD_SECONDS = 360;
 
-  const tag = hasDefensive ? 'Defensive' : hasOffensive ? 'Offensive' : 'Control';
-  const cd = spellEffects[spellId];
-  if (!cd) continue;
-  const cdSec = cd.cooldownSeconds ?? cd.charges?.chargeCooldownSeconds ?? 0;
-  if (cdSec < 30) continue;
-
-  if (!TAGGED_SPELLS[spellId]) {
-    TAGGED_SPELLS[spellId] = { name, tag, cooldownSeconds: cdSec, isOffensive: hasOffensive };
-  }
+// Offensive spells: sourced from spells.json (buffs_offensive / debuffs_offensive),
+// excluding nounitFrames/nonameplates entries (passive/hidden procs).
+function isOffensiveSpell(spellId) {
+  const entry = spellsJson[spellId];
+  return (
+    entry &&
+    (entry.type === 'buffs_offensive' || entry.type === 'debuffs_offensive') &&
+    !entry.nounitFrames &&
+    !entry.nonameplates
+  );
 }
+
+// Effect type overrides for spells with non-DamageAmp danger (mirrors SPELL_EFFECT_OVERRIDES in spellDanger.ts)
+const SPELL_EFFECT_OVERRIDES = {
+  '79140':  ['DamageAmp', 'HealReduction'], // Vendetta/Deathmark
+  '212431': ['HealReduction'],              // Mortal Coil
+  '228358': ['HealReduction'],              // Void Torrent
+  '356824': ['HealReduction'],              // Mindgames
+  '383005': ['HealReduction'],              // Strangulate
+  '207736': ['Vulnerability'],              // Shadowy Duel
+  '343527': ['Vulnerability'],              // Condemn
+  '5308':   ['Execution'],                  // Execute
+};
 
 // ---- Danger scoring helpers -------------------------------------------------
 
 const EFFECT_TYPE_WEIGHTS = { DamageAmp: 1.0, HealReduction: 1.5, Vulnerability: 1.2, Execution: 0.8 };
-const SPELL_EFFECT_TYPES = {
-  '190319': ['DamageAmp'], '12472': ['DamageAmp'], '205025': ['DamageAmp'],
-  '107574': ['DamageAmp'], '31884': ['DamageAmp'], '19574': ['DamageAmp'],
-  '13750': ['DamageAmp'], '51690': ['DamageAmp'], '121471': ['DamageAmp'],
-  '185422': ['DamageAmp'], '207736': ['Vulnerability'], '79140': ['DamageAmp', 'HealReduction'],
-  '106951': ['DamageAmp'], '114049': ['DamageAmp'], '191634': ['DamageAmp'],
-  '305485': ['DamageAmp'], '197871': ['DamageAmp'], '191427': ['DamageAmp'],
-};
 
 function cdTierWeight(cooldownSeconds) {
   if (cooldownSeconds < 30) return 0;
@@ -88,7 +82,7 @@ function cdTierWeight(cooldownSeconds) {
 }
 
 function spellDangerWeight(spellId, cooldownSeconds) {
-  const effects = SPELL_EFFECT_TYPES[spellId] ?? ['DamageAmp'];
+  const effects = SPELL_EFFECT_OVERRIDES[spellId] ?? ['DamageAmp'];
   const effectWeight = effects.reduce((sum, e) => sum + (EFFECT_TYPE_WEIGHTS[e] ?? 1.0), 0);
   return cdTierWeight(cooldownSeconds) * effectWeight;
 }
@@ -231,7 +225,7 @@ async function parseMatches(logPath) {
 
       if (event === 'SPELL_CAST_SUCCESS') {
         const spellId = params[8]?.replace(/"/g, '');
-        if (srcGuid && spellId && TAGGED_SPELLS[spellId]) {
+        if (srcGuid && spellId && spellEffects[spellId]) {
           if (!current.spellCasts[srcGuid]) current.spellCasts[srcGuid] = [];
           current.spellCasts[srcGuid].push({ timestamp, spellId });
         }
@@ -342,15 +336,17 @@ function buildContext(match) {
   }
 
   const cooldownLines = [];
-  for (const [spellId, { name, tag, cooldownSeconds }] of Object.entries(TAGGED_SPELLS)) {
-    const casts = cdMap[spellId] ?? [];
-    // Only include if the owner's class might have this spell
-    // (we can't easily filter by class here, so we'll include all that were cast + known important ones for owner's spec)
-    // Skip spells never cast and not in a small "must-include" set
-    if (casts.length === 0) continue; // For brevity, only show actually-cast CDs in this test
+  for (const [spellId, castTimes] of Object.entries(cdMap)) {
+    if (castTimes.length === 0) continue;
+    const effectData = spellEffects[spellId];
+    if (!effectData) continue;
+    const cooldownSeconds = effectData.cooldownSeconds ?? effectData.charges?.chargeCooldownSeconds ?? 0;
+    if (cooldownSeconds < 30 || cooldownSeconds > MAX_CD_SECONDS) continue;
+    const name = effectData.name;
+    const casts = castTimes;
 
     cooldownLines.push('');
-    cooldownLines.push(`  ${name} [${tag}, ${cooldownSeconds}s CD]:`);
+    cooldownLines.push(`  ${name} [${cooldownSeconds}s CD]:`);
     casts.forEach(t => cooldownLines.push(`    Cast at: ${fmtTime(t)}`));
 
     // Compute unused windows
@@ -431,9 +427,13 @@ function buildContext(match) {
     guid,
     player,
     specName: SPEC_NAMES[player.specId] ?? `Unknown(${player.specId})`,
-    offensiveCasts: (match.spellCasts[guid] ?? []).filter(
-      (c) => TAGGED_SPELLS[c.spellId]?.isOffensive,
-    ),
+    offensiveCasts: (match.spellCasts[guid] ?? []).filter((c) => {
+      if (!isOffensiveSpell(c.spellId)) return false;
+      const cd = spellEffects[c.spellId];
+      if (!cd) return false;
+      const cdSec = cd.cooldownSeconds ?? cd.charges?.chargeCooldownSeconds ?? 0;
+      return cdSec >= 30 && cdSec <= MAX_CD_SECONDS;
+    }),
   })).filter((e) => e.offensiveCasts.length > 0);
 
   lines.push('');
@@ -446,14 +446,15 @@ function buildContext(match) {
       lines.push('');
       lines.push(`  ${entry.specName} (${entry.player.name || entry.guid}):`);
       for (const cast of entry.offensiveCasts) {
-        const spell = TAGGED_SPELLS[cast.spellId];
+        const effectData = spellEffects[cast.spellId];
+        const cooldownSeconds = effectData.cooldownSeconds ?? effectData.charges?.chargeCooldownSeconds ?? 0;
         const castSec = (cast.timestamp - match.startTime) / 1000;
-        const backSec = castSec + spell.cooldownSeconds;
+        const backSec = castSec + cooldownSeconds;
         const backStr = backSec <= durationSec
           ? ` → back at ${fmtTime(backSec)}`
           : ' → not available again before match ended';
-        const effects = (SPELL_EFFECT_TYPES[cast.spellId] ?? ['DamageAmp']).join(', ');
-        lines.push(`    ${spell.name} [${spell.cooldownSeconds}s CD, ${effects}]: cast at ${fmtTime(castSec)}${backStr}`);
+        const effects = (SPELL_EFFECT_OVERRIDES[cast.spellId] ?? ['DamageAmp']).join(', ');
+        lines.push(`    ${effectData.name} [${cooldownSeconds}s CD, ${effects}]: cast at ${fmtTime(castSec)}${backStr}`);
       }
     }
 
@@ -469,9 +470,9 @@ function buildContext(match) {
       e.offensiveCasts.map((c) => ({
         time: (c.timestamp - match.startTime) / 1000,
         playerName: e.player.name || e.guid,
-        spellName: TAGGED_SPELLS[c.spellId].name,
+        spellName: spellEffects[c.spellId]?.name ?? c.spellId,
         spellId: c.spellId,
-        cooldownSeconds: TAGGED_SPELLS[c.spellId].cooldownSeconds,
+        cooldownSeconds: spellEffects[c.spellId]?.cooldownSeconds ?? spellEffects[c.spellId]?.charges?.chargeCooldownSeconds ?? 0,
       }))
     ).sort((a, b) => a.time - b.time);
 

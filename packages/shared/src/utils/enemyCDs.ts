@@ -1,9 +1,9 @@
-import { AtomicArenaCombat, classMetadata, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+import { AtomicArenaCombat, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { spellEffectData } from '../data/spellEffectData';
 import { computeDampening, dampeningDangerMultiplier, fmtDampening } from './dampening';
 import { fmtTime, specToString } from './cooldowns';
-import { dangerLabel, SPELL_DANGER_DATA, spellDangerWeight } from './spellDanger';
+import { dangerLabel, isOffensiveSpell, SPELL_EFFECT_OVERRIDES, spellDangerWeight } from './spellDanger';
 
 const MIN_CD_SECONDS = 30;
 /** Two enemy offensive CD casts within this window are considered an aligned burst */
@@ -58,43 +58,30 @@ export function reconstructEnemyCDTimeline(
 
   const players: IEnemyPlayerTimeline[] = [];
 
+  // Max CD to consider a "real" cooldown (filters out 999.999s passive procs)
+  const MAX_CD_SECONDS = 360;
+
   for (const enemy of enemies) {
-    const classData = classMetadata.find((c) => c.unitClass === enemy.class);
-    if (!classData) continue;
-
-    const seen = new Set<string>();
-    const offensiveSpells = classData.abilities.filter((spell) => {
-      if (seen.has(spell.spellId)) return false;
-      if (!spell.tags.some((t) => String(t) === 'Offensive')) return false;
-      const effectData = spellEffectData[spell.spellId];
-      if (!effectData) return false;
-      const cd = effectData.cooldownSeconds ?? effectData.charges?.chargeCooldownSeconds ?? 0;
-      if (cd < MIN_CD_SECONDS) return false;
-      seen.add(spell.spellId);
-      return true;
-    });
-
     const offensiveCDs: IEnemyCDCast[] = [];
 
-    for (const spell of offensiveSpells) {
-      const effectData = spellEffectData[spell.spellId]!;
+    for (const cast of enemy.spellCastEvents) {
+      if (cast.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
+      const { spellId } = cast;
+      if (!isOffensiveSpell(spellId)) continue;
+      const effectData = spellEffectData[spellId];
+      if (!effectData) continue;
       const cooldownSeconds =
         effectData.cooldownSeconds ?? effectData.charges?.chargeCooldownSeconds ?? 0;
+      if (cooldownSeconds < MIN_CD_SECONDS || cooldownSeconds > MAX_CD_SECONDS) continue;
 
-      const castEvents = enemy.spellCastEvents.filter(
-        (e) => e.spellId === spell.spellId && e.logLine.event === LogEvent.SPELL_CAST_SUCCESS,
-      );
-
-      for (const cast of castEvents) {
-        const castTimeSeconds = (cast.logLine.timestamp - matchStartMs) / 1000;
-        offensiveCDs.push({
-          spellId: spell.spellId,
-          spellName: spell.name,
-          castTimeSeconds,
-          cooldownSeconds,
-          availableAgainAtSeconds: castTimeSeconds + cooldownSeconds,
-        });
-      }
+      const castTimeSeconds = (cast.logLine.timestamp - matchStartMs) / 1000;
+      offensiveCDs.push({
+        spellId,
+        spellName: effectData.name,
+        castTimeSeconds,
+        cooldownSeconds,
+        availableAgainAtSeconds: castTimeSeconds + cooldownSeconds,
+      });
     }
 
     offensiveCDs.sort((a, b) => a.castTimeSeconds - b.castTimeSeconds);
@@ -221,7 +208,7 @@ export function formatEnemyCDTimelineForContext(
     lines.push('');
     lines.push(`  ${player.specName} (${player.playerName}):`);
     for (const cd of player.offensiveCDs) {
-      const effects = SPELL_DANGER_DATA[cd.spellId];
+      const effects = SPELL_EFFECT_OVERRIDES[cd.spellId];
       const effectStr = effects ? effects.join(', ') : 'DamageAmp';
       const backStr =
         cd.availableAgainAtSeconds <= matchDurationSeconds
