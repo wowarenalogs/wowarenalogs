@@ -155,7 +155,7 @@ export class BattlegroundData extends CombatGenerator {
         if (metadata) {
           unit.info = metadata?.info;
         }
-        unit.proveClass(metadata?.class || CombatUnitClass.None);
+        unit.class = metadata?.class || CombatUnitClass.None;
         unit.proveSpec(metadata?.spec || CombatUnitSpec.None);
       }
       unit.end();
