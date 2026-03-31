@@ -20,17 +20,13 @@ export const EFFECT_TYPE_WEIGHTS: Record<SpellEffectType, number> = {
  * this table only needs entries for spells with non-DamageAmp effects.
  */
 export const SPELL_EFFECT_OVERRIDES: Record<string, SpellEffectType[]> = {
-  // HealReduction
-  '79140': [SpellEffectType.DamageAmp, SpellEffectType.HealReduction], // Vendetta/Deathmark
-  '212431': [SpellEffectType.HealReduction],                           // Mortal Coil (Warlock)
-  '228358': [SpellEffectType.HealReduction],                           // Void Torrent
-  '356824': [SpellEffectType.HealReduction],                           // Mindgames
-  '383005': [SpellEffectType.HealReduction],                           // Strangulate
-  // Vulnerability (increases damage taken)
-  '207736': [SpellEffectType.Vulnerability],                           // Shadowy Duel
-  '343527': [SpellEffectType.Vulnerability],                           // Condemn (Execute variant)
-  // Execution (bonus in execute range)
-  '5308':  [SpellEffectType.Execution],                                // Execute
+  // DamageAmp + HealReduction
+  '79140':  [SpellEffectType.DamageAmp, SpellEffectType.HealReduction], // Vendetta/Deathmark (Assassination Rogue)
+  // HealReduction only
+  '375901': [SpellEffectType.HealReduction],                            // Mindgames (Shadow Priest) — reverses heals into damage
+  '386997': [SpellEffectType.HealReduction],                            // Soul Rot (Affliction Warlock) — applies heal-to-damage debuff
+  // Vulnerability (target takes increased damage)
+  '207736': [SpellEffectType.Vulnerability],                            // Shadowy Duel (Subtlety Rogue) — isolates + increases damage taken
 };
 
 /**

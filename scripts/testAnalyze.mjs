@@ -62,14 +62,10 @@ function isOffensiveSpell(spellId) {
 
 // Effect type overrides for spells with non-DamageAmp danger (mirrors SPELL_EFFECT_OVERRIDES in spellDanger.ts)
 const SPELL_EFFECT_OVERRIDES = {
-  '79140':  ['DamageAmp', 'HealReduction'], // Vendetta/Deathmark
-  '212431': ['HealReduction'],              // Mortal Coil
-  '228358': ['HealReduction'],              // Void Torrent
-  '356824': ['HealReduction'],              // Mindgames
-  '383005': ['HealReduction'],              // Strangulate
-  '207736': ['Vulnerability'],              // Shadowy Duel
-  '343527': ['Vulnerability'],              // Condemn
-  '5308':   ['Execution'],                  // Execute
+  '79140':  ['DamageAmp', 'HealReduction'], // Vendetta/Deathmark (Assassination Rogue)
+  '375901': ['HealReduction'],              // Mindgames (Shadow Priest) — reverses heals into damage
+  '386997': ['HealReduction'],              // Soul Rot (Affliction Warlock) — heal-to-damage debuff
+  '207736': ['Vulnerability'],              // Shadowy Duel (Subtlety Rogue) — isolates + increases damage taken
 };
 
 // ---- Danger scoring helpers -------------------------------------------------
@@ -503,11 +499,12 @@ function buildContext(match) {
           .reduce((sum, e) => sum + e.amount, 0);
         const damageRatio = avgWindowDamage > 0 ? Math.max(windowDamage / avgWindowDamage, 0.5) : 0.5;
 
-        // Healer CC proxy: owner made 0 tagged spell casts in the window
+        // Healer CC proxy: healer owner made 0 spell casts in the window.
+        // Only meaningful when the log owner is a healer — skip for DPS POV logs.
         const windowEnd = inWindow[inWindow.length - 1].time;
         const windowDuration = windowEnd - windowStart;
         let healerCCed = false;
-        if (ownerGuid && windowDuration >= 5) {
+        if (ownerGuid && isHealer && windowDuration >= 5) {
           const ownerCastsInWindow = (match.spellCasts[ownerGuid] ?? []).filter((c) => {
             const t = (c.timestamp - match.startTime) / 1000;
             return t >= windowStart && t <= windowEnd;

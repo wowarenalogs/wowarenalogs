@@ -2,7 +2,7 @@ import { AtomicArenaCombat, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { spellEffectData } from '../data/spellEffectData';
 import { computeDampening, dampeningDangerMultiplier, fmtDampening } from './dampening';
-import { fmtTime, specToString } from './cooldowns';
+import { fmtTime, isHealerSpec, specToString } from './cooldowns';
 import { dangerLabel, isOffensiveSpell, SPELL_EFFECT_OVERRIDES, spellDangerWeight } from './spellDanger';
 
 const MIN_CD_SECONDS = 30;
@@ -150,10 +150,11 @@ export function reconstructEnemyCDTimeline(
       const dampening = computeDampening(windowStart);
       const dampeningMult = dampeningDangerMultiplier(dampening);
 
-      // Healer CC proxy: owner made 0 casts in the window (only for windows >= 5s)
+      // Healer CC proxy: healer owner made 0 casts in the window (only for windows >= 5s).
+      // Only meaningful when the log owner is a healer — skip for DPS POV logs.
       const windowDuration = windowEnd - windowStart;
       let healerCCed = false;
-      if (owner && windowDuration >= 5) {
+      if (owner && isHealerSpec(owner.spec) && windowDuration >= 5) {
         const ownerCastsInWindow = owner.spellCastEvents.filter((e) => {
           const t = (e.logLine.timestamp - matchStartMs) / 1000;
           return t >= windowStart && t <= windowEnd;
