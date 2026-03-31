@@ -2567,11 +2567,35 @@
     "cooldownSeconds": 999.999,
     "durationSeconds": 15
   },
+  "237945": {
+    "spellId": "237945",
+    "name": "Blood of the Father",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 27
+  },
+  "237947": {
+    "spellId": "237947",
+    "name": "Berserker's Rage",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 20
+  },
+  "237952": {
+    "spellId": "237952",
+    "name": "Ancestral Knowledge",
+    "cooldownSeconds": 5,
+    "durationSeconds": 0
+  },
   "240559": {
     "spellId": "240559",
     "name": "Grievous Wound",
     "cooldownSeconds": 999.999,
     "durationSeconds": 300
+  },
+  "242733": {
+    "spellId": "242733",
+    "name": "Fel Burst",
+    "cooldownSeconds": 3,
+    "durationSeconds": 0
   },
   "243435": {
     "spellId": "243435",
@@ -3735,12 +3759,6 @@
     "cooldownSeconds": 999.999,
     "durationSeconds": 4
   },
-  "393860": {
-    "spellId": "393860",
-    "name": "[DNT]Liang Test",
-    "cooldownSeconds": 999.999,
-    "durationSeconds": 10
-  },
   "394112": {
     "spellId": "394112",
     "name": "Escape from Reality",
@@ -3799,6 +3817,12 @@
     "spellId": "409293",
     "name": "Burrow",
     "cooldownSeconds": 120,
+    "durationSeconds": 5
+  },
+  "410358": {
+    "spellId": "410358",
+    "name": "Anti-Magic Shell",
+    "cooldownSeconds": 60,
     "durationSeconds": 5
   },
   "410406": {
@@ -3973,12 +3997,6 @@
     "cooldownSeconds": 999.999,
     "durationSeconds": 12
   },
-  "1216589": {
-    "spellId": "1216589",
-    "name": "Heartstop Poison",
-    "cooldownSeconds": 999.999,
-    "durationSeconds": 8
-  },
   "1216848": {
     "spellId": "1216848",
     "name": "Fire Spit",
@@ -4044,6 +4062,12 @@
     "name": "Crystal Lacerations",
     "cooldownSeconds": 999.999,
     "durationSeconds": 8
+  },
+  "1233398": {
+    "spellId": "1233398",
+    "name": "Mad Shriek",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 6
   },
   "1236574": {
     "spellId": "1236574",
@@ -4121,7 +4145,7 @@
     "spellId": "1246965",
     "name": "Psychic Shroud",
     "cooldownSeconds": 999.999,
-    "durationSeconds": 15
+    "durationSeconds": 6
   },
   "1249017": {
     "spellId": "1249017",
@@ -4387,6 +4411,12 @@
     "cooldownSeconds": 999.999,
     "durationSeconds": 14
   },
+  "1262250": {
+    "spellId": "1262250",
+    "name": "Felstorm",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 5
+  },
   "1262523": {
     "spellId": "1262523",
     "name": "Summon Voidcaller",
@@ -4551,7 +4581,7 @@
   },
   "1278156": {
     "spellId": "1278156",
-    "name": "Temporal Sands",
+    "name": "Lindormi's Guidance",
     "cooldownSeconds": 999.999,
     "durationSeconds": -0.001
   },
@@ -4650,5 +4680,11 @@
     "name": "Terminate",
     "cooldownSeconds": 999.999,
     "durationSeconds": 0
+  },
+  "1293726": {
+    "spellId": "1293726",
+    "name": "Terrifying Power",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 3
   }
 }

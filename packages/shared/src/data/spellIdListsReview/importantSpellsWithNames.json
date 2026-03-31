@@ -220,6 +220,10 @@
     "name": "Shadow Dance"
   },
   {
+    "spellId": "186265",
+    "name": "Aspect of the Turtle"
+  },
+  {
     "spellId": "187827",
     "name": "Metamorphosis"
   },
@@ -440,6 +444,10 @@
     "name": "Coordinated Assault"
   },
   {
+    "spellId": "378441",
+    "name": "Time Stop"
+  },
+  {
     "spellId": "378464",
     "name": "Nullifying Shroud"
   },
@@ -488,10 +496,6 @@
     "name": "Dark Ascension"
   },
   {
-    "spellId": "393860",
-    "name": "[DNT]Liang Test"
-  },
-  {
     "spellId": "395267",
     "name": "Invoke Niuzao, the Black Ox"
   },
@@ -502,6 +506,10 @@
   {
     "spellId": "408558",
     "name": "Phase Shift"
+  },
+  {
+    "spellId": "410358",
+    "name": "Anti-Magic Shell"
   },
   {
     "spellId": "414658",
@@ -997,7 +1005,7 @@
   },
   {
     "spellId": "1278156",
-    "name": "Temporal Sands"
+    "name": "Lindormi's Guidance"
   },
   {
     "spellId": "1278893",
@@ -1062,5 +1070,9 @@
   {
     "spellId": "1286276",
     "name": "Terminate"
+  },
+  {
+    "spellId": "1293726",
+    "name": "Terrifying Power"
   }
 ]

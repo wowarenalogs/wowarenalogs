@@ -1,5 +1,13 @@
 [
   {
+    "spellId": "498",
+    "name": "Divine Protection"
+  },
+  {
+    "spellId": "642",
+    "name": "Divine Shield"
+  },
+  {
     "spellId": "871",
     "name": "Shield Wall"
   },
@@ -34,6 +42,10 @@
   {
     "spellId": "47585",
     "name": "Dispersion"
+  },
+  {
+    "spellId": "47788",
+    "name": "Guardian Spirit"
   },
   {
     "spellId": "48707",
@@ -80,8 +92,20 @@
     "name": "Fortifying Brew"
   },
   {
+    "spellId": "116849",
+    "name": "Life Cocoon"
+  },
+  {
     "spellId": "118038",
     "name": "Die by the Sword"
+  },
+  {
+    "spellId": "120954",
+    "name": "Fortifying Brew"
+  },
+  {
+    "spellId": "184364",
+    "name": "Enraged Regeneration"
   },
   {
     "spellId": "186265",
@@ -94,6 +118,10 @@
   {
     "spellId": "212800",
     "name": "Blur"
+  },
+  {
+    "spellId": "243435",
+    "name": "Fortifying Brew"
   },
   {
     "spellId": "264735",
