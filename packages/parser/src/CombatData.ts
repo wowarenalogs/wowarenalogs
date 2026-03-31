@@ -536,7 +536,7 @@ export class CombatData extends CombatGenerator {
         if (metadata) {
           unit.info = metadata?.info;
         }
-        unit.proveClass(metadata?.class || CombatUnitClass.None);
+        unit.class = metadata?.class || CombatUnitClass.None;
         unit.proveSpec(metadata?.spec || CombatUnitSpec.None);
       }
       unit.end();
@@ -584,20 +584,35 @@ export class CombatData extends CombatGenerator {
     });
 
     // units are finalized, check playerTeam info
-    Object.values(this.units).forEach((unit) => {
-      const metadata = this.combatantMetadata.get(unit.id);
-      if (metadata) {
-        if (unit.reaction === CombatUnitReaction.Friendly) {
+    const playerUnits = Array.from(Object.values(this.units)).filter((unit) => unit.type === CombatUnitType.Player);
+    const recordingPlayer = playerUnits.find((p) => p.affiliation === CombatUnitAffiliation.Mine);
+
+    // Prefer recorder metadata for player team assignment. Falling back to reaction-based
+    // discovery keeps older/non-standard logs working.
+    if (recordingPlayer?.info?.teamId) {
+      this.playerTeamId = recordingPlayer.info.teamId;
+    } else {
+      Object.values(this.units).forEach((unit) => {
+        const metadata = this.combatantMetadata.get(unit.id);
+        if (metadata && unit.reaction === CombatUnitReaction.Friendly) {
           this.playerTeamId = metadata.info.teamId;
         }
-      }
-    });
+      });
+    }
 
-    // a valid arena combat should have at least two friendly units and two hostile units
-    const playerUnits = Array.from(Object.values(this.units)).filter((unit) => unit.type === CombatUnitType.Player);
+    // Retail logs can occasionally accumulate contradictory reaction proofs for a player.
+    // Normalize by authoritative COMBATANT_INFO.teamId to keep team displays stable.
+    if (this.wowVersion === 'retail' && this.playerTeamId) {
+      playerUnits.forEach((unit) => {
+        if (!unit.info?.teamId) {
+          return;
+        }
+        unit.reaction =
+          unit.info.teamId === this.playerTeamId ? CombatUnitReaction.Friendly : CombatUnitReaction.Hostile;
+      });
+    }
+
     const deadPlayerCount = playerUnits.filter((p) => p.deathRecords.length > 0).length;
-
-    const recordingPlayer = playerUnits.find((p) => p.affiliation === CombatUnitAffiliation.Mine);
 
     if (this.playerTeamId) {
       this.playerTeamRating = this.playerTeamId === '0' ? this.endInfo?.team0MMR || 0 : this.endInfo?.team1MMR || 0;
