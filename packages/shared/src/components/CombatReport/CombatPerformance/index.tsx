@@ -246,7 +246,7 @@ export const CombatPerformance = () => {
         : combat.startInfo.bracket
       : 'match';
     const date = combat
-      ? new Date(combat.startTime).toISOString().slice(0, 19).replace('T', '_').replaceAll(':', '-')
+      ? new Date(combat.startTime).toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '-')
       : 'unknown';
     const playerName = activePlayer?.name?.split('-')[0] ?? 'player';
     a.download = `${matchType}_${date}_${playerName}_${activeMode}.csv`;
