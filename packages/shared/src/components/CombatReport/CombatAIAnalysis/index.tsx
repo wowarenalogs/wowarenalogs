@@ -8,6 +8,10 @@ import {
   isHealerSpec,
   specToString,
 } from '../../../utils/cooldowns';
+import {
+  formatEnemyCDTimelineForContext,
+  reconstructEnemyCDTimeline,
+} from '../../../utils/enemyCDs';
 import { useCombatReportContext } from '../CombatReportContext';
 
 function buildMatchContext(
@@ -58,6 +62,9 @@ function buildMatchContext(
 
   // Owner cooldowns
   const cooldowns = extractMajorCooldowns(owner, combat);
+
+  // Enemy offensive CD timeline
+  const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat);
 
   // Pressure windows — damage on friendly team
   const pressureWindows = computePressureWindows(friends, combat);
@@ -130,10 +137,13 @@ function buildMatchContext(
   }
 
   lines.push('');
+  formatEnemyCDTimelineForContext(enemyCDTimeline, durationSeconds).forEach((l) => lines.push(l));
+
+  lines.push('');
   lines.push(
     healer
-      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates.'
-      : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing.',
+      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows?'
+      : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing. Cross-reference your offensive CDs against the enemy aligned burst windows.',
   );
 
   return lines.join('\n');

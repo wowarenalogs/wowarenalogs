@@ -66,7 +66,7 @@ while ((m = abilityRegex.exec(classMetadataSource)) !== null) {
   if (cdSec < 30) continue;
 
   if (!TAGGED_SPELLS[spellId]) {
-    TAGGED_SPELLS[spellId] = { name, tag, cooldownSeconds: cdSec };
+    TAGGED_SPELLS[spellId] = { name, tag, cooldownSeconds: cdSec, isOffensive: hasOffensive };
   }
 }
 
@@ -360,11 +360,77 @@ function buildContext(match) {
   } else {
     lines.push(...cooldownLines);
   }
+
+  // Enemy offensive CD timeline
+  const BURST_CLUSTER_SEC = 10;
+  const enemyPlayerEntries = enemyPlayers.map(([guid, player]) => ({
+    guid,
+    player,
+    specName: SPEC_NAMES[player.specId] ?? `Unknown(${player.specId})`,
+    offensiveCasts: (match.spellCasts[guid] ?? []).filter(
+      (c) => TAGGED_SPELLS[c.spellId]?.isOffensive,
+    ),
+  })).filter((e) => e.offensiveCasts.length > 0);
+
+  lines.push('');
+  lines.push('ENEMY OFFENSIVE COOLDOWN TIMELINE:');
+
+  if (enemyPlayerEntries.length === 0) {
+    lines.push('  No enemy offensive cooldown data found.');
+  } else {
+    for (const entry of enemyPlayerEntries) {
+      lines.push('');
+      lines.push(`  ${entry.specName} (${entry.player.name || entry.guid}):`);
+      for (const cast of entry.offensiveCasts) {
+        const spell = TAGGED_SPELLS[cast.spellId];
+        const castSec = (cast.timestamp - match.startTime) / 1000;
+        const backSec = castSec + spell.cooldownSeconds;
+        const backStr = backSec <= durationSec
+          ? ` → back at ${fmtTime(backSec)}`
+          : ' → not available again before match ended';
+        lines.push(`    ${spell.name} [${spell.cooldownSeconds}s CD]: cast at ${fmtTime(castSec)}${backStr}`);
+      }
+    }
+
+    // Aligned burst windows: 2+ offensive CD casts within BURST_CLUSTER_SEC of each other
+    const allOffensiveCasts = enemyPlayerEntries.flatMap((e) =>
+      e.offensiveCasts.map((c) => ({
+        time: (c.timestamp - match.startTime) / 1000,
+        playerName: e.player.name || e.guid,
+        spellName: TAGGED_SPELLS[c.spellId].name,
+      }))
+    ).sort((a, b) => a.time - b.time);
+
+    const alignedWindows = [];
+    let i = 0;
+    while (i < allOffensiveCasts.length) {
+      const windowStart = allOffensiveCasts[i].time;
+      const inWindow = allOffensiveCasts.filter(
+        (c) => c.time >= windowStart && c.time <= windowStart + BURST_CLUSTER_SEC,
+      );
+      if (inWindow.length >= 2) {
+        alignedWindows.push({ fromSec: windowStart, casts: inWindow });
+        i += inWindow.length;
+      } else {
+        i++;
+      }
+    }
+
+    if (alignedWindows.length > 0) {
+      lines.push('');
+      lines.push('ENEMY ALIGNED BURST WINDOWS (2+ offensive CDs within 10s of each other):');
+      alignedWindows.forEach((w, idx) => {
+        const cdList = w.casts.map((c) => `${c.spellName} (${c.playerName})`).join(' + ');
+        lines.push(`  ${idx + 1}. ${fmtTime(w.fromSec)}: ${cdList}`);
+      });
+    }
+  }
+
   lines.push('');
   lines.push(
     isHealer
-      ? 'Focus: external defensives timing, big healing CDs vs pressure windows, whether the healer survived, missed teammate saves.'
-      : 'Focus: offensive CD alignment with kill windows, defensive CD usage under pressure, overall CD efficiency.',
+      ? 'Focus: external defensives timing, big healing CDs vs pressure windows, whether the healer survived, missed teammate saves. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows?'
+      : 'Focus: offensive CD alignment with kill windows, defensive CD usage under pressure, overall CD efficiency. Cross-reference your offensive CDs against the enemy aligned burst windows.',
   );
   return lines.join('\n');
 }
