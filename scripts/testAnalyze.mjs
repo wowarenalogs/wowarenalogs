@@ -70,6 +70,41 @@ while ((m = abilityRegex.exec(classMetadataSource)) !== null) {
   }
 }
 
+// ---- Danger scoring helpers -------------------------------------------------
+
+const EFFECT_TYPE_WEIGHTS = { DamageAmp: 1.0, HealReduction: 1.5, Vulnerability: 1.2, Execution: 0.8 };
+const SPELL_EFFECT_TYPES = {
+  '190319': ['DamageAmp'], '12472': ['DamageAmp'], '205025': ['DamageAmp'],
+  '107574': ['DamageAmp'], '31884': ['DamageAmp'], '19574': ['DamageAmp'],
+  '13750': ['DamageAmp'], '51690': ['DamageAmp'], '121471': ['DamageAmp'],
+  '185422': ['DamageAmp'], '207736': ['Vulnerability'], '79140': ['DamageAmp', 'HealReduction'],
+  '106951': ['DamageAmp'], '114049': ['DamageAmp'], '191634': ['DamageAmp'],
+  '305485': ['DamageAmp'], '197871': ['DamageAmp'], '191427': ['DamageAmp'],
+};
+
+function cdTierWeight(cooldownSeconds) {
+  if (cooldownSeconds < 30) return 0;
+  return Math.log(cooldownSeconds / 30);
+}
+
+function spellDangerWeight(spellId, cooldownSeconds) {
+  const effects = SPELL_EFFECT_TYPES[spellId] ?? ['DamageAmp'];
+  const effectWeight = effects.reduce((sum, e) => sum + (EFFECT_TYPE_WEIGHTS[e] ?? 1.0), 0);
+  return cdTierWeight(cooldownSeconds) * effectWeight;
+}
+
+function computeDampening(matchTimeSeconds) {
+  if (matchTimeSeconds <= 120) return 0;
+  return Math.min((matchTimeSeconds - 120) * (0.1 / 60), 1.0);
+}
+
+function dangerLabel(score) {
+  if (score >= 7) return 'CRITICAL';
+  if (score >= 4) return 'High';
+  if (score >= 2) return 'Moderate';
+  return 'Low';
+}
+
 // ---- Log parsing ------------------------------------------------------------
 
 function parseTimestamp(dateStr, timeStr) {
@@ -199,6 +234,35 @@ async function parseMatches(logPath) {
         if (srcGuid && spellId && TAGGED_SPELLS[spellId]) {
           if (!current.spellCasts[srcGuid]) current.spellCasts[srcGuid] = [];
           current.spellCasts[srcGuid].push({ timestamp, spellId });
+        }
+        // Track player positions from advanced logging data
+        if (srcGuid && params[25] && params[26]) {
+          const x = parseFloat(params[25]);
+          const y = parseFloat(params[26]);
+          if (!isNaN(x) && !isNaN(y)) {
+            if (!current.playerPositions) current.playerPositions = {};
+            if (!current.playerPositions[srcGuid]) current.playerPositions[srcGuid] = [];
+            current.playerPositions[srcGuid].push({ t: timestamp, x, y });
+          }
+        }
+      } else if (event === 'SPELL_DAMAGE' && srcGuid && params[25] && params[26]) {
+        const x = parseFloat(params[25]);
+        const y = parseFloat(params[26]);
+        if (!isNaN(x) && !isNaN(y)) {
+          if (!current.playerPositions) current.playerPositions = {};
+          if (!current.playerPositions[srcGuid]) current.playerPositions[srcGuid] = [];
+          current.playerPositions[srcGuid].push({ t: timestamp, x, y });
+        }
+      } else if (
+        (event === 'SPELL_HEAL' || event === 'SPELL_PERIODIC_DAMAGE') &&
+        srcGuid && params[25] && params[26]
+      ) {
+        const x = parseFloat(params[25]);
+        const y = parseFloat(params[26]);
+        if (!isNaN(x) && !isNaN(y)) {
+          if (!current.playerPositions) current.playerPositions = {};
+          if (!current.playerPositions[srcGuid]) current.playerPositions[srcGuid] = [];
+          current.playerPositions[srcGuid].push({ t: timestamp, x, y });
         }
       } else if (event === 'UNIT_DIED') {
         if (dstGuid) {
@@ -361,7 +425,7 @@ function buildContext(match) {
     lines.push(...cooldownLines);
   }
 
-  // Enemy offensive CD timeline
+  // Enemy offensive CD timeline (scored)
   const BURST_CLUSTER_SEC = 10;
   const enemyPlayerEntries = enemyPlayers.map(([guid, player]) => ({
     guid,
@@ -388,9 +452,17 @@ function buildContext(match) {
         const backStr = backSec <= durationSec
           ? ` → back at ${fmtTime(backSec)}`
           : ' → not available again before match ended';
-        lines.push(`    ${spell.name} [${spell.cooldownSeconds}s CD]: cast at ${fmtTime(castSec)}${backStr}`);
+        const effects = (SPELL_EFFECT_TYPES[cast.spellId] ?? ['DamageAmp']).join(', ');
+        lines.push(`    ${spell.name} [${spell.cooldownSeconds}s CD, ${effects}]: cast at ${fmtTime(castSec)}${backStr}`);
       }
     }
+
+    // Compute total friendly damage for ratio calculation
+    const allFriendlyDamage = myPlayers.flatMap(([guid]) => match.players[guid]?.damageIn ?? []);
+    const totalFriendlyDamage = allFriendlyDamage.reduce((sum, e) => sum + e.amount, 0);
+    const avgWindowDamage = durationSec > 0
+      ? totalFriendlyDamage / (durationSec / BURST_CLUSTER_SEC)
+      : 0;
 
     // Aligned burst windows: 2+ offensive CD casts within BURST_CLUSTER_SEC of each other
     const allOffensiveCasts = enemyPlayerEntries.flatMap((e) =>
@@ -398,6 +470,8 @@ function buildContext(match) {
         time: (c.timestamp - match.startTime) / 1000,
         playerName: e.player.name || e.guid,
         spellName: TAGGED_SPELLS[c.spellId].name,
+        spellId: c.spellId,
+        cooldownSeconds: TAGGED_SPELLS[c.spellId].cooldownSeconds,
       }))
     ).sort((a, b) => a.time - b.time);
 
@@ -409,7 +483,112 @@ function buildContext(match) {
         (c) => c.time >= windowStart && c.time <= windowStart + BURST_CLUSTER_SEC,
       );
       if (inWindow.length >= 2) {
-        alignedWindows.push({ fromSec: windowStart, casts: inWindow });
+        // Scored burst window
+        const cdScore = inWindow.reduce(
+          (sum, c) => sum + spellDangerWeight(c.spellId, c.cooldownSeconds),
+          0,
+        );
+        const alignmentMult = inWindow.length >= 3 ? 1.5 : 1.0;
+
+        const dampening = computeDampening(windowStart);
+        const dampeningMult = 1 + dampening * 1.5;
+
+        // Damage in ±BURST_CLUSTER_SEC window around burst start
+        const windowDamage = allFriendlyDamage
+          .filter((e) => {
+            const t = (e.timestamp - match.startTime) / 1000;
+            return t >= windowStart - BURST_CLUSTER_SEC && t <= windowStart + BURST_CLUSTER_SEC;
+          })
+          .reduce((sum, e) => sum + e.amount, 0);
+        const damageRatio = avgWindowDamage > 0 ? Math.max(windowDamage / avgWindowDamage, 0.5) : 0.5;
+
+        // Healer CC proxy: owner made 0 tagged spell casts in the window
+        const windowEnd = inWindow[inWindow.length - 1].time;
+        const windowDuration = windowEnd - windowStart;
+        let healerCCed = false;
+        if (ownerGuid && windowDuration >= 5) {
+          const ownerCastsInWindow = (match.spellCasts[ownerGuid] ?? []).filter((c) => {
+            const t = (c.timestamp - match.startTime) / 1000;
+            return t >= windowStart && t <= windowEnd;
+          });
+          healerCCed = ownerCastsInWindow.length === 0;
+        }
+        const healerMult = 1.0 + (healerCCed ? 0.8 : 0.0);
+
+        const dangerScore = cdScore * alignmentMult * damageRatio * dampeningMult * healerMult;
+
+        // Position analysis
+        let positionMult = 1.0;
+        let positionStr = 'in range';
+        const posData = match.playerPositions ?? {};
+
+        // Find healer's last position before window
+        function lastPosBeforeWindow(guid, windowTs) {
+          const positions = posData[guid];
+          if (!positions || positions.length === 0) return null;
+          const windowMs = match.startTime + windowTs * 1000;
+          let best = null;
+          for (const p of positions) {
+            if (p.t <= windowMs) best = p;
+          }
+          return best;
+        }
+
+        const ownerPos = ownerGuid ? lastPosBeforeWindow(ownerGuid, windowStart) : null;
+
+        if (ownerPos) {
+          // Check if healer is within 10 yards of any enemy
+          let exposed = false;
+          for (const [eguid] of enemyPlayers) {
+            const ePos = lastPosBeforeWindow(eguid, windowStart);
+            if (ePos) {
+              const dx = ownerPos.x - ePos.x;
+              const dy = ownerPos.y - ePos.y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist <= 10) { exposed = true; break; }
+            }
+          }
+
+          // Find friendly player who took most damage in window
+          let primaryTarget = null, maxDmg = 0;
+          for (const [fguid] of myPlayers) {
+            const fDmg = (match.players[fguid]?.damageIn ?? [])
+              .filter((e) => {
+                const t = (e.timestamp - match.startTime) / 1000;
+                return t >= windowStart - BURST_CLUSTER_SEC && t <= windowStart + BURST_CLUSTER_SEC;
+              })
+              .reduce((sum, e) => sum + e.amount, 0);
+            if (fDmg > maxDmg) { maxDmg = fDmg; primaryTarget = fguid; }
+          }
+
+          let outOfRange = false;
+          if (primaryTarget) {
+            const targetPos = lastPosBeforeWindow(primaryTarget, windowStart);
+            if (targetPos) {
+              const dx = ownerPos.x - targetPos.x;
+              const dy = ownerPos.y - targetPos.y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist > 40) outOfRange = true;
+            }
+          }
+
+          if (exposed && outOfRange) { positionMult = 1.5; positionStr = 'EXPOSED + OUT_OF_RANGE'; }
+          else if (outOfRange) { positionMult = 1.3; positionStr = 'OUT_OF_RANGE'; }
+          else if (exposed) { positionMult = 1.2; positionStr = 'EXPOSED'; }
+        }
+
+        const finalScore = dangerScore * positionMult;
+
+        alignedWindows.push({
+          fromSec: windowStart,
+          casts: inWindow,
+          finalScore,
+          dampening,
+          windowDamage,
+          damageRatio,
+          healerCCed,
+          positionStr,
+        });
         i += inWindow.length;
       } else {
         i++;
@@ -418,10 +597,21 @@ function buildContext(match) {
 
     if (alignedWindows.length > 0) {
       lines.push('');
-      lines.push('ENEMY ALIGNED BURST WINDOWS (2+ offensive CDs within 10s of each other):');
+      lines.push('ENEMY ALIGNED BURST WINDOWS:');
       alignedWindows.forEach((w, idx) => {
-        const cdList = w.casts.map((c) => `${c.spellName} (${c.playerName})`).join(' + ');
-        lines.push(`  ${idx + 1}. ${fmtTime(w.fromSec)}: ${cdList}`);
+        const scoreStr = w.finalScore.toFixed(1);
+        const label = dangerLabel(w.finalScore);
+        const dampPct = Math.round(w.dampening * 100);
+        lines.push(`  #${idx + 1} — ${fmtTime(w.fromSec)} | Score: ${scoreStr} [${label}] | Dampening: ${dampPct}%`);
+        const cdParts = w.casts.map((c) => {
+          const weight = spellDangerWeight(c.spellId, c.cooldownSeconds).toFixed(2);
+          return `${c.spellName} (${c.playerName}, ${c.cooldownSeconds}s, weight:${weight})`;
+        });
+        lines.push(`    ${cdParts.join(' + ')}`);
+        const dmgM = (w.windowDamage / 1e6).toFixed(2);
+        const ratioStr = `${w.damageRatio.toFixed(1)}× avg`;
+        const healerStr = w.healerCCed ? 'Healer: CCed' : 'Healer: free to cast';
+        lines.push(`    Damage: ${dmgM}M (${ratioStr}) | ${healerStr} | Position: ${w.positionStr}`);
       });
     }
   }

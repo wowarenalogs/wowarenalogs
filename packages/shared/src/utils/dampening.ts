@@ -47,3 +47,36 @@ export function getDampeningPercentage(bracket: string, players: ICombatUnit[], 
   const dampening = stacks || getInitialDampening(bracket, players);
   return dampening;
 }
+
+// ---------------------------------------------------------------------------
+// Burst window danger scoring helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Simple time-based dampening estimate for burst scoring.
+ * 3v3: starts at 2:00, increases 10% per minute thereafter.
+ * Returns a value 0–1 (e.g. 0.30 = 30% dampening).
+ */
+const DAMPENING_SIMPLE_START_SECONDS = 120;
+const DAMPENING_SIMPLE_RATE_PER_SECOND = 0.1 / 60; // 10% per minute
+
+export function computeDampening(matchTimeSeconds: number): number {
+  if (matchTimeSeconds <= DAMPENING_SIMPLE_START_SECONDS) return 0;
+  return Math.min(
+    (matchTimeSeconds - DAMPENING_SIMPLE_START_SECONDS) * DAMPENING_SIMPLE_RATE_PER_SECOND,
+    1.0,
+  );
+}
+
+/**
+ * Danger multiplier from dampening: the same incoming damage is harder to heal when
+ * dampening is high.
+ * 0% → 1.0×  |  30% → 1.45×  |  60% → 1.9×
+ */
+export function dampeningDangerMultiplier(dampening: number): number {
+  return 1 + dampening * 1.5;
+}
+
+export function fmtDampening(dampening: number): string {
+  return `${Math.round(dampening * 100)}%`;
+}

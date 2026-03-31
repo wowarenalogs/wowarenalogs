@@ -64,7 +64,7 @@ function buildMatchContext(
   const cooldowns = extractMajorCooldowns(owner, combat);
 
   // Enemy offensive CD timeline
-  const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat);
+  const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat, owner, friends);
 
   // Pressure windows — damage on friendly team
   const pressureWindows = computePressureWindows(friends, combat);
