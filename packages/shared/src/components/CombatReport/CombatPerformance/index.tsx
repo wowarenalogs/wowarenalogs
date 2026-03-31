@@ -240,10 +240,19 @@ export const CombatPerformance = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${activePlayer?.name ?? 'player'}_${activeMode}.csv`;
+    const matchType = combat
+      ? combat.dataType === 'ShuffleRound'
+        ? `${combat.startInfo.bracket}_Round${combat.sequenceNumber + 1}`
+        : combat.startInfo.bracket
+      : 'match';
+    const date = combat
+      ? new Date(combat.startTime).toISOString().slice(0, 19).replace('T', '_').replaceAll(':', '-')
+      : 'unknown';
+    const playerName = activePlayer?.name?.split('-')[0] ?? 'player';
+    a.download = `${matchType}_${date}_${playerName}_${activeMode}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [spellStats, spellCastCounts, rateLabel, combatDuration, activePlayer, activeMode]);
+  }, [spellStats, spellCastCounts, rateLabel, combatDuration, activePlayer, activeMode, combat]);
 
   if (!combat || !activePlayer) {
     return null;
