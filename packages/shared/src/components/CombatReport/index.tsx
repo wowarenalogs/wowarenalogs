@@ -11,6 +11,7 @@ import { useClientContext } from '../../hooks/ClientContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
 import { canUseFeature } from '../../utils/featureFlags';
 import { DownloadPromotion } from '../common/DownloadPromotion';
+import { CombatAIAnalysis } from './CombatAIAnalysis';
 import { CombatCC } from './CombatCC';
 import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
@@ -179,6 +180,14 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
         >
           Timeline
         </a>
+        <a
+          className={`tab ${activeTab === 'ai' ? 'tab-active' : ''}`}
+          onClick={() => {
+            setActiveTab('ai');
+          }}
+        >
+          AI Analysis
+        </a>
         {isShuffle && (
           <a
             className={`tab ${activeTab === 'scoreboard' ? 'tab-active' : ''}`}
@@ -220,6 +229,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
           {activeTab === 'curves' && <CombatCurves />}
           {activeTab === 'replay' && <CombatReplay />}
           {activeTab === 'timeline' && <CombatTimeline />}
+          {activeTab === 'ai' && <CombatAIAnalysis />}
           {activeTab === 'scoreboard' && <CombatScoreboard />}
           {activeTab === 'video' && <CombatVideo />}
           {activeTab === 'logview' && <CombatLogView />}
