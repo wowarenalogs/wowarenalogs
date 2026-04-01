@@ -8,10 +8,8 @@ import {
   isHealerSpec,
   specToString,
 } from '../../../utils/cooldowns';
-import {
-  formatEnemyCDTimelineForContext,
-  reconstructEnemyCDTimeline,
-} from '../../../utils/enemyCDs';
+import { formatDispelContextForAI, reconstructDispelSummary } from '../../../utils/dispelAnalysis';
+import { formatEnemyCDTimelineForContext, reconstructEnemyCDTimeline } from '../../../utils/enemyCDs';
 import { useCombatReportContext } from '../CombatReportContext';
 
 function buildMatchContext(
@@ -34,9 +32,7 @@ function buildMatchContext(
   // Match result
   const combatAny = combat as Record<string, unknown>;
   const playerWon =
-    typeof combatAny['winningTeamId'] === 'string'
-      ? combatAny['winningTeamId'] === combat.playerTeamId
-      : null;
+    typeof combatAny['winningTeamId'] === 'string' ? combatAny['winningTeamId'] === combat.playerTeamId : null;
   const resultStr = playerWon === true ? 'Win' : playerWon === false ? 'Loss' : 'Unknown';
 
   // Deaths
@@ -140,10 +136,14 @@ function buildMatchContext(
   formatEnemyCDTimelineForContext(enemyCDTimeline, durationSeconds).forEach((l) => lines.push(l));
 
   lines.push('');
+  const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
+  formatDispelContextForAI(dispelSummary).forEach((l) => lines.push(l));
+
+  lines.push('');
   lines.push(
     healer
-      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows?'
-      : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing. Cross-reference your offensive CDs against the enemy aligned burst windows.',
+      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows? Also evaluate dispel discipline: were critical CC chains left uncleansed? Did enemies consistently strip key defensive buffs?'
+      : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing. Cross-reference your offensive CDs against the enemy aligned burst windows. Also note any dispel patterns: did the enemy healer purge your key buffs at critical moments?',
   );
 
   return lines.join('\n');
@@ -179,9 +179,7 @@ function MarkdownBlock({ text }: { text: string }) {
           );
         }
         if (line.trim() === '') return <div key={i} className="h-1" />;
-        return (
-          <p key={i} className="my-0.5" dangerouslySetInnerHTML={{ __html: renderInline(line) }} />
-        );
+        return <p key={i} className="my-0.5" dangerouslySetInnerHTML={{ __html: renderInline(line) }} />;
       })}
     </div>
   );
@@ -210,12 +208,14 @@ export function CombatAIAnalysis() {
     setAnalysis(analysisCache.get(combat.id) ?? null);
     setLoading(false);
     setError(null);
-  }, [combat?.id]);
+  }, [combat?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!combat) return null;
 
   const allPlayers = [...friends, ...enemies];
-  const hasPlayers = allPlayers.some((p) => p.type === CombatUnitType.Player && p.reaction === CombatUnitReaction.Friendly);
+  const hasPlayers = allPlayers.some(
+    (p) => p.type === CombatUnitType.Player && p.reaction === CombatUnitReaction.Friendly,
+  );
   if (!hasPlayers) {
     return <div className="p-4 text-base-content opacity-60">No player data available for analysis.</div>;
   }

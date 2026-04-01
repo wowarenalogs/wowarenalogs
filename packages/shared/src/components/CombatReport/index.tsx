@@ -15,6 +15,7 @@ import { CombatAIAnalysis } from './CombatAIAnalysis';
 import { CombatCC } from './CombatCC';
 import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
+import { CombatDispels } from './CombatDispels';
 import { CombatLogView } from './CombatLogView';
 import { CombatPerformance } from './CombatPerformance';
 import { CombatPlayers } from './CombatPlayers';
@@ -181,6 +182,14 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
           Timeline
         </a>
         <a
+          className={`tab ${activeTab === 'dispels' ? 'tab-active' : ''}`}
+          onClick={() => {
+            setActiveTab('dispels');
+          }}
+        >
+          Dispels
+        </a>
+        <a
           className={`tab ${activeTab === 'ai' ? 'tab-active' : ''}`}
           onClick={() => {
             setActiveTab('ai');
@@ -229,6 +238,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
           {activeTab === 'curves' && <CombatCurves />}
           {activeTab === 'replay' && <CombatReplay />}
           {activeTab === 'timeline' && <CombatTimeline />}
+          {activeTab === 'dispels' && <CombatDispels />}
           {activeTab === 'ai' && <CombatAIAnalysis />}
           {activeTab === 'scoreboard' && <CombatScoreboard />}
           {activeTab === 'video' && <CombatVideo />}
