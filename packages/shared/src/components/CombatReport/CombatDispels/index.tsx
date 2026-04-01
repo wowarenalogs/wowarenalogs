@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { fmtTime } from '../../../utils/cooldowns';
 import {
   type DispelPriority,
+  type ICCEfficiencyStat,
   type IDispelEvent,
   type IMissedCleanseWindow,
   reconstructDispelSummary,
@@ -20,18 +21,21 @@ function PriorityBadge({ priority }: { priority: DispelPriority }) {
   return <span className={`badge badge-sm ${PRIORITY_BADGE[priority]}`}>{priority}</span>;
 }
 
-function DispelRow({ event }: { event: IDispelEvent }) {
-  const isHostile = event.direction === 'hostile';
+function DispelRow({ event, verb }: { event: IDispelEvent; verb: string }) {
   return (
-    <div className={`flex items-center gap-3 py-1.5 px-3 rounded ${isHostile ? 'bg-error/10' : 'bg-success/10'}`}>
-      <span className="text-xs font-mono opacity-60 w-10 shrink-0">{fmtTime(event.timeSeconds)}</span>
-      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isHostile ? 'bg-error' : 'bg-success'}`} />
+    <div className="flex items-start gap-3 py-1.5 px-3 rounded bg-base-200">
+      <span className="text-xs font-mono opacity-60 w-10 shrink-0 pt-0.5">{fmtTime(event.timeSeconds)}</span>
       <span className="text-sm flex-1">
         <span className="font-semibold">{event.sourceName}</span>
-        {isHostile ? ' stripped ' : ' removed '}
+        {` ${verb} `}
         <span className="font-semibold">{event.removedSpellName}</span>
         {' from '}
         <span className="font-semibold">{event.targetName}</span>
+        {event.hasDispelPenalty && (
+          <span className="ml-2 text-xs text-warning opacity-80" title={event.penaltyDescription}>
+            ⚠ dispel penalty
+          </span>
+        )}
       </span>
       <PriorityBadge priority={event.priority} />
     </div>
@@ -39,18 +43,60 @@ function DispelRow({ event }: { event: IDispelEvent }) {
 }
 
 function MissedCleanseRow({ window: w }: { window: IMissedCleanseWindow }) {
+  const dmgStr = w.postCcDamage > 0 ? `${Math.round(w.postCcDamage / 1000)}k dmg in 5s` : null;
   return (
-    <div className="flex items-center gap-3 py-1.5 px-3 rounded bg-warning/10">
-      <span className="text-xs font-mono opacity-60 w-10 shrink-0">{fmtTime(w.timeSeconds)}</span>
-      <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-warning" />
+    <div className="flex items-start gap-3 py-1.5 px-3 rounded bg-warning/10">
+      <span className="text-xs font-mono opacity-60 w-10 shrink-0 pt-0.5">{fmtTime(w.timeSeconds)}</span>
+      <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-warning mt-1.5" />
       <span className="text-sm flex-1">
         <span className="font-semibold">{w.targetName}</span>
         {' was in '}
         <span className="font-semibold">{w.spellName}</span>
         {` for ${Math.round(w.durationSeconds)}s — no cleanse`}
         <span className="ml-2 text-xs opacity-50">[{w.dispelType}]</span>
+        {dmgStr && <span className="ml-2 text-xs text-error font-semibold">{dmgStr}</span>}
       </span>
       <PriorityBadge priority={w.priority} />
+    </div>
+  );
+}
+
+function CCEfficiencyTable({ stats }: { stats: ICCEfficiencyStat[] }) {
+  if (stats.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-2">
+      <h4 className="font-semibold">CC Cleanse Efficiency</h4>
+      <div className="overflow-x-auto">
+        <table className="table table-sm w-full">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th className="text-center">CC Windows</th>
+              <th className="text-center">Cleansed</th>
+              <th className="text-center">Missed</th>
+              <th className="text-center">Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats.map((e, i) => {
+              const pct = Math.round(e.cleanseRate * 100);
+              const color = pct >= 80 ? 'text-success' : pct >= 50 ? 'text-warning' : 'text-error';
+              return (
+                <tr key={i}>
+                  <td>
+                    <div className="font-semibold">{e.targetName}</div>
+                    <div className="text-xs opacity-50">{e.targetSpec}</div>
+                  </td>
+                  <td className="text-center">{e.totalCCWindows}</td>
+                  <td className="text-center text-success">{e.cleanseCount}</td>
+                  <td className="text-center text-error">{e.missedCount}</td>
+                  <td className={`text-center font-bold ${color}`}>{pct}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -65,37 +111,61 @@ export function CombatDispels() {
 
   if (!combat || !summary) return null;
 
-  const { friendlyDispels, hostileDispels, missedCleanseWindows } = summary;
+  const { allyCleanse, ourPurges, hostilePurges, missedCleanseWindows, ccEfficiency } = summary;
   const criticalMissed = missedCleanseWindows.filter((w) => w.priority === 'Critical');
-  const totalEvents = friendlyDispels.length + hostileDispels.length;
+  const penaltyDispels = allyCleanse.filter((d) => d.hasDispelPenalty);
+  const spellSteals = ourPurges.filter((d) => d.isSpellSteal);
 
   return (
     <div className="flex flex-col gap-6 max-w-3xl">
       {/* Summary stats */}
       <div className="flex gap-4 flex-wrap">
         <div className="stat bg-base-200 rounded-box p-4 min-w-[130px]">
-          <div className="stat-title text-xs">Your team dispels</div>
-          <div className="stat-value text-2xl text-success">{friendlyDispels.length}</div>
+          <div className="stat-title text-xs">Cleanses</div>
+          <div className="stat-value text-2xl text-success">{allyCleanse.length}</div>
+          <div className="stat-desc">debuffs off allies</div>
         </div>
         <div className="stat bg-base-200 rounded-box p-4 min-w-[130px]">
-          <div className="stat-title text-xs">Enemy purges</div>
-          <div className="stat-value text-2xl text-error">{hostileDispels.length}</div>
+          <div className="stat-title text-xs">Our Purges</div>
+          <div className="stat-value text-2xl text-info">{ourPurges.length}</div>
+          {spellSteals.length > 0 && <div className="stat-desc">{spellSteals.length} spell steals</div>}
         </div>
         <div className="stat bg-base-200 rounded-box p-4 min-w-[130px]">
-          <div className="stat-title text-xs">Missed cleanses</div>
+          <div className="stat-title text-xs">Enemy Purges</div>
+          <div className="stat-value text-2xl text-error">{hostilePurges.length}</div>
+          <div className="stat-desc">our buffs stripped</div>
+        </div>
+        <div className="stat bg-base-200 rounded-box p-4 min-w-[130px]">
+          <div className="stat-title text-xs">Missed Cleanses</div>
           <div className="stat-value text-2xl text-warning">{criticalMissed.length}</div>
-          <div className="stat-desc">Critical CC &gt;3s uncleansed</div>
+          <div className="stat-desc">Critical CC &gt;3s</div>
         </div>
+        {penaltyDispels.length > 0 && (
+          <div className="stat bg-base-200 rounded-box p-4 min-w-[130px]">
+            <div className="stat-title text-xs">Penalty Dispels</div>
+            <div className="stat-value text-2xl text-warning">{penaltyDispels.length}</div>
+            <div className="stat-desc">dispeller took damage</div>
+          </div>
+        )}
       </div>
 
-      {totalEvents === 0 && criticalMissed.length === 0 && (
-        <div className="opacity-60 text-sm">No dispel events recorded in this match.</div>
-      )}
+      {allyCleanse.length === 0 &&
+        ourPurges.length === 0 &&
+        hostilePurges.length === 0 &&
+        criticalMissed.length === 0 && (
+          <div className="opacity-60 text-sm">No dispel events recorded in this match.</div>
+        )}
+
+      {/* CC efficiency table */}
+      <CCEfficiencyTable stats={ccEfficiency} />
 
       {/* Missed cleanses */}
       {criticalMissed.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h4 className="font-semibold text-warning">Missed Cleanse Opportunities</h4>
+          <h4 className="font-semibold text-warning">
+            Missed Cleanse Opportunities
+            <span className="ml-2 text-xs font-normal opacity-60">Critical CC &gt;3s, not broken by damage</span>
+          </h4>
           <div className="flex flex-col gap-1">
             {criticalMissed.map((w, i) => (
               <MissedCleanseRow key={i} window={w} />
@@ -104,25 +174,37 @@ export function CombatDispels() {
         </div>
       )}
 
-      {/* Friendly dispels */}
-      {friendlyDispels.length > 0 && (
+      {/* Friendly cleanses */}
+      {allyCleanse.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h4 className="font-semibold text-success">Your Team&apos;s Dispels</h4>
+          <h4 className="font-semibold text-success">Cleanses — Debuffs Removed from Allies</h4>
           <div className="flex flex-col gap-1">
-            {friendlyDispels.map((e, i) => (
-              <DispelRow key={i} event={e} />
+            {allyCleanse.map((e, i) => (
+              <DispelRow key={i} event={e} verb="cleansed" />
             ))}
           </div>
         </div>
       )}
 
-      {/* Hostile purges */}
-      {hostileDispels.length > 0 && (
+      {/* Our purges */}
+      {ourPurges.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h4 className="font-semibold text-error">Enemy Purges on Your Team</h4>
+          <h4 className="font-semibold text-info">Our Purges — Buffs Removed from Enemies</h4>
           <div className="flex flex-col gap-1">
-            {hostileDispels.map((e, i) => (
-              <DispelRow key={i} event={e} />
+            {ourPurges.map((e, i) => (
+              <DispelRow key={i} event={e} verb={e.isSpellSteal ? 'spell-stole' : 'purged'} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Enemy purges on us */}
+      {hostilePurges.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h4 className="font-semibold text-error">Enemy Purges — Our Buffs Stripped</h4>
+          <div className="flex flex-col gap-1">
+            {hostilePurges.map((e, i) => (
+              <DispelRow key={i} event={e} verb="stripped" />
             ))}
           </div>
         </div>

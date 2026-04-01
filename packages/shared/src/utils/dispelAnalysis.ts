@@ -13,7 +13,22 @@ const EXTERNAL_DEFENSIVE_IDS = new Set<string>(spellIdListsData.externalDefensiv
 
 const MISSED_CLEANSE_THRESHOLD_S = 3;
 
-// Spells whose debuff is Poison/Curse/Disease type rather than Magic.
+// Seconds after CC application to measure incoming damage for post-CC pressure weighting
+const POST_CC_PRESSURE_WINDOW_S = 5;
+
+// Spells that punish the dispeller when removed
+// UA: silences + deals damage; VT: deals damage; Flame Shock may trigger on-dispel procs
+const DISPEL_PENALTY_SPELLS = new Map<string, string>([
+  ['30108', 'Silences & damages the dispeller (Unstable Affliction)'],
+  ['316099', 'Silences & damages the dispeller (Unstable Affliction)'],
+  ['342938', 'Silences & damages the dispeller (Unstable Affliction)'],
+  ['344740', 'Silences & damages the dispeller (Unstable Affliction)'],
+  ['387979', 'Silences & damages the dispeller (Unstable Affliction)'],
+  ['34914', 'Deals damage to the dispeller (Vampiric Touch)'],
+  ['188389', 'May trigger on-dispel damage (Flame Shock)'],
+]);
+
+// Spells whose debuff is Poison/Curse type rather than Magic.
 // Everything non-physical that isn't listed here is assumed to be Magic.
 const POISON_CC_IDS = new Set([
   '2094', // Blind (Rogue)
@@ -30,7 +45,6 @@ const CURSE_CC_IDS = new Set([
 ]);
 
 // Specs that can remove each debuff type.
-// Magic: healers + specs with a dedicated magic dispel
 const MAGIC_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Paladin_Holy,
   CombatUnitSpec.Priest_Discipline,
@@ -107,8 +121,10 @@ export interface IDispelEvent {
   sourceSpec: string;
   targetName: string;
   targetSpec: string;
-  direction: 'friendly' | 'hostile';
   priority: DispelPriority;
+  hasDispelPenalty: boolean;
+  penaltyDescription?: string;
+  isSpellSteal: boolean;
 }
 
 export interface IMissedCleanseWindow {
@@ -120,12 +136,31 @@ export interface IMissedCleanseWindow {
   spellId: string;
   priority: DispelPriority;
   dispelType: DispelType;
+  /** Damage the target took in the first POST_CC_PRESSURE_WINDOW_S seconds after CC was applied */
+  postCcDamage: number;
+}
+
+export interface ICCEfficiencyStat {
+  targetName: string;
+  targetSpec: string;
+  /** Critical + High CC windows applied by enemies (that the team could have cleansed) */
+  totalCCWindows: number;
+  /** CC windows that ended within the threshold (cleansed quickly or never flagged as missed) */
+  cleanseCount: number;
+  /** CC windows that lasted > threshold without a friendly dispel */
+  missedCount: number;
+  cleanseRate: number;
 }
 
 export interface IDispelSummary {
-  friendlyDispels: IDispelEvent[];
-  hostileDispels: IDispelEvent[];
+  /** Our team removed debuffs from our allies */
+  allyCleanse: IDispelEvent[];
+  /** Our team purged / spell-stole buffs from enemies */
+  ourPurges: IDispelEvent[];
+  /** Enemies stripped buffs from our team */
+  hostilePurges: IDispelEvent[];
   missedCleanseWindows: IMissedCleanseWindow[];
+  ccEfficiency: ICCEfficiencyStat[];
 }
 
 function getPriority(spellId: string): DispelPriority {
@@ -162,12 +197,15 @@ export function reconstructDispelSummary(
   const teamDispelTypes = buildTeamDispelTypes(friends);
   const unitMap = new Map<string, ICombatUnit>([...friends, ...enemies].map((u) => [u.id, u]));
 
-  const friendlyDispels: IDispelEvent[] = [];
-  const hostileDispels: IDispelEvent[] = [];
+  const allyCleanse: IDispelEvent[] = [];
+  const ourPurges: IDispelEvent[] = [];
+  const hostilePurges: IDispelEvent[] = [];
 
   for (const unit of [...friends, ...enemies]) {
     for (const action of unit.actionOut) {
-      if (action.logLine.event !== LogEvent.SPELL_DISPEL) continue;
+      const isDispel = action.logLine.event === LogEvent.SPELL_DISPEL;
+      const isSteal = action.logLine.event === LogEvent.SPELL_STOLEN;
+      if (!isDispel && !isSteal) continue;
       if (!(action instanceof CombatExtraSpellAction)) continue;
 
       const removedSpellId = action.extraSpellId;
@@ -175,6 +213,7 @@ export function reconstructDispelSummary(
 
       const priority = getPriority(removedSpellId);
       const destUnit = unitMap.get(action.destUnitId);
+      const penaltyDesc = DISPEL_PENALTY_SPELLS.get(removedSpellId);
 
       const event: IDispelEvent = {
         timeSeconds: (action.timestamp - combat.startTime) / 1000,
@@ -186,28 +225,47 @@ export function reconstructDispelSummary(
         sourceSpec: specToString(unit.spec),
         targetName: action.destUnitName,
         targetSpec: destUnit ? specToString(destUnit.spec) : 'Unknown',
-        direction: enemyIds.has(unit.id) && friendlyIds.has(action.destUnitId) ? 'hostile' : 'friendly',
         priority,
+        hasDispelPenalty: penaltyDesc !== undefined,
+        penaltyDescription: penaltyDesc,
+        isSpellSteal: isSteal,
       };
 
-      if (enemyIds.has(unit.id) && friendlyIds.has(action.destUnitId)) {
-        hostileDispels.push(event);
-      } else if (friendlyIds.has(unit.id)) {
-        friendlyDispels.push(event);
+      const srcFriendly = friendlyIds.has(unit.id);
+      const srcEnemy = enemyIds.has(unit.id);
+      const destFriendly = friendlyIds.has(action.destUnitId);
+      const destEnemy = enemyIds.has(action.destUnitId);
+
+      if (srcFriendly && destFriendly) {
+        // We cleansed a debuff off our ally
+        allyCleanse.push(event);
+      } else if (srcFriendly && destEnemy) {
+        // We purged / spell-stole a buff off an enemy
+        ourPurges.push(event);
+      } else if (srcEnemy && destFriendly) {
+        // Enemy stripped a buff off us
+        hostilePurges.push(event);
       }
     }
   }
 
-  friendlyDispels.sort((a, b) => a.timeSeconds - b.timeSeconds);
-  hostileDispels.sort((a, b) => a.timeSeconds - b.timeSeconds);
+  allyCleanse.sort((a, b) => a.timeSeconds - b.timeSeconds);
+  ourPurges.sort((a, b) => a.timeSeconds - b.timeSeconds);
+  hostilePurges.sort((a, b) => a.timeSeconds - b.timeSeconds);
 
-  // Detect missed cleanses: Critical CC applied to a friendly by an enemy that lasted > threshold without being dispelled
+  // Missed cleanse detection: Critical/High CC on friendly by enemy lasting > threshold without dispel.
+  // SPELL_AURA_BROKEN_SPELL = broke from incoming damage (not a missed cleanse, the CC ended by other means).
   const missedCleanseWindows: IMissedCleanseWindow[] = [];
 
+  // Efficiency tracking: per friendly unit, count CC windows and cleansed/missed
+  const efficiencyMap = new Map<
+    string,
+    { targetName: string; targetSpec: string; totalCCWindows: number; cleanseCount: number; missedCount: number }
+  >();
+
   for (const unit of friends) {
-    // Group aura events by spellId
     const appliedTimes = new Map<string, { ts: number; spellName: string }[]>();
-    const removedTimes = new Map<string, number[]>();
+    const removedTimes = new Map<string, { ts: number; brokenByDamage: boolean }[]>();
 
     for (const aura of unit.auraEvents) {
       const spellId = aura.spellId;
@@ -223,7 +281,7 @@ export function reconstructDispelSummary(
       const priority = getPriority(spellId);
       if (priority !== 'Critical' && priority !== 'High') continue;
 
-      // Only flag as missed cleanse if the team has someone who can remove this debuff type
+      // Only flag if the team has someone capable of removing this debuff type
       const dispelType = getDispelType(spellId);
       if (!teamDispelTypes.has(dispelType)) continue;
 
@@ -235,31 +293,69 @@ export function reconstructDispelSummary(
         aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
         aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL
       ) {
+        const brokenByDamage = aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL;
         const bucket = removedTimes.get(spellId) ?? [];
-        removedTimes.set(spellId, [...bucket, aura.timestamp]);
+        removedTimes.set(spellId, [...bucket, { ts: aura.timestamp, brokenByDamage }]);
       }
     }
+
+    // Ensure efficiency entry exists for this unit
+    const effKey = unit.id;
+    if (!efficiencyMap.has(effKey)) {
+      efficiencyMap.set(effKey, {
+        targetName: unit.name,
+        targetSpec: specToString(unit.spec),
+        totalCCWindows: 0,
+        cleanseCount: 0,
+        missedCount: 0,
+      });
+    }
+    const eff = efficiencyMap.get(effKey);
+    if (!eff) continue;
 
     for (const [spellId, applications] of appliedTimes) {
       const priority = getPriority(spellId);
       const removals = removedTimes.get(spellId) ?? [];
 
       for (const { ts: applyTs, spellName } of applications) {
-        const removeTs = removals.find((t) => t >= applyTs);
-        if (!removeTs) continue;
+        const removal = removals.find((r) => r.ts >= applyTs);
+        if (!removal) continue;
 
-        const durationSeconds = (removeTs - applyTs) / 1000;
-        if (durationSeconds < MISSED_CLEANSE_THRESHOLD_S) continue;
+        eff.totalCCWindows++;
+
+        const durationSeconds = (removal.ts - applyTs) / 1000;
+
+        // CC broke from damage — not a missed cleanse opportunity
+        if (removal.brokenByDamage) {
+          // Count as "handled" for efficiency purposes
+          eff.cleanseCount++;
+          continue;
+        }
+
+        if (durationSeconds < MISSED_CLEANSE_THRESHOLD_S) {
+          eff.cleanseCount++;
+          continue;
+        }
 
         // Was removed by a friendly dispel near that removal time?
-        const removedByDispel = friendlyDispels.some(
+        const removedByDispel = allyCleanse.some(
           (d) =>
             d.removedSpellId === spellId &&
             d.targetName === unit.name &&
-            Math.abs(d.timeSeconds - (removeTs - combat.startTime) / 1000) < 0.5,
+            Math.abs(d.timeSeconds - (removal.ts - combat.startTime) / 1000) < 0.5,
         );
 
-        if (!removedByDispel) {
+        if (removedByDispel) {
+          eff.cleanseCount++;
+        } else {
+          eff.missedCount++;
+
+          // Measure post-CC pressure: damage taken in first POST_CC_PRESSURE_WINDOW_S seconds
+          const windowEndMs = applyTs + POST_CC_PRESSURE_WINDOW_S * 1000;
+          const postCcDamage = unit.damageIn
+            .filter((d) => d.logLine.timestamp >= applyTs && d.logLine.timestamp <= windowEndMs)
+            .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+
           missedCleanseWindows.push({
             timeSeconds: (applyTs - combat.startTime) / 1000,
             durationSeconds,
@@ -269,6 +365,7 @@ export function reconstructDispelSummary(
             spellId,
             priority,
             dispelType: getDispelType(spellId),
+            postCcDamage,
           });
         }
       }
@@ -277,45 +374,77 @@ export function reconstructDispelSummary(
 
   missedCleanseWindows.sort((a, b) => a.timeSeconds - b.timeSeconds);
 
-  return { friendlyDispels, hostileDispels, missedCleanseWindows };
+  const ccEfficiency: ICCEfficiencyStat[] = [...efficiencyMap.values()]
+    .filter((e) => e.totalCCWindows > 0)
+    .map((e) => ({
+      ...e,
+      cleanseRate: e.totalCCWindows > 0 ? e.cleanseCount / e.totalCCWindows : 1,
+    }))
+    .sort((a, b) => b.totalCCWindows - a.totalCCWindows);
+
+  return { allyCleanse, ourPurges, hostilePurges, missedCleanseWindows, ccEfficiency };
 }
 
 export function formatDispelContextForAI(summary: IDispelSummary): string[] {
   const lines: string[] = [];
-  const { friendlyDispels, hostileDispels, missedCleanseWindows } = summary;
+  const { allyCleanse, ourPurges, hostilePurges, missedCleanseWindows, ccEfficiency } = summary;
 
   lines.push('DISPEL ANALYSIS:');
 
-  lines.push('  Your team dispels (cleanses off allies + purges off enemies):');
-  if (friendlyDispels.length === 0) {
+  lines.push('  Friendly cleanses (debuffs removed from our allies):');
+  if (allyCleanse.length === 0) {
     lines.push('    None recorded');
   } else {
-    for (const d of friendlyDispels) {
+    for (const d of allyCleanse) {
+      const penalty = d.hasDispelPenalty ? ` ⚠ ${d.penaltyDescription}` : '';
       lines.push(
-        `    ${fmtTime(d.timeSeconds)} — [${d.sourceSpec}] removed ${d.removedSpellName} from ${d.targetSpec} [${d.priority}]`,
+        `    ${fmtTime(d.timeSeconds)} — [${d.sourceSpec}] cleansed ${d.removedSpellName} from ${d.targetName} [${d.priority}]${penalty}`,
       );
     }
   }
 
-  lines.push("  Enemy dispels (enemies purged your team's buffs):");
-  if (hostileDispels.length === 0) {
+  lines.push('  Our purges (buffs removed from enemies):');
+  if (ourPurges.length === 0) {
     lines.push('    None recorded');
   } else {
-    for (const d of hostileDispels) {
+    for (const d of ourPurges) {
+      const type = d.isSpellSteal ? 'spell-stole' : 'purged';
       lines.push(
-        `    ${fmtTime(d.timeSeconds)} — [${d.sourceSpec}] stripped ${d.removedSpellName} from ${d.targetSpec} [${d.priority}]`,
+        `    ${fmtTime(d.timeSeconds)} — [${d.sourceSpec}] ${type} ${d.removedSpellName} from enemy [${d.priority}]`,
+      );
+    }
+  }
+
+  lines.push('  Enemy purges (our buffs stripped by enemies):');
+  if (hostilePurges.length === 0) {
+    lines.push('    None recorded');
+  } else {
+    for (const d of hostilePurges) {
+      lines.push(
+        `    ${fmtTime(d.timeSeconds)} — enemy [${d.sourceSpec}] stripped ${d.removedSpellName} from ${d.targetName} [${d.priority}]`,
       );
     }
   }
 
   const significantMissed = missedCleanseWindows.filter((w) => w.priority === 'Critical');
-  lines.push('  Missed cleanse opportunities (Critical CC on ally lasting >3s without dispel):');
+  lines.push('  Missed cleanse opportunities (Critical CC on ally lasting >3s, not broken by damage):');
   if (significantMissed.length === 0) {
     lines.push('    None detected');
   } else {
     for (const w of significantMissed) {
+      const dmg = w.postCcDamage > 0 ? `, ${Math.round(w.postCcDamage / 1000)}k dmg followed` : '';
       lines.push(
-        `    ${fmtTime(w.timeSeconds)} — ${w.targetSpec} was in ${w.spellName} [${w.dispelType}] for ${Math.round(w.durationSeconds)}s uncleansed`,
+        `    ${fmtTime(w.timeSeconds)} — ${w.targetName} was in ${w.spellName} [${w.dispelType}] for ${Math.round(w.durationSeconds)}s${dmg}`,
+      );
+    }
+  }
+
+  if (ccEfficiency.length > 0) {
+    lines.push('  CC cleanse efficiency (Critical/High CC applied to your team):');
+    for (const e of ccEfficiency) {
+      const pct = Math.round(e.cleanseRate * 100);
+      lines.push(
+        `    ${e.targetName} (${e.targetSpec}): ${e.totalCCWindows} CC windows — ${e.cleanseCount} cleansed, ${e.missedCount} missed (${pct}%)`,
       );
     }
   }

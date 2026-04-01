@@ -136,8 +136,7 @@ function buildMatchContext(
   formatEnemyCDTimelineForContext(enemyCDTimeline, durationSeconds).forEach((l) => lines.push(l));
 
   lines.push('');
-  const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
-  formatDispelContextForAI(dispelSummary).forEach((l) => lines.push(l));
+  formatDispelContextForAI(reconstructDispelSummary(friends, enemies, combat)).forEach((l) => lines.push(l));
 
   lines.push('');
   lines.push(
