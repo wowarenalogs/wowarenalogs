@@ -5,6 +5,90 @@ import { spellEffectData } from '../data/spellEffectData';
 /** Only track cooldowns at or above this threshold */
 const MIN_CD_SECONDS = 30;
 
+/**
+ * Spec-exclusive spells: if a spell ID appears here, it is only valid for the listed specs.
+ * Any other spec that shares the same class will have this spell filtered out.
+ * Covers all tagged (Offensive/Defensive/Control) spells in classMetadata that are
+ * listed under a spec-specific comment block.
+ */
+const SPEC_EXCLUSIVE_SPELLS: Record<string, CombatUnitSpec[]> = {
+  // Druid
+  '102560': [CombatUnitSpec.Druid_Balance],                     // Incarnation: Chosen of Elune
+  '194223': [CombatUnitSpec.Druid_Balance],                     // Celestial Alignment
+  '102543': [CombatUnitSpec.Druid_Feral],                       // Incarnation: King of the Jungle
+  '106839': [CombatUnitSpec.Druid_Feral],                       // Skull Bash
+  '106951': [CombatUnitSpec.Druid_Feral],                       // Berserk
+  '102558': [CombatUnitSpec.Druid_Guardian],                    // Incarnation: Guardian of Ursoc
+  '18562':  [CombatUnitSpec.Druid_Restoration],                 // Swiftmend
+  '33891':  [CombatUnitSpec.Druid_Restoration],                 // Incarnation: Tree of Life
+  '102342': [CombatUnitSpec.Druid_Restoration],                 // Ironbark
+  '236696': [CombatUnitSpec.Druid_Restoration],                 // Thorns
+  // Monk
+  '115203': [CombatUnitSpec.Monk_BrewMaster],                   // Fortifying Brew
+  '122470': [CombatUnitSpec.Monk_Windwalker],                   // Touch of Karma
+  '123904': [CombatUnitSpec.Monk_Windwalker],                   // Invoke Xuen, the White Tiger
+  '137639': [CombatUnitSpec.Monk_Windwalker],                   // Storm, Earth, and Fire
+  '201318': [CombatUnitSpec.Monk_Windwalker],                   // Fortifying Elixir
+  '116849': [CombatUnitSpec.Monk_Mistweaver],                   // Life Cocoon
+  // Paladin
+  '498':    [CombatUnitSpec.Paladin_Holy],                      // Divine Protection
+  '6940':   [CombatUnitSpec.Paladin_Holy],                      // Blessing of Sacrifice
+  '199448': [CombatUnitSpec.Paladin_Holy],                      // Blessing of Sacrifice
+  '210294': [CombatUnitSpec.Paladin_Holy],                      // Divine Favor
+  '86659':  [CombatUnitSpec.Paladin_Protection],                // Guardian of Ancient Kings
+  '337851': [CombatUnitSpec.Paladin_Protection],                // Guardian of Ancient Kings
+  '337852': [CombatUnitSpec.Paladin_Protection],                // Reign of Ancient Kings
+  '228049': [CombatUnitSpec.Paladin_Protection],                // Guardian of the Forgotten Queen
+  // Priest
+  '33206':  [CombatUnitSpec.Priest_Discipline],                 // Pain Suppression
+  '47536':  [CombatUnitSpec.Priest_Discipline],                 // Rapture
+  '62618':  [CombatUnitSpec.Priest_Discipline],                 // Power Word: Barrier
+  '81782':  [CombatUnitSpec.Priest_Discipline],                 // Power Word: Barrier
+  '197871': [CombatUnitSpec.Priest_Discipline],                 // Dark Archangel
+  '19236':  [CombatUnitSpec.Priest_Holy],                       // Desperate Prayer
+  '196762': [CombatUnitSpec.Priest_Holy],                       // Inner Focus
+  '200183': [CombatUnitSpec.Priest_Holy],                       // Apotheosis
+  '47585':  [CombatUnitSpec.Priest_Shadow],                     // Dispersion
+  '64044':  [CombatUnitSpec.Priest_Shadow],                     // Psychic Horror
+  // Warlock
+  '113860': [CombatUnitSpec.Warlock_Affliction],                // Dark Soul: Misery
+  '113858': [CombatUnitSpec.Warlock_Destruction],               // Dark Soul: Instability
+  // Rogue
+  '5277':   [CombatUnitSpec.Rogue_Assassination],               // Evasion
+  '36554':  [CombatUnitSpec.Rogue_Assassination],               // Shadowstep
+  '79140':  [CombatUnitSpec.Rogue_Assassination],               // Vendetta/Deathmark
+  '1776':   [CombatUnitSpec.Rogue_Outlaw],                      // Gouge
+  '2094':   [CombatUnitSpec.Rogue_Outlaw],                      // Blind
+  '13750':  [CombatUnitSpec.Rogue_Outlaw],                      // Adrenaline Rush
+  '51690':  [CombatUnitSpec.Rogue_Outlaw],                      // Killing Spree
+  '121471': [CombatUnitSpec.Rogue_Subtlety],                    // Shadow Blades
+  '185313': [CombatUnitSpec.Rogue_Subtlety],                    // Shadow Dance
+  '185422': [CombatUnitSpec.Rogue_Subtlety],                    // Shadow Dance
+  '207736': [CombatUnitSpec.Rogue_Subtlety],                    // Shadowy Duel
+  '212182': [CombatUnitSpec.Rogue_Subtlety],                    // Smoke Bomb
+  '213981': [CombatUnitSpec.Rogue_Subtlety],                    // Cold Blood
+  // Shaman
+  '191634': [CombatUnitSpec.Shaman_Elemental],                  // Stormkeeper
+  '58875':  [CombatUnitSpec.Shaman_Enhancement],                // Spirit Walk
+  '98008':  [CombatUnitSpec.Shaman_Restoration],                // Spirit Link Totem
+  '204293': [CombatUnitSpec.Shaman_Restoration],                // Spirit Link
+  '204336': [CombatUnitSpec.Shaman_Restoration],                // Grounding Totem
+  // Mage
+  '12042':  [CombatUnitSpec.Mage_Arcane],                       // Arcane Power
+  '205025': [CombatUnitSpec.Mage_Arcane],                       // Presence of Mind
+  '190319': [CombatUnitSpec.Mage_Fire],                         // Combustion
+  '12472':  [CombatUnitSpec.Mage_Frost],                        // Icy Veins
+  // Hunter
+  '19574':  [CombatUnitSpec.Hunter_BeastMastery],               // Bestial Wrath
+  '19386':  [CombatUnitSpec.Hunter_BeastMastery],               // Wyvern Sting
+  '24394':  [CombatUnitSpec.Hunter_BeastMastery],               // Intimidation
+  '19577':  [CombatUnitSpec.Hunter_BeastMastery],               // Intimidation
+  '213691': [CombatUnitSpec.Hunter_Marksmanship],               // Scatter Shot
+  // Demon Hunter
+  '211881': [CombatUnitSpec.DemonHunter_Havoc],                 // Fel Eruption
+  '207684': [CombatUnitSpec.DemonHunter_Vengeance],             // Sigil of Misery
+};
+
 /** Ignore available windows shorter than this (e.g. just before match ends) */
 const GRACE_SECONDS = 3;
 
@@ -41,7 +125,7 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
   const classData = classMetadata.find((c) => c.unitClass === unit.class);
   if (!classData) return [];
 
-  // Keep only tagged spells with cooldown data >= MIN_CD_SECONDS
+  // Keep only tagged spells with cooldown data >= MIN_CD_SECONDS that belong to the owner's spec
   const seen = new Set<string>();
   const majorSpells = classData.abilities.filter((spell) => {
     if (seen.has(spell.spellId)) return false;
@@ -50,6 +134,8 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
     if (!effectData) return false;
     const cd = effectData.cooldownSeconds ?? effectData.charges?.chargeCooldownSeconds ?? 0;
     if (cd < MIN_CD_SECONDS) return false;
+    const allowedSpecs = SPEC_EXCLUSIVE_SPELLS[spell.spellId];
+    if (allowedSpecs && !allowedSpecs.includes(unit.spec)) return false;
     seen.add(spell.spellId);
     return true;
   });

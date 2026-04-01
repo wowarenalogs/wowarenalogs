@@ -1,5 +1,5 @@
 import { CombatUnitReaction, CombatUnitType } from '@wowarenalogs/parser';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   computePressureWindows,
@@ -194,11 +194,23 @@ function renderInline(text: string): string {
     .replace(/`(.+?)`/g, '<code class="text-xs bg-base-300 px-1 rounded">$1</code>');
 }
 
+// Session-level cache: persists across tab switches and match switches without a server round-trip.
+const analysisCache = new Map<string, string>();
+
 export function CombatAIAnalysis() {
   const { combat, friends, enemies } = useCombatReportContext();
-  const [analysis, setAnalysis] = useState<string | null>(null);
+  const [analysis, setAnalysis] = useState<string | null>(() => analysisCache.get(combat?.id ?? '') ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync cached result when the combat changes (user switched matches).
+  // Also reset loading/error so a stale in-flight request doesn't bleed into the new match view.
+  useEffect(() => {
+    if (!combat) return;
+    setAnalysis(analysisCache.get(combat.id) ?? null);
+    setLoading(false);
+    setError(null);
+  }, [combat?.id]);
 
   if (!combat) return null;
 
@@ -209,6 +221,7 @@ export function CombatAIAnalysis() {
   }
 
   const handleAnalyze = async () => {
+    const combatId = combat.id;
     setLoading(true);
     setError(null);
     setAnalysis(null);
@@ -223,15 +236,21 @@ export function CombatAIAnalysis() {
 
       const data = (await res.json()) as { analysis?: string; error?: string };
 
+      // Ignore result if the user switched to a different match while this was in flight
+      if (combat.id !== combatId) return;
+
       if (!res.ok || data.error) {
         setError(data.error ?? 'Analysis failed');
       } else {
-        setAnalysis(data.analysis ?? '');
+        const result = data.analysis ?? '';
+        analysisCache.set(combatId, result);
+        setAnalysis(result);
       }
     } catch (e) {
+      if (combat.id !== combatId) return;
       setError(e instanceof Error ? e.message : 'Network error');
     } finally {
-      setLoading(false);
+      if (combat.id === combatId) setLoading(false);
     }
   };
 

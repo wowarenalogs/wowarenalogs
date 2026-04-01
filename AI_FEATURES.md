@@ -58,6 +58,7 @@ most of the time. That means:
 | 10 | Dampening Curve | Low | **High** | Healer |
 | 11 | Interrupt Analysis | Low | Medium | Healer |
 | 6 | Positioning | Medium | Low-Medium | Positioning |
+| 13 | Player Performance Score | Medium | Medium | Summary |
 
 **Build order recommendation:** Start with the Tempo cluster (7, 9, 12) + Healer fast wins
 (1, 4, 5, 10, 11), then Reaction cluster (2, 3), then the CD Simulation (8), then Positioning (6).
@@ -380,6 +381,58 @@ converted this into a kill."
 - `packages/shared/src/utils/killWindows.ts` — `extractKillWindows(allUnits, combat)`,
   `evaluateKillWindowQuality(windows, combat)`
 - `scripts/testAnalyze.mjs` — add kill window context block
+
+---
+
+### 13. Player Performance Score *(NEW)*
+**Priority: Medium | Complexity: Medium**
+
+Assign a single numeric score to each player in the match that approximates their contribution
+and execution quality. Useful as a quick summary, a leaderboard within multi-match sessions,
+and as signal for the AI to prioritise its feedback.
+
+**What to measure:**
+
+*Offensive players (DPS):*
+- CD efficiency: % of major offensive CD time actually in use (vs. sitting idle)
+- Kill window participation: did their offensive CDs land during coordinated go windows?
+- Damage focus: what % of their damage hit the kill target vs. spread?
+- Pressure contribution: how often did their burst coincide with the top pressure windows?
+
+*Healers:*
+- CD efficiency: % of major defensive/healing CD time in use
+- Healing gap rate: seconds of avoidable healing downtime per minute
+- Defensive response: did healing CDs land during the highest incoming damage windows?
+- Dispel speed: average delay between debuff application and dispel
+
+*All players:*
+- CC effectiveness: # of CCs cast at full DR vs. partial/immune DR
+- Survival: penalise for deaths, bonus for surviving under heavy pressure
+
+**Score formula (suggested starting point):**
+- Base 0–100 scale
+- Weighted sum of role-specific sub-scores
+- Normalised against match duration so short and long matches are comparable
+
+**Display:**
+- Show per-player score badge in the match summary (alongside existing stats)
+- Optionally show sub-score breakdown on hover
+- In multi-match files: show score trend across matches
+
+**AI prompt addition:** Include the per-player scores in the context so Claude can reference
+them ("your performance score of 62/100 was driven mainly by a 41% idle rate on Avenging Wrath").
+
+**Files to create/modify:**
+- `packages/shared/src/utils/performanceScore.ts` — `computePlayerScore(unit, role, combat)`,
+  `computeMatchScores(allUnits, combat)` returning `Record<string, IPlayerScore>`
+- `packages/shared/src/components/CombatReport/CombatAIAnalysis/index.tsx` — include scores
+  in context and optionally display them
+- `scripts/testAnalyze.mjs` — add score summary to context block
+
+**Open questions:**
+- How to weight role sub-scores fairly (healers have fewer "offensive" signals)?
+- Should the score be shown to users as-is, or only used internally as AI context?
+- Calibrate thresholds against real match data before showing to users
 
 ---
 
