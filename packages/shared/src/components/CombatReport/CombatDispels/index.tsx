@@ -27,11 +27,11 @@ function DispelRow({ event }: { event: IDispelEvent }) {
       <span className="text-xs font-mono opacity-60 w-10 shrink-0">{fmtTime(event.timeSeconds)}</span>
       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isHostile ? 'bg-error' : 'bg-success'}`} />
       <span className="text-sm flex-1">
-        <span className="font-semibold">[{event.sourceSpec}]</span>
+        <span className="font-semibold">{event.sourceName}</span>
         {isHostile ? ' stripped ' : ' removed '}
         <span className="font-semibold">{event.removedSpellName}</span>
         {' from '}
-        <span className="font-semibold">[{event.targetSpec}]</span>
+        <span className="font-semibold">{event.targetName}</span>
       </span>
       <PriorityBadge priority={event.priority} />
     </div>
@@ -44,10 +44,11 @@ function MissedCleanseRow({ window: w }: { window: IMissedCleanseWindow }) {
       <span className="text-xs font-mono opacity-60 w-10 shrink-0">{fmtTime(w.timeSeconds)}</span>
       <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-warning" />
       <span className="text-sm flex-1">
-        <span className="font-semibold">[{w.targetSpec}]</span>
+        <span className="font-semibold">{w.targetName}</span>
         {' was in '}
         <span className="font-semibold">{w.spellName}</span>
         {` for ${Math.round(w.durationSeconds)}s — no cleanse`}
+        <span className="ml-2 text-xs opacity-50">[{w.dispelType}]</span>
       </span>
       <PriorityBadge priority={w.priority} />
     </div>

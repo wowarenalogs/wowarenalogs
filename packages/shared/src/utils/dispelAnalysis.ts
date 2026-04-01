@@ -1,4 +1,4 @@
-import { CombatExtraSpellAction, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+import { CombatExtraSpellAction, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import spellIdListsData from '../data/spellIdLists.json';
 import spellsData from '../data/spells.json';
@@ -12,6 +12,90 @@ const BIG_DEFENSIVE_IDS = new Set<string>(spellIdListsData.bigDefensiveSpellIds 
 const EXTERNAL_DEFENSIVE_IDS = new Set<string>(spellIdListsData.externalDefensiveSpellIds as string[]);
 
 const MISSED_CLEANSE_THRESHOLD_S = 3;
+
+// Spells whose debuff is Poison/Curse/Disease type rather than Magic.
+// Everything non-physical that isn't listed here is assumed to be Magic.
+const POISON_CC_IDS = new Set([
+  '2094', // Blind (Rogue)
+  '19386', // Wyvern Sting (Hunter)
+  '392957', // Wyvern Sting (TWW variant)
+  '3408', // Crippling Poison
+  '25810', // Wyvern Sting (BM variant)
+]);
+
+const CURSE_CC_IDS = new Set([
+  '50259', // Dazed (Curse of Exhaustion baseline)
+  '334275', // Curse of Exhaustion (SL+)
+  '702', // Curse of Weakness
+]);
+
+// Specs that can remove each debuff type.
+// Magic: healers + specs with a dedicated magic dispel
+const MAGIC_REMOVERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Paladin_Holy,
+  CombatUnitSpec.Priest_Discipline,
+  CombatUnitSpec.Priest_Holy,
+  CombatUnitSpec.Druid_Restoration, // Nature's Cure (always talented in arena)
+  CombatUnitSpec.Shaman_Restoration, // Purify Spirit
+  CombatUnitSpec.Monk_Mistweaver, // Detox (also removes Poison/Disease)
+]);
+
+// Poison: all Paladins, all Druids, all Monks
+const POISON_REMOVERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Paladin_Holy,
+  CombatUnitSpec.Paladin_Protection,
+  CombatUnitSpec.Paladin_Retribution,
+  CombatUnitSpec.Druid_Balance,
+  CombatUnitSpec.Druid_Feral,
+  CombatUnitSpec.Druid_Guardian,
+  CombatUnitSpec.Druid_Restoration,
+  CombatUnitSpec.Monk_Mistweaver,
+  CombatUnitSpec.Monk_Windwalker,
+  CombatUnitSpec.Monk_BrewMaster,
+]);
+
+// Curse: all Druids, all Mages, Resto Shaman
+const CURSE_REMOVERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Druid_Balance,
+  CombatUnitSpec.Druid_Feral,
+  CombatUnitSpec.Druid_Guardian,
+  CombatUnitSpec.Druid_Restoration,
+  CombatUnitSpec.Mage_Arcane,
+  CombatUnitSpec.Mage_Fire,
+  CombatUnitSpec.Mage_Frost,
+  CombatUnitSpec.Shaman_Restoration,
+]);
+
+// Disease: all Paladins, Holy/Disc Priest, all Monks
+const DISEASE_REMOVERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Paladin_Holy,
+  CombatUnitSpec.Paladin_Protection,
+  CombatUnitSpec.Paladin_Retribution,
+  CombatUnitSpec.Priest_Discipline,
+  CombatUnitSpec.Priest_Holy,
+  CombatUnitSpec.Monk_Mistweaver,
+  CombatUnitSpec.Monk_Windwalker,
+  CombatUnitSpec.Monk_BrewMaster,
+]);
+
+type DispelType = 'Magic' | 'Poison' | 'Curse' | 'Disease';
+
+function getDispelType(spellId: string): DispelType {
+  if (POISON_CC_IDS.has(spellId)) return 'Poison';
+  if (CURSE_CC_IDS.has(spellId)) return 'Curse';
+  return 'Magic';
+}
+
+function buildTeamDispelTypes(friends: ICombatUnit[]): Set<DispelType> {
+  const types = new Set<DispelType>();
+  for (const unit of friends) {
+    if (MAGIC_REMOVERS.has(unit.spec)) types.add('Magic');
+    if (POISON_REMOVERS.has(unit.spec)) types.add('Poison');
+    if (CURSE_REMOVERS.has(unit.spec)) types.add('Curse');
+    if (DISEASE_REMOVERS.has(unit.spec)) types.add('Disease');
+  }
+  return types;
+}
 
 export interface IDispelEvent {
   timeSeconds: number;
@@ -35,6 +119,7 @@ export interface IMissedCleanseWindow {
   spellName: string;
   spellId: string;
   priority: DispelPriority;
+  dispelType: DispelType;
 }
 
 export interface IDispelSummary {
@@ -74,6 +159,7 @@ export function reconstructDispelSummary(
 ): IDispelSummary {
   const friendlyIds = new Set(friends.map((u) => u.id));
   const enemyIds = new Set(enemies.map((u) => u.id));
+  const teamDispelTypes = buildTeamDispelTypes(friends);
   const unitMap = new Map<string, ICombatUnit>([...friends, ...enemies].map((u) => [u.id, u]));
 
   const friendlyDispels: IDispelEvent[] = [];
@@ -130,13 +216,16 @@ export function reconstructDispelSummary(
       // Only CC applied by enemies
       if (!enemyIds.has(aura.srcUnitId)) continue;
 
-      // Skip physical-school spells — stuns like Kidney Shot, Cheap Shot, Leg Sweep
-      // are physical and cannot be magic-dispelled, so they are never missed cleanses
+      // Skip physical-school spells (stuns: Kidney Shot, Cheap Shot, Leg Sweep, etc.)
       const schoolId = parseInt(aura.spellSchoolId ?? '0x1', 16);
       if (schoolId === 0x1) continue;
 
       const priority = getPriority(spellId);
       if (priority !== 'Critical' && priority !== 'High') continue;
+
+      // Only flag as missed cleanse if the team has someone who can remove this debuff type
+      const dispelType = getDispelType(spellId);
+      if (!teamDispelTypes.has(dispelType)) continue;
 
       if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
         const bucket = appliedTimes.get(spellId) ?? [];
@@ -179,6 +268,7 @@ export function reconstructDispelSummary(
             spellName,
             spellId,
             priority,
+            dispelType: getDispelType(spellId),
           });
         }
       }
@@ -225,7 +315,7 @@ export function formatDispelContextForAI(summary: IDispelSummary): string[] {
   } else {
     for (const w of significantMissed) {
       lines.push(
-        `    ${fmtTime(w.timeSeconds)} — ${w.targetSpec} was in ${w.spellName} for ${Math.round(w.durationSeconds)}s uncleansed`,
+        `    ${fmtTime(w.timeSeconds)} — ${w.targetSpec} was in ${w.spellName} [${w.dispelType}] for ${Math.round(w.durationSeconds)}s uncleansed`,
       );
     }
   }
