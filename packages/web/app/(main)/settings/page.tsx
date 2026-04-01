@@ -1,7 +1,7 @@
 'use client';
 
-import { getAnalyticsDeviceId, LoadingScreen, useClientContext } from '@wowarenalogs/shared';
-import { useCallback, useEffect, useState } from 'react';
+import { features, getAnalyticsDeviceId, LoadingScreen, useClientContext } from '@wowarenalogs/shared';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FaDiscord, FaPatreon } from 'react-icons/fa';
 
 import RecordingSettings from '../../../components/Settings/RecordingSettings';
@@ -13,6 +13,13 @@ export default function SettingsPage() {
   const [appVersion, setAppVersion] = useState('');
   const [featureCode, setFeatureCode] = useState('');
   const [sentryId, setSentryId] = useState('');
+
+  const validFlags = useMemo(() => new Set(Object.values(features)), []);
+
+  const activeFlags = useMemo(
+    () => (appConfig.flags || []).filter((f) => validFlags.has(f)),
+    [appConfig.flags, validFlags],
+  );
 
   const parseCode = useCallback(() => {
     if (featureCode.startsWith('add:')) {
@@ -141,22 +148,44 @@ export default function SettingsPage() {
           </button>
         </div>
       </div>
-      <div className="flex flex-row-reverse gap-2">
-        <input
-          type="text"
-          placeholder={`enter feature code here`}
-          className={`input input-sm input-bordered flex-1`}
-          value={featureCode}
-          onChange={(e) => setFeatureCode(e.target.value)}
-        />
-        <button
-          className="btn btn-sm gap-2"
-          onClick={() => {
-            parseCode();
-          }}
-        >
-          Use feature code
-        </button>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-row-reverse gap-2">
+          <input
+            type="text"
+            placeholder={`enter feature code here`}
+            className={`input input-sm input-bordered flex-1`}
+            value={featureCode}
+            onChange={(e) => setFeatureCode(e.target.value)}
+          />
+          <button
+            className="btn btn-sm gap-2"
+            onClick={() => {
+              parseCode();
+            }}
+          >
+            Use feature code
+          </button>
+        </div>
+        {activeFlags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {activeFlags.map((flag) => (
+              <span key={flag} className="badge badge-outline gap-1">
+                {flag}
+                <button
+                  className="text-xs opacity-60 hover:opacity-100"
+                  onClick={() => {
+                    updateAppConfig((prev) => ({
+                      ...prev,
+                      flags: (prev.flags || []).filter((f) => f !== flag),
+                    }));
+                  }}
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       <div className="divider" />
       {window.wowarenalogs.platform === 'win32' && window.wowarenalogs.obs && <RecordingSettings />}
