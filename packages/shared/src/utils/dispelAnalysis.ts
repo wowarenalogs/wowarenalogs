@@ -1,11 +1,15 @@
 import { CombatExtraSpellAction, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
-import dispelPriorityData from '../data/dispelPriority.json';
+import spellIdListsData from '../data/spellIdLists.json';
+import spellsData from '../data/spells.json';
 import { fmtTime, specToString } from './cooldowns';
 
 export type DispelPriority = 'Critical' | 'High' | 'Medium' | 'Low';
 
-const DISPEL_PRIORITY = dispelPriorityData as Record<string, DispelPriority>;
+type SpellEntry = { type: string; priority?: boolean };
+const SPELLS = spellsData as Record<string, SpellEntry>;
+const BIG_DEFENSIVE_IDS = new Set<string>(spellIdListsData.bigDefensiveSpellIds as string[]);
+const EXTERNAL_DEFENSIVE_IDS = new Set<string>(spellIdListsData.externalDefensiveSpellIds as string[]);
 
 const MISSED_CLEANSE_THRESHOLD_S = 3;
 
@@ -40,7 +44,27 @@ export interface IDispelSummary {
 }
 
 function getPriority(spellId: string): DispelPriority {
-  return DISPEL_PRIORITY[spellId] ?? 'Low';
+  // WoW-flagged major defensives take precedence
+  if (BIG_DEFENSIVE_IDS.has(spellId) || EXTERNAL_DEFENSIVE_IDS.has(spellId)) return 'Critical';
+
+  const spell = SPELLS[spellId];
+  if (!spell) return 'Low';
+
+  switch (spell.type) {
+    case 'cc':
+    case 'immunities':
+      return 'Critical';
+    case 'roots':
+    case 'immunities_spells':
+    case 'buffs_offensive':
+    case 'debuffs_offensive':
+    case 'buffs_defensive':
+      return 'High';
+    case 'buffs_other':
+      return 'Medium';
+    default:
+      return 'Low';
+  }
 }
 
 export function reconstructDispelSummary(
