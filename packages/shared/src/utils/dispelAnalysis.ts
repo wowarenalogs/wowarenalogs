@@ -130,6 +130,11 @@ export function reconstructDispelSummary(
       // Only CC applied by enemies
       if (!enemyIds.has(aura.srcUnitId)) continue;
 
+      // Skip physical-school spells — stuns like Kidney Shot, Cheap Shot, Leg Sweep
+      // are physical and cannot be magic-dispelled, so they are never missed cleanses
+      const schoolId = parseInt(aura.spellSchoolId ?? '0x1', 16);
+      if (schoolId === 0x1) continue;
+
       const priority = getPriority(spellId);
       if (priority !== 'Critical' && priority !== 'High') continue;
 
