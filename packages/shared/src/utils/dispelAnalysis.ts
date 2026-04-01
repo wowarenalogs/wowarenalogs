@@ -1,5 +1,6 @@
 import { CombatExtraSpellAction, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
+import { spellEffectData } from '../data/spellEffectData';
 import spellIdListsData from '../data/spellIdLists.json';
 import spellsData from '../data/spells.json';
 import { fmtTime, specToString } from './cooldowns';
@@ -23,22 +24,6 @@ const POST_CC_PRESSURE_WINDOW_S = 5;
 const DISPEL_PENALTY_SPELLS = new Map<string, string>([
   ['316099', 'Silences & damages the dispeller (Unstable Affliction)'],
   ['342938', 'Silences & damages the dispeller (Unstable Affliction)'],
-]);
-
-// Spells whose debuff is Poison/Curse type rather than Magic.
-// Everything non-physical that isn't listed here is assumed to be Magic.
-const POISON_CC_IDS = new Set([
-  '2094', // Blind (Rogue)
-  '19386', // Wyvern Sting (Hunter)
-  '392957', // Wyvern Sting (TWW variant)
-  '3408', // Crippling Poison
-  '25810', // Wyvern Sting (BM variant)
-]);
-
-const CURSE_CC_IDS = new Set([
-  '50259', // Dazed (Curse of Exhaustion baseline)
-  '334275', // Curse of Exhaustion (SL+)
-  '702', // Curse of Weakness
 ]);
 
 // Specs that can remove each debuff type.
@@ -91,10 +76,9 @@ const DISEASE_REMOVERS = new Set<CombatUnitSpec>([
 
 type DispelType = 'Magic' | 'Poison' | 'Curse' | 'Disease';
 
-function getDispelType(spellId: string): DispelType {
-  if (POISON_CC_IDS.has(spellId)) return 'Poison';
-  if (CURSE_CC_IDS.has(spellId)) return 'Curse';
-  return 'Magic';
+/** Returns the dispel type for a spell ID from game data, or null if the spell cannot be dispelled. */
+function getDispelType(spellId: string): DispelType | null {
+  return spellEffectData[spellId]?.dispelType ?? null;
 }
 
 function buildTeamDispelTypes(friends: ICombatUnit[]): Set<DispelType> {
@@ -132,7 +116,7 @@ export interface IMissedCleanseWindow {
   spellName: string;
   spellId: string;
   priority: DispelPriority;
-  dispelType: DispelType;
+  dispelType: DispelType; // always set; null case is filtered before pushing
   /** Damage the target took in the first POST_CC_PRESSURE_WINDOW_S seconds after CC was applied */
   postCcDamage: number;
 }
@@ -281,15 +265,14 @@ export function reconstructDispelSummary(
       // Only CC applied by enemies
       if (!enemyIds.has(aura.srcUnitId)) continue;
 
-      // Skip physical-school spells (stuns: Kidney Shot, Cheap Shot, Leg Sweep, etc.)
-      const schoolId = parseInt(aura.spellSchoolId ?? '0x1', 16);
-      if (schoolId === 0x1) continue;
-
       const priority = getPriority(spellId);
       if (priority !== 'Critical' && priority !== 'High') continue;
 
-      // Only flag if the team has someone capable of removing this debuff type
+      // Skip spells that cannot be dispelled (DispelType=None in game data)
       const dispelType = getDispelType(spellId);
+      if (!dispelType) continue;
+
+      // Only flag if the team has someone capable of removing this debuff type
       if (!teamDispelTypes.has(dispelType)) continue;
 
       if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
@@ -363,6 +346,8 @@ export function reconstructDispelSummary(
             .filter((d) => d.logLine.timestamp >= applyTs && d.logLine.timestamp <= windowEndMs)
             .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
 
+          // dispelType is non-null here (null case is filtered above)
+          const windowDispelType = dispelType;
           missedCleanseWindows.push({
             timeSeconds: (applyTs - combat.startTime) / 1000,
             durationSeconds,
@@ -371,7 +356,7 @@ export function reconstructDispelSummary(
             spellName,
             spellId,
             priority,
-            dispelType: getDispelType(spellId),
+            dispelType: windowDispelType,
             postCcDamage,
           });
         }
