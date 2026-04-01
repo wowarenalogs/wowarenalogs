@@ -74,6 +74,7 @@ function CCEfficiencyTable({ stats }: { stats: ICCEfficiencyStat[] }) {
               <th className="text-center">CC Windows</th>
               <th className="text-center">Cleansed</th>
               <th className="text-center">Missed</th>
+              <th className="text-center opacity-50">Broke</th>
               <th className="text-center">Rate</th>
             </tr>
           </thead>
@@ -81,6 +82,7 @@ function CCEfficiencyTable({ stats }: { stats: ICCEfficiencyStat[] }) {
             {stats.map((e, i) => {
               const pct = Math.round(e.cleanseRate * 100);
               const color = pct >= 80 ? 'text-success' : pct >= 50 ? 'text-warning' : 'text-error';
+              const dispelableWindows = e.cleanseCount + e.missedCount;
               return (
                 <tr key={i}>
                   <td>
@@ -90,7 +92,12 @@ function CCEfficiencyTable({ stats }: { stats: ICCEfficiencyStat[] }) {
                   <td className="text-center">{e.totalCCWindows}</td>
                   <td className="text-center text-success">{e.cleanseCount}</td>
                   <td className="text-center text-error">{e.missedCount}</td>
-                  <td className={`text-center font-bold ${color}`}>{pct}%</td>
+                  {e.brokenCount > 0 ? (
+                    <td className="text-center opacity-50">{e.brokenCount}</td>
+                  ) : (
+                    <td className="text-center opacity-30">—</td>
+                  )}
+                  <td className={`text-center font-bold ${color}`}>{dispelableWindows > 0 ? `${pct}%` : '—'}</td>
                 </tr>
               );
             })}

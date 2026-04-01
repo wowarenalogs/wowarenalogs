@@ -16,16 +16,13 @@ const MISSED_CLEANSE_THRESHOLD_S = 3;
 // Seconds after CC application to measure incoming damage for post-CC pressure weighting
 const POST_CC_PRESSURE_WINDOW_S = 5;
 
-// Spells that punish the dispeller when removed
-// UA: silences + deals damage; VT: deals damage; Flame Shock may trigger on-dispel procs
+// Spells that silence + damage the dispeller when removed.
+// Only Unstable Affliction reliably has this mechanic in current WoW (TWW).
+// VT dispel-damage was removed in Legion; Flame Shock has no dispel penalty.
+// IDs 316099 and 342938 are confirmed present in BigDebuffs data for TWW.
 const DISPEL_PENALTY_SPELLS = new Map<string, string>([
-  ['30108', 'Silences & damages the dispeller (Unstable Affliction)'],
   ['316099', 'Silences & damages the dispeller (Unstable Affliction)'],
   ['342938', 'Silences & damages the dispeller (Unstable Affliction)'],
-  ['344740', 'Silences & damages the dispeller (Unstable Affliction)'],
-  ['387979', 'Silences & damages the dispeller (Unstable Affliction)'],
-  ['34914', 'Deals damage to the dispeller (Vampiric Touch)'],
-  ['188389', 'May trigger on-dispel damage (Flame Shock)'],
 ]);
 
 // Spells whose debuff is Poison/Curse type rather than Magic.
@@ -145,10 +142,13 @@ export interface ICCEfficiencyStat {
   targetSpec: string;
   /** Critical + High CC windows applied by enemies (that the team could have cleansed) */
   totalCCWindows: number;
-  /** CC windows that ended within the threshold (cleansed quickly or never flagged as missed) */
+  /** CC windows dispelled quickly (< threshold) or explicitly dispelled by a teammate */
   cleanseCount: number;
   /** CC windows that lasted > threshold without a friendly dispel */
   missedCount: number;
+  /** CC windows that ended because of incoming damage (SPELL_AURA_BROKEN_SPELL), not dispelled */
+  brokenCount: number;
+  /** cleanseCount / (cleanseCount + missedCount), ignoring broken-by-damage windows */
   cleanseRate: number;
 }
 
@@ -260,7 +260,14 @@ export function reconstructDispelSummary(
   // Efficiency tracking: per friendly unit, count CC windows and cleansed/missed
   const efficiencyMap = new Map<
     string,
-    { targetName: string; targetSpec: string; totalCCWindows: number; cleanseCount: number; missedCount: number }
+    {
+      targetName: string;
+      targetSpec: string;
+      totalCCWindows: number;
+      cleanseCount: number;
+      missedCount: number;
+      brokenCount: number;
+    }
   >();
 
   for (const unit of friends) {
@@ -308,6 +315,7 @@ export function reconstructDispelSummary(
         totalCCWindows: 0,
         cleanseCount: 0,
         missedCount: 0,
+        brokenCount: 0,
       });
     }
     const eff = efficiencyMap.get(effKey);
@@ -325,10 +333,9 @@ export function reconstructDispelSummary(
 
         const durationSeconds = (removal.ts - applyTs) / 1000;
 
-        // CC broke from damage — not a missed cleanse opportunity
+        // CC broke from incoming damage — not a missed cleanse, but not a healer cleanse either
         if (removal.brokenByDamage) {
-          // Count as "handled" for efficiency purposes
-          eff.cleanseCount++;
+          eff.brokenCount++;
           continue;
         }
 
@@ -376,10 +383,14 @@ export function reconstructDispelSummary(
 
   const ccEfficiency: ICCEfficiencyStat[] = [...efficiencyMap.values()]
     .filter((e) => e.totalCCWindows > 0)
-    .map((e) => ({
-      ...e,
-      cleanseRate: e.totalCCWindows > 0 ? e.cleanseCount / e.totalCCWindows : 1,
-    }))
+    .map((e) => {
+      const dispelableWindows = e.cleanseCount + e.missedCount;
+      return {
+        ...e,
+        // Rate only counts windows where dispel was possible (excludes broken-by-damage)
+        cleanseRate: dispelableWindows > 0 ? e.cleanseCount / dispelableWindows : 1,
+      };
+    })
     .sort((a, b) => b.totalCCWindows - a.totalCCWindows);
 
   return { allyCleanse, ourPurges, hostilePurges, missedCleanseWindows, ccEfficiency };
@@ -442,9 +453,11 @@ export function formatDispelContextForAI(summary: IDispelSummary): string[] {
   if (ccEfficiency.length > 0) {
     lines.push('  CC cleanse efficiency (Critical/High CC applied to your team):');
     for (const e of ccEfficiency) {
-      const pct = Math.round(e.cleanseRate * 100);
+      const dispelableWindows = e.cleanseCount + e.missedCount;
+      const pct = dispelableWindows > 0 ? Math.round(e.cleanseRate * 100) : 100;
+      const brokenStr = e.brokenCount > 0 ? `, ${e.brokenCount} broke from damage` : '';
       lines.push(
-        `    ${e.targetName} (${e.targetSpec}): ${e.totalCCWindows} CC windows — ${e.cleanseCount} cleansed, ${e.missedCount} missed (${pct}%)`,
+        `    ${e.targetName} (${e.targetSpec}): ${e.totalCCWindows} CC windows — ${e.cleanseCount} cleansed, ${e.missedCount} missed${brokenStr} (${pct}% cleanse rate)`,
       );
     }
   }
