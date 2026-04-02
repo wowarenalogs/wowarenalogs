@@ -366,3 +366,94 @@ export function fmtTime(seconds: number): string {
   const s = Math.floor(seconds % 60);
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
+
+// ---------------------------------------------------------------------------
+// Friendly CD overlap detection
+// ---------------------------------------------------------------------------
+
+export interface IOverlapCast {
+  spec: string;
+  playerName: string;
+  spellName: string;
+  tag: string;
+  castTimeSeconds: number;
+}
+
+export interface IFriendlyCDOverlapGroup {
+  /** Earliest cast time in the group */
+  timeSeconds: number;
+  casts: IOverlapCast[];
+  /** True if the overlap occurred inside or within 5s of a top pressure window */
+  duringPressureSpike: boolean;
+}
+
+/**
+ * Find groups of defensive cooldowns used by friendly players within `overlapWindowSeconds`
+ * of each other. Groups with only one cast are excluded (no overlap).
+ */
+export function detectFriendlyCDOverlaps(
+  friendlyPlayers: ICombatUnit[],
+  combat: AtomicArenaCombat,
+  pressureWindows: IDamageBucket[],
+  overlapWindowSeconds = 3,
+): IFriendlyCDOverlapGroup[] {
+  // Collect all defensive casts across friendly players
+  const allCasts: IOverlapCast[] = [];
+  for (const player of friendlyPlayers) {
+    const cds = extractMajorCooldowns(player, combat);
+    for (const cd of cds) {
+      if (cd.tag !== 'Defensive') continue;
+      for (const cast of cd.casts) {
+        allCasts.push({
+          spec: specToString(player.spec),
+          playerName: player.name,
+          spellName: cd.spellName,
+          tag: cd.tag,
+          castTimeSeconds: cast.timeSeconds,
+        });
+      }
+    }
+  }
+
+  allCasts.sort((a, b) => a.castTimeSeconds - b.castTimeSeconds);
+
+  // Group casts that fall within overlapWindowSeconds of the group's anchor (first cast)
+  const groups: IFriendlyCDOverlapGroup[] = [];
+  let i = 0;
+  while (i < allCasts.length) {
+    const anchor = allCasts[i].castTimeSeconds;
+    const group: IOverlapCast[] = [];
+    let j = i;
+    while (j < allCasts.length && allCasts[j].castTimeSeconds - anchor <= overlapWindowSeconds) {
+      group.push(allCasts[j]);
+      j++;
+    }
+    if (group.length >= 2) {
+      const duringPressureSpike = pressureWindows.some((w) => anchor >= w.fromSeconds - 5 && anchor <= w.toSeconds + 5);
+      groups.push({ timeSeconds: anchor, casts: group, duringPressureSpike });
+    }
+    i = j === i ? i + 1 : j;
+  }
+
+  return groups;
+}
+
+export function formatFriendlyCDOverlapsForContext(groups: IFriendlyCDOverlapGroup[]): string[] {
+  const lines: string[] = [];
+  lines.push('FRIENDLY DEFENSIVE CD OVERLAPS (multiple defensives within 3s of each other):');
+
+  if (groups.length === 0) {
+    lines.push('  No overlapping defensive cooldowns detected.');
+    return lines;
+  }
+
+  for (const group of groups) {
+    const spike = group.duringPressureSpike ? ' [DURING PRESSURE SPIKE]' : '';
+    lines.push(`  At ${fmtTime(group.timeSeconds)}${spike}:`);
+    for (const c of group.casts) {
+      lines.push(`    - ${c.spec} (${c.playerName}) used ${c.spellName}`);
+    }
+  }
+
+  return lines;
+}

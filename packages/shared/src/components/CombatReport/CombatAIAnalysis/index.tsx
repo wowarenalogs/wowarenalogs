@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 
 import {
   computePressureWindows,
+  detectFriendlyCDOverlaps,
   extractMajorCooldowns,
   fmtTime,
+  formatFriendlyCDOverlapsForContext,
   isHealerSpec,
   specToString,
 } from '../../../utils/cooldowns';
@@ -64,6 +66,9 @@ function buildMatchContext(
 
   // Pressure windows — damage on friendly team
   const pressureWindows = computePressureWindows(friends, combat);
+
+  // Friendly defensive CD overlaps
+  const friendlyCDOverlaps = detectFriendlyCDOverlaps(friends, combat, pressureWindows);
 
   // Build readable text for Claude
   const lines: string[] = [];
@@ -136,12 +141,15 @@ function buildMatchContext(
   formatEnemyCDTimelineForContext(enemyCDTimeline, durationSeconds).forEach((l) => lines.push(l));
 
   lines.push('');
+  formatFriendlyCDOverlapsForContext(friendlyCDOverlaps).forEach((l) => lines.push(l));
+
+  lines.push('');
   formatDispelContextForAI(reconstructDispelSummary(friends, enemies, combat)).forEach((l) => lines.push(l));
 
   lines.push('');
   lines.push(
     healer
-      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows? Also evaluate dispel discipline: were critical CC chains left uncleansed? Did enemies consistently strip key defensive buffs?'
+      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows? For FRIENDLY CD OVERLAPS: evaluate whether each overlap was justified (e.g. full enemy burst window, near-death) or wasteful (moderate pressure, staggering would have provided better coverage across multiple pushes). Name the specific spells and explain the consequence of the staging choice. Also evaluate dispel discipline: were critical CC chains left uncleansed? Did enemies consistently strip key defensive buffs?'
       : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing. Cross-reference your offensive CDs against the enemy aligned burst windows. Also note any dispel patterns: did the enemy healer purge your key buffs at critical moments?',
   );
 
