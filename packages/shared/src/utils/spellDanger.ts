@@ -21,12 +21,21 @@ export const EFFECT_TYPE_WEIGHTS: Record<SpellEffectType, number> = {
  */
 export const SPELL_EFFECT_OVERRIDES: Record<string, SpellEffectType[]> = {
   // DamageAmp + HealReduction
-  '79140':  [SpellEffectType.DamageAmp, SpellEffectType.HealReduction], // Vendetta/Deathmark (Assassination Rogue)
+  '79140': [SpellEffectType.DamageAmp, SpellEffectType.HealReduction], // Vendetta/Deathmark (Assassination Rogue)
   // HealReduction only
-  '375901': [SpellEffectType.HealReduction],                            // Mindgames (Shadow Priest) — reverses heals into damage
-  '386997': [SpellEffectType.HealReduction],                            // Soul Rot (Affliction Warlock) — applies heal-to-damage debuff
+  '375901': [SpellEffectType.HealReduction], // Mindgames (Shadow Priest) — reverses heals into damage
+  '386997': [SpellEffectType.HealReduction], // Soul Rot (Affliction Warlock) — applies heal-to-damage debuff
+  '198817': [SpellEffectType.HealReduction], // Sharpen Blade (Warrior)
+  '315185': [SpellEffectType.HealReduction], // Sharpen Blade (Warrior)
+  '211522': [SpellEffectType.HealReduction], // Psyfiend (Shadow Priest)
   // Vulnerability (target takes increased damage)
-  '207736': [SpellEffectType.Vulnerability],                            // Shadowy Duel (Subtlety Rogue) — isolates + increases damage taken
+  '207736': [SpellEffectType.Vulnerability], // Shadowy Duel (Subtlety Rogue) — isolates + increases damage taken
+  // Execution
+  '115080': [SpellEffectType.Execution], // Touch of Death (Monk)
+  '323764': [SpellEffectType.Execution], // Touch of Death (Monk)
+  '314667': [SpellEffectType.Execution], // Touch of Death (Monk)
+  '343721': [SpellEffectType.Execution], // Execution Sentence (Paladin)
+  '400986': [SpellEffectType.Execution], // Execution Sentence (Paladin)
 };
 
 /**

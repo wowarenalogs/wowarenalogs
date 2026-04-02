@@ -34,6 +34,10 @@ const MAGIC_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Druid_Restoration, // Nature's Cure (always talented in arena)
   CombatUnitSpec.Shaman_Restoration, // Purify Spirit
   CombatUnitSpec.Monk_Mistweaver, // Detox (also removes Poison/Disease)
+  CombatUnitSpec.Evoker_Preservation, // Naturalize
+  CombatUnitSpec.Warlock_Affliction, // Imp Singemagic
+  CombatUnitSpec.Warlock_Demonology,
+  CombatUnitSpec.Warlock_Destruction,
 ]);
 
 // Poison: all Paladins, all Druids, all Monks
@@ -48,6 +52,9 @@ const POISON_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Monk_Mistweaver,
   CombatUnitSpec.Monk_Windwalker,
   CombatUnitSpec.Monk_BrewMaster,
+  CombatUnitSpec.Evoker_Preservation, // Naturalize / Expunge / Cauterizing Flame
+  CombatUnitSpec.Evoker_Devastation, // Expunge / Cauterizing Flame
+  CombatUnitSpec.Evoker_Augmentation, // Expunge / Cauterizing Flame
 ]);
 
 // Curse: all Druids, all Mages, Resto Shaman
@@ -60,6 +67,9 @@ const CURSE_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Mage_Fire,
   CombatUnitSpec.Mage_Frost,
   CombatUnitSpec.Shaman_Restoration,
+  CombatUnitSpec.Evoker_Preservation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Devastation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Augmentation, // Cauterizing Flame
 ]);
 
 // Disease: all Paladins, Holy/Disc Priest, all Monks
@@ -72,13 +82,25 @@ const DISEASE_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Monk_Mistweaver,
   CombatUnitSpec.Monk_Windwalker,
   CombatUnitSpec.Monk_BrewMaster,
+  CombatUnitSpec.Evoker_Preservation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Devastation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Augmentation, // Cauterizing Flame
 ]);
 
-type DispelType = 'Magic' | 'Poison' | 'Curse' | 'Disease';
+// Bleed: Evokers
+const BLEED_REMOVERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Evoker_Preservation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Devastation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Augmentation, // Cauterizing Flame
+]);
+
+type DispelType = 'Magic' | 'Poison' | 'Curse' | 'Disease' | 'Bleed';
 
 /** Returns the dispel type for a spell ID from game data, or null if the spell cannot be dispelled. */
 function getDispelType(spellId: string): DispelType | null {
-  return spellEffectData[spellId]?.dispelType ?? null;
+  const type = spellEffectData[spellId]?.dispelType;
+  if (type === 'Magic' || type === 'Poison' || type === 'Curse' || type === 'Disease' || type === 'Bleed') return type;
+  return null;
 }
 
 function buildTeamDispelTypes(friends: ICombatUnit[]): Set<DispelType> {
@@ -88,6 +110,7 @@ function buildTeamDispelTypes(friends: ICombatUnit[]): Set<DispelType> {
     if (POISON_REMOVERS.has(unit.spec)) types.add('Poison');
     if (CURSE_REMOVERS.has(unit.spec)) types.add('Curse');
     if (DISEASE_REMOVERS.has(unit.spec)) types.add('Disease');
+    if (BLEED_REMOVERS.has(unit.spec)) types.add('Bleed');
   }
   return types;
 }
@@ -347,7 +370,7 @@ export function reconstructDispelSummary(
             .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
 
           // dispelType is non-null here (null case is filtered above)
-          const windowDispelType = dispelType;
+          const windowDispelType = getDispelType(spellId) as DispelType;
           missedCleanseWindows.push({
             timeSeconds: (applyTs - combat.startTime) / 1000,
             durationSeconds,

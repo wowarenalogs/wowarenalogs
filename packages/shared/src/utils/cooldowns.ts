@@ -241,36 +241,52 @@ export interface IDamageBucket {
 export function computePressureWindows(
   friendlyPlayers: ICombatUnit[],
   combat: AtomicArenaCombat,
-  bucketSeconds = 15,
+  windowSeconds = 10,
   topN = 5,
 ): IDamageBucket[] {
   const matchStartMs = combat.startTime;
-  const matchDurationSeconds = (combat.endTime - matchStartMs) / 1000;
-  const numBuckets = Math.ceil(matchDurationSeconds / bucketSeconds);
-
-  const allBuckets: IDamageBucket[] = [];
+  const allSpikes: IDamageBucket[] = [];
 
   for (const player of friendlyPlayers) {
-    const buckets = new Array<number>(numBuckets).fill(0);
-    for (const action of player.damageIn) {
-      const t = (action.logLine.timestamp - matchStartMs) / 1000;
-      const idx = Math.min(Math.floor(t / bucketSeconds), numBuckets - 1);
-      if (idx >= 0) buckets[idx] += Math.abs(action.effectiveAmount);
-    }
-    buckets.forEach((dmg, idx) => {
-      if (dmg > 0) {
-        allBuckets.push({
-          fromSeconds: idx * bucketSeconds,
-          toSeconds: Math.min((idx + 1) * bucketSeconds, matchDurationSeconds),
-          totalDamage: dmg,
-          targetName: player.name,
-          targetSpec: specToString(player.spec),
+    const damageEvents = player.damageIn.map(a => ({
+        timeSec: (a.logLine.timestamp - matchStartMs) / 1000,
+        amount: Math.abs(a.effectiveAmount)
+    })).sort((a, b) => a.timeSec - b.timeSec);
+
+    // Sliding window sum
+    for (let i = 0; i < damageEvents.length; i++) {
+        let windowDamage = 0;
+        let j = i;
+        const startSec = damageEvents[i].timeSec;
+        while (j < damageEvents.length && damageEvents[j].timeSec <= startSec + windowSeconds) {
+            windowDamage += damageEvents[j].amount;
+            j++;
+        }
+        allSpikes.push({
+            fromSeconds: startSec,
+            toSeconds: startSec + windowSeconds,
+            totalDamage: windowDamage,
+            targetName: player.name,
+            targetSpec: specToString(player.spec),
         });
-      }
-    });
+    }
   }
 
-  return allBuckets.sort((a, b) => b.totalDamage - a.totalDamage).slice(0, topN);
+  // Sort and filter overlapping windows to find true top N distinct spikes
+  allSpikes.sort((a, b) => b.totalDamage - a.totalDamage);
+  const distinctSpikes: IDamageBucket[] = [];
+  for (const spike of allSpikes) {
+      const overlaps = distinctSpikes.some(s => 
+          s.targetName === spike.targetName && 
+          Math.max(0, Math.min(s.toSeconds, spike.toSeconds) - Math.max(s.fromSeconds, spike.fromSeconds)) > 0
+      );
+      if (!overlaps) {
+          distinctSpikes.push(spike);
+          if (distinctSpikes.length >= topN) break;
+      }
+  }
+
+  return distinctSpikes;
 }
 
 // ---------------------------------------------------------------------------

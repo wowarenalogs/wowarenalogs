@@ -53,19 +53,12 @@ export function getDampeningPercentage(bracket: string, players: ICombatUnit[], 
 // ---------------------------------------------------------------------------
 
 /**
- * Simple time-based dampening estimate for burst scoring.
- * 3v3: starts at 2:00, increases 10% per minute thereafter.
+ * Parses match start info and player events to compute the exact or estimated dampening.
  * Returns a value 0–1 (e.g. 0.30 = 30% dampening).
  */
-const DAMPENING_SIMPLE_START_SECONDS = 120;
-const DAMPENING_SIMPLE_RATE_PER_SECOND = 0.1 / 60; // 10% per minute
-
-export function computeDampening(matchTimeSeconds: number): number {
-  if (matchTimeSeconds <= DAMPENING_SIMPLE_START_SECONDS) return 0;
-  return Math.min(
-    (matchTimeSeconds - DAMPENING_SIMPLE_START_SECONDS) * DAMPENING_SIMPLE_RATE_PER_SECOND,
-    1.0,
-  );
+export function computeDampening(matchTimeMs: number, bracket: string, players: ICombatUnit[]): number {
+  const damp = getDampeningPercentage(bracket, players, matchTimeMs);
+  return Math.min(damp / 100, 1.0);
 }
 
 /**

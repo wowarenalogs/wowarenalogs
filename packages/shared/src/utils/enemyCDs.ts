@@ -1,8 +1,9 @@
 import { AtomicArenaCombat, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { spellEffectData } from '../data/spellEffectData';
-import { computeDampening, dampeningDangerMultiplier, fmtDampening } from './dampening';
+import spellsData from '../data/spells.json';
 import { fmtTime, isHealerSpec, specToString } from './cooldowns';
+import { computeDampening, dampeningDangerMultiplier, fmtDampening } from './dampening';
 import { dangerLabel, isOffensiveSpell, SPELL_EFFECT_OVERRIDES, spellDangerWeight } from './spellDanger';
 
 const MIN_CD_SECONDS = 30;
@@ -30,7 +31,7 @@ export interface IAlignedBurstWindow {
   activeCDs: Array<{ playerName: string; spellName: string; spellId: string }>;
   dangerScore: number;
   dangerLabel: 'Low' | 'Moderate' | 'High' | 'Critical';
-  dampeningPct: number;   // 0–1
+  dampeningPct: number; // 0–1
   damageInWindow: number;
   damageRatio: number;
   healerCCed: boolean;
@@ -70,8 +71,7 @@ export function reconstructEnemyCDTimeline(
       if (!isOffensiveSpell(spellId)) continue;
       const effectData = spellEffectData[spellId];
       if (!effectData) continue;
-      const cooldownSeconds =
-        effectData.cooldownSeconds ?? effectData.charges?.chargeCooldownSeconds ?? 0;
+      const cooldownSeconds = effectData.cooldownSeconds ?? effectData.charges?.chargeCooldownSeconds ?? 0;
       if (cooldownSeconds < MIN_CD_SECONDS || cooldownSeconds > MAX_CD_SECONDS) continue;
 
       const castTimeSeconds = (cast.logLine.timestamp - matchStartMs) / 1000;
@@ -110,30 +110,20 @@ export function reconstructEnemyCDTimeline(
 
   // Compute total friendly damage for ratio calculation
   const allFriendlyDamage = (friendlies ?? []).flatMap((u) => u.damageIn);
-  const totalFriendlyDamage = allFriendlyDamage.reduce(
-    (sum, e) => sum + Math.abs(e.effectiveAmount),
-    0,
-  );
+  const totalFriendlyDamage = allFriendlyDamage.reduce((sum, e) => sum + Math.abs(e.effectiveAmount), 0);
   const avgWindowDamage =
-    matchDurationSeconds > 0
-      ? totalFriendlyDamage / (matchDurationSeconds / BURST_CLUSTER_SECONDS)
-      : 0;
+    matchDurationSeconds > 0 ? totalFriendlyDamage / (matchDurationSeconds / BURST_CLUSTER_SECONDS) : 0;
 
   const alignedBurstWindows: IAlignedBurstWindow[] = [];
   let i = 0;
   while (i < allCasts.length) {
     const windowStart = allCasts[i].time;
-    const inWindow = allCasts.filter(
-      (c) => c.time >= windowStart && c.time <= windowStart + BURST_CLUSTER_SECONDS,
-    );
+    const inWindow = allCasts.filter((c) => c.time >= windowStart && c.time <= windowStart + BURST_CLUSTER_SECONDS);
     if (inWindow.length >= 2) {
       const windowEnd = inWindow[inWindow.length - 1].time;
 
       // Compute CD-based danger score
-      const cdScore = inWindow.reduce(
-        (sum, c) => sum + spellDangerWeight(c.spellId, c.cooldownSeconds),
-        0,
-      );
+      const cdScore = inWindow.reduce((sum, c) => sum + spellDangerWeight(c.spellId, c.cooldownSeconds), 0);
       const alignmentMultiplier = inWindow.length >= 3 ? 1.5 : 1.0;
 
       // Compute damage in window (±BURST_CLUSTER_SECONDS around burst start)
@@ -147,19 +137,48 @@ export function reconstructEnemyCDTimeline(
       const damageRatio = avgWindowDamage > 0 ? Math.max(windowDamage / avgWindowDamage, 0.5) : 0.5;
 
       // Dampening at window start
-      const dampening = computeDampening(windowStart);
+      const bracket = combat.startInfo?.bracket ?? '3v3';
+      const allPlayers = [...enemies, ...(friendlies ?? [])];
+      const dampening = computeDampening(windowStart * 1000 + matchStartMs, bracket, allPlayers);
       const dampeningMult = dampeningDangerMultiplier(dampening);
 
-      // Healer CC proxy: healer owner made 0 casts in the window (only for windows >= 5s).
-      // Only meaningful when the log owner is a healer — skip for DPS POV logs.
-      const windowDuration = windowEnd - windowStart;
+      // Healer CC explicit check: find if the healer had an active CC aura during this window
       let healerCCed = false;
-      if (owner && isHealerSpec(owner.spec) && windowDuration >= 5) {
-        const ownerCastsInWindow = owner.spellCastEvents.filter((e) => {
-          const t = (e.logLine.timestamp - matchStartMs) / 1000;
-          return t >= windowStart && t <= windowEnd;
-        });
-        healerCCed = ownerCastsInWindow.length === 0;
+      const windowDuration = windowEnd - windowStart;
+      if (owner && isHealerSpec(owner.spec)) {
+        const windowStartMs = matchStartMs + windowStart * 1000;
+        const windowEndMs = matchStartMs + windowEnd * 1000;
+        
+        let ccStart = 0;
+        for (const a of owner.auraEvents) {
+          if (!a.spellId) continue;
+          const entry = (spellsData as any)[a.spellId];
+          if (entry?.type === 'cc') {
+            if (a.logLine.event === LogEvent.SPELL_AURA_APPLIED || a.logLine.event === LogEvent.SPELL_AURA_REFRESH) {
+              ccStart = a.logLine.timestamp;
+            } else if (a.logLine.event === LogEvent.SPELL_AURA_REMOVED || a.logLine.event === LogEvent.SPELL_AURA_BROKEN || a.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL) {
+              const ccEnd = a.logLine.timestamp;
+              // Check if CC overlaps with the burst window
+              if (ccStart > 0 && ccStart < windowEndMs && ccEnd > windowStartMs) {
+                healerCCed = true;
+                break;
+              }
+              ccStart = 0;
+            }
+          }
+        }
+        
+        // Fallback: If no CC found but window was huge and healer cast nothing, they might have been 
+        // infinitely kiting, locked out of school (which is also CC), or pseudo-CCed.
+        if (!healerCCed && windowDuration >= 5) {
+          const ownerCastsInWindow = owner.spellCastEvents.filter((e) => {
+            const t = (e.logLine.timestamp - matchStartMs) / 1000;
+            return t >= windowStart && t <= windowEnd;
+          });
+          if (ownerCastsInWindow.length === 0) {
+            healerCCed = true;
+          }
+        }
       }
       const healerMult = 1.0 + (healerCCed ? 0.8 : 0.0);
 
@@ -192,10 +211,7 @@ export function reconstructEnemyCDTimeline(
 /**
  * Renders the enemy CD timeline as plain text lines for inclusion in the AI context prompt.
  */
-export function formatEnemyCDTimelineForContext(
-  timeline: IEnemyCDTimeline,
-  matchDurationSeconds: number,
-): string[] {
+export function formatEnemyCDTimelineForContext(timeline: IEnemyCDTimeline, matchDurationSeconds: number): string[] {
   const lines: string[] = [];
 
   lines.push('ENEMY OFFENSIVE COOLDOWN TIMELINE:');
@@ -236,9 +252,7 @@ export function formatEnemyCDTimelineForContext(
         const cdData = timeline.players
           .flatMap((p) => p.offensiveCDs)
           .find((c) => c.spellId === cd.spellId && c.playerName === cd.playerName);
-        const weight = cdData
-          ? spellDangerWeight(cd.spellId, cdData.cooldownSeconds).toFixed(2)
-          : '?';
+        const weight = cdData ? spellDangerWeight(cd.spellId, cdData.cooldownSeconds).toFixed(2) : '?';
         lines.push(`    ${cd.spellName} (${cd.playerName}, weight ${weight})`);
       }
 
