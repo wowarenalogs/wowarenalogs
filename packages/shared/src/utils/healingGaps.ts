@@ -107,7 +107,7 @@ function getCCCoveredMs(unit: ICombatUnit, fromMs: number, toMs: number, enemyId
 // ---------------------------------------------------------------------------
 
 /**
- * Finds intervals where a healer produced no healOut events for >= 3.5s,
+ * Finds intervals where a healer produced no healOut events or spell casts for >= 3.5s,
  * while a teammate was under significant pressure, and the healer had enough
  * free (non-CC, non-silenced) time to have cast at least one heal.
  */
@@ -122,31 +122,36 @@ export function detectHealingGaps(
   const matchStartMs = combat.startTime;
   const matchEndMs = combat.endTime;
 
-  // All timestamps where the healer produced a heal event, sorted ascending
-  const healTimestamps = healer.healOut.map((h) => h.logLine.timestamp).sort((a, b) => a - b);
+  // All timestamps where the healer produced a heal event or successfully cast a spell, sorted ascending
+  const healTimestamps = healer.healOut.map((h) => h.logLine.timestamp);
+  const castTimestamps = healer.spellCastEvents
+    .filter((e) => e.logLine.event === LogEvent.SPELL_CAST_SUCCESS)
+    .map((e) => e.logLine.timestamp);
 
-  // Build raw gap intervals [fromMs, toMs] where no heal was cast
+  const activeTimestamps = Array.from(new Set([...healTimestamps, ...castTimestamps])).sort((a, b) => a - b);
+
+  // Build raw gap intervals [fromMs, toMs] where no heal/cast was produced
   const rawGaps: Array<{ fromMs: number; toMs: number }> = [];
 
-  if (healTimestamps.length === 0) {
+  if (activeTimestamps.length === 0) {
     rawGaps.push({ fromMs: matchStartMs, toMs: matchEndMs });
   } else {
-    // Gap before first heal
-    if (healTimestamps[0] - matchStartMs > HEALING_GAP_THRESHOLD_MS) {
-      rawGaps.push({ fromMs: matchStartMs, toMs: healTimestamps[0] });
+    // Gap before first activity
+    if (activeTimestamps[0] - matchStartMs > HEALING_GAP_THRESHOLD_MS) {
+      rawGaps.push({ fromMs: matchStartMs, toMs: activeTimestamps[0] });
     }
-    // Gaps between consecutive heals
-    for (let i = 0; i < healTimestamps.length - 1; i++) {
-      const from = healTimestamps[i];
-      const to = healTimestamps[i + 1];
+    // Gaps between consecutive activities
+    for (let i = 0; i < activeTimestamps.length - 1; i++) {
+      const from = activeTimestamps[i];
+      const to = activeTimestamps[i + 1];
       if (to - from > HEALING_GAP_THRESHOLD_MS) {
         rawGaps.push({ fromMs: from, toMs: to });
       }
     }
     // Tail gap — only outside the grace window at match end
-    const lastHeal = healTimestamps[healTimestamps.length - 1];
-    if (matchEndMs - lastHeal > HEALING_GAP_THRESHOLD_MS + TAIL_GRACE_MS) {
-      rawGaps.push({ fromMs: lastHeal, toMs: matchEndMs });
+    const lastActivity = activeTimestamps[activeTimestamps.length - 1];
+    if (matchEndMs - lastActivity > HEALING_GAP_THRESHOLD_MS + TAIL_GRACE_MS) {
+      rawGaps.push({ fromMs: lastActivity, toMs: matchEndMs });
     }
   }
 
@@ -199,7 +204,7 @@ export function detectHealingGaps(
 
 export function formatHealingGapsForContext(gaps: IHealingGap[]): string[] {
   const lines: string[] = [];
-  lines.push('HEALING GAPS (healer cast no heals for >3.5s while a teammate was under pressure and healer was free):');
+  lines.push('HEALING GAPS (healer was inactive for >3.5s while a teammate was under pressure and healer was free):');
 
   if (gaps.length === 0) {
     lines.push('  None detected.');
@@ -211,7 +216,7 @@ export function formatHealingGapsForContext(gaps: IHealingGap[]): string[] {
     const dur = g.durationSeconds.toFixed(1);
     const free = g.freeCastSeconds.toFixed(1);
     lines.push(
-      `  ⚠ Free-Cast Gap: From ${fmtTime(g.fromSeconds)} to ${fmtTime(g.toSeconds)} (${dur}s gap, ${free}s free to cast), you cast no heals while your ${g.mostDamagedSpec} (${g.mostDamagedName}) took ${dmgK}k damage. You were not CC'd.`,
+      `  ⚠ Free-Cast Gap: From ${fmtTime(g.fromSeconds)} to ${fmtTime(g.toSeconds)} (${dur}s gap, ${free}s free to cast), you cast no heals or spells while your ${g.mostDamagedSpec} (${g.mostDamagedName}) took ${dmgK}k damage. You were not CC'd.`,
     );
   }
 
