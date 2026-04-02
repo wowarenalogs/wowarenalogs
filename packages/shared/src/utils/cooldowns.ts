@@ -1,6 +1,7 @@
 import { AtomicArenaCombat, classMetadata, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { spellEffectData } from '../data/spellEffectData';
+import { getPlayerTalentedSpellIds, getSpecTalentTreeSpellIds } from './talents';
 
 /** Only track cooldowns at or above this threshold */
 const MIN_CD_SECONDS = 30;
@@ -147,6 +148,10 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
   const classData = classMetadata.find((c) => c.unitClass === unit.class);
   if (!classData) return [];
 
+  const specIdNum = parseInt(unit.spec, 10);
+  const specTalentTreeSpellIds = getSpecTalentTreeSpellIds(specIdNum);
+  const talentedSpellIds = unit.info?.talents ? getPlayerTalentedSpellIds(specIdNum, unit.info.talents) : null;
+
   // Keep only tagged spells with cooldown data >= MIN_CD_SECONDS that belong to the owner's spec
   const seen = new Set<string>();
   const majorSpells = classData.abilities.filter((spell) => {
@@ -158,6 +163,14 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
     if (cd < MIN_CD_SECONDS) return false;
     const allowedSpecs = SPEC_EXCLUSIVE_SPELLS[spell.spellId];
     if (allowedSpecs && !allowedSpecs.includes(unit.spec)) return false;
+    // If this spell is talent-gated and we have talent data, only include if the player took it
+    if (
+      specTalentTreeSpellIds.has(spell.spellId) &&
+      talentedSpellIds !== null &&
+      !talentedSpellIds.has(spell.spellId)
+    ) {
+      return false;
+    }
     seen.add(spell.spellId);
     return true;
   });
