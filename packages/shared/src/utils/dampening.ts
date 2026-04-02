@@ -1,5 +1,6 @@
 import { ICombatUnit } from '@wowarenalogs/parser';
 
+import { fmtTime } from './cooldowns';
 import { tanksOrHealers } from './utils';
 
 // DF RULES https://www.icy-veins.com/forums/topic/69530-dampening-and-healing-changes-in-dragonflight-pre-patch-phase-2-arenas/
@@ -72,4 +73,77 @@ export function dampeningDangerMultiplier(dampening: number): number {
 
 export function fmtDampening(dampening: number): string {
   return `${Math.round(dampening * 100)}%`;
+}
+
+// ---------------------------------------------------------------------------
+// AI context helpers
+// ---------------------------------------------------------------------------
+
+export interface IDampeningSnapshot {
+  atSeconds: number;
+  dampening: number;
+}
+
+/**
+ * Returns a sparse timeline of dampening values sampled every 30s, plus the
+ * final value at match end. Only includes entries where dampening changed from
+ * the previous sample (avoids repetitive flat sections).
+ */
+export function computeDampeningTimeline(
+  bracket: string,
+  players: ICombatUnit[],
+  startTime: number,
+  endTime: number,
+): IDampeningSnapshot[] {
+  const durationMs = endTime - startTime;
+  const snapshots: IDampeningSnapshot[] = [];
+  const INTERVAL_MS = 30_000;
+
+  let prevDamp = -1;
+  for (let ms = 0; ms <= durationMs; ms += INTERVAL_MS) {
+    const damp = getDampeningPercentage(bracket, players, startTime + ms) / 100;
+    if (damp !== prevDamp) {
+      snapshots.push({ atSeconds: ms / 1000, dampening: damp });
+      prevDamp = damp;
+    }
+  }
+
+  // Always include the final value if not already captured
+  const finalDamp = getDampeningPercentage(bracket, players, endTime) / 100;
+  const durationSeconds = durationMs / 1000;
+  if (snapshots.length === 0 || snapshots[snapshots.length - 1].dampening !== finalDamp) {
+    snapshots.push({ atSeconds: durationSeconds, dampening: finalDamp });
+  }
+
+  return snapshots;
+}
+
+export function formatDampeningForContext(
+  bracket: string,
+  players: ICombatUnit[],
+  startTime: number,
+  endTime: number,
+): string[] {
+  const timeline = computeDampeningTimeline(bracket, players, startTime, endTime);
+  const lines: string[] = [];
+  const finalDamp = timeline[timeline.length - 1].dampening;
+
+  lines.push(`DAMPENING (healing reduced by stacking %):`);
+  lines.push(`  Bracket: ${bracket}`);
+
+  for (const snap of timeline) {
+    lines.push(`  ${fmtTime(snap.atSeconds)}: ${fmtDampening(snap.dampening)}`);
+  }
+
+  if (finalDamp >= 0.4) {
+    lines.push(
+      `  ⚠ Match ended at ${fmtDampening(finalDamp)} dampening — sustained healing was severely compromised; kill windows in the final phase required significantly less setup.`,
+    );
+  } else if (finalDamp >= 0.2) {
+    lines.push(
+      `  Note: Match reached ${fmtDampening(finalDamp)} dampening — healing was meaningfully impaired in the late game.`,
+    );
+  }
+
+  return lines;
 }

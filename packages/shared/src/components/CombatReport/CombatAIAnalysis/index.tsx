@@ -12,6 +12,7 @@ import {
   isHealerSpec,
   specToString,
 } from '../../../utils/cooldowns';
+import { formatDampeningForContext } from '../../../utils/dampening';
 import { formatDispelContextForAI, reconstructDispelSummary } from '../../../utils/dispelAnalysis';
 import { formatEnemyCDTimelineForContext, reconstructEnemyCDTimeline } from '../../../utils/enemyCDs';
 import { detectHealingGaps, formatHealingGapsForContext } from '../../../utils/healingGaps';
@@ -159,11 +160,17 @@ function buildMatchContext(
     formatHealingGapsForContext(healingGaps).forEach((l) => lines.push(l));
   }
 
+  const allPlayers = [...friends, ...enemies];
+  lines.push('');
+  formatDampeningForContext(combat.startInfo.bracket, allPlayers, combat.startTime, combat.endTime).forEach((l) =>
+    lines.push(l),
+  );
+
   lines.push('');
   lines.push(
     healer
-      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows? For FRIENDLY CD OVERLAPS: evaluate whether each overlap was justified (e.g. full enemy burst window, near-death) or wasteful (moderate pressure, staggering would have provided better coverage across multiple pushes). Name the specific spells and explain the consequence of the staging choice. For HEALING GAPS: identify the cause of each gap (repositioning, crowd control chain, mana management, or genuine lapse) and assess the consequence. Also evaluate dispel discipline: were critical CC chains left uncleansed? Did enemies consistently strip key defensive buffs?'
-      : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing. Cross-reference your offensive CDs against the enemy aligned burst windows. Also note any dispel patterns: did the enemy healer purge your key buffs at critical moments?',
+      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows? For FRIENDLY CD OVERLAPS: evaluate whether each overlap was justified (e.g. full enemy burst window, near-death) or wasteful (moderate pressure, staggering would have provided better coverage across multiple pushes). Name the specific spells and explain the consequence of the staging choice. For HEALING GAPS: identify the cause of each gap (repositioning, crowd control chain, mana management, or genuine lapse) and assess the consequence. Also evaluate dispel discipline: were critical CC chains left uncleansed? Did enemies consistently strip key defensive buffs? For DAMPENING: note the point where healing could no longer sustain pressure and whether the losing team was playing into the dampening clock or fighting it — did kills happen before or after healing became critically impaired?'
+      : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing. Cross-reference your offensive CDs against the enemy aligned burst windows. Also note any dispel patterns: did the enemy healer purge your key buffs at critical moments? For DAMPENING: note whether the match went deep enough into dampening that the healer was significantly impaired — and whether your team capitalised on or missed that window.',
   );
 
   return lines.join('\n');
