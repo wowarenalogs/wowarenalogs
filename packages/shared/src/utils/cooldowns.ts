@@ -707,7 +707,7 @@ function hasOffensiveSpellActive(
  * Derive the pressure threshold for a unit from its recorded max HP (15% of max HP).
  * Falls back to a flat 250k when no advanced HP data is available.
  */
-function getPressureThreshold(unit: ICombatUnit): number {
+export function getPressureThreshold(unit: ICombatUnit): number {
   if (unit.advancedActions.length === 0) return PANIC_PRESS_DAMAGE_THRESHOLD_FALLBACK;
   const maxHp = Math.max(...unit.advancedActions.map((a) => a.advancedActorMaxHp));
   return maxHp > 0 ? maxHp * PANIC_PRESS_PRESSURE_PCT : PANIC_PRESS_DAMAGE_THRESHOLD_FALLBACK;

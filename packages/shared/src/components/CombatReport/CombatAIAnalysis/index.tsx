@@ -14,6 +14,7 @@ import {
 } from '../../../utils/cooldowns';
 import { formatDispelContextForAI, reconstructDispelSummary } from '../../../utils/dispelAnalysis';
 import { formatEnemyCDTimelineForContext, reconstructEnemyCDTimeline } from '../../../utils/enemyCDs';
+import { detectHealingGaps, formatHealingGapsForContext } from '../../../utils/healingGaps';
 import { useCombatReportContext } from '../CombatReportContext';
 
 function buildMatchContext(
@@ -152,10 +153,16 @@ function buildMatchContext(
   lines.push('');
   formatDispelContextForAI(reconstructDispelSummary(friends, enemies, combat)).forEach((l) => lines.push(l));
 
+  if (healer) {
+    const healingGaps = detectHealingGaps(owner, friends, enemies, combat);
+    lines.push('');
+    formatHealingGapsForContext(healingGaps).forEach((l) => lines.push(l));
+  }
+
   lines.push('');
   lines.push(
     healer
-      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows? For FRIENDLY CD OVERLAPS: evaluate whether each overlap was justified (e.g. full enemy burst window, near-death) or wasteful (moderate pressure, staggering would have provided better coverage across multiple pushes). Name the specific spells and explain the consequence of the staging choice. Also evaluate dispel discipline: were critical CC chains left uncleansed? Did enemies consistently strip key defensive buffs?'
+      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows? For FRIENDLY CD OVERLAPS: evaluate whether each overlap was justified (e.g. full enemy burst window, near-death) or wasteful (moderate pressure, staggering would have provided better coverage across multiple pushes). Name the specific spells and explain the consequence of the staging choice. For HEALING GAPS: identify the cause of each gap (repositioning, crowd control chain, mana management, or genuine lapse) and assess the consequence. Also evaluate dispel discipline: were critical CC chains left uncleansed? Did enemies consistently strip key defensive buffs?'
       : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing. Cross-reference your offensive CDs against the enemy aligned burst windows. Also note any dispel patterns: did the enemy healer purge your key buffs at critical moments?',
   );
 
