@@ -59,7 +59,10 @@
       "WebFetch(domain:wago.tools)",
       "WebFetch(domain:wowhead.com)",
       "Bash(sed -n '22,30p' packages/parser/src/classMetadata.ts)",
-      "Bash(sed -n '17990,18020p' packages/parser/src/classMetadata.ts)"
+      "Bash(sed -n '17990,18020p' packages/parser/src/classMetadata.ts)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }
