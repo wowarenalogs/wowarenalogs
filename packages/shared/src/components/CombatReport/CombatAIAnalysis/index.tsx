@@ -71,7 +71,7 @@ function buildMatchContext(
 
   // Friendly defensive CD overlaps
   const overlappedDefensives = detectOverlappedDefensives(friends, combat);
-  const panicDefensives = detectPanicDefensives(friends, enemies, combat, pressureWindows);
+  const panicDefensives = detectPanicDefensives(friends, enemies, combat);
 
   // Build readable text for Claude
   const lines: string[] = [];

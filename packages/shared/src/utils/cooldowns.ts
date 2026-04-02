@@ -638,8 +638,12 @@ export function formatOverlappedDefensivesForContext(overlaps: IOverlappedDefens
 }
 
 // ---------------------------------------------------------------------------
-// Panic press detection (defensive cast with no enemy offensive CDs active)
+// Panic press detection (defensive cast with no enemy offensive threat active)
 // ---------------------------------------------------------------------------
+
+/** Flat damage threshold: if target took this much in the 3s before the cast, it wasn't a panic */
+const PANIC_PRESS_DAMAGE_THRESHOLD = 250_000;
+const PANIC_PRESS_PRE_CAST_WINDOW_MS = 3_000;
 
 export interface IPanicDefensive {
   timeSeconds: number;
@@ -652,55 +656,63 @@ export interface IPanicDefensive {
 }
 
 /**
- * Returns true if any enemy unit has an 'Offensive'-tagged spell active at `timestampMs`.
+ * Returns true if the given unit has an Offensive-tagged spell active at `timestampMs`,
+ * optionally filtered to only auras sourced from `requiredSourceIds`.
+ * - Pass `null` for `requiredSourceIds` to allow any source (used for enemy self-buffs).
+ * - Pass the `enemyIds` set to restrict to enemy-sourced auras (used for debuffs on friendlies).
  */
-function anyEnemyOffensiveCDActive(enemies: ICombatUnit[], timestampMs: number): boolean {
-  for (const enemy of enemies) {
-    const applied = new Map<string, number[]>();
-    const removed = new Map<string, number[]>();
+function hasOffensiveSpellActive(
+  unit: ICombatUnit,
+  timestampMs: number,
+  requiredSourceIds: Set<string> | null,
+): boolean {
+  const applied = new Map<string, number[]>();
+  const removed = new Map<string, number[]>();
 
-    for (const aura of enemy.auraEvents) {
-      const spellId = aura.spellId;
-      if (!spellId || !OFFENSIVE_SPELL_IDS.has(spellId)) continue;
-      if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
-        const b = applied.get(spellId) ?? [];
-        applied.set(spellId, [...b, aura.timestamp]);
-      } else if (
-        aura.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
-        aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
-        aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL
-      ) {
-        const b = removed.get(spellId) ?? [];
-        removed.set(spellId, [...b, aura.timestamp]);
-      }
+  for (const aura of unit.auraEvents) {
+    const spellId = aura.spellId;
+    if (!spellId || !OFFENSIVE_SPELL_IDS.has(spellId)) continue;
+    if (requiredSourceIds !== null && !requiredSourceIds.has(aura.srcUnitId)) continue;
+
+    if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
+      const b = applied.get(spellId) ?? [];
+      applied.set(spellId, [...b, aura.timestamp]);
+    } else if (
+      aura.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
+      aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
+      aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL
+    ) {
+      const b = removed.get(spellId) ?? [];
+      removed.set(spellId, [...b, aura.timestamp]);
     }
+  }
 
-    for (const [spellId, applications] of applied) {
-      const removals = removed.get(spellId) ?? [];
-      for (const applyTs of applications) {
-        if (applyTs > timestampMs) continue;
-        const removeTs = removals.find((r) => r > applyTs);
-        if (removeTs === undefined || removeTs > timestampMs) return true;
-      }
+  for (const [spellId, applications] of applied) {
+    const removals = removed.get(spellId) ?? [];
+    for (const applyTs of applications) {
+      if (applyTs > timestampMs) continue;
+      const removeTs = removals.find((r) => r > applyTs);
+      if (removeTs === undefined || removeTs > timestampMs) return true;
     }
   }
   return false;
 }
 
 /**
- * Detects major defensive casts where:
- * 1. No enemy had an Offensive-tagged spell active at cast time, AND
- * 2. The target was not inside one of the top pressure windows.
+ * Detects major defensive casts where there is no sign of active enemy threat:
+ * 1. No enemy has an Offensive-tagged self-buff active (e.g. Combustion, Recklessness)
+ * 2. The defensive target has no Offensive-tagged debuff from an enemy (e.g. Deathmark, Colossus Smash)
+ * 3. The target took < 250k damage in the 3 seconds immediately before the cast
  *
- * Both conditions must be true to avoid false positives.
+ * All three conditions must be true to flag a panic press.
  */
 export function detectPanicDefensives(
   friends: ICombatUnit[],
   enemies: ICombatUnit[],
   combat: { startTime: number },
-  pressureWindows: IDamageBucket[],
 ): IPanicDefensive[] {
   const friendlyIds = new Set(friends.map((u) => u.id));
+  const enemyIds = new Set(enemies.map((u) => u.id));
   const unitMap = new Map(friends.map((u) => [u.id, u]));
   const results: IPanicDefensive[] = [];
 
@@ -713,16 +725,19 @@ export function detectPanicDefensives(
 
       const castMs = action.timestamp;
       const castTimeSeconds = (castMs - combat.startTime) / 1000;
-
-      if (anyEnemyOffensiveCDActive(enemies, castMs)) continue;
-
-      // Check if target is inside a pressure window at this time
       const targetUnit = unitMap.get(action.destUnitId);
-      const targetName = action.destUnitName;
-      const underPressure = pressureWindows.some(
-        (w) => w.targetName === targetName && castTimeSeconds >= w.fromSeconds && castTimeSeconds <= w.toSeconds,
-      );
-      if (underPressure) continue;
+
+      // 1. Enemy self-buffs: Combustion, Recklessness, etc.
+      if (enemies.some((e) => hasOffensiveSpellActive(e, castMs, null))) continue;
+
+      // 2. Offensive debuffs on the target from enemies: Deathmark, Colossus Smash, etc.
+      if (targetUnit && hasOffensiveSpellActive(targetUnit, castMs, enemyIds)) continue;
+
+      // 3. Local pressure: raw damage to target in the 3s before this cast
+      const preCastDamage = (targetUnit?.damageIn ?? [])
+        .filter((d) => d.logLine.timestamp >= castMs - PANIC_PRESS_PRE_CAST_WINDOW_MS && d.logLine.timestamp < castMs)
+        .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+      if (preCastDamage >= PANIC_PRESS_DAMAGE_THRESHOLD) continue;
 
       results.push({
         timeSeconds: castTimeSeconds,
@@ -730,7 +745,7 @@ export function detectPanicDefensives(
         casterName: unit.name,
         spellName: action.spellName ?? spellId,
         spellId,
-        targetName,
+        targetName: action.destUnitName,
         targetSpec: targetUnit ? specToString(targetUnit.spec) : 'Unknown',
       });
     }
@@ -742,7 +757,7 @@ export function detectPanicDefensives(
 
 export function formatPanicDefensivesForContext(panics: IPanicDefensive[]): string[] {
   const lines: string[] = [];
-  lines.push('PANIC PRESSES (major defensive used with no enemy offensive CDs active and target not under pressure):');
+  lines.push('PANIC PRESSES (major defensive used with no enemy offensive threat and target not under pressure):');
 
   if (panics.length === 0) {
     lines.push('  None detected.');
@@ -751,7 +766,7 @@ export function formatPanicDefensivesForContext(panics: IPanicDefensive[]): stri
 
   for (const p of panics) {
     lines.push(
-      `  ⚠ Panic Press at ${fmtTime(p.timeSeconds)}: [${p.casterSpec}] used ${p.spellName} on ${p.targetName} [${p.targetSpec}] — no enemy offensive CDs were active.`,
+      `  ⚠ Panic Press at ${fmtTime(p.timeSeconds)}: [${p.casterSpec}] used ${p.spellName} on ${p.targetName} [${p.targetSpec}] — no enemy offensive CDs or debuffs active, <250k incoming damage in prior 3s.`,
     );
   }
 
