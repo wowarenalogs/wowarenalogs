@@ -52,6 +52,7 @@ most of the time. That means:
 | 12 | Kill Window Quality | Medium | **High** | Tempo |
 | 2 | CC During Enemy Burst | Medium | **High** | Reaction |
 | 3 | CC Received / Trinket | Medium | **Medium-High** | Reaction |
+| 14 | Panic Trading & Overlaps | Medium | **High** | Reaction |
 | 1 | Dispel Analysis | Low | Medium | Healer |
 | 4 | Healing Gap Detection | Low | Medium | Healer |
 | 5 | Mana Curve | Low | Medium | Healer |
@@ -123,7 +124,8 @@ available (last cast at 1:29, 45s CD). No CC was used for 18 seconds into the bu
 **Priority: Medium-High | Complexity: Medium**
 
 Detect whether you were CCed during critical healing moments, and whether trinket usage was
-optimal. At high level: the key mistake is trinketing a minor CC before a major one lands.
+optimal. At high level: the key mistake is trinketing a minor CC before a major one lands,
+or trinketing when no one is in danger.
 
 **What to measure:**
 - For each CC received on you (`unit.auraEvents` with CC spell IDs on owner):
@@ -132,6 +134,8 @@ optimal. At high level: the key mistake is trinketing a minor CC before a major 
   - What was the next CC after your trinket? Was it a longer/heavier one?
 - Trinket waste: did you trinket a minor CC (short duration, low-pressure moment) and then
   get hit by a major CC with no trinket?
+- Panic trinketing: did you use your PvP trinket while your team was at >80% HP and the
+  enemy had zero offensive cooldowns active?
 
 **Data sources:** `unit.auraEvents` (CC on owner), `ccSpellIds` from `spellTags.ts`,
 `unit.damageIn` for teammates
@@ -364,10 +368,11 @@ time? At high level, uncoordinated offensive windows are how winning comps lose.
 **What to measure:**
 - Identify offensive CD clusters: windows where multiple players cast offensive CDs within
   5 seconds of each other
-- Check if damage was focused on a single target during those windows
-- Measure whether the enemy healer was CCed during the kill window
+- Check if damage was focused on a single target during those windows ("Fake" vs "Real" damage)
+- Measure whether the enemy healer was actually CCed during the kill window (the most common failure point)
 - Compare kill window CD overlap to actual damage spikes — did the burst actually land?
-- Flag wasted go windows: CDs used but spread across different targets, or healer not CCed
+- Flag wasted go windows: CDs used but spread across different targets, or burst used while
+  the enemy healer was standing completely free to out-heal it.
 
 **Data sources:** `unit.spellCastEvents` for all players, `classMetadata` offensive tags,
 `unit.damageIn` for enemies, CC applied to enemy healer
@@ -433,6 +438,33 @@ them ("your performance score of 62/100 was driven mainly by a 41% idle rate on 
 - How to weight role sub-scores fairly (healers have fewer "offensive" signals)?
 - Should the score be shown to users as-is, or only used internally as AI context?
 - Calibrate thresholds against real match data before showing to users
+
+---
+
+### 14. Panic Trading & Overlap Detection *(NEW)*
+**Priority: High | Complexity: Medium**
+
+Detect when major defensive cooldowns are used in response to "fake" pressure or when multiple 
+defensives are overlapped unnecessarily. At high level, surviving a go with the *minimum* 
+required cooldowns is the entire game.
+
+**What to measure:**
+- Panic Presses: find major defensive CD casts where the enemy had zero offensive CDs active 
+  and friendly HP was relatively stable (e.g., >50%).
+- Overlaps: detect when two or more major defensives are used on the same target within a 
+  short window (e.g., Pain Suppression and Life Cocoon cast within 3 seconds of each other).
+- Cost of Overlap: did the team die to the *next* setup window because they double-traded here?
+
+**Data sources:** `unit.spellCastEvents` for both teams, `classMetadata` defensive and 
+offensive tags, `unit.damageIn`, `unit.healthPoints`.
+
+**AI prompt addition:** "You used Pain Suppression at 1:15, but there were no enemy offensive 
+cooldowns active, and your teammate was only taking light rotational pressure. Because of 
+this wasted trade, you had nothing available at 2:10 when the enemy used Combustion."
+
+**Files to create/modify:**
+- `packages/shared/src/utils/overlapDetection.ts` — `extractPanicTrades(owner, combat)`
+- `scripts/testAnalyze.mjs` — add defensive overlap context block
 
 ---
 
