@@ -92,7 +92,15 @@ export default function LocalLogPage() {
             ))}
           </div>
           <div className="flex-1" />
-          <button className="btn btn-ghost btn-xs" onClick={() => { setSelected(null); setState('idle'); setMatches([]); setFileName(''); }}>
+          <button
+            className="btn btn-ghost btn-xs"
+            onClick={() => {
+              setSelected(null);
+              setState('idle');
+              setMatches([]);
+              setFileName('');
+            }}
+          >
             Load another file
           </button>
         </div>
@@ -125,7 +133,12 @@ export default function LocalLogPage() {
         ) : (
           <>
             <svg className="w-12 h-12 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
             <div className="text-center">
               <p className="font-medium">Drop a log file here</p>
