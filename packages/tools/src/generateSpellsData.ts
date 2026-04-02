@@ -227,8 +227,31 @@ async function loadFiles() {
 
 const newEffectsLibrary: Record<string, ISpellDbEntry> = {};
 
+// Spell IDs from classMetadata that are not in spells.json or awcSpells (e.g. newly added class entries)
+const MANUAL_SPELL_IDS: string[] = [
+  // Evoker — not in spells.json (class added in Dragonflight)
+  '351338', // Quell
+  '357210', // Deep Breath
+  '368970', // Tail Swipe
+  '357214', // Wing Buffet
+  '374227', // Zephyr
+  '374251', // Cauterizing Flame
+  '378441', // Time Stop
+  '375087', // Dragonrage
+  '363916', // Obsidian Scales
+  '370553', // Tip the Scales
+  '359816', // Dream Flight
+  '363534', // Rewind
+  '370960', // Emerald Communion
+  '370537', // Stasis
+  '370665', // Rescue
+  '403631', // Breath of Eons
+  '404977', // Time Skip
+  '360828', // Blistering Scales
+];
+
 function collectSpellIds(): string[] {
-  const rawIds = [...taggedSpellIds, ...awcSpellIds];
+  const rawIds = [...taggedSpellIds, ...awcSpellIds, ...MANUAL_SPELL_IDS];
   const validIds = rawIds.filter((id) => /^\d+$/.test(id));
   const invalidIds = rawIds.length - validIds.length;
   if (invalidIds > 0) {

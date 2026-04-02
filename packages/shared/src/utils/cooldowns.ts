@@ -87,6 +87,28 @@ const SPEC_EXCLUSIVE_SPELLS: Record<string, CombatUnitSpec[]> = {
   // Demon Hunter
   '211881': [CombatUnitSpec.DemonHunter_Havoc], // Fel Eruption
   '207684': [CombatUnitSpec.DemonHunter_Vengeance], // Sigil of Misery
+  // Death Knight
+  '55233': [CombatUnitSpec.DeathKnight_Blood], // Vampiric Blood
+  '49028': [CombatUnitSpec.DeathKnight_Blood], // Dancing Rune Weapon
+  '108199': [CombatUnitSpec.DeathKnight_Blood], // Gorefiend's Grasp
+  '51271': [CombatUnitSpec.DeathKnight_Frost], // Pillar of Frost
+  '47568': [CombatUnitSpec.DeathKnight_Frost], // Empower Rune Weapon
+  '279302': [CombatUnitSpec.DeathKnight_Frost], // Frostwyrm's Fury
+  '196770': [CombatUnitSpec.DeathKnight_Frost], // Remorseless Winter
+  '42650': [CombatUnitSpec.DeathKnight_Unholy], // Army of the Dead
+  '49206': [CombatUnitSpec.DeathKnight_Unholy], // Summon Gargoyle
+  '220143': [CombatUnitSpec.DeathKnight_Unholy], // Apocalypse
+  // Evoker
+  '375087': [CombatUnitSpec.Evoker_Devastation], // Dragonrage
+  '363916': [CombatUnitSpec.Evoker_Devastation], // Obsidian Scales
+  '359816': [CombatUnitSpec.Evoker_Preservation], // Dream Flight
+  '363534': [CombatUnitSpec.Evoker_Preservation], // Rewind
+  '370960': [CombatUnitSpec.Evoker_Preservation], // Emerald Communion
+  '370537': [CombatUnitSpec.Evoker_Preservation], // Stasis
+  '370665': [CombatUnitSpec.Evoker_Preservation], // Rescue
+  '403631': [CombatUnitSpec.Evoker_Augmentation], // Breath of Eons
+  '404977': [CombatUnitSpec.Evoker_Augmentation], // Time Skip
+  '360828': [CombatUnitSpec.Evoker_Augmentation], // Blistering Scales
 };
 
 /** Ignore available windows shorter than this (e.g. just before match ends) */

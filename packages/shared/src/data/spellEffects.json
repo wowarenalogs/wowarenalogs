@@ -3822,6 +3822,13 @@
     "durationSeconds": 6,
     "dispelType": null
   },
+  "357214": {
+    "spellId": "357214",
+    "name": "Wing Buffet",
+    "cooldownSeconds": 180,
+    "durationSeconds": 4,
+    "dispelType": null
+  },
   "357260": {
     "spellId": "357260",
     "name": "Unstable Rift",
@@ -3896,6 +3903,13 @@
     "durationSeconds": 20,
     "dispelType": "Magic"
   },
+  "360828": {
+    "spellId": "360828",
+    "name": "Blistering Scales",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 0,
+    "dispelType": null
+  },
   "360952": {
     "spellId": "360952",
     "name": "Coordinated Assault",
@@ -3938,6 +3952,17 @@
     "durationSeconds": 15,
     "dispelType": null
   },
+  "363534": {
+    "spellId": "363534",
+    "name": "Rewind",
+    "cooldownSeconds": 240,
+    "charges": {
+      "charges": 1,
+      "chargeCooldownSeconds": 240
+    },
+    "durationSeconds": 4,
+    "dispelType": null
+  },
   "363916": {
     "spellId": "363916",
     "name": "Obsidian Scales",
@@ -3968,6 +3993,34 @@
     "name": "Summon Blasphemy",
     "cooldownSeconds": 0,
     "durationSeconds": 0.25,
+    "dispelType": null
+  },
+  "368970": {
+    "spellId": "368970",
+    "name": "Tail Swipe",
+    "cooldownSeconds": 180,
+    "durationSeconds": 4,
+    "dispelType": null
+  },
+  "370537": {
+    "spellId": "370537",
+    "name": "Stasis",
+    "cooldownSeconds": 90,
+    "durationSeconds": -0.001,
+    "dispelType": null
+  },
+  "370553": {
+    "spellId": "370553",
+    "name": "Tip the Scales",
+    "cooldownSeconds": 120,
+    "durationSeconds": -0.001,
+    "dispelType": "Magic"
+  },
+  "370665": {
+    "spellId": "370665",
+    "name": "Rescue",
+    "cooldownSeconds": 60,
+    "durationSeconds": 1,
     "dispelType": null
   },
   "370960": {
@@ -4003,6 +4056,20 @@
     "name": "Translucent Image",
     "cooldownSeconds": 999.999,
     "durationSeconds": 8,
+    "dispelType": null
+  },
+  "374227": {
+    "spellId": "374227",
+    "name": "Zephyr",
+    "cooldownSeconds": 120,
+    "durationSeconds": 8,
+    "dispelType": "Magic"
+  },
+  "374251": {
+    "spellId": "374251",
+    "name": "Cauterizing Flame",
+    "cooldownSeconds": 60,
+    "durationSeconds": 0,
     "dispelType": null
   },
   "374348": {
@@ -4392,11 +4459,25 @@
     "durationSeconds": 0,
     "dispelType": null
   },
+  "403631": {
+    "spellId": "403631",
+    "name": "Breath of Eons",
+    "cooldownSeconds": 120,
+    "durationSeconds": 6,
+    "dispelType": null
+  },
   "403876": {
     "spellId": "403876",
     "name": "Divine Protection",
     "cooldownSeconds": 60,
     "durationSeconds": 8,
+    "dispelType": null
+  },
+  "404977": {
+    "spellId": "404977",
+    "name": "Time Skip",
+    "cooldownSeconds": 180,
+    "durationSeconds": 2,
     "dispelType": null
   },
   "407031": {
