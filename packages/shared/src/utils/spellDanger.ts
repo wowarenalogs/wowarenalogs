@@ -27,7 +27,6 @@ export const SPELL_EFFECT_OVERRIDES: Record<string, SpellEffectType[]> = {
   '386997': [SpellEffectType.HealReduction], // Soul Rot (Affliction Warlock) — applies heal-to-damage debuff
   '198817': [SpellEffectType.HealReduction], // Sharpen Blade (Warrior)
   '315185': [SpellEffectType.HealReduction], // Sharpen Blade (Warrior)
-  '211522': [SpellEffectType.HealReduction], // Psyfiend (Shadow Priest)
   // Vulnerability (target takes increased damage)
   '207736': [SpellEffectType.Vulnerability], // Shadowy Duel (Subtlety Rogue) — isolates + increases damage taken
   // Execution

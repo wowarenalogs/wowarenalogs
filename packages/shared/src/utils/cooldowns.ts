@@ -92,13 +92,16 @@ const SPEC_EXCLUSIVE_SPELLS: Record<string, CombatUnitSpec[]> = {
   '55233': [CombatUnitSpec.DeathKnight_Blood], // Vampiric Blood
   '49028': [CombatUnitSpec.DeathKnight_Blood], // Dancing Rune Weapon
   '108199': [CombatUnitSpec.DeathKnight_Blood], // Gorefiend's Grasp
+  '221562': [CombatUnitSpec.DeathKnight_Blood], // Asphyxiate (Blood)
   '51271': [CombatUnitSpec.DeathKnight_Frost], // Pillar of Frost
   '47568': [CombatUnitSpec.DeathKnight_Frost], // Empower Rune Weapon
   '279302': [CombatUnitSpec.DeathKnight_Frost], // Frostwyrm's Fury
   '196770': [CombatUnitSpec.DeathKnight_Frost], // Remorseless Winter
+  '152279': [CombatUnitSpec.DeathKnight_Frost], // Breath of Sindragosa
   '42650': [CombatUnitSpec.DeathKnight_Unholy], // Army of the Dead
   '49206': [CombatUnitSpec.DeathKnight_Unholy], // Summon Gargoyle
   '220143': [CombatUnitSpec.DeathKnight_Unholy], // Apocalypse
+  '108194': [CombatUnitSpec.DeathKnight_Unholy], // Asphyxiate (Unholy)
   // Evoker
   '375087': [CombatUnitSpec.Evoker_Devastation], // Dragonrage
   '363916': [CombatUnitSpec.Evoker_Devastation], // Obsidian Scales
@@ -248,42 +251,46 @@ export function computePressureWindows(
   const allSpikes: IDamageBucket[] = [];
 
   for (const player of friendlyPlayers) {
-    const damageEvents = player.damageIn.map(a => ({
+    const damageEvents = player.damageIn
+      .map((a) => ({
         timeSec: (a.logLine.timestamp - matchStartMs) / 1000,
-        amount: Math.abs(a.effectiveAmount)
-    })).sort((a, b) => a.timeSec - b.timeSec);
+        amount: Math.abs(a.effectiveAmount),
+      }))
+      .sort((a, b) => a.timeSec - b.timeSec);
 
-    // Sliding window sum
+    // Two-pointer sliding window: O(n) — j only advances, windowDamage is updated incrementally
+    let j = 0;
+    let windowDamage = 0;
     for (let i = 0; i < damageEvents.length; i++) {
-        let windowDamage = 0;
-        let j = i;
-        const startSec = damageEvents[i].timeSec;
-        while (j < damageEvents.length && damageEvents[j].timeSec <= startSec + windowSeconds) {
-            windowDamage += damageEvents[j].amount;
-            j++;
-        }
-        allSpikes.push({
-            fromSeconds: startSec,
-            toSeconds: startSec + windowSeconds,
-            totalDamage: windowDamage,
-            targetName: player.name,
-            targetSpec: specToString(player.spec),
-        });
+      while (j < damageEvents.length && damageEvents[j].timeSec <= damageEvents[i].timeSec + windowSeconds) {
+        windowDamage += damageEvents[j].amount;
+        j++;
+      }
+      allSpikes.push({
+        fromSeconds: damageEvents[i].timeSec,
+        toSeconds: damageEvents[i].timeSec + windowSeconds,
+        totalDamage: windowDamage,
+        targetName: player.name,
+        targetSpec: specToString(player.spec),
+      });
+      // Remove the event at i as the left edge advances
+      windowDamage -= damageEvents[i].amount;
     }
   }
 
-  // Sort and filter overlapping windows to find true top N distinct spikes
+  // Sort and deduplicate: keep only non-overlapping top-N spikes per target
   allSpikes.sort((a, b) => b.totalDamage - a.totalDamage);
   const distinctSpikes: IDamageBucket[] = [];
   for (const spike of allSpikes) {
-      const overlaps = distinctSpikes.some(s => 
-          s.targetName === spike.targetName && 
-          Math.max(0, Math.min(s.toSeconds, spike.toSeconds) - Math.max(s.fromSeconds, spike.fromSeconds)) > 0
-      );
-      if (!overlaps) {
-          distinctSpikes.push(spike);
-          if (distinctSpikes.length >= topN) break;
-      }
+    const overlaps = distinctSpikes.some(
+      (s) =>
+        s.targetName === spike.targetName &&
+        Math.min(s.toSeconds, spike.toSeconds) - Math.max(s.fromSeconds, spike.fromSeconds) > 0,
+    );
+    if (!overlaps) {
+      distinctSpikes.push(spike);
+      if (distinctSpikes.length >= topN) break;
+    }
   }
 
   return distinctSpikes;

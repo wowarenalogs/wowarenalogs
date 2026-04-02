@@ -3,6 +3,9 @@ import { AtomicArenaCombat, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 import { spellEffectData } from '../data/spellEffectData';
 import spellsData from '../data/spells.json';
 import { fmtTime, isHealerSpec, specToString } from './cooldowns';
+
+type SpellEntry = { type: string };
+const SPELLS = spellsData as Record<string, SpellEntry>;
 import { computeDampening, dampeningDangerMultiplier, fmtDampening } from './dampening';
 import { dangerLabel, isOffensiveSpell, SPELL_EFFECT_OVERRIDES, spellDangerWeight } from './spellDanger';
 
@@ -148,28 +151,34 @@ export function reconstructEnemyCDTimeline(
       if (owner && isHealerSpec(owner.spec)) {
         const windowStartMs = matchStartMs + windowStart * 1000;
         const windowEndMs = matchStartMs + windowEnd * 1000;
-        
-        let ccStart = 0;
+
+        // Track CC start time per spellId to handle multiple overlapping CC auras correctly
+        const ccStartBySpell = new Map<string, number>();
         for (const a of owner.auraEvents) {
           if (!a.spellId) continue;
-          const entry = (spellsData as any)[a.spellId];
+          const entry = SPELLS[a.spellId];
           if (entry?.type === 'cc') {
             if (a.logLine.event === LogEvent.SPELL_AURA_APPLIED || a.logLine.event === LogEvent.SPELL_AURA_REFRESH) {
-              ccStart = a.logLine.timestamp;
-            } else if (a.logLine.event === LogEvent.SPELL_AURA_REMOVED || a.logLine.event === LogEvent.SPELL_AURA_BROKEN || a.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL) {
+              ccStartBySpell.set(a.spellId, a.logLine.timestamp);
+            } else if (
+              a.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
+              a.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
+              a.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL
+            ) {
+              const ccStart = ccStartBySpell.get(a.spellId) ?? 0;
               const ccEnd = a.logLine.timestamp;
               // Check if CC overlaps with the burst window
               if (ccStart > 0 && ccStart < windowEndMs && ccEnd > windowStartMs) {
                 healerCCed = true;
                 break;
               }
-              ccStart = 0;
+              ccStartBySpell.delete(a.spellId);
             }
           }
         }
-        
-        // Fallback: If no CC found but window was huge and healer cast nothing, they might have been 
-        // infinitely kiting, locked out of school (which is also CC), or pseudo-CCed.
+
+        // Fallback: if no explicit CC aura found but healer cast nothing in a long window,
+        // treat as pseudo-CCed (school lockout, kiting, etc.)
         if (!healerCCed && windowDuration >= 5) {
           const ownerCastsInWindow = owner.spellCastEvents.filter((e) => {
             const t = (e.logLine.timestamp - matchStartMs) / 1000;

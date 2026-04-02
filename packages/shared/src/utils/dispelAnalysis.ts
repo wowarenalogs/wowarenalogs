@@ -35,9 +35,6 @@ const MAGIC_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Shaman_Restoration, // Purify Spirit
   CombatUnitSpec.Monk_Mistweaver, // Detox (also removes Poison/Disease)
   CombatUnitSpec.Evoker_Preservation, // Naturalize
-  CombatUnitSpec.Warlock_Affliction, // Imp Singemagic
-  CombatUnitSpec.Warlock_Demonology,
-  CombatUnitSpec.Warlock_Destruction,
 ]);
 
 // Poison: all Paladins, all Druids, all Monks

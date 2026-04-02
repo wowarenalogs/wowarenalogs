@@ -1587,8 +1587,7 @@
     "type": "buffs_defensive"
   },
   "357210": {
-    "type": "immunities",
-    "nonameplates": true
+    "type": "buffs_offensive"
   },
   "358259": {
     "type": "cc"
