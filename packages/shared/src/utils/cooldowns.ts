@@ -641,9 +641,12 @@ export function formatOverlappedDefensivesForContext(overlaps: IOverlappedDefens
 // Panic press detection (defensive cast with no enemy offensive threat active)
 // ---------------------------------------------------------------------------
 
-/** Flat damage threshold: if target took this much in the 3s before the cast, it wasn't a panic */
+/** Flat damage threshold for pre- and post-cast pressure windows */
 const PANIC_PRESS_DAMAGE_THRESHOLD = 250_000;
 const PANIC_PRESS_PRE_CAST_WINDOW_MS = 3_000;
+const PANIC_PRESS_POST_CAST_WINDOW_MS = 4_000;
+/** If an enemy offensive CD starts within this window after the cast, it was a valid pre-wall */
+const ENEMY_BURST_POST_CAST_WINDOW_MS = 2_000;
 
 export interface IPanicDefensive {
   timeSeconds: number;
@@ -699,12 +702,47 @@ function hasOffensiveSpellActive(
 }
 
 /**
+ * Returns true if an enemy offensive CD was activated within `windowMs` AFTER `castMs`.
+ * Checks both enemy self-buffs (e.g. Combustion applied to the enemy) and offensive
+ * debuffs applied to the target (e.g. Deathmark placed on the friendly target).
+ * A match here means the defensive was a valid pre-wall, not a panic press.
+ */
+function offensiveThreatStartedAfter(
+  target: ICombatUnit,
+  enemies: ICombatUnit[],
+  enemyIds: Set<string>,
+  castMs: number,
+  windowMs: number,
+): boolean {
+  const windowEnd = castMs + windowMs;
+
+  for (const enemy of enemies) {
+    for (const aura of enemy.auraEvents) {
+      if (aura.logLine.event !== LogEvent.SPELL_AURA_APPLIED) continue;
+      if (!aura.spellId || !OFFENSIVE_SPELL_IDS.has(aura.spellId)) continue;
+      if (aura.timestamp > castMs && aura.timestamp <= windowEnd) return true;
+    }
+  }
+
+  for (const aura of target.auraEvents) {
+    if (aura.logLine.event !== LogEvent.SPELL_AURA_APPLIED) continue;
+    if (!aura.spellId || !OFFENSIVE_SPELL_IDS.has(aura.spellId)) continue;
+    if (!enemyIds.has(aura.srcUnitId)) continue;
+    if (aura.timestamp > castMs && aura.timestamp <= windowEnd) return true;
+  }
+
+  return false;
+}
+
+/**
  * Detects major defensive casts where there is no sign of active enemy threat:
  * 1. No enemy has an Offensive-tagged self-buff active (e.g. Combustion, Recklessness)
  * 2. The defensive target has no Offensive-tagged debuff from an enemy (e.g. Deathmark, Colossus Smash)
  * 3. The target took < 250k damage in the 3 seconds immediately before the cast
+ * 4. The target took < 250k damage in the 4 seconds immediately after the cast (pre-wall check)
+ * 5. No enemy offensive CD was activated within 2 seconds after the cast (pre-wall check)
  *
- * All three conditions must be true to flag a panic press.
+ * All five conditions must be true to flag a panic press.
  */
 export function detectPanicDefensives(
   friends: ICombatUnit[],
@@ -738,6 +776,19 @@ export function detectPanicDefensives(
         .filter((d) => d.logLine.timestamp >= castMs - PANIC_PRESS_PRE_CAST_WINDOW_MS && d.logLine.timestamp < castMs)
         .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
       if (preCastDamage >= PANIC_PRESS_DAMAGE_THRESHOLD) continue;
+
+      // 4. Post-cast pressure: if the target took significant damage in the 4s after, it was a pre-wall
+      const postCastDamage = (targetUnit?.damageIn ?? [])
+        .filter((d) => d.logLine.timestamp > castMs && d.logLine.timestamp <= castMs + PANIC_PRESS_POST_CAST_WINDOW_MS)
+        .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+      if (postCastDamage >= PANIC_PRESS_DAMAGE_THRESHOLD) continue;
+
+      // 5. Enemy burst started within 2s after the cast — valid pre-wall, not a panic
+      if (
+        targetUnit &&
+        offensiveThreatStartedAfter(targetUnit, enemies, enemyIds, castMs, ENEMY_BURST_POST_CAST_WINDOW_MS)
+      )
+        continue;
 
       results.push({
         timeSeconds: castTimeSeconds,
