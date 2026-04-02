@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import {
   computePressureWindows,
   detectOverlappedDefensives,
+  detectPanicDefensives,
   extractMajorCooldowns,
   fmtTime,
   formatOverlappedDefensivesForContext,
+  formatPanicDefensivesForContext,
   isHealerSpec,
   specToString,
 } from '../../../utils/cooldowns';
@@ -69,6 +71,7 @@ function buildMatchContext(
 
   // Friendly defensive CD overlaps
   const overlappedDefensives = detectOverlappedDefensives(friends, combat);
+  const panicDefensives = detectPanicDefensives(friends, enemies, combat, pressureWindows);
 
   // Build readable text for Claude
   const lines: string[] = [];
@@ -142,6 +145,9 @@ function buildMatchContext(
 
   lines.push('');
   formatOverlappedDefensivesForContext(overlappedDefensives).forEach((l) => lines.push(l));
+
+  lines.push('');
+  formatPanicDefensivesForContext(panicDefensives).forEach((l) => lines.push(l));
 
   lines.push('');
   formatDispelContextForAI(reconstructDispelSummary(friends, enemies, combat)).forEach((l) => lines.push(l));

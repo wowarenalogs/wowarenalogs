@@ -6,6 +6,11 @@ import { getPlayerTalentedSpellIds, getSpecTalentTreeSpellIds } from './talents'
 
 const MAJOR_DEFENSIVE_IDS = new Set<string>(spellIdListsData.externalOrBigDefensiveSpellIds as string[]);
 
+// All spells tagged 'Offensive' in classMetadata — used to detect active enemy burst windows
+const OFFENSIVE_SPELL_IDS = new Set<string>(
+  classMetadata.flatMap((cls) => cls.abilities.filter((a) => a.tags.includes('Offensive')).map((a) => a.spellId)),
+);
+
 /** Only track cooldowns at or above this threshold */
 const MIN_CD_SECONDS = 30;
 
@@ -465,11 +470,50 @@ export function formatFriendlyCDOverlapsForContext(groups: IFriendlyCDOverlapGro
 // Panic trading / major defensive overlap detection
 // ---------------------------------------------------------------------------
 
-const PANIC_OVERLAP_WINDOW_SECONDS = 3;
+/** Minimum seconds two defensive buffs must coexist on the same target to count as a true overlap */
+const MIN_SIMULTANEOUS_SECONDS = 2;
+/** Max cast gap to bother checking aura overlap — no major defensive lasts longer than this */
+const MAX_CAST_GAP_FOR_OVERLAP_CHECK_S = 45;
+
+/**
+ * Find when a specific spell aura was applied to a unit, starting at or after `afterMs`.
+ * Returns {from, to} in absolute ms, or null if no matching application is found.
+ * `to` is Infinity when the aura was never removed.
+ */
+function getAuraDurationOnTarget(
+  target: ICombatUnit,
+  spellId: string,
+  afterMs: number,
+): { from: number; to: number } | null {
+  const applications: number[] = [];
+  const removals: number[] = [];
+
+  for (const aura of target.auraEvents) {
+    if (aura.spellId !== spellId) continue;
+    if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
+      applications.push(aura.timestamp);
+    } else if (
+      aura.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
+      aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
+      aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL
+    ) {
+      removals.push(aura.timestamp);
+    }
+  }
+
+  // Find the first application at or shortly after the cast (500ms grace for log jitter)
+  const applyTs = applications.find((t) => t >= afterMs - 500);
+  if (applyTs === undefined) return null;
+
+  const removeTs = removals.find((r) => r > applyTs);
+  return { from: applyTs, to: removeTs ?? Infinity };
+}
 
 export interface IOverlappedDefensive {
   /** Timestamp of the first cast */
   timeSeconds: number;
+  /** Timestamp of the second cast */
+  secondCastTimeSeconds: number;
   targetUnitId: string;
   targetName: string;
   firstCasterSpec: string;
@@ -480,23 +524,26 @@ export interface IOverlappedDefensive {
   secondCasterName: string;
   secondSpellName: string;
   secondSpellId: string;
-  /** Time between the two casts in seconds */
-  gapSeconds: number;
+  /** How long both buffs were simultaneously active on the target */
+  simultaneousSeconds: number;
 }
 
 /**
- * Detects when two different friendly players cast a major defensive (from
- * `BIG_DEFENSIVE_IDS` or `EXTERNAL_DEFENSIVE_IDS`) on the same target within
- * `PANIC_OVERLAP_WINDOW_SECONDS`. Same-player double-casts are ignored.
+ * Detects when two different friendly players cast major defensives (from
+ * `BIG_DEFENSIVE_IDS` | `EXTERNAL_DEFENSIVE_IDS`) whose actual buff durations
+ * overlapped on the same target for >= MIN_SIMULTANEOUS_SECONDS.
+ * Same-player double-casts are ignored.
  */
 export function detectOverlappedDefensives(
   friends: ICombatUnit[],
   combat: { startTime: number },
 ): IOverlappedDefensive[] {
   const friendlyIds = new Set(friends.map((u) => u.id));
+  const unitMap = new Map(friends.map((u) => [u.id, u]));
 
   const casts: Array<{
     timeSeconds: number;
+    castMs: number;
     casterUnitId: string;
     casterName: string;
     casterSpec: string;
@@ -511,11 +558,11 @@ export function detectOverlappedDefensives(
       if (action.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
       const spellId = action.spellId;
       if (!spellId || !MAJOR_DEFENSIVE_IDS.has(spellId)) continue;
-      // Target must be a friendly (self-cast or external on a teammate)
       if (!friendlyIds.has(action.destUnitId)) continue;
 
       casts.push({
         timeSeconds: (action.timestamp - combat.startTime) / 1000,
+        castMs: action.timestamp,
         casterUnitId: unit.id,
         casterName: unit.name,
         casterSpec: specToString(unit.spec),
@@ -533,15 +580,26 @@ export function detectOverlappedDefensives(
 
   for (let i = 0; i < casts.length; i++) {
     const first = casts[i];
+    const targetUnit = unitMap.get(first.targetUnitId);
+    if (!targetUnit) continue;
+
     for (let j = i + 1; j < casts.length; j++) {
       const second = casts[j];
-      const gap = second.timeSeconds - first.timeSeconds;
-      if (gap > PANIC_OVERLAP_WINDOW_SECONDS) break;
+      if (second.timeSeconds - first.timeSeconds > MAX_CAST_GAP_FOR_OVERLAP_CHECK_S) break;
       if (first.targetUnitId !== second.targetUnitId) continue;
       if (first.casterUnitId === second.casterUnitId) continue;
 
+      const durA = getAuraDurationOnTarget(targetUnit, first.spellId, first.castMs);
+      const durB = getAuraDurationOnTarget(targetUnit, second.spellId, second.castMs);
+      if (!durA || !durB) continue;
+
+      const overlapMs = Math.max(0, Math.min(durA.to, durB.to) - Math.max(durA.from, durB.from));
+      const simultaneousSeconds = overlapMs / 1000;
+      if (simultaneousSeconds < MIN_SIMULTANEOUS_SECONDS) continue;
+
       overlaps.push({
         timeSeconds: first.timeSeconds,
+        secondCastTimeSeconds: second.timeSeconds,
         targetUnitId: first.targetUnitId,
         targetName: first.targetName,
         firstCasterSpec: first.casterSpec,
@@ -552,7 +610,7 @@ export function detectOverlappedDefensives(
         secondCasterName: second.casterName,
         secondSpellName: second.spellName,
         secondSpellId: second.spellId,
-        gapSeconds: gap,
+        simultaneousSeconds,
       });
     }
   }
@@ -562,7 +620,7 @@ export function detectOverlappedDefensives(
 
 export function formatOverlappedDefensivesForContext(overlaps: IOverlappedDefensive[]): string[] {
   const lines: string[] = [];
-  lines.push('PANIC TRADING — MAJOR DEFENSIVE OVERLAPS (two players defending same target within 3s):');
+  lines.push('PANIC TRADING — MAJOR DEFENSIVE OVERLAPS (two buffs simultaneously active on the same target):');
 
   if (overlaps.length === 0) {
     lines.push('  None detected.');
@@ -570,9 +628,130 @@ export function formatOverlappedDefensivesForContext(overlaps: IOverlappedDefens
   }
 
   for (const o of overlaps) {
-    const gap = o.gapSeconds.toFixed(1);
+    const sim = o.simultaneousSeconds.toFixed(1);
     lines.push(
-      `  ⚠ Major Overlap at ${fmtTime(o.timeSeconds)}: [${o.firstCasterSpec}] used ${o.firstSpellName} on ${o.targetName} ${gap}s before [${o.secondCasterSpec}] used ${o.secondSpellName}.`,
+      `  ⚠ Major Overlap: [${o.firstCasterSpec}] used ${o.firstSpellName} on ${o.targetName} (at ${fmtTime(o.timeSeconds)}), then [${o.secondCasterSpec}] used ${o.secondSpellName} (at ${fmtTime(o.secondCastTimeSeconds)}) — both active simultaneously for ${sim}s.`,
+    );
+  }
+
+  return lines;
+}
+
+// ---------------------------------------------------------------------------
+// Panic press detection (defensive cast with no enemy offensive CDs active)
+// ---------------------------------------------------------------------------
+
+export interface IPanicDefensive {
+  timeSeconds: number;
+  casterSpec: string;
+  casterName: string;
+  spellName: string;
+  spellId: string;
+  targetName: string;
+  targetSpec: string;
+}
+
+/**
+ * Returns true if any enemy unit has an 'Offensive'-tagged spell active at `timestampMs`.
+ */
+function anyEnemyOffensiveCDActive(enemies: ICombatUnit[], timestampMs: number): boolean {
+  for (const enemy of enemies) {
+    const applied = new Map<string, number[]>();
+    const removed = new Map<string, number[]>();
+
+    for (const aura of enemy.auraEvents) {
+      const spellId = aura.spellId;
+      if (!spellId || !OFFENSIVE_SPELL_IDS.has(spellId)) continue;
+      if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
+        const b = applied.get(spellId) ?? [];
+        applied.set(spellId, [...b, aura.timestamp]);
+      } else if (
+        aura.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
+        aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
+        aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL
+      ) {
+        const b = removed.get(spellId) ?? [];
+        removed.set(spellId, [...b, aura.timestamp]);
+      }
+    }
+
+    for (const [spellId, applications] of applied) {
+      const removals = removed.get(spellId) ?? [];
+      for (const applyTs of applications) {
+        if (applyTs > timestampMs) continue;
+        const removeTs = removals.find((r) => r > applyTs);
+        if (removeTs === undefined || removeTs > timestampMs) return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Detects major defensive casts where:
+ * 1. No enemy had an Offensive-tagged spell active at cast time, AND
+ * 2. The target was not inside one of the top pressure windows.
+ *
+ * Both conditions must be true to avoid false positives.
+ */
+export function detectPanicDefensives(
+  friends: ICombatUnit[],
+  enemies: ICombatUnit[],
+  combat: { startTime: number },
+  pressureWindows: IDamageBucket[],
+): IPanicDefensive[] {
+  const friendlyIds = new Set(friends.map((u) => u.id));
+  const unitMap = new Map(friends.map((u) => [u.id, u]));
+  const results: IPanicDefensive[] = [];
+
+  for (const unit of friends) {
+    for (const action of unit.actionOut) {
+      if (action.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
+      const spellId = action.spellId;
+      if (!spellId || !MAJOR_DEFENSIVE_IDS.has(spellId)) continue;
+      if (!friendlyIds.has(action.destUnitId)) continue;
+
+      const castMs = action.timestamp;
+      const castTimeSeconds = (castMs - combat.startTime) / 1000;
+
+      if (anyEnemyOffensiveCDActive(enemies, castMs)) continue;
+
+      // Check if target is inside a pressure window at this time
+      const targetUnit = unitMap.get(action.destUnitId);
+      const targetName = action.destUnitName;
+      const underPressure = pressureWindows.some(
+        (w) => w.targetName === targetName && castTimeSeconds >= w.fromSeconds && castTimeSeconds <= w.toSeconds,
+      );
+      if (underPressure) continue;
+
+      results.push({
+        timeSeconds: castTimeSeconds,
+        casterSpec: specToString(unit.spec),
+        casterName: unit.name,
+        spellName: action.spellName ?? spellId,
+        spellId,
+        targetName,
+        targetSpec: targetUnit ? specToString(targetUnit.spec) : 'Unknown',
+      });
+    }
+  }
+
+  results.sort((a, b) => a.timeSeconds - b.timeSeconds);
+  return results;
+}
+
+export function formatPanicDefensivesForContext(panics: IPanicDefensive[]): string[] {
+  const lines: string[] = [];
+  lines.push('PANIC PRESSES (major defensive used with no enemy offensive CDs active and target not under pressure):');
+
+  if (panics.length === 0) {
+    lines.push('  None detected.');
+    return lines;
+  }
+
+  for (const p of panics) {
+    lines.push(
+      `  ⚠ Panic Press at ${fmtTime(p.timeSeconds)}: [${p.casterSpec}] used ${p.spellName} on ${p.targetName} [${p.targetSpec}] — no enemy offensive CDs were active.`,
     );
   }
 
