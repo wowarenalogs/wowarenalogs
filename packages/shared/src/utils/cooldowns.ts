@@ -641,8 +641,10 @@ export function formatOverlappedDefensivesForContext(overlaps: IOverlappedDefens
 // Panic press detection (defensive cast with no enemy offensive threat active)
 // ---------------------------------------------------------------------------
 
-/** Flat damage threshold for pre- and post-cast pressure windows */
-const PANIC_PRESS_DAMAGE_THRESHOLD = 250_000;
+/** Fraction of the target's max HP that constitutes meaningful pressure in a window */
+const PANIC_PRESS_PRESSURE_PCT = 0.15;
+/** Fallback when no advancedActions HP data is available for the target */
+const PANIC_PRESS_DAMAGE_THRESHOLD_FALLBACK = 250_000;
 const PANIC_PRESS_PRE_CAST_WINDOW_MS = 3_000;
 const PANIC_PRESS_POST_CAST_WINDOW_MS = 4_000;
 /** If an enemy offensive CD starts within this window after the cast, it was a valid pre-wall */
@@ -699,6 +701,16 @@ function hasOffensiveSpellActive(
     }
   }
   return false;
+}
+
+/**
+ * Derive the pressure threshold for a unit from its recorded max HP (15% of max HP).
+ * Falls back to a flat 250k when no advanced HP data is available.
+ */
+function getPressureThreshold(unit: ICombatUnit): number {
+  if (unit.advancedActions.length === 0) return PANIC_PRESS_DAMAGE_THRESHOLD_FALLBACK;
+  const maxHp = Math.max(...unit.advancedActions.map((a) => a.advancedActorMaxHp));
+  return maxHp > 0 ? maxHp * PANIC_PRESS_PRESSURE_PCT : PANIC_PRESS_DAMAGE_THRESHOLD_FALLBACK;
 }
 
 /**
@@ -772,16 +784,17 @@ export function detectPanicDefensives(
       if (targetUnit && hasOffensiveSpellActive(targetUnit, castMs, enemyIds)) continue;
 
       // 3. Local pressure: raw damage to target in the 3s before this cast
+      const pressureThreshold = targetUnit ? getPressureThreshold(targetUnit) : PANIC_PRESS_DAMAGE_THRESHOLD_FALLBACK;
       const preCastDamage = (targetUnit?.damageIn ?? [])
         .filter((d) => d.logLine.timestamp >= castMs - PANIC_PRESS_PRE_CAST_WINDOW_MS && d.logLine.timestamp < castMs)
         .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
-      if (preCastDamage >= PANIC_PRESS_DAMAGE_THRESHOLD) continue;
+      if (preCastDamage >= pressureThreshold) continue;
 
       // 4. Post-cast pressure: if the target took significant damage in the 4s after, it was a pre-wall
       const postCastDamage = (targetUnit?.damageIn ?? [])
         .filter((d) => d.logLine.timestamp > castMs && d.logLine.timestamp <= castMs + PANIC_PRESS_POST_CAST_WINDOW_MS)
         .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
-      if (postCastDamage >= PANIC_PRESS_DAMAGE_THRESHOLD) continue;
+      if (postCastDamage >= pressureThreshold) continue;
 
       // 5. Enemy burst started within 2s after the cast — valid pre-wall, not a panic
       if (
