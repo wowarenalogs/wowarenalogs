@@ -1,7 +1,10 @@
 import { AtomicArenaCombat, classMetadata, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { spellEffectData } from '../data/spellEffectData';
+import spellIdListsData from '../data/spellIdLists.json';
 import { getPlayerTalentedSpellIds, getSpecTalentTreeSpellIds } from './talents';
+
+const MAJOR_DEFENSIVE_IDS = new Set<string>(spellIdListsData.externalOrBigDefensiveSpellIds as string[]);
 
 /** Only track cooldowns at or above this threshold */
 const MIN_CD_SECONDS = 30;
@@ -453,6 +456,124 @@ export function formatFriendlyCDOverlapsForContext(groups: IFriendlyCDOverlapGro
     for (const c of group.casts) {
       lines.push(`    - ${c.spec} (${c.playerName}) used ${c.spellName}`);
     }
+  }
+
+  return lines;
+}
+
+// ---------------------------------------------------------------------------
+// Panic trading / major defensive overlap detection
+// ---------------------------------------------------------------------------
+
+const PANIC_OVERLAP_WINDOW_SECONDS = 3;
+
+export interface IOverlappedDefensive {
+  /** Timestamp of the first cast */
+  timeSeconds: number;
+  targetUnitId: string;
+  targetName: string;
+  firstCasterSpec: string;
+  firstCasterName: string;
+  firstSpellName: string;
+  firstSpellId: string;
+  secondCasterSpec: string;
+  secondCasterName: string;
+  secondSpellName: string;
+  secondSpellId: string;
+  /** Time between the two casts in seconds */
+  gapSeconds: number;
+}
+
+/**
+ * Detects when two different friendly players cast a major defensive (from
+ * `BIG_DEFENSIVE_IDS` or `EXTERNAL_DEFENSIVE_IDS`) on the same target within
+ * `PANIC_OVERLAP_WINDOW_SECONDS`. Same-player double-casts are ignored.
+ */
+export function detectOverlappedDefensives(
+  friends: ICombatUnit[],
+  combat: { startTime: number },
+): IOverlappedDefensive[] {
+  const friendlyIds = new Set(friends.map((u) => u.id));
+
+  const casts: Array<{
+    timeSeconds: number;
+    casterUnitId: string;
+    casterName: string;
+    casterSpec: string;
+    spellId: string;
+    spellName: string;
+    targetUnitId: string;
+    targetName: string;
+  }> = [];
+
+  for (const unit of friends) {
+    for (const action of unit.actionOut) {
+      if (action.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
+      const spellId = action.spellId;
+      if (!spellId || !MAJOR_DEFENSIVE_IDS.has(spellId)) continue;
+      // Target must be a friendly (self-cast or external on a teammate)
+      if (!friendlyIds.has(action.destUnitId)) continue;
+
+      casts.push({
+        timeSeconds: (action.timestamp - combat.startTime) / 1000,
+        casterUnitId: unit.id,
+        casterName: unit.name,
+        casterSpec: specToString(unit.spec),
+        spellId,
+        spellName: action.spellName ?? spellId,
+        targetUnitId: action.destUnitId,
+        targetName: action.destUnitName,
+      });
+    }
+  }
+
+  casts.sort((a, b) => a.timeSeconds - b.timeSeconds);
+
+  const overlaps: IOverlappedDefensive[] = [];
+
+  for (let i = 0; i < casts.length; i++) {
+    const first = casts[i];
+    for (let j = i + 1; j < casts.length; j++) {
+      const second = casts[j];
+      const gap = second.timeSeconds - first.timeSeconds;
+      if (gap > PANIC_OVERLAP_WINDOW_SECONDS) break;
+      if (first.targetUnitId !== second.targetUnitId) continue;
+      if (first.casterUnitId === second.casterUnitId) continue;
+
+      overlaps.push({
+        timeSeconds: first.timeSeconds,
+        targetUnitId: first.targetUnitId,
+        targetName: first.targetName,
+        firstCasterSpec: first.casterSpec,
+        firstCasterName: first.casterName,
+        firstSpellName: first.spellName,
+        firstSpellId: first.spellId,
+        secondCasterSpec: second.casterSpec,
+        secondCasterName: second.casterName,
+        secondSpellName: second.spellName,
+        secondSpellId: second.spellId,
+        gapSeconds: gap,
+      });
+    }
+  }
+
+  return overlaps;
+}
+
+export function formatOverlappedDefensivesForContext(overlaps: IOverlappedDefensive[]): string[] {
+  const lines: string[] = [];
+  lines.push('PANIC TRADING — MAJOR DEFENSIVE OVERLAPS (two players defending same target within 3s):');
+
+  if (overlaps.length === 0) {
+    lines.push('  None detected.');
+    return lines;
+  }
+
+  for (const o of overlaps) {
+    const gap = o.gapSeconds.toFixed(1);
+    lines.push(
+      `  ⚠ Major Overlap at ${fmtTime(o.timeSeconds)}: [${o.firstCasterSpec}] used ${o.firstSpellName} on ${o.targetName} ${gap}s before [${o.secondCasterSpec}] used ${o.secondSpellName}.`,
+    );
   }
 
   return lines;

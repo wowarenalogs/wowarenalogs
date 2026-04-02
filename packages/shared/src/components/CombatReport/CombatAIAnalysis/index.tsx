@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 
 import {
   computePressureWindows,
-  detectFriendlyCDOverlaps,
+  detectOverlappedDefensives,
   extractMajorCooldowns,
   fmtTime,
-  formatFriendlyCDOverlapsForContext,
+  formatOverlappedDefensivesForContext,
   isHealerSpec,
   specToString,
 } from '../../../utils/cooldowns';
@@ -68,7 +68,7 @@ function buildMatchContext(
   const pressureWindows = computePressureWindows(friends, combat);
 
   // Friendly defensive CD overlaps
-  const friendlyCDOverlaps = detectFriendlyCDOverlaps(friends, combat, pressureWindows);
+  const overlappedDefensives = detectOverlappedDefensives(friends, combat);
 
   // Build readable text for Claude
   const lines: string[] = [];
@@ -141,7 +141,7 @@ function buildMatchContext(
   formatEnemyCDTimelineForContext(enemyCDTimeline, durationSeconds).forEach((l) => lines.push(l));
 
   lines.push('');
-  formatFriendlyCDOverlapsForContext(friendlyCDOverlaps).forEach((l) => lines.push(l));
+  formatOverlappedDefensivesForContext(overlappedDefensives).forEach((l) => lines.push(l));
 
   lines.push('');
   formatDispelContextForAI(reconstructDispelSummary(friends, enemies, combat)).forEach((l) => lines.push(l));
