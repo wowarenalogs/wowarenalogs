@@ -226,18 +226,45 @@ function renderInline(text: string): string {
 
 // Session-level cache: persists across tab switches and match switches without a server round-trip.
 const analysisCache = new Map<string, string>();
+// In-flight requests: allows re-attaching to an ongoing fetch after a tab switch.
+const inFlightRequests = new Map<string, Promise<string>>();
 
 export function CombatAIAnalysis() {
   const { combat, friends, enemies } = useCombatReportContext();
   const [analysis, setAnalysis] = useState<string | null>(() => analysisCache.get(combat?.id ?? '') ?? null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(() => inFlightRequests.has(combat?.id ?? ''));
   const [error, setError] = useState<string | null>(null);
 
-  // Sync cached result when the combat changes (user switched matches).
-  // Also reset loading/error so a stale in-flight request doesn't bleed into the new match view.
+  // When the combat changes (or on mount): sync cached result or re-attach to an in-flight request.
   useEffect(() => {
     if (!combat) return;
-    setAnalysis(analysisCache.get(combat.id) ?? null);
+
+    const cached = analysisCache.get(combat.id);
+    if (cached) {
+      setAnalysis(cached);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    const inFlight = inFlightRequests.get(combat.id);
+    if (inFlight) {
+      setAnalysis(null);
+      setLoading(true);
+      setError(null);
+      inFlight
+        .then((result) => {
+          setAnalysis(result);
+          setLoading(false);
+        })
+        .catch((e: unknown) => {
+          setError(e instanceof Error ? e.message : 'Analysis failed');
+          setLoading(false);
+        });
+      return;
+    }
+
+    setAnalysis(null);
     setLoading(false);
     setError(null);
   }, [combat?.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -258,26 +285,28 @@ export function CombatAIAnalysis() {
     setError(null);
     setAnalysis(null);
 
-    try {
+    const fetchPromise: Promise<string> = (async () => {
       const matchContext = buildMatchContext(combat, friends, enemies);
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ matchContext }),
       });
-
       const data = (await res.json()) as { analysis?: string; error?: string };
+      if (!res.ok || data.error) throw new Error(data.error ?? 'Analysis failed');
+      const result = data.analysis ?? '';
+      analysisCache.set(combatId, result);
+      return result;
+    })();
 
+    inFlightRequests.set(combatId, fetchPromise);
+    fetchPromise.finally(() => inFlightRequests.delete(combatId));
+
+    try {
+      const result = await fetchPromise;
       // Ignore result if the user switched to a different match while this was in flight
       if (combat.id !== combatId) return;
-
-      if (!res.ok || data.error) {
-        setError(data.error ?? 'Analysis failed');
-      } else {
-        const result = data.analysis ?? '';
-        analysisCache.set(combatId, result);
-        setAnalysis(result);
-      }
+      setAnalysis(result);
     } catch (e) {
       if (combat.id !== combatId) return;
       setError(e instanceof Error ? e.message : 'Network error');
