@@ -216,37 +216,37 @@ const RecordingSettings = () => {
   const showDebugInfo = process.env.NODE_ENV === 'development' && clientContext.isDesktop;
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="text-2xl font-bold mb-1">Video Recording</div>
-      <div className="alert">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          className="stroke-info shrink-0 w-6 h-6"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          ></path>
-        </svg>
-        <span>For help setting up video recording, please see our pinned guide in the #faq channel on Discord.</span>
-        <div className="flex-1 flex justify-end">
-          <button
-            className="btn btn-sm"
-            onClick={() => window.wowarenalogs.links?.openExternalURL('https://discord.gg/NFTPK9tmJK')}
+    <div className="card bg-base-200 shadow-sm">
+      <div className="card-body gap-4">
+        <h2 className="card-title">Video Recording</h2>
+        <div className="alert">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="stroke-info shrink-0 w-6 h-6"
           >
-            Go
-          </button>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          <span>For help setting up video recording, please see our pinned guide in the #faq channel on Discord.</span>
+          <div className="flex-1 flex justify-end">
+            <button
+              className="btn btn-sm"
+              onClick={() => window.wowarenalogs.links?.openExternalURL('https://discord.gg/NFTPK9tmJK')}
+            >
+              Go
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="flex flex-row gap-4">
-        <div className="flex flex-col gap-2 flex-1">
-          <div className="flex flex-row">
+        <div className="flex flex-row gap-4">
+          <div className="flex flex-col gap-4 flex-1">
             <div className="form-control">
-              <label className="label gap-2 justify-start items-center">
+              <label className="label cursor-pointer justify-start gap-3">
                 <input
                   type="checkbox"
                   className="checkbox"
@@ -299,367 +299,379 @@ const RecordingSettings = () => {
                 <span className="label-text">Enable video recording</span>
               </label>
             </div>
-            <div className="flex-1" />
-          </div>
-          {engineStarted && (
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-row gap-2 items-center">
-                {recStates[recordingStatus] && recStates[recordingStatus].icon}
-                {recStates[recordingStatus] && recStates[recordingStatus].message}
-                {recordingStatusError}
-              </div>
-              <div className="flex flex-row flex-wrap gap-2 items-center">
-                <Dropdown
-                  menuItems={resolutionOptions.map((k) => ({
-                    onClick: () => {
-                      window.wowarenalogs.obs?.setConfig?.('obsOutputResolution', k);
-                    },
-                    key: k,
-                    label: k,
-                  }))}
-                >
-                  <div>{recordingConfig?.obsOutputResolution ?? 'Select video resolution'}</div>
-                  <TbCaretDown size={20} />
-                </Dropdown>
-                <Dropdown
-                  menuItems={captureModes.map((k) => ({
-                    onClick: () => {
-                      window.wowarenalogs.obs?.setConfig?.('obsCaptureMode', k.key);
-                    },
-                    key: k.key,
-                    label: k.name,
-                  }))}
-                >
-                  <div>
-                    {captureModes.find((m) => m.key === recordingConfig?.obsCaptureMode)?.name ?? 'Select capture mode'}
-                  </div>
-                  <TbCaretDown size={20} />
-                </Dropdown>
-                {recordingConfig?.obsCaptureMode === 'monitor_capture' && (
+            {engineStarted && (
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-row gap-2 items-center text-sm">
+                  {recStates[recordingStatus] && recStates[recordingStatus].icon}
+                  {recStates[recordingStatus] && recStates[recordingStatus].message}
+                  {recordingStatusError}
+                </div>
+
+                <div className="flex flex-row flex-wrap gap-2 items-center">
                   <Dropdown
-                    menuItems={[1, 2, 3, 4].map((k) => ({
+                    menuItems={resolutionOptions.map((k) => ({
                       onClick: () => {
-                        window.wowarenalogs.obs?.setConfig?.('monitorIndex', k);
+                        window.wowarenalogs.obs?.setConfig?.('obsOutputResolution', k);
                       },
-                      key: k.toString(),
-                      label: k.toString(),
+                      key: k,
+                      label: k,
                     }))}
                   >
-                    <div>{recordingConfig.monitorIndex ?? 'Select monitor'}</div>
+                    <div>{recordingConfig?.obsOutputResolution ?? 'Select video resolution'}</div>
                     <TbCaretDown size={20} />
                   </Dropdown>
-                )}
-                <div className="form-control">
-                  <label className="label gap-2 justify-start items-center">
-                    <input
-                      type="checkbox"
-                      className="checkbox"
-                      checked={recordingConfig?.captureCursor || false}
-                      onChange={(e) => {
-                        window.wowarenalogs.obs?.setConfig?.('captureCursor', e.target.checked);
-                      }}
-                    />
-                    <span className="label-text">Capture cursor</span>
-                  </label>
+                  <Dropdown
+                    menuItems={captureModes.map((k) => ({
+                      onClick: () => {
+                        window.wowarenalogs.obs?.setConfig?.('obsCaptureMode', k.key);
+                      },
+                      key: k.key,
+                      label: k.name,
+                    }))}
+                  >
+                    <div>
+                      {captureModes.find((m) => m.key === recordingConfig?.obsCaptureMode)?.name ??
+                        'Select capture mode'}
+                    </div>
+                    <TbCaretDown size={20} />
+                  </Dropdown>
+                  {recordingConfig?.obsCaptureMode === 'monitor_capture' && (
+                    <Dropdown
+                      menuItems={[1, 2, 3, 4].map((k) => ({
+                        onClick: () => {
+                          window.wowarenalogs.obs?.setConfig?.('monitorIndex', k);
+                        },
+                        key: k.toString(),
+                        label: k.toString(),
+                      }))}
+                    >
+                      <div>{recordingConfig.monitorIndex ?? 'Select monitor'}</div>
+                      <TbCaretDown size={20} />
+                    </Dropdown>
+                  )}
+                  <div className="form-control">
+                    <label className="label cursor-pointer gap-2 justify-start items-center">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={recordingConfig?.captureCursor || false}
+                        onChange={(e) => {
+                          window.wowarenalogs.obs?.setConfig?.('captureCursor', e.target.checked);
+                        }}
+                      />
+                      <span className="label-text">Capture cursor</span>
+                    </label>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-row-reverse gap-2">
-                <input
-                  type="text"
-                  placeholder=""
-                  readOnly
-                  className="input input-sm input-bordered flex-1"
-                  value={recordingConfig?.storagePath ?? ''}
-                />
-                <button
-                  className="btn btn-sm gap-2"
-                  onClick={async () => {
-                    if (window.wowarenalogs.obs?.selectFolder) {
-                      const folderChoice = await window.wowarenalogs.obs.selectFolder(
-                        'Select folder to store videos to',
-                      );
-                      if (folderChoice.length > 0) {
-                        window.wowarenalogs.obs?.setConfig?.('storagePath', folderChoice[0]);
+
+                <div className="flex flex-row gap-2 items-center">
+                  <button
+                    className="btn btn-sm btn-outline"
+                    onClick={async () => {
+                      if (window.wowarenalogs.obs?.selectFolder) {
+                        const folderChoice = await window.wowarenalogs.obs.selectFolder(
+                          'Select folder to store videos to',
+                        );
+                        if (folderChoice.length > 0) {
+                          window.wowarenalogs.obs?.setConfig?.('storagePath', folderChoice[0]);
+                        }
                       }
-                    }
-                  }}
-                >
-                  Set VOD Directory
-                </button>
-              </div>
-              <div>
-                <div className="flex flex-row gap-4">
-                  <div className="flex flex-col gap-1">
-                    <div className="font-bold">Recorded Audio Inputs</div>
-                    {inputAudioOptions.map((o) => (
-                      <div key={o.id} className="flex flex-row gap-1">
-                        <input
-                          type="checkbox"
-                          className="checkbox mr-1"
-                          checked={recordingConfig?.audioInputDevices.includes(o.id)}
-                          onChange={() => {
-                            if (recordingConfig?.audioInputDevices.includes(o.id)) {
-                              window.wowarenalogs.obs?.setConfig?.(
-                                'audioInputDevices',
-                                removeDeviceId(recordingConfig?.audioInputDevices, o.id),
-                              );
-                            } else {
-                              window.wowarenalogs.obs?.setConfig?.(
-                                'audioInputDevices',
-                                addDeviceId(recordingConfig?.audioInputDevices, o.id),
-                              );
-                            }
-                          }}
-                        />
-                        {o.description}
-                      </div>
-                    ))}
+                    }}
+                  >
+                    Set VOD Directory
+                  </button>
+                  <input
+                    type="text"
+                    placeholder=""
+                    readOnly
+                    className="input input-sm input-bordered flex-1"
+                    value={recordingConfig?.storagePath ?? ''}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <div className="text-sm font-semibold">Audio Inputs</div>
+                    <div className="flex flex-col gap-1 rounded-lg bg-base-300 p-3">
+                      {inputAudioOptions.length === 0 && (
+                        <span className="text-sm opacity-50">No input devices found</span>
+                      )}
+                      {inputAudioOptions.map((o) => (
+                        <label key={o.id} className="flex flex-row gap-2 items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm"
+                            checked={recordingConfig?.audioInputDevices.includes(o.id)}
+                            onChange={() => {
+                              if (recordingConfig?.audioInputDevices.includes(o.id)) {
+                                window.wowarenalogs.obs?.setConfig?.(
+                                  'audioInputDevices',
+                                  removeDeviceId(recordingConfig?.audioInputDevices, o.id),
+                                );
+                              } else {
+                                window.wowarenalogs.obs?.setConfig?.(
+                                  'audioInputDevices',
+                                  addDeviceId(recordingConfig?.audioInputDevices, o.id),
+                                );
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{o.description}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <div className="font-bold">Recorded Audio Outputs</div>
-                    {outputAudioOptions.map((o) => (
-                      <div key={o.id} className="flex flex-row gap-1">
-                        <input
-                          type="checkbox"
-                          className="checkbox mr-1"
-                          checked={recordingConfig?.audioOutputDevices.includes(o.id)}
-                          onChange={() => {
-                            if (recordingConfig?.audioOutputDevices.includes(o.id)) {
-                              window.wowarenalogs.obs?.setConfig?.(
-                                'audioOutputDevices',
-                                removeDeviceId(recordingConfig?.audioOutputDevices, o.id),
-                              );
-                            } else {
-                              window.wowarenalogs.obs?.setConfig?.(
-                                'audioOutputDevices',
-                                addDeviceId(recordingConfig?.audioOutputDevices, o.id),
-                              );
-                            }
-                          }}
-                        />
-                        {o.description}
-                      </div>
-                    ))}
+                  <div className="flex flex-col gap-2">
+                    <div className="text-sm font-semibold">Audio Outputs</div>
+                    <div className="flex flex-col gap-1 rounded-lg bg-base-300 p-3">
+                      {outputAudioOptions.length === 0 && (
+                        <span className="text-sm opacity-50">No output devices found</span>
+                      )}
+                      {outputAudioOptions.map((o) => (
+                        <label key={o.id} className="flex flex-row gap-2 items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm"
+                            checked={recordingConfig?.audioOutputDevices.includes(o.id)}
+                            onChange={() => {
+                              if (recordingConfig?.audioOutputDevices.includes(o.id)) {
+                                window.wowarenalogs.obs?.setConfig?.(
+                                  'audioOutputDevices',
+                                  removeDeviceId(recordingConfig?.audioOutputDevices, o.id),
+                                );
+                              } else {
+                                window.wowarenalogs.obs?.setConfig?.(
+                                  'audioOutputDevices',
+                                  addDeviceId(recordingConfig?.audioOutputDevices, o.id),
+                                );
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{o.description}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="collapse collapse-arrow border border-base-300 bg-base-200 mt-2">
-                <input type="checkbox" defaultChecked />
-                <div className="collapse-title text-base font-semibold">Advanced</div>
-                <div className="collapse-content">
-                  <div className="text-sm opacity-70 mb-2">
-                    Changes to encoder, FPS, or bitrate will restart the buffer and may briefly pause recording.
-                  </div>
-                  <div className="text-sm text-warning mb-3">
-                    CQP/CRF are advanced encoder settings. Only change them if you know what they do.
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    {window.wowarenalogs.obs?.getEncoders && (
-                      <div className="flex flex-col gap-1">
-                        <div className="text-sm font-semibold">Encoder</div>
-                        <Dropdown
-                          menuItems={encoderOptions.map((k) => ({
-                            onClick: () => {
-                              window.wowarenalogs.obs?.setConfig?.('obsRecEncoder', k);
-                            },
-                            key: k,
-                            label: k,
-                          }))}
-                        >
-                          <div>{recordingConfig?.obsRecEncoder ?? 'Select encoding method'}</div>
-                          <TbCaretDown size={20} />
-                        </Dropdown>
+
+                <div className="collapse collapse-arrow border border-base-300 bg-base-300 rounded-lg">
+                  <input type="checkbox" defaultChecked />
+                  <div className="collapse-title text-base font-semibold">Advanced</div>
+                  <div className="collapse-content">
+                    <div className="text-sm opacity-70 mb-2">
+                      Changes to encoder, FPS, or bitrate will restart the buffer and may briefly pause recording.
+                    </div>
+                    <div className="text-sm text-warning mb-3">
+                      CQP/CRF are advanced encoder settings. Only change them if you know what they do.
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      {window.wowarenalogs.obs?.getEncoders && (
+                        <div className="flex flex-col gap-1">
+                          <div className="text-sm font-semibold">Encoder</div>
+                          <Dropdown
+                            menuItems={encoderOptions.map((k) => ({
+                              onClick: () => {
+                                window.wowarenalogs.obs?.setConfig?.('obsRecEncoder', k);
+                              },
+                              key: k,
+                              label: k,
+                            }))}
+                          >
+                            <div>{recordingConfig?.obsRecEncoder ?? 'Select encoding method'}</div>
+                            <TbCaretDown size={20} />
+                          </Dropdown>
+                        </div>
+                      )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label className="form-control">
+                          <div className="label">
+                            <span className="label-text">FPS</span>
+                          </div>
+                          <input
+                            type="number"
+                            min={15}
+                            max={60}
+                            step={1}
+                            className="input input-sm input-bordered"
+                            value={pendingFps ?? ''}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === '') {
+                                setPendingFps(null);
+                                return;
+                              }
+                              const next = Math.max(15, Math.min(60, Math.round(Number(raw))));
+                              if (!Number.isFinite(next)) return;
+                              setPendingFps(next);
+                            }}
+                          />
+                        </label>
+                        <label className="form-control">
+                          <div className="label">
+                            <span className="label-text">Bitrate (Mbps)</span>
+                          </div>
+                          <input
+                            type="number"
+                            min={1}
+                            max={300}
+                            step={1}
+                            className="input input-sm input-bordered"
+                            value={pendingBitrate ?? ''}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === '') {
+                                setPendingBitrate(null);
+                                return;
+                              }
+                              const next = Math.max(1, Math.min(300, Math.round(Number(raw))));
+                              if (!Number.isFinite(next)) return;
+                              setPendingBitrate(next);
+                            }}
+                          />
+                        </label>
+                        <label className="form-control">
+                          <div className="label">
+                            <span className="label-text">CQP</span>
+                          </div>
+                          <input
+                            type="number"
+                            min={0}
+                            max={51}
+                            step={1}
+                            className="input input-sm input-bordered"
+                            value={pendingCqp ?? ''}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === '') {
+                                setPendingCqp(null);
+                                return;
+                              }
+                              const next = Math.max(0, Math.min(51, Math.round(Number(raw))));
+                              if (!Number.isFinite(next)) return;
+                              setPendingCqp(next);
+                            }}
+                          />
+                        </label>
+                        <label className="form-control">
+                          <div className="label">
+                            <span className="label-text">CRF</span>
+                          </div>
+                          <input
+                            type="number"
+                            min={0}
+                            max={51}
+                            step={1}
+                            className="input input-sm input-bordered"
+                            value={pendingCrf ?? ''}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === '') {
+                                setPendingCrf(null);
+                                return;
+                              }
+                              const next = Math.max(0, Math.min(51, Math.round(Number(raw))));
+                              if (!Number.isFinite(next)) return;
+                              setPendingCrf(next);
+                            }}
+                          />
+                        </label>
                       </div>
-                    )}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <label className="form-control">
-                        <div className="label">
-                          <span className="label-text">FPS</span>
-                        </div>
-                        <input
-                          type="number"
-                          min={15}
-                          max={60}
-                          step={1}
-                          className="input input-sm input-bordered"
-                          value={pendingFps ?? ''}
-                          onChange={(e) => {
-                            const raw = e.target.value;
-                            if (raw === '') {
-                              setPendingFps(null);
-                              return;
-                            }
-                            const next = Math.max(15, Math.min(60, Math.round(Number(raw))));
-                            if (!Number.isFinite(next)) return;
-                            setPendingFps(next);
-                          }}
-                        />
-                      </label>
-                      <label className="form-control">
-                        <div className="label">
-                          <span className="label-text">Bitrate (Mbps)</span>
-                        </div>
-                        <input
-                          type="number"
-                          min={1}
-                          max={300}
-                          step={1}
-                          className="input input-sm input-bordered"
-                          value={pendingBitrate ?? ''}
-                          onChange={(e) => {
-                            const raw = e.target.value;
-                            if (raw === '') {
-                              setPendingBitrate(null);
-                              return;
-                            }
-                            const next = Math.max(1, Math.min(300, Math.round(Number(raw))));
-                            if (!Number.isFinite(next)) return;
-                            setPendingBitrate(next);
-                          }}
-                        />
-                      </label>
-                      <label className="form-control">
-                        <div className="label">
-                          <span className="label-text">CQP</span>
-                        </div>
-                        <input
-                          type="number"
-                          min={0}
-                          max={51}
-                          step={1}
-                          className="input input-sm input-bordered"
-                          value={pendingCqp ?? ''}
-                          onChange={(e) => {
-                            const raw = e.target.value;
-                            if (raw === '') {
-                              setPendingCqp(null);
-                              return;
-                            }
-                            const next = Math.max(0, Math.min(51, Math.round(Number(raw))));
-                            if (!Number.isFinite(next)) return;
-                            setPendingCqp(next);
-                          }}
-                        />
-                      </label>
-                      <label className="form-control">
-                        <div className="label">
-                          <span className="label-text">CRF</span>
-                        </div>
-                        <input
-                          type="number"
-                          min={0}
-                          max={51}
-                          step={1}
-                          className="input input-sm input-bordered"
-                          value={pendingCrf ?? ''}
-                          onChange={(e) => {
-                            const raw = e.target.value;
-                            if (raw === '') {
-                              setPendingCrf(null);
-                              return;
-                            }
-                            const next = Math.max(0, Math.min(51, Math.round(Number(raw))));
-                            if (!Number.isFinite(next)) return;
-                            setPendingCrf(next);
-                          }}
-                        />
-                      </label>
                     </div>
                   </div>
                 </div>
               </div>
+            )}
+          </div>
+          {engineStarted && (
+            <div className="mr-2">
+              <PreviewVideoWindow key={recordingConfig?.obsCaptureMode || 'no-mode'} />
             </div>
           )}
         </div>
-        {engineStarted && (
-          <div className="mr-2">
-            <PreviewVideoWindow key={recordingConfig?.obsCaptureMode || 'no-mode'} />
+        {showDebugInfo && engineStarted && (
+          <div className="flex flex-col gap-2 px-6 pb-6">
+            <div className="divider m-0" />
+            <div className="flex gap-2 flex-wrap">
+              <button
+                className="btn btn-sm"
+                onClick={async () => {
+                  await window.wowarenalogs.obs?.startBuffer?.();
+                  window.wowarenalogs.obs?.startRecording?.(4.8);
+                }}
+              >
+                Test Start Recording
+              </button>
+              <button
+                className="btn btn-sm"
+                onClick={async () => {
+                  await window.wowarenalogs.obs?.startBuffer?.();
+                }}
+              >
+                Test Start Buffer
+              </button>
+              <button
+                className="btn btn-sm"
+                onClick={async () => {
+                  const startDate = new Date(Date.now() - 4500);
+                  window.wowarenalogs.obs?.startRecording?.(4.5);
+                  await new Promise((resolve) => setTimeout(resolve, 5000));
+                  const now = new Date();
+                  window.wowarenalogs.obs?.stopRecording?.({
+                    startDate,
+                    endDate: now,
+                    fileName: 'test-neg-backtrack',
+                    overrun: 5,
+                  });
+                }}
+              >
+                Test Backtrack 4.5s
+              </button>
+              <button
+                className="btn btn-sm"
+                onClick={async () => {
+                  const startDate = new Date();
+                  window.wowarenalogs.obs?.startRecording?.(0);
+                  await new Promise((resolve) => setTimeout(resolve, 10000));
+                  const now = new Date();
+                  window.wowarenalogs.obs?.stopRecording?.({
+                    startDate,
+                    endDate: now,
+                    fileName: 'test-backtrack-0',
+                    overrun: 0,
+                  });
+                }}
+              >
+                Test Backtrack 0s (10s)
+              </button>
+              <button
+                className="btn btn-sm"
+                onClick={() => {
+                  const now = new Date();
+                  window.wowarenalogs.obs?.stopRecording?.({
+                    // Test: a video starting 10s ago and 5s of overrun
+                    // this should write a 15s video
+                    startDate: new Date(now.getTime() - 10000),
+                    endDate: new Date(),
+                    fileName: 'test',
+                    overrun: 5,
+                  });
+                }}
+              >
+                Test Stop Recording
+              </button>
+              <button
+                className="btn btn-sm"
+                onClick={() => {
+                  window.wowarenalogs.obs?.setConfig?.('storagePath', 'd');
+                }}
+              >
+                Test Erase Storage Path Config
+              </button>
+            </div>
+            <textarea className="textarea" readOnly rows={8} defaultValue={JSON.stringify(recordingConfig, null, 2)} />
           </div>
         )}
       </div>
-      {showDebugInfo && engineStarted && (
-        <div className="flex flex-col gap-2">
-          <div className="divider" />
-          <div className="flex gap-2">
-            <button
-              className="btn"
-              onClick={async () => {
-                await window.wowarenalogs.obs?.startBuffer?.();
-                window.wowarenalogs.obs?.startRecording?.(4.8);
-              }}
-            >
-              Test Start Recording
-            </button>
-            <button
-              className="btn"
-              onClick={async () => {
-                await window.wowarenalogs.obs?.startBuffer?.();
-              }}
-            >
-              Test Start Buffer
-            </button>
-            <button
-              className="btn"
-              onClick={async () => {
-                const startDate = new Date(Date.now() - 4500);
-                window.wowarenalogs.obs?.startRecording?.(4.5);
-                await new Promise((resolve) => setTimeout(resolve, 5000));
-                const now = new Date();
-                window.wowarenalogs.obs?.stopRecording?.({
-                  startDate,
-                  endDate: now,
-                  fileName: 'test-neg-backtrack',
-                  overrun: 5,
-                });
-              }}
-            >
-              Test Backtrack 4.5s
-            </button>
-            <button
-              className="btn"
-              onClick={async () => {
-                const startDate = new Date();
-                window.wowarenalogs.obs?.startRecording?.(0);
-                await new Promise((resolve) => setTimeout(resolve, 10000));
-                const now = new Date();
-                window.wowarenalogs.obs?.stopRecording?.({
-                  startDate,
-                  endDate: now,
-                  fileName: 'test-backtrack-0',
-                  overrun: 0,
-                });
-              }}
-            >
-              Test Backtrack 0s (10s)
-            </button>
-            <button
-              className="btn"
-              onClick={() => {
-                const now = new Date();
-                window.wowarenalogs.obs?.stopRecording?.({
-                  // Test: a video starting 10s ago and 5s of overrun
-                  // this should write a 15s video
-                  startDate: new Date(now.getTime() - 10000),
-                  endDate: new Date(),
-                  fileName: 'test',
-                  overrun: 5,
-                });
-              }}
-            >
-              Test Stop Recording
-            </button>
-            <button
-              className="btn"
-              onClick={() => {
-                window.wowarenalogs.obs?.setConfig?.('storagePath', 'd');
-              }}
-            >
-              Test Erase Storage Path Config
-            </button>
-          </div>
-          <textarea className="textarea" readOnly rows={8} defaultValue={JSON.stringify(recordingConfig, null, 2)} />
-        </div>
-      )}
     </div>
   );
 };
