@@ -23,21 +23,12 @@ jobs:
           node-version: 22
       - name: install node-gyp
         run: npm i -g node-gyp@latest
-      - name: update path variables
-        run: set 'path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin'
-      - name: clean npm cache
-        run: npm cache clean -f
       - name: install dependencies
         run: npm ci --legacy-peer-deps
-      - name: create github release
-        uses: actions/create-release@v1
-        id: create_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ inputs.tag }}
-          release_name: ${{ inputs.tag }}
-          draft: false
-          prerelease: true
-      - name: build for windows
+      - name: set version from tag
+        shell: pwsh
+        run: |
+          $version = "${{ inputs.tag }}".TrimStart('v')
+          npm version $version --no-git-tag-version --allow-same-version
+      - name: build and publish for windows
         run: npm run publish:app:windows
