@@ -112,6 +112,28 @@ const OFFENSIVE_PURGERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Warlock_Destruction, // Devour Magic (Felhunter)
 ]);
 
+// Purge specs whose purge ability has a meaningful cooldown (>= 8s).
+// For these, only flag Critical priority missed purges — they can't freely spam purge
+// every GCD so holding the ability for a better target is often correct.
+const CD_GATED_PURGERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Evoker_Preservation, // Naturalize: 10s CD
+  CombatUnitSpec.Evoker_Devastation, // Naturalize: 10s CD
+  CombatUnitSpec.Evoker_Augmentation, // Naturalize: 10s CD
+  CombatUnitSpec.Warlock_Affliction, // Devour Magic: ~8s CD
+  CombatUnitSpec.Warlock_Demonology,
+  CombatUnitSpec.Warlock_Destruction,
+  CombatUnitSpec.DemonHunter_Havoc, // Consume Magic: 8s CD
+  CombatUnitSpec.DemonHunter_Vengeance,
+]);
+
+// Spell IDs that have Magic dispelType in the game DB but cannot actually be targeted
+// by player offensive purge abilities in practice (passive procs, self-only buffs, etc.)
+const PURGE_BLOCKLIST = new Set<string>([
+  '188501', // Spectral Sight (DH) — passive/visual, not purgeable
+  '29166', // Innervate — targeted at ally, not a purgeable buff in practice
+  '132158', // Nature's Swiftness — instant-cast buff, expires before purge lands
+]);
+
 type DispelType = 'Magic' | 'Poison' | 'Curse' | 'Disease' | 'Bleed';
 
 // DH Consume Magic is in the TWW talent tree — only available if the player took the node.
@@ -627,6 +649,7 @@ export function reconstructDispelSummary(
         // Only consider buffs applied by the enemy's own side — skip debuffs our team placed on them
         if (!enemyIds.has(aura.srcUnitId)) continue;
         if (getDispelType(spellId) !== 'Magic') continue;
+        if (PURGE_BLOCKLIST.has(spellId)) continue;
         const priority = getPriority(spellId);
         if (priority !== 'Critical' && priority !== 'High') continue;
 
@@ -664,11 +687,18 @@ export function reconstructDispelSummary(
           );
 
           if (!purgedByUs) {
-            // Only flag if at least one purger was free during the window
+            // Only flag if at least one purger was free during the window AND
+            // the priority meets the bar for that purger's spec (CD-gated purgers
+            // only get flagged for Critical misses — they can't spam purge every GCD).
             const windowEndMs = removalTs ?? combat.endTime;
-            const allPurgersBlocked = friendlyPurgers.every((purger) =>
-              isPurgerFullyBlockedDuringWindow(purger, applyTs, windowEndMs, enemyIds),
+            const eligiblePurgers = friendlyPurgers.filter(
+              (p) => priority === 'Critical' || !CD_GATED_PURGERS.has(p.spec),
             );
+            const allPurgersBlocked =
+              eligiblePurgers.length === 0 ||
+              eligiblePurgers.every((purger) =>
+                isPurgerFullyBlockedDuringWindow(purger, applyTs, windowEndMs, enemyIds),
+              );
             if (!allPurgersBlocked) {
               missedPurgeWindows.push({
                 timeSeconds: applyRelative,
