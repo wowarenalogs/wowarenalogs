@@ -22,11 +22,11 @@ export const StackedDamageChart = ({ data, series }: IProps) => {
       <div className="w-full h-full absolute top-0 left-0">
         <ResponsiveContainer debounce={25}>
           <AreaChart data={data} margin={{ top: 10, right: 16, left: 8, bottom: 0 }}>
-            <XAxis dataKey="timeMark" tickFormatter={(v) => moment.utc(v * 1000).format('mm:ss')} />
+            <XAxis dataKey="timeMark" tickFormatter={(v: number) => moment.utc(v * 1000).format('mm:ss')} />
             <YAxis width={64} tickFormatter={(value) => Utils.printCombatNumber(value as number)} tickMargin={6} />
             <Tooltip
               contentStyle={{ backgroundColor: '#111827', border: '1px solid #1f2937' }}
-              labelFormatter={(v) => moment.utc(v * 1000).format('mm:ss')}
+              labelFormatter={(v: number) => moment.utc(v * 1000).format('mm:ss')}
               formatter={(value, name) => {
                 const numericValue = Number(value);
                 if (!numericValue) {

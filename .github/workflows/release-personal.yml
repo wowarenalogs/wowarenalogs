@@ -28,7 +28,7 @@ jobs:
       - name: clean npm cache
         run: npm cache clean -f
       - name: install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
       - name: create github release
         uses: actions/create-release@v1
         id: create_release
