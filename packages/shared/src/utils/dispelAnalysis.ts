@@ -624,6 +624,8 @@ export function reconstructDispelSummary(
       for (const aura of enemy.auraEvents) {
         const spellId = aura.spellId;
         if (!spellId) continue;
+        // Only consider buffs applied by the enemy's own side — skip debuffs our team placed on them
+        if (!enemyIds.has(aura.srcUnitId)) continue;
         if (getDispelType(spellId) !== 'Magic') continue;
         const priority = getPriority(spellId);
         if (priority !== 'Critical' && priority !== 'High') continue;
