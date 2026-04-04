@@ -207,6 +207,21 @@ export function CombatDispels() {
         </div>
       )}
 
+      {/* Missed purges */}
+      {missedPurgeWindows.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h4 className="font-semibold text-error">
+            Missed Purge Opportunities
+            <span className="ml-2 text-xs font-normal opacity-60">enemy buff left up &gt;3s</span>
+          </h4>
+          <div className="flex flex-col gap-1">
+            {missedPurgeWindows.map((w, i) => (
+              <MissedPurgeRow key={i} window={w} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Friendly cleanses */}
       {allyCleanse.length > 0 && (
         <div className="flex flex-col gap-2">

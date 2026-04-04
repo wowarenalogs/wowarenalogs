@@ -139,8 +139,11 @@ function canOffensivePurge(unit: ICombatUnit): boolean {
   const talentedIds = unit.info?.talents ? getPlayerTalentedSpellIds(specIdNum, unit.info.talents) : null;
   const hasCombatantInfo = unit.info !== undefined;
 
-  const castSpellIds = new Set(
-    unit.spellCastEvents.filter((e) => e.logLine.event === LogEvent.SPELL_CAST_SUCCESS).map((e) => e.spellId),
+  const castSpellIds = new Set<string>(
+    unit.spellCastEvents
+      .filter((e) => e.logLine.event === LogEvent.SPELL_CAST_SUCCESS)
+      .map((e) => e.spellId)
+      .filter((id): id is string => id !== null),
   );
 
   // DH: Consume Magic is talent-gated.

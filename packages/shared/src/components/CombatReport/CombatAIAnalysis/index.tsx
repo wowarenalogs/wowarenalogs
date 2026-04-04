@@ -131,7 +131,7 @@ function buildMatchContext(
 
       if (cd.neverUsed) {
         lines.push(`    STATUS: NEVER USED (available entire match)`);
-        const duringPressure = pressureWindows.filter((w) => true); // all windows — CD available whole match
+        const duringPressure = pressureWindows;
         if (duringPressure.length > 0) {
           lines.push(`    Missed pressure windows while idle:`);
           duringPressure.forEach((w) => {
