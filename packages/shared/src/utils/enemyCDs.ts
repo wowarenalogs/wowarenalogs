@@ -71,6 +71,7 @@ export function reconstructEnemyCDTimeline(
     for (const cast of enemy.spellCastEvents) {
       if (cast.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
       const { spellId } = cast;
+      if (!spellId) continue;
       if (!isOffensiveSpell(spellId)) continue;
       const effectData = spellEffectData[spellId];
       if (!effectData) continue;
@@ -259,8 +260,9 @@ export function formatEnemyCDTimelineForContext(timeline: IEnemyCDTimeline, matc
 
       for (const cd of w.activeCDs) {
         const cdData = timeline.players
+          .filter((p) => p.playerName === cd.playerName)
           .flatMap((p) => p.offensiveCDs)
-          .find((c) => c.spellId === cd.spellId && c.playerName === cd.playerName);
+          .find((c) => c.spellId === cd.spellId);
         const weight = cdData ? spellDangerWeight(cd.spellId, cdData.cooldownSeconds).toFixed(2) : '?';
         lines.push(`    ${cd.spellName} (${cd.playerName}, weight ${weight})`);
       }

@@ -6,6 +6,7 @@ import {
   type ICCEfficiencyStat,
   type IDispelEvent,
   type IMissedCleanseWindow,
+  type IMissedPurgeWindow,
   reconstructDispelSummary,
 } from '../../../utils/dispelAnalysis';
 import { useCombatReportContext } from '../CombatReportContext';
@@ -55,6 +56,22 @@ function MissedCleanseRow({ window: w }: { window: IMissedCleanseWindow }) {
         {` for ${Math.round(w.durationSeconds)}s — no cleanse`}
         <span className="ml-2 text-xs opacity-50">[{w.dispelType}]</span>
         {dmgStr && <span className="ml-2 text-xs text-error font-semibold">{dmgStr}</span>}
+      </span>
+      <PriorityBadge priority={w.priority} />
+    </div>
+  );
+}
+
+function MissedPurgeRow({ window: w }: { window: IMissedPurgeWindow }) {
+  return (
+    <div className="flex items-start gap-3 py-1.5 px-3 rounded bg-error/10">
+      <span className="text-xs font-mono opacity-60 w-10 shrink-0 pt-0.5">{fmtTime(w.timeSeconds)}</span>
+      <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-error mt-1.5" />
+      <span className="text-sm flex-1">
+        <span className="font-semibold">{w.enemyName}</span>
+        {' had '}
+        <span className="font-semibold">{w.spellName}</span>
+        {` for ${Math.round(w.durationSeconds)}s — unpurged`}
       </span>
       <PriorityBadge priority={w.priority} />
     </div>
@@ -118,8 +135,10 @@ export function CombatDispels() {
 
   if (!combat || !summary) return null;
 
-  const { allyCleanse, ourPurges, hostilePurges, missedCleanseWindows, ccEfficiency } = summary;
-  const criticalMissed = missedCleanseWindows.filter((w) => w.priority === 'Critical');
+  const { allyCleanse, ourPurges, hostilePurges, missedCleanseWindows, missedPurgeWindows, ccEfficiency } = summary;
+  const significantMissed = missedCleanseWindows.filter(
+    (w) => w.priority === 'Critical' || (w.priority === 'High' && (w.durationSeconds > 5 || w.postCcDamage > 50_000)),
+  );
   const penaltyDispels = allyCleanse.filter((d) => d.hasDispelPenalty);
   const spellSteals = ourPurges.filter((d) => d.isSpellSteal);
 
@@ -144,9 +163,16 @@ export function CombatDispels() {
         </div>
         <div className="stat bg-base-200 rounded-box p-4 min-w-[130px]">
           <div className="stat-title text-xs">Missed Cleanses</div>
-          <div className="stat-value text-2xl text-warning">{criticalMissed.length}</div>
-          <div className="stat-desc">Critical CC &gt;3s</div>
+          <div className="stat-value text-2xl text-warning">{significantMissed.length}</div>
+          <div className="stat-desc">Critical/High CC</div>
         </div>
+        {missedPurgeWindows.length > 0 && (
+          <div className="stat bg-base-200 rounded-box p-4 min-w-[130px]">
+            <div className="stat-title text-xs">Missed Purges</div>
+            <div className="stat-value text-2xl text-error">{missedPurgeWindows.length}</div>
+            <div className="stat-desc">enemy buffs left up</div>
+          </div>
+        )}
         {penaltyDispels.length > 0 && (
           <div className="stat bg-base-200 rounded-box p-4 min-w-[130px]">
             <div className="stat-title text-xs">Penalty Dispels</div>
@@ -159,7 +185,7 @@ export function CombatDispels() {
       {allyCleanse.length === 0 &&
         ourPurges.length === 0 &&
         hostilePurges.length === 0 &&
-        criticalMissed.length === 0 && (
+        significantMissed.length === 0 && (
           <div className="opacity-60 text-sm">No dispel events recorded in this match.</div>
         )}
 
@@ -167,14 +193,14 @@ export function CombatDispels() {
       <CCEfficiencyTable stats={ccEfficiency} />
 
       {/* Missed cleanses */}
-      {criticalMissed.length > 0 && (
+      {significantMissed.length > 0 && (
         <div className="flex flex-col gap-2">
           <h4 className="font-semibold text-warning">
             Missed Cleanse Opportunities
             <span className="ml-2 text-xs font-normal opacity-60">Critical CC &gt;3s, not broken by damage</span>
           </h4>
           <div className="flex flex-col gap-1">
-            {criticalMissed.map((w, i) => (
+            {significantMissed.map((w, i) => (
               <MissedCleanseRow key={i} window={w} />
             ))}
           </div>

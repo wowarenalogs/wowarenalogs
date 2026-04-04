@@ -1,4 +1,11 @@
-import { AtomicArenaCombat, classMetadata, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+import {
+  AtomicArenaCombat,
+  classMetadata,
+  CombatUnitSpec,
+  ICombatUnit,
+  LogEvent,
+  SpellTag,
+} from '@wowarenalogs/parser';
 
 import { spellEffectData } from '../data/spellEffectData';
 import spellIdListsData from '../data/spellIdLists.json';
@@ -8,7 +15,9 @@ const MAJOR_DEFENSIVE_IDS = new Set<string>(spellIdListsData.externalOrBigDefens
 
 // All spells tagged 'Offensive' in classMetadata — used to detect active enemy burst windows
 const OFFENSIVE_SPELL_IDS = new Set<string>(
-  classMetadata.flatMap((cls) => cls.abilities.filter((a) => a.tags.includes('Offensive')).map((a) => a.spellId)),
+  classMetadata.flatMap((cls) =>
+    cls.abilities.filter((a) => a.tags.includes(SpellTag.Offensive)).map((a) => a.spellId),
+  ),
 );
 
 /** Only track cooldowns at or above this threshold */
@@ -162,6 +171,16 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
   const specIdNum = parseInt(unit.spec, 10);
   const specTalentTreeSpellIds = getSpecTalentTreeSpellIds(specIdNum);
   const talentedSpellIds = unit.info?.talents ? getPlayerTalentedSpellIds(specIdNum, unit.info.talents) : null;
+  // PvP talents selected by this player (spell IDs). Available when COMBATANT_INFO is present.
+  const pvpTalentIds = new Set<string>(unit.info?.pvpTalents ?? []);
+  const hasCombatantInfo = unit.info !== undefined;
+  // Build a fast lookup of all spell IDs the player actually cast this match.
+  const castSpellIds = new Set<string>(
+    unit.spellCastEvents
+      .filter((e) => e.logLine.event === LogEvent.SPELL_CAST_SUCCESS)
+      .map((e) => e.spellId)
+      .filter((id): id is string => id !== null),
+  );
 
   // Keep only tagged spells with cooldown data >= MIN_CD_SECONDS that belong to the owner's spec
   const seen = new Set<string>();
@@ -174,14 +193,31 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
     if (cd < MIN_CD_SECONDS) return false;
     const allowedSpecs = SPEC_EXCLUSIVE_SPELLS[spell.spellId];
     if (allowedSpecs && !allowedSpecs.includes(unit.spec)) return false;
-    // If this spell is talent-gated and we have talent data, only include if the player took it
-    if (
-      specTalentTreeSpellIds.has(spell.spellId) &&
-      talentedSpellIds !== null &&
-      !talentedSpellIds.has(spell.spellId)
-    ) {
-      return false;
+
+    const isInTalentTree = specTalentTreeSpellIds.has(spell.spellId);
+
+    if (isInTalentTree) {
+      // Regular/hero talent — filter out if the player didn't take it.
+      if (talentedSpellIds !== null && !talentedSpellIds.has(spell.spellId)) {
+        return false;
+      }
+      // If talent data failed to parse (talentedSpellIds null) but COMBATANT_INFO is present,
+      // require cast evidence to avoid including talents the player didn't actually take.
+      if (talentedSpellIds === null && hasCombatantInfo && !castSpellIds.has(spell.spellId)) {
+        return false;
+      }
+    } else if (hasCombatantInfo) {
+      // Not in the regular talent tree — could be a PvP talent or a true baseline ability.
+      // Accept if: (a) the player selected it as a PvP talent, OR (b) they actually cast it
+      // this match (proof they have it regardless of talent source).
+      // This filters out PvP talents the player didn't pick while keeping baseline abilities
+      // that were used. Baseline abilities that were never used and aren't PvP talents will be
+      // silently excluded — acceptable trade-off to avoid false "never used X" reports.
+      if (!pvpTalentIds.has(spell.spellId) && !castSpellIds.has(spell.spellId)) {
+        return false;
+      }
     }
+
     seen.add(spell.spellId);
     return true;
   });

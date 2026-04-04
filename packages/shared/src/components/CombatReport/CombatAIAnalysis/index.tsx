@@ -37,7 +37,7 @@ function buildMatchContext(
   const enemyTeam = enemies.map((p) => specToString(p.spec)).join(', ');
 
   // Match result
-  const combatAny = combat as Record<string, unknown>;
+  const combatAny = combat as unknown as Record<string, unknown>;
   const playerWon =
     typeof combatAny['winningTeamId'] === 'string' ? combatAny['winningTeamId'] === combat.playerTeamId : null;
   const resultStr = playerWon === true ? 'Win' : playerWon === false ? 'Loss' : 'Unknown';
@@ -65,6 +65,11 @@ function buildMatchContext(
 
   // Owner cooldowns
   const cooldowns = extractMajorCooldowns(owner, combat);
+
+  // Teammate cooldowns (non-owner friendly players)
+  const teammateCooldowns = friends
+    .filter((p) => p.id !== owner.id)
+    .map((p) => ({ player: p, cds: extractMajorCooldowns(p, combat) }));
 
   // Enemy offensive CD timeline
   const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat, owner, friends);
@@ -126,6 +131,16 @@ function buildMatchContext(
 
       if (cd.neverUsed) {
         lines.push(`    STATUS: NEVER USED (available entire match)`);
+        const duringPressure = pressureWindows.filter((w) => true); // all windows — CD available whole match
+        if (duringPressure.length > 0) {
+          lines.push(`    Missed pressure windows while idle:`);
+          duringPressure.forEach((w) => {
+            const dmgM = (w.totalDamage / 1_000_000).toFixed(2);
+            lines.push(
+              `      - ${fmtTime(w.fromSeconds)}-${fmtTime(w.toSeconds)}: ${w.targetSpec} took ${dmgM}M — CD was available`,
+            );
+          });
+        }
       } else {
         cd.casts.forEach((c) => lines.push(`    Cast at: ${fmtTime(c.timeSeconds)}`));
       }
@@ -133,14 +148,45 @@ function buildMatchContext(
       if (cd.availableWindows.length > 0) {
         lines.push(`    Available but unused windows:`);
         cd.availableWindows.forEach((w) => {
+          // Cross-reference: did any pressure window overlap with this idle period?
+          const overlapping = pressureWindows.filter((p) => p.fromSeconds < w.toSeconds && p.toSeconds > w.fromSeconds);
+          const pressureNote =
+            overlapping.length > 0
+              ? ` — PRESSURE DURING IDLE: ${overlapping.map((p) => `${fmtTime(p.fromSeconds)} (${(p.totalDamage / 1_000_000).toFixed(2)}M on ${p.targetSpec})`).join(', ')}`
+              : '';
           lines.push(
-            `      - ${fmtTime(w.fromSeconds)} to ${fmtTime(w.toSeconds)} (${Math.round(w.durationSeconds)}s idle)`,
+            `      - ${fmtTime(w.fromSeconds)} to ${fmtTime(w.toSeconds)} (${Math.round(w.durationSeconds)}s idle)${pressureNote}`,
           );
         });
       } else if (!cd.neverUsed) {
         lines.push(`    No significant idle windows (CD used efficiently or match ended before it came back up)`);
       }
     });
+  }
+
+  if (teammateCooldowns.length > 0) {
+    lines.push('');
+    lines.push('TEAMMATE COOLDOWN USAGE:');
+    for (const { player, cds } of teammateCooldowns) {
+      const spec = specToString(player.spec);
+      if (cds.length === 0) {
+        lines.push(`  ${spec} (${player.name}): No major CD data found.`);
+        continue;
+      }
+      lines.push(`  ${spec} (${player.name}):`);
+      for (const cd of cds) {
+        if (cd.neverUsed) {
+          lines.push(`    ${cd.spellName} [${cd.tag}, ${cd.cooldownSeconds}s CD]: NEVER USED`);
+        } else {
+          const castStr = cd.casts.map((c) => fmtTime(c.timeSeconds)).join(', ');
+          const idleStr =
+            cd.availableWindows.length > 0
+              ? ` | idle windows: ${cd.availableWindows.map((w) => `${fmtTime(w.fromSeconds)}-${fmtTime(w.toSeconds)}`).join(', ')}`
+              : '';
+          lines.push(`    ${cd.spellName} [${cd.tag}, ${cd.cooldownSeconds}s CD]: cast at ${castStr}${idleStr}`);
+        }
+      }
+    }
   }
 
   lines.push('');
@@ -174,8 +220,8 @@ function buildMatchContext(
   lines.push('');
   lines.push(
     healer
-      ? 'Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows? For FRIENDLY CD OVERLAPS: evaluate whether each overlap was justified (e.g. full enemy burst window, near-death) or wasteful (moderate pressure, staggering would have provided better coverage across multiple pushes). Name the specific spells and explain the consequence of the staging choice. For HEALING GAPS: identify the cause of each gap (repositioning, crowd control chain, mana management, or genuine lapse) and assess the consequence. Also evaluate dispel discipline: were critical CC chains left uncleansed? Did enemies consistently strip key defensive buffs? For CC & TRINKET: identify any CCs where the trinket was available but unused and significant damage was taken — was the player tunnelled, confused, or holding trinket for a specific CC type? Flag any trinket uses outside of CC windows as potentially wasteful. For DAMPENING: note the point where healing could no longer sustain pressure and whether the losing team was playing into the dampening clock or fighting it — did kills happen before or after healing became critically impaired?'
-      : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing. Cross-reference your offensive CDs against the enemy aligned burst windows. Also note any dispel patterns: did the enemy healer purge your key buffs at critical moments? For CC & TRINKET: evaluate whether each player used their trinket appropriately — flag missed windows where the trinket was available during a high-damage CC, and identify any off-CC uses that may have wasted it. For DAMPENING: note whether the match went deep enough into dampening that the healer was significantly impaired — and whether your team capitalised on or missed that window.',
+      ? "Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows? For FRIENDLY CD OVERLAPS: evaluate whether each overlap was justified (e.g. full enemy burst window, near-death) or wasteful (moderate pressure, staggering would have provided better coverage across multiple pushes). Name the specific spells and explain the consequence of the staging choice. For HEALING GAPS: identify the cause of each gap (repositioning, crowd control chain, mana management, or genuine lapse) and assess the consequence. For MISSED CLEANSE WINDOWS: call out every entry by name — which ally was in which CC/debuff, for how long, how much damage followed, and whether it was a true miss (you were free to cast) or excusable (you were CC'd or no one on the team could remove that debuff type). For MISSED PURGE WINDOWS: call out enemy buffs that sat unpurged when you had a free purger — name the buff, the enemy, and how long it ran. For CC & TRINKET: identify any CCs where the trinket was available but unused and significant damage was taken — was the player tunnelled, confused, or holding trinket for a specific CC type? Flag any trinket uses outside of CC windows as potentially wasteful. For DAMPENING: note the point where healing could no longer sustain pressure and whether the losing team was playing into the dampening clock or fighting it — did kills happen before or after healing became critically impaired?"
+      : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing. Cross-reference your offensive CDs against the enemy aligned burst windows. For MISSED CLEANSE WINDOWS: call out every entry — which teammate was locked in which CC/debuff, for how long, and how much damage followed. Note whether your team had someone capable of cleansing it and whether they were free to act. For MISSED PURGE WINDOWS: name each enemy buff that sat unpurged and how long it ran. For enemy purges (hostile strips): note if enemies consistently stripped key buffs from your team at critical moments. For CC & TRINKET: evaluate whether each player used their trinket appropriately — flag missed windows where the trinket was available during a high-damage CC, and identify any off-CC uses that may have wasted it. For DAMPENING: note whether the match went deep enough into dampening that the healer was significantly impaired — and whether your team capitalised on or missed that window.',
   );
 
   return lines.join('\n');

@@ -1,14 +1,16 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const SYSTEM_PROMPT = `You are an expert World of Warcraft arena PvP coach with deep knowledge of every spec, major cooldowns, and arena strategy. You analyze arena match data and give specific, actionable feedback focused on cooldown usage.
+const SYSTEM_PROMPT = `You are an expert World of Warcraft: The War Within (patch 11.x) arena PvP coach with deep knowledge of every spec, major cooldowns, and arena strategy. You analyze structured arena match data and give specific, actionable feedback.
 
 Your analysis must:
-- Be grounded in the actual timestamps and events provided — do not invent events
+- Be grounded exclusively in the data provided — do not invent events or timestamps
+- Only mention a spell or cooldown if it appears in the COOLDOWN USAGE section of the match data or you observed it being cast. Never suggest a player "should have used X" if X is not listed in their cooldown data — it may not be in their build
 - Prioritize the most impactful mistakes over minor ones
-- For healers: pay extra attention to external defensives (timing and target), big healing cooldowns relative to pressure windows, and survivability
+- For healers: pay extra attention to external defensives, healing CD timing relative to pressure windows, and dispel discipline
 - Use timestamps in m:ss format when referencing events (e.g. "at 1:23")
-- Be honest but constructive — point out errors clearly but explain *why* it matters
+- Cross-reference sections: a CD idle during a pressure window is more significant than one idle during a quiet period
+- Be honest but constructive — point out errors clearly and explain *why* it matters and what the correct play was
 
 Format your response in three sections using markdown:
 
@@ -16,10 +18,10 @@ Format your response in three sections using markdown:
 Bullet-pointed list of issues, most impactful first. For each: what happened, when, and why it hurt.
 
 ## What went well
-Brief bullets on cooldowns used correctly. Keep this short.
+Brief bullets on cooldowns or decisions executed correctly. Omit this section entirely if there is nothing meaningful to say.
 
 ## Top 3 recommendations
-Numbered list of the most important changes for next time, each with a concrete action.`;
+Numbered list of the most important changes for next time, each with a single concrete action.`;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -41,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
+      max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: matchContext }],
     });

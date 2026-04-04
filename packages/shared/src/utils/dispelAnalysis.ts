@@ -4,6 +4,7 @@ import { spellEffectData } from '../data/spellEffectData';
 import spellIdListsData from '../data/spellIdLists.json';
 import spellsData from '../data/spells.json';
 import { fmtTime, specToString } from './cooldowns';
+import { getPlayerTalentedSpellIds, getSpecTalentTreeSpellIds } from './talents';
 
 export type DispelPriority = 'Critical' | 'High' | 'Medium' | 'Low';
 
@@ -113,11 +114,98 @@ const OFFENSIVE_PURGERS = new Set<CombatUnitSpec>([
 
 type DispelType = 'Magic' | 'Poison' | 'Curse' | 'Disease' | 'Bleed';
 
+// DH Consume Magic is in the TWW talent tree — only available if the player took the node.
+const CONSUME_MAGIC_SPELL_ID = '278326';
+// Warlock Felhunter: Summon Felhunter is in the talent tree; Devour Magic is a pet ability (not player talent).
+// We use the Summon Felhunter talent as a proxy, falling back to cast evidence.
+const SUMMON_FELHUNTER_SPELL_ID = '30146';
+
+const WARLOCK_SPECS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Warlock_Affliction,
+  CombatUnitSpec.Warlock_Demonology,
+  CombatUnitSpec.Warlock_Destruction,
+]);
+const DH_SPECS = new Set<CombatUnitSpec>([CombatUnitSpec.DemonHunter_Havoc, CombatUnitSpec.DemonHunter_Vengeance]);
+
+/**
+ * Returns true if the unit can actually perform an offensive purge, accounting for
+ * talent gating (DH Consume Magic) and pet requirements (Warlock Felhunter).
+ */
+function canOffensivePurge(unit: ICombatUnit): boolean {
+  if (!OFFENSIVE_PURGERS.has(unit.spec)) return false;
+
+  const specIdNum = parseInt(unit.spec, 10);
+  const talentTreeIds = getSpecTalentTreeSpellIds(specIdNum);
+  const talentedIds = unit.info?.talents ? getPlayerTalentedSpellIds(specIdNum, unit.info.talents) : null;
+  const hasCombatantInfo = unit.info !== undefined;
+
+  const castSpellIds = new Set(
+    unit.spellCastEvents.filter((e) => e.logLine.event === LogEvent.SPELL_CAST_SUCCESS).map((e) => e.spellId),
+  );
+
+  // DH: Consume Magic is talent-gated.
+  if (DH_SPECS.has(unit.spec) && talentTreeIds.has(CONSUME_MAGIC_SPELL_ID)) {
+    if (talentedIds !== null && !talentedIds.has(CONSUME_MAGIC_SPELL_ID)) return false;
+    if (talentedIds === null && hasCombatantInfo && !castSpellIds.has(CONSUME_MAGIC_SPELL_ID)) return false;
+  }
+
+  // Warlock: Devour Magic requires an active Felhunter pet.
+  // Summon Felhunter (30146) is in the talent tree; if the player has talent data and didn't
+  // take it, they likely have a different pet. Fall back to cast evidence for the summon.
+  if (WARLOCK_SPECS.has(unit.spec)) {
+    if (talentTreeIds.has(SUMMON_FELHUNTER_SPELL_ID)) {
+      if (talentedIds !== null && !talentedIds.has(SUMMON_FELHUNTER_SPELL_ID)) {
+        // Didn't take Summon Felhunter talent — check cast evidence as final fallback
+        // (they may have summoned it before the match started, so cast may not appear)
+        if (!castSpellIds.has(SUMMON_FELHUNTER_SPELL_ID)) return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Fallback dispel types for CC spells missing from spellEffects.json.
+ * Physical stuns (Kidney Shot, Cheap Shot, Leg Sweep, Storm Bolt, etc.),
+ * Cyclone, and silences (Solar Beam, Sigil of Silence) are intentionally absent — not dispellable.
+ */
+const DISPEL_TYPE_FALLBACK: Record<string, DispelType> = {
+  // Rogue
+  '2094': 'Magic', // Blind
+  // Monk
+  '115078': 'Magic', // Paralysis
+  '107079': 'Magic', // Quaking Palm
+  // Hunter
+  '203337': 'Magic', // Freezing Trap
+  '213691': 'Magic', // Scatter Shot
+  // Warrior
+  '5246': 'Magic', // Intimidating Shout
+  '316593': 'Magic', // Intimidating Shout (rank 2)
+  '316595': 'Magic', // Intimidating Shout (rank 3)
+  // Demon Hunter
+  '211881': 'Magic', // Fel Eruption
+  '207685': 'Magic', // Sigil of Misery
+  // Priest
+  '200196': 'Magic', // Holy Word: Chastise
+  '200200': 'Magic', // Holy Word: Chastise (rank 2)
+  // Druid
+  '99': 'Magic', // Incapacitating Roar
+  // Warlock
+  '213491': 'Magic', // Demonic Trample
+  // Evoker
+  '372245': 'Magic', // Terror of the Skies
+  '357021': 'Magic', // Consecutive Concussion
+  // PvP / misc
+  '331866': 'Magic', // Agent of Chaos
+};
+
 /** Returns the dispel type for a spell ID from game data, or null if the spell cannot be dispelled. */
 function getDispelType(spellId: string): DispelType | null {
   const type = spellEffectData[spellId]?.dispelType;
   if (type === 'Magic' || type === 'Poison' || type === 'Curse' || type === 'Disease' || type === 'Bleed') return type;
-  return null;
+  // Fall back to our curated map for CC spells missing from spellEffects.json.
+  return DISPEL_TYPE_FALLBACK[spellId] ?? null;
 }
 
 function buildTeamDispelTypes(friends: ICombatUnit[]): Set<DispelType> {
@@ -130,6 +218,24 @@ function buildTeamDispelTypes(friends: ICombatUnit[]): Set<DispelType> {
     if (BLEED_REMOVERS.has(unit.spec)) types.add('Bleed');
   }
   return types;
+}
+
+/** Returns which friendly units can remove each dispel type. */
+function buildTeamDispelCapability(friends: ICombatUnit[]): Map<DispelType, ICombatUnit[]> {
+  const map = new Map<DispelType, ICombatUnit[]>();
+  const add = (type: DispelType, unit: ICombatUnit) => {
+    const list = map.get(type) ?? [];
+    list.push(unit);
+    map.set(type, list);
+  };
+  for (const unit of friends) {
+    if (MAGIC_REMOVERS.has(unit.spec)) add('Magic', unit);
+    if (POISON_REMOVERS.has(unit.spec)) add('Poison', unit);
+    if (CURSE_REMOVERS.has(unit.spec)) add('Curse', unit);
+    if (DISEASE_REMOVERS.has(unit.spec)) add('Disease', unit);
+    if (BLEED_REMOVERS.has(unit.spec)) add('Bleed', unit);
+  }
+  return map;
 }
 
 export interface IDispelEvent {
@@ -297,6 +403,7 @@ export function reconstructDispelSummary(
   const friendlyIds = new Set(friends.map((u) => u.id));
   const enemyIds = new Set(enemies.map((u) => u.id));
   const teamDispelTypes = buildTeamDispelTypes(friends);
+  const teamDispelCapability = buildTeamDispelCapability(friends);
   const unitMap = new Map<string, ICombatUnit>([...friends, ...enemies].map((u) => [u.id, u]));
 
   const allyCleanse: IDispelEvent[] = [];
@@ -466,6 +573,22 @@ export function reconstructDispelSummary(
         if (removedByDispel) {
           eff.cleanseCount++;
         } else {
+          // dispelType is non-null here (null case is filtered above)
+          const windowDispelType = getDispelType(spellId) as DispelType;
+
+          // Skip if every capable dispeller was themselves CC'd for the entire window —
+          // you can't dispel while hard-CC'd.
+          const capableDispellers = teamDispelCapability.get(windowDispelType) ?? [];
+          const allDispellersBlocked =
+            capableDispellers.length > 0 &&
+            capableDispellers.every((dispeller) =>
+              isPurgerFullyBlockedDuringWindow(dispeller, applyTs, removal.ts, enemyIds),
+            );
+          if (allDispellersBlocked) {
+            // Not a missed opportunity — no one could act
+            continue;
+          }
+
           eff.missedCount++;
 
           // Measure post-CC pressure: damage taken in first POST_CC_PRESSURE_WINDOW_S seconds
@@ -474,8 +597,6 @@ export function reconstructDispelSummary(
             .filter((d) => d.logLine.timestamp >= applyTs && d.logLine.timestamp <= windowEndMs)
             .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
 
-          // dispelType is non-null here (null case is filtered above)
-          const windowDispelType = getDispelType(spellId) as DispelType;
           missedCleanseWindows.push({
             timeSeconds: (applyTs - combat.startTime) / 1000,
             durationSeconds,
@@ -497,7 +618,7 @@ export function reconstructDispelSummary(
   // Missed offensive purge detection: Critical/High magic buffs on enemies that sat >threshold
   // without being purged, when our team had the capability to purge.
   const missedPurgeWindows: IMissedPurgeWindow[] = [];
-  const friendlyPurgers = friends.filter((f) => OFFENSIVE_PURGERS.has(f.spec));
+  const friendlyPurgers = friends.filter((f) => canOffensivePurge(f));
 
   if (friendlyPurgers.length > 0) {
     for (const enemy of enemies) {
@@ -633,15 +754,19 @@ export function formatDispelContextForAI(summary: IDispelSummary): string[] {
     }
   }
 
-  const significantMissed = missedCleanseWindows.filter((w) => w.priority === 'Critical');
-  lines.push('  Missed cleanse opportunities (Critical CC on ally lasting >3s, not broken by damage):');
+  // Show Critical (hard CC) and High (roots, offensive debuffs) missed cleanses.
+  // High priority ones only shown if they lasted >5s or had meaningful damage, to reduce noise.
+  const significantMissed = missedCleanseWindows.filter(
+    (w) => w.priority === 'Critical' || (w.priority === 'High' && (w.durationSeconds > 5 || w.postCcDamage > 50_000)),
+  );
+  lines.push('  Missed cleanse opportunities (dispellable CC/debuff on ally lasting >3s, not broken by damage):');
   if (significantMissed.length === 0) {
     lines.push('    None detected');
   } else {
     for (const w of significantMissed) {
       const dmg = w.postCcDamage > 0 ? `, ${Math.round(w.postCcDamage / 1000)}k dmg followed` : '';
       lines.push(
-        `    ${fmtTime(w.timeSeconds)} — ${w.targetName} was in ${w.spellName} [${w.dispelType}] for ${Math.round(w.durationSeconds)}s${dmg}`,
+        `    ${fmtTime(w.timeSeconds)} — ${w.targetName} [${w.targetSpec}] was in ${w.spellName} [${w.dispelType}, ${w.priority}] for ${Math.round(w.durationSeconds)}s${dmg}`,
       );
     }
   }
