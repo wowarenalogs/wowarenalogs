@@ -36,6 +36,11 @@
     "directories": {
       "buildResources": "packages/app/assets"
     },
+    "publish": {
+      "provider": "github",
+      "owner": "mingjianliu",
+      "repo": "wowarenalogs"
+    },
     "linux": {
       "category": "Utility",
       "target": "AppImage",

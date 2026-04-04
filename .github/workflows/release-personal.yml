@@ -1,0 +1,43 @@
+name: release-personal
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v12.7.0-r1)'
+        required: true
+        type: string
+jobs:
+  build_and_release:
+    runs-on: windows-latest
+    env:
+      CI: false
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CSC_LINK: ''
+      CSC_KEY_PASSWORD: ''
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: install node-gyp
+        run: npm i -g node-gyp@latest
+      - name: update path variables
+        run: set 'path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin'
+      - name: clean npm cache
+        run: npm cache clean -f
+      - name: install dependencies
+        run: npm ci
+      - name: create github release
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.tag }}
+          release_name: ${{ inputs.tag }}
+          draft: false
+          prerelease: true
+      - name: build for windows
+        run: npm run publish:app:windows
