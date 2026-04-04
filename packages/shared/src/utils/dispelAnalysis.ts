@@ -169,38 +169,31 @@ function canOffensivePurge(unit: ICombatUnit): boolean {
 }
 
 /**
- * Fallback dispel types for CC spells missing from spellEffects.json.
- * Physical stuns (Kidney Shot, Cheap Shot, Leg Sweep, Storm Bolt, etc.),
- * Cyclone, and silences (Solar Beam, Sigil of Silence) are intentionally absent — not dispellable.
+ * Fallback dispel types for CC spells whose game DB dispelType is null but are confirmed
+ * Magic-dispellable in practice. Keep this list SMALL and conservative — only add entries
+ * you have personally verified as dispellable in the current patch. When in doubt, leave it
+ * out: a false negative (missed report) is better than a false positive (wrong report).
+ *
+ * Do NOT add: physical stuns (Kidney Shot, Cheap Shot, Leg Sweep, Storm Bolt, Consecutive
+ * Concussion), silences (Solar Beam, Sigil of Silence), or talent modifier spells.
  */
 const DISPEL_TYPE_FALLBACK: Record<string, DispelType> = {
   // Rogue
-  '2094': 'Magic', // Blind
+  '2094': 'Magic', // Blind — confirmed Magic-dispellable
   // Monk
-  '115078': 'Magic', // Paralysis
-  '107079': 'Magic', // Quaking Palm
+  '115078': 'Magic', // Paralysis — confirmed Magic-dispellable
+  '107079': 'Magic', // Quaking Palm — confirmed Magic-dispellable
   // Hunter
-  '203337': 'Magic', // Freezing Trap
-  '213691': 'Magic', // Scatter Shot
+  '203337': 'Magic', // Freezing Trap — confirmed Magic-dispellable
   // Warrior
-  '5246': 'Magic', // Intimidating Shout
+  '5246': 'Magic', // Intimidating Shout — confirmed Magic-dispellable (fear)
   '316593': 'Magic', // Intimidating Shout (rank 2)
   '316595': 'Magic', // Intimidating Shout (rank 3)
-  // Demon Hunter
-  '211881': 'Magic', // Fel Eruption
-  '207685': 'Magic', // Sigil of Misery
   // Priest
-  '200196': 'Magic', // Holy Word: Chastise
+  '200196': 'Magic', // Holy Word: Chastise — confirmed Magic-dispellable
   '200200': 'Magic', // Holy Word: Chastise (rank 2)
   // Druid
-  '99': 'Magic', // Incapacitating Roar
-  // Warlock
-  '213491': 'Magic', // Demonic Trample
-  // Evoker
-  '372245': 'Magic', // Terror of the Skies
-  '357021': 'Magic', // Consecutive Concussion
-  // PvP / misc
-  '331866': 'Magic', // Agent of Chaos
+  '99': 'Magic', // Incapacitating Roar — confirmed Magic-dispellable
 };
 
 /** Returns the dispel type for a spell ID from game data, or null if the spell cannot be dispelled. */
