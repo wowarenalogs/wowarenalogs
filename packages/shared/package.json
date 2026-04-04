@@ -38,7 +38,7 @@
     "lru-cache": "^7.14.1",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
-    "next": "^15.3.0",
+    "next": "^15.5.14",
     "next-auth": "^4.24.0",
     "nprogress": "^0.2.0",
     "pixi-viewport": "^6.0.0",
