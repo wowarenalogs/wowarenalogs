@@ -9,6 +9,8 @@ on:
 jobs:
   build_and_release:
     runs-on: windows-latest
+    permissions:
+      contents: write
     env:
       CI: false
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
