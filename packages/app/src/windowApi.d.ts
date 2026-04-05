@@ -6,6 +6,7 @@ import { FilesModule } from './nativeBridge/modules/filesModule';
 import { LogsModule } from './nativeBridge/modules/logsModule';
 import { MainWindowModule } from './nativeBridge/modules/mainWindowModule';
 import { ObsModule } from './nativeBridge/modules/obsModule';
+import { SettingsModule } from './nativeBridge/modules/settingsModule';
 
 type ElectronOpaqueEvent = {
   senderId: number;
@@ -96,5 +97,9 @@ export type NativeApi = {
     removeAll_videoRecorded_listeners?: () => void;
     diskSpaceBecameCritical?: (callback: AsEventFunction<ObsModule['diskSpaceBecameCritical']>) => void;
     removeAll_diskSpaceBecameCritical_listeners?: () => void;
+  };
+  settings?: {
+    getAnthropicApiKey?: OmitFirstArg<SettingsModule['getAnthropicApiKey']>;
+    setAnthropicApiKey?: OmitFirstArg<SettingsModule['setAnthropicApiKey']>;
   };
 };

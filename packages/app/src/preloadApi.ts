@@ -105,4 +105,8 @@ export const modulesApi = {
     removeAll_diskSpaceBecameCritical_listeners: () =>
       ipcRenderer.removeAllListeners('wowarenalogs:obs:diskSpaceBecameCritical'),
   },
+  settings: {
+    getAnthropicApiKey: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:settings:getAnthropicApiKey', ...args),
+    setAnthropicApiKey: (...args: any[]) => ipcRenderer.invoke('wowarenalogs:settings:setAnthropicApiKey', ...args),
+  },
 };

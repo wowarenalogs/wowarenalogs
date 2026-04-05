@@ -9,6 +9,7 @@ import { FilesModule } from './modules/filesModule';
 import { LogsModule } from './modules/logsModule';
 import { MainWindowModule } from './modules/mainWindowModule';
 import { ObsModule } from './modules/obsModule';
+import { SettingsModule } from './modules/settingsModule';
 
 const MODULES_PATH = './nativeBridge/modules/';
 
@@ -143,3 +144,4 @@ nativeBridgeRegistry.registerModule(ExternalLinksModule);
 nativeBridgeRegistry.registerModule(MainWindowModule);
 nativeBridgeRegistry.registerModule(ApplicationModule);
 nativeBridgeRegistry.registerModule(ObsModule);
+nativeBridgeRegistry.registerModule(SettingsModule);

@@ -333,10 +333,11 @@ export function CombatAIAnalysis() {
 
     const fetchPromise: Promise<string> = (async () => {
       const matchContext = buildMatchContext(combat, friends, enemies);
+      const apiKey = (await window.wowarenalogs?.settings?.getAnthropicApiKey?.()) ?? undefined;
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ matchContext }),
+        body: JSON.stringify({ matchContext, apiKey }),
       });
       const data = (await res.json()) as { analysis?: string; error?: string };
       if (!res.ok || data.error) throw new Error(data.error ?? 'Analysis failed');

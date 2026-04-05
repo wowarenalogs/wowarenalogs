@@ -28,12 +28,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const { matchContext, apiKey: bodyApiKey } = req.body as { matchContext?: string; apiKey?: string };
+  const apiKey = bodyApiKey || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured on this server.' });
+    return res.status(500).json({ error: 'No Anthropic API key configured. Add one in Settings.' });
   }
-
-  const { matchContext } = req.body as { matchContext?: string };
   if (!matchContext || typeof matchContext !== 'string') {
     return res.status(400).json({ error: 'Missing matchContext in request body' });
   }
