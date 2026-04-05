@@ -38,6 +38,7 @@ export class BnetModule extends NativeBridgeModule {
         const urlObj = new URL(url);
         if (
           (urlObj.hostname === 'localhost' ||
+            urlObj.hostname === '127.0.0.1' ||
             urlObj.hostname === 'wowarenalogs.com' ||
             urlObj.hostname.endsWith('.wowarenalogs.com')) &&
           urlObj.pathname === '/'

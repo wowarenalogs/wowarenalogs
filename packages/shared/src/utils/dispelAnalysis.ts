@@ -132,6 +132,7 @@ const PURGE_BLOCKLIST = new Set<string>([
   '188501', // Spectral Sight (DH) — passive/visual, not purgeable
   '29166', // Innervate — targeted at ally, not a purgeable buff in practice
   '132158', // Nature's Swiftness — instant-cast buff, expires before purge lands
+  '605', // Mind Control — debuff on your ally, removed via defensive cleanse not offensive purge
 ]);
 
 type DispelType = 'Magic' | 'Poison' | 'Curse' | 'Disease' | 'Bleed';

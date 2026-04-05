@@ -45,13 +45,7 @@ export function MainLayout(props: IProps) {
   const [logDiskWarning, setLogDiskWarning] = useState<{ bytesRemaining: number; driveLabel?: string } | null>(null);
 
   useEffect(() => {
-    if (clientContext.isDesktop && window.wowarenalogs?.app?.getVersion) {
-      window.wowarenalogs.app.getVersion().then((version: string) => {
-        if (isVersionLessThan(version, '12.1')) {
-          setShowUpgradeBanner(true);
-        }
-      });
-    }
+    // Version check intentionally disabled for personal builds.
   }, [clientContext.isDesktop]);
 
   useEffect(() => {
