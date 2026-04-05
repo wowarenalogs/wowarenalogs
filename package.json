@@ -39,7 +39,8 @@
     "publish": {
       "provider": "github",
       "owner": "mingjianliu",
-      "repo": "wowarenalogs"
+      "repo": "wowarenalogs",
+      "releaseType": "prerelease"
     },
     "linux": {
       "category": "Utility",
