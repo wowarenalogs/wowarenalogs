@@ -40,7 +40,7 @@ function waitForPort(port: number, timeoutMs = 30000): Promise<boolean> {
 function startNextServer(): void {
   if (!app.isPackaged) return;
 
-  const serverPath = path.join(process.resourcesPath, 'server', 'server.js');
+  const serverPath = path.join(process.resourcesPath, 'server', 'packages', 'web', 'server.js');
   logger.info(`Starting Next.js server from ${serverPath}`);
 
   if (!existsSync(serverPath)) {
@@ -57,7 +57,7 @@ function startNextServer(): void {
       NEXTAUTH_URL: `http://127.0.0.1:${NEXT_SERVER_PORT}`,
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ?? 'local-personal-build-secret',
     },
-    cwd: path.dirname(serverPath),
+    cwd: path.join(process.resourcesPath, 'server'),
     stdio: 'pipe',
   });
 
