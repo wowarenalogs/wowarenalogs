@@ -28,7 +28,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { matchContext, apiKey: bodyApiKey } = req.body as { matchContext?: string; apiKey?: string };
+  const {
+    matchContext,
+    apiKey: bodyApiKey,
+    debug,
+  } = req.body as {
+    matchContext?: string;
+    apiKey?: string;
+    debug?: boolean;
+  };
   const apiKey = bodyApiKey || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'No Anthropic API key configured. Add one in Settings.' });
@@ -39,22 +47,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const client = new Anthropic({ apiKey });
+    const model = 'claude-sonnet-4-6';
+    const startMs = Date.now();
 
     const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
+      model,
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: matchContext }],
     });
 
+    const durationMs = Date.now() - startMs;
     const content = message.content[0];
     if (content.type !== 'text') {
       return res.status(500).json({ error: 'Unexpected response type from AI' });
     }
 
-    return res.status(200).json({ analysis: content.text });
+    const responseBody: Record<string, unknown> = { analysis: content.text };
+    if (debug) {
+      responseBody.debug = {
+        model,
+        systemPrompt: SYSTEM_PROMPT,
+        userMessage: matchContext,
+        inputTokens: message.usage.input_tokens,
+        outputTokens: message.usage.output_tokens,
+        durationMs,
+      };
+    }
+    return res.status(200).json(responseBody);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return res.status(500).json({ error: `AI analysis failed: ${message}` });
+    const errMessage = err instanceof Error ? err.message : 'Unknown error';
+    return res.status(500).json({ error: `AI analysis failed: ${errMessage}` });
   }
 }

@@ -19,7 +19,7 @@ import { formatEnemyCDTimelineForContext, reconstructEnemyCDTimeline } from '../
 import { detectHealingGaps, formatHealingGapsForContext } from '../../../utils/healingGaps';
 import { useCombatReportContext } from '../CombatReportContext';
 
-function buildMatchContext(
+export function buildMatchContext(
   combat: NonNullable<ReturnType<typeof useCombatReportContext>['combat']>,
   friends: ReturnType<typeof useCombatReportContext>['friends'],
   enemies: ReturnType<typeof useCombatReportContext>['enemies'],

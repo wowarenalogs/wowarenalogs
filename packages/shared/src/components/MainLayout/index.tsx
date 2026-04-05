@@ -5,6 +5,7 @@ import NProgress from 'nprogress';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   TbAlertTriangle,
+  TbBrandOpenai,
   TbBug,
   TbChartBar,
   TbHistory,
@@ -133,13 +134,22 @@ export function MainLayout(props: IProps) {
         </div>
         <div className="flex-1" />
         {process.env.NODE_ENV === 'development' && (
-          <div
-            className={`p-2 hover:text-primary ${selectedNavMenuKey === '/local' ? 'bg-base-100 text-primary' : ''}`}
-          >
-            <Link href="/local" aria-label="Local log viewer" title="Local log viewer (dev)">
-              <TbBug size="32" />
-            </Link>
-          </div>
+          <>
+            <div
+              className={`p-2 hover:text-primary ${selectedNavMenuKey === '/local' ? 'bg-base-100 text-primary' : ''}`}
+            >
+              <Link href="/local" aria-label="Local log viewer" title="Local log viewer (dev)">
+                <TbBug size="32" />
+              </Link>
+            </div>
+            <div
+              className={`p-2 hover:text-primary ${selectedNavMenuKey === '/local/ai' ? 'bg-base-100 text-primary' : ''}`}
+            >
+              <Link href="/local/ai" aria-label="AI test" title="AI test (dev)">
+                <TbBrandOpenai size="32" />
+              </Link>
+            </div>
+          </>
         )}
         <div
           className={`p-2 ${
