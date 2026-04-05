@@ -3,39 +3,38 @@
 import { CombatStubList, LoadingScreen, useAuth } from '@wowarenalogs/shared';
 import { LocalRemoteHybridCombat } from '@wowarenalogs/shared/src/components/CombatStubList/rows';
 import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryError';
-import { SignInPromotion } from '@wowarenalogs/shared/src/components/common/SignInPromotion';
 import { useGetMyMatchesQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { TbLoader } from 'react-icons/tb';
 
+import { useLocalCombats } from '../../../hooks/LocalCombatsContext';
+
 export default function HistoryPage() {
   const { isLoadingAuthData, isAuthenticated } = useAuth();
-  const matchesQuery = useGetMyMatchesQuery();
+  const { localCombats } = useLocalCombats();
+  const matchesQuery = useGetMyMatchesQuery({ skip: !isAuthenticated });
 
   const hybridCombats = useMemo(() => {
-    if (isLoadingAuthData) {
-      return [];
-    }
+    const localEntries = localCombats.flatMap((c) => {
+      if (c.dataType === 'ArenaMatch') {
+        return [{ isLocal: true as const, isShuffle: false, match: c }];
+      }
+      return c.rounds.map((r) => ({ isLocal: true as const, isShuffle: true, match: r }));
+    }) as LocalRemoteHybridCombat[];
 
     const remoteCombats = matchesQuery.data?.myMatches?.combats || [];
-    return _.orderBy(
-      remoteCombats.map((c) => ({
-        isLocal: false,
-        isShuffle: c.__typename === 'ShuffleRoundStub',
-        match: c,
-      })) as LocalRemoteHybridCombat[],
-      (c) => c.match.startTime,
-      ['desc'],
-    );
-  }, [matchesQuery.data, isLoadingAuthData]);
+    const remoteEntries = remoteCombats.map((c) => ({
+      isLocal: false as const,
+      isShuffle: c.__typename === 'ShuffleRoundStub',
+      match: c,
+    })) as LocalRemoteHybridCombat[];
+
+    return _.orderBy([...localEntries, ...remoteEntries], (c) => c.match.startTime, ['desc']);
+  }, [localCombats, matchesQuery.data]);
 
   if (isLoadingAuthData) {
     return <LoadingScreen />;
-  }
-
-  if (!isAuthenticated) {
-    return <SignInPromotion />;
   }
 
   return (
@@ -48,7 +47,7 @@ export default function HistoryPage() {
           <TbLoader color="gray" size={60} className="animate-spin-slow" />
         </div>
       )}
-      <QuerryError query={matchesQuery} />
+      {isAuthenticated && <QuerryError query={matchesQuery} />}
     </div>
   );
 }
