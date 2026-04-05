@@ -1,12 +1,13 @@
-import { app, BrowserWindow, dialog, protocol } from 'electron';
+import { app, BrowserWindow, dialog, protocol, utilityProcess } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { autoUpdater } from 'electron-updater';
 import { createReadStream, existsSync, statSync } from 'fs-extra';
 import moment from 'moment';
+import * as net from 'net';
 import path from 'path';
 import { Readable } from 'stream';
 
-import { BASE_REMOTE_URL } from './constants';
+import { BASE_REMOTE_URL, NEXT_SERVER_PORT } from './constants';
 import { logger } from './logger';
 import { globalStates } from './nativeBridge/modules/common/globalStates';
 import { nativeBridgeRegistry } from './nativeBridge/registry';
@@ -14,6 +15,44 @@ import { nativeBridgeRegistry } from './nativeBridge/registry';
 // Print versions because it's not always obvious what version of Node Electron is using
 // eslint-disable-next-line no-console
 console.log(process.versions);
+
+function waitForPort(port: number): Promise<void> {
+  return new Promise((resolve) => {
+    const check = () => {
+      const socket = net.createConnection(port, '127.0.0.1');
+      socket.on('connect', () => {
+        socket.destroy();
+        resolve();
+      });
+      socket.on('error', () => {
+        setTimeout(check, 200);
+      });
+    };
+    check();
+  });
+}
+
+async function startNextServer(): Promise<void> {
+  if (!app.isPackaged) return;
+
+  const serverPath = path.join(process.resourcesPath, 'server', 'server.js');
+  const serverDir = path.dirname(serverPath);
+
+  utilityProcess.fork(serverPath, [], {
+    env: {
+      ...process.env,
+      PORT: String(NEXT_SERVER_PORT),
+      HOSTNAME: '127.0.0.1',
+      NODE_ENV: 'production',
+      NEXTAUTH_URL: `http://127.0.0.1:${NEXT_SERVER_PORT}`,
+    },
+    cwd: serverDir,
+  });
+
+  logger.info(`Waiting for Next.js server on port ${NEXT_SERVER_PORT}...`);
+  await waitForPort(NEXT_SERVER_PORT);
+  logger.info('Next.js server is ready');
+}
 
 function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
@@ -132,7 +171,8 @@ const isFirstInstance = app.requestSingleInstanceLock();
 if (!isFirstInstance) {
   app.quit();
 } else {
-  app.on('ready', () => {
+  app.on('ready', async () => {
+    await startNextServer();
     const win = createWindow();
 
     if (app.isPackaged) {

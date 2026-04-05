@@ -42,6 +42,20 @@
       "repo": "wowarenalogs",
       "releaseType": "prerelease"
     },
+    "extraResources": [
+      {
+        "from": "packages/web/.next/standalone",
+        "to": "server"
+      },
+      {
+        "from": "packages/web/.next/static",
+        "to": "server/packages/web/.next/static"
+      },
+      {
+        "from": "packages/web/public",
+        "to": "server/packages/web/public"
+      }
+    ],
     "linux": {
       "category": "Utility",
       "target": "AppImage",
@@ -68,7 +82,7 @@
     "build:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=never",
     "build:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=never",
     "build:app:linux": "shx rm -rf dist && npm run build:app && electron-builder --linux --publish=never",
-    "publish:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=always",
+    "publish:app:windows": "shx rm -rf dist && npm run build:parser && npm run build:web && npm run build:app && electron-builder --win --publish=always",
     "publish:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=always",
     "publish:app:linux": "shx rm -rf dist && npm run build:app && electron-builder --linux --publish=always",
     "release:app": "npm run release:app --workspaces --if-present",
