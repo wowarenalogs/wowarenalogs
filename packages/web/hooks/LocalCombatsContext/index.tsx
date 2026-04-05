@@ -168,7 +168,125 @@ export const LocalCombatsContextProvider = (props: IProps) => {
   const shouldSkipUpload = true || canUseFeature(features.skipUploads, undefined, localFlags);
 
   useEffect(() => {
-    const cleanups = Array.from(wowInstallations.entries()).map((installRow) => {
+    // Register combat handlers unconditionally so that manually imported log files
+    // are captured even when no WoW installation directory is configured (wowInstallations empty).
+    window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
+      if (currentActivity) {
+        const metadata: ArenaMatchMetadata = {
+          startInfo: combat.startInfo,
+          endInfo: combat.endInfo,
+          wowVersion: combat.wowVersion,
+          id: combat.id,
+          dataType: 'ArenaMatchMetadata',
+          timezone: combat.timezone,
+          startTime: combat.startTime,
+          endTime: combat.endTime,
+          playerId: combat.playerId,
+          playerTeamId: combat.playerTeamId,
+          result: combat.result,
+          durationInSeconds: combat.durationInSeconds,
+          winningTeamId: combat.endInfo.winningTeamId,
+        };
+
+        currentActivity = null;
+        window.wowarenalogs.obs?.stopRecording &&
+          window.wowarenalogs.obs.stopRecording({
+            startDate: new Date(combat.startTime),
+            endDate: new Date(combat.endTime),
+            metadata,
+            overrun: MATCH_OVERRUN_SECONDS,
+            fileName: `${combat.startInfo.bracket}_${combat.id}`,
+          });
+      }
+      if (!shouldSkipUpload)
+        uploadCombatAsync(combat, auth.battlenetId).then((r) => {
+          if (!r.matchExists || process.env.NODE_ENV === 'development') {
+            logCombatAnalyticsAsync(combat);
+          }
+        });
+
+      setCombats((prev) => {
+        return prev.concat([combat]);
+      });
+    });
+
+    window.wowarenalogs.logs?.handleSoloShuffleRoundEnded((_event, combat) => {
+      setCombats((prev) => {
+        return prev.concat([combat]);
+      });
+    });
+
+    window.wowarenalogs.logs?.handleSoloShuffleEnded((_event, combat) => {
+      const metadata: ShuffleMatchMetadata = {
+        startInfo: combat.startInfo,
+        endInfo: combat.endInfo,
+        wowVersion: combat.wowVersion,
+        id: combat.id,
+        dataType: 'ShuffleMatchMetadata',
+        timezone: combat.timezone,
+        startTime: combat.startTime,
+        endTime: combat.endTime,
+        playerId: combat.rounds[0].playerId,
+        playerTeamId: combat.rounds[0].playerTeamId,
+        result: combat.result,
+        roundStarts: combat.rounds.map((r) => ({
+          startInfo: r.startInfo,
+          sequenceNumber: r.sequenceNumber,
+          id: r.id,
+        })),
+        durationInSeconds: combat.durationInSeconds,
+        winningTeamId: combat.endInfo.winningTeamId,
+      };
+
+      if (currentActivity) {
+        // eslint-disable-next-line no-console
+        currentActivity = null;
+        window.wowarenalogs.obs?.stopRecording &&
+          window.wowarenalogs.obs.stopRecording({
+            startDate: new Date(combat.startTime),
+            endDate: new Date(combat.endTime),
+            metadata,
+            overrun: MATCH_OVERRUN_SECONDS,
+            fileName: `${combat.startInfo.bracket}_${combat.id}`,
+          });
+      }
+
+      if (!shouldSkipUpload)
+        uploadCombatAsync(combat, auth.battlenetId).then((r) => {
+          if (!r.matchExists || process.env.NODE_ENV === 'development') {
+            combat.rounds.forEach((round) => {
+              round.shuffleMatchEndInfo = combat.endInfo;
+              round.shuffleMatchResult = combat.result;
+              logCombatAnalyticsAsync(round);
+            });
+          }
+        });
+    });
+
+    window.wowarenalogs.logs?.handleMalformedCombatDetected((_event, combat) => {
+      if (currentActivity) {
+        currentActivity = null;
+        window.wowarenalogs.obs?.stopRecording &&
+          window.wowarenalogs.obs.stopRecording({
+            startDate: new Date(combat.startTime),
+            endDate: new Date(),
+            overrun: MATCH_OVERRUN_SECONDS,
+            fileName: `WoW_Arena_Logs_Error_${combat.id}`,
+          });
+      }
+      // eslint-disable-next-line no-console
+      console.log('Malformed combat');
+      // eslint-disable-next-line no-console
+      console.log(combat);
+    });
+
+    if (window.wowarenalogs.logs?.handleParserError) {
+      window.wowarenalogs.logs.handleParserError((_event, error) => {
+        Sentry.captureException(error);
+      });
+    }
+
+    const installationCleanups = Array.from(wowInstallations.entries()).map((installRow) => {
       const [wowVersion, wowDirectory] = installRow;
       window.wowarenalogs.logs?.startLogWatcher(wowDirectory, wowVersion);
 
@@ -215,146 +333,21 @@ export const LocalCombatsContextProvider = (props: IProps) => {
         });
       });
 
-      window.wowarenalogs.logs?.handleNewCombat((_event, combat) => {
-        if (wowVersion === combat.wowVersion) {
-          if (currentActivity) {
-            const metadata: ArenaMatchMetadata = {
-              startInfo: combat.startInfo,
-              endInfo: combat.endInfo,
-              wowVersion: combat.wowVersion,
-              id: combat.id,
-              dataType: 'ArenaMatchMetadata',
-              timezone: combat.timezone,
-              startTime: combat.startTime,
-              endTime: combat.endTime,
-              playerId: combat.playerId,
-              playerTeamId: combat.playerTeamId,
-              result: combat.result,
-              durationInSeconds: combat.durationInSeconds,
-              winningTeamId: combat.endInfo.winningTeamId,
-            };
-
-            currentActivity = null;
-            window.wowarenalogs.obs?.stopRecording &&
-              window.wowarenalogs.obs.stopRecording({
-                startDate: new Date(combat.startTime),
-                endDate: new Date(combat.endTime),
-                metadata,
-                overrun: MATCH_OVERRUN_SECONDS,
-                fileName: `${combat.startInfo.bracket}_${combat.id}`,
-              });
-          }
-          if (!shouldSkipUpload)
-            uploadCombatAsync(combat, auth.battlenetId).then((r) => {
-              if (!r.matchExists || process.env.NODE_ENV === 'development') {
-                logCombatAnalyticsAsync(combat);
-              }
-            });
-
-          setCombats((prev) => {
-            return prev.concat([combat]);
-          });
-        }
-      });
-
-      window.wowarenalogs.logs?.handleSoloShuffleRoundEnded((_event, combat) => {
-        if (wowVersion === combat.wowVersion) {
-          setCombats((prev) => {
-            return prev.concat([combat]);
-          });
-        }
-      });
-
-      window.wowarenalogs.logs?.handleSoloShuffleEnded((_event, combat) => {
-        const metadata: ShuffleMatchMetadata = {
-          startInfo: combat.startInfo,
-          endInfo: combat.endInfo,
-          wowVersion: combat.wowVersion,
-          id: combat.id,
-          dataType: 'ShuffleMatchMetadata',
-          timezone: combat.timezone,
-          startTime: combat.startTime,
-          endTime: combat.endTime,
-          playerId: combat.rounds[0].playerId,
-          playerTeamId: combat.rounds[0].playerTeamId,
-          result: combat.result,
-          roundStarts: combat.rounds.map((r) => ({
-            startInfo: r.startInfo,
-            sequenceNumber: r.sequenceNumber,
-            id: r.id,
-          })),
-          durationInSeconds: combat.durationInSeconds,
-          winningTeamId: combat.endInfo.winningTeamId,
-        };
-
-        if (wowVersion === combat.wowVersion) {
-          if (currentActivity) {
-            // eslint-disable-next-line no-console
-            currentActivity = null;
-            window.wowarenalogs.obs?.stopRecording &&
-              window.wowarenalogs.obs.stopRecording({
-                startDate: new Date(combat.startTime),
-                endDate: new Date(combat.endTime),
-                metadata,
-                overrun: MATCH_OVERRUN_SECONDS,
-                fileName: `${combat.startInfo.bracket}_${combat.id}`,
-              });
-          }
-
-          if (!shouldSkipUpload)
-            uploadCombatAsync(combat, auth.battlenetId).then((r) => {
-              if (!r.matchExists || process.env.NODE_ENV === 'development') {
-                combat.rounds.forEach((round) => {
-                  round.shuffleMatchEndInfo = combat.endInfo;
-                  round.shuffleMatchResult = combat.result;
-                  logCombatAnalyticsAsync(round);
-                });
-              }
-            });
-        }
-      });
-
-      window.wowarenalogs.logs?.handleMalformedCombatDetected((_event, combat) => {
-        if (wowVersion === combat.wowVersion) {
-          if (currentActivity) {
-            currentActivity = null;
-            window.wowarenalogs.obs?.stopRecording &&
-              window.wowarenalogs.obs.stopRecording({
-                startDate: new Date(combat.startTime),
-                endDate: new Date(),
-                overrun: MATCH_OVERRUN_SECONDS,
-                fileName: `WoW_Arena_Logs_Error_${combat.id}`,
-              });
-          }
-          // eslint-disable-next-line no-console
-          console.log('Malformed combat');
-          // eslint-disable-next-line no-console
-          console.log(combat);
-        }
-      });
-
-      if (window.wowarenalogs.logs?.handleParserError) {
-        window.wowarenalogs.logs.handleParserError((_event, error) => {
-          Sentry.captureException(error);
-        });
-      }
-
       return () => {
         window.wowarenalogs.logs?.stopLogWatcher();
-        window.wowarenalogs.logs?.removeAll_handleNewCombat_listeners();
-        window.wowarenalogs.logs?.removeAll_handleMalformedCombatDetected_listeners();
-        window.wowarenalogs.logs?.removeAll_handleSoloShuffleEnded_listeners();
-        window.wowarenalogs.logs?.removeAll_handleSoloShuffleRoundEnded_listeners();
-        window.wowarenalogs.logs?.removeAll_handleParserError_listeners?.();
-        window.wowarenalogs.logs?.removeAll_handleActivityStarted_listeners?.();
         window.wowarenalogs.logs?.removeAll_handleLogReadingTimeout_listeners?.();
-        setCombats([]);
+        window.wowarenalogs.logs?.removeAll_handleActivityStarted_listeners?.();
       };
     });
+
     return () => {
-      cleanups.forEach((cleanup) => {
-        cleanup();
-      });
+      installationCleanups.forEach((cleanup) => cleanup());
+      window.wowarenalogs.logs?.removeAll_handleNewCombat_listeners();
+      window.wowarenalogs.logs?.removeAll_handleMalformedCombatDetected_listeners();
+      window.wowarenalogs.logs?.removeAll_handleSoloShuffleEnded_listeners();
+      window.wowarenalogs.logs?.removeAll_handleSoloShuffleRoundEnded_listeners();
+      window.wowarenalogs.logs?.removeAll_handleParserError_listeners?.();
+      setCombats([]);
     };
   }, [wowInstallations, auth.userId, auth.battlenetId, shouldSkipUpload]);
 
