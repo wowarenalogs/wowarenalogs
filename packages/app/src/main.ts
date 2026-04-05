@@ -55,8 +55,18 @@ function startNextServer(): void {
       HOSTNAME: '127.0.0.1',
       NODE_ENV: 'production',
       NEXTAUTH_URL: `http://127.0.0.1:${NEXT_SERVER_PORT}`,
+      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ?? 'local-personal-build-secret',
     },
     cwd: path.dirname(serverPath),
+    stdio: 'pipe',
+  });
+
+  child.stdout?.on('data', (data: Buffer) => {
+    logger.info(`[next-server] ${data.toString().trim()}`);
+  });
+
+  child.stderr?.on('data', (data: Buffer) => {
+    logger.error(`[next-server] ${data.toString().trim()}`);
   });
 
   child.on('exit', (code) => {
@@ -199,7 +209,7 @@ if (!isFirstInstance) {
       } else {
         logger.error('Next.js server did not start within 30s');
         win.loadURL(
-          `data:text/html,<h2 style="font-family:sans-serif;padding:2rem">Failed to start local server. Check logs at %APPDATA%/WoW Arena Logs/logs/.</h2>`,
+          `data:text/html,<h2 style="font-family:sans-serif;padding:2rem">Failed to start local server. Check logs at %APPDATA%\\WoW Arena Logs\\log.txt</h2>`,
         );
       }
     }
