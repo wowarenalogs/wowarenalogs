@@ -165,7 +165,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
   const auth = useAuth();
   const { wowInstallations } = useAppConfig();
   const { localFlags } = useClientContext();
-  const shouldSkipUpload = canUseFeature(features.skipUploads, undefined, localFlags);
+  const shouldSkipUpload = true || canUseFeature(features.skipUploads, undefined, localFlags);
 
   useEffect(() => {
     const cleanups = Array.from(wowInstallations.entries()).map((installRow) => {
