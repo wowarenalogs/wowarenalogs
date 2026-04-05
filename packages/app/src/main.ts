@@ -16,13 +16,18 @@ import { nativeBridgeRegistry } from './nativeBridge/registry';
 // eslint-disable-next-line no-console
 console.log(process.versions);
 
-function waitForPort(port: number): Promise<void> {
+function waitForPort(port: number, timeoutMs = 30000): Promise<boolean> {
   return new Promise((resolve) => {
+    const deadline = Date.now() + timeoutMs;
     const check = () => {
+      if (Date.now() > deadline) {
+        resolve(false);
+        return;
+      }
       const socket = net.createConnection(port, '127.0.0.1');
       socket.on('connect', () => {
         socket.destroy();
-        resolve();
+        resolve(true);
       });
       socket.on('error', () => {
         setTimeout(check, 200);
@@ -32,13 +37,18 @@ function waitForPort(port: number): Promise<void> {
   });
 }
 
-async function startNextServer(): Promise<void> {
+function startNextServer(): void {
   if (!app.isPackaged) return;
 
   const serverPath = path.join(process.resourcesPath, 'server', 'server.js');
-  const serverDir = path.dirname(serverPath);
+  logger.info(`Starting Next.js server from ${serverPath}`);
 
-  utilityProcess.fork(serverPath, [], {
+  if (!existsSync(serverPath)) {
+    logger.error(`Next.js server not found at ${serverPath}`);
+    return;
+  }
+
+  const child = utilityProcess.fork(serverPath, [], {
     env: {
       ...process.env,
       PORT: String(NEXT_SERVER_PORT),
@@ -46,12 +56,12 @@ async function startNextServer(): Promise<void> {
       NODE_ENV: 'production',
       NEXTAUTH_URL: `http://127.0.0.1:${NEXT_SERVER_PORT}`,
     },
-    cwd: serverDir,
+    cwd: path.dirname(serverPath),
   });
 
-  logger.info(`Waiting for Next.js server on port ${NEXT_SERVER_PORT}...`);
-  await waitForPort(NEXT_SERVER_PORT);
-  logger.info('Next.js server is ready');
+  child.on('exit', (code) => {
+    logger.error(`Next.js server exited with code ${code}`);
+  });
 }
 
 function createWindow() {
@@ -76,9 +86,14 @@ function createWindow() {
   win.setMinimumSize(1120, 600);
   win.setMenuBarVisibility(false);
 
-  win.loadURL(`${BASE_REMOTE_URL}/?time=${moment.now()}`, {
-    extraHeaders: 'pragma: no-cache\n',
-  });
+  if (!app.isPackaged) {
+    win.loadURL(`${BASE_REMOTE_URL}/?time=${moment.now()}`, {
+      extraHeaders: 'pragma: no-cache\n',
+    });
+  } else {
+    // Show a blank loading screen while waiting for the local Next.js server
+    win.loadURL(`data:text/html,<html style="background:#000"></html>`);
+  }
 
   win.webContents.setWindowOpenHandler(() => {
     return { action: 'deny' };
@@ -172,8 +187,22 @@ if (!isFirstInstance) {
   app.quit();
 } else {
   app.on('ready', async () => {
-    await startNextServer();
+    startNextServer();
     const win = createWindow();
+
+    if (app.isPackaged) {
+      logger.info(`Waiting for Next.js server on port ${NEXT_SERVER_PORT}...`);
+      const ready = await waitForPort(NEXT_SERVER_PORT);
+      if (ready) {
+        logger.info('Next.js server ready, loading app');
+        win.loadURL(`${BASE_REMOTE_URL}/?time=${moment.now()}`, { extraHeaders: 'pragma: no-cache\n' });
+      } else {
+        logger.error('Next.js server did not start within 30s');
+        win.loadURL(
+          `data:text/html,<h2 style="font-family:sans-serif;padding:2rem">Failed to start local server. Check logs at %APPDATA%/WoW Arena Logs/logs/.</h2>`,
+        );
+      }
+    }
 
     if (app.isPackaged) {
       autoUpdater.on('error', (error) => {
