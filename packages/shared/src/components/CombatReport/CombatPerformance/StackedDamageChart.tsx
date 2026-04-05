@@ -26,7 +26,7 @@ export const StackedDamageChart = ({ data, series }: IProps) => {
             <YAxis width={64} tickFormatter={(value) => Utils.printCombatNumber(value as number)} tickMargin={6} />
             <Tooltip
               contentStyle={{ backgroundColor: '#111827', border: '1px solid #1f2937' }}
-              labelFormatter={(v: number) => moment.utc(v * 1000).format('mm:ss')}
+              labelFormatter={(v) => moment.utc((v as number) * 1000).format('mm:ss')}
               formatter={(value, name) => {
                 const numericValue = Number(value);
                 if (!numericValue) {
