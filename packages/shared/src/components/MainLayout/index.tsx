@@ -132,11 +132,11 @@ export function MainLayout(props: IProps) {
           </Link>
         </div>
         <div className="flex-1" />
-        {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
+        {process.env.NODE_ENV === 'development' && (
           <div
-            className={`p-2 hover:text-primary ${selectedNavMenuKey === '/debug' ? 'bg-base-100 text-primary' : ''}`}
+            className={`p-2 hover:text-primary ${selectedNavMenuKey === '/local' ? 'bg-base-100 text-primary' : ''}`}
           >
-            <Link href="/debug">
+            <Link href="/local" aria-label="Local log viewer" title="Local log viewer (dev)">
               <TbBug size="32" />
             </Link>
           </div>
