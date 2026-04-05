@@ -119,24 +119,37 @@ export class LogsModule extends NativeBridgeModule {
       })
       .then((data) => {
         if (!data.canceled && data.filePaths.length > 0) {
+          logger.info(`[importLogFiles] Importing ${data.filePaths.length} file(s) with wowVersion=${wowVersion}`);
           const logParser = new WoWCombatLogParser(wowVersion);
+          let arenaMatchCount = 0;
+          let shuffleRoundCount = 0;
+          let malformedCount = 0;
+
           logParser.on('arena_match_ended', (combat) => {
+            arenaMatchCount++;
+            logger.info(`[importLogFiles] arena_match_ended #${arenaMatchCount} id=${combat.id}`);
             this.handleNewCombat(mainWindow, combat);
           });
 
           logParser.on('solo_shuffle_round_ended', (combat) => {
+            shuffleRoundCount++;
+            logger.info(`[importLogFiles] solo_shuffle_round_ended #${shuffleRoundCount} id=${combat.id}`);
             this.handleSoloShuffleRoundEnded(mainWindow, combat);
           });
 
           logParser.on('solo_shuffle_ended', (combat) => {
+            logger.info(`[importLogFiles] solo_shuffle_ended id=${combat.id} rounds=${combat.rounds.length}`);
             this.handleSoloShuffleEnded(mainWindow, combat);
           });
 
           logParser.on('malformed_arena_match_detected', (combat) => {
+            malformedCount++;
+            logger.info(`[importLogFiles] malformed_arena_match_detected #${malformedCount}`);
             this.handleMalformedCombatDetected(mainWindow, combat);
           });
 
           logParser.on('parser_error', (error: Error) => {
+            logger.error(`[importLogFiles] parser_error: ${error.message}`);
             // We need to pickle the error object out here a bit to help it seralize correctly over the message bus
             this.handleParserError(mainWindow, {
               name: error.name,
@@ -146,7 +159,11 @@ export class LogsModule extends NativeBridgeModule {
           });
 
           data.filePaths.forEach((logFile) => {
-            DesktopUtils.parseLogFile(logParser, logFile);
+            logger.info(`[importLogFiles] Parsing: ${logFile}`);
+            const ok = DesktopUtils.parseLogFile(logParser, logFile);
+            logger.info(
+              `[importLogFiles] Done parsing ${logFile}: ok=${ok} arenaMatches=${arenaMatchCount} shuffleRounds=${shuffleRoundCount} malformed=${malformedCount}`,
+            );
           });
         }
       });

@@ -40,6 +40,9 @@ export default function HistoryPage() {
   return (
     <div className="transition-all px-2 overflow-y-auto">
       <div className="animate-fadein mt-2">
+        <div className="text-xs opacity-40 mb-1">
+          local: {localCombats.length} | displayed: {hybridCombats.length}
+        </div>
         <CombatStubList viewerIsOwner={true} combats={hybridCombats} source="history" />
       </div>
       {matchesQuery.loading && (
