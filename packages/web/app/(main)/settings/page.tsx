@@ -13,6 +13,8 @@ export default function SettingsPage() {
   const [appVersion, setAppVersion] = useState('');
   const [featureCode, setFeatureCode] = useState('');
   const [sentryId, setSentryId] = useState('');
+  const [anthropicKey, setAnthropicKey] = useState('');
+  const [keySaved, setKeySaved] = useState(false);
 
   const validFlags = useMemo(() => new Set(Object.values(features)), []);
 
@@ -50,6 +52,9 @@ export default function SettingsPage() {
       });
     }
     setSentryId(getAnalyticsDeviceId() || '');
+    window.wowarenalogs.settings?.getAnthropicApiKey?.().then((key) => {
+      if (key) setAnthropicKey(key);
+    });
   }, []);
 
   if (isLoading) {
@@ -186,6 +191,35 @@ export default function SettingsPage() {
             ))}
           </div>
         )}
+      </div>
+      <div className="divider" />
+      <div className="flex flex-col gap-2">
+        <div className="text-2xl font-bold">AI Analysis</div>
+        <div className="text-sm opacity-60">Required for AI match analysis. Get a key at console.anthropic.com.</div>
+        <div className="flex flex-row gap-2">
+          <input
+            type="password"
+            placeholder="sk-ant-..."
+            className="input input-sm input-bordered flex-1 font-mono"
+            value={anthropicKey}
+            onChange={(e) => {
+              setAnthropicKey(e.target.value);
+              setKeySaved(false);
+            }}
+          />
+          <button
+            className="btn btn-sm btn-primary"
+            disabled={!anthropicKey.trim()}
+            onClick={() => {
+              window.wowarenalogs.settings?.setAnthropicApiKey?.(anthropicKey.trim()).then(() => {
+                setKeySaved(true);
+                setTimeout(() => setKeySaved(false), 2000);
+              });
+            }}
+          >
+            {keySaved ? 'Saved!' : 'Save'}
+          </button>
+        </div>
       </div>
       <div className="divider" />
       {window.wowarenalogs.platform === 'win32' && window.wowarenalogs.obs && <RecordingSettings />}
