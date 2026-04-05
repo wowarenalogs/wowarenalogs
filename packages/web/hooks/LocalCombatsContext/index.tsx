@@ -347,7 +347,8 @@ export const LocalCombatsContextProvider = (props: IProps) => {
       window.wowarenalogs.logs?.removeAll_handleSoloShuffleEnded_listeners();
       window.wowarenalogs.logs?.removeAll_handleSoloShuffleRoundEnded_listeners();
       window.wowarenalogs.logs?.removeAll_handleParserError_listeners?.();
-      setCombats([]);
+      // Do NOT clear combats here — auth and wowInstallations can change after combats are imported,
+      // and clearing here would wipe the user's in-session history.
     };
   }, [wowInstallations, auth.userId, auth.battlenetId, shouldSkipUpload]);
 
