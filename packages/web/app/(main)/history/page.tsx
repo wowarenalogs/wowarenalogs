@@ -20,7 +20,8 @@ export default function HistoryPage() {
       if (c.dataType === 'ArenaMatch') {
         return [{ isLocal: true as const, isShuffle: false, match: c }];
       }
-      return (c.rounds ?? []).map((r) => ({ isLocal: true as const, isShuffle: true, match: r }));
+      // c is IShuffleRound — it is the atomic entry, return it directly
+      return [{ isLocal: true as const, isShuffle: true as const, match: c }];
     }) as LocalRemoteHybridCombat[];
 
     const remoteCombats = matchesQuery.data?.myMatches?.combats || [];
