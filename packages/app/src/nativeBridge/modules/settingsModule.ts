@@ -6,6 +6,8 @@ import { moduleFunction, NativeBridgeModule, nativeBridgeModule } from '../modul
 
 interface AppSettings {
   anthropicApiKey?: string;
+  blizzardClientId?: string;
+  blizzardClientSecret?: string;
 }
 
 @nativeBridgeModule('settings')
@@ -27,6 +29,16 @@ export class SettingsModule extends NativeBridgeModule {
 
   private writeSettings(settings: AppSettings): void {
     writeFileSync(this.settingsPath, JSON.stringify(settings, null, 2));
+  }
+
+  @moduleFunction()
+  public async getSettings(_mainWindow: Electron.BrowserWindow): Promise<AppSettings> {
+    return this.readSettings();
+  }
+
+  @moduleFunction()
+  public async saveSettings(_mainWindow: Electron.BrowserWindow, settings: AppSettings): Promise<void> {
+    this.writeSettings(settings);
   }
 
   @moduleFunction()

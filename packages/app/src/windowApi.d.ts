@@ -99,6 +99,8 @@ export type NativeApi = {
     removeAll_diskSpaceBecameCritical_listeners?: () => void;
   };
   settings?: {
+    getSettings?: OmitFirstArg<SettingsModule['getSettings']>;
+    saveSettings?: OmitFirstArg<SettingsModule['saveSettings']>;
     getAnthropicApiKey?: OmitFirstArg<SettingsModule['getAnthropicApiKey']>;
     setAnthropicApiKey?: OmitFirstArg<SettingsModule['setAnthropicApiKey']>;
   };

@@ -1,7 +1,7 @@
 import { app, BrowserWindow, dialog, protocol, utilityProcess } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { autoUpdater } from 'electron-updater';
-import { createReadStream, existsSync, statSync } from 'fs-extra';
+import { createReadStream, existsSync, readFileSync, statSync } from 'fs-extra';
 import moment from 'moment';
 import * as net from 'net';
 import path from 'path';
@@ -37,6 +37,21 @@ function waitForPort(port: number, timeoutMs = 30000): Promise<boolean> {
   });
 }
 
+function readSavedSettings(): { blizzardClientId?: string; blizzardClientSecret?: string } {
+  try {
+    const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+    if (existsSync(settingsPath)) {
+      return JSON.parse(readFileSync(settingsPath, 'utf-8')) as {
+        blizzardClientId?: string;
+        blizzardClientSecret?: string;
+      };
+    }
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
 function startNextServer(): void {
   if (!app.isPackaged) return;
 
@@ -48,6 +63,8 @@ function startNextServer(): void {
     return;
   }
 
+  const saved = readSavedSettings();
+
   const child = utilityProcess.fork(serverPath, [], {
     env: {
       ...process.env,
@@ -56,6 +73,8 @@ function startNextServer(): void {
       NODE_ENV: 'production',
       NEXTAUTH_URL: `http://127.0.0.1:${NEXT_SERVER_PORT}`,
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ?? 'local-personal-build-secret',
+      ...(saved.blizzardClientId ? { BLIZZARD_CLIENT_ID: saved.blizzardClientId } : {}),
+      ...(saved.blizzardClientSecret ? { BLIZZARD_CLIENT_SECRET: saved.blizzardClientSecret } : {}),
     },
     cwd: path.join(process.resourcesPath, 'server'),
     stdio: 'pipe',

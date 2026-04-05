@@ -14,6 +14,8 @@ export default function SettingsPage() {
   const [featureCode, setFeatureCode] = useState('');
   const [sentryId, setSentryId] = useState('');
   const [anthropicKey, setAnthropicKey] = useState('');
+  const [blizzardClientId, setBlizzardClientId] = useState('');
+  const [blizzardClientSecret, setBlizzardClientSecret] = useState('');
   const [keySaved, setKeySaved] = useState(false);
 
   const validFlags = useMemo(() => new Set(Object.values(features)), []);
@@ -52,8 +54,10 @@ export default function SettingsPage() {
       });
     }
     setSentryId(getAnalyticsDeviceId() || '');
-    window.wowarenalogs.settings?.getAnthropicApiKey?.().then((key) => {
-      if (key) setAnthropicKey(key);
+    window.wowarenalogs.settings?.getSettings?.().then((s) => {
+      if (s?.anthropicApiKey) setAnthropicKey(s.anthropicApiKey);
+      if (s?.blizzardClientId) setBlizzardClientId(s.blizzardClientId);
+      if (s?.blizzardClientSecret) setBlizzardClientSecret(s.blizzardClientSecret);
     });
   }, []);
 
@@ -211,15 +215,64 @@ export default function SettingsPage() {
             className="btn btn-sm btn-primary"
             disabled={!anthropicKey.trim()}
             onClick={() => {
-              window.wowarenalogs.settings?.setAnthropicApiKey?.(anthropicKey.trim()).then(() => {
-                setKeySaved(true);
-                setTimeout(() => setKeySaved(false), 2000);
-              });
+              window.wowarenalogs.settings
+                ?.saveSettings?.({ anthropicApiKey: anthropicKey.trim(), blizzardClientId, blizzardClientSecret })
+                .then(() => {
+                  setKeySaved(true);
+                  setTimeout(() => setKeySaved(false), 2000);
+                });
             }}
           >
             {keySaved ? 'Saved!' : 'Save'}
           </button>
         </div>
+      </div>
+      <div className="divider" />
+      <div className="flex flex-col gap-2">
+        <div className="text-2xl font-bold">Battle.net Login</div>
+        <div className="text-sm opacity-60 mb-1">
+          Register an OAuth app at <span className="font-mono">develop.battle.net</span> with redirect URI{' '}
+          <span className="font-mono">http://127.0.0.1:3088/api/auth/callback/battlenet</span>. Restart the app after
+          saving.
+        </div>
+        <label className="block text-sm font-semibold mb-1">Client ID</label>
+        <input
+          type="text"
+          className="input input-sm input-bordered w-full font-mono"
+          value={blizzardClientId}
+          onChange={(e) => {
+            setBlizzardClientId(e.target.value);
+            setKeySaved(false);
+          }}
+        />
+        <label className="block text-sm font-semibold mb-1">Client Secret</label>
+        <input
+          type="password"
+          className="input input-sm input-bordered w-full font-mono"
+          value={blizzardClientSecret}
+          onChange={(e) => {
+            setBlizzardClientSecret(e.target.value);
+            setKeySaved(false);
+          }}
+        />
+        <button
+          className="btn btn-sm btn-primary w-24"
+          disabled={!blizzardClientId.trim() || !blizzardClientSecret.trim()}
+          onClick={() => {
+            window.wowarenalogs.settings
+              ?.saveSettings?.({
+                anthropicApiKey: anthropicKey,
+                blizzardClientId: blizzardClientId.trim(),
+                blizzardClientSecret: blizzardClientSecret.trim(),
+              })
+              .then(() => {
+                setKeySaved(true);
+                setTimeout(() => setKeySaved(false), 2000);
+              });
+          }}
+        >
+          {keySaved ? 'Saved!' : 'Save'}
+        </button>
       </div>
       <div className="divider" />
       {window.wowarenalogs.platform === 'win32' && window.wowarenalogs.obs && <RecordingSettings />}
