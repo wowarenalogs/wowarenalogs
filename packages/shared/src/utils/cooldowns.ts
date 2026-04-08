@@ -135,8 +135,14 @@ const SPEC_EXCLUSIVE_SPELLS: Record<string, CombatUnitSpec[]> = {
 /** Ignore available windows shorter than this (e.g. just before match ends) */
 const GRACE_SECONDS = 3;
 
+export type DefensiveTimingLabel = 'Optimal' | 'Early' | 'Late' | 'Reactive' | 'Unknown';
+
 export interface ICooldownCast {
   timeSeconds: number;
+  /** Timing classification relative to enemy burst activity. Only set for Defensive/External CDs. */
+  timingLabel?: DefensiveTimingLabel;
+  /** One-line reason for the timing label */
+  timingContext?: string;
 }
 
 export interface IAvailableWindow {
@@ -274,6 +280,121 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
       },
     ];
   });
+}
+
+// Minimal shape of IEnemyCDTimeline needed for timing classification.
+// Defined locally to avoid a circular import (enemyCDs.ts already imports from cooldowns.ts).
+interface IBurstWindow {
+  fromSeconds: number;
+  toSeconds: number;
+}
+interface ISingleEnemyCDCast {
+  castTimeSeconds: number;
+  buffEndSeconds: number;
+}
+export interface IEnemyCDTimelineForTiming {
+  alignedBurstWindows: IBurstWindow[];
+  players: Array<{ offensiveCDs: ISingleEnemyCDCast[] }>;
+}
+
+/** How many seconds before a burst window a defensive can be cast and still be "Early/pre-wall" */
+const PRE_WALL_SECONDS = 5;
+/** How many seconds after a burst window ends before a defensive is classified "Late" */
+const LATE_WINDOW_SECONDS = 8;
+/** Damage curve window for fallback classification */
+const TIMING_DAMAGE_WINDOW_S = 3;
+/** Ratio threshold: if damage before cast is this much higher than after, classify as Reactive */
+const REACTIVE_RATIO = 1.75;
+
+const DEFENSIVE_TAGS = new Set<string>([SpellTag.Defensive, SpellTag.External]);
+
+/**
+ * Annotates each cast on Defensive/External cooldowns with a timing label:
+ *   Optimal — cast during an aligned burst window
+ *   Early   — cast within PRE_WALL_SECONDS before a burst window (pre-wall, may be intentional)
+ *   Late    — cast within LATE_WINDOW_SECONDS after a burst window ended
+ *   Reactive — no nearby burst window, but damage curve shows the spike already peaked at cast time
+ *   Unknown — no burst signal and no clear damage curve pattern
+ *
+ * Offensive CDs are left unlabelled (timingLabel stays undefined).
+ * Mutates the cast objects in-place and returns the same array.
+ */
+export function annotateDefensiveTimings(
+  cooldowns: IMajorCooldownInfo[],
+  unit: ICombatUnit,
+  combat: AtomicArenaCombat,
+  enemyCDTimeline: IEnemyCDTimelineForTiming,
+): IMajorCooldownInfo[] {
+  const matchStartMs = combat.startTime;
+
+  const allSingleCDs = enemyCDTimeline.players.flatMap((p) => p.offensiveCDs);
+
+  for (const cd of cooldowns) {
+    if (!DEFENSIVE_TAGS.has(cd.tag)) continue;
+
+    for (const cast of cd.casts) {
+      const t = cast.timeSeconds;
+
+      // ── 1. Aligned burst window ────────────────────────────────────────────
+      let classified = false;
+      for (const w of enemyCDTimeline.alignedBurstWindows) {
+        if (t >= w.fromSeconds && t <= w.toSeconds) {
+          cast.timingLabel = 'Optimal';
+          cast.timingContext = `cast during burst window ${fmtTime(w.fromSeconds)}–${fmtTime(w.toSeconds)}`;
+          classified = true;
+          break;
+        }
+        if (t >= w.fromSeconds - PRE_WALL_SECONDS && t < w.fromSeconds) {
+          cast.timingLabel = 'Early';
+          cast.timingContext = `cast ${(w.fromSeconds - t).toFixed(1)}s before burst window at ${fmtTime(w.fromSeconds)} — possible pre-wall`;
+          classified = true;
+          break;
+        }
+        if (t > w.toSeconds && t <= w.toSeconds + LATE_WINDOW_SECONDS) {
+          cast.timingLabel = 'Late';
+          cast.timingContext = `cast ${(t - w.toSeconds).toFixed(1)}s after burst window ended at ${fmtTime(w.toSeconds)}`;
+          classified = true;
+          break;
+        }
+      }
+      if (classified) continue;
+
+      // ── 2. Single-enemy offensive CD active during cast ────────────────────
+      const activeSingle = allSingleCDs.find((ec) => t >= ec.castTimeSeconds && t <= ec.buffEndSeconds);
+      if (activeSingle) {
+        cast.timingLabel = 'Optimal';
+        cast.timingContext = `cast during enemy offensive CD active ${fmtTime(activeSingle.castTimeSeconds)}–${fmtTime(activeSingle.buffEndSeconds)}`;
+        continue;
+      }
+      const recentSingle = allSingleCDs.find(
+        (ec) => t > ec.buffEndSeconds && t <= ec.buffEndSeconds + LATE_WINDOW_SECONDS,
+      );
+      if (recentSingle) {
+        cast.timingLabel = 'Late';
+        cast.timingContext = `cast ${(t - recentSingle.buffEndSeconds).toFixed(1)}s after enemy CD expired at ${fmtTime(recentSingle.buffEndSeconds)}`;
+        continue;
+      }
+
+      // ── 3. Damage curve fallback ───────────────────────────────────────────
+      const castMs = matchStartMs + t * 1000;
+      const dmgBefore = unit.damageIn
+        .filter((d) => d.logLine.timestamp >= castMs - TIMING_DAMAGE_WINDOW_S * 1000 && d.logLine.timestamp < castMs)
+        .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+      const dmgAfter = unit.damageIn
+        .filter((d) => d.logLine.timestamp >= castMs && d.logLine.timestamp < castMs + TIMING_DAMAGE_WINDOW_S * 1000)
+        .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+
+      if (dmgBefore > 0 && dmgAfter > 0 && dmgBefore > dmgAfter * REACTIVE_RATIO) {
+        cast.timingLabel = 'Reactive';
+        cast.timingContext = `damage spike appeared to peak before cast (${Math.round(dmgBefore / 1000)}k in 3s before vs ${Math.round(dmgAfter / 1000)}k after)`;
+      } else {
+        cast.timingLabel = 'Unknown';
+        cast.timingContext = 'no enemy burst window or damage curve signal nearby';
+      }
+    }
+  }
+
+  return cooldowns;
 }
 
 /** Compute per-player incoming damage bucketed into 15-second intervals. */

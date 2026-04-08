@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { analyzePlayerCCAndTrinket, formatCCTrinketForContext } from '../../../utils/ccTrinketAnalysis';
 import {
+  annotateDefensiveTimings,
   computePressureWindows,
   detectOverlappedDefensives,
   detectPanicDefensives,
@@ -10,6 +11,7 @@ import {
   fmtTime,
   formatOverlappedDefensivesForContext,
   formatPanicDefensivesForContext,
+  IEnemyCDTimelineForTiming,
   IMajorCooldownInfo,
   IOverlappedDefensive,
   IPanicDefensive,
@@ -239,6 +241,11 @@ export function buildMatchContext(
     .filter((p) => p.id !== owner.id)
     .map((p) => ({ player: p, cds: extractMajorCooldowns(p, combat) }));
   const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat, owner, friends);
+  // Annotate defensive timing labels now that we have the enemy CD timeline
+  annotateDefensiveTimings(cooldowns, owner, combat, enemyCDTimeline as IEnemyCDTimelineForTiming);
+  teammateCooldowns.forEach(({ player, cds }) =>
+    annotateDefensiveTimings(cds, player, combat, enemyCDTimeline as IEnemyCDTimelineForTiming),
+  );
   const pressureWindows = computePressureWindows(friends, combat);
   const overlappedDefensives = detectOverlappedDefensives(friends, combat);
   const panicDefensives = detectPanicDefensives(friends, enemies, combat);
@@ -329,7 +336,13 @@ export function buildMatchContext(
       if (cd.neverUsed) {
         lines.push(`    STATUS: NEVER USED`);
       } else {
-        cd.casts.forEach((c) => lines.push(`    Cast at: ${fmtTime(c.timeSeconds)}`));
+        cd.casts.forEach((c) => {
+          const timing =
+            c.timingLabel && c.timingLabel !== 'Unknown'
+              ? ` [${c.timingLabel.toUpperCase()}${c.timingContext ? ` — ${c.timingContext}` : ''}]`
+              : '';
+          lines.push(`    Cast at: ${fmtTime(c.timeSeconds)}${timing}`);
+        });
       }
       if (cd.availableWindows.length > 0) {
         lines.push(`    Idle windows:`);
