@@ -113,18 +113,24 @@ findings**, ranked by estimated match impact.
 
 | Priority | #   | Feature                                                                             | Complexity | Value (advanced) | Status                           |
 | -------- | --- | ----------------------------------------------------------------------------------- | ---------- | ---------------- | -------------------------------- |
-| **1**    | P0  | Prompt rewrite — constrained evaluator, top-3 output, uncertainty, decision framing | Low        | **Critical**     | ❌ Not started                   |
-| **2**    | P0  | Purge blame attribution — who on team can purge, is log owner one of them           | Low        | **High**         | ❌ Not started                   |
-| **3**    | P0  | Purge blocklist fixes — spells flagged as purgeable that aren't                     | Low        | **High**         | ❌ Not started                   |
-| **4**    | 12  | Kill Window Quality                                                                 | Medium     | **High**         | ❌ Not started                   |
-| **5**    | —   | Timing classification — early/optimal/late on defensive CD usage                    | Low        | **High**         | ❌ Not started                   |
-| **6**    | 17  | Offensive Vulnerability Windows                                                     | Medium     | **High**         | ❌ Not started                   |
-| **7**    | 9   | DR Chain Tracking                                                                   | Medium     | **High**         | ❌ Not started                   |
-| **8**    | 18  | CDR Heuristics (scoped: Shifting Power, Wake of Ashes only)                         | Medium     | Medium           | ❌ Not started                   |
-| **9**    | 2   | CC During Enemy Burst Response                                                      | Medium     | Medium           | ❌ Not started                   |
-| **10**   | 16  | Fatal Dispel Flagging (UA backlash)                                                 | Low        | Medium           | ❌ Not started                   |
-| **11**   | 5   | Mana Curve                                                                          | Low        | Medium           | ❌ Not started                   |
-| **12**   | 11  | Interrupt Analysis                                                                  | Low        | Low-Medium       | ❌ Not started                   |
+| **1**    | P0  | Prompt rewrite — constrained evaluator, top-3 output, uncertainty, decision framing | Low        | **Critical**     | ✅ Done (F9, Sprint 1)           |
+| **2**    | P0  | Purge blame attribution — who on team can purge, is log owner one of them           | Low        | **High**         | ✅ Done (F11, Sprint 1)          |
+| **3**    | P0  | Purge blocklist fixes — spells flagged as purgeable that aren't                     | Low        | **High**         | ✅ Done (B6/B7 fixed)            |
+| **4**    | 12  | Kill Window Quality                                                                 | Medium     | **High**         | ❌ Not started (F12, Sprint 2)   |
+| **5**    | —   | Timing classification — early/optimal/late on defensive CD usage                    | Low        | **High**         | ❌ Not started (F13, Sprint 2)   |
+| **6**    | 17  | Offensive Vulnerability Windows                                                     | Medium     | **High**         | ❌ Not started (F14, Sprint 2)   |
+| **7**    | 9   | DR Chain Tracking                                                                   | Medium     | **High**         | ❌ Not started (F15, Sprint 3)   |
+| **8**    | 18  | CDR Heuristics (scoped: Shifting Power, Wake of Ashes only)                         | Medium     | Medium           | ❌ Not started (F16, Sprint 3)   |
+| **9**    | 2   | CC During Enemy Burst Response                                                      | Medium     | Medium           | ❌ Not started (F17, Sprint 3)   |
+| **10**   | 16  | Fatal Dispel Flagging (UA backlash)                                                 | Low        | Medium           | ❌ Not started (F18, Sprint 4)   |
+| **11**   | 5   | Mana Curve                                                                          | Low        | Medium           | ❌ Not started (F19, Sprint 4)   |
+| **12**   | 11  | Interrupt Analysis                                                                  | Low        | Low-Medium       | ❌ Not started (F20, Sprint 4)   |
+| **—**    | —   | Dispel/purge priority scoring + CD context + pressure signal                        | Medium     | **High**         | ✅ Done (F21, Sprint 2)          |
+| **—**    | —   | Trade necessity + cost modeling                                                     | Medium     | **High**         | ❌ Not started (F22, Sprint 2)   |
+| **—**    | —   | Blame assignment (self / teammate / unavoidable)                                    | Medium     | **High**         | ❌ Not started (F23, Sprint 2)   |
+| **—**    | —   | Avoidability framing                                                                | Medium     | High             | ❌ Not started (F24, Sprint 2)   |
+| **—**    | —   | Target selection evaluation                                                         | Medium     | Medium           | ❌ Not started (F25, Sprint 3)   |
+| **—**    | —   | CC avoidability                                                                     | Low        | Medium           | ❌ Not started (F27, Sprint 3)   |
 | **—**    | 8   | CD Rotation Simulation                                                              | —          | —                | Handled via prompt, not code     |
 | **—**    | 6   | Positioning Analysis                                                                | —          | —                | Out of scope (no pillar data)    |
 | **—**    | 13  | Player Performance Score                                                            | —          | —                | Deprioritized (calibration risk) |
