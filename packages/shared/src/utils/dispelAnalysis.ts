@@ -151,6 +151,8 @@ const CONSUME_MAGIC_SPELL_ID = '278326';
 // Warlock Felhunter: Summon Felhunter is in the talent tree; Devour Magic is a pet ability (not player talent).
 // We use the Summon Felhunter talent as a proxy, falling back to cast evidence.
 const SUMMON_FELHUNTER_SPELL_ID = '30146';
+// Shadow Priest: Purify Disease is in the talent tree (not baseline like Holy/Disc).
+const PURIFY_DISEASE_SPELL_ID = '213634';
 
 const WARLOCK_SPECS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Warlock_Affliction,
@@ -158,6 +160,62 @@ const WARLOCK_SPECS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Warlock_Destruction,
 ]);
 const DH_SPECS = new Set<CombatUnitSpec>([CombatUnitSpec.DemonHunter_Havoc, CombatUnitSpec.DemonHunter_Vengeance]);
+
+/** Returns the set of spell IDs the unit successfully cast during the match. */
+function unitCastSpellIds(unit: ICombatUnit): Set<string> {
+  return new Set<string>(
+    unit.spellCastEvents
+      .filter((e) => e.logLine.event === LogEvent.SPELL_CAST_SUCCESS)
+      .map((e) => e.spellId)
+      .filter((id): id is string => id !== null),
+  );
+}
+
+/**
+ * Returns true if a talent-gated spell is confirmed available for the unit.
+ * - Has talent data and took the talent → true
+ * - Has talent data and didn't take it → false
+ * - No talent data + has COMBATANT_INFO → fall back to cast evidence
+ * - No COMBATANT_INFO at all → false (can't verify; avoid false positives)
+ */
+function hasTalentedAbility(unit: ICombatUnit, spellId: string): boolean {
+  const specIdNum = parseInt(unit.spec, 10);
+  const talentTreeIds = getSpecTalentTreeSpellIds(specIdNum);
+  if (!talentTreeIds.has(spellId)) return false; // not a talent for this spec
+
+  const talentedIds = unit.info?.talents ? getPlayerTalentedSpellIds(specIdNum, unit.info.talents) : null;
+  if (talentedIds !== null) return talentedIds.has(spellId);
+
+  // No parsed talent data — use cast evidence if COMBATANT_INFO was present
+  if (unit.info !== undefined) return unitCastSpellIds(unit).has(spellId);
+
+  return false; // no COMBATANT_INFO — can't verify
+}
+
+/**
+ * Returns true if the unit can defensively cleanse the given debuff type from an ally,
+ * accounting for talent-gated abilities (e.g. Shadow Priest Purify Disease).
+ *
+ * Note: Warlock Imp Singe Magic (party magic cleanse) is not tracked — it is a pet
+ * ability with no reliable signal in player cast events.
+ */
+export function canDefensiveCleanse(unit: ICombatUnit, dispelType: DispelType): boolean {
+  switch (dispelType) {
+    case 'Magic':
+      return MAGIC_REMOVERS.has(unit.spec);
+    case 'Poison':
+      return POISON_REMOVERS.has(unit.spec);
+    case 'Curse':
+      return CURSE_REMOVERS.has(unit.spec);
+    case 'Disease':
+      if (DISEASE_REMOVERS.has(unit.spec)) return true;
+      // Shadow Priest can talent into Purify Disease — not in DISEASE_REMOVERS by default
+      if (unit.spec === CombatUnitSpec.Priest_Shadow) return hasTalentedAbility(unit, PURIFY_DISEASE_SPELL_ID);
+      return false;
+    case 'Bleed':
+      return BLEED_REMOVERS.has(unit.spec);
+  }
+}
 
 /**
  * Returns true if the unit can actually perform an offensive purge, accounting for
@@ -170,13 +228,7 @@ export function canOffensivePurge(unit: ICombatUnit): boolean {
   const talentTreeIds = getSpecTalentTreeSpellIds(specIdNum);
   const talentedIds = unit.info?.talents ? getPlayerTalentedSpellIds(specIdNum, unit.info.talents) : null;
   const hasCombatantInfo = unit.info !== undefined;
-
-  const castSpellIds = new Set<string>(
-    unit.spellCastEvents
-      .filter((e) => e.logLine.event === LogEvent.SPELL_CAST_SUCCESS)
-      .map((e) => e.spellId)
-      .filter((id): id is string => id !== null),
-  );
+  const castSpellIds = unitCastSpellIds(unit);
 
   // DH: Consume Magic is talent-gated.
   if (DH_SPECS.has(unit.spec) && talentTreeIds.has(CONSUME_MAGIC_SPELL_ID)) {
@@ -236,14 +288,14 @@ function getDispelType(spellId: string): DispelType | null {
   return DISPEL_TYPE_FALLBACK[spellId] ?? null;
 }
 
+const ALL_DISPEL_TYPES: DispelType[] = ['Magic', 'Poison', 'Curse', 'Disease', 'Bleed'];
+
 function buildTeamDispelTypes(friends: ICombatUnit[]): Set<DispelType> {
   const types = new Set<DispelType>();
   for (const unit of friends) {
-    if (MAGIC_REMOVERS.has(unit.spec)) types.add('Magic');
-    if (POISON_REMOVERS.has(unit.spec)) types.add('Poison');
-    if (CURSE_REMOVERS.has(unit.spec)) types.add('Curse');
-    if (DISEASE_REMOVERS.has(unit.spec)) types.add('Disease');
-    if (BLEED_REMOVERS.has(unit.spec)) types.add('Bleed');
+    for (const type of ALL_DISPEL_TYPES) {
+      if (canDefensiveCleanse(unit, type)) types.add(type);
+    }
   }
   return types;
 }
@@ -257,11 +309,9 @@ function buildTeamDispelCapability(friends: ICombatUnit[]): Map<DispelType, ICom
     map.set(type, list);
   };
   for (const unit of friends) {
-    if (MAGIC_REMOVERS.has(unit.spec)) add('Magic', unit);
-    if (POISON_REMOVERS.has(unit.spec)) add('Poison', unit);
-    if (CURSE_REMOVERS.has(unit.spec)) add('Curse', unit);
-    if (DISEASE_REMOVERS.has(unit.spec)) add('Disease', unit);
-    if (BLEED_REMOVERS.has(unit.spec)) add('Bleed', unit);
+    for (const type of ALL_DISPEL_TYPES) {
+      if (canDefensiveCleanse(unit, type)) add(type, unit);
+    }
   }
   return map;
 }
