@@ -679,8 +679,25 @@ export function formatOverlappedDefensivesForContext(overlaps: IOverlappedDefens
 
 /** Fraction of the target's max HP that constitutes meaningful pressure in a window */
 const PANIC_PRESS_PRESSURE_PCT = 0.15;
-/** Fallback when no advancedActions HP data is available for the target */
-const PANIC_PRESS_DAMAGE_THRESHOLD_FALLBACK = 250_000;
+
+// Tank specs — relevant for role-based pressure threshold fallback.
+// Tanks have substantially higher HP pools than DPS/healers.
+const TANK_SPECS = new Set([
+  CombatUnitSpec.DeathKnight_Blood,
+  CombatUnitSpec.DemonHunter_Vengeance,
+  CombatUnitSpec.Druid_Guardian,
+  CombatUnitSpec.Monk_BrewMaster,
+  CombatUnitSpec.Paladin_Protection,
+  CombatUnitSpec.Warrior_Protection,
+]);
+
+// Role-based HP estimates used when advancedActions data is absent.
+// Derived from typical arena HP pools at Gladiator ilvl × PANIC_PRESS_PRESSURE_PCT (15%).
+// Tanks: ~900k HP → 135k; DPS: ~400k HP → 60k; Healers: ~450k HP → 68k.
+// These are intentionally conservative (slightly high) to avoid over-flagging.
+const PANIC_PRESS_DAMAGE_THRESHOLD_TANK = 135_000;
+const PANIC_PRESS_DAMAGE_THRESHOLD_DPS = 60_000;
+const PANIC_PRESS_DAMAGE_THRESHOLD_HEALER = 68_000;
 const PANIC_PRESS_PRE_CAST_WINDOW_MS = 3_000;
 const PANIC_PRESS_POST_CAST_WINDOW_MS = 4_000;
 /** If an enemy offensive CD starts within this window after the cast, it was a valid pre-wall */
@@ -741,12 +758,18 @@ function hasOffensiveSpellActive(
 
 /**
  * Derive the pressure threshold for a unit from its recorded max HP (15% of max HP).
- * Falls back to a flat 250k when no advanced HP data is available.
+ * When no advanced HP data is available, falls back to a role-based estimate derived
+ * from typical arena HP pools at Gladiator ilvl rather than a flat value.
  */
 export function getPressureThreshold(unit: ICombatUnit): number {
-  if (unit.advancedActions.length === 0) return PANIC_PRESS_DAMAGE_THRESHOLD_FALLBACK;
-  const maxHp = Math.max(...unit.advancedActions.map((a) => a.advancedActorMaxHp));
-  return maxHp > 0 ? maxHp * PANIC_PRESS_PRESSURE_PCT : PANIC_PRESS_DAMAGE_THRESHOLD_FALLBACK;
+  if (unit.advancedActions.length > 0) {
+    const maxHp = Math.max(...unit.advancedActions.map((a) => a.advancedActorMaxHp));
+    if (maxHp > 0) return maxHp * PANIC_PRESS_PRESSURE_PCT;
+  }
+  // Role-based fallback: tanks absorb far more damage than the flat 250k implied
+  if (TANK_SPECS.has(unit.spec)) return PANIC_PRESS_DAMAGE_THRESHOLD_TANK;
+  if (HEALER_SPECS.has(unit.spec)) return PANIC_PRESS_DAMAGE_THRESHOLD_HEALER;
+  return PANIC_PRESS_DAMAGE_THRESHOLD_DPS;
 }
 
 /**

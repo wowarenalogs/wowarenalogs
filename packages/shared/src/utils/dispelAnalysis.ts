@@ -3,7 +3,7 @@ import { CombatExtraSpellAction, CombatUnitSpec, ICombatUnit, LogEvent } from '@
 import { spellEffectData } from '../data/spellEffectData';
 import spellIdListsData from '../data/spellIdLists.json';
 import spellsData from '../data/spells.json';
-import { fmtTime, specToString } from './cooldowns';
+import { fmtTime, getPressureThreshold, specToString } from './cooldowns';
 import { getPlayerTalentedSpellIds, getSpecTalentTreeSpellIds } from './talents';
 
 export type DispelPriority = 'Critical' | 'High' | 'Medium' | 'Low';
@@ -389,11 +389,22 @@ export interface IMissedPurgeWindow {
   timeSeconds: number;
   /** How long the buff sat uncontested; capped at match duration if never removed */
   durationSeconds: number;
+  /** How long the buff was expected to last per spellEffectData; undefined if no duration data */
+  expectedBuffDurationSeconds?: number;
   enemyName: string;
   enemySpec: string;
   spellName: string;
   spellId: string;
   priority: DispelPriority;
+  /** True if all eligible purgers had their purge ability on CD at the start of the miss window */
+  purgeWasOnCD: boolean;
+  /** What the purger last used their ability on before the miss (only set when purgeWasOnCD) */
+  cdBurnedOn?: { spellName: string; priority: DispelPriority; secondsBefore: number };
+  /**
+   * True if friendly team was under meaningful pressure during the miss window.
+   * Uses role-aware getPressureThreshold (post B8 fix).
+   */
+  teamUnderPressure: boolean;
 }
 
 export interface IDispelSummary {
@@ -815,14 +826,58 @@ export function reconstructDispelSummary(
                 isPurgerFullyBlockedDuringWindow(purger, applyTs, windowEndMs, enemyIds),
               );
             if (!allPurgersBlocked) {
+              // Expected buff duration from spell data
+              const expectedBuffDurationSeconds = spellEffectData[spellId]?.durationSeconds;
+
+              // Purge CD state: look back at ourPurges for each eligible purger.
+              // Only meaningful for CD-gated purgers (Evoker 10s, DH/Warlock/Priest 8s).
+              // Free-purge specs (Shaman, Mage) never have their CD "burned" — skip them.
+              const cdGatedEligible = eligiblePurgers.filter((p) => CD_GATED_PURGERS.has(p.spec));
+              let purgeWasOnCD = false;
+              let cdBurnedOn: { spellName: string; priority: DispelPriority; secondsBefore: number } | undefined;
+              if (cdGatedEligible.length > 0 && eligiblePurgers.every((p) => CD_GATED_PURGERS.has(p.spec))) {
+                // Only meaningful when ALL eligible purgers are CD-gated
+                const purgeCD = 8; // seconds — conservative; Evoker is 10s
+                const recentPurges = ourPurges.filter(
+                  (p) =>
+                    cdGatedEligible.some((pu) => pu.name === p.sourceName) &&
+                    p.timeSeconds < applyRelative &&
+                    p.timeSeconds >= applyRelative - purgeCD,
+                );
+                const purgersWhoUsedCD = new Set(recentPurges.map((p) => p.sourceName));
+                if (cdGatedEligible.every((p) => purgersWhoUsedCD.has(p.name))) {
+                  purgeWasOnCD = true;
+                  const lastPurge = recentPurges[recentPurges.length - 1];
+                  cdBurnedOn = {
+                    spellName: lastPurge.removedSpellName,
+                    priority: lastPurge.priority,
+                    secondsBefore: applyRelative - lastPurge.timeSeconds,
+                  };
+                }
+              }
+
+              // Healing pressure: was the friendly team taking significant damage during the miss?
+              const windowEndMs = removalTs ?? combat.endTime;
+              const teamUnderPressure = friends.some((f) => {
+                const threshold = getPressureThreshold(f);
+                const dmg = f.damageIn
+                  .filter((d) => d.logLine.timestamp >= applyTs && d.logLine.timestamp <= windowEndMs)
+                  .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+                return dmg >= threshold;
+              });
+
               missedPurgeWindows.push({
                 timeSeconds: applyRelative,
                 durationSeconds,
+                expectedBuffDurationSeconds,
                 enemyName: enemy.name,
                 enemySpec: specToString(enemy.spec),
                 spellName,
                 spellId,
                 priority,
+                purgeWasOnCD,
+                cdBurnedOn,
+                teamUnderPressure,
               });
             }
           }
@@ -937,8 +992,18 @@ export function formatDispelContextForAI(summary: IDispelSummary): string[] {
     lines.push('    None detected');
   } else {
     for (const w of significantMissedPurges) {
+      const expectedStr =
+        w.expectedBuffDurationSeconds != null
+          ? ` (buff lasts ${w.expectedBuffDurationSeconds}s; ${Math.round(w.durationSeconds)}s sat unpurged)`
+          : ` (${Math.round(w.durationSeconds)}s unpurged)`;
+      let cdContext = '';
+      if (w.purgeWasOnCD && w.cdBurnedOn) {
+        const sec = w.cdBurnedOn.secondsBefore.toFixed(1);
+        cdContext = ` — purge on CD, burned ${sec}s earlier on ${w.cdBurnedOn.spellName} [${w.cdBurnedOn.priority}]`;
+      }
+      const pressureStr = w.teamUnderPressure ? ' — team under pressure' : '';
       lines.push(
-        `    ${fmtTime(w.timeSeconds)} — ${w.enemyName} [${w.enemySpec}] had ${w.spellName} for ${Math.round(w.durationSeconds)}s unpurged [${w.priority}]`,
+        `    ${fmtTime(w.timeSeconds)} — ${w.enemyName} [${w.enemySpec}] had ${w.spellName}${expectedStr} [${w.priority}]${cdContext}${pressureStr}`,
       );
     }
   }
