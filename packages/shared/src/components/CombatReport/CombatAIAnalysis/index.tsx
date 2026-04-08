@@ -1,4 +1,4 @@
-import { CombatUnitReaction, CombatUnitType } from '@wowarenalogs/parser';
+import { CombatUnitReaction, CombatUnitType, ICombatUnit } from '@wowarenalogs/parser';
 import { useEffect, useState } from 'react';
 
 import { analyzePlayerCCAndTrinket, formatCCTrinketForContext } from '../../../utils/ccTrinketAnalysis';
@@ -10,14 +10,182 @@ import {
   fmtTime,
   formatOverlappedDefensivesForContext,
   formatPanicDefensivesForContext,
+  IMajorCooldownInfo,
+  IOverlappedDefensive,
+  IPanicDefensive,
   isHealerSpec,
   specToString,
 } from '../../../utils/cooldowns';
 import { formatDampeningForContext } from '../../../utils/dampening';
-import { formatDispelContextForAI, reconstructDispelSummary } from '../../../utils/dispelAnalysis';
-import { formatEnemyCDTimelineForContext, reconstructEnemyCDTimeline } from '../../../utils/enemyCDs';
-import { detectHealingGaps, formatHealingGapsForContext } from '../../../utils/healingGaps';
+import { canOffensivePurge, formatDispelContextForAI, reconstructDispelSummary } from '../../../utils/dispelAnalysis';
+import { formatEnemyCDTimelineForContext, IEnemyCDTimeline, reconstructEnemyCDTimeline } from '../../../utils/enemyCDs';
+import { detectHealingGaps, formatHealingGapsForContext, IHealingGap } from '../../../utils/healingGaps';
 import { useCombatReportContext } from '../CombatReportContext';
+
+// ── Critical moment identification helpers ─────────────────────────────────
+
+interface CriticalMoment {
+  timeSeconds: number;
+  impactScore: number;
+  impactLabel: 'Critical' | 'High' | 'Moderate';
+  title: string;
+  enemyState: string;
+  friendlyState: string;
+  whatHappened: string;
+  availableOptions: string;
+  uncertainty: string;
+}
+
+function getEnemyStateAtTime(timeSeconds: number, enemyCDTimeline: IEnemyCDTimeline): string {
+  // Prefer aligned burst windows: look for a burst that started within 15s before or 5s after the moment
+  const relevant = enemyCDTimeline.alignedBurstWindows.filter(
+    (w) => w.fromSeconds <= timeSeconds + 5 && w.toSeconds >= timeSeconds - 15,
+  );
+  if (relevant.length > 0) {
+    const best = [...relevant].sort((a, b) => b.dangerScore - a.dangerScore)[0];
+    const cdNames = best.activeCDs.map((c) => `${c.playerName}: ${c.spellName}`).join(', ');
+    return `Aligned burst (${best.dangerLabel} threat) — ${cdNames}`;
+  }
+  // Fall back to individual offensive CDs cast near this time
+  const nearCDs: string[] = [];
+  for (const player of enemyCDTimeline.players) {
+    for (const cd of player.offensiveCDs) {
+      if (cd.castTimeSeconds >= timeSeconds - 15 && cd.castTimeSeconds <= timeSeconds + 5) {
+        nearCDs.push(`${player.playerName}: ${cd.spellName} at ${fmtTime(cd.castTimeSeconds)}`);
+      }
+    }
+  }
+  if (nearCDs.length > 0) return `Individual offensive CDs near this window: ${nearCDs.join(', ')}`;
+  return 'No enemy offensive CDs detected in this window (low threat environment)';
+}
+
+function getOwnerCDsAvailable(timeSeconds: number, cooldowns: IMajorCooldownInfo[]): string {
+  const available: string[] = [];
+  const onCD: string[] = [];
+  for (const cd of cooldowns) {
+    if (cd.neverUsed) {
+      available.push(`${cd.spellName} (never used — available since match start)`);
+      continue;
+    }
+    const castsBeforeNow = cd.casts.filter((c) => c.timeSeconds <= timeSeconds);
+    if (castsBeforeNow.length === 0) {
+      available.push(`${cd.spellName} (not yet used)`);
+    } else {
+      const lastCast = castsBeforeNow[castsBeforeNow.length - 1];
+      const readyAt = lastCast.timeSeconds + cd.cooldownSeconds;
+      if (readyAt <= timeSeconds) {
+        available.push(`${cd.spellName} (ready since ${fmtTime(readyAt)})`);
+      } else {
+        onCD.push(`${cd.spellName} (on CD until ~${fmtTime(readyAt)})`);
+      }
+    }
+  }
+  const parts: string[] = [];
+  if (available.length > 0) parts.push(`Available: ${available.join(', ')}`);
+  if (onCD.length > 0) parts.push(`On cooldown: ${onCD.join(', ')}`);
+  return parts.join(' | ') || 'No major CD data for log owner';
+}
+
+function identifyCriticalMoments(
+  isHealer: boolean,
+  cooldowns: IMajorCooldownInfo[],
+  enemyCDTimeline: IEnemyCDTimeline,
+  friendlyDeaths: Array<{ spec: string; name: string; atSeconds: number }>,
+  healingGaps: IHealingGap[],
+  panicDefensives: IPanicDefensive[],
+  overlappedDefensives: IOverlappedDefensive[],
+): CriticalMoment[] {
+  const moments: CriticalMoment[] = [];
+
+  // 1. Friendly deaths — highest impact
+  for (const death of friendlyDeaths) {
+    const enemyState = getEnemyStateAtTime(death.atSeconds, enemyCDTimeline);
+    const cdState = getOwnerCDsAvailable(death.atSeconds, cooldowns);
+    // Check if a healing gap overlapped with or immediately preceded this death
+    const nearbyGap = healingGaps.find((g) => g.fromSeconds <= death.atSeconds && g.toSeconds >= death.atSeconds - 10);
+    const whatHappened = nearbyGap
+      ? `${death.spec} died at ${fmtTime(death.atSeconds)}. A ${nearbyGap.durationSeconds.toFixed(1)}s healing gap (${nearbyGap.freeCastSeconds.toFixed(1)}s free-cast) was active from ${fmtTime(nearbyGap.fromSeconds)} — healer was not CC'd during this time.`
+      : `${death.spec} died at ${fmtTime(death.atSeconds)}.`;
+    moments.push({
+      timeSeconds: death.atSeconds,
+      impactScore: 100,
+      impactLabel: 'Critical',
+      title: `${death.spec} death`,
+      enemyState,
+      friendlyState: cdState,
+      whatHappened,
+      availableOptions: cdState,
+      uncertainty:
+        'Log cannot confirm healer position, line-of-sight, or exact HP% at time of death. Cause of death may involve prior damage not reflected in the nearest pressure window.',
+    });
+  }
+
+  // 2. Free-cast healing gaps during pressure (healer only — not already tied to a death)
+  if (isHealer) {
+    for (const gap of healingGaps) {
+      const tiedToDeath = friendlyDeaths.some(
+        (d) => gap.fromSeconds <= d.atSeconds && gap.toSeconds >= d.atSeconds - 10,
+      );
+      if (tiedToDeath) continue;
+      const midpoint = gap.fromSeconds + gap.durationSeconds / 2;
+      const enemyState = getEnemyStateAtTime(midpoint, enemyCDTimeline);
+      const cdState = getOwnerCDsAvailable(gap.fromSeconds, cooldowns);
+      const dmgK = Math.round(gap.mostDamagedAmount / 1000);
+      const score = Math.min(85, 40 + gap.mostDamagedAmount / 150_000);
+      moments.push({
+        timeSeconds: gap.fromSeconds,
+        impactScore: score,
+        impactLabel: score >= 70 ? 'High' : 'Moderate',
+        title: `Healing gap — ${gap.mostDamagedSpec} took ${dmgK}k while healer had free-cast time`,
+        enemyState,
+        friendlyState: `Healer had ${gap.freeCastSeconds.toFixed(1)}s free-cast time in a ${gap.durationSeconds.toFixed(1)}s gap. ${cdState}`,
+        whatHappened: `Healer cast no heals or spells from ${fmtTime(gap.fromSeconds)} to ${fmtTime(gap.toSeconds)} (${gap.durationSeconds.toFixed(1)}s total, ${gap.freeCastSeconds.toFixed(1)}s free). ${gap.mostDamagedSpec} (${gap.mostDamagedName}) took ${dmgK}k damage.`,
+        availableOptions: `Healer had free-cast time — instant-cast heals and available CDs were options. ${cdState}`,
+        uncertainty:
+          'Log cannot confirm healer position or LoS. Mana state is not tracked. The gap may reflect intentional repositioning not visible in combat events.',
+      });
+    }
+  }
+
+  // 3. Panic defensives — CD used during no real pressure
+  for (const panic of panicDefensives) {
+    const enemyState = getEnemyStateAtTime(panic.timeSeconds, enemyCDTimeline);
+    const cdState = getOwnerCDsAvailable(panic.timeSeconds, cooldowns);
+    moments.push({
+      timeSeconds: panic.timeSeconds,
+      impactScore: 60,
+      impactLabel: 'High',
+      title: `Panic defensive — ${panic.spellName} used with no enemy burst detected`,
+      enemyState,
+      friendlyState: cdState,
+      whatHappened: `${panic.casterSpec} (${panic.casterName}) cast ${panic.spellName} on ${panic.targetSpec} (${panic.targetName}) at ${fmtTime(panic.timeSeconds)}, but no significant enemy pressure was detected in the surrounding 7-second window.`,
+      availableOptions: `Holding ${panic.spellName} for a confirmed burst window would provide stronger coverage at the cost of a potentially risky undefended interval.`,
+      uncertainty:
+        'Log may miss absorbed damage that preceded the cast. Enemy intent and exact HP% cannot be confirmed from combat log events alone.',
+    });
+  }
+
+  // 4. Overlapped defensives
+  for (const overlap of overlappedDefensives) {
+    const enemyState = getEnemyStateAtTime(overlap.timeSeconds, enemyCDTimeline);
+    moments.push({
+      timeSeconds: overlap.timeSeconds,
+      impactScore: 50,
+      impactLabel: 'Moderate',
+      title: `Defensive overlap — ${overlap.firstSpellName} + ${overlap.secondSpellName} simultaneously on ${overlap.targetName}`,
+      enemyState,
+      friendlyState: `${overlap.firstCasterSpec} used ${overlap.firstSpellName} at ${fmtTime(overlap.timeSeconds)}; ${overlap.secondCasterSpec} used ${overlap.secondSpellName} at ${fmtTime(overlap.secondCastTimeSeconds)} — simultaneous for ${overlap.simultaneousSeconds.toFixed(1)}s.`,
+      whatHappened: `Two major defensives were stacked on ${overlap.targetName} for ${overlap.simultaneousSeconds.toFixed(1)}s of overlapping coverage, wasting effective duration of one CD.`,
+      availableOptions: `Staggering the CDs would extend total coverage by ~${Math.round(overlap.simultaneousSeconds)}s. Optimal: ${overlap.secondCasterSpec} waits for ${overlap.firstSpellName} to expire before pressing ${overlap.secondSpellName}.`,
+      uncertainty:
+        'Cannot determine if simultaneous stacking was required to survive a spike — HP values during this window are not fully tracked in the log.',
+    });
+  }
+
+  return moments.sort((a, b) => b.impactScore - a.impactScore).slice(0, 3);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 
 export function buildMatchContext(
   combat: NonNullable<ReturnType<typeof useCombatReportContext>['combat']>,
@@ -48,6 +216,7 @@ export function buildMatchContext(
     .flatMap((p) =>
       p.deathRecords.map((d) => ({
         spec: specToString(p.spec),
+        name: p.name,
         atSeconds: (d.timestamp - combat.startTime) / 1000,
       })),
     )
@@ -58,132 +227,147 @@ export function buildMatchContext(
     .flatMap((p) =>
       p.deathRecords.map((d) => ({
         spec: specToString(p.spec),
+        name: p.name,
         atSeconds: (d.timestamp - combat.startTime) / 1000,
       })),
     )
     .sort((a, b) => a.atSeconds - b.atSeconds);
 
-  // Owner cooldowns
+  // Compute all feature data upfront
   const cooldowns = extractMajorCooldowns(owner, combat);
-
-  // Teammate cooldowns (non-owner friendly players)
   const teammateCooldowns = friends
     .filter((p) => p.id !== owner.id)
     .map((p) => ({ player: p, cds: extractMajorCooldowns(p, combat) }));
-
-  // Enemy offensive CD timeline
   const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat, owner, friends);
-
-  // Pressure windows — damage on friendly team
   const pressureWindows = computePressureWindows(friends, combat);
-
-  // Friendly defensive CD overlaps
   const overlappedDefensives = detectOverlappedDefensives(friends, combat);
   const panicDefensives = detectPanicDefensives(friends, enemies, combat);
+  const healingGaps = healer ? detectHealingGaps(owner, friends, enemies, combat) : [];
+  const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
+  const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
 
-  // Build readable text for Claude
+  // Identify top critical moments for structured evaluation
+  const criticalMoments = identifyCriticalMoments(
+    healer,
+    cooldowns,
+    enemyCDTimeline,
+    friendlyDeaths,
+    healingGaps,
+    panicDefensives,
+    overlappedDefensives,
+  );
+
+  // Purge responsibility attribution
+  const ownerCanPurge = canOffensivePurge(owner as ICombatUnit);
+  const teamPurgers = friends
+    .filter((p) => p.id !== owner.id && canOffensivePurge(p as ICombatUnit))
+    .map((p) => specToString(p.spec));
+
   const lines: string[] = [];
 
-  lines.push(`ARENA MATCH ANALYSIS REQUEST`);
+  // ── MATCH SUMMARY ──────────────────────────────────────────────────────────
+  lines.push('ARENA MATCH — DECISION ANALYSIS REQUEST');
   lines.push('');
-  lines.push(`Spec: ${ownerSpec}${healer ? ' (Healer)' : ''}`);
-  lines.push(`Bracket: ${combat.startInfo.bracket}`);
-  lines.push(`Result: ${resultStr}`);
-  lines.push(`Duration: ${fmtTime(durationSeconds)}`);
-  lines.push(`My team: ${myTeam}`);
-  lines.push(`Enemy team: ${enemyTeam}`);
+  lines.push('MATCH SUMMARY');
+  lines.push(
+    `  Spec: ${ownerSpec}${healer ? ' (Healer)' : ''}  |  Bracket: ${combat.startInfo.bracket}  |  Result: ${resultStr}  |  Duration: ${fmtTime(durationSeconds)}`,
+  );
+  lines.push(`  My team: ${myTeam}`);
+  lines.push(`  Enemy team: ${enemyTeam}`);
+  const deathParts = [
+    ...friendlyDeaths.map((d) => `${d.spec} (my team, ${fmtTime(d.atSeconds)})`),
+    ...enemyDeaths.map((d) => `${d.spec} (enemy, ${fmtTime(d.atSeconds)})`),
+  ];
+  lines.push(`  Deaths: ${deathParts.length > 0 ? deathParts.join(', ') : 'None'}`);
 
+  // ── CRITICAL MOMENTS ───────────────────────────────────────────────────────
   lines.push('');
-  lines.push('DEATHS:');
-  if (friendlyDeaths.length === 0) {
-    lines.push('  My team: No deaths');
-  } else {
-    friendlyDeaths.forEach((d) => lines.push(`  My team: ${d.spec} died at ${fmtTime(d.atSeconds)}`));
-  }
-  if (enemyDeaths.length === 0) {
-    lines.push('  Enemy team: No deaths');
-  } else {
-    enemyDeaths.forEach((d) => lines.push(`  Enemy team: ${d.spec} died at ${fmtTime(d.atSeconds)}`));
-  }
+  lines.push('CRITICAL MOMENTS (top 3 by estimated match impact — evaluate each):');
+  lines.push('');
 
-  lines.push('');
-  lines.push('TOP DAMAGE PRESSURE WINDOWS ON MY TEAM (highest 15-second damage buckets):');
-  if (pressureWindows.length === 0) {
-    lines.push('  No significant pressure windows detected');
+  if (criticalMoments.length === 0) {
+    lines.push('  No critical moments identified from available data.');
   } else {
-    pressureWindows.forEach((w) => {
-      const dmgM = (w.totalDamage / 1_000_000).toFixed(2);
-      lines.push(
-        `  ${fmtTime(w.fromSeconds)}-${fmtTime(w.toSeconds)}: ${w.targetSpec} (${w.targetName}) took ${dmgM}M damage`,
-      );
+    criticalMoments.forEach((m, i) => {
+      lines.push(`--- MOMENT ${i + 1} (impact: ${m.impactLabel}) ---`);
+      lines.push(`${fmtTime(m.timeSeconds)} — ${m.title}`);
+      lines.push(`  Enemy state: ${m.enemyState}`);
+      lines.push(`  Friendly state: ${m.friendlyState}`);
+      lines.push(`  What happened: ${m.whatHappened}`);
+      lines.push(`  Available options: ${m.availableOptions}`);
+      lines.push(`  Uncertainty: ${m.uncertainty}`);
+      lines.push('');
     });
   }
 
+  // ── SUPPORTING DATA ────────────────────────────────────────────────────────
+  lines.push('SUPPORTING DATA (for reference when evaluating moments above):');
+
+  // Purge responsibility — explicit attribution so Claude doesn't blame wrong player
   lines.push('');
-  lines.push('COOLDOWN USAGE (major cooldowns >= 30s):');
+  lines.push('PURGE RESPONSIBILITY:');
+  if (ownerCanPurge) {
+    lines.push(`  Log owner (${ownerSpec}): CAN offensive purge`);
+  } else {
+    lines.push(`  Log owner (${ownerSpec}): CANNOT offensive purge — do not attribute missed purges to the log owner`);
+  }
+  lines.push(
+    teamPurgers.length > 0
+      ? `  Team offensive purgers: ${teamPurgers.join(', ')}`
+      : '  Team offensive purgers: None (no teammate has an offensive purge ability)',
+  );
+
+  // Owner cooldowns
+  lines.push('');
+  lines.push(`COOLDOWN USAGE — LOG OWNER (${ownerSpec}) — major CDs ≥30s:`);
   if (cooldowns.length === 0) {
     lines.push('  No major cooldown data found for this spec.');
   } else {
     cooldowns.forEach((cd) => {
       lines.push('');
-      const cdLine = `  ${cd.spellName} [${cd.tag}, ${cd.cooldownSeconds}s CD]:`;
-      lines.push(cdLine);
-
+      lines.push(`  ${cd.spellName} [${cd.tag}, ${cd.cooldownSeconds}s CD]:`);
       if (cd.neverUsed) {
-        lines.push(`    STATUS: NEVER USED (available entire match)`);
-        const duringPressure = pressureWindows;
-        if (duringPressure.length > 0) {
-          lines.push(`    Missed pressure windows while idle:`);
-          duringPressure.forEach((w) => {
-            const dmgM = (w.totalDamage / 1_000_000).toFixed(2);
-            lines.push(
-              `      - ${fmtTime(w.fromSeconds)}-${fmtTime(w.toSeconds)}: ${w.targetSpec} took ${dmgM}M — CD was available`,
-            );
-          });
-        }
+        lines.push(`    STATUS: NEVER USED`);
       } else {
         cd.casts.forEach((c) => lines.push(`    Cast at: ${fmtTime(c.timeSeconds)}`));
       }
-
       if (cd.availableWindows.length > 0) {
-        lines.push(`    Available but unused windows:`);
+        lines.push(`    Idle windows:`);
         cd.availableWindows.forEach((w) => {
-          // Cross-reference: did any pressure window overlap with this idle period?
           const overlapping = pressureWindows.filter((p) => p.fromSeconds < w.toSeconds && p.toSeconds > w.fromSeconds);
           const pressureNote =
             overlapping.length > 0
-              ? ` — PRESSURE DURING IDLE: ${overlapping.map((p) => `${fmtTime(p.fromSeconds)} (${(p.totalDamage / 1_000_000).toFixed(2)}M on ${p.targetSpec})`).join(', ')}`
+              ? ` — pressure during idle: ${overlapping.map((p) => `${fmtTime(p.fromSeconds)} (${(p.totalDamage / 1_000_000).toFixed(2)}M on ${p.targetSpec})`).join(', ')}`
               : '';
           lines.push(
-            `      - ${fmtTime(w.fromSeconds)} to ${fmtTime(w.toSeconds)} (${Math.round(w.durationSeconds)}s idle)${pressureNote}`,
+            `      ${fmtTime(w.fromSeconds)}–${fmtTime(w.toSeconds)} (${Math.round(w.durationSeconds)}s)${pressureNote}`,
           );
         });
-      } else if (!cd.neverUsed) {
-        lines.push(`    No significant idle windows (CD used efficiently or match ended before it came back up)`);
       }
     });
   }
 
+  // Teammate cooldowns
   if (teammateCooldowns.length > 0) {
     lines.push('');
-    lines.push('TEAMMATE COOLDOWN USAGE:');
+    lines.push('TEAMMATE COOLDOWNS:');
     for (const { player, cds } of teammateCooldowns) {
       const spec = specToString(player.spec);
       if (cds.length === 0) {
-        lines.push(`  ${spec} (${player.name}): No major CD data found.`);
+        lines.push(`  ${spec} (${player.name}): No major CD data.`);
         continue;
       }
       lines.push(`  ${spec} (${player.name}):`);
       for (const cd of cds) {
         if (cd.neverUsed) {
-          lines.push(`    ${cd.spellName} [${cd.tag}, ${cd.cooldownSeconds}s CD]: NEVER USED`);
+          lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD]: NEVER USED`);
         } else {
           const castStr = cd.casts.map((c) => fmtTime(c.timeSeconds)).join(', ');
           const idleStr =
             cd.availableWindows.length > 0
-              ? ` | idle windows: ${cd.availableWindows.map((w) => `${fmtTime(w.fromSeconds)}-${fmtTime(w.toSeconds)}`).join(', ')}`
+              ? ` | idle: ${cd.availableWindows.map((w) => `${fmtTime(w.fromSeconds)}–${fmtTime(w.toSeconds)}`).join(', ')}`
               : '';
-          lines.push(`    ${cd.spellName} [${cd.tag}, ${cd.cooldownSeconds}s CD]: cast at ${castStr}${idleStr}`);
+          lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD]: cast at ${castStr}${idleStr}`);
         }
       }
     }
@@ -199,30 +383,23 @@ export function buildMatchContext(
   formatPanicDefensivesForContext(panicDefensives).forEach((l) => lines.push(l));
 
   lines.push('');
-  formatDispelContextForAI(reconstructDispelSummary(friends, enemies, combat)).forEach((l) => lines.push(l));
+  formatDispelContextForAI(dispelSummary).forEach((l) => lines.push(l));
 
   if (healer) {
-    const healingGaps = detectHealingGaps(owner, friends, enemies, combat);
     lines.push('');
     formatHealingGapsForContext(healingGaps).forEach((l) => lines.push(l));
   }
 
-  const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
   lines.push('');
   formatCCTrinketForContext(ccTrinketSummaries).forEach((l) => lines.push(l));
 
-  const allPlayers = [...friends, ...enemies];
   lines.push('');
-  formatDampeningForContext(combat.startInfo.bracket, allPlayers, combat.startTime, combat.endTime).forEach((l) =>
-    lines.push(l),
-  );
-
-  lines.push('');
-  lines.push(
-    healer
-      ? "Focus your analysis on: external defensive timing, big healing CD usage relative to pressure windows, whether the healer survived, and any missed opportunities to save teammates. Cross-reference the enemy offensive CD timeline — did your defensive CDs land during aligned enemy burst windows? For FRIENDLY CD OVERLAPS: evaluate whether each overlap was justified (e.g. full enemy burst window, near-death) or wasteful (moderate pressure, staggering would have provided better coverage across multiple pushes). Name the specific spells and explain the consequence of the staging choice. For HEALING GAPS: identify the cause of each gap (repositioning, crowd control chain, mana management, or genuine lapse) and assess the consequence. For MISSED CLEANSE WINDOWS: call out every entry by name — which ally was in which CC/debuff, for how long, how much damage followed, and whether it was a true miss (you were free to cast) or excusable (you were CC'd or no one on the team could remove that debuff type). For MISSED PURGE WINDOWS: call out enemy buffs that sat unpurged when you had a free purger — name the buff, the enemy, and how long it ran. For CC & TRINKET: identify any CCs where the trinket was available but unused and significant damage was taken — was the player tunnelled, confused, or holding trinket for a specific CC type? Flag any trinket uses outside of CC windows as potentially wasteful. For DAMPENING: note the point where healing could no longer sustain pressure and whether the losing team was playing into the dampening clock or fighting it — did kills happen before or after healing became critically impaired?"
-      : 'Focus your analysis on: offensive CD windows relative to enemy vulnerability, defensive CD usage during high-damage incoming windows, and kill window timing. Cross-reference your offensive CDs against the enemy aligned burst windows. For MISSED CLEANSE WINDOWS: call out every entry — which teammate was locked in which CC/debuff, for how long, and how much damage followed. Note whether your team had someone capable of cleansing it and whether they were free to act. For MISSED PURGE WINDOWS: name each enemy buff that sat unpurged and how long it ran. For enemy purges (hostile strips): note if enemies consistently stripped key buffs from your team at critical moments. For CC & TRINKET: evaluate whether each player used their trinket appropriately — flag missed windows where the trinket was available during a high-damage CC, and identify any off-CC uses that may have wasted it. For DAMPENING: note whether the match went deep enough into dampening that the healer was significantly impaired — and whether your team capitalised on or missed that window.',
-  );
+  formatDampeningForContext(
+    combat.startInfo.bracket,
+    [...friends, ...enemies],
+    combat.startTime,
+    combat.endTime,
+  ).forEach((l) => lines.push(l));
 
   return lines.join('\n');
 }

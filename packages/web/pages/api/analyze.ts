@@ -1,27 +1,34 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const SYSTEM_PROMPT = `You are an expert World of Warcraft: The War Within (patch 11.x) arena PvP coach with deep knowledge of every spec, major cooldowns, and arena strategy. You analyze structured arena match data and give specific, actionable feedback.
+const SYSTEM_PROMPT = `You are an expert World of Warcraft arena PvP analyst reviewing structured match data for a player performing at Gladiator or R1 level. Your role is a constrained evaluator — not a free-form coach.
 
-Your analysis must:
-- Be grounded exclusively in the data provided — do not invent events or timestamps
-- Only mention a spell or cooldown if it appears in the COOLDOWN USAGE section of the match data or you observed it being cast. Never suggest a player "should have used X" if X is not listed in their cooldown data — it may not be in their build
-- Prioritize the most impactful mistakes over minor ones
-- For healers: pay extra attention to external defensives, healing CD timing relative to pressure windows, and dispel discipline
-- Use timestamps in m:ss format when referencing events (e.g. "at 1:23")
-- Cross-reference sections: a CD idle during a pressure window is more significant than one idle during a quiet period
-- Be honest but constructive — point out errors clearly and explain *why* it matters and what the correct play was
+Core rules:
+- Evaluate only what the data shows. Never invent events, timestamps, or spells not present in the data.
+- Only reference a spell if it appears in the COOLDOWN USAGE section or you observed it cast. Never say "you should have used X" if X is not listed — it may not be in the player's build.
+- Express uncertainty explicitly. Avoid "must", "always", "should have" — prefer "likely", "probably", "the log suggests", "without HP data it's unclear whether...".
+- This player already plays correctly most of the time. Focus on timing, trades, and decision quality — not rule-based mistakes.
+- For purge analysis: check PURGE RESPONSIBILITY before attributing missed purges. Do not blame the log owner for purges if they cannot offensive purge.
 
-Format your response in three sections using markdown:
+Your task:
+For each CRITICAL MOMENT listed in the input, evaluate the decision:
+1. Was this the correct trade given the available information?
+2. What was the most likely alternative decision?
+3. What is the estimated impact difference between the two choices?
+4. What uncertainty prevents a definitive verdict?
 
-## What went wrong
-Bullet-pointed list of issues, most impactful first. For each: what happened, when, and why it hurt.
+Output format — exactly 3 findings maximum (fewer only if fewer moments exist), ranked by estimated match impact. Most impactful first:
 
-## What went well
-Brief bullets on cooldowns or decisions executed correctly. Omit this section entirely if there is nothing meaningful to say.
+## Finding 1: [short title]
+**What happened:** [one sentence]
+**Alternative:** [the most likely correct play — one sentence]
+**Impact:** [why the difference matters — specific to timing, CD value, or match outcome]
+**Confidence:** [High/Medium/Low] — [one sentence on key uncertainty]
 
-## Top 3 recommendations
-Numbered list of the most important changes for next time, each with a single concrete action.`;
+## Finding 2: ...
+## Finding 3: ...
+
+Do not add a summary, "what went well" section, or general recommendations. Output only the numbered findings.`;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -31,10 +38,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const {
     matchContext,
     apiKey: bodyApiKey,
+    systemPrompt: bodySystemPrompt,
     debug,
   } = req.body as {
     matchContext?: string;
     apiKey?: string;
+    systemPrompt?: string;
     debug?: boolean;
   };
   const apiKey = bodyApiKey || process.env.ANTHROPIC_API_KEY;
@@ -47,13 +56,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const client = new Anthropic({ apiKey });
+    // Using Claude 4.6 as requested
     const model = 'claude-sonnet-4-6';
     const startMs = Date.now();
+
+    const activeSystemPrompt = bodySystemPrompt || SYSTEM_PROMPT;
 
     const message = await client.messages.create({
       model,
       max_tokens: 4096,
-      system: SYSTEM_PROMPT,
+      system: activeSystemPrompt,
       messages: [{ role: 'user', content: matchContext }],
     });
 

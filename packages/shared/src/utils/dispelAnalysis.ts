@@ -127,11 +127,20 @@ const CD_GATED_PURGERS = new Set<CombatUnitSpec>([
 ]);
 
 // Spell IDs that have Magic dispelType in the game DB but cannot actually be targeted
-// by player offensive purge abilities in practice (passive procs, self-only buffs, etc.)
+// by player offensive purge abilities in practice. Covers three categories:
+//   1. Immunity shells — target is spell-immune while active, so purge cannot land
+//   2. Passive/visual auras — registered as Magic but not dispel-targetable
+//   3. Cross-team targeting issues — buff is on your ally, not an enemy
 const PURGE_BLOCKLIST = new Set<string>([
+  // ── Immunity shells (target is spell-immune; purge cannot land) ──────────────────
+  '642', // Divine Shield (Paladin) — full spell immunity while active
+  '45438', // Ice Block (Mage) — full spell immunity while active
+  '186265', // Aspect of the Turtle (Hunter) — full spell + attack immunity
+  // ── Passive / visual auras — registered as Magic but not dispel-targetable ───────
   '188501', // Spectral Sight (DH) — passive/visual, not purgeable
-  '29166', // Innervate — targeted at ally, not a purgeable buff in practice
   '132158', // Nature's Swiftness — instant-cast buff, expires before purge lands
+  // ── Cross-team targeting issues ──────────────────────────────────────────────────
+  '29166', // Innervate — targeted at an ally, not an enemy; removed by defensive cleanse
   '605', // Mind Control — debuff on your ally, removed via defensive cleanse not offensive purge
 ]);
 
@@ -154,7 +163,7 @@ const DH_SPECS = new Set<CombatUnitSpec>([CombatUnitSpec.DemonHunter_Havoc, Comb
  * Returns true if the unit can actually perform an offensive purge, accounting for
  * talent gating (DH Consume Magic) and pet requirements (Warlock Felhunter).
  */
-function canOffensivePurge(unit: ICombatUnit): boolean {
+export function canOffensivePurge(unit: ICombatUnit): boolean {
   if (!OFFENSIVE_PURGERS.has(unit.spec)) return false;
 
   const specIdNum = parseInt(unit.spec, 10);

@@ -21,6 +21,7 @@ most of the time. That means:
   `owner.spec`.
 
 ### Prior Art Research (2026-03)
+
 - **ArenaCoach.gg** — rule-based mistake detection (broken CC chains, missed kicks, bad
   defensive timing). Good for beginners, not useful at high level.
 - **Ultima AI (ai.pvpq.net)** — trained by 20+ AWC pros, scores 10 dimensions, uses
@@ -28,512 +29,229 @@ most of the time. That means:
 - **Gaps in existing tools**: healer-specific deep analysis, dispel efficiency, healing gaps,
   mana curve, cooldown trading timelines. Most tools are DPS-focused.
 
+### Core Architecture Principle (updated 2026-04)
+
+The system follows:
+
+```
+features → state reconstruction → decision modeling → LLM evaluation → constrained output
+```
+
+NOT:
+
+```
+features → LLM → conclusions
+```
+
+The LLM's role is **constrained evaluator and ranker**, not free-form conclusion generator.
+Context sent to Claude should be organized around **critical moments and decision points**,
+not a flat list of feature blocks. Output should be compressed to the **top 1–3 highest-impact
+findings**, ranked by estimated match impact.
+
+**Explicitly out of scope:**
+
+- Positioning analysis / LoS (Line of Sight) — mathematically impossible; combat log lacks Z-axis and 3D map collision meshes for pillars. Probabilistic statements only.
+- Mirror benchmarking — requires opponent data we don't have.
+- Full CD rotation simulation as code — this is a prompt engineering task, not a new utility.
+- Ping/Latency detection — log timestamps are strictly server-side; we cannot differentiate between lag and poor reaction times.
+- Perfect pre-match setup state — impossible to know exactly what CDs were pressed in the starting room before combat/log initialization.
+
 ---
 
 ## Already Built
 
 ### ✅ Cooldown Usage Analysis
+
 - Extracts major tagged CDs (≥30s) from combat log
 - Computes cast times and idle availability windows
 - Cross-references with incoming damage pressure windows
-- Files: `scripts/testAnalyze.mjs`, `packages/shared/src/utils/cooldowns.ts`,
-  `packages/shared/src/components/CombatReport/CombatAIAnalysis/index.tsx`,
-  `packages/web/pages/api/analyze.ts`
+- Files: `packages/shared/src/utils/cooldowns.ts`
+
+### ✅ Enemy CD Timeline
+
+- Reconstructs when enemy offensive CDs were available throughout the match
+- Overlays with friendly incoming damage spikes
+- Files: `packages/shared/src/utils/enemyCDs.ts`
+
+### ✅ Dampening Curve
+
+- Computes dampening % at each timestamp
+- Identifies when healing could no longer sustain incoming damage
+- Files: `packages/shared/src/utils/dampening.ts`
+
+### ✅ Panic Trading & Overlap Detection
+
+- Detects defensive CDs used during fake pressure or unnecessarily doubled up
+- Files: `packages/shared/src/utils/cooldowns.ts` (`detectPanicDefensives`, `detectOverlappedDefensives`)
+
+### ✅ Dispel Analysis
+
+- Tracks cleanse timing vs. incoming damage pressure
+- Tracks offensive purge windows (enemy buffs sitting unpurged)
+- Files: `packages/shared/src/utils/dispelAnalysis.ts`
+
+### ✅ Healing Gap Detection
+
+- Finds windows where healing dropped to zero while team was under pressure
+- Distinguishes CCed gaps (unavoidable) from free-cast gaps
+- Files: `packages/shared/src/utils/healingGaps.ts`
+
+### ✅ CC & Trinket Analysis
+
+- Tracks CC received, trinket usage, and whether trinket was used optimally
+- Files: `packages/shared/src/utils/ccTrinketAnalysis.ts`
+
+### ✅ AI Test Page
+
+- Local dev page at `/local/ai` for inspecting full request/response with Claude
+- Shows user message, system prompt, response, token counts, latency
+- Files: `packages/web/app/(main)/local/ai/page.tsx`
 
 ---
 
 ## Feature Priority Matrix
 
-| # | Feature | Complexity | Gain (advanced) | Cluster |
-|---|---------|-----------|-----------------|---------|
-| 7 | Enemy CD Timeline | Medium | **High** | Tempo |
-| 8 | CD Rotation Simulation | High | **High** | Tempo |
-| 9 | DR Chain Tracking | Medium | **High** | Tempo |
-| 12 | Kill Window Quality | Medium | **High** | Tempo |
-| 2 | CC During Enemy Burst | Medium | **High** | Reaction |
-| 3 | CC Received / Trinket | Medium | **Medium-High** | Reaction |
-| 14 | Panic Trading & Overlaps | Medium | **High** | Reaction |
-| 1 | Dispel Analysis | Low | Medium | Healer |
-| 4 | Healing Gap Detection | Low | Medium | Healer |
-| 5 | Mana Curve | Low | Medium | Healer |
-| 10 | Dampening Curve | Low | **High** | Healer |
-| 11 | Interrupt Analysis | Low | Medium | Healer |
-| 6 | Positioning | Medium | Low-Medium | Positioning |
-| 13 | Player Performance Score | Medium | Medium | Summary |
-
-**Build order recommendation:** Start with the Tempo cluster (7, 9, 12) + Healer fast wins
-(1, 4, 5, 10, 11), then Reaction cluster (2, 3), then the CD Simulation (8), then Positioning (6).
+| Priority | #   | Feature                                                                             | Complexity | Value (advanced) | Status                           |
+| -------- | --- | ----------------------------------------------------------------------------------- | ---------- | ---------------- | -------------------------------- |
+| **1**    | P0  | Prompt rewrite — constrained evaluator, top-3 output, uncertainty, decision framing | Low        | **Critical**     | ❌ Not started                   |
+| **2**    | P0  | Purge blame attribution — who on team can purge, is log owner one of them           | Low        | **High**         | ❌ Not started                   |
+| **3**    | P0  | Purge blocklist fixes — spells flagged as purgeable that aren't                     | Low        | **High**         | ❌ Not started                   |
+| **4**    | 12  | Kill Window Quality                                                                 | Medium     | **High**         | ❌ Not started                   |
+| **5**    | —   | Timing classification — early/optimal/late on defensive CD usage                    | Low        | **High**         | ❌ Not started                   |
+| **6**    | 17  | Offensive Vulnerability Windows                                                     | Medium     | **High**         | ❌ Not started                   |
+| **7**    | 9   | DR Chain Tracking                                                                   | Medium     | **High**         | ❌ Not started                   |
+| **8**    | 18  | CDR Heuristics (scoped: Shifting Power, Wake of Ashes only)                         | Medium     | Medium           | ❌ Not started                   |
+| **9**    | 2   | CC During Enemy Burst Response                                                      | Medium     | Medium           | ❌ Not started                   |
+| **10**   | 16  | Fatal Dispel Flagging (UA backlash)                                                 | Low        | Medium           | ❌ Not started                   |
+| **11**   | 5   | Mana Curve                                                                          | Low        | Medium           | ❌ Not started                   |
+| **12**   | 11  | Interrupt Analysis                                                                  | Low        | Low-Medium       | ❌ Not started                   |
+| **—**    | 8   | CD Rotation Simulation                                                              | —          | —                | Handled via prompt, not code     |
+| **—**    | 6   | Positioning Analysis                                                                | —          | —                | Out of scope (no pillar data)    |
+| **—**    | 13  | Player Performance Score                                                            | —          | —                | Deprioritized (calibration risk) |
 
 ---
 
-## Feature Backlog
+## Build Order
 
-### 1. Dispel Analysis
-**Priority: Medium | Complexity: Low**
+### Sprint 1 — Fix the prompt before adding more data
 
-Detect how long dangerous debuffs sat on your teammates before you dispelled them (or didn't).
-Value at high level: not whether you dispelled, but *timing* relative to incoming damage pressure.
+These require no new data extraction. They fix the largest quality problems immediately.
 
-**What to measure:**
-- For every `SPELL_AURA_APPLIED` on a friendly player with a dispellable debuff type:
-  - Time from application to your `SPELL_DISPEL` for that aura
-  - Whether it was never dispelled at all
-- Cross-reference with incoming damage during the debuff window
-- Flag by healer dispel capability (Magic/Poison/Curse/Disease/Enrage — spec-dependent)
-- Rank by danger tier: Mortal Strike (healing reduction), fears, roots, silences
+1. **P0: Prompt rewrite** — restructure context around critical moments, constrain Claude's
+   output to top-3 ranked insights, enforce uncertainty language, give Claude candidate
+   decision options to evaluate rather than asking it to generate conclusions freely.
 
-**Data sources:** `unit.auraEvents`, `unit.actionOut` (SPELL_DISPEL events)
+2. **P0: Purge blame attribution** — `reconstructDispelSummary` already computes who can
+   purge, but the context sent to Claude doesn't distinguish "your team missed a purge" from
+   "you personally missed a purge". Add explicit per-player purge capability to the context
+   block, and clarify when the log owner cannot purge at all.
 
-**AI prompt addition:** "You let [debuff] sit for X seconds on [spec] — during that window they
-took Y damage and healing received was reduced by 25%."
+3. **P0: Purge blocklist** — audit and expand `PURGE_BLOCKLIST` in `dispelAnalysis.ts` for
+   spells that have Magic dispelType in the DB but aren't actually purgeable in practice.
 
-**Files to create/modify:**
-- `packages/shared/src/utils/dispels.ts` — `extractDispelEvents(unit, combat)`
-- `packages/shared/src/components/CombatReport/CombatAIAnalysis/index.tsx` — add dispel section
-- `scripts/testAnalyze.mjs` — add dispel context block
+### Sprint 2 — Decision quality layer
 
----
+These extend the data layer to support trade-based analysis.
 
-### 2. CC During Enemy Burst
-**Priority: High | Complexity: Medium**
+4. **Kill Window Quality (#12)** — which decision determined the outcome; was the kill window
+   wasted due to split damage, free healer, or missing CC?
 
-Detect when the enemy team popped offensive cooldowns and check if you responded with CC.
-At high level: not just *did* you CC, but *which* CC and *how far into* the burst window.
+5. **Timing classification** — add early/optimal/late label to each defensive CD usage based
+   on match phase and enemy CD state. Small addition to `cooldowns.ts`.
 
-**What to measure:**
-- Find enemy `SPELL_CAST_SUCCESS` for offensive CDs (Avenging Wrath, Dark Transformation,
-  Storm Earth and Fire, Deathmark, etc.)
-- In the 5 seconds after each enemy offensive CD: which CC did you cast, and when?
-- Flag burst windows where you had CC available but used it late, or chose a suboptimal CC
-- Cross-reference DR state (see Feature 9) — was the CC going to be a diminished hit?
+6. **Offensive Vulnerability Windows (#17)** — inverse of pressure windows; when was the
+   enemy vulnerable (low HP, medallion on CD, major def unavailable) and did your team
+   capitalise? Completes the symmetry of the analysis.
 
-**Data sources:** `unit.spellCastEvents` for both enemy and self units, `classMetadata`
-offensive tags
+### Sprint 3 — Precision layer
 
-**AI prompt addition:** "Enemy Ret Paladin used Avenging Wrath at 2:14. You had Paralysis
-available (last cast at 1:29, 45s CD). No CC was used for 18 seconds into the burst window."
+7. **DR Chain Tracking (#9)** — track CC DR state so Claude can assess whether a CC was
+   full/partial/immune duration. Requires accurate DR category mapping per spell.
 
-**Files to create/modify:**
-- `packages/shared/src/utils/burstWindows.ts` — `extractEnemyBurstWindows(enemies, combat)`,
-  `computeCCResponse(owner, burstWindows, combat)`
-- `scripts/testAnalyze.mjs` — add burst window context block
+8. **CDR Heuristics (#18)** — scoped to a known short list: Shifting Power, Wake of Ashes,
+   Convoke resets. Improves CD availability accuracy for affected specs.
 
----
+9. **CC During Enemy Burst (#2)** — was the right CC used, at the right time, into the burst
+   window? Requires enemy burst window detection already partially done via enemy CD timeline.
 
-### 3. CC Received at Bad Moments (Trinket Evaluation)
-**Priority: Medium-High | Complexity: Medium**
+### Sprint 4 — Supporting signals
 
-Detect whether you were CCed during critical healing moments, and whether trinket usage was
-optimal. At high level: the key mistake is trinketing a minor CC before a major one lands,
-or trinketing when no one is in danger.
+10. **Fatal Dispel Flagging (#16)** — detect UA dispel backlash, filter for pre-existing
+    targeting to avoid false positives.
 
-**What to measure:**
-- For each CC received on you (`unit.auraEvents` with CC spell IDs on owner):
-  - Were your teammates taking heavy damage during that window?
-  - Did you trinket? How long after the CC landed?
-  - What was the next CC after your trinket? Was it a longer/heavier one?
-- Trinket waste: did you trinket a minor CC (short duration, low-pressure moment) and then
-  get hit by a major CC with no trinket?
-- Panic trinketing: did you use your PvP trinket while your team was at >80% HP and the
-  enemy had zero offensive cooldowns active?
+11. **Mana Curve (#5)** — relevant mainly in long/dampening-heavy matches. Medium value.
 
-**Data sources:** `unit.auraEvents` (CC on owner), `ccSpellIds` from `spellTags.ts`,
-`unit.damageIn` for teammates
-
-**AI prompt addition:** "You were stunned at 1:45 for 4 seconds — your Druid took 0.62M
-damage during that stun. You did not trinket. Your trinket had been available since 0:15."
-
-**Files to create/modify:**
-- `packages/shared/src/utils/ccReceived.ts` — `extractCCReceivedEvents(owner, friendlies, combat)`
-- `scripts/testAnalyze.mjs` — add CC received context block
+12. **Interrupt Analysis (#11)** — track kicked vs. unkicked high-value casts. Lower value
+    at R1 where kicks are instinctive.
 
 ---
 
-### 4. Healing Gap Detection
-**Priority: Medium | Complexity: Low**
+## Context Structure (target format after Sprint 1)
 
-Find windows where your healing output dropped to near zero while your team was taking damage.
-At high level: distinguish CCed gaps (unavoidable) from free-cast gaps (decision errors).
+Instead of a flat block-per-feature, the context should be organized as:
 
-**What to measure:**
-- Bucket `healOut` events into 3-second windows
-- Find windows where: (a) you cast no heals AND (b) a friendly player was taking significant
-  damage
-- Cross-reference with CC received on owner — was the gap unavoidable?
-- Flag only non-CCed healing gaps as mistakes
+```
+MATCH SUMMARY
+  [basic facts: bracket, result, duration, specs, dampening]
 
-**Data sources:** `unit.healOut`, `unit.damageIn` for friendlies, CC received on owner
+CRITICAL MOMENTS (top 3, ranked by estimated match impact)
+  Moment 1: [timestamp] — [what happened]
+    Enemy state: [active offensive CDs, threat level]
+    Friendly state: [defensives available, HP levels, CC status]
+    What happened: [actual response]
+    Available options: [what could have been done]
+    Uncertainty: [what the log cannot confirm]
 
-**AI prompt addition:** "From 3:22 to 3:31 (9 seconds) you cast no heals while your Warlock
-was taking 0.41M damage. You were not CCed during this window."
+  Moment 2: ...
+  Moment 3: ...
 
-**Files to create/modify:**
-- `packages/shared/src/utils/healingGaps.ts` — `computeHealingGaps(owner, friendlies, combat)`
-- `scripts/testAnalyze.mjs` — add healing gaps context block
+SUPPORTING DATA (abbreviated — for Claude to reference if needed)
+  [remaining CD usage, purge summary, dampening threshold, etc.]
+```
 
----
-
-### 5. Mana Curve Analysis
-**Priority: Medium | Complexity: Low**
-
-Track mana levels over the match and identify if mana management affected performance.
-High value in long matches and post-dampening windows.
-
-**What to measure:**
-- Extract mana values from `advancedActions` (PowerType 0 = Mana)
-- Plot mana % over time; detect when mana dropped below 20% vs. 40% thresholds
-- Mana Tea / mana regeneration timing vs. low-mana windows
-- Flag if mana dropped below 20% during high-pressure windows
-- Detect overuse of expensive heals when mana was already low
-
-**Data sources:** `unit.advancedActions` → `advancedActorPowers` (PowerType 0 = Mana)
-
-**AI prompt addition:** "Your mana dropped to 14% at 4:30 — during the heaviest pressure
-window of the match. Mana Tea was last used at 2:15 and had been available again since 3:15."
-
-**Files to create/modify:**
-- `packages/shared/src/utils/manaAnalysis.ts` — `extractManaCurve(owner, combat)`,
-  `computeManaPressureWindows(owner, combat)`
-- `scripts/testAnalyze.mjs` — add mana context block
+Claude is then asked to evaluate each critical moment and rank them by impact — not to
+summarize a feature list.
 
 ---
 
-### 6. Positioning Analysis
-**Priority: Low-Medium | Complexity: Medium**
+## LLM Role (target after Sprint 1)
 
-Use X/Y coordinates from advanced log data to evaluate healer positioning.
-Note: coordinates exist but no map/pillar context — analysis will be limited.
+**System prompt principles:**
 
-**What to measure:**
-- Distance from each teammate over time (`advancedActorPositionX/Y` on damage events)
-- Flag moments when you were >40 yards from a teammate being attacked
-- Detect if you were in melee range of enemy DPS (increases CC risk)
-- Average distance to kill-target teammate vs. safe distance
+- Claude is a constrained evaluator, not a free-form coach
+- Must express uncertainty explicitly; avoid "must", "always", "should have"
+- Output: exactly 3 findings maximum, ranked by estimated match impact
+- For each finding: what happened, what the alternative was, confidence level, and what
+  information would be needed to be certain
 
-**Data sources:** `CombatAdvancedAction.advancedActorPositionX/Y` on `damageIn` events
+**Prompt structure (instead of "what went wrong"):**
 
-**AI prompt addition:** "At 1:10 your Balance Druid was taking heavy damage 55 yards away —
-outside Life Cocoon range (40 yards). You may have been LoS'd or out of position."
-
-**Files to create/modify:**
-- `packages/shared/src/utils/positioning.ts` — `extractPositionTimeline(unit, combat)`,
-  `computeDistanceViolations(owner, friendlies, combat)`
-- `scripts/testAnalyze.mjs` — add positioning context block
+```
+For each critical moment below, evaluate the decision made:
+- Was this the correct trade given the available information?
+- What was the most likely alternative decision?
+- What is the estimated impact difference between the two?
+- What uncertainty remains that prevents a definitive verdict?
+```
 
 ---
 
-### 7. Enemy CD Timeline Reconstruction
-**Priority: High | Complexity: Medium**
+## Antigravity Feature Notes
 
-Infer when enemy offensive CDs were available throughout the match so you can anticipate
-the next burst. Core of high-level play — most existing tools don't do this.
+These were contributed during a separate brainstorming session and are incorporated above:
 
-**What to measure:**
-- For each enemy player: track all `SPELL_CAST_SUCCESS` for tagged offensive CDs
-- Compute availability windows: cast at T, CD = X seconds → available again at T+X
-- Overlay with your team's incoming damage: "the UDK's Apocalypse came back at 3:30 —
-  that's when the second damage spike started"
-- Show when enemy had multiple offensive CDs aligned (peak danger windows)
-
-**Data sources:** `unit.spellCastEvents` for enemy units, `classMetadata` offensive spell
-tags, `spellEffects.json` for cooldown durations
-
-**AI prompt addition:** Full enemy CD timeline per player, showing when each major offensive
-CD was up/down throughout the match. Cross-reference with your defensive CD usage.
-
-**Files to create/modify:**
-- `packages/shared/src/utils/enemyCDs.ts` — `reconstructEnemyCDTimeline(enemies, combat)`
-- `scripts/testAnalyze.mjs` — add enemy CD timeline to context
-
----
-
-### 8. Optimal CD Rotation Simulation
-**Priority: High | Complexity: High | Highest ceiling feature**
-
-Given the actual damage timeline, compute what the optimal CD usage sequence would have been.
-The key counterfactual question for advanced players: "would holding X for 8 more seconds
-have changed the outcome?"
-
-**What to measure:**
-- Model your CD kit as a set of resources with cooldowns
-- Given the actual incoming damage events, reason through which CD sequence minimises peak
-  unmitigated damage
-- Compare to what actually happened: "Using Life Cocoon at 1:10 instead of 2:20 would have
-  reduced peak damage taken by your Druid by 34% and had it available again at 3:10 for the
-  second spike"
-- Account for enemy CD timeline (Feature 7) — the optimal sequence depends on when enemy
-  CDs are coming back
-
-**Data sources:** All pressure windows, `extractMajorCooldowns` output, enemy CD timeline
-
-**Implementation note:** Best done entirely by the AI (prompt Claude to reason through the
-timeline) rather than as a deterministic algorithm.
-
-**Files to create/modify:**
-- `packages/shared/src/utils/cdSimulation.ts` — `buildCDSimulationContext(owner, combat)`
-  (produces structured text for Claude to reason over)
-- `packages/web/pages/api/analyze.ts` — extend prompt for simulation mode
-
----
-
-### 9. DR Chain Tracking *(NEW)*
-**Priority: High | Complexity: Medium**
-
-Track diminishing returns (DR) on CC targets — both received and applied. At high level,
-understanding DR state determines whether a CC is worth casting and whether an enemy CC
-will be full duration.
-
-**What to measure:**
-- For every CC applied to any player (`SPELL_AURA_APPLIED` with CC spell IDs):
-  - Track DR category and DR counter per target
-  - Compute effective duration after DR (full / 50% / 25% / immune)
-- CC received on you: how often were you re-CCed while DR was active (partial CC windows)?
-- CC applied by your team: did you re-CC before DR reset? (wasted CC)
-- Flag enemy DR resets — windows where the enemy was fully vulnerable to CC again
-
-**Data sources:** `unit.auraEvents` (CC spells), DR categories from `spellTags.ts`
-
-**AI prompt addition:** "At 3:45 you Paralyzed the enemy Warlock but they were at 50% DR
-(Paralysis used 18s ago). Effective duration: 3 seconds instead of 6. Enemy DPS was
-uncapped on your Druid for that window."
-
-**Files to create/modify:**
-- `packages/shared/src/utils/drTracking.ts` — `buildDRTimeline(units, combat)`,
-  `computeEffectiveCCDuration(spellId, drState)`
-- `scripts/testAnalyze.mjs` — add DR timeline to context
-
----
-
-### 10. Dampening Curve *(NEW)*
-**Priority: High | Complexity: Low**
-
-Track healing reduction from Dampening (arena mechanic: starts at 0%, grows by ~10%/min
-in 3v3 after 2:00, accelerating in longer matches) and identify when it made your healing
-insufficient to sustain your team.
-
-**What to measure:**
-- Compute dampening % at each timestamp based on match duration
-- Apply dampening multiplier to actual healing done — show "effective healing" vs. raw healing
-- Find the timestamp where your healing could no longer keep pace with incoming damage
-- Cross-reference with mana curve (Feature 5): were you mana-limited OR dampening-limited?
-- Flag matches where an earlier kill opportunity (Feature 12) would have avoided dampening
-  becoming decisive
-
-**Data sources:** Match duration from `combat.startTime`/`endTime`, `unit.healOut`,
-`unit.damageIn`
-
-**AI prompt addition:** "At 4:00 dampening reached 30%. Your net healing dropped below the
-incoming damage threshold at 4:22 — 22 seconds into critical dampening. At that point
-winning required a kill, not surviving."
-
-**Files to create/modify:**
-- `packages/shared/src/utils/dampening.ts` — `computeDampeningCurve(combat)`,
-  `computeEffectiveHealing(healOut, dampening)`
-- `scripts/testAnalyze.mjs` — add dampening context block
-
----
-
-### 11. Interrupt Analysis *(NEW)*
-**Priority: Medium | Complexity: Low**
-
-Track which enemy casts were interrupted vs. let through, and estimate the cost of missed
-kicks.
-
-**What to measure:**
-- For every `SPELL_INTERRUPT` cast by your team: which cast was stopped, who was the target
-- For enemy casts that completed (`SPELL_CAST_SUCCESS`): was an interrupt available?
-- Estimate damage/heal value of casts that landed unninterrupted
-- Flag high-value missed kicks (e.g. enemy healer's big heal, enemy DPS burst spell)
-
-**Data sources:** `unit.actionOut` (SPELL_INTERRUPT), `unit.spellCastEvents` for enemies,
-`spellEffects.json` for spell type classification
-
-**AI prompt addition:** "The enemy Holy Paladin cast Barrier at 2:30 uninterrupted — your
-Windwalker's Spear Hand Strike was available (last used at 1:00, 15s CD). Your team had
-dealt 0.8M damage in the following 8 seconds before the barrier expired."
-
-**Files to create/modify:**
-- `packages/shared/src/utils/interrupts.ts` — `extractInterruptEvents(units, combat)`,
-  `computeMissedInterrupts(enemies, friendlies, combat)`
-- `scripts/testAnalyze.mjs` — add interrupt context block
-
----
-
-### 12. Kill Window Quality *(NEW)*
-**Priority: High | Complexity: Medium**
-
-On your offensive windows — did your team coordinate CDs onto the same target at the same
-time? At high level, uncoordinated offensive windows are how winning comps lose.
-
-**What to measure:**
-- Identify offensive CD clusters: windows where multiple players cast offensive CDs within
-  5 seconds of each other
-- Check if damage was focused on a single target during those windows ("Fake" vs "Real" damage)
-- Measure whether the enemy healer was actually CCed during the kill window (the most common failure point)
-- Compare kill window CD overlap to actual damage spikes — did the burst actually land?
-- Flag wasted go windows: CDs used but spread across different targets, or burst used while
-  the enemy healer was standing completely free to out-heal it.
-
-**Data sources:** `unit.spellCastEvents` for all players, `classMetadata` offensive tags,
-`unit.damageIn` for enemies, CC applied to enemy healer
-
-**AI prompt addition:** "At 2:15 you and your DPS had 3 offensive CDs within a 4s window.
-Your DPS split damage between the Warrior (0.4M) and the Paladin healer (0.3M). The Paladin
-was not CCed during this window. A focused go with CC on the Paladin healer may have
-converted this into a kill."
-
-**Files to create/modify:**
-- `packages/shared/src/utils/killWindows.ts` — `extractKillWindows(allUnits, combat)`,
-  `evaluateKillWindowQuality(windows, combat)`
-- `scripts/testAnalyze.mjs` — add kill window context block
-
----
-
-### 13. Player Performance Score *(NEW)*
-**Priority: Medium | Complexity: Medium**
-
-Assign a single numeric score to each player in the match that approximates their contribution
-and execution quality. Useful as a quick summary, a leaderboard within multi-match sessions,
-and as signal for the AI to prioritise its feedback.
-
-**What to measure:**
-
-*Offensive players (DPS):*
-- CD efficiency: % of major offensive CD time actually in use (vs. sitting idle)
-- Kill window participation: did their offensive CDs land during coordinated go windows?
-- Damage focus: what % of their damage hit the kill target vs. spread?
-- Pressure contribution: how often did their burst coincide with the top pressure windows?
-
-*Healers:*
-- CD efficiency: % of major defensive/healing CD time in use
-- Healing gap rate: seconds of avoidable healing downtime per minute
-- Defensive response: did healing CDs land during the highest incoming damage windows?
-- Dispel speed: average delay between debuff application and dispel
-
-*All players:*
-- CC effectiveness: # of CCs cast at full DR vs. partial/immune DR
-- Survival: penalise for deaths, bonus for surviving under heavy pressure
-
-**Score formula (suggested starting point):**
-- Base 0–100 scale
-- Weighted sum of role-specific sub-scores
-- Normalised against match duration so short and long matches are comparable
-
-**Display:**
-- Show per-player score badge in the match summary (alongside existing stats)
-- Optionally show sub-score breakdown on hover
-- In multi-match files: show score trend across matches
-
-**AI prompt addition:** Include the per-player scores in the context so Claude can reference
-them ("your performance score of 62/100 was driven mainly by a 41% idle rate on Avenging Wrath").
-
-**Files to create/modify:**
-- `packages/shared/src/utils/performanceScore.ts` — `computePlayerScore(unit, role, combat)`,
-  `computeMatchScores(allUnits, combat)` returning `Record<string, IPlayerScore>`
-- `packages/shared/src/components/CombatReport/CombatAIAnalysis/index.tsx` — include scores
-  in context and optionally display them
-- `scripts/testAnalyze.mjs` — add score summary to context block
-
-**Open questions:**
-- How to weight role sub-scores fairly (healers have fewer "offensive" signals)?
-- Should the score be shown to users as-is, or only used internally as AI context?
-- Calibrate thresholds against real match data before showing to users
-
----
-
-### 14. Panic Trading & Overlap Detection *(NEW)*
-**Priority: High | Complexity: Medium**
-
-Detect when major defensive cooldowns are used in response to "fake" pressure or when multiple 
-defensives are overlapped unnecessarily. At high level, surviving a go with the *minimum* 
-required cooldowns is the entire game.
-
-**What to measure:**
-- Panic Presses: find major defensive CD casts where the enemy had zero offensive CDs active 
-  and friendly HP was relatively stable (e.g., >50%).
-- Overlaps: detect when two or more major defensives are used on the same target within a 
-  short window (e.g., Pain Suppression and Life Cocoon cast within 3 seconds of each other).
-- Cost of Overlap: did the team die to the *next* setup window because they double-traded here?
-
-**Data sources:** `unit.spellCastEvents` for both teams, `classMetadata` defensive and 
-offensive tags, `unit.damageIn`, `unit.healthPoints`.
-
-**AI prompt addition:** "You used Pain Suppression at 1:15, but there were no enemy offensive 
-cooldowns active, and your teammate was only taking light rotational pressure. Because of 
-this wasted trade, you had nothing available at 2:10 when the enemy used Combustion."
-
-**Files to create/modify:**
-- `packages/shared/src/utils/overlapDetection.ts` — `extractPanicTrades(owner, combat)`
-- `scripts/testAnalyze.mjs` — add defensive overlap context block
+- **#15 Offensive Purge Tracking** — now built into `dispelAnalysis.ts`
+- **#16 Fatal Dispel Flagging** — Sprint 4, sound concept, needs UA-specific backlash filtering
+- **#17 Offensive Vulnerability Windows** — Sprint 2, highest value of the set
+- **#18 CDR Heuristics** — Sprint 3, scoped to known CDR abilities only
 
 ---
 
 ## Development Notes
 
-- Each feature adds a new block to the context text sent to the AI — they are **additive and
-  independent**
-- The AI prompt in `packages/web/pages/api/analyze.ts` may need tuning as more context is
-  added (watch token limits; consider summarising lower-priority blocks)
-- **Recommended first sprint:** Features 7, 9, 10 (Tempo cluster + Dampening) — high gain,
-  medium/low complexity, provide the most context enrichment for the AI
-- **Second sprint:** Features 1, 4, 5, 11 (healer fast wins) — all low complexity
-- **Third sprint:** Features 2, 3, 12 (reaction + kill windows)
-- **Final:** Feature 8 (CD simulation) and Feature 6 (positioning)
+- Each data feature adds a new input to the context builder — they are additive and independent
+- Watch token limits: as context grows, lower-priority blocks should be summarised or omitted
+- All utility functions must support all specs, not just Mistweaver
 - All utility functions should be usable by both the web component (`CombatAIAnalysis`) and
-  the test script (`scripts/testAnalyze.mjs`)
-- All healer-specific logic must support all healer specs, not just Mistweaver
-
----
-
-## Antigravity's Recommended Backlog & Ideas
-
-**Author:** Antigravity AI  
-**Purpose:** This document records high-level concepts and mathematical modeling ideas devised by Antigravity during deep brainstorming. These features represent the next generation of PvP logic and should be handed off to another agent (e.g., Claude) to implement in the TypeScript utilities.
-
-### 15. Offensive Purge Tracking (`dispelAnalysis.ts`)
-
-**Concept:** Currently, the system only penalizes teams for failing to defensively cleanse allies. It entirely ignores offensive stripping.
-**Implementation Blueprint:**
-
-1. Create mapping of `OFFENSIVE_PURGERS` (e.g., Shaman `Purge`, Priest `Dispel Magic`, Mage `Spellsteal`, Warlock `Devour Magic`, Demon Hunter `Consume Magic`).
-2. Scan enemy units' `auraEvents` for `Critical` and `High` priority magic/enrage buffs (e.g., _Combustion_, _Blessing of Protection_).
-3. If the buff remains on the enemy for > 3 seconds, and a friendly offensive purger was alive and not CC'd, generate a `missedPurgeWindow`.
-
-**Claude's Review:** Good idea — the dispel system is one-sided right now. The 3-second grace window is reasonable to avoid flagging immediate purges that were intentional or situational. Main ongoing maintenance concern is keeping `OFFENSIVE_PURGERS` and the high-value buff list accurate across patches. Good effort-to-value ratio.
-
-### 16. Fatal / Bad Dispel Flagging (`dispelAnalysis.ts`)
-
-**Concept:** Instead of merely ignoring dangerous dispels, the backend should actively flag when a healer takes the bait and makes a game-losing dispel.
-**Implementation Blueprint:**
-
-1. Identify when an aura matching `DISPEL_PENALTY_SPELLS` (e.g., _Unstable Affliction_) is removed via `SPELL_DISPEL`.
-2. Grab the friendly agent who cast the dispel.
-3. Calculate the damage taken and CC suffered (UA silences) by the dispeller in the immediate 4 seconds following the dispel.
-4. Output a `fatalDispelPenalty` event detailing exactly how much backlash they took.
-
-**Claude's Review:** Sound concept — UA is the canonical example and this is a real, frequent mistake in arena. One important nuance: the backlash attribution should check whether the dispeller was already being targeted before the dispel, otherwise normal ongoing pressure gets incorrectly attributed to the dispel. That filtering step would significantly reduce false positives.
-
-### 17. Offensive Vulnerability Windows (`cooldowns.ts`)
-
-**Concept:** Defensive "Pressure Windows" currently exist, tracking when friendlies took damage. We need the inverse to test if DPS capitalized on enemy weaknesses.
-**Implementation Blueprint:**
-
-1. Compute windows where a specific enemy target has:
-   - Below 30% health.
-   - PvP Medallion on cooldown.
-   - Core defensive cooldowns (e.g., _Ice Block_, _Pain Suppression_) unavailable.
-2. Flag this as an `enemyVulnerabilityWindow`.
-3. Give the AI context on whether friendly DPS used their offensive cooldowns during this exact window.
-
-**Claude's Review:** Most valuable of the four. The current pressure window analysis is purely defensive, giving the AI an asymmetric view of matches. The three conditions (sub-30% HP, medallion on CD, major def CD unavailable) are well-chosen. Main complexity is accurately tracking medallion cooldown state since it's a PvP trinket not always visible in logs. Best effort-to-value ratio overall.
-
-### 18. Dynamic Cooldown Reduction Heuristics (`cooldowns.ts`)
-
-**Concept:** The static CD timer mathematical model is blind to major WoW CDR mechanics, leading to false negatives.
-**Implementation Blueprint:**
-
-1. Scan for major CDR events (e.g., Mage casting _Shifting Power_, Paladin casting _Wake of Ashes_).
-2. When observed, actively subtract the respective seconds from the tracked `cdReadyAt` properties for that unit.
-3. This will make the "Available uptime" equations dramatically more accurate for CDR-heavy specs.
-
-**Claude's Review:** Highest accuracy payoff but also highest ongoing maintenance burden. CDR interactions in WoW are complex — talents, partial reductions, conditional procs. Recommend scoping conservatively to a known list of hard CDR abilities (Shifting Power, Wake of Ashes, etc.) rather than trying to be exhaustive. Worth doing, but approach iteratively.
+  the AI test page (`/local/ai`)
+- The AI test page (`/local/ai`) should be used to validate every prompt change before shipping
