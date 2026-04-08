@@ -29,18 +29,26 @@ const DISPEL_PENALTY_SPELLS = new Map<string, string>([
   ['342938', 'Silences & damages the dispeller (Unstable Affliction)'],
 ]);
 
-// Specs that can remove each debuff type.
+// Static spec → dispel-type maps. These represent specs whose cleanse ability is treated as
+// baseline (virtually always present in arena). A few cleanses are technically talent-gated
+// in the class/spec tree but are skipped so universally that treating them as static avoids
+// noise without meaningful accuracy loss:
+//   - Paladin Cleanse Toxins (Poison/Disease): class tree node, skipped only by very niche builds
+//   - Druid Remove Corruption (Poison/Curse): class tree node, universal in arena
+//   - Resto Druid Nature's Cure / Resto Shaman Purify Spirit: spec tree, always taken in arena
+// Shadow Priest Purify Disease is the only talent-gated cleanse handled dynamically
+// (via canDefensiveCleanse) because it is a meaningful variance in typical Shadow builds.
 const MAGIC_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Paladin_Holy,
   CombatUnitSpec.Priest_Discipline,
   CombatUnitSpec.Priest_Holy,
-  CombatUnitSpec.Druid_Restoration, // Nature's Cure (always talented in arena)
-  CombatUnitSpec.Shaman_Restoration, // Purify Spirit
+  CombatUnitSpec.Druid_Restoration, // Nature's Cure — spec tree, always talented in arena
+  CombatUnitSpec.Shaman_Restoration, // Purify Spirit — spec tree, always talented in arena
   CombatUnitSpec.Monk_Mistweaver, // Detox (also removes Poison/Disease)
   CombatUnitSpec.Evoker_Preservation, // Naturalize
 ]);
 
-// Poison: all Paladins, all Druids, all Monks
+// Poison: all Paladins (Cleanse Toxins), all Druids (Remove Corruption), all Monks (Detox)
 const POISON_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Paladin_Holy,
   CombatUnitSpec.Paladin_Protection,
@@ -57,7 +65,7 @@ const POISON_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Evoker_Augmentation, // Expunge / Cauterizing Flame
 ]);
 
-// Curse: all Druids, all Mages, Resto Shaman
+// Curse: all Druids (Remove Corruption), all Mages (Remove Curse), Resto Shaman (Purify Spirit)
 const CURSE_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Druid_Balance,
   CombatUnitSpec.Druid_Feral,
@@ -72,7 +80,8 @@ const CURSE_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Evoker_Augmentation, // Cauterizing Flame
 ]);
 
-// Disease: all Paladins, Holy/Disc Priest, all Monks
+// Disease: all Paladins (Cleanse Toxins), Holy/Disc Priest (Purify), all Monks (Detox)
+// Shadow Priest (Purify Disease) is talent-gated and handled in canDefensiveCleanse, not here.
 const DISEASE_REMOVERS = new Set<CombatUnitSpec>([
   CombatUnitSpec.Paladin_Holy,
   CombatUnitSpec.Paladin_Protection,
@@ -144,7 +153,10 @@ const PURGE_BLOCKLIST = new Set<string>([
   '605', // Mind Control — debuff on your ally, removed via defensive cleanse not offensive purge
 ]);
 
-type DispelType = 'Magic' | 'Poison' | 'Curse' | 'Disease' | 'Bleed';
+// Single source of truth — DispelType is derived from this array so adding a new type here
+// automatically widens the union without needing a second edit.
+const ALL_DISPEL_TYPES = ['Magic', 'Poison', 'Curse', 'Disease', 'Bleed'] as const;
+type DispelType = (typeof ALL_DISPEL_TYPES)[number];
 
 // DH Consume Magic is in the TWW talent tree — only available if the player took the node.
 const CONSUME_MAGIC_SPELL_ID = '278326';
@@ -152,6 +164,8 @@ const CONSUME_MAGIC_SPELL_ID = '278326';
 // We use the Summon Felhunter talent as a proxy, falling back to cast evidence.
 const SUMMON_FELHUNTER_SPELL_ID = '30146';
 // Shadow Priest: Purify Disease is in the talent tree (not baseline like Holy/Disc).
+// 213634 is confirmed in talentIdMap.json as both the talent node spellId and the cast spell ID,
+// so it works for both talentedIds.has() checks and cast-evidence fallback.
 const PURIFY_DISEASE_SPELL_ID = '213634';
 
 const WARLOCK_SPECS = new Set<CombatUnitSpec>([
@@ -228,12 +242,18 @@ export function canOffensivePurge(unit: ICombatUnit): boolean {
   const talentTreeIds = getSpecTalentTreeSpellIds(specIdNum);
   const talentedIds = unit.info?.talents ? getPlayerTalentedSpellIds(specIdNum, unit.info.talents) : null;
   const hasCombatantInfo = unit.info !== undefined;
-  const castSpellIds = unitCastSpellIds(unit);
+  // castSpellIds is computed lazily (only when talentedIds is null) to avoid iterating
+  // potentially thousands of cast events on the hot path where COMBATANT_INFO is present.
+  let castSpellIds: Set<string> | null = null;
+  const getCastSpellIds = () => {
+    if (castSpellIds === null) castSpellIds = unitCastSpellIds(unit);
+    return castSpellIds;
+  };
 
   // DH: Consume Magic is talent-gated.
   if (DH_SPECS.has(unit.spec) && talentTreeIds.has(CONSUME_MAGIC_SPELL_ID)) {
     if (talentedIds !== null && !talentedIds.has(CONSUME_MAGIC_SPELL_ID)) return false;
-    if (talentedIds === null && hasCombatantInfo && !castSpellIds.has(CONSUME_MAGIC_SPELL_ID)) return false;
+    if (talentedIds === null && hasCombatantInfo && !getCastSpellIds().has(CONSUME_MAGIC_SPELL_ID)) return false;
   }
 
   // Warlock: Devour Magic requires an active Felhunter pet.
@@ -244,7 +264,7 @@ export function canOffensivePurge(unit: ICombatUnit): boolean {
       if (talentedIds !== null && !talentedIds.has(SUMMON_FELHUNTER_SPELL_ID)) {
         // Didn't take Summon Felhunter talent — check cast evidence as final fallback
         // (they may have summoned it before the match started, so cast may not appear)
-        if (!castSpellIds.has(SUMMON_FELHUNTER_SPELL_ID)) return false;
+        if (!getCastSpellIds().has(SUMMON_FELHUNTER_SPELL_ID)) return false;
       }
     }
   }
@@ -287,8 +307,6 @@ function getDispelType(spellId: string): DispelType | null {
   // Fall back to our curated map for CC spells missing from spellEffects.json.
   return DISPEL_TYPE_FALLBACK[spellId] ?? null;
 }
-
-const ALL_DISPEL_TYPES: DispelType[] = ['Magic', 'Poison', 'Curse', 'Disease', 'Bleed'];
 
 function buildTeamDispelTypes(friends: ICombatUnit[]): Set<DispelType> {
   const types = new Set<DispelType>();
