@@ -289,6 +289,7 @@ interface IBurstWindow {
   toSeconds: number;
 }
 interface ISingleEnemyCDCast {
+  spellName: string;
   castTimeSeconds: number;
   buffEndSeconds: number;
 }
@@ -336,46 +337,77 @@ export function annotateDefensiveTimings(
       const t = cast.timeSeconds;
 
       // ── 1. Aligned burst window ────────────────────────────────────────────
-      let classified = false;
+      let bestAligned: { label: DefensiveTimingLabel; context: string } | null = null;
       for (const w of enemyCDTimeline.alignedBurstWindows) {
         if (t >= w.fromSeconds && t <= w.toSeconds) {
-          cast.timingLabel = 'Optimal';
-          cast.timingContext = `cast during burst window ${fmtTime(w.fromSeconds)}–${fmtTime(w.toSeconds)}`;
-          classified = true;
-          break;
+          bestAligned = {
+            label: 'Optimal',
+            context: `cast during burst window ${fmtTime(w.fromSeconds)}–${fmtTime(w.toSeconds)}`,
+          };
+          break; // Optimal is the highest tier, stop searching
         }
         if (t >= w.fromSeconds - PRE_WALL_SECONDS && t < w.fromSeconds) {
-          cast.timingLabel = 'Early';
-          cast.timingContext = `cast ${(w.fromSeconds - t).toFixed(1)}s before burst window at ${fmtTime(w.fromSeconds)} — possible pre-wall`;
-          classified = true;
-          break;
+          if (!bestAligned || bestAligned.label === 'Late') {
+            bestAligned = {
+              label: 'Early',
+              context: `cast ${(w.fromSeconds - t).toFixed(1)}s before burst window at ${fmtTime(w.fromSeconds)} — possible pre-wall`,
+            };
+          }
         }
         if (t > w.toSeconds && t <= w.toSeconds + LATE_WINDOW_SECONDS) {
-          cast.timingLabel = 'Late';
-          cast.timingContext = `cast ${(t - w.toSeconds).toFixed(1)}s after burst window ended at ${fmtTime(w.toSeconds)}`;
-          classified = true;
-          break;
+          if (!bestAligned) {
+            bestAligned = {
+              label: 'Late',
+              context: `cast ${(t - w.toSeconds).toFixed(1)}s after burst window ended at ${fmtTime(w.toSeconds)}`,
+            };
+          }
         }
       }
-      if (classified) continue;
 
-      // ── 2. Single-enemy offensive CD active during cast ────────────────────
-      const activeSingle = allSingleCDs.find((ec) => t >= ec.castTimeSeconds && t <= ec.buffEndSeconds);
-      if (activeSingle) {
-        cast.timingLabel = 'Optimal';
-        cast.timingContext = `cast during enemy offensive CD active ${fmtTime(activeSingle.castTimeSeconds)}–${fmtTime(activeSingle.buffEndSeconds)}`;
+      if (bestAligned) {
+        cast.timingLabel = bestAligned.label;
+        cast.timingContext = bestAligned.context;
         continue;
       }
-      const recentSingle = allSingleCDs.find(
-        (ec) => t > ec.buffEndSeconds && t <= ec.buffEndSeconds + LATE_WINDOW_SECONDS,
-      );
-      if (recentSingle) {
-        cast.timingLabel = 'Late';
-        cast.timingContext = `cast ${(t - recentSingle.buffEndSeconds).toFixed(1)}s after enemy CD expired at ${fmtTime(recentSingle.buffEndSeconds)}`;
+
+      // ── 2. Single-enemy offensive CD active during cast ────────────────────
+      let bestSingle: { label: DefensiveTimingLabel; context: string } | null = null;
+      for (const ec of allSingleCDs) {
+        if (t >= ec.castTimeSeconds && t <= ec.buffEndSeconds) {
+          bestSingle = {
+            label: 'Optimal',
+            context: `cast during enemy ${ec.spellName} active ${fmtTime(ec.castTimeSeconds)}–${fmtTime(ec.buffEndSeconds)}`,
+          };
+          break; // Optimal stops search
+        }
+        if (t >= ec.castTimeSeconds - PRE_WALL_SECONDS && t < ec.castTimeSeconds) {
+          if (!bestSingle || bestSingle.label === 'Late') {
+            bestSingle = {
+              label: 'Early',
+              context: `cast ${(ec.castTimeSeconds - t).toFixed(1)}s before enemy ${ec.spellName} at ${fmtTime(ec.castTimeSeconds)} — possible pre-wall`,
+            };
+          }
+        }
+        if (t > ec.buffEndSeconds && t <= ec.buffEndSeconds + LATE_WINDOW_SECONDS) {
+          if (!bestSingle) {
+            bestSingle = {
+              label: 'Late',
+              context: `cast ${(t - ec.buffEndSeconds).toFixed(1)}s after enemy ${ec.spellName} expired at ${fmtTime(ec.buffEndSeconds)}`,
+            };
+          }
+        }
+      }
+
+      if (bestSingle) {
+        cast.timingLabel = bestSingle.label;
+        cast.timingContext = bestSingle.context;
         continue;
       }
 
       // ── 3. Damage curve fallback ───────────────────────────────────────────
+      // NOTE: `unit.damageIn` refers to damage taken by the caster. For External CDs
+      // (e.g. Blessing of Sacrifice on an ally), this will check the Paladin's damage,
+      // not the friendly target's damage. (Target resolution is tracked in overlaps, not here).
       const castMs = matchStartMs + t * 1000;
       const dmgBefore = unit.damageIn
         .filter((d) => d.logLine.timestamp >= castMs - TIMING_DAMAGE_WINDOW_S * 1000 && d.logLine.timestamp < castMs)
@@ -384,7 +416,7 @@ export function annotateDefensiveTimings(
         .filter((d) => d.logLine.timestamp >= castMs && d.logLine.timestamp < castMs + TIMING_DAMAGE_WINDOW_S * 1000)
         .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
 
-      if (dmgBefore > 0 && dmgAfter > 0 && dmgBefore > dmgAfter * REACTIVE_RATIO) {
+      if (dmgBefore > 50_000 && dmgAfter > 0 && dmgBefore > dmgAfter * REACTIVE_RATIO) {
         cast.timingLabel = 'Reactive';
         cast.timingContext = `damage spike appeared to peak before cast (${Math.round(dmgBefore / 1000)}k in 3s before vs ${Math.round(dmgAfter / 1000)}k after)`;
       } else {
