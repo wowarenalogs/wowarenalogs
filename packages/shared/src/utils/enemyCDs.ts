@@ -20,6 +20,11 @@ export interface IEnemyCDCast {
   cooldownSeconds: number;
   /** When this CD will be available again (may exceed match duration) */
   availableAgainAtSeconds: number;
+  /**
+   * When the buff granted by this CD expires. Computed from spellEffectData.durationSeconds
+   * when available; falls back to castTimeSeconds when duration data is missing.
+   */
+  buffEndSeconds: number;
 }
 
 export interface IEnemyPlayerTimeline {
@@ -79,12 +84,14 @@ export function reconstructEnemyCDTimeline(
       if (cooldownSeconds < MIN_CD_SECONDS || cooldownSeconds > MAX_CD_SECONDS) continue;
 
       const castTimeSeconds = (cast.logLine.timestamp - matchStartMs) / 1000;
+      const buffDuration = effectData.durationSeconds ?? 0;
       offensiveCDs.push({
         spellId,
         spellName: effectData.name,
         castTimeSeconds,
         cooldownSeconds,
         availableAgainAtSeconds: castTimeSeconds + cooldownSeconds,
+        buffEndSeconds: buffDuration > 0 ? castTimeSeconds + buffDuration : castTimeSeconds,
       });
     }
 
@@ -104,6 +111,7 @@ export function reconstructEnemyCDTimeline(
     .flatMap((p) =>
       p.offensiveCDs.map((cd) => ({
         time: cd.castTimeSeconds,
+        buffEndSeconds: cd.buffEndSeconds,
         playerName: p.playerName,
         spellName: cd.spellName,
         spellId: cd.spellId,
@@ -124,7 +132,9 @@ export function reconstructEnemyCDTimeline(
     const windowStart = allCasts[i].time;
     const inWindow = allCasts.filter((c) => c.time >= windowStart && c.time <= windowStart + BURST_CLUSTER_SECONDS);
     if (inWindow.length >= 2) {
-      const windowEnd = inWindow[inWindow.length - 1].time;
+      // toSeconds = when the last buff in this window actually expires, not just when it was cast.
+      // Uses buffEndSeconds (cast + durationSeconds) when available; falls back to cast time.
+      const windowEnd = Math.max(...inWindow.map((c) => c.buffEndSeconds));
 
       // Compute CD-based danger score
       const cdScore = inWindow.reduce((sum, c) => sum + spellDangerWeight(c.spellId, c.cooldownSeconds), 0);
@@ -237,13 +247,15 @@ export function formatEnemyCDTimelineForContext(timeline: IEnemyCDTimeline, matc
     for (const cd of player.offensiveCDs) {
       const effects = SPELL_EFFECT_OVERRIDES[cd.spellId];
       const effectStr = effects ? effects.join(', ') : 'DamageAmp';
+      const buffWindow =
+        cd.buffEndSeconds > cd.castTimeSeconds
+          ? ` active ${fmtTime(cd.castTimeSeconds)}–${fmtTime(cd.buffEndSeconds)}`
+          : ` cast at ${fmtTime(cd.castTimeSeconds)}`;
       const backStr =
         cd.availableAgainAtSeconds <= matchDurationSeconds
           ? ` → back at ${fmtTime(cd.availableAgainAtSeconds)}`
           : ' → not available again before match ended';
-      lines.push(
-        `    ${cd.spellName} [${cd.cooldownSeconds}s CD, ${effectStr}]: cast at ${fmtTime(cd.castTimeSeconds)}${backStr}`,
-      );
+      lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD, ${effectStr}]:${buffWindow}${backStr}`);
     }
   }
 
