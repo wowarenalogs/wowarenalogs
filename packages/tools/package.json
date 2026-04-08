@@ -10,7 +10,8 @@
     "start:generateSpellsData": "ts-node --files ./src/generateSpellsData.ts",
     "start:generateSpellIdLists": "ts-node --files ./src/generateSpellIdLists.ts",
     "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts",
-    "start:simlog": "dotenv -- ts-node --files ./src/simlog.ts"
+    "start:simlog": "dotenv -- ts-node --files ./src/simlog.ts",
+    "start:generateDataManifest": "ts-node --files ./src/generateDataManifest.ts"
   },
   "devDependencies": {
     "@types/node": "^22",

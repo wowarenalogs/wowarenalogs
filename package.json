@@ -91,6 +91,7 @@
     "start:desktop": "npm run start:desktop --workspaces --if-present",
     "release:desktop": "npm run release:desktop --workspaces --if-present",
     "dev:web": "npm run dev:web --workspaces --if-present",
+    "prebuild:web": "npm run start:generateDataManifest --workspaces --if-present",
     "build:web": "npm run build:web --workspaces --if-present",
     "start:web": "npm run start:web --workspaces --if-present",
     "release:web": "npm run release:web --workspaces --if-present",

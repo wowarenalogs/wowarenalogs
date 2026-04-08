@@ -1,0 +1,66 @@
+{
+  "generatedAt": "2026-04-08T20:06:07.201Z",
+  "gitCommit": "af8ad3af43f14d9debeec3ec39a17a601ed29fd7",
+  "files": {
+    "spellEffects.json": {
+      "description": "Per-spell cooldown, duration, dispelType from Wago.tools DB2",
+      "generatedBy": "npm run start:refreshSpellMetadata (packages/tools)",
+      "wowDataDependent": true,
+      "entryCount": 763,
+      "sha256": "449b17b5413a2bf35833df5d9577d221d22d93050ce2b62d56d7bc125146b3ff",
+      "lastCommit": {
+        "hash": "ef94c8a79338b583581142c310f1d0a3a13e908d",
+        "date": "2026-04-02T00:12:33-07:00",
+        "subject": "fix(cd-analysis): add Evoker spells and fix missing tags for DK/Monk/Paladin/Druid/Shaman/Warlock"
+      }
+    },
+    "spells.json": {
+      "description": "Spell type/priority classifications from BigDebuffs addon",
+      "generatedBy": "npm run start:generateSpellsData (packages/tools)",
+      "wowDataDependent": true,
+      "entryCount": 543,
+      "sha256": "67fbf7a1b3d34b2ddbb7468c36b2753573ca9efa0af55814b9a80e5297ea9db6",
+      "lastCommit": {
+        "hash": "69a9756ad900078977b294599956aa16f20e5dee",
+        "date": "2026-04-02T12:12:43-07:00",
+        "subject": "fix(ai): correct data quality issues from Antigravity refactor"
+      }
+    },
+    "spellIdLists.json": {
+      "description": "bigDefensive / externalDefensive / important spell ID lists from Wago.tools + SimC flags",
+      "generatedBy": "npm run start:generateSpellIdLists (packages/tools)",
+      "wowDataDependent": true,
+      "entryCount": 8,
+      "sha256": "f86fcb4e5512e7cda67168aadd540808f368f6824cb9922cdc3d2fa02200af2a",
+      "lastCommit": {
+        "hash": "1e5717a1cb8ae8ed361a009ded45cde1870bd9e4",
+        "date": "2026-03-31T00:52:50-07:00",
+        "subject": "feat: add update-wow-data skill + update spell data to build 12.0.1.66709"
+      }
+    },
+    "talentIdMap.json": {
+      "description": "Full talent tree structure per spec from Wago.tools Talent API",
+      "generatedBy": "npm run start:refreshSpellMetadata (packages/tools)",
+      "wowDataDependent": true,
+      "entryCount": 40,
+      "sha256": "f005ed28c3ad546e35b2942e452bbcfefd1ed139ec4dc6a319adcd7537925b7d",
+      "lastCommit": {
+        "hash": "40070809658c8aa80e7d95d324856fb4e0380715",
+        "date": "2026-01-20T23:02:31-05:00",
+        "subject": "Prompt is too long"
+      }
+    },
+    "raidbotsEnchantments.json": {
+      "description": "Enchantment metadata from Raidbots live API",
+      "generatedBy": "Manual: download https://www.raidbots.com/static/data/live/enchantments.json",
+      "wowDataDependent": true,
+      "entryCount": 557,
+      "sha256": "98bfc62be140e387521c7dd8b7a42b77fa11c8fa0e648dcd78160679ba05cf2a",
+      "lastCommit": {
+        "hash": "2c44b49253ae8a71da06281b93345e9361113cf8",
+        "date": "2025-08-26T10:47:57-04:00",
+        "subject": "Update static data"
+      }
+    }
+  }
+}
