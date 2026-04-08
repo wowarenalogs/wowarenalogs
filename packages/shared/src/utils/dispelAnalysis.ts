@@ -856,12 +856,17 @@ export function reconstructDispelSummary(
                 }
               }
 
-              // Healing pressure: was the friendly team taking significant damage during the miss?
-              const windowEndMs = removalTs ?? combat.endTime;
+              // Healing pressure: was the friendly team taking significant damage at the moment of application?
+              // We check a strict burst window (3s) instead of the entire unpurged duration so we don't falsely
+              // excuse missed purges during long, unpressured periods.
+              const pressureWindowEndMs = Math.min(
+                applyTs + POST_CC_PRESSURE_WINDOW_S * 1000,
+                removalTs ?? combat.endTime,
+              );
               const teamUnderPressure = friends.some((f) => {
                 const threshold = getPressureThreshold(f);
                 const dmg = f.damageIn
-                  .filter((d) => d.logLine.timestamp >= applyTs && d.logLine.timestamp <= windowEndMs)
+                  .filter((d) => d.logLine.timestamp >= applyTs && d.logLine.timestamp <= pressureWindowEndMs)
                   .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
                 return dmg >= threshold;
               });

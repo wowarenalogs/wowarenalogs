@@ -62,7 +62,23 @@
       "Bash(sed -n '17990,18020p' packages/parser/src/classMetadata.ts)",
       "Bash(git fetch:*)",
       "Bash(git merge:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git status:*)",
+      "Bash(sed -n '109,124p' /Users/mingjianliu/code/wowarenalogs/packages/parser/src/classMetadata.ts)",
+      "Bash(sed -n '1859,1868p' /Users/mingjianliu/code/wowarenalogs/packages/parser/src/classMetadata.ts)",
+      "Bash(sed -n '3814,3816p' /Users/mingjianliu/code/wowarenalogs/packages/parser/src/classMetadata.ts)",
+      "Bash(sed -n '7411,7413p' /Users/mingjianliu/code/wowarenalogs/packages/parser/src/classMetadata.ts)",
+      "Bash(sed -n '9718,9721p' /Users/mingjianliu/code/wowarenalogs/packages/parser/src/classMetadata.ts)",
+      "Bash(gh run:*)",
+      "Bash(grep:*)",
+      "Bash(npx --prefix packages/app tsc --noEmit)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(gh repo:*)",
+      "Bash(gh release:*)",
+      "Bash(git rm:*)",
+      "Bash(gh workflow:*)",
+      "WebFetch(domain:chatgpt.com)",
+      "Bash(find:*)"
     ]
   }
 }
