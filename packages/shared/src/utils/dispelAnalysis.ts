@@ -365,6 +365,9 @@ export interface IMissedCleanseWindow {
   dispelType: DispelType; // always set; null case is filtered before pushing
   /** Damage the target took in the first POST_CC_PRESSURE_WINDOW_S seconds after CC was applied */
   postCcDamage: number;
+  /** True if the healer who could remove this dispelType had their cleanse on CD */
+  cleanseWasOnCD: boolean;
+  cdBurnedOn?: { spellName: string; priority: DispelPriority; secondsBefore: number };
 }
 
 export interface ICCEfficiencyStat {
@@ -693,6 +696,38 @@ export function reconstructDispelSummary(
             .filter((d) => d.logLine.timestamp >= applyTs && d.logLine.timestamp <= windowEndMs)
             .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
 
+          let cleanseWasOnCD = false;
+          let cdBurnedOn: { spellName: string; priority: DispelPriority; secondsBefore: number } | undefined;
+
+          if (capableDispellers.length > 0) {
+            const activeDispellers = capableDispellers.filter(
+              (d) => !isPurgerFullyBlockedDuringWindow(d, applyTs, removal.ts, enemyIds),
+            );
+
+            const activeDispellerNames = new Set(activeDispellers.map((u) => u.name));
+            const applyRelative = (applyTs - combat.startTime) / 1000;
+            // Standard defensive dispel cooldown is 8 seconds. Look at the preceding 8s window.
+            const recentCleanses = allyCleanse.filter(
+              (c) =>
+                activeDispellerNames.has(c.sourceName) &&
+                c.timeSeconds < applyRelative &&
+                c.timeSeconds >= applyRelative - 8,
+            );
+
+            const dispellersWhoUsedCD = new Set(recentCleanses.map((c) => c.sourceName));
+
+            // If every active dispeller who wasn't CC'd had used their cleanse recently...
+            if (activeDispellers.length > 0 && activeDispellers.every((d) => dispellersWhoUsedCD.has(d.name))) {
+              cleanseWasOnCD = true;
+              const lastCleanse = recentCleanses[recentCleanses.length - 1]; // allyCleanse is sorted by timeSeconds
+              cdBurnedOn = {
+                spellName: lastCleanse.removedSpellName,
+                priority: lastCleanse.priority,
+                secondsBefore: applyRelative - lastCleanse.timeSeconds,
+              };
+            }
+          }
+
           missedCleanseWindows.push({
             timeSeconds: (applyTs - combat.startTime) / 1000,
             durationSeconds,
@@ -703,6 +738,8 @@ export function reconstructDispelSummary(
             priority,
             dispelType: windowDispelType,
             postCcDamage,
+            cleanseWasOnCD,
+            cdBurnedOn,
           });
         }
       }
@@ -871,8 +908,13 @@ export function formatDispelContextForAI(summary: IDispelSummary): string[] {
   } else {
     for (const w of significantMissed) {
       const dmg = w.postCcDamage > 0 ? `, ${Math.round(w.postCcDamage / 1000)}k dmg followed` : '';
+      let cdContext = '';
+      if (w.cleanseWasOnCD && w.cdBurnedOn) {
+        const sec = w.cdBurnedOn.secondsBefore.toFixed(1);
+        cdContext = ` (cleanse was on CD, burned ${sec}s earlier on ${w.cdBurnedOn.spellName} [${w.cdBurnedOn.priority}])`;
+      }
       lines.push(
-        `    ${fmtTime(w.timeSeconds)} — ${w.targetName} [${w.targetSpec}] was in ${w.spellName} [${w.dispelType}, ${w.priority}] for ${Math.round(w.durationSeconds)}s${dmg}`,
+        `    ${fmtTime(w.timeSeconds)} — ${w.targetName} [${w.targetSpec}] was in ${w.spellName} [${w.dispelType}, ${w.priority}] for ${Math.round(w.durationSeconds)}s${dmg}${cdContext}`,
       );
     }
   }
