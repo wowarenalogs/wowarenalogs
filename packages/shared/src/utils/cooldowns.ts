@@ -11,7 +11,9 @@ import { spellEffectData } from '../data/spellEffectData';
 import spellIdListsData from '../data/spellIdLists.json';
 import { getPlayerTalentedSpellIds, getSpecTalentTreeSpellIds } from './talents';
 
-const MAJOR_DEFENSIVE_IDS = new Set<string>(spellIdListsData.externalOrBigDefensiveSpellIds as string[]);
+const MAJOR_DEFENSIVE_IDS = new Set<string>(
+  (spellIdListsData as unknown as { externalOrBigDefensiveSpellIds?: string[] }).externalOrBigDefensiveSpellIds ?? [],
+);
 
 // All spells tagged 'Offensive' in classMetadata — used to detect active enemy burst windows
 const OFFENSIVE_SPELL_IDS = new Set<string>(
@@ -307,7 +309,10 @@ const TIMING_DAMAGE_WINDOW_S = 3;
 /** Ratio threshold: if damage before cast is this much higher than after, classify as Reactive */
 const REACTIVE_RATIO = 1.75;
 
-const DEFENSIVE_TAGS = new Set<string>([SpellTag.Defensive, SpellTag.External]);
+// SpellTag.External was removed from the enum — use the string literal so this compiles
+// under any tsconfig target. No spells currently carry the 'External' tag, but the set
+// is kept for future-proofing (externals like Pain Suppression are tagged Defensive).
+const DEFENSIVE_TAGS = new Set<string>([SpellTag.Defensive, 'External']);
 
 /**
  * Annotates each cast on Defensive/External cooldowns with a timing label:
@@ -844,13 +849,25 @@ const TANK_SPECS = new Set([
   CombatUnitSpec.Warrior_Protection,
 ]);
 
-// Role-based HP estimates used when advancedActions data is absent.
-// Derived from typical arena HP pools at Gladiator ilvl × PANIC_PRESS_PRESSURE_PCT (15%).
-// Tanks: ~900k HP → 135k; DPS: ~400k HP → 60k; Healers: ~450k HP → 68k.
-// These are intentionally conservative (slightly high) to avoid over-flagging.
+// Role-based damage thresholds used when advancedActions data is absent (no advanced logging).
+// ⚠️  PATCH-VOLATILE: These values are calibrated from benchmark data collected via
+//     packages/tools/src/collectBenchmarks.ts against 2400+ MMR 3v3 matches.
+//     Blizzard tuning (ilvl increases, class buffs, HP pool changes) can shift these
+//     significantly between patches. Re-run collectBenchmarks after each major patch.
+//
+// Methodology: pressure window = 3s pre + 4s post cast = 7s total.
+//   Threshold = ~P75–P85 of the 7s damage-taken distribution at 2400+ MMR.
+//   A window below threshold with no enemy offensive CD → flagged as panic.
+//
+// Last calibrated: 2026-04-08 (patch 11.x, n=47 matches, Bracket: 3v3, MinRating: 2400)
+// Benchmark source: packages/tools/benchmarks/benchmark_data.json
+//
+//   Tank:   P90 data unavailable (insufficient sample); kept from HP-pool estimate (~900k × 15%)
+//   DPS:    Fire Mage p75=210k, Frost Mage p75=214k, WW Monk p75=179k → 60k is below all P50s ✓
+//   Healer: Mistweaver p75=41k, Holy Priest p75=18k → old 68k exceeded P90 for Holy → lowered to 35k
 const PANIC_PRESS_DAMAGE_THRESHOLD_TANK = 135_000;
 const PANIC_PRESS_DAMAGE_THRESHOLD_DPS = 60_000;
-const PANIC_PRESS_DAMAGE_THRESHOLD_HEALER = 68_000;
+const PANIC_PRESS_DAMAGE_THRESHOLD_HEALER = 35_000; // was 68k; lowered after benchmark showed Holy Priest P90 ≈ 45k
 const PANIC_PRESS_PRE_CAST_WINDOW_MS = 3_000;
 const PANIC_PRESS_POST_CAST_WINDOW_MS = 4_000;
 /** If an enemy offensive CD starts within this window after the cast, it was a valid pre-wall */
@@ -898,7 +915,7 @@ function hasOffensiveSpellActive(
     }
   }
 
-  for (const [spellId, applications] of applied) {
+  for (const [spellId, applications] of Array.from(applied)) {
     const removals = removed.get(spellId) ?? [];
     for (const applyTs of applications) {
       if (applyTs > timestampMs) continue;
@@ -996,7 +1013,7 @@ export function detectPanicDefensives(
       if (targetUnit && hasOffensiveSpellActive(targetUnit, castMs, enemyIds)) continue;
 
       // 3. Local pressure: raw damage to target in the 3s before this cast
-      const pressureThreshold = targetUnit ? getPressureThreshold(targetUnit) : PANIC_PRESS_DAMAGE_THRESHOLD_FALLBACK;
+      const pressureThreshold = targetUnit ? getPressureThreshold(targetUnit) : PANIC_PRESS_DAMAGE_THRESHOLD_DPS;
       const preCastDamage = (targetUnit?.damageIn ?? [])
         .filter((d) => d.logLine.timestamp >= castMs - PANIC_PRESS_PRE_CAST_WINDOW_MS && d.logLine.timestamp < castMs)
         .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);

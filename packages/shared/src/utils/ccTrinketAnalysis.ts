@@ -2,6 +2,7 @@ import { ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { ccSpellIds } from '../data/spellTags';
 import { fmtTime, isHealerSpec, specToString } from './cooldowns';
+import { computeIncomingDR, DR_LEVEL_LABEL, IDRInfo } from './drAnalysis';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -62,6 +63,8 @@ export interface ICCInstance {
   sourceSpec: string;
   damageTakenDuring: number;
   trinketState: 'used' | 'available_unused' | 'on_cooldown' | 'passive_trinket';
+  /** DR state at the time this CC was applied. null if spell not in DR category map. */
+  drInfo: IDRInfo | null;
 }
 
 export interface IPlayerCCTrinketSummary {
@@ -198,14 +201,12 @@ export function analyzePlayerCCAndTrinket(
   // Resolve source spec from enemies list
   const enemySpecMap = new Map(enemies.map((u) => [u.id, specToString(u.spec)]));
 
-  // Build ICCInstance list
-  const ccInstances: ICCInstance[] = ccWindows.map((w) => {
-    // Damage taken by this player from enemies during the CC window
+  // Build ICCInstance list (without drInfo — computed after sort)
+  const ccInstancesUnsorted: Omit<ICCInstance, 'drInfo'>[] = ccWindows.map((w) => {
     const damageTakenDuring = player.damageIn
       .filter((d) => enemyIds.has(d.srcUnitId) && d.logLine.timestamp >= w.applyMs && d.logLine.timestamp <= w.removeMs)
       .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
 
-    // Was trinket used within the response window after CC application?
     const trinketUsedInWindow = trinketCastTimestamps.some(
       (ts) => ts >= w.applyMs && ts <= w.applyMs + TRINKET_RESPONSE_WINDOW_MS,
     );
@@ -233,7 +234,9 @@ export function analyzePlayerCCAndTrinket(
     };
   });
 
-  ccInstances.sort((a, b) => a.atSeconds - b.atSeconds);
+  const sorted = [...ccInstancesUnsorted].sort((a, b) => a.atSeconds - b.atSeconds);
+  const drAnnotations = computeIncomingDR(sorted, matchStartMs);
+  const ccInstances: ICCInstance[] = sorted.map((cc, i) => ({ ...cc, drInfo: drAnnotations[i] ?? null }));
 
   const missedTrinketWindows = ccInstances.filter(
     (c) => c.trinketState === 'available_unused' && c.damageTakenDuring >= SIGNIFICANT_CC_DAMAGE,
@@ -301,8 +304,12 @@ export function formatCCTrinketForContext(summaries: IPlayerCCTrinketSummary[]):
           break;
       }
 
+      const drStr = cc.drInfo
+        ? ` [${cc.drInfo.category}: ${DR_LEVEL_LABEL[cc.drInfo.level]}${cc.drInfo.sequenceIndex > 0 ? `, #${cc.drInfo.sequenceIndex + 1} in sequence` : ''}]`
+        : '';
+
       lines.push(
-        `    ${fmtTime(cc.atSeconds)}: ${cc.spellName} by ${cc.sourceSpec} (${cc.sourceName}) — ${dur}s${dmgStr} — ${trinketStr}`,
+        `    ${fmtTime(cc.atSeconds)}: ${cc.spellName} by ${cc.sourceSpec} (${cc.sourceName}) — ${dur}s${drStr}${dmgStr} — ${trinketStr}`,
       );
     }
 

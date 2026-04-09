@@ -11,7 +11,8 @@
     "start:generateSpellIdLists": "ts-node --files ./src/generateSpellIdLists.ts",
     "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts",
     "start:simlog": "dotenv -- ts-node --files ./src/simlog.ts",
-    "start:generateDataManifest": "ts-node --files ./src/generateDataManifest.ts"
+    "start:generateDataManifest": "ts-node --files ./src/generateDataManifest.ts",
+    "start:collectBenchmarks": "ts-node --files ./src/collectBenchmarks.ts"
   },
   "devDependencies": {
     "@types/node": "^22",
@@ -22,6 +23,7 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
+    "@wowarenalogs/parser": "*",
     "fengari-web": "^0.1.4",
     "fs-extra": "^11.1.0",
     "lodash": "^4.17.21",

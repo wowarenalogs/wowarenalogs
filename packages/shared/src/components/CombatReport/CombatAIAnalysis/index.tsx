@@ -2,6 +2,7 @@ import { CombatUnitReaction, CombatUnitType, ICombatUnit } from '@wowarenalogs/p
 import { useEffect, useState } from 'react';
 
 import { analyzePlayerCCAndTrinket, formatCCTrinketForContext } from '../../../utils/ccTrinketAnalysis';
+import { analyzeOutgoingCCChains, formatOutgoingCCChainsForContext } from '../../../utils/drAnalysis';
 import {
   annotateDefensiveTimings,
   computePressureWindows,
@@ -22,6 +23,7 @@ import { formatDampeningForContext } from '../../../utils/dampening';
 import { canOffensivePurge, formatDispelContextForAI, reconstructDispelSummary } from '../../../utils/dispelAnalysis';
 import { formatEnemyCDTimelineForContext, IEnemyCDTimeline, reconstructEnemyCDTimeline } from '../../../utils/enemyCDs';
 import { detectHealingGaps, formatHealingGapsForContext, IHealingGap } from '../../../utils/healingGaps';
+import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../../utils/offensiveWindows';
 import { useCombatReportContext } from '../CombatReportContext';
 
 // ── Critical moment identification helpers ─────────────────────────────────
@@ -250,8 +252,10 @@ export function buildMatchContext(
   const overlappedDefensives = detectOverlappedDefensives(friends, combat);
   const panicDefensives = detectPanicDefensives(friends, enemies, combat);
   const healingGaps = healer ? detectHealingGaps(owner, friends, enemies, combat) : [];
+  const offensiveWindows = computeOffensiveWindows(enemies, friends, combat);
   const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
   const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
+  const outgoingCCChains = analyzeOutgoingCCChains(friends as ICombatUnit[], enemies as ICombatUnit[], combat);
 
   // Identify top critical moments for structured evaluation
   const criticalMoments = identifyCriticalMoments(
@@ -404,7 +408,16 @@ export function buildMatchContext(
   }
 
   lines.push('');
+  formatOffensiveWindowsForContext(offensiveWindows).forEach((l) => lines.push(l));
+
+  lines.push('');
   formatCCTrinketForContext(ccTrinketSummaries).forEach((l) => lines.push(l));
+
+  const outgoingCCLines = formatOutgoingCCChainsForContext(outgoingCCChains);
+  if (outgoingCCLines.length > 0) {
+    lines.push('');
+    outgoingCCLines.forEach((l) => lines.push(l));
+  }
 
   lines.push('');
   formatDampeningForContext(

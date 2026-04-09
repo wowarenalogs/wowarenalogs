@@ -5,3 +5,5 @@ node_modules
 gcp_service_account.json
 wowarenalogs-public-dev.json
 wowarenalogs.json
+benchmarks/logs/
+benchmarks/log_manifest.json
