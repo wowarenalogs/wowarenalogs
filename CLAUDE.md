@@ -6,17 +6,17 @@ WoW arena combat logging and analysis platform. Desktop Electron app records loc
 
 NPM workspaces with 9 packages under `packages/`:
 
-| Package | Type | Purpose |
-|---------|------|---------|
-| `parser` | Library | Parses WoW combat log text into structured data. Published to npm as `@wowarenalogs/parser`. |
-| `shared` | Library | Shared React UI components, GraphQL client, utilities, and static data. |
-| `web` | Next.js 15 app | Public website: match browser, user profiles, combat reports, API routes. |
-| `app` | Electron 38 app | Desktop app. Loads `web` in a BrowserWindow; adds `window.wowarenalogs` IPC bridge. |
-| `cloud` | Cloud Functions | GCP serverless functions: log ingestion, parsing, Firestore writes, stat aggregation. |
-| `recorder` | Library | Video recording via OBS bindings + FFmpeg transcoding. |
-| `sql` | ORM config | Prisma schema + migrations for CockroachDB. |
-| `tools` | Scripts | Data generation: spell metadata from Wago.tools, talent ID maps, spell ID lists. |
-| `linter` | Config | Shared ESLint config (`eslint-config-wowarenalogs`). |
+| Package    | Type            | Purpose                                                                                                                                                      |
+| ---------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `parser`   | Library         | Parses WoW combat log text into structured data. Published to npm as `@wowarenalogs/parser`.                                                                 |
+| `shared`   | Library         | Shared React UI components, GraphQL client, utilities, and static data.                                                                                      |
+| `web`      | Next.js 15 app  | Public website: match browser, user profiles, combat reports, API routes.                                                                                    |
+| `app`      | Electron 38 app | Desktop app. Loads `web` in a BrowserWindow; adds `window.wowarenalogs` IPC bridge.                                                                          |
+| `cloud`    | Cloud Functions | GCP serverless functions: log ingestion, parsing, Firestore writes, stat aggregation.                                                                        |
+| `recorder` | Library         | Video recording via OBS bindings + FFmpeg transcoding.                                                                                                       |
+| `sql`      | ORM config      | Prisma schema + migrations for CockroachDB.                                                                                                                  |
+| `tools`    | Scripts         | Data generation: spell metadata from Wago.tools, talent ID maps, spell ID lists. Benchmark pipeline for collecting per-spec R1 stats from public match logs. |
+| `linter`   | Config          | Shared ESLint config (`eslint-config-wowarenalogs`).                                                                                                         |
 
 ## Key Commands
 
@@ -54,30 +54,35 @@ npm run deploy:prod       # Deploy to production
 ## Architecture Highlights
 
 ### Desktop ↔ Web separation
+
 - Desktop behavior is gated on `typeof window.wowarenalogs !== 'undefined'`
 - The `app` package's preload script injects `window.wowarenalogs` via Electron IPC
 - Web package has zero knowledge of Electron; never import from `app` in `web` or `shared`
 - Preload API is auto-generated from `packages/app/src/nativeBridge/modules/`
 
 ### Parser
+
 - `WoWCombatLogParser` extends `EventEmitter3` (not Node.js EventEmitter)
 - Emits: `arena_match_ended`, `solo_shuffle_ended`, `malformed_arena_match_detected`, `parser_error`
 - Lazy pipeline init (WoW version detected from first log line)
 - Performance-critical: handles thousands of lines/second; keep it lean
 
 ### Data flow
+
 1. Desktop watches `WoWCombatLog.txt` → parser emits match → recorder clips video
 2. Client requests signed GCS URL → uploads log buffer with headers `x-wlogs-locale`, `x-wlogs-year`
 3. Cloud function fires on GCS trigger → parses → writes Firestore stub
 4. Web fetches via GraphQL (Apollo Client + Apollo Server Micro at `pages/api/graphql`)
 
 ### State management (React)
+
 - `ClientContext` — GraphQL client, auth user, match cache
 - `AppConfigContext` — Desktop app configuration (localStorage + Electron IPC)
 - `LocalCombatsContext` — In-memory local combat logs (desktop only)
 - `VideoRecordingContext` — Recording session state (desktop only)
 
 ### Key source locations
+
 - Combat report UI: `packages/shared/src/components/CombatReport/`
 - AI cooldown analysis: `packages/shared/src/components/CombatReport/CombatAIAnalysis/`
 - Cooldown utilities: `packages/shared/src/utils/cooldowns.ts`
@@ -89,6 +94,33 @@ npm run deploy:prod       # Deploy to production
 - Prisma schema: `packages/sql/prisma/schema.prisma`
 - Static spell data: `packages/shared/src/data/` (spellEffects.json, spellIdLists.json, talentIdMap.json)
 - AI analysis API: `packages/web/pages/api/analyze.ts`
+
+### AI analysis utilities (`packages/shared/src/utils/`)
+
+Each utility runs on parsed `IArenaMatch` / `IShuffleRound` objects and produces structured data injected into the Claude prompt via `buildMatchContext()` in `CombatAIAnalysis/index.tsx`.
+
+| File                   | Feature     | What it produces                                                                                                                                                                                                                                                                                                                                |
+| ---------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cooldowns.ts`         | F1, F4, F13 | Major CD extraction, panic/overlap detection, Early/Optimal/Late/Reactive timing labels. Contains `PANIC_PRESS_DAMAGE_THRESHOLD_*` constants (⚠️ patch-volatile — calibrated from benchmark data).                                                                                                                                              |
+| `enemyCDs.ts`          | F2          | Enemy offensive CD timeline with buff-expiry tracking via `spellEffectData.durationSeconds`.                                                                                                                                                                                                                                                    |
+| `dampening.ts`         | F3          | Dampening % curve over match duration.                                                                                                                                                                                                                                                                                                          |
+| `dispelAnalysis.ts`    | F5, F21     | Cleanse/purge analysis: missed cleanses, missed purges with priority signals (CD state, expected buff duration, team pressure). `canOffensivePurge()` and `canDefensiveCleanse()` are talent-aware.                                                                                                                                             |
+| `healingGaps.ts`       | F6          | Gaps where healer output dropped below threshold during enemy burst.                                                                                                                                                                                                                                                                            |
+| `ccTrinketAnalysis.ts` | F7, F15     | CC received per player with trinket state. Each `ICCInstance` carries `drInfo` (DR category + level) computed by `drAnalysis.ts`.                                                                                                                                                                                                               |
+| `offensiveWindows.ts`  | F14         | Enemy defensive vulnerability windows: event-driven state machine (CD_USED → BUFF_EXPIRED → CD_READY). `capitalized` flag when friendly damage ratio ≥ 1.2.                                                                                                                                                                                     |
+| `drAnalysis.ts`        | F15         | DR chain tracking. `getDRLevel()` backward-walks the CC history for correct `sequenceIndex`. Handles `SPELL_AURA_REFRESH`. Outgoing CC chains with notable DR (≥50% reduction) surfaced separately. Note: Immune is mathematically reachable but WoW never emits `SPELL_AURA_APPLIED` for immune casts — outgoing path caps at 25% in practice. |
+
+### Benchmark pipeline (`packages/tools/`)
+
+`src/collectBenchmarks.ts` downloads high-rated (≥2100 MMR) public match logs from GCS, parses them, and extracts per-spec reference statistics into `benchmarks/benchmark_data.json` (committed). Raw logs are cached locally in `benchmarks/logs/` (gitignored) with a manifest tracking `matchPlayedAt` for patch-based pruning.
+
+```bash
+npm run build:parser   # required once before running
+npm run -w @wowarenalogs/tools start:collectBenchmarks
+# env vars: MATCH_COUNT=100  MIN_RATING=2100  MAX_LOG_AGE_DAYS=60  CONCURRENCY=5
+```
+
+Metrics collected: pressure P90 per spec, HPS/DPS, defensive timing % (Optimal/Early/Late/Reactive/Unknown), CD never-used rates, purge rates, dampening at death. Used to calibrate `PANIC_PRESS_DAMAGE_THRESHOLD_*` in `cooldowns.ts` and will inform per-spec baseline injection into the AI prompt (F34).
 
 ## Tech Stack
 
@@ -112,5 +144,6 @@ npm run deploy:prod       # Deploy to production
 ## Active Work
 
 - AI-powered cooldown analysis (`CombatAIAnalysis` component + `/api/analyze` endpoint)
-- Enemy offensive CD timeline display
+- Next: F34 prompt optimization (inject per-spec R1 baselines from `benchmark_data.json`) and F35 match archetype classification (comp type + game pace weighting)
+- See `TRACKER.md` for full feature/bug status; `AI_FEATURES.md` for design philosophy
 - Consolidation plan: merge `desktop.wowarenalogs.com` server into `wowarenalogs.com` under `/desktop` prefix (see `CONSOLIDATION_PLAN.md`)
