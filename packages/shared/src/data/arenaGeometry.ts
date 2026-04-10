@@ -41,15 +41,17 @@ export const arenaObstacles: Record<string, ArenaObstacle[]> = {
   // Nagrand Arena — 4 cylindrical pillars arranged asymmetrically.
   // Measured from minimap image (465×495 px, 5 px/unit).
   // zone bounds: minX=-2091 maxX=-1998 minY=6605 maxY=6704
-  // Recalibrated r=3.5 from TWW 11.0+ position data (12 matches, 26k samples).
-  // Old r=5.5 produced violations at 2.7–4.9 units from center across all pillars —
-  // players run alongside pillars at ~3.5 units from center (visual radius ~2.5–3).
+  // Calibration history:
+  //   r=5.5 → r=3.5: TWW 11.0+ data, 12 matches, 26k samples (violations 2.7–4.9 from center).
+  //   r=3.5 → r=3.0: 12 combat logs, ~120k samples (Apr 2026). Still violations 0.5–3.3.
+  //   r=3.0 → r=2.5: 2nd pass same dataset. Still violations at min_dist 0.5–2.7; r=2.5
+  //   matches real observed closest approaches of ~2.5 units from center.
   // ---------------------------------------------------------------------------
   '1505': [
-    { type: 'circle', cx: -2043, cy: 6621, r: 3.5 }, // north pillar
-    { type: 'circle', cx: -2013, cy: 6638, r: 3.5 }, // east pillar
-    { type: 'circle', cx: -2039, cy: 6683, r: 3.5 }, // south pillar
-    { type: 'circle', cx: -2071, cy: 6670, r: 3.5 }, // west pillar
+    { type: 'circle', cx: -2043, cy: 6621, r: 2.5 }, // north pillar
+    { type: 'circle', cx: -2013, cy: 6638, r: 2.5 }, // east pillar
+    { type: 'circle', cx: -2039, cy: 6683, r: 2.5 }, // south pillar
+    { type: 'circle', cx: -2071, cy: 6670, r: 2.5 }, // west pillar
   ],
 
   // ---------------------------------------------------------------------------
@@ -90,6 +92,13 @@ export const arenaObstacles: Record<string, ArenaObstacle[]> = {
   // ---------------------------------------------------------------------------
   // Ruins of Lordaeron — large central tomb + 2 small decorative pillars.
   // 475×810 px. zone bounds: minX=1239 maxX=1334 minY=1580 maxY=1742
+  // Obs#0 (central tomb): ~8339 violations across 12 logs — confirmed ELEVATED WALKABLE
+  //   surface. Players stand on top of the sarcophagus. 2D limitation: do not shrink.
+  // Obs#1 (east pillar): 495 violations, min_dist 0.0–0.3 from centroid → edge-touching.
+  //   Shrunk by 1 unit on each side (was 5×6, now 3×4).
+  // Obs#2 (west pillar): 361 violations, min_dist 0.5–1.2 → edge-touching.
+  //   Shrunk by 1 unit on each side (was 3×5, now 1×3).
+  // Calibrated from 12 combat logs, ~120k samples (Apr 2026).
   // ---------------------------------------------------------------------------
   '572': [
     {
@@ -100,25 +109,25 @@ export const arenaObstacles: Record<string, ArenaObstacle[]> = {
         [1276, 1672],
         [1295, 1672],
       ],
-    }, // central tomb
+    }, // central tomb (⚠ ELEVATED — violations expected, do not shrink)
     {
       type: 'polygon',
       vertices: [
-        [1260, 1651],
-        [1255, 1651],
-        [1255, 1657],
-        [1260, 1657],
+        [1258, 1653],
+        [1257, 1653],
+        [1257, 1655],
+        [1258, 1655],
       ],
-    }, // small pillar (east)
+    }, // small pillar (east) — shrunk 2nd pass Apr 2026
     {
       type: 'polygon',
       vertices: [
-        [1318, 1673],
-        [1315, 1673],
-        [1315, 1678],
-        [1318, 1678],
+        [1317, 1675],
+        [1316, 1675],
+        [1316, 1676],
+        [1317, 1676],
       ],
-    }, // small pillar (west)
+    }, // small pillar (west) — shrunk 2nd pass Apr 2026
   ],
 
   // ---------------------------------------------------------------------------
@@ -149,10 +158,15 @@ export const arenaObstacles: Record<string, ArenaObstacle[]> = {
   // ---------------------------------------------------------------------------
   // Tiger's Peak — 2 large circular pillars (north/south) + 2 small wall segments (east/west).
   // 700×560 px. zone bounds: minX=495 maxX=635 minY=573 maxY=685
+  // Obs#0 (north pillar, r=10): 123 violations, min_dist=1.2 from center across 6 matches.
+  //   Players pass deep inside → ELEVATED WALKABLE surface (players run on top of pillar).
+  // Obs#1 (south pillar, r=10): 16 violations, min_dist=6.9 from center → same diagnosis.
+  // Obs#2, Obs#3 (wall segments): clean — correct geometry.
+  // Calibrated from 6 combat logs (Apr 2026). Do not shrink the large pillars.
   // ---------------------------------------------------------------------------
   '1134': [
-    { type: 'circle', cx: 566, cy: 601, r: 10 }, // north pillar
-    { type: 'circle', cx: 567, cy: 660, r: 10 }, // south pillar
+    { type: 'circle', cx: 566, cy: 601, r: 10 }, // north pillar (⚠ ELEVATED — violations expected)
+    { type: 'circle', cx: 567, cy: 660, r: 10 }, // south pillar (⚠ ELEVATED — violations expected)
     {
       type: 'polygon',
       vertices: [
@@ -379,26 +393,30 @@ export const arenaObstacles: Record<string, ArenaObstacle[]> = {
   // ---------------------------------------------------------------------------
   // Maldraxxus Coliseum — 3 bone/pillar obstacles (2 large, 1 smaller).
   // 605×755 px. zone bounds: minX=2772 maxX=2893 minY=2180 maxY=2331
+  // Obs#0 (north-east): 164 violations → 7 after 1st shrink → shrunk 2nd pass (now 8×6).
+  // Obs#1 (south-west): 44 violations → 12 after 1st shrink → shrunk 2nd pass (now 8×7).
+  // Obs#2 (south-east, 6×6): 1 violation, min_dist=1.3 — borderline. Held for more data.
+  // Calibrated from 12 combat logs, ~120k samples (Apr 2026).
   // ---------------------------------------------------------------------------
   '2509': [
     {
       type: 'polygon',
       vertices: [
-        [2816, 2224],
-        [2804, 2224],
-        [2804, 2234],
-        [2816, 2234],
+        [2814, 2226],
+        [2806, 2226],
+        [2806, 2232],
+        [2814, 2232],
       ],
-    }, // north-east pillar
+    }, // north-east pillar — shrunk 2nd pass Apr 2026
     {
       type: 'polygon',
       vertices: [
-        [2869, 2249],
-        [2857, 2249],
-        [2857, 2260],
-        [2869, 2260],
+        [2867, 2251],
+        [2859, 2251],
+        [2859, 2258],
+        [2867, 2258],
       ],
-    }, // south-west pillar
+    }, // south-west pillar — shrunk 2nd pass Apr 2026
     {
       type: 'polygon',
       vertices: [
@@ -407,7 +425,7 @@ export const arenaObstacles: Record<string, ArenaObstacle[]> = {
         [2803, 2279],
         [2809, 2279],
       ],
-    }, // south-east pillar (smaller)
+    }, // south-east pillar (smaller) — held pending more data
   ],
 
   // ---------------------------------------------------------------------------
@@ -424,11 +442,20 @@ export const arenaObstacles: Record<string, ArenaObstacle[]> = {
   ],
 
   // ---------------------------------------------------------------------------
-  // Nokhudon Proving Grounds — 2 circles + 2 small circles + 1 diagonal wall.
+  // Nokhudon Proving Grounds — 2 tilted pillars + 2 round pillars + 1 diagonal wall.
   // 610×550 px. zone bounds: minX=-595 maxX=-473 minY=4120 maxY=4230
+  // Obs#0 (north-west tilted, r=4): 915 violations, min_dist=0.3 from center.
+  //   Players pass THROUGH the center → ELEVATED WALKABLE surface. Do not shrink.
+  // Obs#1 (north-east round, r=3): 9 violations, min_dist=5.2 — borderline, held.
+  // Obs#2 (central diagonal wall): 70 violations likely from elevated ramp geometry.
+  //   2D limitation — do not shrink.
+  // Obs#3 (south-west round, r=3): clean.
+  // Obs#4 (south-east tilted, r=4): 936 violations, min_dist=0.3 from center.
+  //   Players pass THROUGH the center → ELEVATED WALKABLE surface. Do not shrink.
+  // Calibrated from 6 combat logs, ~20k samples (Apr 2026).
   // ---------------------------------------------------------------------------
   '2563': [
-    { type: 'circle', cx: -505, cy: 4149, r: 4 }, // north-west tilted pillar
+    { type: 'circle', cx: -505, cy: 4149, r: 4 }, // north-west tilted pillar (⚠ ELEVATED — violations expected)
     { type: 'circle', cx: -551, cy: 4150, r: 3 }, // north-east round pillar
     {
       type: 'polygon',
@@ -438,9 +465,9 @@ export const arenaObstacles: Record<string, ArenaObstacle[]> = {
         [-546, 4184],
         [-544, 4186],
       ],
-    }, // central diagonal wall
+    }, // central diagonal wall (⚠ partially elevated — violations expected)
     { type: 'circle', cx: -511, cy: 4195, r: 3 }, // south-west round pillar
-    { type: 'circle', cx: -556, cy: 4199, r: 4 }, // south-east tilted pillar
+    { type: 'circle', cx: -556, cy: 4199, r: 4 }, // south-east tilted pillar (⚠ ELEVATED — violations expected)
   ],
 
   // ---------------------------------------------------------------------------
