@@ -1,8 +1,11 @@
 import { CombatUnitReaction, CombatUnitType, ICombatUnit } from '@wowarenalogs/parser';
 import { useEffect, useState } from 'react';
 
-import { analyzePlayerCCAndTrinket, formatCCTrinketForContext } from '../../../utils/ccTrinketAnalysis';
-import { analyzeOutgoingCCChains, formatOutgoingCCChainsForContext } from '../../../utils/drAnalysis';
+import {
+  analyzePlayerCCAndTrinket,
+  formatCCTrinketForContext,
+  IPlayerCCTrinketSummary,
+} from '../../../utils/ccTrinketAnalysis';
 import {
   annotateDefensiveTimings,
   computePressureWindows,
@@ -21,8 +24,13 @@ import {
 } from '../../../utils/cooldowns';
 import { formatDampeningForContext } from '../../../utils/dampening';
 import { canOffensivePurge, formatDispelContextForAI, reconstructDispelSummary } from '../../../utils/dispelAnalysis';
+import { analyzeOutgoingCCChains, formatOutgoingCCChainsForContext } from '../../../utils/drAnalysis';
 import { formatEnemyCDTimelineForContext, IEnemyCDTimeline, reconstructEnemyCDTimeline } from '../../../utils/enemyCDs';
 import { detectHealingGaps, formatHealingGapsForContext, IHealingGap } from '../../../utils/healingGaps';
+import {
+  analyzeKillWindowTargetSelection,
+  formatKillWindowTargetSelectionForContext,
+} from '../../../utils/killWindowTargetSelection';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../../utils/offensiveWindows';
 import { useCombatReportContext } from '../CombatReportContext';
 
@@ -38,6 +46,11 @@ interface CriticalMoment {
   whatHappened: string;
   availableOptions: string;
   uncertainty: string;
+  isDeath?: boolean;
+  contributingDeathSpec?: string;
+  contributingDeathAtSeconds?: number;
+  /** Backward causal trace from death: what CDs were unavailable and why, plus CC context */
+  rootCauseTrace?: string[];
 }
 
 function getEnemyStateAtTime(timeSeconds: number, enemyCDTimeline: IEnemyCDTimeline): string {
@@ -90,6 +103,83 @@ function getOwnerCDsAvailable(timeSeconds: number, cooldowns: IMajorCooldownInfo
   return parts.join(' | ') || 'No major CD data for log owner';
 }
 
+/**
+ * Traces backward from a death to identify root causes:
+ * - Which owner CDs were on cooldown at death time, and whether the last use was panic/suboptimal
+ * - Which owner CDs were available but never pressed
+ * - Whether the dying player was CC'd in the window before death, and if it was avoidable
+ */
+function buildDeathRootCauseTrace(
+  deathTimeSeconds: number,
+  ownerCooldowns: IMajorCooldownInfo[],
+  dyingPlayerCC: IPlayerCCTrinketSummary | undefined,
+): string[] {
+  const traces: string[] = [];
+
+  // 1. Check each owner major CD: on CD (and why) vs available-but-not-pressed
+  for (const cd of ownerCooldowns) {
+    if (cd.neverUsed) {
+      traces.push(`${cd.spellName} [${cd.tag}]: NEVER USED — was available throughout the match`);
+      continue;
+    }
+    const castsBeforeDeath = cd.casts.filter((c) => c.timeSeconds <= deathTimeSeconds);
+    if (castsBeforeDeath.length === 0) {
+      // Never used before this death — was available
+      traces.push(`${cd.spellName} [${cd.tag}]: not yet used — was available at death time`);
+      continue;
+    }
+    const lastCast = castsBeforeDeath[castsBeforeDeath.length - 1];
+    const readyAt = lastCast.timeSeconds + cd.cooldownSeconds;
+    if (readyAt > deathTimeSeconds) {
+      // On cooldown at death — trace why
+      const timeAgo = Math.round(deathTimeSeconds - lastCast.timeSeconds);
+      const timing =
+        lastCast.timingLabel && lastCast.timingLabel !== 'Unknown'
+          ? ` [last use: ${lastCast.timingLabel.toUpperCase()}${lastCast.timingContext ? ` — ${lastCast.timingContext}` : ''}]`
+          : '';
+      traces.push(
+        `${cd.spellName} [${cd.tag}]: ON COOLDOWN at death — last used ${fmtTime(lastCast.timeSeconds)} (${timeAgo}s before death)${timing}`,
+      );
+    } else {
+      // Ready at death but not pressed
+      traces.push(`${cd.spellName} [${cd.tag}]: available at death time — not pressed`);
+    }
+  }
+
+  // 2. CC active on the dying player in the 12s window before/at death
+  if (dyingPlayerCC) {
+    const CC_LOOKBACK = 12;
+    const relevantCC = dyingPlayerCC.ccInstances.filter(
+      (cc) => cc.atSeconds <= deathTimeSeconds && cc.atSeconds + cc.durationSeconds >= deathTimeSeconds - CC_LOOKBACK,
+    );
+    for (const cc of relevantCC) {
+      const endAt = cc.atSeconds + cc.durationSeconds;
+      const avoidNote =
+        cc.losBlocked === true
+          ? ' — LoS was available (avoidable)'
+          : cc.distanceYards !== null && cc.distanceYards <= 8
+            ? ` — applied at ${cc.distanceYards.toFixed(0)}yd (melee range, possible positioning mistake)`
+            : '';
+      traces.push(
+        `CC on dying player: ${cc.spellName} by ${cc.sourceSpec} (${cc.sourceName}) at ${fmtTime(cc.atSeconds)}–${fmtTime(endAt)} — trinket: ${cc.trinketState}${avoidNote}`,
+      );
+    }
+  }
+
+  return traces;
+}
+
+const DEATH_LOOKFORWARD_SECONDS = 45;
+
+function findContributingDeath(
+  momentTimeSeconds: number,
+  friendlyDeaths: Array<{ spec: string; name: string; atSeconds: number }>,
+): { spec: string; atSeconds: number } | undefined {
+  return friendlyDeaths.find(
+    (d) => d.atSeconds > momentTimeSeconds && d.atSeconds <= momentTimeSeconds + DEATH_LOOKFORWARD_SECONDS,
+  );
+}
+
 function identifyCriticalMoments(
   isHealer: boolean,
   cooldowns: IMajorCooldownInfo[],
@@ -98,6 +188,7 @@ function identifyCriticalMoments(
   healingGaps: IHealingGap[],
   panicDefensives: IPanicDefensive[],
   overlappedDefensives: IOverlappedDefensive[],
+  ccTrinketSummaries: IPlayerCCTrinketSummary[],
 ): CriticalMoment[] {
   const moments: CriticalMoment[] = [];
 
@@ -110,6 +201,9 @@ function identifyCriticalMoments(
     const whatHappened = nearbyGap
       ? `${death.spec} died at ${fmtTime(death.atSeconds)}. A ${nearbyGap.durationSeconds.toFixed(1)}s healing gap (${nearbyGap.freeCastSeconds.toFixed(1)}s free-cast) was active from ${fmtTime(nearbyGap.fromSeconds)} — healer was not CC'd during this time.`
       : `${death.spec} died at ${fmtTime(death.atSeconds)}.`;
+    // Backward trace: find CC data for the dying player specifically
+    const dyingPlayerCC = ccTrinketSummaries.find((s) => s.playerName === death.name);
+    const rootCauseTrace = buildDeathRootCauseTrace(death.atSeconds, cooldowns, dyingPlayerCC);
     moments.push({
       timeSeconds: death.atSeconds,
       impactScore: 100,
@@ -121,6 +215,8 @@ function identifyCriticalMoments(
       availableOptions: cdState,
       uncertainty:
         'Log cannot confirm healer position, line-of-sight, or exact HP% at time of death. Cause of death may involve prior damage not reflected in the nearest pressure window.',
+      isDeath: true,
+      rootCauseTrace,
     });
   }
 
@@ -136,6 +232,7 @@ function identifyCriticalMoments(
       const cdState = getOwnerCDsAvailable(gap.fromSeconds, cooldowns);
       const dmgK = Math.round(gap.mostDamagedAmount / 1000);
       const score = Math.min(85, 40 + gap.mostDamagedAmount / 150_000);
+      const gapContributingDeath = findContributingDeath(gap.fromSeconds, friendlyDeaths);
       moments.push({
         timeSeconds: gap.fromSeconds,
         impactScore: score,
@@ -147,6 +244,8 @@ function identifyCriticalMoments(
         availableOptions: `Healer had free-cast time — instant-cast heals and available CDs were options. ${cdState}`,
         uncertainty:
           'Log cannot confirm healer position or LoS. Mana state is not tracked. The gap may reflect intentional repositioning not visible in combat events.',
+        contributingDeathSpec: gapContributingDeath?.spec,
+        contributingDeathAtSeconds: gapContributingDeath?.atSeconds,
       });
     }
   }
@@ -155,6 +254,7 @@ function identifyCriticalMoments(
   for (const panic of panicDefensives) {
     const enemyState = getEnemyStateAtTime(panic.timeSeconds, enemyCDTimeline);
     const cdState = getOwnerCDsAvailable(panic.timeSeconds, cooldowns);
+    const panicContributingDeath = findContributingDeath(panic.timeSeconds, friendlyDeaths);
     moments.push({
       timeSeconds: panic.timeSeconds,
       impactScore: 60,
@@ -166,12 +266,15 @@ function identifyCriticalMoments(
       availableOptions: `Holding ${panic.spellName} for a confirmed burst window would provide stronger coverage at the cost of a potentially risky undefended interval.`,
       uncertainty:
         'Log may miss absorbed damage that preceded the cast. Enemy intent and exact HP% cannot be confirmed from combat log events alone.',
+      contributingDeathSpec: panicContributingDeath?.spec,
+      contributingDeathAtSeconds: panicContributingDeath?.atSeconds,
     });
   }
 
   // 4. Overlapped defensives
   for (const overlap of overlappedDefensives) {
     const enemyState = getEnemyStateAtTime(overlap.timeSeconds, enemyCDTimeline);
+    const overlapContributingDeath = findContributingDeath(overlap.timeSeconds, friendlyDeaths);
     moments.push({
       timeSeconds: overlap.timeSeconds,
       impactScore: 50,
@@ -183,6 +286,8 @@ function identifyCriticalMoments(
       availableOptions: `Staggering the CDs would extend total coverage by ~${Math.round(overlap.simultaneousSeconds)}s. Optimal: ${overlap.secondCasterSpec} waits for ${overlap.firstSpellName} to expire before pressing ${overlap.secondSpellName}.`,
       uncertainty:
         'Cannot determine if simultaneous stacking was required to survive a spike — HP values during this window are not fully tracked in the log.',
+      contributingDeathSpec: overlapContributingDeath?.spec,
+      contributingDeathAtSeconds: overlapContributingDeath?.atSeconds,
     });
   }
 
@@ -253,6 +358,7 @@ export function buildMatchContext(
   const panicDefensives = detectPanicDefensives(friends, enemies, combat);
   const healingGaps = healer ? detectHealingGaps(owner, friends, enemies, combat) : [];
   const offensiveWindows = computeOffensiveWindows(enemies, friends, combat);
+  const killWindowTargetEvals = analyzeKillWindowTargetSelection(offensiveWindows, enemies as ICombatUnit[], combat);
   const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
   const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
   const outgoingCCChains = analyzeOutgoingCCChains(friends as ICombatUnit[], enemies as ICombatUnit[], combat);
@@ -266,6 +372,7 @@ export function buildMatchContext(
     healingGaps,
     panicDefensives,
     overlappedDefensives,
+    ccTrinketSummaries,
   );
 
   // Purge responsibility attribution
@@ -302,9 +409,19 @@ export function buildMatchContext(
     criticalMoments.forEach((m, i) => {
       lines.push(`--- MOMENT ${i + 1} (impact: ${m.impactLabel}) ---`);
       lines.push(`${fmtTime(m.timeSeconds)} — ${m.title}`);
+      if (!m.isDeath && m.contributingDeathSpec !== undefined && m.contributingDeathAtSeconds !== undefined) {
+        const deltaSeconds = Math.round(m.contributingDeathAtSeconds - m.timeSeconds);
+        lines.push(
+          `  ⚠ Contributing factor: ${m.contributingDeathSpec} died ${deltaSeconds}s later at ${fmtTime(m.contributingDeathAtSeconds)}`,
+        );
+      }
       lines.push(`  Enemy state: ${m.enemyState}`);
       lines.push(`  Friendly state: ${m.friendlyState}`);
       lines.push(`  What happened: ${m.whatHappened}`);
+      if (m.rootCauseTrace && m.rootCauseTrace.length > 0) {
+        lines.push(`  Root cause trace (why the death happened — trace back from here):`);
+        m.rootCauseTrace.forEach((t) => lines.push(`    • ${t}`));
+      }
       lines.push(`  Available options: ${m.availableOptions}`);
       lines.push(`  Uncertainty: ${m.uncertainty}`);
       lines.push('');
@@ -409,6 +526,12 @@ export function buildMatchContext(
 
   lines.push('');
   formatOffensiveWindowsForContext(offensiveWindows).forEach((l) => lines.push(l));
+
+  const targetSelectionLines = formatKillWindowTargetSelectionForContext(killWindowTargetEvals);
+  if (targetSelectionLines.length > 0) {
+    lines.push('');
+    targetSelectionLines.forEach((l) => lines.push(l));
+  }
 
   lines.push('');
   formatCCTrinketForContext(ccTrinketSummaries).forEach((l) => lines.push(l));

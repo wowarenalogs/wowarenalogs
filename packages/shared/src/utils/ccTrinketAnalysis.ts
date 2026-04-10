@@ -3,6 +3,7 @@ import { ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 import { ccSpellIds } from '../data/spellTags';
 import { fmtTime, isHealerSpec, specToString } from './cooldowns';
 import { computeIncomingDR, DR_LEVEL_LABEL, IDRInfo } from './drAnalysis';
+import { distanceBetween, getUnitPositionAtTime, hasLineOfSight } from './losAnalysis';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -65,6 +66,16 @@ export interface ICCInstance {
   trinketState: 'used' | 'available_unused' | 'on_cooldown' | 'passive_trinket';
   /** DR state at the time this CC was applied. null if spell not in DR category map. */
   drInfo: IDRInfo | null;
+  /**
+   * Distance in yards between caster and target at the moment of CC application.
+   * null when advanced logging is absent.
+   */
+  distanceYards: number | null;
+  /**
+   * Whether the caster had unobstructed line of sight to the target.
+   * null when arena geometry is not mapped or advanced logging is absent.
+   */
+  losBlocked: boolean | null;
 }
 
 export interface IPlayerCCTrinketSummary {
@@ -123,7 +134,7 @@ function isTrinketAvailable(castTimestamps: number[], cooldownMs: number, atMs: 
 export function analyzePlayerCCAndTrinket(
   player: ICombatUnit,
   enemies: ICombatUnit[],
-  combat: { startTime: number; endTime: number },
+  combat: { startTime: number; endTime: number; startInfo: { zoneId: string } },
 ): IPlayerCCTrinketSummary {
   const enemyIds = new Set(enemies.map((u) => u.id));
   const matchStartMs = combat.startTime;
@@ -200,6 +211,8 @@ export function analyzePlayerCCAndTrinket(
 
   // Resolve source spec from enemies list
   const enemySpecMap = new Map(enemies.map((u) => [u.id, specToString(u.spec)]));
+  const enemyUnitMap = new Map(enemies.map((u) => [u.id, u]));
+  const zoneId = combat.startInfo.zoneId;
 
   // Build ICCInstance list (without drInfo — computed after sort)
   const ccInstancesUnsorted: Omit<ICCInstance, 'drInfo'>[] = ccWindows.map((w) => {
@@ -222,6 +235,21 @@ export function analyzePlayerCCAndTrinket(
       trinketState = 'on_cooldown';
     }
 
+    // LoS + distance at CC application time
+    const casterUnit = enemyUnitMap.get(w.srcUnitId);
+    const casterPos = casterUnit ? getUnitPositionAtTime(casterUnit, w.applyMs) : null;
+    const targetPos = getUnitPositionAtTime(player, w.applyMs);
+
+    const distanceYards = casterPos && targetPos ? Math.round(distanceBetween(casterPos, targetPos) * 10) / 10 : null;
+
+    const losBlocked =
+      casterPos && targetPos
+        ? (() => {
+            const los = hasLineOfSight(zoneId, casterPos, targetPos);
+            return los === null ? null : !los;
+          })()
+        : null;
+
     return {
       atSeconds: (w.applyMs - matchStartMs) / 1000,
       durationSeconds: (w.removeMs - w.applyMs) / 1000,
@@ -231,6 +259,8 @@ export function analyzePlayerCCAndTrinket(
       sourceSpec: enemySpecMap.get(w.srcUnitId) ?? 'Unknown',
       damageTakenDuring,
       trinketState,
+      distanceYards,
+      losBlocked,
     };
   });
 
@@ -308,8 +338,16 @@ export function formatCCTrinketForContext(summaries: IPlayerCCTrinketSummary[]):
         ? ` [${cc.drInfo.category}: ${DR_LEVEL_LABEL[cc.drInfo.level]}${cc.drInfo.sequenceIndex > 0 ? `, #${cc.drInfo.sequenceIndex + 1} in sequence` : ''}]`
         : '';
 
+      const distStr = cc.distanceYards !== null ? ` ${cc.distanceYards}yd` : '';
+      const losStr = cc.losBlocked === true ? ' [LoS blocked — behind pillar]' : '';
+      // Flag melee-range CCs (≤8 yards) when not LoS-blocked as a positioning signal
+      const meleeStr =
+        cc.distanceYards !== null && cc.distanceYards <= 8 && cc.losBlocked !== true
+          ? ' [MELEE RANGE — possible positioning mistake]'
+          : '';
+
       lines.push(
-        `    ${fmtTime(cc.atSeconds)}: ${cc.spellName} by ${cc.sourceSpec} (${cc.sourceName}) — ${dur}s${drStr}${dmgStr} — ${trinketStr}`,
+        `    ${fmtTime(cc.atSeconds)}: ${cc.spellName} by ${cc.sourceSpec} (${cc.sourceName}) — ${dur}s${drStr}${dmgStr} — ${trinketStr}${distStr}${losStr}${meleeStr}`,
       );
     }
 

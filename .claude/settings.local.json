@@ -78,7 +78,28 @@
       "Bash(git rm:*)",
       "Bash(gh workflow:*)",
       "WebFetch(domain:chatgpt.com)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(xargs -I{} basename {})",
+      "Bash(MATCH_COUNT=50 npm run:*)",
+      "Bash(curl -s -X POST https://wowarenalogs.com/api/graphql -H 'Content-Type: application/json' -d '{\"query\":\"{ latestMatches\\(wowVersion: \\\\\"retail\\\\\", bracket: \\\\\"3v3\\\\\", minRating: 2400, offset: 0, count: 2\\) { combats { ... on ArenaMatchDataStub { id logObjectUrl startTime endTime wowVersion timezone } } } }\"}')",
+      "Bash(curl:*)",
+      "Read(//Users/mingjianliu/.claude/**)",
+      "WebFetch(domain:wowdev.wiki)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:archive.wow.tools)",
+      "WebFetch(domain:wow.tools)",
+      "WebFetch(domain:thunderysteak.github.io)",
+      "WebFetch(domain:marlam.in)",
+      "WebFetch(domain:wowexport.net)",
+      "WebFetch(domain:www.ownedcore.com)",
+      "WebFetch(domain:trinitycore.atlassian.net)",
+      "WebFetch(domain:www.azerothcore.org)",
+      "Bash(wait)",
+      "Bash(gcloud auth:*)",
+      "WebFetch(domain:images.wowarenalogs.com)",
+      "Bash(awk '{print NF \" fields: \" $0}' FS=\",\")",
+      "Bash(wc:*)",
+      "Bash(git:*)"
     ]
   }
 }

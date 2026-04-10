@@ -94,33 +94,7 @@ npm run deploy:prod       # Deploy to production
 - Prisma schema: `packages/sql/prisma/schema.prisma`
 - Static spell data: `packages/shared/src/data/` (spellEffects.json, spellIdLists.json, talentIdMap.json)
 - AI analysis API: `packages/web/pages/api/analyze.ts`
-
-### AI analysis utilities (`packages/shared/src/utils/`)
-
-Each utility runs on parsed `IArenaMatch` / `IShuffleRound` objects and produces structured data injected into the Claude prompt via `buildMatchContext()` in `CombatAIAnalysis/index.tsx`.
-
-| File                   | Feature     | What it produces                                                                                                                                                                                                                                                                                                                                |
-| ---------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cooldowns.ts`         | F1, F4, F13 | Major CD extraction, panic/overlap detection, Early/Optimal/Late/Reactive timing labels. Contains `PANIC_PRESS_DAMAGE_THRESHOLD_*` constants (⚠️ patch-volatile — calibrated from benchmark data).                                                                                                                                              |
-| `enemyCDs.ts`          | F2          | Enemy offensive CD timeline with buff-expiry tracking via `spellEffectData.durationSeconds`.                                                                                                                                                                                                                                                    |
-| `dampening.ts`         | F3          | Dampening % curve over match duration.                                                                                                                                                                                                                                                                                                          |
-| `dispelAnalysis.ts`    | F5, F21     | Cleanse/purge analysis: missed cleanses, missed purges with priority signals (CD state, expected buff duration, team pressure). `canOffensivePurge()` and `canDefensiveCleanse()` are talent-aware.                                                                                                                                             |
-| `healingGaps.ts`       | F6          | Gaps where healer output dropped below threshold during enemy burst.                                                                                                                                                                                                                                                                            |
-| `ccTrinketAnalysis.ts` | F7, F15     | CC received per player with trinket state. Each `ICCInstance` carries `drInfo` (DR category + level) computed by `drAnalysis.ts`.                                                                                                                                                                                                               |
-| `offensiveWindows.ts`  | F14         | Enemy defensive vulnerability windows: event-driven state machine (CD_USED → BUFF_EXPIRED → CD_READY). `capitalized` flag when friendly damage ratio ≥ 1.2.                                                                                                                                                                                     |
-| `drAnalysis.ts`        | F15         | DR chain tracking. `getDRLevel()` backward-walks the CC history for correct `sequenceIndex`. Handles `SPELL_AURA_REFRESH`. Outgoing CC chains with notable DR (≥50% reduction) surfaced separately. Note: Immune is mathematically reachable but WoW never emits `SPELL_AURA_APPLIED` for immune casts — outgoing path caps at 25% in practice. |
-
-### Benchmark pipeline (`packages/tools/`)
-
-`src/collectBenchmarks.ts` downloads high-rated (≥2100 MMR) public match logs from GCS, parses them, and extracts per-spec reference statistics into `benchmarks/benchmark_data.json` (committed). Raw logs are cached locally in `benchmarks/logs/` (gitignored) with a manifest tracking `matchPlayedAt` for patch-based pruning.
-
-```bash
-npm run build:parser   # required once before running
-npm run -w @wowarenalogs/tools start:collectBenchmarks
-# env vars: MATCH_COUNT=100  MIN_RATING=2100  MAX_LOG_AGE_DAYS=60  CONCURRENCY=5
-```
-
-Metrics collected: pressure P90 per spec, HPS/DPS, defensive timing % (Optimal/Early/Late/Reactive/Unknown), CD never-used rates, purge rates, dampening at death. Used to calibrate `PANIC_PRESS_DAMAGE_THRESHOLD_*` in `cooldowns.ts` and will inform per-spec baseline injection into the AI prompt (F34).
+- AI utils detail + benchmark pipeline: `AI_UTILS.md`
 
 ## Tech Stack
 
@@ -144,6 +118,4 @@ Metrics collected: pressure P90 per spec, HPS/DPS, defensive timing % (Optimal/E
 ## Active Work
 
 - AI-powered cooldown analysis (`CombatAIAnalysis` component + `/api/analyze` endpoint)
-- Next: F34 prompt optimization (inject per-spec R1 baselines from `benchmark_data.json`) and F35 match archetype classification (comp type + game pace weighting)
-- See `TRACKER.md` for full feature/bug status; `AI_FEATURES.md` for design philosophy
-- Consolidation plan: merge `desktop.wowarenalogs.com` server into `wowarenalogs.com` under `/desktop` prefix (see `CONSOLIDATION_PLAN.md`)
+- See `TRACKER.md` for feature/bug status, `AI_FEATURES.md` for design philosophy, `AI_UTILS.md` for per-utility detail

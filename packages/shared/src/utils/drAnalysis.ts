@@ -17,8 +17,8 @@
 import {
   CombatUnitReaction,
   CombatUnitType,
-  ICombatUnit,
   IArenaMatch,
+  ICombatUnit,
   IShuffleRound,
   LogEvent,
 } from '@wowarenalogs/parser';
