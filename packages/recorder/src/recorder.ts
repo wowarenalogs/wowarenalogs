@@ -366,6 +366,15 @@ export class Recorder {
   }
 
   private handleSignal(obsSignal: Signal) {
+    // Handle volmeter signals early to avoid log spam from high-frequency updates
+    if (obsSignal.type === 'volmeter') {
+      const sourceType = this.classifyAudioSource(obsSignal.id);
+      if (this.volumeChangeCallback && obsSignal.value !== undefined && sourceType) {
+        this.volumeChangeCallback(sourceType, obsSignal.id, obsSignal.value);
+      }
+      return;
+    }
+
     Recorder.logger.info(`[Recorder] Got signal: ${JSON.stringify(obsSignal)}`);
 
     switch (obsSignal.id) {
@@ -418,17 +427,6 @@ export class Recorder {
         break;
 
       default:
-        // Volume meter signals have id matching the audio source name
-        if (obsSignal.value !== undefined && this.volumeChangeCallback) {
-          if (this.audioInputSourceNames.includes(obsSignal.id)) {
-            this.volumeChangeCallback('input', obsSignal.id, obsSignal.value);
-            break;
-          }
-          if (this.audioOutputSourceNames.includes(obsSignal.id)) {
-            this.volumeChangeCallback('output', obsSignal.id, obsSignal.value);
-            break;
-          }
-        }
         Recorder.logger.info('[Recorder] No action needed on this signal');
         break;
     }
@@ -1080,6 +1078,22 @@ export class Recorder {
    */
   public onStatusUpdates(callback: (status: RecStatus, err?: string) => void) {
     this.recordingStateChangedCallback = callback;
+  }
+
+  /**
+   * Classify a volmeter signal source as input or output.
+   * Checks against known source names first, then falls back to ID-based heuristics
+   * to handle wrapper sources like "WR Audio Input Enum" / "WR Audio Output Enum".
+   */
+  private classifyAudioSource(sourceId: string): 'input' | 'output' | null {
+    if (this.audioInputSourceNames.includes(sourceId)) return 'input';
+    if (this.audioOutputSourceNames.includes(sourceId)) return 'output';
+    if (sourceId.startsWith('mic-')) return 'input';
+    if (sourceId.startsWith('desktop-')) return 'output';
+    const lower = sourceId.toLowerCase();
+    if (lower.includes('input')) return 'input';
+    if (lower.includes('output')) return 'output';
+    return null;
   }
 
   /**

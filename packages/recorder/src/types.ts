@@ -142,7 +142,9 @@ export type ObsProperty = {
 };
 
 export type Signal = {
+  type: string;
   id: string;
+  code: number;
   value?: number;
 };
 

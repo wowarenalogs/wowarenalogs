@@ -13,7 +13,7 @@ import {
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 import { useVideoRecordingContext } from '../../hooks/VideoRecordingContext';
-import AudioLevelMeters from './AudioLevelMeter';
+import { AudioMeterBar, sourceNameForDevice, useAudioLevels } from './AudioLevelMeter';
 
 // TODO: Figure out a clean way to share options between the two systems
 // Right now, if we export from @recorder anything concrete (ie not just types) we get
@@ -152,6 +152,7 @@ const RecordingSettings = () => {
   const [pendingBitrate, setPendingBitrate] = useState<number | null>(null);
   const [pendingCqp, setPendingCqp] = useState<number | null>(null);
   const [pendingCrf, setPendingCrf] = useState<number | null>(null);
+  const audioLevels = useAudioLevels();
 
   async function checkAudioDevices() {
     if (window.wowarenalogs.obs?.getAudioDevices) {
@@ -392,58 +393,71 @@ const RecordingSettings = () => {
                 <div className="flex flex-row gap-4">
                   <div className="flex flex-col gap-1">
                     <div className="font-bold">Recorded Audio Inputs</div>
-                    {inputAudioOptions.map((o) => (
-                      <div key={o.id} className="flex flex-row gap-1">
-                        <input
-                          type="checkbox"
-                          className="checkbox mr-1"
-                          checked={recordingConfig?.audioInputDevices.includes(o.id)}
-                          onChange={() => {
-                            if (recordingConfig?.audioInputDevices.includes(o.id)) {
-                              window.wowarenalogs.obs?.setConfig?.(
-                                'audioInputDevices',
-                                removeDeviceId(recordingConfig?.audioInputDevices, o.id),
-                              );
-                            } else {
-                              window.wowarenalogs.obs?.setConfig?.(
-                                'audioInputDevices',
-                                addDeviceId(recordingConfig?.audioInputDevices, o.id),
-                              );
-                            }
-                          }}
-                        />
-                        {o.description}
-                      </div>
-                    ))}
+                    {inputAudioOptions.map((o) => {
+                      const checked = recordingConfig?.audioInputDevices.includes(o.id);
+                      const level = audioLevels.get(sourceNameForDevice(o.id, 'input')) ?? 0;
+                      return (
+                        <div key={o.id} className="flex flex-col gap-1">
+                          <div className="flex flex-row gap-1">
+                            <input
+                              type="checkbox"
+                              className="checkbox mr-1"
+                              checked={checked}
+                              onChange={() => {
+                                if (checked) {
+                                  window.wowarenalogs.obs?.setConfig?.(
+                                    'audioInputDevices',
+                                    removeDeviceId(recordingConfig?.audioInputDevices, o.id),
+                                  );
+                                } else {
+                                  window.wowarenalogs.obs?.setConfig?.(
+                                    'audioInputDevices',
+                                    addDeviceId(recordingConfig?.audioInputDevices, o.id),
+                                  );
+                                }
+                              }}
+                            />
+                            {o.description}
+                          </div>
+                          {checked && <AudioMeterBar volume={level} />}
+                        </div>
+                      );
+                    })}
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="font-bold">Recorded Audio Outputs</div>
-                    {outputAudioOptions.map((o) => (
-                      <div key={o.id} className="flex flex-row gap-1">
-                        <input
-                          type="checkbox"
-                          className="checkbox mr-1"
-                          checked={recordingConfig?.audioOutputDevices.includes(o.id)}
-                          onChange={() => {
-                            if (recordingConfig?.audioOutputDevices.includes(o.id)) {
-                              window.wowarenalogs.obs?.setConfig?.(
-                                'audioOutputDevices',
-                                removeDeviceId(recordingConfig?.audioOutputDevices, o.id),
-                              );
-                            } else {
-                              window.wowarenalogs.obs?.setConfig?.(
-                                'audioOutputDevices',
-                                addDeviceId(recordingConfig?.audioOutputDevices, o.id),
-                              );
-                            }
-                          }}
-                        />
-                        {o.description}
-                      </div>
-                    ))}
+                    {outputAudioOptions.map((o) => {
+                      const checked = recordingConfig?.audioOutputDevices.includes(o.id);
+                      const level = audioLevels.get(sourceNameForDevice(o.id, 'output')) ?? 0;
+                      return (
+                        <div key={o.id} className="flex flex-col gap-1">
+                          <div className="flex flex-row gap-1">
+                            <input
+                              type="checkbox"
+                              className="checkbox mr-1"
+                              checked={checked}
+                              onChange={() => {
+                                if (checked) {
+                                  window.wowarenalogs.obs?.setConfig?.(
+                                    'audioOutputDevices',
+                                    removeDeviceId(recordingConfig?.audioOutputDevices, o.id),
+                                  );
+                                } else {
+                                  window.wowarenalogs.obs?.setConfig?.(
+                                    'audioOutputDevices',
+                                    addDeviceId(recordingConfig?.audioOutputDevices, o.id),
+                                  );
+                                }
+                              }}
+                            />
+                            {o.description}
+                          </div>
+                          {checked && <AudioMeterBar volume={level} />}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-                <AudioLevelMeters />
               </div>
               <div className="collapse collapse-arrow border border-base-300 bg-base-200 mt-2">
                 <input type="checkbox" defaultChecked />
