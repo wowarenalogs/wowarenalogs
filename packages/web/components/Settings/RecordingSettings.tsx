@@ -419,7 +419,7 @@ const RecordingSettings = () => {
                             />
                             {o.description}
                           </div>
-                          {checked && <AudioMeterBar volume={level} />}
+                          {checked && audioLevels.size > 0 && <AudioMeterBar volume={level} />}
                         </div>
                       );
                     })}
@@ -452,7 +452,7 @@ const RecordingSettings = () => {
                             />
                             {o.description}
                           </div>
-                          {checked && <AudioMeterBar volume={level} />}
+                          {checked && audioLevels.size > 0 && <AudioMeterBar volume={level} />}
                         </div>
                       );
                     })}
