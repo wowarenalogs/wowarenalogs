@@ -239,6 +239,13 @@ export class Recorder {
    */
   public recordingStateChangedCallback: ((status: RecStatus, error?: string) => void) | null = null;
 
+  /**
+   * Callback to fire when audio volume levels change (from volmeter signals).
+   * The type is 'input' or 'output', sourceName is the OBS source name, and
+   * volume is a 0-1 float.
+   */
+  public volumeChangeCallback: ((type: 'input' | 'output', sourceName: string, volume: number) => void) | null = null;
+
   private _recorderStatus: RecStatus = 'WaitingForWoW';
 
   public static logger: ILogger = console;
@@ -304,6 +311,7 @@ export class Recorder {
 
       getNoobs().Init(noobsPath, logPath, (signal: Signal) => this.handleSignal(signal));
       getNoobs().SetBuffering(true);
+      getNoobs().SetVolmeterEnabled(true);
 
       const hwnd = this.mainWindow.getNativeWindowHandle();
       getNoobs().InitPreview(hwnd);
@@ -410,6 +418,17 @@ export class Recorder {
         break;
 
       default:
+        // Volume meter signals have id matching the audio source name
+        if (obsSignal.value !== undefined && this.volumeChangeCallback) {
+          if (this.audioInputSourceNames.includes(obsSignal.id)) {
+            this.volumeChangeCallback('input', obsSignal.id, obsSignal.value);
+            break;
+          }
+          if (this.audioOutputSourceNames.includes(obsSignal.id)) {
+            this.volumeChangeCallback('output', obsSignal.id, obsSignal.value);
+            break;
+          }
+        }
         Recorder.logger.info('[Recorder] No action needed on this signal');
         break;
     }
@@ -1061,6 +1080,13 @@ export class Recorder {
    */
   public onStatusUpdates(callback: (status: RecStatus, err?: string) => void) {
     this.recordingStateChangedCallback = callback;
+  }
+
+  /**
+   * Register a callback for audio volume level changes from the volmeter.
+   */
+  public onVolumeChange(callback: (type: 'input' | 'output', sourceName: string, volume: number) => void) {
+    this.volumeChangeCallback = callback;
   }
 
   /**

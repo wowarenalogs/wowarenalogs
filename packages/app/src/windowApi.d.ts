@@ -96,5 +96,7 @@ export type NativeApi = {
     removeAll_videoRecorded_listeners?: () => void;
     diskSpaceBecameCritical?: (callback: AsEventFunction<ObsModule['diskSpaceBecameCritical']>) => void;
     removeAll_diskSpaceBecameCritical_listeners?: () => void;
+    audioVolumeChanged?: (callback: AsEventFunction<ObsModule['audioVolumeChanged']>) => void;
+    removeAll_audioVolumeChanged_listeners?: () => void;
   };
 };

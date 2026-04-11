@@ -13,6 +13,7 @@ import {
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 import { useVideoRecordingContext } from '../../hooks/VideoRecordingContext';
+import AudioLevelMeters from './AudioLevelMeter';
 
 // TODO: Figure out a clean way to share options between the two systems
 // Right now, if we export from @recorder anything concrete (ie not just types) we get
@@ -442,6 +443,7 @@ const RecordingSettings = () => {
                     ))}
                   </div>
                 </div>
+                <AudioLevelMeters />
               </div>
               <div className="collapse collapse-arrow border border-base-300 bg-base-200 mt-2">
                 <input type="checkbox" defaultChecked />
