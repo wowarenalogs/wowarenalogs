@@ -2,16 +2,15 @@
  * drAnalysis.ts — F15: Diminishing Returns Chain Tracking
  *
  * Tracks DR state per target per category so Claude can assess:
- *   - Why a CC had shorter than expected duration (incoming: hit at 50%/25% DR)
+ *   - Why a CC had shorter than expected duration (incoming: hit at 50% DR)
  *   - Whether friendly CC chains were wasted by hitting DR (outgoing)
  *
- * DR mechanics (WoW retail):
+ * DR mechanics (WoW 12.0+):
  *   - CC spells are grouped into DR categories that share diminishing returns
  *   - First application on target: Full duration
- *   - Second within 18s of previous removal: 50%
- *   - Third within 18s: 25%
- *   - Fourth within 18s: Immune (0%)
- *   - The 18s reset timer starts from REMOVAL of the previous CC in the sequence
+ *   - Second within 16s of previous removal: 50%
+ *   - Third within 16s: Immune (0%) — 25% tier removed in 12.0
+ *   - The 16s reset timer starts from REMOVAL of the previous CC in the sequence
  */
 
 import {
@@ -28,7 +27,7 @@ import { fmtTime, specToString } from './cooldowns';
 
 // ── DR category constants ─────────────────────────────────────────────────────
 
-export const DR_RESET_MS = 18_000;
+export const DR_RESET_MS = 16_000;
 
 /**
  * Maps spell ID → DR category name.
@@ -171,8 +170,44 @@ export function getDRLevel(history: CCEntry[], newApplyMs: number): { level: DRL
     }
   }
 
-  const level: DRLevel = chainLength === 0 ? 'Full' : chainLength === 1 ? '50%' : chainLength === 2 ? '25%' : 'Immune';
+  // WoW 12.0: Full → 50% → Immune (25% tier removed)
+  const level: DRLevel = chainLength === 0 ? 'Full' : chainLength === 1 ? '50%' : 'Immune';
   return { level, sequenceIndex: chainLength };
+}
+
+/**
+ * Point-in-time DR query: given a unit's incoming CC history, returns the DR
+ * level that the NEXT CC of `category` would land at if applied at `atSeconds`.
+ *
+ * Used by healer exposure analysis to know how much a CC would hurt at burst start.
+ */
+export function getDRLevelAtTime(
+  ccInstances: ReadonlyArray<{ atSeconds: number; durationSeconds: number; drInfo: IDRInfo | null }>,
+  category: string,
+  atSeconds: number,
+): DRLevel {
+  const DR_RESET_S = DR_RESET_MS / 1000;
+
+  const relevant = ccInstances
+    .filter((cc) => cc.drInfo?.category === category && cc.atSeconds < atSeconds)
+    .slice()
+    .sort((a, b) => a.atSeconds - b.atSeconds);
+
+  if (relevant.length === 0) return 'Full';
+
+  let chainLength = 0;
+  let lastExpiredAt = -Infinity;
+
+  for (const cc of relevant) {
+    if (cc.atSeconds - lastExpiredAt > DR_RESET_S) {
+      chainLength = 0;
+    }
+    chainLength++;
+    lastExpiredAt = cc.atSeconds + cc.durationSeconds;
+  }
+
+  if (atSeconds - lastExpiredAt > DR_RESET_S) return 'Full';
+  return chainLength === 1 ? '50%' : 'Immune';
 }
 
 // ── Incoming CC DR annotation ─────────────────────────────────────────────────

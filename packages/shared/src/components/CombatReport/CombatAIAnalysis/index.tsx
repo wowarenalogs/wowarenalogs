@@ -26,6 +26,7 @@ import { formatDampeningForContext } from '../../../utils/dampening';
 import { canOffensivePurge, formatDispelContextForAI, reconstructDispelSummary } from '../../../utils/dispelAnalysis';
 import { analyzeOutgoingCCChains, formatOutgoingCCChainsForContext } from '../../../utils/drAnalysis';
 import { formatEnemyCDTimelineForContext, IEnemyCDTimeline, reconstructEnemyCDTimeline } from '../../../utils/enemyCDs';
+import { analyzeHealerExposureAtBurst, formatHealerExposureForContext } from '../../../utils/healerExposureAnalysis';
 import { detectHealingGaps, formatHealingGapsForContext, IHealingGap } from '../../../utils/healingGaps';
 import {
   analyzeKillWindowTargetSelection,
@@ -362,6 +363,20 @@ export function buildMatchContext(
   const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
   const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
   const outgoingCCChains = analyzeOutgoingCCChains(friends as ICombatUnit[], enemies as ICombatUnit[], combat);
+  const healerUnit = friends.find((p) => isHealerSpec(p.spec)) as ICombatUnit | undefined;
+  const healerCCSummary = healerUnit ? ccTrinketSummaries.find((s) => s.playerName === healerUnit.name) : undefined;
+  const healerExposures =
+    healerUnit && healerCCSummary
+      ? analyzeHealerExposureAtBurst(
+          enemyCDTimeline.alignedBurstWindows,
+          enemies as ICombatUnit[],
+          healerUnit,
+          healerCCSummary,
+          ccTrinketSummaries,
+          combat.startInfo.zoneId,
+          combat.startTime,
+        )
+      : [];
 
   // Identify top critical moments for structured evaluation
   const criticalMoments = identifyCriticalMoments(
@@ -535,6 +550,12 @@ export function buildMatchContext(
 
   lines.push('');
   formatCCTrinketForContext(ccTrinketSummaries).forEach((l) => lines.push(l));
+
+  const healerExposureLines = formatHealerExposureForContext(healerExposures);
+  if (healerExposureLines.length > 0) {
+    lines.push('');
+    healerExposureLines.forEach((l) => lines.push(l));
+  }
 
   const outgoingCCLines = formatOutgoingCCChainsForContext(outgoingCCChains);
   if (outgoingCCLines.length > 0) {
