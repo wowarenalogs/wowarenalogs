@@ -95,7 +95,7 @@ export function useAudioLevels(): Map<string, number> {
         let next: number;
         if (target === 0 && state.displayVolume > 0) {
           next = state.displayVolume * DECAY_RATE;
-          if (next < 0.005) next = 0;
+          if (next < NOISE_GATE) next = 0;
         } else {
           next = state.displayVolume + SMOOTHING_ALPHA * (target - state.displayVolume);
         }
