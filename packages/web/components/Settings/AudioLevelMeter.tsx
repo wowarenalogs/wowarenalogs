@@ -25,8 +25,7 @@ function linearToMeterPct(linear: number): number {
 
 export function AudioMeterBar({ volume }: { volume: number }) {
   const pct = linearToMeterPct(volume);
-  const barColor =
-    pct < 1 ? 'bg-base-content/20' : pct < 75 ? 'bg-success' : pct < 90 ? 'bg-warning' : 'bg-error';
+  const barColor = pct < 1 ? 'bg-base-content/20' : pct < 75 ? 'bg-success' : pct < 90 ? 'bg-warning' : 'bg-error';
 
   return (
     <div className="relative w-full h-2.5 bg-base-300 rounded overflow-hidden">
