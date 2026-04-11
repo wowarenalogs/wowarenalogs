@@ -1,6 +1,5 @@
 import { ICombatUnit } from '@wowarenalogs/parser';
 
-import { fmtTime } from './cooldowns';
 import { tanksOrHealers } from './utils';
 
 // DF RULES https://www.icy-veins.com/forums/topic/69530-dampening-and-healing-changes-in-dragonflight-pre-patch-phase-2-arenas/
@@ -176,32 +175,24 @@ export function formatDampeningForContext(
   startTime: number,
   endTime: number,
 ): string[] {
-  // FIX 2: check for real log events before building the timeline
-  const hasRealEvents = buildDampeningEvents(players).length > 0;
   const timeline = computeDampeningTimeline(bracket, players, startTime, endTime);
   const lines: string[] = [];
+  const initialDamp = timeline[0].dampening;
   const finalDamp = timeline[timeline.length - 1].dampening;
 
-  lines.push(`DAMPENING (healing reduced by stacking %):`);
-  lines.push(`  Bracket: ${bracket}`);
-
-  for (const snap of timeline) {
-    lines.push(`  ${fmtTime(snap.atSeconds)}: ${fmtDampening(snap.dampening)}`);
-  }
-
-  if (!hasRealEvents) {
-    lines.push(
-      `  ⚠ No dampening aura events found in this log — values above are estimates based on bracket rules and may not be accurate.`,
-    );
-  }
+  // Compact single-line summary — the ramp schedule is fixed per bracket so only the
+  // endpoint matters for AI reasoning. Full timeline is visible in the Dispels UI tab.
+  lines.push(
+    `DAMPENING (${bracket}): started at ${fmtDampening(initialDamp)}, ended at ${fmtDampening(finalDamp)} at match end`,
+  );
 
   if (finalDamp >= 0.4) {
     lines.push(
-      `  ⚠ Match ended at ${fmtDampening(finalDamp)} dampening — sustained healing was severely compromised; kill windows in the final phase required significantly less setup.`,
+      `  ⚠ Severe dampening (${fmtDampening(finalDamp)}) — sustained healing was severely compromised; kill windows in the final phase required significantly less setup.`,
     );
   } else if (finalDamp >= 0.2) {
     lines.push(
-      `  Note: Match reached ${fmtDampening(finalDamp)} dampening — healing was meaningfully impaired in the late game.`,
+      `  Note: Reached ${fmtDampening(finalDamp)} dampening — healing was meaningfully impaired in the late game.`,
     );
   }
 

@@ -1,11 +1,29 @@
-import { CombatUnitReaction, CombatUnitType, ICombatUnit } from '@wowarenalogs/parser';
-import { useEffect, useState } from 'react';
+/* eslint-disable no-console */
+/**
+ * printMatchPrompts.ts
+ *
+ * Downloads matches from the cloud and prints the complete AI prompt string
+ * that would be sent to Claude for each match — same pipeline as buildMatchContext()
+ * in CombatAIAnalysis/index.tsx, without any React dependencies.
+ *
+ * Usage:
+ *   npm run -w @wowarenalogs/tools start:printMatchPrompts
+ *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 10
+ *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 5 --bracket 3v3
+ *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --local   (reads ~/Downloads/wow logs/)
+ */
+
+import { CombatUnitReaction, CombatUnitType, IArenaMatch, ICombatUnit, IShuffleRound } from '@wowarenalogs/parser';
+import fs from 'fs-extra';
+import fetch from 'node-fetch';
+import os from 'os';
+import path from 'path';
 
 import {
   analyzePlayerCCAndTrinket,
   formatCCTrinketForContext,
   IPlayerCCTrinketSummary,
-} from '../../../utils/ccTrinketAnalysis';
+} from '../../shared/src/utils/ccTrinketAnalysis';
 import {
   annotateDefensiveTimings,
   computePressureWindows,
@@ -21,22 +39,90 @@ import {
   IPanicDefensive,
   isHealerSpec,
   specToString,
-} from '../../../utils/cooldowns';
-import { formatDampeningForContext } from '../../../utils/dampening';
-import { canOffensivePurge, formatDispelContextForAI, reconstructDispelSummary } from '../../../utils/dispelAnalysis';
-import { analyzeOutgoingCCChains, formatOutgoingCCChainsForContext } from '../../../utils/drAnalysis';
-import { formatEnemyCDTimelineForContext, IEnemyCDTimeline, reconstructEnemyCDTimeline } from '../../../utils/enemyCDs';
-import { analyzeHealerExposureAtBurst, formatHealerExposureForContext } from '../../../utils/healerExposureAnalysis';
-import { detectHealingGaps, formatHealingGapsForContext, IHealingGap } from '../../../utils/healingGaps';
+} from '../../shared/src/utils/cooldowns';
+import { formatDampeningForContext } from '../../shared/src/utils/dampening';
+import {
+  canOffensivePurge,
+  formatDispelContextForAI,
+  reconstructDispelSummary,
+} from '../../shared/src/utils/dispelAnalysis';
+import { analyzeOutgoingCCChains, formatOutgoingCCChainsForContext } from '../../shared/src/utils/drAnalysis';
+import {
+  formatEnemyCDTimelineForContext,
+  IEnemyCDTimeline,
+  reconstructEnemyCDTimeline,
+} from '../../shared/src/utils/enemyCDs';
+import {
+  analyzeHealerExposureAtBurst,
+  formatHealerExposureForContext,
+} from '../../shared/src/utils/healerExposureAnalysis';
+import { detectHealingGaps, formatHealingGapsForContext, IHealingGap } from '../../shared/src/utils/healingGaps';
 import {
   analyzeKillWindowTargetSelection,
   formatKillWindowTargetSelectionForContext,
-} from '../../../utils/killWindowTargetSelection';
-import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../../utils/matchArchetype';
-import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../../utils/offensiveWindows';
-import { useCombatReportContext } from '../CombatReportContext';
+} from '../../shared/src/utils/killWindowTargetSelection';
+import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../shared/src/utils/matchArchetype';
+import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../shared/src/utils/offensiveWindows';
 
-// ── Critical moment identification helpers ─────────────────────────────────
+const API_BASE = 'https://wowarenalogs.com';
+
+type ParsedCombat = IArenaMatch | IShuffleRound;
+
+// ---------------------------------------------------------------------------
+// Cloud download
+// ---------------------------------------------------------------------------
+
+const STUBS_QUERY = `
+  query GetLatestMatches($wowVersion: String!, $bracket: String, $offset: Int!, $count: Int!) {
+    latestMatches(wowVersion: $wowVersion, bracket: $bracket, offset: $offset, count: $count) {
+      combats {
+        ... on ArenaMatchDataStub  { id wowVersion logObjectUrl startTime endTime timezone startInfo { bracket } }
+        ... on ShuffleRoundStub    { id wowVersion logObjectUrl startTime endTime timezone startInfo { bracket } }
+      }
+    }
+  }
+`;
+
+interface MatchStub {
+  id: string;
+  wowVersion: string;
+  logObjectUrl: string;
+  startTime: number;
+  startInfo?: { bracket: string };
+}
+
+async function fetchStubs(bracket: string, count: number): Promise<MatchStub[]> {
+  const res = await fetch(`${API_BASE}/api/graphql`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: STUBS_QUERY, variables: { wowVersion: 'retail', bracket, offset: 0, count } }),
+  });
+  if (!res.ok) throw new Error(`GraphQL ${res.status}: ${res.statusText}`);
+  const json = (await res.json()) as { data?: { latestMatches?: { combats?: MatchStub[] } }; errors?: unknown[] };
+  if (json.errors) throw new Error(`GraphQL errors: ${JSON.stringify(json.errors)}`);
+  return json.data?.latestMatches?.combats ?? [];
+}
+
+// ---------------------------------------------------------------------------
+// Parsing
+// ---------------------------------------------------------------------------
+
+async function parseLogText(text: string): Promise<ParsedCombat[]> {
+  const { WoWCombatLogParser } = await import('@wowarenalogs/parser');
+  const lines = text.split('\n');
+  const parser = new WoWCombatLogParser('retail');
+  const combats: ParsedCombat[] = [];
+  parser.on('arena_match_ended', (c: IArenaMatch) => combats.push(c));
+  parser.on('solo_shuffle_ended', (m: { rounds: IShuffleRound[] }) => combats.push(...m.rounds));
+  for (const line of lines) parser.parseLine(line);
+  parser.flush();
+  return combats;
+}
+
+// ---------------------------------------------------------------------------
+// Critical moment helpers — inlined from CombatAIAnalysis/index.tsx
+// (cannot import that file due to React dependencies)
+// ---------------------------------------------------------------------------
 
 interface CriticalMoment {
   timeSeconds: number;
@@ -51,7 +137,6 @@ interface CriticalMoment {
   isDeath?: boolean;
   contributingDeathSpec?: string;
   contributingDeathAtSeconds?: number;
-  /** Backward causal trace from death: what CDs were unavailable and why, plus CC context */
   rootCauseTrace?: string[];
 }
 
@@ -60,7 +145,6 @@ function getEnemyStateAtTime(
   enemyCDTimeline: IEnemyCDTimeline,
   peakDamagePressure5s?: number,
 ): string {
-  // Prefer aligned burst windows: look for a burst that started within 15s before or 5s after the moment
   const relevant = enemyCDTimeline.alignedBurstWindows.filter(
     (w) => w.fromSeconds <= timeSeconds + 5 && w.toSeconds >= timeSeconds - 15,
   );
@@ -113,20 +197,12 @@ function getOwnerCDsAvailable(timeSeconds: number, cooldowns: IMajorCooldownInfo
   return parts.join(' | ') || 'No major CD data for log owner';
 }
 
-/**
- * Traces backward from a death to identify root causes:
- * - Which owner CDs were on cooldown at death time, and whether the last use was panic/suboptimal
- * - Which owner CDs were available but never pressed
- * - Whether the dying player was CC'd in the window before death, and if it was avoidable
- */
 function buildDeathRootCauseTrace(
   deathTimeSeconds: number,
   ownerCooldowns: IMajorCooldownInfo[],
   dyingPlayerCC: IPlayerCCTrinketSummary | undefined,
 ): string[] {
   const traces: string[] = [];
-
-  // 1. Check each owner major CD: on CD (and why) vs available-but-not-pressed
   for (const cd of ownerCooldowns) {
     if (cd.neverUsed) {
       traces.push(`${cd.spellName} [${cd.tag}]: NEVER USED — was available throughout the match`);
@@ -134,14 +210,12 @@ function buildDeathRootCauseTrace(
     }
     const castsBeforeDeath = cd.casts.filter((c) => c.timeSeconds <= deathTimeSeconds);
     if (castsBeforeDeath.length === 0) {
-      // Never used before this death — was available
       traces.push(`${cd.spellName} [${cd.tag}]: not yet used — was available at death time`);
       continue;
     }
     const lastCast = castsBeforeDeath[castsBeforeDeath.length - 1];
     const readyAt = lastCast.timeSeconds + cd.cooldownSeconds;
     if (readyAt > deathTimeSeconds) {
-      // On cooldown at death — trace why
       const timeAgo = Math.round(deathTimeSeconds - lastCast.timeSeconds);
       const timing =
         lastCast.timingLabel && lastCast.timingLabel !== 'Unknown'
@@ -151,12 +225,9 @@ function buildDeathRootCauseTrace(
         `${cd.spellName} [${cd.tag}]: ON COOLDOWN at death — last used ${fmtTime(lastCast.timeSeconds)} (${timeAgo}s before death)${timing}`,
       );
     } else {
-      // Ready at death but not pressed
       traces.push(`${cd.spellName} [${cd.tag}]: available at death time — not pressed`);
     }
   }
-
-  // 2. CC active on the dying player in the 12s window before/at death
   if (dyingPlayerCC) {
     const CC_LOOKBACK = 12;
     const relevantCC = dyingPlayerCC.ccInstances.filter(
@@ -175,7 +246,6 @@ function buildDeathRootCauseTrace(
       );
     }
   }
-
   return traces;
 }
 
@@ -203,16 +273,13 @@ function identifyCriticalMoments(
 ): CriticalMoment[] {
   const moments: CriticalMoment[] = [];
 
-  // 1. Friendly deaths — highest impact
   for (const death of friendlyDeaths) {
     const enemyState = getEnemyStateAtTime(death.atSeconds, enemyCDTimeline, peakDamagePressure5s);
     const cdState = getOwnerCDsAvailable(death.atSeconds, cooldowns);
-    // Check if a healing gap overlapped with or immediately preceded this death
     const nearbyGap = healingGaps.find((g) => g.fromSeconds <= death.atSeconds && g.toSeconds >= death.atSeconds - 10);
     const whatHappened = nearbyGap
       ? `${death.spec} died at ${fmtTime(death.atSeconds)}. A ${nearbyGap.durationSeconds.toFixed(1)}s healing gap (${nearbyGap.freeCastSeconds.toFixed(1)}s free-cast) was active from ${fmtTime(nearbyGap.fromSeconds)} — healer was not CC'd during this time.`
       : `${death.spec} died at ${fmtTime(death.atSeconds)}.`;
-    // Backward trace: find CC data for the dying player specifically
     const dyingPlayerCC = ccTrinketSummaries.find((s) => s.playerName === death.name);
     const rootCauseTrace = buildDeathRootCauseTrace(death.atSeconds, cooldowns, dyingPlayerCC);
     moments.push({
@@ -231,7 +298,6 @@ function identifyCriticalMoments(
     });
   }
 
-  // 2. Free-cast healing gaps during pressure (healer only — not already tied to a death)
   if (isHealer) {
     for (const gap of healingGaps) {
       const tiedToDeath = friendlyDeaths.some(
@@ -261,7 +327,6 @@ function identifyCriticalMoments(
     }
   }
 
-  // 3. Panic defensives — CD used during no real pressure
   for (const panic of panicDefensives) {
     const enemyState = getEnemyStateAtTime(panic.timeSeconds, enemyCDTimeline);
     const cdState = getOwnerCDsAvailable(panic.timeSeconds, cooldowns);
@@ -282,7 +347,6 @@ function identifyCriticalMoments(
     });
   }
 
-  // 4. Overlapped defensives
   for (const overlap of overlappedDefensives) {
     const enemyState = getEnemyStateAtTime(overlap.timeSeconds, enemyCDTimeline);
     const overlapContributingDeath = findContributingDeath(overlap.timeSeconds, friendlyDeaths);
@@ -294,7 +358,8 @@ function identifyCriticalMoments(
       enemyState,
       friendlyState: `${overlap.firstCasterSpec} used ${overlap.firstSpellName} at ${fmtTime(overlap.timeSeconds)}; ${overlap.secondCasterSpec} used ${overlap.secondSpellName} at ${fmtTime(overlap.secondCastTimeSeconds)} — simultaneous for ${overlap.simultaneousSeconds.toFixed(1)}s.`,
       whatHappened: `Two major defensives were stacked on ${overlap.targetName} for ${overlap.simultaneousSeconds.toFixed(1)}s of overlapping coverage, wasting effective duration of one CD.`,
-      availableOptions: `Staggering the CDs would extend total coverage by ~${Math.round(overlap.simultaneousSeconds)}s. Optimal: ${overlap.secondCasterSpec} waits for ${overlap.firstSpellName} to expire before pressing ${overlap.secondSpellName}.`,
+      availableOptions:
+        'Cannot determine if simultaneous stacking was required to survive a spike — HP values during this window are not fully tracked in the log.',
       uncertainty:
         'Cannot determine if simultaneous stacking was required to survive a spike — HP values during this window are not fully tracked in the log.',
       contributingDeathSpec: overlapContributingDeath?.spec,
@@ -305,32 +370,37 @@ function identifyCriticalMoments(
   return moments.sort((a, b) => b.impactScore - a.impactScore).slice(0, 3);
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Build full prompt — mirrors buildMatchContext() in CombatAIAnalysis/index.tsx
+// ---------------------------------------------------------------------------
 
-export function buildMatchContext(
-  combat: NonNullable<ReturnType<typeof useCombatReportContext>['combat']>,
-  friends: ReturnType<typeof useCombatReportContext>['friends'],
-  enemies: ReturnType<typeof useCombatReportContext>['enemies'],
-): string {
+// Cloud matches have no single "owner" — pick friendly[0] as the log owner proxy
+function buildMatchPrompt(combat: ParsedCombat): string {
+  const allUnits = Object.values(combat.units);
+  const friends = allUnits.filter(
+    (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Friendly,
+  ) as ICombatUnit[];
+  const enemies = allUnits.filter(
+    (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Hostile,
+  ) as ICombatUnit[];
+
+  if (friends.length === 0 || enemies.length === 0) return '';
   const durationSeconds = (combat.endTime - combat.startTime) / 1000;
+  if (durationSeconds < 10) return '';
 
-  // Find the log owner (the player who recorded the log)
-  const owner = friends.find((p) => p.id === combat.playerId) ?? friends[0];
-  if (!owner) return '';
+  // Pick log owner: prefer non-healer DPS so we have interesting cooldown data
+  const owner = friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0];
 
   const ownerSpec = specToString(owner.spec);
   const healer = isHealerSpec(owner.spec);
-
   const myTeam = friends.map((p) => specToString(p.spec)).join(', ');
   const enemyTeam = enemies.map((p) => specToString(p.spec)).join(', ');
 
-  // Match result
   const combatAny = combat as unknown as Record<string, unknown>;
   const playerWon =
     typeof combatAny['winningTeamId'] === 'string' ? combatAny['winningTeamId'] === combat.playerTeamId : null;
   const resultStr = playerWon === true ? 'Win' : playerWon === false ? 'Loss' : 'Unknown';
 
-  // Deaths
   const friendlyDeaths = friends
     .filter((p) => p.deathRecords.length > 0)
     .flatMap((p) =>
@@ -353,13 +423,11 @@ export function buildMatchContext(
     )
     .sort((a, b) => a.atSeconds - b.atSeconds);
 
-  // Compute all feature data upfront
   const cooldowns = extractMajorCooldowns(owner, combat);
   const teammateCooldowns = friends
     .filter((p) => p.id !== owner.id)
     .map((p) => ({ player: p, cds: extractMajorCooldowns(p, combat) }));
   const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat, owner, friends);
-  // Annotate defensive timing labels now that we have the enemy CD timeline
   annotateDefensiveTimings(cooldowns, owner, combat, enemyCDTimeline as IEnemyCDTimelineForTiming);
   teammateCooldowns.forEach(({ player, cds }) =>
     annotateDefensiveTimings(cds, player, combat, enemyCDTimeline as IEnemyCDTimelineForTiming),
@@ -369,17 +437,17 @@ export function buildMatchContext(
   const panicDefensives = detectPanicDefensives(friends, enemies, combat);
   const healingGaps = healer ? detectHealingGaps(owner, friends, enemies, combat) : [];
   const offensiveWindows = computeOffensiveWindows(enemies, friends, combat);
-  const killWindowTargetEvals = analyzeKillWindowTargetSelection(offensiveWindows, enemies as ICombatUnit[], combat);
+  const killWindowTargetEvals = analyzeKillWindowTargetSelection(offensiveWindows, enemies, combat);
   const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
   const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
-  const outgoingCCChains = analyzeOutgoingCCChains(friends as ICombatUnit[], enemies as ICombatUnit[], combat);
-  const healerUnit = friends.find((p) => isHealerSpec(p.spec)) as ICombatUnit | undefined;
+  const outgoingCCChains = analyzeOutgoingCCChains(friends, enemies, combat);
+  const healerUnit = friends.find((p) => isHealerSpec(p.spec)) ?? undefined;
   const healerCCSummary = healerUnit ? ccTrinketSummaries.find((s) => s.playerName === healerUnit.name) : undefined;
   const healerExposures =
     healerUnit && healerCCSummary
       ? analyzeHealerExposureAtBurst(
           enemyCDTimeline.alignedBurstWindows,
-          enemies as ICombatUnit[],
+          enemies,
           healerUnit,
           healerCCSummary,
           ccTrinketSummaries,
@@ -389,15 +457,14 @@ export function buildMatchContext(
       : [];
 
   const matchArchetype = computeMatchArchetype(
-    friends as ICombatUnit[],
-    enemies as ICombatUnit[],
+    friends,
+    enemies,
     combat,
     ccTrinketSummaries,
     enemyCDTimeline.alignedBurstWindows,
     healerExposures,
   );
 
-  // Identify top critical moments for structured evaluation
   const criticalMoments = identifyCriticalMoments(
     healer,
     cooldowns,
@@ -410,11 +477,8 @@ export function buildMatchContext(
     matchArchetype.peakDamagePressure5s,
   );
 
-  // Purge responsibility attribution
-  const ownerCanPurge = canOffensivePurge(owner as ICombatUnit);
-  const teamPurgers = friends
-    .filter((p) => p.id !== owner.id && canOffensivePurge(p as ICombatUnit))
-    .map((p) => specToString(p.spec));
+  const ownerCanPurge = canOffensivePurge(owner);
+  const teamPurgers = friends.filter((p) => p.id !== owner.id && canOffensivePurge(p)).map((p) => specToString(p.spec));
 
   const lines: string[] = [];
 
@@ -449,7 +513,7 @@ export function buildMatchContext(
       if (!m.isDeath && m.contributingDeathSpec !== undefined && m.contributingDeathAtSeconds !== undefined) {
         const deltaSeconds = Math.round(m.contributingDeathAtSeconds - m.timeSeconds);
         lines.push(
-          `  ⚠ Contributing factor: ${m.contributingDeathSpec} died ${deltaSeconds}s later at ${fmtTime(m.contributingDeathAtSeconds)}`,
+          `  Contributing factor: ${m.contributingDeathSpec} died ${deltaSeconds}s later at ${fmtTime(m.contributingDeathAtSeconds)}`,
         );
       }
       lines.push(`  Enemy state: ${m.enemyState}`);
@@ -457,7 +521,7 @@ export function buildMatchContext(
       lines.push(`  What happened: ${m.whatHappened}`);
       if (m.rootCauseTrace && m.rootCauseTrace.length > 0) {
         lines.push(`  Root cause trace (why the death happened — trace back from here):`);
-        m.rootCauseTrace.forEach((t) => lines.push(`    • ${t}`));
+        m.rootCauseTrace.forEach((t) => lines.push(`    - ${t}`));
       }
       lines.push(`  Available options: ${m.availableOptions}`);
       lines.push(`  Uncertainty: ${m.uncertainty}`);
@@ -468,7 +532,6 @@ export function buildMatchContext(
   // ── SUPPORTING DATA ────────────────────────────────────────────────────────
   lines.push('SUPPORTING DATA (for reference when evaluating moments above):');
 
-  // Purge responsibility — explicit attribution so Claude doesn't blame wrong player
   lines.push('');
   lines.push('PURGE RESPONSIBILITY:');
   if (ownerCanPurge) {
@@ -482,7 +545,6 @@ export function buildMatchContext(
       : '  Team offensive purgers: None (no teammate has an offensive purge ability)',
   );
 
-  // Owner cooldowns
   lines.push('');
   lines.push(`COOLDOWN USAGE — LOG OWNER (${ownerSpec}) — major CDs ≥30s:`);
   if (cooldowns.length === 0) {
@@ -518,7 +580,6 @@ export function buildMatchContext(
     });
   }
 
-  // Teammate cooldowns
   if (teammateCooldowns.length > 0) {
     lines.push('');
     lines.push('TEAMMATE COOLDOWNS:');
@@ -596,186 +657,134 @@ export function buildMatchContext(
   return lines.join('\n');
 }
 
-// Minimal markdown renderer (bold, bullets, headers)
-function MarkdownBlock({ text }: { text: string }) {
-  return (
-    <div className="prose prose-sm max-w-none">
-      {text.split('\n').map((line, i) => {
-        if (line.startsWith('## ')) {
-          return (
-            <h3 key={i} className="text-base font-bold mt-4 mb-1">
-              {line.slice(3)}
-            </h3>
-          );
-        }
-        if (line.startsWith('- ') || line.startsWith('* ')) {
-          return (
-            <div key={i} className="flex gap-2 my-0.5">
-              <span className="text-primary mt-0.5">•</span>
-              <span dangerouslySetInnerHTML={{ __html: renderInline(line.slice(2)) }} />
-            </div>
-          );
-        }
-        if (/^\d+\. /.test(line)) {
-          const num = line.match(/^(\d+)\. /)?.[1];
-          return (
-            <div key={i} className="flex gap-2 my-0.5">
-              <span className="text-primary font-bold min-w-[1.2rem]">{num}.</span>
-              <span dangerouslySetInnerHTML={{ __html: renderInline(line.replace(/^\d+\. /, '')) }} />
-            </div>
-          );
-        }
-        if (line.trim() === '') return <div key={i} className="h-1" />;
-        return <p key={i} className="my-0.5" dangerouslySetInnerHTML={{ __html: renderInline(line) }} />;
-      })}
-    </div>
-  );
-}
+// ---------------------------------------------------------------------------
+// Cloud runner
+// ---------------------------------------------------------------------------
 
-function renderInline(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`(.+?)`/g, '<code class="text-xs bg-base-300 px-1 rounded">$1</code>');
-}
+async function runCloud(count: number, bracket: string) {
+  console.log(`Fetching ${count} matches (bracket: ${bracket}) from ${API_BASE}...\n`);
 
-// Session-level cache: persists across tab switches and match switches without a server round-trip.
-const analysisCache = new Map<string, string>();
-// In-flight requests: allows re-attaching to an ongoing fetch after a tab switch.
-const inFlightRequests = new Map<string, Promise<string>>();
+  const stubs = await fetchStubs(bracket, count);
+  if (stubs.length === 0) {
+    console.error('No matches returned from API.');
+    process.exit(1);
+  }
+  console.log(`Got ${stubs.length} stub(s). Downloading logs...\n`);
 
-export function CombatAIAnalysis() {
-  const { combat, friends, enemies } = useCombatReportContext();
-  const [analysis, setAnalysis] = useState<string | null>(() => analysisCache.get(combat?.id ?? '') ?? null);
-  const [loading, setLoading] = useState(() => inFlightRequests.has(combat?.id ?? ''));
-  const [error, setError] = useState<string | null>(null);
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'wlogs-prompts-'));
+  let matchCount = 0;
 
-  // When the combat changes (or on mount): sync cached result or re-attach to an in-flight request.
-  useEffect(() => {
-    if (!combat) return;
+  try {
+    for (const stub of stubs) {
+      const date = new Date(stub.startTime).toISOString().slice(0, 10);
+      process.stderr.write(`Downloading ${stub.id} (${stub.startInfo?.bracket ?? bracket}, ${date})...\n`);
 
-    const cached = analysisCache.get(combat.id);
-    if (cached) {
-      setAnalysis(cached);
-      setLoading(false);
-      setError(null);
-      return;
+      let text: string;
+      try {
+        const res = await fetch(stub.logObjectUrl);
+        if (!res.ok) throw new Error(`GCS ${res.status}`);
+        text = await res.text();
+      } catch (e) {
+        console.error(`  Download failed: ${e}`);
+        continue;
+      }
+
+      let combats: ParsedCombat[];
+      try {
+        combats = await parseLogText(text);
+      } catch (e) {
+        console.error(`  Parse failed: ${e}`);
+        continue;
+      }
+
+      for (const combat of combats) {
+        const prompt = buildMatchPrompt(combat);
+        if (!prompt) continue;
+        matchCount++;
+        const sep = '='.repeat(80);
+        console.log(`\n${sep}`);
+        console.log(`MATCH ${matchCount} — ${stub.id} (${stub.startInfo?.bracket ?? bracket}, ${date})`);
+        console.log(sep);
+        console.log(prompt);
+      }
     }
-
-    const inFlight = inFlightRequests.get(combat.id);
-    if (inFlight) {
-      setAnalysis(null);
-      setLoading(true);
-      setError(null);
-      inFlight
-        .then((result) => {
-          setAnalysis(result);
-          setLoading(false);
-        })
-        .catch((e: unknown) => {
-          setError(e instanceof Error ? e.message : 'Analysis failed');
-          setLoading(false);
-        });
-      return;
-    }
-
-    setAnalysis(null);
-    setLoading(false);
-    setError(null);
-  }, [combat?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!combat) return null;
-
-  const allPlayers = [...friends, ...enemies];
-  const hasPlayers = allPlayers.some(
-    (p) => p.type === CombatUnitType.Player && p.reaction === CombatUnitReaction.Friendly,
-  );
-  if (!hasPlayers) {
-    return <div className="p-4 text-base-content opacity-60">No player data available for analysis.</div>;
+  } finally {
+    await fs.remove(tmpDir);
   }
 
-  const handleAnalyze = async () => {
-    const combatId = combat.id;
-    setLoading(true);
-    setError(null);
-    setAnalysis(null);
-
-    const fetchPromise: Promise<string> = (async () => {
-      const matchContext = buildMatchContext(combat, friends, enemies);
-      const apiKey = (await window.wowarenalogs?.settings?.getAnthropicApiKey?.()) ?? undefined;
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ matchContext, apiKey }),
-      });
-      const data = (await res.json()) as { analysis?: string; error?: string };
-      if (!res.ok || data.error) throw new Error(data.error ?? 'Analysis failed');
-      const result = data.analysis ?? '';
-      analysisCache.set(combatId, result);
-      return result;
-    })();
-
-    inFlightRequests.set(combatId, fetchPromise);
-    fetchPromise.finally(() => inFlightRequests.delete(combatId));
-
-    try {
-      const result = await fetchPromise;
-      // Ignore result if the user switched to a different match while this was in flight
-      if (combat.id !== combatId) return;
-      setAnalysis(result);
-    } catch (e) {
-      if (combat.id !== combatId) return;
-      setError(e instanceof Error ? e.message : 'Network error');
-    } finally {
-      if (combat.id === combatId) setLoading(false);
-    }
-  };
-
-  const owner = friends.find((p) => p.id === combat.playerId) ?? friends[0];
-  const ownerSpec = owner ? specToString(owner.spec) : 'Unknown';
-
-  return (
-    <div className="flex flex-col gap-4 max-w-3xl">
-      <div className="flex flex-col gap-1">
-        <h3 className="text-lg font-bold">AI Cooldown Analysis</h3>
-        <p className="text-sm opacity-60">
-          Analyzing <span className="font-semibold">{ownerSpec}</span> — reviews your major cooldown usage and gives
-          specific recommendations.
-        </p>
-      </div>
-
-      {!analysis && !loading && (
-        <button className="btn btn-primary w-fit" onClick={handleAnalyze} disabled={loading}>
-          Analyse this match
-        </button>
-      )}
-
-      {loading && (
-        <div className="flex items-center gap-3">
-          <span className="loading loading-spinner loading-sm text-primary" />
-          <span className="text-sm opacity-60">Analysing your cooldown usage…</span>
-        </div>
-      )}
-
-      {error && (
-        <div className="alert alert-error">
-          <span>{error}</span>
-          <button className="btn btn-sm btn-ghost ml-auto" onClick={handleAnalyze}>
-            Retry
-          </button>
-        </div>
-      )}
-
-      {analysis && (
-        <div className="flex flex-col gap-3">
-          <div className="card bg-base-200 p-4">
-            <MarkdownBlock text={analysis} />
-          </div>
-          <button className="btn btn-ghost btn-sm w-fit" onClick={handleAnalyze}>
-            Re-analyse
-          </button>
-        </div>
-      )}
-    </div>
-  );
+  console.log(`\n${'='.repeat(80)}`);
+  console.log(`Total matches printed: ${matchCount}`);
 }
+
+// ---------------------------------------------------------------------------
+// Local runner
+// ---------------------------------------------------------------------------
+
+async function runLocal(logDir: string) {
+  const files = (await fs.readdir(logDir))
+    .filter((f) => f.endsWith('.txt') && f.startsWith('WoWCombatLog'))
+    .map((f) => path.join(logDir, f))
+    .sort();
+
+  if (files.length === 0) {
+    console.error(`No WoWCombatLog*.txt files found in ${logDir}`);
+    process.exit(1);
+  }
+
+  console.log(`Scanning ${files.length} log file(s) in ${logDir}\n`);
+  let matchCount = 0;
+
+  for (const logPath of files) {
+    const fileName = path.basename(logPath);
+    let combats: ParsedCombat[];
+    try {
+      combats = await parseLogText(await fs.readFile(logPath, 'utf-8'));
+    } catch (e) {
+      console.error(`Error parsing ${fileName}: ${e}`);
+      continue;
+    }
+    if (combats.length === 0) continue;
+
+    for (const combat of combats) {
+      const prompt = buildMatchPrompt(combat);
+      if (!prompt) continue;
+      matchCount++;
+      const sep = '='.repeat(80);
+      console.log(`\n${sep}`);
+      console.log(`MATCH ${matchCount} — ${fileName}`);
+      console.log(sep);
+      console.log(prompt);
+    }
+  }
+
+  console.log(`\n${'='.repeat(80)}`);
+  console.log(`Total matches printed: ${matchCount}`);
+}
+
+// ---------------------------------------------------------------------------
+// Entry point
+// ---------------------------------------------------------------------------
+
+async function main() {
+  const args = process.argv.slice(2);
+  const localMode = args.includes('--local');
+  const countIdx = args.indexOf('--count');
+  const bracketIdx = args.indexOf('--bracket');
+  const bracket = bracketIdx !== -1 ? args[bracketIdx + 1] : 'Rated Solo Shuffle';
+  const count = countIdx !== -1 ? parseInt(args[countIdx + 1] ?? '10', 10) : 10;
+
+  if (localMode) {
+    const logDir = (process.env.LOG_DIR ?? path.join(process.env.HOME ?? os.homedir(), 'Downloads/wow logs')).replace(
+      /^~/,
+      os.homedir(),
+    );
+    await runLocal(logDir);
+  } else {
+    await runCloud(count, bracket);
+  }
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

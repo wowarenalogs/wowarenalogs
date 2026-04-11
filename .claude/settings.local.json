@@ -99,7 +99,22 @@
       "WebFetch(domain:images.wowarenalogs.com)",
       "Bash(awk '{print NF \" fields: \" $0}' FS=\",\")",
       "Bash(wc:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash([ -f \"$pkgpath/tsconfig.json\" ])",
+      "Bash(awk '{print $NF, $5}')",
+      "Bash(sort -rn -k2)",
+      "Bash(awk '/^={80}/{found++} found==1')",
+      "Bash(awk '/^={80}/{found++; if\\(found==2\\) exit} found==1{print}')",
+      "Read(//tmp/**)",
+      "Bash(awk '{print $NF}')",
+      "Bash(sort -t'k' -k1 -n)",
+      "Bash(awk -Fk '{v=$1+0; if\\(NR==1||v<min\\)min=v; if\\(v>max\\)max=v; sum+=v; n++} END{print \"  min=\"min\"k  max=\"max\"k  avg=\"int\\(sum/n\\)\"k  n=\"n}')",
+      "Bash(awk -F/ '{v=$1+0; if\\(NR==1||v<min\\)min=v; if\\(v>max\\)max=v; sum+=v; n++} END{if\\(n>0\\) print \"  min=\"min\"  max=\"max\"  avg=\"sum/n\"  n=\"n}')",
+      "Bash(awk -F: '{s=$1*60+$2; if\\(NR==1||s<min\\)min=s; if\\(s>max\\)max=s; sum+=s; n++} END{printf \"  min=%dm%ds  max=%dm%ds  avg=%dm%ds  n=%d\\\\n\", int\\(min/60\\),min%60, int\\(max/60\\),max%60, int\\(sum/n/60\\),\\(sum/n\\)%60, n}')",
+      "Bash(awk -F' ' '{sum+=$1; n++} END{print \"avg CC events per match: \" sum/n \" \\(n=\" n \"\\)\"}')",
+      "Bash(npx ts-node:*)",
+      "Bash(tee /tmp/local_fixed.txt)",
+      "Bash(tee match_prompts_3games.txt)"
     ]
   }
 }

@@ -509,7 +509,7 @@ export function specToString(spec: CombatUnitSpec): string {
     [CombatUnitSpec.DeathKnight_Unholy]: 'Unholy Death Knight',
     [CombatUnitSpec.DemonHunter_Havoc]: 'Havoc Demon Hunter',
     [CombatUnitSpec.DemonHunter_Vengeance]: 'Vengeance Demon Hunter',
-    [CombatUnitSpec.DemonHunter_Devourer]: 'Devoker Demon Hunter',
+    [CombatUnitSpec.DemonHunter_Devourer]: 'Devourer Demon Hunter',
     [CombatUnitSpec.Druid_Balance]: 'Balance Druid',
     [CombatUnitSpec.Druid_Feral]: 'Feral Druid',
     [CombatUnitSpec.Druid_Guardian]: 'Guardian Druid',
@@ -560,6 +560,35 @@ const HEALER_SPECS = new Set([
 
 export function isHealerSpec(spec: CombatUnitSpec): boolean {
   return HEALER_SPECS.has(spec);
+}
+
+// All specs that fight primarily at melee range, including tanks (rare in arena but present).
+// Used for enemy comp classification — anything not in this set and not a healer = ranged/caster.
+const MELEE_SPECS = new Set([
+  CombatUnitSpec.DeathKnight_Blood,
+  CombatUnitSpec.DeathKnight_Frost,
+  CombatUnitSpec.DeathKnight_Unholy,
+  CombatUnitSpec.DemonHunter_Havoc,
+  CombatUnitSpec.DemonHunter_Vengeance,
+  CombatUnitSpec.Druid_Feral,
+  CombatUnitSpec.Druid_Guardian,
+  CombatUnitSpec.Hunter_BeastMastery,
+  CombatUnitSpec.Hunter_Survival,
+  CombatUnitSpec.Monk_BrewMaster,
+  CombatUnitSpec.Monk_Windwalker,
+  CombatUnitSpec.Paladin_Protection,
+  CombatUnitSpec.Paladin_Retribution,
+  CombatUnitSpec.Rogue_Assassination,
+  CombatUnitSpec.Rogue_Outlaw,
+  CombatUnitSpec.Rogue_Subtlety,
+  CombatUnitSpec.Shaman_Enhancement,
+  CombatUnitSpec.Warrior_Arms,
+  CombatUnitSpec.Warrior_Fury,
+  CombatUnitSpec.Warrior_Protection,
+]);
+
+export function isMeleeSpec(spec: CombatUnitSpec): boolean {
+  return MELEE_SPECS.has(spec);
 }
 
 /** Format seconds as m:ss string */
@@ -666,42 +695,14 @@ export function formatFriendlyCDOverlapsForContext(groups: IFriendlyCDOverlapGro
 
 /** Minimum seconds two defensive buffs must coexist on the same target to count as a true overlap */
 const MIN_SIMULTANEOUS_SECONDS = 2;
-/** Max cast gap to bother checking aura overlap — no major defensive lasts longer than this */
-const MAX_CAST_GAP_FOR_OVERLAP_CHECK_S = 45;
-
 /**
- * Find when a specific spell aura was applied to a unit, starting at or after `afterMs`.
- * Returns {from, to} in absolute ms, or null if no matching application is found.
- * `to` is Infinity when the aura was never removed.
+ * Assumed minimum duration (seconds) for any major defensive. Used as a proxy for overlap
+ * detection when aura events can't be matched reliably (spell cast ID ≠ aura buff ID in WoW logs).
+ * Most majors last 8–12s; 8s is conservative enough to avoid false positives.
  */
-function getAuraDurationOnTarget(
-  target: ICombatUnit,
-  spellId: string,
-  afterMs: number,
-): { from: number; to: number } | null {
-  const applications: number[] = [];
-  const removals: number[] = [];
-
-  for (const aura of target.auraEvents) {
-    if (aura.spellId !== spellId) continue;
-    if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
-      applications.push(aura.timestamp);
-    } else if (
-      aura.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
-      aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
-      aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL
-    ) {
-      removals.push(aura.timestamp);
-    }
-  }
-
-  // Find the first application at or shortly after the cast (500ms grace for log jitter)
-  const applyTs = applications.find((t) => t >= afterMs - 500);
-  if (applyTs === undefined) return null;
-
-  const removeTs = removals.find((r) => r > applyTs);
-  return { from: applyTs, to: removeTs ?? Infinity };
-}
+const OVERLAP_ASSUME_DURATION_S = 8;
+/** Max cast gap to bother checking overlap — no major defensive lasts longer than this */
+const MAX_CAST_GAP_FOR_OVERLAP_CHECK_S = OVERLAP_ASSUME_DURATION_S;
 
 export interface IOverlappedDefensive {
   /** Timestamp of the first cast */
@@ -748,7 +749,8 @@ export function detectOverlappedDefensives(
   }> = [];
 
   for (const unit of friends) {
-    for (const action of unit.actionOut) {
+    // SPELL_CAST_SUCCESS events are in spellCastEvents, not actionOut
+    for (const action of unit.spellCastEvents) {
       if (action.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
       const spellId = action.spellId;
       if (!spellId || !MAJOR_DEFENSIVE_IDS.has(spellId)) continue;
@@ -779,16 +781,15 @@ export function detectOverlappedDefensives(
 
     for (let j = i + 1; j < casts.length; j++) {
       const second = casts[j];
-      if (second.timeSeconds - first.timeSeconds > MAX_CAST_GAP_FOR_OVERLAP_CHECK_S) break;
+      const gapSeconds = second.timeSeconds - first.timeSeconds;
+      if (gapSeconds > MAX_CAST_GAP_FOR_OVERLAP_CHECK_S) break;
       if (first.targetUnitId !== second.targetUnitId) continue;
       if (first.casterUnitId === second.casterUnitId) continue;
 
-      const durA = getAuraDurationOnTarget(targetUnit, first.spellId, first.castMs);
-      const durB = getAuraDurationOnTarget(targetUnit, second.spellId, second.castMs);
-      if (!durA || !durB) continue;
-
-      const overlapMs = Math.max(0, Math.min(durA.to, durB.to) - Math.max(durA.from, durB.from));
-      const simultaneousSeconds = overlapMs / 1000;
+      // Approximate overlap: assume each defensive lasts at least OVERLAP_ASSUME_DURATION_S.
+      // Aura event IDs often differ from cast spell IDs in WoW logs, making reliable aura
+      // duration lookup impossible. This conservative estimate avoids false negatives.
+      const simultaneousSeconds = OVERLAP_ASSUME_DURATION_S - gapSeconds;
       if (simultaneousSeconds < MIN_SIMULTANEOUS_SECONDS) continue;
 
       overlaps.push({
@@ -977,13 +978,17 @@ function offensiveThreatStartedAfter(
 
 /**
  * Detects major defensive casts where there is no sign of active enemy threat:
- * 1. No enemy has an Offensive-tagged self-buff active (e.g. Combustion, Recklessness)
- * 2. The defensive target has no Offensive-tagged debuff from an enemy (e.g. Deathmark, Colossus Smash)
- * 3. The target took < 250k damage in the 3 seconds immediately before the cast
- * 4. The target took < 250k damage in the 4 seconds immediately after the cast (pre-wall check)
- * 5. No enemy offensive CD was activated within 2 seconds after the cast (pre-wall check)
+ * 1. The defensive target has no Offensive-tagged debuff from an enemy (e.g. Deathmark, Colossus Smash)
+ * 2. The target took < threshold damage in the 3 seconds immediately before the cast
+ * 3. The target took < threshold damage in the 4 seconds immediately after the cast (pre-wall check)
+ * 4. No enemy offensive CD was activated within 2 seconds after the cast (pre-wall check)
  *
- * All five conditions must be true to flag a panic press.
+ * Note: we intentionally do NOT check whether any enemy has an offensive self-buff active
+ * (e.g. Combustion, Avatar). Those buffs have long durations and are almost always active on
+ * someone in arena, which would eliminate virtually every detection. The damage and debuff
+ * checks above are sufficient to distinguish legitimate pressure from panic presses.
+ *
+ * All conditions must be true to flag a panic press.
  */
 export function detectPanicDefensives(
   friends: ICombatUnit[],
@@ -996,7 +1001,8 @@ export function detectPanicDefensives(
   const results: IPanicDefensive[] = [];
 
   for (const unit of friends) {
-    for (const action of unit.actionOut) {
+    // SPELL_CAST_SUCCESS events are in spellCastEvents, not actionOut
+    for (const action of unit.spellCastEvents) {
       if (action.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
       const spellId = action.spellId;
       if (!spellId || !MAJOR_DEFENSIVE_IDS.has(spellId)) continue;
@@ -1006,26 +1012,23 @@ export function detectPanicDefensives(
       const castTimeSeconds = (castMs - combat.startTime) / 1000;
       const targetUnit = unitMap.get(action.destUnitId);
 
-      // 1. Enemy self-buffs: Combustion, Recklessness, etc.
-      if (enemies.some((e) => hasOffensiveSpellActive(e, castMs, null))) continue;
-
-      // 2. Offensive debuffs on the target from enemies: Deathmark, Colossus Smash, etc.
+      // 1. Offensive debuffs on the target from enemies: Deathmark, Colossus Smash, etc.
       if (targetUnit && hasOffensiveSpellActive(targetUnit, castMs, enemyIds)) continue;
 
-      // 3. Local pressure: raw damage to target in the 3s before this cast
+      // 2. Local pressure: raw damage to target in the 3s before this cast
       const pressureThreshold = targetUnit ? getPressureThreshold(targetUnit) : PANIC_PRESS_DAMAGE_THRESHOLD_DPS;
       const preCastDamage = (targetUnit?.damageIn ?? [])
         .filter((d) => d.logLine.timestamp >= castMs - PANIC_PRESS_PRE_CAST_WINDOW_MS && d.logLine.timestamp < castMs)
         .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
       if (preCastDamage >= pressureThreshold) continue;
 
-      // 4. Post-cast pressure: if the target took significant damage in the 4s after, it was a pre-wall
+      // 3. Post-cast pressure: if the target took significant damage in the 4s after, it was a pre-wall
       const postCastDamage = (targetUnit?.damageIn ?? [])
         .filter((d) => d.logLine.timestamp > castMs && d.logLine.timestamp <= castMs + PANIC_PRESS_POST_CAST_WINDOW_MS)
         .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
       if (postCastDamage >= pressureThreshold) continue;
 
-      // 5. Enemy burst started within 2s after the cast — valid pre-wall, not a panic
+      // 4. Enemy burst started within 2s after the cast — valid pre-wall, not a panic
       if (
         targetUnit &&
         offensiveThreatStartedAfter(targetUnit, enemies, enemyIds, castMs, ENEMY_BURST_POST_CAST_WINDOW_MS)

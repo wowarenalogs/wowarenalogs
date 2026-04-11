@@ -23,7 +23,7 @@ interface IProps {
   children?: React.ReactNode[] | React.ReactNode;
 }
 
-function isVersionLessThan(version: string, target: string): boolean {
+function _isVersionLessThan(version: string, target: string): boolean {
   const vParts = version.split('.').map(Number);
   const tParts = target.split('.').map(Number);
   for (let i = 0; i < Math.max(vParts.length, tParts.length); i++) {
@@ -41,7 +41,7 @@ export function MainLayout(props: IProps) {
   const auth = useAuth();
   const clientContext = useClientContext();
   const prevPathRef = useRef(pathname);
-  const [showUpgradeBanner, setShowUpgradeBanner] = useState(false);
+  const [showUpgradeBanner, _setShowUpgradeBanner] = useState(false);
   const [vodDiskWarning, setVodDiskWarning] = useState<{ bytesRemaining: number; driveLabel?: string } | null>(null);
   const [logDiskWarning, setLogDiskWarning] = useState<{ bytesRemaining: number; driveLabel?: string } | null>(null);
 

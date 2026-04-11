@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-04-08T20:06:07.201Z",
-  "gitCommit": "af8ad3af43f14d9debeec3ec39a17a601ed29fd7",
+  "generatedAt": "2026-04-11T20:48:28.471Z",
+  "gitCommit": "24929c3ebc01df6457344f32b60c382263cc9845",
   "files": {
     "spellEffects.json": {
       "description": "Per-spell cooldown, duration, dispelType from Wago.tools DB2",

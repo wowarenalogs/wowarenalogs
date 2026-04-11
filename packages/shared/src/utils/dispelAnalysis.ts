@@ -910,55 +910,11 @@ export function reconstructDispelSummary(
 
 export function formatDispelContextForAI(summary: IDispelSummary): string[] {
   const lines: string[] = [];
-  const { allyCleanse, ourPurges, hostilePurges, missedCleanseWindows, ccEfficiency, missedPurgeWindows } = summary;
+  const { missedCleanseWindows, ccEfficiency, missedPurgeWindows } = summary;
 
   lines.push('DISPEL ANALYSIS:');
 
-  lines.push('  Friendly cleanses (debuffs removed from our allies):');
-  if (allyCleanse.length === 0) {
-    lines.push('    None recorded');
-  } else {
-    for (const d of allyCleanse) {
-      let penaltyStr = '';
-      if (d.hasDispelPenalty) {
-        penaltyStr = ` ⚠ ${d.penaltyDescription}`;
-        if (d.penaltyDamageTaken !== undefined && d.penaltyDamageBaseline !== undefined) {
-          const post = Math.round(d.penaltyDamageTaken / 1000);
-          const pre = Math.round(d.penaltyDamageBaseline / 1000);
-          penaltyStr += ` — took ${post}k backlash (${pre}k baseline before dispel)`;
-        }
-      }
-      lines.push(
-        `    ${fmtTime(d.timeSeconds)} — [${d.sourceSpec}] cleansed ${d.removedSpellName} from ${d.targetName} [${d.priority}]${penaltyStr}`,
-      );
-    }
-  }
-
-  lines.push('  Our purges (buffs removed from enemies):');
-  if (ourPurges.length === 0) {
-    lines.push('    None recorded');
-  } else {
-    for (const d of ourPurges) {
-      const type = d.isSpellSteal ? 'spell-stole' : 'purged';
-      lines.push(
-        `    ${fmtTime(d.timeSeconds)} — [${d.sourceSpec}] ${type} ${d.removedSpellName} from enemy [${d.priority}]`,
-      );
-    }
-  }
-
-  lines.push('  Enemy purges (our buffs stripped by enemies):');
-  if (hostilePurges.length === 0) {
-    lines.push('    None recorded');
-  } else {
-    for (const d of hostilePurges) {
-      lines.push(
-        `    ${fmtTime(d.timeSeconds)} — enemy [${d.sourceSpec}] stripped ${d.removedSpellName} from ${d.targetName} [${d.priority}]`,
-      );
-    }
-  }
-
-  // Show Critical (hard CC) and High (roots, offensive debuffs) missed cleanses.
-  // High priority ones only shown if they lasted >5s or had meaningful damage, to reduce noise.
+  // Only Critical hard CC and significant High CC — avoid flooding the prompt with low-value cleanse logs.
   const significantMissed = missedCleanseWindows.filter(
     (w) => w.priority === 'Critical' || (w.priority === 'High' && (w.durationSeconds > 5 || w.postCcDamage > 50_000)),
   );
