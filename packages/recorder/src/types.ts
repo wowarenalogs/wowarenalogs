@@ -142,7 +142,10 @@ export type ObsProperty = {
 };
 
 export type Signal = {
+  type: string;
   id: string;
+  code: number;
+  value?: number;
 };
 
 export type Noobs = {
@@ -194,6 +197,7 @@ export type Noobs = {
   HidePreview: () => void;
   ConfigurePreview: (x: number, y: number, width: number, height: number) => void;
   ShowPreview: () => void;
+  SetVolmeterEnabled: (enabled: boolean) => void;
 };
 
 export type ConfigStage = {
