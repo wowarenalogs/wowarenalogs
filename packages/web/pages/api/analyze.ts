@@ -11,6 +11,8 @@ Core rules:
 - For purge analysis: check PURGE RESPONSIBILITY before attributing missed purges. Do not blame the log owner for purges if they cannot offensive purge.
 
 Your task:
+The CRITICAL MOMENTS section represents the most important events in the match. Interpret them as a sequence where earlier events constrain later options — not as independent problems. Use the MATCH FLOW section to understand the causal structure before evaluating individual moments. Use supporting data only to verify or refine your conclusions, not to introduce unrelated issues.
+
 For each CRITICAL MOMENT listed in the input, evaluate the decision:
 1. Was this the correct trade given the available information?
 2. What was the most likely alternative decision?

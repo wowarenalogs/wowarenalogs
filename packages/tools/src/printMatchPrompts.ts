@@ -124,14 +124,22 @@ async function parseLogText(text: string): Promise<ParsedCombat[]> {
 // (cannot import that file due to React dependencies)
 // ---------------------------------------------------------------------------
 
+type MomentRole = 'Constraint' | 'Kill' | 'Trade' | 'Setup';
+
 interface CriticalMoment {
   timeSeconds: number;
   impactScore: number;
   impactLabel: 'Critical' | 'High' | 'Moderate';
+  roleLabel: MomentRole;
   title: string;
   enemyState: string;
   friendlyState: string;
   whatHappened: string;
+  implication?: string[];
+  mechanicalAvailability: string[];
+  interpretation: string[];
+  tieredOptions?: { realistic: string[]; limited: string[]; unavailable: string[] };
+  finalAssessment?: { macroOutcome: string; microMistakes: string[] };
   availableOptions: string;
   uncertainty: string;
   isDeath?: boolean;
@@ -260,6 +268,131 @@ function findContributingDeath(
   );
 }
 
+function buildKillMomentFields(
+  deathTimeSeconds: number,
+  cooldowns: IMajorCooldownInfo[],
+  dyingPlayerCC: IPlayerCCTrinketSummary | undefined,
+  constrainedTradePreceded: boolean,
+): {
+  mechanicalAvailability: string[];
+  interpretation: string[];
+  tieredOptions: { realistic: string[]; limited: string[]; unavailable: string[] };
+  finalAssessment: { macroOutcome: string; microMistakes: string[] } | undefined;
+} {
+  const mechAvail: string[] = [];
+  const interp: string[] = [];
+  const CC_LOOKBACK = 15;
+
+  for (const cd of cooldowns) {
+    if (cd.tag !== 'Defensive') continue;
+    const lastCast = cd.casts.filter((c) => c.timeSeconds <= deathTimeSeconds).slice(-1)[0];
+    if (!lastCast) {
+      mechAvail.push(
+        cd.neverUsed ? `${cd.spellName}: never used — available` : `${cd.spellName}: not yet used — available`,
+      );
+    } else {
+      const readyAt = lastCast.timeSeconds + cd.cooldownSeconds;
+      mechAvail.push(
+        readyAt > deathTimeSeconds
+          ? `${cd.spellName}: on CD (last used ${fmtTime(lastCast.timeSeconds)})`
+          : `${cd.spellName}: available since ${fmtTime(readyAt)}`,
+      );
+    }
+  }
+
+  const nearDeathTrinketAvailable = dyingPlayerCC?.ccInstances.find(
+    (cc) =>
+      cc.atSeconds <= deathTimeSeconds &&
+      cc.atSeconds >= deathTimeSeconds - CC_LOOKBACK &&
+      cc.trinketState === 'available_unused',
+  );
+  mechAvail.push(
+    nearDeathTrinketAvailable
+      ? `Trinket available at ${fmtTime(nearDeathTrinketAvailable.atSeconds)} during ${nearDeathTrinketAvailable.spellName} — not used`
+      : 'Trinket: on cooldown or already spent',
+  );
+
+  if (constrainedTradePreceded) {
+    interp.push('No direct defensive response possible at death — resource exhausted by opening burst trade');
+  } else {
+    const spentCDs = cooldowns.filter((cd) => {
+      if (cd.tag !== 'Defensive') return false;
+      const lastCast = cd.casts.filter((c) => c.timeSeconds <= deathTimeSeconds).slice(-1)[0];
+      if (!lastCast) return false;
+      return lastCast.timeSeconds + cd.cooldownSeconds > deathTimeSeconds;
+    });
+    if (spentCDs.length > 0) interp.push(`Major defensives spent: ${spentCDs.map((cd) => cd.spellName).join(', ')}`);
+  }
+  if (nearDeathTrinketAvailable) {
+    interp.push(
+      `Trinket during ${nearDeathTrinketAvailable.spellName} at ${fmtTime(nearDeathTrinketAvailable.atSeconds)} could have created a short survival window`,
+    );
+  }
+  const nearDeathMeleeCC = dyingPlayerCC?.ccInstances.find(
+    (cc) =>
+      cc.atSeconds <= deathTimeSeconds &&
+      cc.atSeconds >= deathTimeSeconds - CC_LOOKBACK &&
+      cc.distanceYards !== null &&
+      cc.distanceYards <= 8,
+  );
+  if (nearDeathMeleeCC) {
+    interp.push(
+      `Melee-range CC (${nearDeathMeleeCC.spellName} at ${nearDeathMeleeCC.distanceYards?.toFixed(0)}yd) may indicate positioning contributed to exposure (uncertain)`,
+    );
+  }
+
+  // Three-tier option breakdown
+  const tieredOptions = {
+    realistic: [] as string[],
+    limited: [] as string[],
+    unavailable: [] as string[],
+  };
+  if (nearDeathTrinketAvailable) {
+    tieredOptions.realistic.push(
+      `Trinket during ${nearDeathTrinketAvailable.spellName} at ${fmtTime(nearDeathTrinketAvailable.atSeconds)} — only immediate actionable response`,
+    );
+  }
+  if (nearDeathMeleeCC) {
+    tieredOptions.limited.push(`Minor positioning adjustments to avoid melee-range CC (uncertain feasibility)`);
+  }
+  const defensiveCDs = cooldowns.filter((cd) => cd.tag === 'Defensive');
+  const allDefensivesSpent =
+    defensiveCDs.length > 0 &&
+    defensiveCDs.every((cd) => {
+      const lastCast = cd.casts.filter((c) => c.timeSeconds <= deathTimeSeconds).slice(-1)[0];
+      if (!lastCast) return false; // never-used = available, not spent
+      return lastCast.timeSeconds + cd.cooldownSeconds > deathTimeSeconds;
+    });
+  if (constrainedTradePreceded || allDefensivesSpent) {
+    tieredOptions.unavailable.push(`No major defensive CDs available (all committed earlier in the match)`);
+  }
+
+  // Final assessment: structural context + micro-level facts (no pre-drawn verdict)
+  let finalAssessment: { macroOutcome: string; microMistakes: string[] } | undefined;
+  if (constrainedTradePreceded) {
+    const microMistakes: string[] = [];
+    if (nearDeathTrinketAvailable) {
+      microMistakes.push(
+        `Trinket not used at ${fmtTime(nearDeathTrinketAvailable.atSeconds)} (minor survival extension possible)`,
+      );
+    }
+    if (nearDeathMeleeCC) {
+      microMistakes.push(`Positioning allowed melee-range ${nearDeathMeleeCC.spellName} (uncertain impact)`);
+    }
+    finalAssessment = {
+      macroOutcome: 'All major defensive CDs committed in opening trade with no recovery window before this death',
+      microMistakes,
+    };
+  }
+
+  return {
+    mechanicalAvailability: mechAvail,
+    interpretation: interp,
+    tieredOptions,
+    finalAssessment,
+  };
+}
+
 function identifyCriticalMoments(
   isHealer: boolean,
   cooldowns: IMajorCooldownInfo[],
@@ -270,8 +403,54 @@ function identifyCriticalMoments(
   overlappedDefensives: IOverlappedDefensive[],
   ccTrinketSummaries: IPlayerCCTrinketSummary[],
   peakDamagePressure5s: number,
-): CriticalMoment[] {
+  durationSeconds: number,
+): { moments: CriticalMoment[]; constrainedTrade: boolean } {
   const moments: CriticalMoment[] = [];
+
+  // 0. ConstrainedTrade gate
+  const burstsSorted = [...enemyCDTimeline.alignedBurstWindows].sort((a, b) => a.fromSeconds - b.fromSeconds);
+  const firstBurst = burstsSorted[0];
+  let constrainedTradePreceded = false;
+
+  if (firstBurst && firstBurst.dangerScore >= 5.0 && friendlyDeaths.length > 0) {
+    const tradedDefCDs = cooldowns.filter((cd) => {
+      if (cd.tag !== 'Defensive') return false;
+      return cd.casts.some(
+        (c) => c.timeSeconds >= firstBurst.fromSeconds - 5 && c.timeSeconds <= firstBurst.toSeconds + 5,
+      );
+    });
+    if (tradedDefCDs.length > 0) {
+      const minCooldown = Math.min(...tradedDefCDs.map((cd) => cd.cooldownSeconds));
+      if (durationSeconds < minCooldown) {
+        constrainedTradePreceded = true;
+        const cdNames = tradedDefCDs.map((cd) => cd.spellName).join(' + ');
+        const enemyState = getEnemyStateAtTime(firstBurst.fromSeconds, enemyCDTimeline, peakDamagePressure5s);
+        moments.push({
+          timeSeconds: firstBurst.fromSeconds,
+          impactScore: 90,
+          impactLabel: 'Critical',
+          roleLabel: 'Constraint',
+          title: 'Opening burst forced full defensive trade',
+          enemyState,
+          friendlyState: `${cdNames} committed to survive the burst`,
+          whatHappened: `${cdNames} committed at ~${fmtTime(firstBurst.fromSeconds + 2)} to survive burst (${Math.round(peakDamagePressure5s / 1000)}k peak). Trade was likely correct given burst strength.`,
+          implication: [
+            `All major defensive CDs committed with no recovery window in a ${fmtTime(durationSeconds)} match`,
+            'Any subsequent burst window would have no defensive answer available',
+          ],
+          mechanicalAvailability: tradedDefCDs.map(
+            (cd) => `${cd.spellName}: committed — on CD until ~${fmtTime(firstBurst.fromSeconds + cd.cooldownSeconds)}`,
+          ),
+          interpretation: [
+            `Trade was likely correct — burst score ${firstBurst.dangerScore.toFixed(1)}, peak ${Math.round(peakDamagePressure5s / 1000)}k`,
+            'Holding any single CD risked death; the constraint is the match duration, not the decision',
+          ],
+          availableOptions: '',
+          uncertainty: 'Cannot confirm HP% during burst or whether a partial CD hold was viable.',
+        });
+      }
+    }
+  }
 
   for (const death of friendlyDeaths) {
     const enemyState = getEnemyStateAtTime(death.atSeconds, enemyCDTimeline, peakDamagePressure5s);
@@ -282,14 +461,25 @@ function identifyCriticalMoments(
       : `${death.spec} died at ${fmtTime(death.atSeconds)}.`;
     const dyingPlayerCC = ccTrinketSummaries.find((s) => s.playerName === death.name);
     const rootCauseTrace = buildDeathRootCauseTrace(death.atSeconds, cooldowns, dyingPlayerCC);
+    const { mechanicalAvailability, interpretation, tieredOptions, finalAssessment } = buildKillMomentFields(
+      death.atSeconds,
+      cooldowns,
+      dyingPlayerCC,
+      constrainedTradePreceded,
+    );
     moments.push({
       timeSeconds: death.atSeconds,
       impactScore: 100,
       impactLabel: 'Critical',
+      roleLabel: 'Kill',
       title: `${death.spec} death`,
       enemyState,
       friendlyState: cdState,
       whatHappened,
+      mechanicalAvailability,
+      interpretation,
+      tieredOptions,
+      finalAssessment,
       availableOptions: cdState,
       uncertainty:
         'Log cannot confirm healer position, line-of-sight, or exact HP% at time of death. Cause of death may involve prior damage not reflected in the nearest pressure window.',
@@ -314,10 +504,13 @@ function identifyCriticalMoments(
         timeSeconds: gap.fromSeconds,
         impactScore: score,
         impactLabel: score >= 70 ? 'High' : 'Moderate',
+        roleLabel: gapContributingDeath ? 'Setup' : 'Trade',
         title: `Healing gap — ${gap.mostDamagedSpec} took ${dmgK}k while healer had free-cast time`,
         enemyState,
         friendlyState: `Healer had ${gap.freeCastSeconds.toFixed(1)}s free-cast time in a ${gap.durationSeconds.toFixed(1)}s gap. ${cdState}`,
         whatHappened: `Healer cast no heals or spells from ${fmtTime(gap.fromSeconds)} to ${fmtTime(gap.toSeconds)} (${gap.durationSeconds.toFixed(1)}s total, ${gap.freeCastSeconds.toFixed(1)}s free). ${gap.mostDamagedSpec} (${gap.mostDamagedName}) took ${dmgK}k damage.`,
+        mechanicalAvailability: [],
+        interpretation: [],
         availableOptions: `Healer had free-cast time — instant-cast heals and available CDs were options. ${cdState}`,
         uncertainty:
           'Log cannot confirm healer position or LoS. Mana state is not tracked. The gap may reflect intentional repositioning not visible in combat events.',
@@ -335,10 +528,13 @@ function identifyCriticalMoments(
       timeSeconds: panic.timeSeconds,
       impactScore: 60,
       impactLabel: 'High',
+      roleLabel: panicContributingDeath ? 'Setup' : 'Trade',
       title: `Panic defensive — ${panic.spellName} used with no enemy burst detected`,
       enemyState,
       friendlyState: cdState,
       whatHappened: `${panic.casterSpec} (${panic.casterName}) cast ${panic.spellName} on ${panic.targetSpec} (${panic.targetName}) at ${fmtTime(panic.timeSeconds)}, but no significant enemy pressure was detected in the surrounding 7-second window.`,
+      mechanicalAvailability: [],
+      interpretation: [],
       availableOptions: `Holding ${panic.spellName} for a confirmed burst window would provide stronger coverage at the cost of a potentially risky undefended interval.`,
       uncertainty:
         'Log may miss absorbed damage that preceded the cast. Enemy intent and exact HP% cannot be confirmed from combat log events alone.',
@@ -354,12 +550,14 @@ function identifyCriticalMoments(
       timeSeconds: overlap.timeSeconds,
       impactScore: 50,
       impactLabel: 'Moderate',
+      roleLabel: overlapContributingDeath ? 'Setup' : 'Trade',
       title: `Defensive overlap — ${overlap.firstSpellName} + ${overlap.secondSpellName} simultaneously on ${overlap.targetName}`,
       enemyState,
       friendlyState: `${overlap.firstCasterSpec} used ${overlap.firstSpellName} at ${fmtTime(overlap.timeSeconds)}; ${overlap.secondCasterSpec} used ${overlap.secondSpellName} at ${fmtTime(overlap.secondCastTimeSeconds)} — simultaneous for ${overlap.simultaneousSeconds.toFixed(1)}s.`,
       whatHappened: `Two major defensives were stacked on ${overlap.targetName} for ${overlap.simultaneousSeconds.toFixed(1)}s of overlapping coverage, wasting effective duration of one CD.`,
-      availableOptions:
-        'Cannot determine if simultaneous stacking was required to survive a spike — HP values during this window are not fully tracked in the log.',
+      mechanicalAvailability: [],
+      interpretation: [],
+      availableOptions: `Staggering the CDs would extend total coverage by ~${Math.round(overlap.simultaneousSeconds)}s. Optimal: ${overlap.secondCasterSpec} waits for ${overlap.firstSpellName} to expire before pressing ${overlap.secondSpellName}.`,
       uncertainty:
         'Cannot determine if simultaneous stacking was required to survive a spike — HP values during this window are not fully tracked in the log.',
       contributingDeathSpec: overlapContributingDeath?.spec,
@@ -367,7 +565,113 @@ function identifyCriticalMoments(
     });
   }
 
-  return moments.sort((a, b) => b.impactScore - a.impactScore).slice(0, 3);
+  return {
+    moments: moments.sort((a, b) => b.impactScore - a.impactScore).slice(0, 3),
+    constrainedTrade: constrainedTradePreceded,
+  };
+}
+
+function buildMatchFlow(
+  enemyCDTimeline: IEnemyCDTimeline,
+  ownerCooldowns: IMajorCooldownInfo[],
+  allTeamCooldowns: IMajorCooldownInfo[],
+  friendlyDeaths: Array<{ spec: string; atSeconds: number }>,
+  durationSeconds: number,
+): string[] {
+  const lines: string[] = [];
+  const bursts = [...enemyCDTimeline.alignedBurstWindows].sort((a, b) => a.fromSeconds - b.fromSeconds);
+  const firstDeath = friendlyDeaths[0];
+
+  lines.push('MATCH FLOW:');
+  lines.push('');
+
+  if (bursts.length === 0) {
+    lines.push('  No coordinated enemy bursts detected — match resolved through sustained pressure.');
+    if (firstDeath) lines.push(`  → ${firstDeath.spec} died at ${fmtTime(firstDeath.atSeconds)}.`);
+    lines.push('');
+    return lines;
+  }
+
+  const firstBurst = bursts[0];
+
+  lines.push(`  Opening Burst (${fmtTime(firstBurst.fromSeconds)}–${fmtTime(firstBurst.toSeconds)}):`);
+  const burstCDNames = firstBurst.activeCDs.map((c) => c.spellName).join(' + ');
+  lines.push(`    - Enemy aligned burst (${firstBurst.dangerLabel} — ${burstCDNames})`);
+
+  const tradedDefs: string[] = [];
+  for (const cd of allTeamCooldowns) {
+    if (cd.tag !== 'Defensive') continue;
+    const traded = cd.casts.find(
+      (c) => c.timeSeconds >= firstBurst.fromSeconds - 5 && c.timeSeconds <= firstBurst.toSeconds + 5,
+    );
+    if (traded) tradedDefs.push(cd.spellName);
+  }
+  if (tradedDefs.length > 0) {
+    lines.push(`    - Team responded: ${tradedDefs.join(' + ')} committed`);
+  } else {
+    lines.push(`    - No major defensive CDs traded into this burst`);
+  }
+
+  const shortestTradedCooldown = ownerCooldowns
+    .filter((cd) => cd.tag === 'Defensive' && tradedDefs.includes(cd.spellName))
+    .reduce<number | null>((min, cd) => (min === null ? cd.cooldownSeconds : Math.min(min, cd.cooldownSeconds)), null);
+  if (shortestTradedCooldown !== null && durationSeconds < shortestTradedCooldown) {
+    lines.push(
+      `    - Match duration (${fmtTime(durationSeconds)}) did not allow any major cooldown recovery after this trade`,
+    );
+    lines.push(`    - This match contained only one full cooldown cycle`);
+  }
+  lines.push('');
+
+  const secondBurst = bursts[1];
+  const midEnd = secondBurst ? secondBurst.fromSeconds : firstDeath ? firstDeath.atSeconds - 5 : durationSeconds - 5;
+  if (midEnd - firstBurst.toSeconds > 5) {
+    lines.push(`  Post-Trade Window (${fmtTime(firstBurst.toSeconds)}–${fmtTime(midEnd)}):`);
+    const ownerDefsAvailable = ownerCooldowns.filter((cd) => {
+      if (cd.tag !== 'Defensive') return false;
+      const lastCast = cd.casts.filter((c) => c.timeSeconds <= firstBurst.toSeconds).slice(-1)[0];
+      if (!lastCast) return true; // never-used or not yet cast — still available
+      return lastCast.timeSeconds + cd.cooldownSeconds <= midEnd;
+    });
+    if (ownerDefsAvailable.length === 0) {
+      lines.push(`    - No major defensive CDs available on owner during this window`);
+    }
+    if (!secondBurst) {
+      lines.push(`    - No coordinated enemy burst — both sides recovering CDs`);
+    }
+    lines.push('');
+  }
+
+  const finalBurst = bursts.length >= 2 ? bursts[bursts.length - 1] : undefined;
+  const finalEndTime = firstDeath?.atSeconds ?? durationSeconds;
+
+  if (finalBurst) {
+    lines.push(`  Final Burst (${fmtTime(finalBurst.fromSeconds)}–${fmtTime(finalEndTime)}):`);
+    const finalCDNames = finalBurst.activeCDs.map((c) => c.spellName).join(' + ');
+    lines.push(`    - Enemy burst (${finalBurst.dangerLabel} — ${finalCDNames})`);
+  } else {
+    lines.push(`  Final Phase (${fmtTime(firstBurst.toSeconds)}–${fmtTime(finalEndTime)}):`);
+  }
+
+  const spentAtEnd = ownerCooldowns
+    .filter((cd) => cd.tag === 'Defensive')
+    .filter((cd) => {
+      const lastCast = cd.casts.filter((c) => c.timeSeconds <= finalEndTime).slice(-1)[0];
+      if (!lastCast) return false;
+      return lastCast.timeSeconds + cd.cooldownSeconds > finalEndTime;
+    })
+    .map((cd) => cd.spellName);
+  if (spentAtEnd.length > 0) {
+    lines.push(`    - ${firstDeath ? 'At death' : 'At match end'}: ${spentAtEnd.join(', ')} on cooldown`);
+  }
+  lines.push(
+    firstDeath
+      ? `    - → ${firstDeath.spec} died at ${fmtTime(firstDeath.atSeconds)}`
+      : `    - → No friendly deaths — match ended in a win`,
+  );
+  lines.push('');
+
+  return lines;
 }
 
 // ---------------------------------------------------------------------------
@@ -465,7 +769,8 @@ function buildMatchPrompt(combat: ParsedCombat): string {
     healerExposures,
   );
 
-  const criticalMoments = identifyCriticalMoments(
+  // constrainedTrade flag reused for CC section framing
+  const { moments: criticalMoments, constrainedTrade: hasConstrainedTrade } = identifyCriticalMoments(
     healer,
     cooldowns,
     enemyCDTimeline,
@@ -475,6 +780,7 @@ function buildMatchPrompt(combat: ParsedCombat): string {
     overlappedDefensives,
     ccTrinketSummaries,
     matchArchetype.peakDamagePressure5s,
+    durationSeconds,
   );
 
   const ownerCanPurge = canOffensivePurge(owner);
@@ -499,31 +805,93 @@ function buildMatchPrompt(combat: ParsedCombat): string {
   lines.push('');
   formatMatchArchetypeForContext(matchArchetype).forEach((l) => lines.push(l));
 
-  // ── CRITICAL MOMENTS ───────────────────────────────────────────────────────
+  // ── MATCH FLOW ─────────────────────────────────────────────────────────────
   lines.push('');
-  lines.push('CRITICAL MOMENTS (top 3 by estimated match impact — evaluate each):');
+  const allTeamCooldownsFlat = [cooldowns, ...teammateCooldowns.map(({ cds }) => cds)].flat();
+  buildMatchFlow(enemyCDTimeline, cooldowns, allTeamCooldownsFlat, friendlyDeaths, durationSeconds).forEach((l) =>
+    lines.push(l),
+  );
+
+  // ── CRITICAL MOMENTS ───────────────────────────────────────────────────────
+  lines.push('CRITICAL MOMENTS (interpret as a sequence where earlier events constrain later options):');
   lines.push('');
 
   if (criticalMoments.length === 0) {
     lines.push('  No critical moments identified from available data.');
   } else {
     criticalMoments.forEach((m, i) => {
-      lines.push(`--- MOMENT ${i + 1} (impact: ${m.impactLabel}) ---`);
+      const impactStr = m.roleLabel === 'Constraint' ? 'Context-setting — not a mistake' : m.impactLabel;
+      lines.push(`--- MOMENT ${i + 1} (${m.roleLabel}) (impact: ${impactStr}) ---`);
       lines.push(`${fmtTime(m.timeSeconds)} — ${m.title}`);
-      if (!m.isDeath && m.contributingDeathSpec !== undefined && m.contributingDeathAtSeconds !== undefined) {
-        const deltaSeconds = Math.round(m.contributingDeathAtSeconds - m.timeSeconds);
-        lines.push(
-          `  Contributing factor: ${m.contributingDeathSpec} died ${deltaSeconds}s later at ${fmtTime(m.contributingDeathAtSeconds)}`,
-        );
-      }
       lines.push(`  Enemy state: ${m.enemyState}`);
-      lines.push(`  Friendly state: ${m.friendlyState}`);
-      lines.push(`  What happened: ${m.whatHappened}`);
-      if (m.rootCauseTrace && m.rootCauseTrace.length > 0) {
-        lines.push(`  Root cause trace (why the death happened — trace back from here):`);
-        m.rootCauseTrace.forEach((t) => lines.push(`    - ${t}`));
+
+      if (m.roleLabel === 'Constraint') {
+        lines.push(
+          `  NOTE: This moment is not a mistake. It defines the resource constraints for the rest of the match.`,
+        );
+        lines.push(`  What happened: ${m.whatHappened}`);
+        if (m.implication && m.implication.length > 0) {
+          lines.push(`  Implication:`);
+          m.implication.forEach((l) => lines.push(`    - ${l}`));
+        }
+      } else {
+        if (m.roleLabel !== 'Kill') {
+          lines.push(`  Friendly state: ${m.friendlyState}`);
+          if (!m.isDeath && m.contributingDeathSpec !== undefined && m.contributingDeathAtSeconds !== undefined) {
+            const deltaSeconds = Math.round(m.contributingDeathAtSeconds - m.timeSeconds);
+            lines.push(
+              `  ⚠ Contributing factor: ${m.contributingDeathSpec} died ${deltaSeconds}s later at ${fmtTime(m.contributingDeathAtSeconds)}`,
+            );
+          }
+        }
+        lines.push(`  What happened: ${m.whatHappened}`);
+        if (m.rootCauseTrace && m.rootCauseTrace.length > 0) {
+          lines.push(`  Root cause trace (why the death happened — trace back from here):`);
+          m.rootCauseTrace.forEach((t) => lines.push(`    - ${t}`));
+        }
       }
-      lines.push(`  Available options: ${m.availableOptions}`);
+
+      // Kill moments: use three-tier options; others: flat list or legacy availableOptions
+      if (m.roleLabel === 'Kill' && m.tieredOptions) {
+        const { realistic, limited, unavailable } = m.tieredOptions;
+        if (realistic.length > 0 || limited.length > 0 || unavailable.length > 0) {
+          lines.push(`  Possible responses (given constraints from earlier moments):`);
+          if (realistic.length > 0) {
+            lines.push(`    Realistic options:`);
+            realistic.forEach((o) => lines.push(`      - ${o}`));
+          }
+          if (limited.length > 0) {
+            lines.push(`    Limited options:`);
+            limited.forEach((o) => lines.push(`      - ${o}`));
+          }
+          if (unavailable.length > 0) {
+            lines.push(`    Unavailable:`);
+            unavailable.forEach((o) => lines.push(`      - ${o}`));
+          }
+        }
+      } else if (m.mechanicalAvailability.length > 0 || m.interpretation.length > 0) {
+        lines.push(`  Possible responses at this moment (given constraints from earlier moments):`);
+        if (m.mechanicalAvailability.length > 0) {
+          lines.push(`    Mechanical availability:`);
+          m.mechanicalAvailability.forEach((a) => lines.push(`      - ${a}`));
+        }
+        if (m.interpretation.length > 0) {
+          lines.push(`    Interpretation:`);
+          m.interpretation.forEach((interp) => lines.push(`      - ${interp}`));
+        }
+      } else if (m.roleLabel !== 'Constraint' && m.roleLabel !== 'Kill') {
+        lines.push(`  Available options: ${m.availableOptions}`);
+      }
+
+      if (m.finalAssessment) {
+        lines.push(`  Structural context:`);
+        lines.push(`    - ${m.finalAssessment.macroOutcome}`);
+        if (m.finalAssessment.microMistakes.length > 0) {
+          lines.push(`    Micro-level opportunities:`);
+          m.finalAssessment.microMistakes.forEach((mm) => lines.push(`      - ${mm}`));
+        }
+      }
+
       lines.push(`  Uncertainty: ${m.uncertainty}`);
       lines.push('');
     });
@@ -644,6 +1012,11 @@ function buildMatchPrompt(combat: ParsedCombat): string {
   if (outgoingCCLines.length > 0) {
     lines.push('');
     outgoingCCLines.forEach((l) => lines.push(l));
+    if (hasConstrainedTrade && friendlyDeaths.length > 0) {
+      lines.push(
+        `  Note: CC casts in the final phase of this match had limited follow-up potential — major defensive resources were exhausted.`,
+      );
+    }
   }
 
   lines.push('');
