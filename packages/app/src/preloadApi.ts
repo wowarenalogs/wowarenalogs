@@ -104,5 +104,8 @@ export const modulesApi = {
       ipcRenderer.on('wowarenalogs:obs:diskSpaceBecameCritical', callback),
     removeAll_diskSpaceBecameCritical_listeners: () =>
       ipcRenderer.removeAllListeners('wowarenalogs:obs:diskSpaceBecameCritical'),
+    audioVolumeChanged: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+      ipcRenderer.on('wowarenalogs:obs:audioVolumeChanged', callback),
+    removeAll_audioVolumeChanged_listeners: () => ipcRenderer.removeAllListeners('wowarenalogs:obs:audioVolumeChanged'),
   },
 };

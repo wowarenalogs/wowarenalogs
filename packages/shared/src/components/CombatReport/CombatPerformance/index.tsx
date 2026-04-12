@@ -1,6 +1,6 @@
 import { CombatAbsorbAction, CombatHpUpdateAction } from '@wowarenalogs/parser';
 import _ from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Utils } from '../../../utils/utils';
 import { CHART_TIME_INTERVAL_S, getDataPoint } from '../CombatCurves/constants';
@@ -205,11 +205,7 @@ export const CombatPerformance = () => {
     return Array.from(spellMap.entries()).map(([id, name]) => ({ id, name }));
   }, [actionsForMode]);
 
-  if (!combat || !activePlayer) {
-    return null;
-  }
-
-  const combatDuration = Math.max((combat.endTime - combat.startTime) / 1000, 1);
+  const combatDuration = Math.max(combat ? (combat.endTime - combat.startTime) / 1000 : 1, 1);
   const totalOutput = spellStats.reduce((sum, spell) => sum + spell.total, 0);
   const totalLabel =
     activeMode === 'damage' ? 'Total Damage' : activeMode === 'taken' ? 'Damage Taken' : 'Total Healing';
@@ -220,6 +216,47 @@ export const CombatPerformance = () => {
       : activeMode === 'taken'
         ? 'Damage Taken (per second)'
         : 'Healing Done (per second)';
+
+  const exportCsv = useCallback(() => {
+    const header = ['Ability', 'Amount', 'Casts', 'Hits', 'Avg Hit', 'Max Hit', 'Max Crit Hit', 'Crit %', rateLabel];
+    const rows = spellStats.map((spell) => {
+      const casts = spellCastCounts.get(spell.id) ?? 0;
+      const critRate = spell.hits ? (100 * spell.crits) / spell.hits : 0;
+      const avgHit = spell.hits ? spell.total / spell.hits : 0;
+      return [
+        spell.name,
+        spell.total,
+        casts || 0,
+        spell.hits,
+        Math.round(avgHit),
+        spell.maxHit,
+        spell.maxCritHit,
+        critRate.toFixed(1),
+        Math.round(spell.total / combatDuration),
+      ];
+    });
+    const csvContent = [header, ...rows].map((r) => r.map((v) => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const matchType = combat
+      ? combat.dataType === 'ShuffleRound'
+        ? `${combat.startInfo.bracket}_Round${combat.sequenceNumber + 1}`
+        : combat.startInfo.bracket
+      : 'match';
+    const date = combat
+      ? new Date(combat.startTime).toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '-')
+      : 'unknown';
+    const playerName = activePlayer?.name?.split('-')[0] ?? 'player';
+    a.download = `${matchType}_${date}_${playerName}_${activeMode}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [spellStats, spellCastCounts, rateLabel, combatDuration, activePlayer, activeMode, combat]);
+
+  if (!combat || !activePlayer) {
+    return null;
+  }
 
   return (
     <div className="flex flex-row flex-1">
@@ -310,6 +347,18 @@ export const CombatPerformance = () => {
         </div>
 
         <div className="mt-4 rounded-box border border-base-300 bg-base-200">
+          <div className="flex items-center justify-end px-3 pt-2">
+            <button className="btn btn-ghost btn-xs gap-1 opacity-70 hover:opacity-100" onClick={exportCsv}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Export CSV
+            </button>
+          </div>
           <table className="table table-compact w-full">
             <thead>
               <tr>

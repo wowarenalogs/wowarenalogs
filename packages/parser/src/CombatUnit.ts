@@ -109,8 +109,6 @@ export class CombatUnit implements ICombatUnit {
 
   public startTime = 0;
   public endTime = 0;
-  private reactionProofs: Map<CombatUnitReaction, number> = new Map<CombatUnitReaction, number>();
-  private typeProofs: Map<CombatUnitType, number> = new Map<CombatUnitType, number>();
   private classProofs: Map<CombatUnitClass, number> = new Map<CombatUnitClass, number>();
 
   constructor(id: string, name: string) {
@@ -131,11 +129,9 @@ export class CombatUnit implements ICombatUnit {
   }
 
   public proveReaction(reaction: CombatUnitReaction) {
-    if (!this.reactionProofs.has(reaction)) {
-      this.reactionProofs.set(reaction, 0);
+    if (this.reaction === CombatUnitReaction.Neutral) {
+      this.reaction = reaction;
     }
-
-    this.reactionProofs.set(reaction, (this.reactionProofs.get(reaction) || 0) + 1);
   }
 
   public proveOwner(ownerId: string) {
@@ -145,11 +141,9 @@ export class CombatUnit implements ICombatUnit {
   }
 
   public proveType(type: CombatUnitType) {
-    if (!this.typeProofs.has(type)) {
-      this.typeProofs.set(type, 0);
+    if (type !== CombatUnitType.None) {
+      this.type = type;
     }
-
-    this.typeProofs.set(type, (this.typeProofs.get(type) || 0) + 1);
   }
 
   public endActivity() {
@@ -180,24 +174,6 @@ export class CombatUnit implements ICombatUnit {
   }
 
   public end() {
-    if (this.typeProofs.size > 0) {
-      const proofs: [CombatUnitType, number][] = [];
-      this.typeProofs.forEach((value, key) => {
-        proofs.push([key, value]);
-      });
-      const sorted = proofs.sort((a, b) => b[1] - a[1]);
-      this.type = sorted[0][0];
-    }
-
-    if (this.reactionProofs.size > 0) {
-      const proofs: [CombatUnitReaction, number][] = [];
-      this.reactionProofs.forEach((value, key) => {
-        proofs.push([key, value]);
-      });
-      const sorted = proofs.sort((a, b) => b[1] - a[1]);
-      this.reaction = sorted[0][0];
-    }
-
     if (this.classProofs.size > 0) {
       const proofs: [CombatUnitClass, number][] = [];
       this.classProofs.forEach((value, key) => {

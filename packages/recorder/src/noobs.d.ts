@@ -38,6 +38,7 @@ declare module 'noobs' {
     id: string;
     code: number;
     value?: number;
+    sourceName?: string;
   };
 
   export type FileExtension = 'mp4' | 'mkv';
@@ -81,6 +82,7 @@ declare module 'noobs' {
     ConfigurePreview(x: number, y: number, width: number, height: number): void;
     ShowPreview(): void;
     HidePreview(): void;
+    SetVolmeterEnabled(enabled: boolean): void;
   }
 
   const noobs: Noobs;
