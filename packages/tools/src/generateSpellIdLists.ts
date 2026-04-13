@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 import path from 'path';
 
 const WAGO_DB2_BASE = 'https://wago.tools/db2';
-const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66431';
+const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66838';
 const withBuild = (tableName: string) => `${WAGO_DB2_BASE}/${tableName}/csv?build=${encodeURIComponent(WAGO_BUILD)}`;
 const SOURCE_TABLES = {
   spell: withBuild('Spell'),
