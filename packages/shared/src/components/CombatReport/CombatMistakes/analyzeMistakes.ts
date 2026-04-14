@@ -133,7 +133,7 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
     mistakes.push({
       id: 'damage_into_immunity',
       playerId: player.id,
-      severity: 'HIGH',
+      severity: 'MEDIUM',
       title: `Dealt ${evidence.length} hits into immune targets`,
       tip: 'Attacking a target with Divine Shield, Ice Block, or Aspect of the Turtle wastes GCDs. Swap targets or wait for the immunity to expire.',
       timestamp: evidence[0].timestamp,
@@ -162,7 +162,7 @@ function detectCCIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat): D
     mistakes.push({
       id: 'cc_into_immunity',
       playerId: player.id,
-      severity: 'MEDIUM',
+      severity: 'HIGH',
       title: `${evt.spellName ?? 'CC'} wasted on immune ${targetName}`,
       tip: 'CC spells have meaningful cooldowns. Verify the target is not immune before casting.',
       timestamp: evt.logLine.timestamp,
@@ -361,7 +361,7 @@ function detectCCDROverlap(player: ICombatUnit, combat: AtomicArenaCombat): Dete
       mistakes.push({
         id: 'cc_dr_overlap',
         playerId: player.id,
-        severity: 'MEDIUM',
+        severity: 'LOW',
         title: `${aura.spellName ?? 'CC'} applied into ${drCategory} DR on ${aura.destUnitName.split('-')[0]}`,
         tip: `This ${drCategory} CC was applied within 18 seconds of a previous ${drCategory} CC on the same target, causing diminishing returns. Chain CC from different DR categories instead.`,
         timestamp: aura.logLine.timestamp,

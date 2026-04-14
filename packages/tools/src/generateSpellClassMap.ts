@@ -14,6 +14,7 @@ const SOURCE_TABLES = {
   specializationSpells: withBuild('SpecializationSpells'),
   skillLineAbility: withBuild('SkillLineAbility'),
   spellName: withBuild('SpellName'),
+  spellCategories: withBuild('SpellCategories'),
 };
 
 // Class skill line IDs from the WoW DB2 SkillLine table.
@@ -142,6 +143,11 @@ interface SpellClassEntry {
     | 'unresolved';
 }
 
+interface DiminishEntry {
+  spellId: string;
+  name: string;
+}
+
 interface IGeneratedSpellClassMap {
   generatedAt: string;
   wagoBuild: string;
@@ -150,6 +156,7 @@ interface IGeneratedSpellClassMap {
     specializationSpellsCsv: string;
     skillLineAbilityCsv: string;
     spellNameCsv: string;
+    spellCategoriesCsv: string;
     spellIdListsJson: string;
     talentIdMapJson: string;
   };
@@ -157,6 +164,8 @@ interface IGeneratedSpellClassMap {
   bigDefensive: SpellClassEntry[];
   externalDefensive: SpellClassEntry[];
   important: SpellClassEntry[];
+  /** Diminishing returns groups from SpellCategories.DiminishType */
+  diminishingReturns: Record<string, DiminishEntry[]>;
 }
 
 // ── Main ────────────────────────────────────────────────────────────
@@ -164,11 +173,12 @@ interface IGeneratedSpellClassMap {
 async function main() {
   console.log(`Downloading DB2 CSVs from wago.tools (build=${WAGO_BUILD})\n`);
 
-  const [chrSpecRows, specSpellRows, skillLineRows, spellNameRows] = await Promise.all([
+  const [chrSpecRows, specSpellRows, skillLineRows, spellNameRows, spellCategoryRows] = await Promise.all([
     loadCsv(SOURCE_TABLES.chrSpecialization),
     loadCsv(SOURCE_TABLES.specializationSpells),
     loadCsv(SOURCE_TABLES.skillLineAbility),
     loadCsv(SOURCE_TABLES.spellName),
+    loadCsv(SOURCE_TABLES.spellCategories),
   ]);
 
   // ── 1. Build spec info lookup: specId → { classId, specName } ───
@@ -239,6 +249,48 @@ async function main() {
   const spellNamesById = new Map<string, string>();
   for (const row of spellNameRows) {
     spellNamesById.set(row.ID, row.Name_lang || '');
+  }
+
+  // ── 4b. Build diminishing returns groups from SpellCategories ────
+  // SpellCategories.DiminishType is a bitmask: 2^(SpellDiminish.ID - 1).
+  // SpellDiminish IDs: 1=Root, 2=Taunt, 3=Stun, 4=AoE Knockback,
+  //   5=Incapacitate, 6=Disorient, 7=Silence, 8=Disarm
+  // A spell with DiminishType 48 (=16+32) shares Incapacitate+Disorient DR.
+  // We decompose the bitmask and assign the spell to each matching group.
+  const DIMINISH_BIT_NAMES: Record<number, string> = {
+    1: 'root',
+    2: 'taunt',
+    4: 'stun',
+    8: 'knockback',
+    16: 'incapacitate',
+    32: 'disorient',
+    64: 'silence',
+    128: 'disarm',
+  };
+
+  const diminishingReturns: Record<string, DiminishEntry[]> = {};
+  for (const groupName of Object.values(DIMINISH_BIT_NAMES)) {
+    diminishingReturns[groupName] = [];
+  }
+
+  for (const row of spellCategoryRows) {
+    const diminishType = toInt(row.DiminishType);
+    if (diminishType === 0) continue;
+    const spellId = row.SpellID;
+    if (!spellId || spellId === '0') continue;
+    const name = spellNamesById.get(spellId) || '';
+
+    // Decompose bitmask into individual groups
+    for (const [bit, groupName] of Object.entries(DIMINISH_BIT_NAMES)) {
+      if (diminishType & Number(bit)) {
+        diminishingReturns[groupName].push({ spellId, name });
+      }
+    }
+  }
+
+  for (const [group, entries] of Object.entries(diminishingReturns)) {
+    entries.sort((a, b) => Number(a.spellId) - Number(b.spellId));
+    console.log(`DR group ${group}: ${entries.length} spells`);
   }
 
   // ── 5. Load existing spellIdLists.json and talentIdMap.json ─────
@@ -434,12 +486,14 @@ async function main() {
       specializationSpellsCsv: SOURCE_TABLES.specializationSpells,
       skillLineAbilityCsv: SOURCE_TABLES.skillLineAbility,
       spellNameCsv: SOURCE_TABLES.spellName,
+      spellCategoriesCsv: SOURCE_TABLES.spellCategories,
       spellIdListsJson: 'packages/shared/src/data/spellIdLists.json',
       talentIdMapJson: 'packages/shared/src/data/talentIdMap.json',
     },
     bigDefensive,
     externalDefensive,
     important,
+    diminishingReturns,
   };
 
   const outputPath = path.resolve(__dirname, '../../shared/src/data/spellClassMap.json');
