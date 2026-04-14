@@ -9,7 +9,7 @@ import { zoneMetadata } from '../../data/zoneMetadata';
 import { useGetProfileQuery } from '../../graphql/__generated__/graphql';
 import { useClientContext } from '../../hooks/ClientContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
-import { canUseFeature } from '../../utils/featureFlags';
+import { canUseFeature, features } from '../../utils/featureFlags';
 import { DownloadPromotion } from '../common/DownloadPromotion';
 import { CombatCC } from './CombatCC';
 import { CombatCurves } from './CombatCurves';
@@ -156,14 +156,16 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
         >
           Death
         </a>
-        <a
-          className={`tab ${activeTab === 'mistakes' ? 'tab-active' : ''}`}
-          onClick={() => {
-            setActiveTab('mistakes');
-          }}
-        >
-          Mistakes
-        </a>
+        {canUseFeature(features.mistakesTab, user, clientContext.localFlags) && (
+          <a
+            className={`tab ${activeTab === 'mistakes' ? 'tab-active' : ''}`}
+            onClick={() => {
+              setActiveTab('mistakes');
+            }}
+          >
+            Mistakes
+          </a>
+        )}
         <a
           className={`tab ${activeTab === 'curves' ? 'tab-active' : ''}`}
           onClick={() => {
@@ -226,7 +228,9 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
           {activeTab === 'performance' && <CombatPerformance />}
           {activeTab === 'cc' && <CombatCC />}
           {activeTab === 'death' && <CombatDeathReports />}
-          {activeTab === 'mistakes' && <CombatMistakes />}
+          {activeTab === 'mistakes' && canUseFeature(features.mistakesTab, user, clientContext.localFlags) && (
+            <CombatMistakes />
+          )}
           {activeTab === 'curves' && <CombatCurves />}
           {activeTab === 'replay' && <CombatReplay />}
           {activeTab === 'timeline' && <CombatTimeline />}
