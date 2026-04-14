@@ -1,5 +1,7 @@
 import { CombatUnitSpec } from '@wowarenalogs/parser';
 
+import spellClassMap from '../../../data/spellClassMap.json';
+
 export type MistakeSeverity = 'HIGH' | 'MEDIUM' | 'LOW';
 
 export type MistakeDetectionType =
@@ -77,72 +79,20 @@ export const OFFENSIVE_CDS: Record<string, string[]> = {
   [CombatUnitSpec.Evoker_Devastation]: ['375087'], // Dragonrage
 };
 
-/** Major defensive cooldowns. Dying without using any of these is a mistake. */
-export const DEFENSIVE_CDS: Record<string, string[]> = {
-  // Rogue
-  [CombatUnitSpec.Rogue_Subtlety]: ['31224', '1856'], // Cloak of Shadows, Vanish
-  [CombatUnitSpec.Rogue_Assassination]: ['31224', '1856'],
-  [CombatUnitSpec.Rogue_Outlaw]: ['31224', '1856', '199754'], // Riposte
-
-  // Mage
-  [CombatUnitSpec.Mage_Fire]: ['45438'], // Ice Block
-  [CombatUnitSpec.Mage_Frost]: ['45438'],
-  [CombatUnitSpec.Mage_Arcane]: ['45438'],
-
-  // Warrior
-  [CombatUnitSpec.Warrior_Arms]: ['118038', '184364'], // Die by the Sword, Enraged Regeneration
-  [CombatUnitSpec.Warrior_Fury]: ['184364'], // Enraged Regeneration
-
-  // Paladin
-  [CombatUnitSpec.Paladin_Holy]: ['642', '633'], // Divine Shield, Lay on Hands
-  [CombatUnitSpec.Paladin_Retribution]: ['642', '184662'], // Shield of Vengeance
-  [CombatUnitSpec.Paladin_Protection]: ['642'],
-
-  // Priest
-  [CombatUnitSpec.Priest_Discipline]: ['33206'], // Pain Suppression (on self)
-  [CombatUnitSpec.Priest_Holy]: ['47788'], // Guardian Spirit (on self)
-  [CombatUnitSpec.Priest_Shadow]: ['47585'], // Dispersion
-
-  // Druid
-  [CombatUnitSpec.Druid_Balance]: ['22812'], // Barkskin
-  [CombatUnitSpec.Druid_Feral]: ['61336', '22812'], // Survival Instincts, Barkskin
-  [CombatUnitSpec.Druid_Guardian]: ['61336', '22812'],
-  [CombatUnitSpec.Druid_Restoration]: ['22812', '102342'], // Ironbark (self)
-
-  // Shaman
-  [CombatUnitSpec.Shaman_Elemental]: ['108271'], // Astral Shift
-  [CombatUnitSpec.Shaman_Enhancement]: ['108271'],
-  [CombatUnitSpec.Shaman_Restoration]: ['108271'],
-
-  // Hunter
-  [CombatUnitSpec.Hunter_BeastMastery]: ['186265'], // Aspect of the Turtle
-  [CombatUnitSpec.Hunter_Marksmanship]: ['186265'],
-  [CombatUnitSpec.Hunter_Survival]: ['186265'],
-
-  // Warlock
-  [CombatUnitSpec.Warlock_Affliction]: ['104773'], // Unending Resolve
-  [CombatUnitSpec.Warlock_Destruction]: ['104773'],
-  [CombatUnitSpec.Warlock_Demonology]: ['104773'],
-
-  // Death Knight
-  [CombatUnitSpec.DeathKnight_Frost]: ['48792', '48707'], // Icebound Fortitude, Anti-Magic Shell
-  [CombatUnitSpec.DeathKnight_Unholy]: ['48792', '48707'],
-  [CombatUnitSpec.DeathKnight_Blood]: ['48792', '55233'], // Vampiric Blood
-
-  // Demon Hunter
-  [CombatUnitSpec.DemonHunter_Havoc]: ['198589'], // Blur
-  [CombatUnitSpec.DemonHunter_Vengeance]: ['187827'], // Metamorphosis (Vengeance)
-
-  // Monk
-  [CombatUnitSpec.Monk_Windwalker]: ['122278', '122470'], // Dampen Harm, Touch of Karma
-  [CombatUnitSpec.Monk_BrewMaster]: ['115176', '122278'], // Zen Meditation, Dampen Harm
-  [CombatUnitSpec.Monk_Mistweaver]: ['116849', '122278'], // Life Cocoon, Dampen Harm
-
-  // Evoker
-  [CombatUnitSpec.Evoker_Devastation]: ['363916'], // Obsidian Scales
-  [CombatUnitSpec.Evoker_Preservation]: ['363916', '370960'], // Obsidian Scales, Emerald Communion
-  [CombatUnitSpec.Evoker_Augmentation]: ['363916'],
-};
+/**
+ * Major defensive cooldowns by spec, derived from spellClassMap.json (bigDefensive category).
+ * Inverted from the generated per-spell → specIds mapping into per-spec → spellIds.
+ */
+export const DEFENSIVE_CDS: Record<string, string[]> = (() => {
+  const bySpec: Record<string, string[]> = {};
+  for (const entry of spellClassMap.bigDefensive) {
+    for (const specId of entry.specIds) {
+      if (!bySpec[specId]) bySpec[specId] = [];
+      bySpec[specId].push(entry.spellId);
+    }
+  }
+  return bySpec;
+})();
 
 /** Immunity spell IDs — attacking into these is always a waste. */
 export const IMMUNITY_SPELL_IDS = new Set<string>([
