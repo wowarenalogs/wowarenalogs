@@ -133,7 +133,13 @@ interface SpellClassEntry {
   spellId: string;
   name: string;
   specIds: string[];
-  source: 'SpecializationSpells' | 'SkillLineAbility' | 'TalentTree' | 'TalentTree:name' | 'unresolved';
+  source:
+    | 'SpecializationSpells'
+    | 'SkillLineAbility'
+    | 'TalentTree'
+    | 'TalentTree:name'
+    | 'cross-category:name'
+    | 'unresolved';
 }
 
 interface IGeneratedSpellClassMap {
@@ -358,6 +364,38 @@ async function main() {
   const bigDefensive = resolveCategory(spellIdLists.bigDefensiveSpellIds);
   const externalDefensive = resolveCategory(spellIdLists.externalDefensiveSpellIds);
   const important = resolveCategory(spellIdLists.importantSpellIds);
+
+  // ── 7b. Cross-category name resolution ─────────────────────────
+  // Some spells have different IDs for the cast vs the buff/aura (e.g.,
+  // Blur: cast=198589 in `important`, buff=212800 in `bigDefensive`).
+  // For any unresolved spell, check if a spell with the same name was
+  // resolved in another category and inherit its specIds.
+  const allResolved = [...bigDefensive, ...externalDefensive, ...important];
+  const resolvedByName = new Map<string, SpellClassEntry>();
+  for (const entry of allResolved) {
+    if (entry.specIds.length > 0 && entry.name) {
+      const key = entry.name.toLowerCase();
+      // Keep the first resolved entry per name (highest-priority source)
+      if (!resolvedByName.has(key)) {
+        resolvedByName.set(key, entry);
+      }
+    }
+  }
+
+  function crossResolveCategory(entries: SpellClassEntry[]): void {
+    for (const entry of entries) {
+      if (entry.specIds.length > 0 || !entry.name) continue;
+      const donor = resolvedByName.get(entry.name.toLowerCase());
+      if (donor) {
+        entry.specIds = donor.specIds;
+        entry.source = 'cross-category:name';
+      }
+    }
+  }
+
+  crossResolveCategory(bigDefensive);
+  crossResolveCategory(externalDefensive);
+  crossResolveCategory(important);
 
   // ── 8. Report ───────────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13T21:09:28.507Z",
+  "generatedAt": "2026-04-14T05:03:59.465Z",
   "wagoBuild": "12.0.1.66838",
   "sources": {
     "chrSpecializationCsv": "https://wago.tools/db2/ChrSpecialization/csv?build=12.0.1.66838",
@@ -292,8 +292,11 @@
     {
       "spellId": "212800",
       "name": "Blur",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "577",
+        "1480"
+      ],
+      "source": "cross-category:name"
     },
     {
       "spellId": "243435",
@@ -1025,8 +1028,11 @@
     {
       "spellId": "212800",
       "name": "Blur",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "577",
+        "1480"
+      ],
+      "source": "cross-category:name"
     },
     {
       "spellId": "216331",
@@ -1131,14 +1137,20 @@
     {
       "spellId": "297850",
       "name": "Revival",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "270"
+      ],
+      "source": "cross-category:name"
     },
     {
       "spellId": "305395",
       "name": "Blessing of Freedom",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "65",
+        "66",
+        "70"
+      ],
+      "source": "cross-category:name"
     },
     {
       "spellId": "323538",
@@ -1423,8 +1435,13 @@
     {
       "spellId": "410358",
       "name": "Anti-Magic Shell",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "250",
+        "251",
+        "252",
+        "1455"
+      ],
+      "source": "cross-category:name"
     },
     {
       "spellId": "414658",
@@ -1571,8 +1588,13 @@
     {
       "spellId": "468966",
       "name": "Polymorph",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "62",
+        "63",
+        "64",
+        "1449"
+      ],
+      "source": "cross-category:name"
     },
     {
       "spellId": "472736",
@@ -2019,8 +2041,10 @@
     {
       "spellId": "1261559",
       "name": "Divine Protection",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "65"
+      ],
+      "source": "cross-category:name"
     },
     {
       "spellId": "1261704",
