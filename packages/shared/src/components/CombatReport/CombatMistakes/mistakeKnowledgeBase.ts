@@ -46,25 +46,13 @@ export const LOW_VALUE_CC_SPELL_IDS = new Set<string>([
   '1330', // Garrote Silence
 ]);
 
-/**
- * CC DR categories derived from spellClassMap.json (SpellCategories.DiminishType)
- * with manual overrides for spells missing from the DB.
- */
+/** CC DR categories derived from spellClassMap.json (SpellCategories.DiminishType). */
 export const DR_CATEGORIES: Record<string, Set<string>> = (() => {
-  // Only the PvP-relevant categories
   const RELEVANT_CATEGORIES = ['stun', 'incapacitate', 'disorient'];
   const result: Record<string, Set<string>> = {};
   for (const cat of RELEVANT_CATEGORIES) {
     const entries = spellClassMap.diminishingReturns[cat] ?? [];
     result[cat] = new Set(entries.map((e: { spellId: string }) => e.spellId));
   }
-
-  // Manual overrides: spells with DiminishType=0 in SpellCategories
-  // that are known to share DR in PvP.
-  result['stun'].add('204399'); // Earthfury (Shaman talent)
-  result['disorient'].add('5782'); // Fear
-  result['disorient'].add('209753'); // Cyclone (Honor talent)
-  result['disorient'].add('198898'); // Song of Chi-Ji
-
   return result;
 })();
