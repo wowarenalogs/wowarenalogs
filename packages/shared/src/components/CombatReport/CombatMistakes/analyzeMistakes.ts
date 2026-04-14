@@ -36,6 +36,8 @@ export interface DetectedMistake {
   spellId?: string;
   /** Optional spell name. */
   spellName?: string;
+  /** Optional target unit ID (for rendering target name with spec icon). */
+  targetId?: string;
   /** Individual log events that produced this mistake. */
   evidence?: MistakeEvidence[];
 }
@@ -417,15 +419,15 @@ function detectMissedKicks(player: ICombatUnit, combat: AtomicArenaCombat): Dete
 
     if (!interrupted) {
       const spellName = cast.spellName ?? SPELL_NAMES.get(cast.spellId ?? '') ?? 'Interrupt';
-      const targetName = cast.destUnitName?.split('-')[0] ?? 'target';
       mistakes.push({
         id: 'missed_kick',
         playerId: player.id,
         severity: 'LOW',
-        title: `${spellName} missed on ${targetName}`,
+        title: `${spellName} missed`,
         tip: 'This interrupt was cast but did not interrupt a spell. The target may not have been casting, or the cast finished before the kick landed.',
         timestamp: castTime,
         spellId: cast.spellId ?? undefined,
+        targetId: cast.destUnitId || undefined,
       });
     }
   }

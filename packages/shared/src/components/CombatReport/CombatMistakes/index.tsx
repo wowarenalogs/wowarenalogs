@@ -26,8 +26,10 @@ function formatTimestamp(timestampMs: number, combatStartMs: number): string {
 }
 
 function MistakeRow({ mistake, combatStartTime }: { mistake: DetectedMistake; combatStartTime: number }) {
+  const { combat } = useCombatReportContext();
   const [expanded, setExpanded] = useState(false);
   const hasEvidence = mistake.evidence && mistake.evidence.length > 0;
+  const targetUnit = mistake.targetId && combat ? combat.units[mistake.targetId] : undefined;
 
   return (
     <>
@@ -43,7 +45,10 @@ function MistakeRow({ mistake, combatStartTime }: { mistake: DetectedMistake; co
               </span>
             )}
             <div>
-              <div className="font-semibold text-sm">{mistake.title}</div>
+              <div className="font-semibold text-sm flex items-center gap-1">
+                <span>{mistake.title}</span>
+                {targetUnit && <CombatUnitName unit={targetUnit} showSpec={true} specSpacing="tight" />}
+              </div>
               <div className="text-xs text-base-content/60 mt-0.5">{mistake.tip}</div>
             </div>
           </div>
