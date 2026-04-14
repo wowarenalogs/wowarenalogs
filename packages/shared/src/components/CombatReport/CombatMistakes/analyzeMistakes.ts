@@ -12,6 +12,7 @@ import {
   DEFENSIVE_CDS,
   DR_CATEGORIES,
   FULL_IMMUNITY_AURA_IDS,
+  INTERRUPT_SPELL_IDS,
   LOW_VALUE_CC_SPELL_IDS,
   MistakeSeverity,
   SPELL_NAMES,
@@ -58,6 +59,7 @@ export function analyzeMistakes(combat: AtomicArenaCombat): DetectedMistake[] {
     mistakes.push(...detectDiedWithoutDefensive(player, combat));
     mistakes.push(...detectTrinketLowValueCC(player, combat));
     mistakes.push(...detectCCDROverlap(player, combat));
+    mistakes.push(...detectMissedKicks(player, combat));
   }
 
   // Sort by timestamp
@@ -370,6 +372,62 @@ function detectCCDROverlap(player: ICombatUnit, combat: AtomicArenaCombat): Dete
       spellId,
       spellName: aura.spellName ?? 'CC',
     });
+  }
+
+  return mistakes;
+}
+
+/**
+ * Detect when a player cast an interrupt spell but failed to interrupt anything.
+ *
+ * A "missed kick" is a SPELL_CAST_SUCCESS of an interrupt spell that has no
+ * corresponding SPELL_INTERRUPT event from the same player within a short window.
+ */
+function detectMissedKicks(player: ICombatUnit, combat: AtomicArenaCombat): DetectedMistake[] {
+  const mistakes: DetectedMistake[] = [];
+
+  // Collect all successful interrupt events by this player (from actionOut)
+  const interruptTimestamps = new Set<number>();
+  for (const action of player.actionOut) {
+    if (action.logLine.event === LogEvent.SPELL_INTERRUPT) {
+      interruptTimestamps.add(action.logLine.timestamp);
+    }
+  }
+
+  // Find all kick casts from combat.events
+  const kickCasts: CombatAction[] = [];
+  for (const evt of combat.events) {
+    if (evt.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
+    if (evt.srcUnitId !== player.id) continue;
+    if (!evt.spellId || !INTERRUPT_SPELL_IDS.has(evt.spellId)) continue;
+    kickCasts.push(evt);
+  }
+
+  for (const cast of kickCasts) {
+    const castTime = cast.logLine.timestamp;
+    // Check if a SPELL_INTERRUPT occurred within 100ms of the cast
+    let interrupted = false;
+    for (const ts of Array.from(interruptTimestamps)) {
+      if (Math.abs(ts - castTime) <= 100) {
+        interrupted = true;
+        interruptTimestamps.delete(ts);
+        break;
+      }
+    }
+
+    if (!interrupted) {
+      const spellName = cast.spellName ?? SPELL_NAMES.get(cast.spellId ?? '') ?? 'Interrupt';
+      const targetName = cast.destUnitName?.split('-')[0] ?? 'target';
+      mistakes.push({
+        id: 'missed_kick',
+        playerId: player.id,
+        severity: 'LOW',
+        title: `${spellName} missed on ${targetName}`,
+        tip: 'This interrupt was cast but did not interrupt a spell. The target may not have been casting, or the cast finished before the kick landed.',
+        timestamp: castTime,
+        spellId: cast.spellId ?? undefined,
+      });
+    }
   }
 
   return mistakes;

@@ -9,6 +9,7 @@ export const SPELL_NAMES: Map<string, string> = (() => {
     ...spellClassMap.bigDefensive,
     ...spellClassMap.externalDefensive,
     ...spellClassMap.important,
+    ...spellClassMap.interrupts,
     ...Object.values(spellClassMap.diminishingReturns).flat(),
   ];
   for (const entry of allEntries) {
@@ -63,6 +64,9 @@ export const LOW_VALUE_CC_SPELL_IDS = new Set<string>([
   '1776', // Gouge
   '1330', // Garrote Silence
 ]);
+
+/** Interrupt (kick) spell IDs derived from spellClassMap.json. */
+export const INTERRUPT_SPELL_IDS = new Set<string>(spellClassMap.interrupts.map((e: { spellId: string }) => e.spellId));
 
 /** CC DR categories derived from spellClassMap.json (SpellCategories.DiminishType). */
 export const DR_CATEGORIES: Record<string, Set<string>> = (() => {

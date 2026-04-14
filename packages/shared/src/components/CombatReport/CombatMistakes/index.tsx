@@ -117,6 +117,11 @@ function MistakeExplainer() {
             applies crowd control from the same DR category on the same target within 18 seconds. Repeated CC in the
             same category has reduced duration. Chain CC from different DR categories instead.
           </div>
+          <div>
+            <span className="font-semibold text-base-content/90">Missed kick</span> — Flags when a player casts an
+            interrupt spell (Pummel, Kick, Counterspell, etc.) but does not successfully interrupt a cast. The target
+            may not have been casting, or the cast finished before the kick landed.
+          </div>
         </div>
       )}
     </div>

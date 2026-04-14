@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-14T14:17:47.226Z",
+  "generatedAt": "2026-04-14T18:43:26.678Z",
   "wagoBuild": "12.0.1.66838",
   "sources": {
     "chrSpecializationCsv": "https://wago.tools/db2/ChrSpecialization/csv?build=12.0.1.66838",
@@ -7,6 +7,7 @@
     "skillLineAbilityCsv": "https://wago.tools/db2/SkillLineAbility/csv?build=12.0.1.66838",
     "spellNameCsv": "https://wago.tools/db2/SpellName/csv?build=12.0.1.66838",
     "spellCategoriesCsv": "https://wago.tools/db2/SpellCategories/csv?build=12.0.1.66838",
+    "spellEffectCsv": "https://wago.tools/db2/SpellEffect/csv?build=12.0.1.66838",
     "spellIdListsJson": "packages/shared/src/data/spellIdLists.json",
     "talentIdMapJson": "packages/shared/src/data/talentIdMap.json"
   },
@@ -8805,5 +8806,472 @@
         "name": "Sticky Tar Bomb"
       }
     ]
-  }
+  },
+  "interrupts": [
+    {
+      "spellId": "1766",
+      "name": "Kick",
+      "specIds": [
+        "259",
+        "260",
+        "261",
+        "1453"
+      ]
+    },
+    {
+      "spellId": "2139",
+      "name": "Counterspell",
+      "specIds": [
+        "62",
+        "63",
+        "64",
+        "1449"
+      ]
+    },
+    {
+      "spellId": "6552",
+      "name": "Pummel",
+      "specIds": [
+        "71",
+        "72",
+        "73",
+        "1446"
+      ]
+    },
+    {
+      "spellId": "47528",
+      "name": "Mind Freeze",
+      "specIds": [
+        "250",
+        "251",
+        "252"
+      ]
+    },
+    {
+      "spellId": "53550",
+      "name": "Mind Freeze",
+      "specIds": [
+        "250",
+        "251",
+        "252"
+      ]
+    },
+    {
+      "spellId": "57994",
+      "name": "Wind Shear",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "71022",
+      "name": "Disrupting Shout",
+      "specIds": [
+        "73"
+      ]
+    },
+    {
+      "spellId": "77334",
+      "name": "Wind Shear",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "83005",
+      "name": "Wind Shear",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "93985",
+      "name": "Skull Bash",
+      "specIds": [
+        "103",
+        "104"
+      ]
+    },
+    {
+      "spellId": "95038",
+      "name": "Wind Shear",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "96231",
+      "name": "Rebuke",
+      "specIds": [
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "97547",
+      "name": "Solar Beam",
+      "specIds": [
+        "102"
+      ]
+    },
+    {
+      "spellId": "103414",
+      "name": "Stomp",
+      "specIds": [
+        "253"
+      ]
+    },
+    {
+      "spellId": "116705",
+      "name": "Spear Hand Strike",
+      "specIds": [
+        "268",
+        "269"
+      ]
+    },
+    {
+      "spellId": "128136",
+      "name": "Wind Shear",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "129891",
+      "name": "Solar Beam",
+      "specIds": [
+        "102"
+      ]
+    },
+    {
+      "spellId": "131772",
+      "name": "Spear Hand Strike",
+      "specIds": [
+        "268",
+        "269"
+      ]
+    },
+    {
+      "spellId": "134008",
+      "name": "Rebuke",
+      "specIds": [
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "136473",
+      "name": "Counter Shot",
+      "specIds": [
+        "253",
+        "254"
+      ]
+    },
+    {
+      "spellId": "142657",
+      "name": "Skull Bash",
+      "specIds": [
+        "103",
+        "104"
+      ]
+    },
+    {
+      "spellId": "142699",
+      "name": "Counter Shot",
+      "specIds": [
+        "253",
+        "254"
+      ]
+    },
+    {
+      "spellId": "147362",
+      "name": "Counter Shot",
+      "specIds": [
+        "253",
+        "254"
+      ]
+    },
+    {
+      "spellId": "177155",
+      "name": "Disrupting Shout",
+      "specIds": [
+        "73"
+      ]
+    },
+    {
+      "spellId": "183752",
+      "name": "Disrupt",
+      "specIds": [
+        "577",
+        "581",
+        "1456",
+        "1480"
+      ]
+    },
+    {
+      "spellId": "186562",
+      "name": "Consume Magic",
+      "specIds": [
+        "577",
+        "581",
+        "1480"
+      ]
+    },
+    {
+      "spellId": "187707",
+      "name": "Muzzle",
+      "specIds": [
+        "255"
+      ]
+    },
+    {
+      "spellId": "220977",
+      "name": "Disrupting Shout",
+      "specIds": [
+        "73"
+      ]
+    },
+    {
+      "spellId": "227363",
+      "name": "Mighty Stomp",
+      "specIds": [
+        "268"
+      ]
+    },
+    {
+      "spellId": "240569",
+      "name": "Counter Shot",
+      "specIds": [
+        "253",
+        "254"
+      ]
+    },
+    {
+      "spellId": "245000",
+      "name": "Consume Magic",
+      "specIds": [
+        "577",
+        "581",
+        "1480"
+      ]
+    },
+    {
+      "spellId": "247733",
+      "name": "Stomp",
+      "specIds": [
+        "253"
+      ]
+    },
+    {
+      "spellId": "254410",
+      "name": "Wind Shear",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "262074",
+      "name": "Wind Shear",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "277600",
+      "name": "Rebuke",
+      "specIds": [
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "282151",
+      "name": "Mind Freeze",
+      "specIds": [
+        "250",
+        "251",
+        "252"
+      ]
+    },
+    {
+      "spellId": "282220",
+      "name": "Muzzle",
+      "specIds": [
+        "255"
+      ]
+    },
+    {
+      "spellId": "282315",
+      "name": "Spear Hand Strike",
+      "specIds": [
+        "268",
+        "269"
+      ]
+    },
+    {
+      "spellId": "283490",
+      "name": "Mind Freeze",
+      "specIds": [
+        "250",
+        "251",
+        "252"
+      ]
+    },
+    {
+      "spellId": "283616",
+      "name": "Rebuke",
+      "specIds": [
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "283774",
+      "name": "Spear Hand Strike",
+      "specIds": [
+        "268",
+        "269"
+      ]
+    },
+    {
+      "spellId": "290439",
+      "name": "Wind Shear",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "292599",
+      "name": "Skull Bash",
+      "specIds": [
+        "103",
+        "104"
+      ]
+    },
+    {
+      "spellId": "301548",
+      "name": "Disrupting Shout",
+      "specIds": [
+        "73"
+      ]
+    },
+    {
+      "spellId": "317745",
+      "name": "Disrupting Shout",
+      "specIds": [
+        "73"
+      ]
+    },
+    {
+      "spellId": "351338",
+      "name": "Quell",
+      "specIds": [
+        "1467",
+        "1473"
+      ]
+    },
+    {
+      "spellId": "386071",
+      "name": "Disrupting Shout",
+      "specIds": [
+        "73"
+      ]
+    },
+    {
+      "spellId": "398392",
+      "name": "Stomp",
+      "specIds": [
+        "253"
+      ]
+    },
+    {
+      "spellId": "401165",
+      "name": "Shockwave",
+      "specIds": [
+        "71",
+        "72",
+        "73"
+      ]
+    },
+    {
+      "spellId": "413672",
+      "name": "Mind Freeze",
+      "specIds": [
+        "250",
+        "251",
+        "252"
+      ]
+    },
+    {
+      "spellId": "420090",
+      "name": "Rebuke",
+      "specIds": [
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "420320",
+      "name": "Wind Shear",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "426240",
+      "name": "Counter Shot",
+      "specIds": [
+        "253",
+        "254"
+      ]
+    },
+    {
+      "spellId": "427609",
+      "name": "Disrupting Shout",
+      "specIds": [
+        "73"
+      ]
+    },
+    {
+      "spellId": "431157",
+      "name": "Quell",
+      "specIds": [
+        "1467",
+        "1473"
+      ]
+    },
+    {
+      "spellId": "451441",
+      "name": "Rebuke",
+      "specIds": [
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "1264227",
+      "name": "Solar Beam",
+      "specIds": [
+        "102"
+      ]
+    }
+  ]
 }

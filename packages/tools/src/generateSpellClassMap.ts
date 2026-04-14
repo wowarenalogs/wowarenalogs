@@ -15,6 +15,7 @@ const SOURCE_TABLES = {
   skillLineAbility: withBuild('SkillLineAbility'),
   spellName: withBuild('SpellName'),
   spellCategories: withBuild('SpellCategories'),
+  spellEffect: withBuild('SpellEffect'),
 };
 
 // Class skill line IDs from the WoW DB2 SkillLine table.
@@ -148,6 +149,12 @@ interface DiminishEntry {
   name: string;
 }
 
+interface InterruptEntry {
+  spellId: string;
+  name: string;
+  specIds: string[];
+}
+
 interface IGeneratedSpellClassMap {
   generatedAt: string;
   wagoBuild: string;
@@ -157,6 +164,7 @@ interface IGeneratedSpellClassMap {
     skillLineAbilityCsv: string;
     spellNameCsv: string;
     spellCategoriesCsv: string;
+    spellEffectCsv: string;
     spellIdListsJson: string;
     talentIdMapJson: string;
   };
@@ -166,6 +174,8 @@ interface IGeneratedSpellClassMap {
   important: SpellClassEntry[];
   /** Diminishing returns groups from SpellCategories.DiminishType */
   diminishingReturns: Record<string, DiminishEntry[]>;
+  /** Interrupt (kick) spells that only interrupt, excluding silences. */
+  interrupts: InterruptEntry[];
 }
 
 // ── Main ────────────────────────────────────────────────────────────
@@ -173,13 +183,15 @@ interface IGeneratedSpellClassMap {
 async function main() {
   console.log(`Downloading DB2 CSVs from wago.tools (build=${WAGO_BUILD})\n`);
 
-  const [chrSpecRows, specSpellRows, skillLineRows, spellNameRows, spellCategoryRows] = await Promise.all([
-    loadCsv(SOURCE_TABLES.chrSpecialization),
-    loadCsv(SOURCE_TABLES.specializationSpells),
-    loadCsv(SOURCE_TABLES.skillLineAbility),
-    loadCsv(SOURCE_TABLES.spellName),
-    loadCsv(SOURCE_TABLES.spellCategories),
-  ]);
+  const [chrSpecRows, specSpellRows, skillLineRows, spellNameRows, spellCategoryRows, spellEffectRows] =
+    await Promise.all([
+      loadCsv(SOURCE_TABLES.chrSpecialization),
+      loadCsv(SOURCE_TABLES.specializationSpells),
+      loadCsv(SOURCE_TABLES.skillLineAbility),
+      loadCsv(SOURCE_TABLES.spellName),
+      loadCsv(SOURCE_TABLES.spellCategories),
+      loadCsv(SOURCE_TABLES.spellEffect),
+    ]);
 
   // ── 1. Build spec info lookup: specId → { classId, specName } ───
   // ChrSpecialization columns: Name_lang, ID, ClassID, ...
@@ -292,6 +304,40 @@ async function main() {
     entries.sort((a, b) => Number(a.spellId) - Number(b.spellId));
     console.log(`DR group ${group}: ${entries.length} spells`);
   }
+
+  // ── 4c. Build interrupt spell list from SpellEffect ──────────────
+  // Effect=68 is SPELL_EFFECT_INTERRUPT_CAST.
+  // We collect all spells with this effect, then filter to player-class spells.
+  // Exclude spells that also apply a silence aura (EffectAura=27), since those
+  // can be used pre-emptively and a "miss" isn't necessarily a mistake.
+  const EFFECT_INTERRUPT_CAST = 68;
+  const EFFECT_APPLY_AURA = 6;
+  const AURA_MOD_SILENCE = 27;
+
+  const interruptSpellIds = new Set<string>();
+  const silenceSpellIds = new Set<string>();
+
+  for (const row of spellEffectRows) {
+    const effect = toInt(row.Effect);
+    const spellId = row.SpellID;
+    if (!spellId || spellId === '0') continue;
+
+    if (effect === EFFECT_INTERRUPT_CAST) {
+      interruptSpellIds.add(spellId);
+    }
+    if (effect === EFFECT_APPLY_AURA && toInt(row.EffectAura) === AURA_MOD_SILENCE) {
+      silenceSpellIds.add(spellId);
+    }
+  }
+
+  // Remove spells that also silence (e.g., Avenger's Shield)
+  for (const id of Array.from(silenceSpellIds)) {
+    interruptSpellIds.delete(id);
+  }
+
+  console.log(
+    `Found ${interruptSpellIds.size} interrupt spells (after excluding ${silenceSpellIds.size} silence spells)`,
+  );
 
   // ── 5. Load existing spellIdLists.json and talentIdMap.json ─────
   const spellIdListsPath = path.resolve(__dirname, '../../shared/src/data/spellIdLists.json');
@@ -476,6 +522,24 @@ async function main() {
   reportCategory('externalDefensive', externalDefensive);
   reportCategory('important', important);
 
+  // ── 8b. Resolve interrupt spells to player specs ────────────────
+  const interrupts: InterruptEntry[] = [];
+  for (const spellId of Array.from(interruptSpellIds)) {
+    const resolved = resolveSpell(spellId);
+    if (resolved.specIds.length > 0) {
+      interrupts.push({
+        spellId,
+        name: resolved.name,
+        specIds: resolved.specIds,
+      });
+    }
+  }
+  interrupts.sort((a, b) => Number(a.spellId) - Number(b.spellId));
+  console.log(`\nInterrupts: ${interrupts.length} player-class spells`);
+  for (const entry of interrupts) {
+    console.log(`  ${entry.spellId} ${entry.name}`);
+  }
+
   // ── 9. Write output ─────────────────────────────────────────────
 
   const output: IGeneratedSpellClassMap = {
@@ -487,6 +551,7 @@ async function main() {
       skillLineAbilityCsv: SOURCE_TABLES.skillLineAbility,
       spellNameCsv: SOURCE_TABLES.spellName,
       spellCategoriesCsv: SOURCE_TABLES.spellCategories,
+      spellEffectCsv: SOURCE_TABLES.spellEffect,
       spellIdListsJson: 'packages/shared/src/data/spellIdLists.json',
       talentIdMapJson: 'packages/shared/src/data/talentIdMap.json',
     },
@@ -494,6 +559,7 @@ async function main() {
     externalDefensive,
     important,
     diminishingReturns,
+    interrupts,
   };
 
   const outputPath = path.resolve(__dirname, '../../shared/src/data/spellClassMap.json');
