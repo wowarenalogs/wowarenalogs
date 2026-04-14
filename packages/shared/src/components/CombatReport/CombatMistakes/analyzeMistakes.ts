@@ -77,9 +77,9 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
   // Build a timeline of immunity windows for all units
   const immunityWindows = buildImmunityWindows(combat);
 
-  // Check each damage event from this player
   const evidence: MistakeEvidence[] = [];
-  let firstTimestamp = 0;
+
+  // 1. Check damage events that landed during an immunity window
   for (const dmg of player.damageOut) {
     if (!('logLine' in dmg)) continue;
     // Skip DoT ticks — the player can't stop periodic damage already applied before the immunity
@@ -92,7 +92,6 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
 
     for (const win of windows) {
       if (dmg.logLine.timestamp >= win.start && dmg.logLine.timestamp <= win.end) {
-        if (firstTimestamp === 0) firstTimestamp = dmg.logLine.timestamp;
         const targetName = dmg.destUnitName?.split('-')[0] ?? 'target';
         const spellName = dmg.spellName ?? 'Melee';
         const immunityName = IMMUNITY_SPELL_NAMES[win.spellId] ?? win.spellId;
@@ -106,6 +105,28 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
     }
   }
 
+  // 2. Check SPELL_MISSED events with missType IMMUNE from combat.events
+  //    These are casts (including CC) that got the "Immune" result and aren't
+  //    captured in damageOut at all.
+  for (const evt of combat.events) {
+    if (evt.logLine.event !== LogEvent.SPELL_MISSED) continue;
+    if (evt.srcUnitId !== player.id) continue;
+    // missType is at parameter index 11 for SPELL_MISSED
+    const missType = evt.logLine.parameters[11]?.toString();
+    if (missType !== 'IMMUNE') continue;
+
+    const targetName = evt.destUnitName?.split('-')[0] ?? 'target';
+    const spellName = evt.spellName ?? 'Attack';
+    evidence.push({
+      timestamp: evt.logLine.timestamp,
+      text: `${spellName} → ${targetName} (IMMUNE)`,
+      spellId: evt.spellId ?? undefined,
+    });
+  }
+
+  // Sort combined evidence by time
+  evidence.sort((a, b) => a.timestamp - b.timestamp);
+
   // Only flag if there were multiple hits into immunity (not just one stray tick)
   if (evidence.length >= 3) {
     mistakes.push({
@@ -114,7 +135,7 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
       severity: 'HIGH',
       title: `Dealt ${evidence.length} hits into immune targets`,
       tip: 'Attacking a target with Divine Shield, Ice Block, or Aspect of the Turtle wastes GCDs. Swap targets or wait for the immunity to expire.',
-      timestamp: firstTimestamp,
+      timestamp: evidence[0].timestamp,
       evidence,
     });
   }
