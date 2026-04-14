@@ -98,6 +98,11 @@ function MistakeExplainer() {
             targets or hold cooldowns until the immunity expires.
           </div>
           <div>
+            <span className="font-semibold text-base-content/90">CC into immunity</span> — Flags each crowd control
+            spell cast on an immune target. CC spells have meaningful cooldowns, so wasting them into an immunity is a
+            bigger deal than a stray damage GCD.
+          </div>
+          <div>
             <span className="font-semibold text-base-content/90">Died without defensive</span> — Flags when a player
             dies without ever using one of their major defensive cooldowns during the match. If a defensive was
             available, it was almost certainly the right time to press it.

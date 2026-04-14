@@ -7,6 +7,7 @@ import {
   LogEvent,
 } from '@wowarenalogs/parser';
 
+import { ccSpellIds } from '../../../data/spellTags';
 import {
   DEFENSIVE_CDS,
   DR_CATEGORIES,
@@ -52,6 +53,7 @@ export function analyzeMistakes(combat: AtomicArenaCombat): DetectedMistake[] {
 
   for (const player of players) {
     mistakes.push(...detectDamageIntoImmunity(player, combat));
+    mistakes.push(...detectCCIntoImmunity(player, combat));
     mistakes.push(...detectDiedWithoutDefensive(player, combat));
     mistakes.push(...detectTrinketLowValueCC(player, combat));
     mistakes.push(...detectCCDROverlap(player, combat));
@@ -106,14 +108,13 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
   }
 
   // 2. Check SPELL_MISSED events with missType IMMUNE from combat.events
-  //    These are casts (including CC) that got the "Immune" result and aren't
-  //    captured in damageOut at all.
+  //    Only non-CC spells — CC into immune is a separate detector.
   for (const evt of combat.events) {
     if (evt.logLine.event !== LogEvent.SPELL_MISSED) continue;
     if (evt.srcUnitId !== player.id) continue;
-    // missType is at parameter index 11 for SPELL_MISSED
     const missType = evt.logLine.parameters[11]?.toString();
     if (missType !== 'IMMUNE') continue;
+    if (evt.spellId && ccSpellIds.has(evt.spellId)) continue;
 
     const targetName = evt.destUnitName?.split('-')[0] ?? 'target';
     const spellName = evt.spellName ?? 'Attack';
@@ -137,6 +138,35 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
       tip: 'Attacking a target with Divine Shield, Ice Block, or Aspect of the Turtle wastes GCDs. Swap targets or wait for the immunity to expire.',
       timestamp: evidence[0].timestamp,
       evidence,
+    });
+  }
+
+  return mistakes;
+}
+
+/**
+ * Detect when a player cast a CC spell on an immune target (SPELL_MISSED with IMMUNE).
+ * Each CC wasted is reported individually since each one has real cooldown/opportunity cost.
+ */
+function detectCCIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat): DetectedMistake[] {
+  const mistakes: DetectedMistake[] = [];
+
+  for (const evt of combat.events) {
+    if (evt.logLine.event !== LogEvent.SPELL_MISSED) continue;
+    if (evt.srcUnitId !== player.id) continue;
+    const missType = evt.logLine.parameters[11]?.toString();
+    if (missType !== 'IMMUNE') continue;
+    if (!evt.spellId || !ccSpellIds.has(evt.spellId)) continue;
+
+    const targetName = evt.destUnitName?.split('-')[0] ?? 'target';
+    mistakes.push({
+      id: 'cc_into_immunity',
+      playerId: player.id,
+      severity: 'MEDIUM',
+      title: `${evt.spellName ?? 'CC'} wasted on immune ${targetName}`,
+      tip: 'CC spells have meaningful cooldowns. Verify the target is not immune before casting.',
+      timestamp: evt.logLine.timestamp,
+      spellId: evt.spellId,
     });
   }
 
