@@ -1,4 +1,11 @@
-import { AtomicArenaCombat, CombatUnitReaction, CombatUnitType, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+import {
+  AtomicArenaCombat,
+  CombatAction,
+  CombatUnitReaction,
+  CombatUnitType,
+  ICombatUnit,
+  LogEvent,
+} from '@wowarenalogs/parser';
 
 import {
   DEFENSIVE_CDS,
@@ -248,18 +255,41 @@ function detectTrinketLowValueCC(player: ICombatUnit, _combat: AtomicArenaCombat
 
 /**
  * Detect when a player applied CC from the same DR category within 18 seconds on the same target.
+ *
+ * SPELL_AURA_APPLIED events live on the *target's* auraEvents, not the
+ * caster's actionOut, so we scan all units' aura events filtered by srcUnitId.
  */
-function detectCCDROverlap(player: ICombatUnit, _combat: AtomicArenaCombat): DetectedMistake[] {
+function detectCCDROverlap(player: ICombatUnit, combat: AtomicArenaCombat): DetectedMistake[] {
   const mistakes: DetectedMistake[] = [];
 
   // Track last CC application per DR category per target
   // Key: `${targetId}:${drCategory}`
   const lastCCTime = new Map<string, { timestamp: number; spellId: string; spellName: string }>();
 
-  for (const action of player.actionOut) {
-    if (action.logLine.event !== LogEvent.SPELL_AURA_APPLIED) continue;
-    const spellId = action.spellId ?? '';
-    if (!spellId) continue;
+  // Collect all SPELL_AURA_APPLIED events where this player is the source,
+  // across all units' auraEvents, sorted by timestamp.
+  const ccApplied: CombatAction[] = [];
+  for (const unit of Object.values(combat.units)) {
+    for (const aura of unit.auraEvents) {
+      if (aura.logLine.event !== LogEvent.SPELL_AURA_APPLIED) continue;
+      if (aura.srcUnitId !== player.id) continue;
+      const spellId = aura.spellId ?? '';
+      if (!spellId) continue;
+
+      // Check if this spell is in any DR category
+      for (const [, spells] of Object.entries(DR_CATEGORIES)) {
+        if (spells.has(spellId)) {
+          ccApplied.push(aura);
+          break;
+        }
+      }
+    }
+  }
+
+  ccApplied.sort((a, b) => a.logLine.timestamp - b.logLine.timestamp);
+
+  for (const aura of ccApplied) {
+    const spellId = aura.spellId ?? '';
 
     // Find which DR category this spell belongs to
     let drCategory: string | null = null;
@@ -271,27 +301,27 @@ function detectCCDROverlap(player: ICombatUnit, _combat: AtomicArenaCombat): Det
     }
     if (!drCategory) continue;
 
-    const targetId = action.destUnitId;
+    const targetId = aura.destUnitId;
     const key = `${targetId}:${drCategory}`;
     const last = lastCCTime.get(key);
 
-    if (last && action.logLine.timestamp - last.timestamp < DR_WINDOW_MS) {
+    if (last && aura.logLine.timestamp - last.timestamp < DR_WINDOW_MS) {
       // Same DR category on same target within 18s
       mistakes.push({
         id: 'cc_dr_overlap',
         playerId: player.id,
         severity: 'MEDIUM',
-        title: `${action.spellName ?? 'CC'} applied into ${drCategory} DR on ${action.destUnitName.split('-')[0]}`,
+        title: `${aura.spellName ?? 'CC'} applied into ${drCategory} DR on ${aura.destUnitName.split('-')[0]}`,
         tip: `This ${drCategory} CC was applied within 18 seconds of a previous ${drCategory} CC on the same target, causing diminishing returns. Chain CC from different DR categories instead.`,
-        timestamp: action.logLine.timestamp,
+        timestamp: aura.logLine.timestamp,
         spellId: spellId,
       });
     }
 
     lastCCTime.set(key, {
-      timestamp: action.logLine.timestamp,
+      timestamp: aura.logLine.timestamp,
       spellId,
-      spellName: action.spellName ?? 'CC',
+      spellName: aura.spellName ?? 'CC',
     });
   }
 
