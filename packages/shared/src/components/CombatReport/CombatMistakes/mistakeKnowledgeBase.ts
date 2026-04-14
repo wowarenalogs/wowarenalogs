@@ -34,6 +34,7 @@ export const FULL_IMMUNITY_AURA_IDS = new Set<string>([
   '642', // Divine Shield
   '45438', // Ice Block
   '186265', // Aspect of the Turtle
+  '33786', // Cyclone
 ]);
 
 /** PvP Trinket spell ID (used for trinket waste detection). */

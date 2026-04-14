@@ -94,8 +94,8 @@ function MistakeExplainer() {
         <div className="px-3 pb-3 text-xs text-base-content/70 flex flex-col gap-2">
           <div>
             <span className="font-semibold text-base-content/90">Damage into immunity</span> — Flags when a player lands
-            3+ direct hits (not DoTs) on a target protected by Divine Shield, Ice Block, or Aspect of the Turtle. Swap
-            targets or hold cooldowns until the immunity expires.
+            3+ direct hits (not DoTs) on a target protected by Divine Shield, Ice Block, Aspect of the Turtle, or
+            Cyclone. Swap targets or hold cooldowns until the immunity expires.
           </div>
           <div>
             <span className="font-semibold text-base-content/90">CC into immunity</span> — Flags each crowd control

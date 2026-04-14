@@ -71,6 +71,7 @@ const IMMUNITY_SPELL_NAMES: Record<string, string> = {
   '642': 'Divine Shield',
   '45438': 'Ice Block',
   '186265': 'Aspect of the Turtle',
+  '33786': 'Cyclone',
 };
 
 function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat): DetectedMistake[] {
@@ -135,7 +136,7 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
       playerId: player.id,
       severity: 'MEDIUM',
       title: `Dealt ${evidence.length} hits into immune targets`,
-      tip: 'Attacking a target with Divine Shield, Ice Block, or Aspect of the Turtle wastes GCDs. Swap targets or wait for the immunity to expire.',
+      tip: 'Attacking a target with Divine Shield, Ice Block, Aspect of the Turtle, or Cyclone wastes GCDs. Swap targets or wait for the immunity to expire.',
       timestamp: evidence[0].timestamp,
       evidence,
     });
