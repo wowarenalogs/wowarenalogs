@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { useMemo } from 'react';
-import { TbChevronDown, TbChevronRight } from 'react-icons/tb';
+import { useMemo, useState } from 'react';
+import { TbChevronDown, TbChevronRight, TbInfoCircle } from 'react-icons/tb';
 
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
@@ -77,6 +76,48 @@ function MistakeRow({ mistake, combatStartTime }: { mistake: DetectedMistake; co
   );
 }
 
+function MistakeExplainer() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="bg-base-200 rounded-lg">
+      <button
+        className="flex w-full items-center gap-2 px-3 py-2 text-sm text-base-content/70 hover:text-base-content"
+        onClick={() => setOpen(!open)}
+      >
+        <TbInfoCircle size={16} />
+        <span>What does this detect?</span>
+        <span className="ml-auto text-base-content/40">
+          {open ? <TbChevronDown size={14} /> : <TbChevronRight size={14} />}
+        </span>
+      </button>
+      {open && (
+        <div className="px-3 pb-3 text-xs text-base-content/70 flex flex-col gap-2">
+          <div>
+            <span className="font-semibold text-base-content/90">Damage into immunity</span> — Flags when a player lands
+            3+ direct hits (not DoTs) on a target protected by Divine Shield, Ice Block, or Aspect of the Turtle. Swap
+            targets or hold cooldowns until the immunity expires.
+          </div>
+          <div>
+            <span className="font-semibold text-base-content/90">Died without defensive</span> — Flags when a player
+            dies without ever using one of their major defensive cooldowns during the match. If you have a defensive
+            available and die anyway, it was almost certainly the right time to press it.
+          </div>
+          <div>
+            <span className="font-semibold text-base-content/90">Trinket on low-value CC</span> — Flags when a player
+            uses their PvP trinket to break a short or damage-breaking CC like Sap or Gouge. Trinket is best saved for
+            stuns during kill attempts or CC chains that threaten lethal pressure.
+          </div>
+          <div>
+            <span className="font-semibold text-base-content/90">CC diminishing returns</span> — Flags when a player
+            applies crowd control from the same DR category on the same target within 18 seconds. Repeated CC in the
+            same category has reduced duration. Chain CC from different DR categories instead.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const CombatMistakes = () => {
   const { combat, players } = useCombatReportContext();
 
@@ -101,6 +142,7 @@ export const CombatMistakes = () => {
 
   return (
     <div className="animate-fadein flex flex-col gap-4">
+      <MistakeExplainer />
       {totalMistakes === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-base-content/60">
           <p className="text-lg font-semibold">No mistakes detected</p>
