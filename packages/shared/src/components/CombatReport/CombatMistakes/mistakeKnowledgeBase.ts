@@ -130,7 +130,7 @@ export const DEFENSIVE_CDS: Record<string, string[]> = {
   [CombatUnitSpec.DeathKnight_Blood]: ['48792', '55233'], // Vampiric Blood
 
   // Demon Hunter
-  [CombatUnitSpec.DemonHunter_Havoc]: ['198589', '196555'], // Blur, Netherwalk
+  [CombatUnitSpec.DemonHunter_Havoc]: ['198589'], // Blur
   [CombatUnitSpec.DemonHunter_Vengeance]: ['187827'], // Metamorphosis (Vengeance)
 
   // Monk
@@ -149,7 +149,6 @@ export const IMMUNITY_SPELL_IDS = new Set<string>([
   '642', // Divine Shield
   '45438', // Ice Block
   '186265', // Aspect of the Turtle
-  '196555', // Netherwalk
   '710', // Banish (on demon target)
   '46924', // Bladestorm (partial, breaks on stun)
   '31224', // Cloak of Shadows (magic only)
