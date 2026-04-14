@@ -71,15 +71,14 @@ export interface IKillWindowTargetEval {
 // ---------------------------------------------------------------------------
 
 /**
- * Returns the enemy's HP% (0–100) at `windowStartSeconds`, using the nearest
- * advancedAction entry at or before that time.
- * Returns null when advanced logging is unavailable for this unit.
+ * Returns the unit's HP% (0–100) at `atSeconds`, using the nearest advancedAction
+ * entry at or before that time. Returns null when advanced logging is unavailable.
  */
-function getHpPercentAtTime(enemy: ICombatUnit, windowStartSeconds: number, matchStartMs: number): number | null {
+export function getHpPercentAtTime(enemy: ICombatUnit, atSeconds: number, matchStartMs: number): number | null {
   const actions = enemy.advancedActions;
   if (actions.length === 0) return null;
 
-  const targetMs = matchStartMs + windowStartSeconds * 1000;
+  const targetMs = matchStartMs + atSeconds * 1000;
 
   // Find the latest action at or before the target time
   let best = null;
@@ -138,15 +137,33 @@ function getDefensiveStateAtTime(
     if (!effectData) continue;
 
     const cdSeconds = effectData.cooldownSeconds ?? effectData.charges?.chargeCooldownSeconds ?? 0;
+    const maxCharges = effectData.charges?.maxCharges ?? 1;
     const buffSeconds = effectData.durationSeconds && effectData.durationSeconds > 0 ? effectData.durationSeconds : 8;
 
-    // Latest cast before the window
-    const lastCast = casts[casts.length - 1];
-    const buffExpiry = lastCast.castSeconds + buffSeconds;
-    const cdReady = lastCast.castSeconds + cdSeconds;
+    // Simulate charge regeneration sequentially
+    casts.sort((a, b) => a.castSeconds - b.castSeconds);
+    let currentCharges = maxCharges;
+    let nextRegenTime = 0;
 
-    const buffActive = buffExpiry > windowStartSeconds;
-    const cdOnCooldown = cdReady > windowStartSeconds;
+    for (const cast of casts) {
+      while (nextRegenTime > 0 && nextRegenTime <= cast.castSeconds && currentCharges < maxCharges) {
+        currentCharges++;
+        nextRegenTime = currentCharges < maxCharges ? nextRegenTime + cdSeconds : 0;
+      }
+      currentCharges = Math.max(0, currentCharges - 1);
+      if (currentCharges < maxCharges && nextRegenTime === 0) {
+        nextRegenTime = cast.castSeconds + cdSeconds;
+      }
+    }
+
+    // Process regens up to window start
+    while (nextRegenTime > 0 && nextRegenTime <= windowStartSeconds && currentCharges < maxCharges) {
+      currentCharges++;
+      nextRegenTime = currentCharges < maxCharges ? nextRegenTime + cdSeconds : 0;
+    }
+
+    const buffActive = casts[casts.length - 1].castSeconds + buffSeconds > windowStartSeconds;
+    const cdOnCooldown = currentCharges === 0;
 
     if (buffActive || cdOnCooldown) {
       unavailable.push(effectData.name);
@@ -194,11 +211,14 @@ function snapshotEnemy(enemy: ICombatUnit, windowStartSeconds: number, matchStar
   const isHealerUnit = false; // spec-based healer check would require cooldowns import — use fixed DPS CD for enemies
   const trinketAvailable = getTrinketStateAtTime(enemy, windowStartSeconds, matchStartMs, isHealerUnit);
 
-  const totalTracked = available.length + unavailable.length;
-  const defensivesFraction = totalTracked > 0 ? unavailable.length / totalTracked : 0;
+  const trinketScore = trinketAvailable === false ? 1 : (trinketAvailable === true ? 0 : 0.5);
+  const totalTracked = available.length + unavailable.length + 1; // +1 for trinket
+  const spentTracked = unavailable.length + trinketScore;
+  const defensivesFraction = totalTracked > 0 ? spentTracked / totalTracked : 0;
   const hpFraction = hpPercent !== null ? hpPercent / 100 : 0.5; // assume 50% if unknown
 
-  const softnessScore = 50 * (1 - hpFraction) + 50 * defensivesFraction;
+  const trinketPenalty = trinketAvailable === false ? 15 : 0;
+  const softnessScore = 50 * (1 - hpFraction) + 50 * defensivesFraction + trinketPenalty;
 
   return {
     unitId: enemy.id,

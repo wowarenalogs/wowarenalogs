@@ -60,6 +60,7 @@ import { detectHealingGaps, formatHealingGapsForContext, IHealingGap } from '../
 import {
   analyzeKillWindowTargetSelection,
   formatKillWindowTargetSelectionForContext,
+  getHpPercentAtTime,
 } from '../../shared/src/utils/killWindowTargetSelection';
 import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../shared/src/utils/matchArchetype';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../shared/src/utils/offensiveWindows';
@@ -404,8 +405,17 @@ function identifyCriticalMoments(
   ccTrinketSummaries: IPlayerCCTrinketSummary[],
   peakDamagePressure5s: number,
   durationSeconds: number,
+  friends: ICombatUnit[],
+  matchStartMs: number,
 ): { moments: CriticalMoment[]; constrainedTrade: boolean } {
   const moments: CriticalMoment[] = [];
+  const unitsByName = new Map(friends.map((u) => [u.name, u]));
+  const unitsById = new Map(friends.map((u) => [u.id, u]));
+  function hpPctNote(unit: ICombatUnit | undefined, atSeconds: number): string {
+    if (!unit) return '';
+    const pct = getHpPercentAtTime(unit, atSeconds, matchStartMs);
+    return pct !== null ? ` (${Math.round(pct)}% HP)` : '';
+  }
 
   // 0. ConstrainedTrade gate
   const burstsSorted = [...enemyCDTimeline.alignedBurstWindows].sort((a, b) => a.fromSeconds - b.fromSeconds);
@@ -456,9 +466,12 @@ function identifyCriticalMoments(
     const enemyState = getEnemyStateAtTime(death.atSeconds, enemyCDTimeline, peakDamagePressure5s);
     const cdState = getOwnerCDsAvailable(death.atSeconds, cooldowns);
     const nearbyGap = healingGaps.find((g) => g.fromSeconds <= death.atSeconds && g.toSeconds >= death.atSeconds - 10);
+    const dyingUnit = unitsByName.get(death.name);
+    const dyingHpBefore = dyingUnit ? getHpPercentAtTime(dyingUnit, death.atSeconds - 5, matchStartMs) : null;
+    const hpContext = dyingHpBefore !== null ? ` Player was at ${Math.round(dyingHpBefore)}% HP 5s before death.` : '';
     const whatHappened = nearbyGap
-      ? `${death.spec} died at ${fmtTime(death.atSeconds)}. A ${nearbyGap.durationSeconds.toFixed(1)}s healing gap (${nearbyGap.freeCastSeconds.toFixed(1)}s free-cast) was active from ${fmtTime(nearbyGap.fromSeconds)} — healer was not CC'd during this time.`
-      : `${death.spec} died at ${fmtTime(death.atSeconds)}.`;
+      ? `${death.spec} died at ${fmtTime(death.atSeconds)}.${hpContext} A ${nearbyGap.durationSeconds.toFixed(1)}s healing gap (${nearbyGap.freeCastSeconds.toFixed(1)}s free-cast) was active from ${fmtTime(nearbyGap.fromSeconds)} — healer was not CC'd during this time.`
+      : `${death.spec} died at ${fmtTime(death.atSeconds)}.${hpContext}`;
     const dyingPlayerCC = ccTrinketSummaries.find((s) => s.playerName === death.name);
     const rootCauseTrace = buildDeathRootCauseTrace(death.atSeconds, cooldowns, dyingPlayerCC);
     const { mechanicalAvailability, interpretation, tieredOptions, finalAssessment } = buildKillMomentFields(
@@ -482,7 +495,9 @@ function identifyCriticalMoments(
       finalAssessment,
       availableOptions: cdState,
       uncertainty:
-        'Log cannot confirm healer position, line-of-sight, or exact HP% at time of death. Cause of death may involve prior damage not reflected in the nearest pressure window.',
+        dyingHpBefore !== null
+          ? 'Log cannot confirm healer position or line-of-sight at time of death. Cause of death may involve prior damage not reflected in the nearest pressure window.'
+          : 'Log cannot confirm healer position, line-of-sight, or exact HP% at time of death. Cause of death may involve prior damage not reflected in the nearest pressure window.',
       isDeath: true,
       rootCauseTrace,
     });
@@ -524,6 +539,7 @@ function identifyCriticalMoments(
     const enemyState = getEnemyStateAtTime(panic.timeSeconds, enemyCDTimeline);
     const cdState = getOwnerCDsAvailable(panic.timeSeconds, cooldowns);
     const panicContributingDeath = findContributingDeath(panic.timeSeconds, friendlyDeaths);
+    const panicTargetHpNote = hpPctNote(unitsByName.get(panic.targetName), panic.timeSeconds);
     moments.push({
       timeSeconds: panic.timeSeconds,
       impactScore: 60,
@@ -532,12 +548,13 @@ function identifyCriticalMoments(
       title: `Panic defensive — ${panic.spellName} used with no enemy burst detected`,
       enemyState,
       friendlyState: cdState,
-      whatHappened: `${panic.casterSpec} (${panic.casterName}) cast ${panic.spellName} on ${panic.targetSpec} (${panic.targetName}) at ${fmtTime(panic.timeSeconds)}, but no significant enemy pressure was detected in the surrounding 7-second window.`,
+      whatHappened: `${panic.casterSpec} (${panic.casterName}) cast ${panic.spellName} on ${panic.targetSpec} (${panic.targetName})${panicTargetHpNote} at ${fmtTime(panic.timeSeconds)}, but no significant enemy pressure was detected in the surrounding 7-second window.`,
       mechanicalAvailability: [],
       interpretation: [],
       availableOptions: `Holding ${panic.spellName} for a confirmed burst window would provide stronger coverage at the cost of a potentially risky undefended interval.`,
-      uncertainty:
-        'Log may miss absorbed damage that preceded the cast. Enemy intent and exact HP% cannot be confirmed from combat log events alone.',
+      uncertainty: panicTargetHpNote
+        ? 'Log may miss absorbed damage that preceded the cast. Enemy intent cannot be fully confirmed from combat log events alone.'
+        : 'Log may miss absorbed damage that preceded the cast. Enemy intent and exact HP% cannot be confirmed from combat log events alone.',
       contributingDeathSpec: panicContributingDeath?.spec,
       contributingDeathAtSeconds: panicContributingDeath?.atSeconds,
     });
@@ -546,6 +563,7 @@ function identifyCriticalMoments(
   for (const overlap of overlappedDefensives) {
     const enemyState = getEnemyStateAtTime(overlap.timeSeconds, enemyCDTimeline);
     const overlapContributingDeath = findContributingDeath(overlap.timeSeconds, friendlyDeaths);
+    const overlapTargetHpNote = hpPctNote(unitsById.get(overlap.targetUnitId), overlap.timeSeconds);
     moments.push({
       timeSeconds: overlap.timeSeconds,
       impactScore: 50,
@@ -554,12 +572,13 @@ function identifyCriticalMoments(
       title: `Defensive overlap — ${overlap.firstSpellName} + ${overlap.secondSpellName} simultaneously on ${overlap.targetName}`,
       enemyState,
       friendlyState: `${overlap.firstCasterSpec} used ${overlap.firstSpellName} at ${fmtTime(overlap.timeSeconds)}; ${overlap.secondCasterSpec} used ${overlap.secondSpellName} at ${fmtTime(overlap.secondCastTimeSeconds)} — simultaneous for ${overlap.simultaneousSeconds.toFixed(1)}s.`,
-      whatHappened: `Two major defensives were stacked on ${overlap.targetName} for ${overlap.simultaneousSeconds.toFixed(1)}s of overlapping coverage, wasting effective duration of one CD.`,
+      whatHappened: `Two major defensives were stacked on ${overlap.targetName}${overlapTargetHpNote} for ${overlap.simultaneousSeconds.toFixed(1)}s of overlapping coverage, wasting effective duration of one CD.`,
       mechanicalAvailability: [],
       interpretation: [],
       availableOptions: `Staggering the CDs would extend total coverage by ~${Math.round(overlap.simultaneousSeconds)}s. Optimal: ${overlap.secondCasterSpec} waits for ${overlap.firstSpellName} to expire before pressing ${overlap.secondSpellName}.`,
-      uncertainty:
-        'Cannot determine if simultaneous stacking was required to survive a spike — HP values during this window are not fully tracked in the log.',
+      uncertainty: overlapTargetHpNote
+        ? 'Assess whether simultaneous stacking was necessary given target HP% shown above. Absorbed damage before the second cast is not tracked.'
+        : 'Cannot determine if simultaneous stacking was required to survive a spike — HP values during this window are not fully tracked in the log.',
       contributingDeathSpec: overlapContributingDeath?.spec,
       contributingDeathAtSeconds: overlapContributingDeath?.atSeconds,
     });
@@ -781,6 +800,8 @@ function buildMatchPrompt(combat: ParsedCombat): string {
     ccTrinketSummaries,
     matchArchetype.peakDamagePressure5s,
     durationSeconds,
+    friends,
+    combat.startTime,
   );
 
   const ownerCanPurge = canOffensivePurge(owner);

@@ -786,10 +786,12 @@ export function detectOverlappedDefensives(
       if (first.targetUnitId !== second.targetUnitId) continue;
       if (first.casterUnitId === second.casterUnitId) continue;
 
-      // Approximate overlap: assume each defensive lasts at least OVERLAP_ASSUME_DURATION_S.
+      // Approximate overlap: attempt to use the actual spell effect duration.
+      // If none is found, fallback to OVERLAP_ASSUME_DURATION_S avoids false negatives.
       // Aura event IDs often differ from cast spell IDs in WoW logs, making reliable aura
-      // duration lookup impossible. This conservative estimate avoids false negatives.
-      const simultaneousSeconds = OVERLAP_ASSUME_DURATION_S - gapSeconds;
+      // duration lookup impossible, so we use the database-driven duration.
+      const firstDuration = spellEffectData[first.spellId]?.durationSeconds || OVERLAP_ASSUME_DURATION_S;
+      const simultaneousSeconds = firstDuration - gapSeconds;
       if (simultaneousSeconds < MIN_SIMULTANEOUS_SECONDS) continue;
 
       overlaps.push({
@@ -978,15 +980,11 @@ function offensiveThreatStartedAfter(
 
 /**
  * Detects major defensive casts where there is no sign of active enemy threat:
- * 1. The defensive target has no Offensive-tagged debuff from an enemy (e.g. Deathmark, Colossus Smash)
- * 2. The target took < threshold damage in the 3 seconds immediately before the cast
- * 3. The target took < threshold damage in the 4 seconds immediately after the cast (pre-wall check)
- * 4. No enemy offensive CD was activated within 2 seconds after the cast (pre-wall check)
- *
- * Note: we intentionally do NOT check whether any enemy has an offensive self-buff active
- * (e.g. Combustion, Avatar). Those buffs have long durations and are almost always active on
- * someone in arena, which would eliminate virtually every detection. The damage and debuff
- * checks above are sufficient to distinguish legitimate pressure from panic presses.
+ * 1. No enemy has an Offensive-tagged self-buff active (e.g. Combustion, Recklessness)
+ * 2. The defensive target has no Offensive-tagged debuff from an enemy (e.g. Deathmark, Colossus Smash)
+ * 3. The target took < threshold damage in the 3 seconds immediately before the cast
+ * 4. The target took < threshold damage in the 4 seconds immediately after the cast (pre-wall check)
+ * 5. No enemy offensive CD was activated within 2 seconds after the cast (pre-wall check)
  *
  * All conditions must be true to flag a panic press.
  */
@@ -1012,10 +1010,13 @@ export function detectPanicDefensives(
       const castTimeSeconds = (castMs - combat.startTime) / 1000;
       const targetUnit = unitMap.get(action.destUnitId);
 
-      // 1. Offensive debuffs on the target from enemies: Deathmark, Colossus Smash, etc.
+      // 1. Enemy self-buffs: Combustion, Recklessness, etc.
+      if (enemies.some((e) => hasOffensiveSpellActive(e, castMs, null))) continue;
+
+      // 2. Offensive debuffs on the target from enemies: Deathmark, Colossus Smash, etc.
       if (targetUnit && hasOffensiveSpellActive(targetUnit, castMs, enemyIds)) continue;
 
-      // 2. Local pressure: raw damage to target in the 3s before this cast
+      // 3. Local pressure: raw damage to target in the 3s before this cast
       const pressureThreshold = targetUnit ? getPressureThreshold(targetUnit) : PANIC_PRESS_DAMAGE_THRESHOLD_DPS;
       const preCastDamage = (targetUnit?.damageIn ?? [])
         .filter((d) => d.logLine.timestamp >= castMs - PANIC_PRESS_PRE_CAST_WINDOW_MS && d.logLine.timestamp < castMs)

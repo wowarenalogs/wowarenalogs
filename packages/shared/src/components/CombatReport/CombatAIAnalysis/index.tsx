@@ -31,6 +31,7 @@ import { detectHealingGaps, formatHealingGapsForContext, IHealingGap } from '../
 import {
   analyzeKillWindowTargetSelection,
   formatKillWindowTargetSelectionForContext,
+  getHpPercentAtTime,
 } from '../../../utils/killWindowTargetSelection';
 import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../../utils/matchArchetype';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../../utils/offensiveWindows';
@@ -347,8 +348,17 @@ function identifyCriticalMoments(
   ccTrinketSummaries: IPlayerCCTrinketSummary[],
   peakDamagePressure5s: number,
   durationSeconds: number,
+  friends: ICombatUnit[],
+  matchStartMs: number,
 ): { moments: CriticalMoment[]; constrainedTrade: boolean } {
   const moments: CriticalMoment[] = [];
+  const unitsByName = new Map(friends.map((u) => [u.name, u]));
+  const unitsById = new Map(friends.map((u) => [u.id, u]));
+  function hpPctNote(unit: ICombatUnit | undefined, atSeconds: number): string {
+    if (!unit) return '';
+    const pct = getHpPercentAtTime(unit, atSeconds, matchStartMs);
+    return pct !== null ? ` (${Math.round(pct)}% HP)` : '';
+  }
 
   // 0. ConstrainedTrade — opening burst correctly traded but match too short for CD recovery
   // Gate: burst score ≥ 5.0 AND owner defensive CD traded into it AND match duration < that CD's
@@ -402,9 +412,12 @@ function identifyCriticalMoments(
     const enemyState = getEnemyStateAtTime(death.atSeconds, enemyCDTimeline, peakDamagePressure5s);
     const cdState = getOwnerCDsAvailable(death.atSeconds, cooldowns);
     const nearbyGap = healingGaps.find((g) => g.fromSeconds <= death.atSeconds && g.toSeconds >= death.atSeconds - 10);
+    const dyingUnit = unitsByName.get(death.name);
+    const dyingHpBefore = dyingUnit ? getHpPercentAtTime(dyingUnit, death.atSeconds - 5, matchStartMs) : null;
+    const hpContext = dyingHpBefore !== null ? ` Player was at ${Math.round(dyingHpBefore)}% HP 5s before death.` : '';
     const whatHappened = nearbyGap
-      ? `${death.spec} died at ${fmtTime(death.atSeconds)}. A ${nearbyGap.durationSeconds.toFixed(1)}s healing gap (${nearbyGap.freeCastSeconds.toFixed(1)}s free-cast) was active from ${fmtTime(nearbyGap.fromSeconds)} — healer was not CC'd during this time.`
-      : `${death.spec} died at ${fmtTime(death.atSeconds)}.`;
+      ? `${death.spec} died at ${fmtTime(death.atSeconds)}.${hpContext} A ${nearbyGap.durationSeconds.toFixed(1)}s healing gap (${nearbyGap.freeCastSeconds.toFixed(1)}s free-cast) was active from ${fmtTime(nearbyGap.fromSeconds)} — healer was not CC'd during this time.`
+      : `${death.spec} died at ${fmtTime(death.atSeconds)}.${hpContext}`;
     const dyingPlayerCC = ccTrinketSummaries.find((s) => s.playerName === death.name);
     const rootCauseTrace = buildDeathRootCauseTrace(death.atSeconds, cooldowns, dyingPlayerCC);
     const { mechanicalAvailability, interpretation, tieredOptions, finalAssessment } = buildKillMomentFields(
@@ -428,7 +441,9 @@ function identifyCriticalMoments(
       finalAssessment,
       availableOptions: cdState,
       uncertainty:
-        'Log cannot confirm healer position, line-of-sight, or exact HP% at time of death. Cause of death may involve prior damage not reflected in the nearest pressure window.',
+        dyingHpBefore !== null
+          ? 'Log cannot confirm healer position or line-of-sight at time of death. Cause of death may involve prior damage not reflected in the nearest pressure window.'
+          : 'Log cannot confirm healer position, line-of-sight, or exact HP% at time of death. Cause of death may involve prior damage not reflected in the nearest pressure window.',
       isDeath: true,
       rootCauseTrace,
     });
@@ -472,6 +487,7 @@ function identifyCriticalMoments(
     const enemyState = getEnemyStateAtTime(panic.timeSeconds, enemyCDTimeline);
     const cdState = getOwnerCDsAvailable(panic.timeSeconds, cooldowns);
     const panicContributingDeath = findContributingDeath(panic.timeSeconds, friendlyDeaths);
+    const panicTargetHpNote = hpPctNote(unitsByName.get(panic.targetName), panic.timeSeconds);
     moments.push({
       timeSeconds: panic.timeSeconds,
       impactScore: 60,
@@ -480,12 +496,13 @@ function identifyCriticalMoments(
       title: `Panic defensive — ${panic.spellName} used with no enemy burst detected`,
       enemyState,
       friendlyState: cdState,
-      whatHappened: `${panic.casterSpec} (${panic.casterName}) cast ${panic.spellName} on ${panic.targetSpec} (${panic.targetName}) at ${fmtTime(panic.timeSeconds)}, but no significant enemy pressure was detected in the surrounding 7-second window.`,
+      whatHappened: `${panic.casterSpec} (${panic.casterName}) cast ${panic.spellName} on ${panic.targetSpec} (${panic.targetName})${panicTargetHpNote} at ${fmtTime(panic.timeSeconds)}, but no significant enemy pressure was detected in the surrounding 7-second window.`,
       mechanicalAvailability: [],
       interpretation: [],
       availableOptions: `Holding ${panic.spellName} for a confirmed burst window would provide stronger coverage at the cost of a potentially risky undefended interval.`,
-      uncertainty:
-        'Log may miss absorbed damage that preceded the cast. Enemy intent and exact HP% cannot be confirmed from combat log events alone.',
+      uncertainty: panicTargetHpNote
+        ? 'Log may miss absorbed damage that preceded the cast. Enemy intent cannot be fully confirmed from combat log events alone.'
+        : 'Log may miss absorbed damage that preceded the cast. Enemy intent and exact HP% cannot be confirmed from combat log events alone.',
       contributingDeathSpec: panicContributingDeath?.spec,
       contributingDeathAtSeconds: panicContributingDeath?.atSeconds,
     });
@@ -495,6 +512,7 @@ function identifyCriticalMoments(
   for (const overlap of overlappedDefensives) {
     const enemyState = getEnemyStateAtTime(overlap.timeSeconds, enemyCDTimeline);
     const overlapContributingDeath = findContributingDeath(overlap.timeSeconds, friendlyDeaths);
+    const overlapTargetHpNote = hpPctNote(unitsById.get(overlap.targetUnitId), overlap.timeSeconds);
     moments.push({
       timeSeconds: overlap.timeSeconds,
       impactScore: 50,
@@ -503,12 +521,13 @@ function identifyCriticalMoments(
       title: `Defensive overlap — ${overlap.firstSpellName} + ${overlap.secondSpellName} simultaneously on ${overlap.targetName}`,
       enemyState,
       friendlyState: `${overlap.firstCasterSpec} used ${overlap.firstSpellName} at ${fmtTime(overlap.timeSeconds)}; ${overlap.secondCasterSpec} used ${overlap.secondSpellName} at ${fmtTime(overlap.secondCastTimeSeconds)} — simultaneous for ${overlap.simultaneousSeconds.toFixed(1)}s.`,
-      whatHappened: `Two major defensives were stacked on ${overlap.targetName} for ${overlap.simultaneousSeconds.toFixed(1)}s of overlapping coverage, wasting effective duration of one CD.`,
+      whatHappened: `Two major defensives were stacked on ${overlap.targetName}${overlapTargetHpNote} for ${overlap.simultaneousSeconds.toFixed(1)}s of overlapping coverage, wasting effective duration of one CD.`,
       mechanicalAvailability: [],
       interpretation: [],
       availableOptions: `Staggering the CDs would extend total coverage by ~${Math.round(overlap.simultaneousSeconds)}s. Optimal: ${overlap.secondCasterSpec} waits for ${overlap.firstSpellName} to expire before pressing ${overlap.secondSpellName}.`,
-      uncertainty:
-        'Cannot determine if simultaneous stacking was required to survive a spike — HP values during this window are not fully tracked in the log.',
+      uncertainty: overlapTargetHpNote
+        ? 'Assess whether simultaneous stacking was necessary given target HP% shown above. Absorbed damage before the second cast is not tracked.'
+        : 'Cannot determine if simultaneous stacking was required to survive a spike — HP values during this window are not fully tracked in the log.',
       contributingDeathSpec: overlapContributingDeath?.spec,
       contributingDeathAtSeconds: overlapContributingDeath?.atSeconds,
     });
@@ -530,7 +549,7 @@ function identifyCriticalMoments(
 function buildMatchFlow(
   enemyCDTimeline: IEnemyCDTimeline,
   ownerCooldowns: IMajorCooldownInfo[],
-  allTeamCooldowns: IMajorCooldownInfo[],
+  allTeamCooldownsWithPlayer: Array<{ player: ICombatUnit; cd: IMajorCooldownInfo }>,
   friendlyDeaths: Array<{ spec: string; atSeconds: number }>,
   durationSeconds: number,
 ): string[] {
@@ -556,29 +575,37 @@ function buildMatchFlow(
   lines.push(`    - Enemy aligned burst (${firstBurst.dangerLabel} — ${burstCDNames})`);
 
   // Defensive CDs traded into this burst (owner + teammates)
-  const tradedDefs: string[] = [];
-  for (const cd of allTeamCooldowns) {
+  const tradedDefItems: Array<{ spec: string; spellName: string; cooldownSeconds: number }> = [];
+  for (const { player, cd } of allTeamCooldownsWithPlayer) {
     if (cd.tag !== 'Defensive') continue;
     const traded = cd.casts.find(
       (c) => c.timeSeconds >= firstBurst.fromSeconds - 5 && c.timeSeconds <= firstBurst.toSeconds + 5,
     );
-    if (traded) tradedDefs.push(cd.spellName);
+    if (traded) {
+      tradedDefItems.push({
+        spec: specToString(player.spec),
+        spellName: cd.spellName,
+        cooldownSeconds: cd.cooldownSeconds,
+      });
+    }
   }
-  if (tradedDefs.length > 0) {
-    lines.push(`    - Team responded: ${tradedDefs.join(' + ')} committed`);
+
+  if (tradedDefItems.length > 0) {
+    const formatted = tradedDefItems.map(item => `${item.spec}'s ${item.spellName}`).join(' + ');
+    lines.push(`    - Team responded: ${formatted} committed`);
   } else {
     lines.push(`    - No major defensive CDs traded into this burst`);
   }
 
-  // Check if match duration is shorter than the shortest traded owner defensive CD's cooldown
-  const shortestTradedCooldown = ownerCooldowns
-    .filter((cd) => cd.tag === 'Defensive' && tradedDefs.includes(cd.spellName))
-    .reduce<number | null>((min, cd) => (min === null ? cd.cooldownSeconds : Math.min(min, cd.cooldownSeconds)), null);
-  if (shortestTradedCooldown !== null && durationSeconds < shortestTradedCooldown) {
-    lines.push(
-      `    - Match duration (${fmtTime(durationSeconds)}) did not allow any major cooldown recovery after this trade`,
-    );
-    lines.push(`    - This match contained only one full cooldown cycle`);
+  // Check if match duration is shorter than the shortest traded team defensive CD's cooldown
+  if (tradedDefItems.length > 0) {
+    const minCooldown = Math.min(...tradedDefItems.map(item => item.cooldownSeconds));
+    if (durationSeconds < minCooldown) {
+      lines.push(
+        `    - Match duration (${fmtTime(durationSeconds)}) did not allow recovery of these major cooldowns after this trade`,
+      );
+      lines.push(`    - This match contained only one full cooldown cycle for the committed defensive abilities`);
+    }
   }
   lines.push('');
 
@@ -740,6 +767,8 @@ export function buildMatchContext(
     ccTrinketSummaries,
     matchArchetype.peakDamagePressure5s,
     durationSeconds,
+    friends as ICombatUnit[],
+    combat.startTime,
   );
 
   // Purge responsibility attribution
@@ -769,8 +798,11 @@ export function buildMatchContext(
 
   // ── MATCH FLOW ─────────────────────────────────────────────────────────────
   lines.push('');
-  const allTeamCooldownsFlat = [cooldowns, ...teammateCooldowns.map(({ cds }) => cds)].flat();
-  buildMatchFlow(enemyCDTimeline, cooldowns, allTeamCooldownsFlat, friendlyDeaths, durationSeconds).forEach((l) =>
+  const allTeamCooldownsWithPlayer = [
+    ...cooldowns.map(cd => ({ player: owner as ICombatUnit, cd })),
+    ...teammateCooldowns.flatMap(({ player, cds }) => cds.map(cd => ({ player: player as ICombatUnit, cd })))
+  ];
+  buildMatchFlow(enemyCDTimeline, cooldowns, allTeamCooldownsWithPlayer, friendlyDeaths, durationSeconds).forEach((l) =>
     lines.push(l),
   );
 
