@@ -9,6 +9,12 @@ import {
   TRINKET_SPELL_ID,
 } from './mistakeKnowledgeBase';
 
+export interface MistakeEvidence {
+  timestamp: number;
+  text: string;
+  spellId?: string;
+}
+
 export interface DetectedMistake {
   id: string;
   playerId: string;
@@ -20,6 +26,8 @@ export interface DetectedMistake {
   spellId?: string;
   /** Optional spell name. */
   spellName?: string;
+  /** Individual log events that produced this mistake. */
+  evidence?: MistakeEvidence[];
 }
 
 const DR_WINDOW_MS = 18000; // 18 seconds for DR reset
@@ -50,6 +58,12 @@ export function analyzeMistakes(combat: AtomicArenaCombat): DetectedMistake[] {
 /**
  * Detect when a player dealt significant damage into a target with a full immunity aura.
  */
+const IMMUNITY_SPELL_NAMES: Record<string, string> = {
+  '642': 'Divine Shield',
+  '45438': 'Ice Block',
+  '186265': 'Aspect of the Turtle',
+};
+
 function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat): DetectedMistake[] {
   const mistakes: DetectedMistake[] = [];
 
@@ -57,7 +71,8 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
   const immunityWindows = buildImmunityWindows(combat);
 
   // Check each damage event from this player
-  let immunityDamageCount = 0;
+  const evidence: MistakeEvidence[] = [];
+  let firstTimestamp = 0;
   for (const dmg of player.damageOut) {
     if (!('logLine' in dmg)) continue;
     const targetId = dmg.logLine.parameters[4]?.toString();
@@ -68,21 +83,30 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
 
     for (const win of windows) {
       if (dmg.logLine.timestamp >= win.start && dmg.logLine.timestamp <= win.end) {
-        immunityDamageCount++;
+        if (firstTimestamp === 0) firstTimestamp = dmg.logLine.timestamp;
+        const targetName = dmg.destUnitName?.split('-')[0] ?? 'target';
+        const spellName = dmg.spellName ?? 'Melee';
+        const immunityName = IMMUNITY_SPELL_NAMES[win.spellId] ?? win.spellId;
+        evidence.push({
+          timestamp: dmg.logLine.timestamp,
+          text: `${spellName} → ${targetName} (${immunityName})`,
+          spellId: dmg.spellId ?? undefined,
+        });
         break;
       }
     }
   }
 
   // Only flag if there were multiple hits into immunity (not just one stray tick)
-  if (immunityDamageCount >= 3) {
+  if (evidence.length >= 3) {
     mistakes.push({
       id: 'damage_into_immunity',
       playerId: player.id,
       severity: 'HIGH',
-      title: `Dealt ${immunityDamageCount} hits into immune targets`,
+      title: `Dealt ${evidence.length} hits into immune targets`,
       tip: 'Attacking a target with Divine Shield, Ice Block, or Aspect of the Turtle wastes your GCDs. Swap targets or wait for the immunity to expire.',
-      timestamp: combat.startTime,
+      timestamp: firstTimestamp,
+      evidence,
     });
   }
 

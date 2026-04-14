@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useMemo } from 'react';
+import { TbChevronDown, TbChevronRight } from 'react-icons/tb';
 
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
@@ -22,6 +24,57 @@ function formatTimestamp(timestampMs: number, combatStartMs: number): string {
   const min = Math.floor(elapsedSec / 60);
   const sec = Math.floor(elapsedSec % 60);
   return `${min}:${sec.toString().padStart(2, '0')}`;
+}
+
+function MistakeRow({ mistake, combatStartTime }: { mistake: DetectedMistake; combatStartTime: number }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasEvidence = mistake.evidence && mistake.evidence.length > 0;
+
+  return (
+    <>
+      <tr className={hasEvidence ? 'cursor-pointer hover' : ''} onClick={() => hasEvidence && setExpanded(!expanded)}>
+        <td className="bg-base-100 font-mono text-sm">{formatTimestamp(mistake.timestamp, combatStartTime)}</td>
+        <td className="bg-base-100">{severityBadge(mistake.severity)}</td>
+        <td className="bg-base-100">{mistake.spellId && <SpellIcon spellId={mistake.spellId} size={24} />}</td>
+        <td className="bg-base-100">
+          <div className="flex items-start gap-1">
+            {hasEvidence && (
+              <span className="mt-0.5 text-base-content/40">
+                {expanded ? <TbChevronDown size={14} /> : <TbChevronRight size={14} />}
+              </span>
+            )}
+            <div>
+              <div className="font-semibold text-sm">{mistake.title}</div>
+              <div className="text-xs text-base-content/60 mt-0.5">{mistake.tip}</div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {expanded && mistake.evidence && (
+        <tr>
+          <td colSpan={4} className="bg-base-100 p-0">
+            <div className="pl-8 pr-4 py-2 bg-base-300/30">
+              <table className="table table-compact w-full">
+                <tbody>
+                  {mistake.evidence.map((ev, i) => (
+                    <tr key={i} className="border-none">
+                      <td className="bg-transparent font-mono text-xs w-16 py-0.5">
+                        {formatTimestamp(ev.timestamp, combatStartTime)}
+                      </td>
+                      <td className="bg-transparent w-8 py-0.5">
+                        {ev.spellId && <SpellIcon spellId={ev.spellId} size={18} />}
+                      </td>
+                      <td className="bg-transparent text-xs py-0.5">{ev.text}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  );
 }
 
 export const CombatMistakes = () => {
@@ -85,19 +138,7 @@ export const CombatMistakes = () => {
                   </thead>
                   <tbody>
                     {playerMistakes.map((mistake, idx) => (
-                      <tr key={`${mistake.id}-${idx}`}>
-                        <td className="bg-base-100 font-mono text-sm">
-                          {formatTimestamp(mistake.timestamp, combat.startTime)}
-                        </td>
-                        <td className="bg-base-100">{severityBadge(mistake.severity)}</td>
-                        <td className="bg-base-100">
-                          {mistake.spellId && <SpellIcon spellId={mistake.spellId} size={24} />}
-                        </td>
-                        <td className="bg-base-100">
-                          <div className="font-semibold text-sm">{mistake.title}</div>
-                          <div className="text-xs text-base-content/60 mt-0.5">{mistake.tip}</div>
-                        </td>
-                      </tr>
+                      <MistakeRow key={`${mistake.id}-${idx}`} mistake={mistake} combatStartTime={combat.startTime} />
                     ))}
                   </tbody>
                 </table>
