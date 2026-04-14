@@ -14,6 +14,7 @@ import {
   FULL_IMMUNITY_AURA_IDS,
   LOW_VALUE_CC_SPELL_IDS,
   MistakeSeverity,
+  SPELL_NAMES,
   TRINKET_SPELL_ID,
 } from './mistakeKnowledgeBase';
 
@@ -67,12 +68,6 @@ export function analyzeMistakes(combat: AtomicArenaCombat): DetectedMistake[] {
 /**
  * Detect when a player dealt significant damage into a target with a full immunity aura.
  */
-const IMMUNITY_SPELL_NAMES: Record<string, string> = {
-  '642': 'Divine Shield',
-  '45438': 'Ice Block',
-  '186265': 'Aspect of the Turtle',
-  '33786': 'Cyclone',
-};
 
 function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat): DetectedMistake[] {
   const mistakes: DetectedMistake[] = [];
@@ -97,7 +92,7 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
       if (dmg.logLine.timestamp >= win.start && dmg.logLine.timestamp <= win.end) {
         const targetName = dmg.destUnitName?.split('-')[0] ?? 'target';
         const spellName = dmg.spellName ?? 'Melee';
-        const immunityName = IMMUNITY_SPELL_NAMES[win.spellId] ?? win.spellId;
+        const immunityName = SPELL_NAMES.get(win.spellId) ?? win.spellId;
         evidence.push({
           timestamp: dmg.logLine.timestamp,
           text: `${spellName} → ${targetName} (${immunityName})`,

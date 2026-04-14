@@ -2,6 +2,23 @@ import spellClassMap from '../../../data/spellClassMap.json';
 
 export type MistakeSeverity = 'HIGH' | 'MEDIUM' | 'LOW';
 
+/** Spell ID → name lookup built from all spellClassMap categories. */
+export const SPELL_NAMES: Map<string, string> = (() => {
+  const map = new Map<string, string>();
+  const allEntries = [
+    ...spellClassMap.bigDefensive,
+    ...spellClassMap.externalDefensive,
+    ...spellClassMap.important,
+    ...Object.values(spellClassMap.diminishingReturns).flat(),
+  ];
+  for (const entry of allEntries) {
+    if (entry.spellId && entry.name && !map.has(entry.spellId)) {
+      map.set(entry.spellId, entry.name);
+    }
+  }
+  return map;
+})();
+
 // ── Spell ID constants ──────────────────────────────────────────────
 
 /**
