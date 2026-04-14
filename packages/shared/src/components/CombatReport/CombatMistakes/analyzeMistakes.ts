@@ -75,6 +75,8 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
   let firstTimestamp = 0;
   for (const dmg of player.damageOut) {
     if (!('logLine' in dmg)) continue;
+    // Skip DoT ticks — the player can't stop periodic damage already applied before the immunity
+    if (dmg.logLine.event === LogEvent.SPELL_PERIODIC_DAMAGE) continue;
     const targetId = dmg.logLine.parameters[4]?.toString();
     if (!targetId) continue;
 
