@@ -1,4 +1,5 @@
 import spellClassMap from '../../../data/spellClassMap.json';
+import { spells } from '../../../data/spellTags';
 
 export type MistakeSeverity = 'HIGH' | 'MEDIUM' | 'LOW';
 
@@ -67,6 +68,16 @@ export const LOW_VALUE_CC_SPELL_IDS = new Set<string>([
 
 /** Interrupt (kick) spell IDs derived from spellClassMap.json. */
 export const INTERRUPT_SPELL_IDS = new Set<string>(spellClassMap.interrupts.map((e: { spellId: string }) => e.spellId));
+
+/** Offensive buff aura IDs from BigDebuffs (type === 'buffs_offensive'). */
+export const OFFENSIVE_BUFF_IDS = new Set<string>(
+  Object.keys(spells).filter((id) => spells[id].type === 'buffs_offensive'),
+);
+
+/** Defensive buff aura IDs from BigDebuffs (type === 'buffs_defensive'). */
+export const DEFENSIVE_BUFF_IDS = new Set<string>(
+  Object.keys(spells).filter((id) => spells[id].type === 'buffs_defensive'),
+);
 
 /** CC DR categories derived from spellClassMap.json (SpellCategories.DiminishType). */
 export const DR_CATEGORIES: Record<string, Set<string>> = (() => {

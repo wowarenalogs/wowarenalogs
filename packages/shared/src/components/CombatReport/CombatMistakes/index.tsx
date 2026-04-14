@@ -127,6 +127,11 @@ function MistakeExplainer() {
             interrupt spell (Pummel, Kick, Counterspell, etc.) but does not successfully interrupt a cast. The target
             may not have been casting, or the cast finished before the kick landed.
           </div>
+          <div>
+            <span className="font-semibold text-base-content/90">Burst into defensive</span> — Flags when a player deals
+            damage while they have an offensive cooldown active (Shadow Blades, Combustion, etc.) and their target has a
+            defensive cooldown up. Offensive cooldowns are best used when the target has no defensives available.
+          </div>
         </div>
       )}
     </div>

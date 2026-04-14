@@ -9,12 +9,14 @@ import {
 
 import { ccSpellIds } from '../../../data/spellTags';
 import {
+  DEFENSIVE_BUFF_IDS,
   DEFENSIVE_CDS,
   DR_CATEGORIES,
   FULL_IMMUNITY_AURA_IDS,
   INTERRUPT_SPELL_IDS,
   LOW_VALUE_CC_SPELL_IDS,
   MistakeSeverity,
+  OFFENSIVE_BUFF_IDS,
   SPELL_NAMES,
   TRINKET_SPELL_ID,
 } from './mistakeKnowledgeBase';
@@ -62,6 +64,7 @@ export function analyzeMistakes(combat: AtomicArenaCombat): DetectedMistake[] {
     mistakes.push(...detectTrinketLowValueCC(player, combat));
     mistakes.push(...detectCCDROverlap(player, combat));
     mistakes.push(...detectMissedKicks(player, combat));
+    mistakes.push(...detectBurstIntoDefensives(player, combat));
   }
 
   // Sort by timestamp
@@ -77,7 +80,7 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
   const mistakes: DetectedMistake[] = [];
 
   // Build a timeline of immunity windows for all units
-  const immunityWindows = buildImmunityWindows(combat);
+  const immunityWindows = buildAuraWindows(combat, FULL_IMMUNITY_AURA_IDS);
 
   const evidence: MistakeEvidence[] = [];
 
@@ -173,22 +176,26 @@ function detectCCIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat): D
   return mistakes;
 }
 
-interface ImmunityWindow {
+interface AuraWindow {
   start: number;
   end: number;
   spellId: string;
 }
 
-function buildImmunityWindows(combat: AtomicArenaCombat): Map<string, ImmunityWindow[]> {
-  const windows = new Map<string, ImmunityWindow[]>();
+/**
+ * Build time windows for when specific auras are active on each unit.
+ * Returns a map of unitId → list of { start, end, spellId } windows.
+ */
+function buildAuraWindows(combat: AtomicArenaCombat, spellIdSet: Set<string>): Map<string, AuraWindow[]> {
+  const windows = new Map<string, AuraWindow[]>();
 
   for (const unit of Object.values(combat.units)) {
-    const unitWindows: ImmunityWindow[] = [];
+    const unitWindows: AuraWindow[] = [];
     const openWindows = new Map<string, number>(); // spellId -> start timestamp
 
     for (const aura of unit.auraEvents) {
       const spellId = aura.spellId ?? '';
-      if (!FULL_IMMUNITY_AURA_IDS.has(spellId)) continue;
+      if (!spellIdSet.has(spellId)) continue;
 
       if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
         openWindows.set(spellId, aura.logLine.timestamp);
@@ -429,6 +436,69 @@ function detectMissedKicks(player: ICombatUnit, combat: AtomicArenaCombat): Dete
         spellId: cast.spellId ?? undefined,
         targetId: cast.destUnitId || undefined,
       });
+    }
+  }
+
+  return mistakes;
+}
+
+/**
+ * Detect when a player deals damage while they have an offensive cooldown active
+ * and their target has a defensive cooldown active.
+ *
+ * This flags situations where burst damage is wasted into defensives.
+ */
+function detectBurstIntoDefensives(player: ICombatUnit, combat: AtomicArenaCombat): DetectedMistake[] {
+  const mistakes: DetectedMistake[] = [];
+
+  // Build windows for this player's offensive buffs
+  const offensiveWindows = buildAuraWindows(combat, OFFENSIVE_BUFF_IDS).get(player.id);
+  if (!offensiveWindows || offensiveWindows.length === 0) return mistakes;
+
+  // Build defensive windows for all units
+  const defensiveWindows = buildAuraWindows(combat, DEFENSIVE_BUFF_IDS);
+
+  // For each offensive window, check if the player dealt damage to a target
+  // that had a defensive buff active during the overlap period.
+  // Track per offensive window + target defensive combo to avoid duplicate reports.
+  const reported = new Set<string>();
+
+  for (const offWin of offensiveWindows) {
+    // Check each damage event during this offensive window
+    for (const dmg of player.damageOut) {
+      if (!('logLine' in dmg)) continue;
+      const ts = dmg.logLine.timestamp;
+      if (ts < offWin.start || ts > offWin.end) continue;
+
+      const targetId = dmg.logLine.parameters[4]?.toString();
+      if (!targetId) continue;
+
+      const targetDefWindows = defensiveWindows.get(targetId);
+      if (!targetDefWindows) continue;
+
+      for (const defWin of targetDefWindows) {
+        if (ts >= defWin.start && ts <= defWin.end) {
+          const key = `${offWin.spellId}:${defWin.spellId}:${targetId}`;
+          if (reported.has(key)) break;
+          reported.add(key);
+
+          const offName = SPELL_NAMES.get(offWin.spellId) ?? 'offensive CD';
+          const defName = SPELL_NAMES.get(defWin.spellId) ?? 'defensive';
+          const targetName = dmg.destUnitName?.split('-')[0] ?? 'target';
+
+          mistakes.push({
+            id: 'burst_into_defensive',
+            playerId: player.id,
+            severity: 'HIGH',
+            title: `${offName} damage into ${targetName}'s ${defName}`,
+            tip: `Burst damage was dealt while ${offName} was active but the target had ${defName} up. Consider swapping targets or waiting for the defensive to expire before committing offensive cooldowns.`,
+            timestamp: ts,
+            spellId: offWin.spellId,
+            targetId,
+          });
+          break;
+        }
+      }
     }
   }
 
