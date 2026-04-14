@@ -99,8 +99,8 @@ function MistakeExplainer() {
           </div>
           <div>
             <span className="font-semibold text-base-content/90">Died without defensive</span> — Flags when a player
-            dies without ever using one of their major defensive cooldowns during the match. If you have a defensive
-            available and die anyway, it was almost certainly the right time to press it.
+            dies without ever using one of their major defensive cooldowns during the match. If a defensive was
+            available, it was almost certainly the right time to press it.
           </div>
           <div>
             <span className="font-semibold text-base-content/90">Trinket on low-value CC</span> — Flags when a player

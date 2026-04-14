@@ -106,7 +106,7 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
       playerId: player.id,
       severity: 'HIGH',
       title: `Dealt ${evidence.length} hits into immune targets`,
-      tip: 'Attacking a target with Divine Shield, Ice Block, or Aspect of the Turtle wastes your GCDs. Swap targets or wait for the immunity to expire.',
+      tip: 'Attacking a target with Divine Shield, Ice Block, or Aspect of the Turtle wastes GCDs. Swap targets or wait for the immunity to expire.',
       timestamp: firstTimestamp,
       evidence,
     });
@@ -196,7 +196,7 @@ function detectDiedWithoutDefensive(player: ICombatUnit, _combat: AtomicArenaCom
       playerId: player.id,
       severity: 'HIGH',
       title: `Died without using ${unusedDefensives.length} defensive cooldown${unusedDefensives.length > 1 ? 's' : ''}`,
-      tip: 'You died in this match without ever activating one of your major defensive cooldowns. These abilities exist to prevent exactly this outcome.',
+      tip: `${player.name.split('-')[0]} died without ever activating a major defensive cooldown. These abilities exist to prevent exactly this outcome.`,
       timestamp: deathTime,
       spellId: unusedDefensives[0],
     });
@@ -236,7 +236,7 @@ function detectTrinketLowValueCC(player: ICombatUnit, _combat: AtomicArenaCombat
         playerId: player.id,
         severity: 'MEDIUM',
         title: `Trinket used to break ${cc.spellName ?? 'low-value CC'}`,
-        tip: 'Sap and Gouge break on damage and have short durations. Save your trinket for stuns during kill attempts or CC chains that threaten lethal.',
+        tip: 'Sap and Gouge break on damage and have short durations. Trinket is better saved for stuns during kill attempts or CC chains that threaten lethal.',
         timestamp: trinketTime,
         spellId: cc.spellId ?? undefined,
       });
