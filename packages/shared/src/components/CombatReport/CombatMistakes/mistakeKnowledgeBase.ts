@@ -73,7 +73,8 @@ export const DR_CATEGORIES: Record<string, Set<string>> = (() => {
   const RELEVANT_CATEGORIES = ['stun', 'incapacitate', 'disorient'];
   const result: Record<string, Set<string>> = {};
   for (const cat of RELEVANT_CATEGORIES) {
-    const entries = spellClassMap.diminishingReturns[cat] ?? [];
+    const entries =
+      (spellClassMap.diminishingReturns as Record<string, { spellId: string; name: string }[]>)[cat] ?? [];
     result[cat] = new Set(entries.map((e: { spellId: string }) => e.spellId));
   }
   return result;
