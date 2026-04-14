@@ -422,7 +422,7 @@ function detectMissedKicks(player: ICombatUnit, combat: AtomicArenaCombat): Dete
       mistakes.push({
         id: 'missed_kick',
         playerId: player.id,
-        severity: 'LOW',
+        severity: 'MEDIUM',
         title: `${spellName} missed`,
         tip: 'This interrupt was cast but did not interrupt a spell. The target may not have been casting, or the cast finished before the kick landed.',
         timestamp: castTime,
