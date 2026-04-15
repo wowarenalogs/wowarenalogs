@@ -1,10 +1,11 @@
 {
-  "generatedAt": "2026-04-15T05:59:10.362Z",
+  "generatedAt": "2026-04-15T06:27:38.227Z",
   "wagoBuild": "12.0.1.66838",
   "sources": {
     "chrSpecializationCsv": "https://wago.tools/db2/ChrSpecialization/csv?build=12.0.1.66838",
     "specializationSpellsCsv": "https://wago.tools/db2/SpecializationSpells/csv?build=12.0.1.66838",
     "skillLineAbilityCsv": "https://wago.tools/db2/SkillLineAbility/csv?build=12.0.1.66838",
+    "pvpTalentCsv": "https://wago.tools/db2/PvpTalent/csv?build=12.0.1.66838",
     "spellNameCsv": "https://wago.tools/db2/SpellName/csv?build=12.0.1.66838",
     "spellCategoriesCsv": "https://wago.tools/db2/SpellCategories/csv?build=12.0.1.66838",
     "spellEffectCsv": "https://wago.tools/db2/SpellEffect/csv?build=12.0.1.66838",
@@ -398,7 +399,9 @@
       "spellId": "204018",
       "name": "Blessing of Spellwarding",
       "specIds": [
-        "66"
+        "65",
+        "66",
+        "70"
       ],
       "source": "TalentTree"
     },
@@ -958,7 +961,9 @@
       "spellId": "204018",
       "name": "Blessing of Spellwarding",
       "specIds": [
-        "66"
+        "65",
+        "66",
+        "70"
       ],
       "source": "TalentTree"
     },
@@ -981,8 +986,12 @@
     {
       "spellId": "212295",
       "name": "Nether Ward",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "265",
+        "266",
+        "267"
+      ],
+      "source": "PvpTalent"
     },
     {
       "spellId": "212800",
@@ -1261,8 +1270,12 @@
     {
       "spellId": "378441",
       "name": "Time Stop",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "1467",
+        "1468",
+        "1473"
+      ],
+      "source": "PvpTalent"
     },
     {
       "spellId": "378464",
@@ -2287,6 +2300,22 @@
           "104",
           "105"
         ]
+      },
+      {
+        "spellId": "212638",
+        "name": "Tracker's Net",
+        "specIds": [
+          "255"
+        ]
+      },
+      {
+        "spellId": "236077",
+        "name": "Disarm",
+        "specIds": [
+          "71",
+          "72",
+          "73"
+        ]
       }
     ],
     "taunt": [
@@ -2468,6 +2497,14 @@
       {
         "spellId": "179057",
         "name": "Chaos Nova",
+        "specIds": [
+          "577",
+          "581"
+        ]
+      },
+      {
+        "spellId": "205630",
+        "name": "Illidan's Grasp",
         "specIds": [
           "577",
           "581"
@@ -3052,7 +3089,40 @@
         ]
       }
     ],
-    "disarm": []
+    "disarm": [
+      {
+        "spellId": "207777",
+        "name": "Dismantle",
+        "specIds": [
+          "259",
+          "260",
+          "261"
+        ]
+      },
+      {
+        "spellId": "209749",
+        "name": "Faerie Swarm",
+        "specIds": [
+          "102"
+        ]
+      },
+      {
+        "spellId": "233759",
+        "name": "Grapple Weapon",
+        "specIds": [
+          "269"
+        ]
+      },
+      {
+        "spellId": "236077",
+        "name": "Disarm",
+        "specIds": [
+          "71",
+          "72",
+          "73"
+        ]
+      }
+    ]
   },
   "interrupts": [
     {
