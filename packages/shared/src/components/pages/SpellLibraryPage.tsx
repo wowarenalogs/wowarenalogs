@@ -133,13 +133,16 @@ function groupByClass(
       specGroups: Array.from(specMap.entries())
         .sort(([, a], [, b]) => a[0]?.name.localeCompare(b[0]?.name))
         .map(([specId, specSpells]) => {
-          // Deduplicate by spell name within each spec (keep the first occurrence)
-          const seen = new Set<string>();
-          const unique = specSpells.filter((s) => {
-            if (seen.has(s.name)) return false;
-            seen.add(s.name);
-            return true;
-          });
+          // Deduplicate by spell name within each spec, keeping the lowest spell ID
+          // (original version most likely to have a valid icon)
+          const byName = new Map<string, SpellEntry>();
+          for (const s of specSpells) {
+            const existing = byName.get(s.name);
+            if (!existing || Number(s.spellId) < Number(existing.spellId)) {
+              byName.set(s.name, s);
+            }
+          }
+          const unique = Array.from(byName.values());
           return {
             specName: SPEC_TO_NAME[specId] ?? specId,
             specId,
