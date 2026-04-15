@@ -56,6 +56,12 @@ const CATEGORIES: CategoryDef[] = [
     spells: spellClassMap.externalDefensive,
   },
   {
+    key: 'important',
+    label: 'Important Cooldowns',
+    description: 'Major offensive and utility cooldowns that significantly impact the flow of a match.',
+    spells: spellClassMap.important,
+  },
+  {
     key: 'interrupts',
     label: 'Interrupts',
     description: 'Abilities that interrupt enemy spell casts and lock out their spell school.',

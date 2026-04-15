@@ -133,13 +133,17 @@ interface SpellClassEntry {
   spellId: string;
   name: string;
   specIds: string[];
-  source:
-    | 'SpecializationSpells'
-    | 'SkillLineAbility'
-    | 'TalentTree'
-    | 'TalentTree:name'
-    | 'cross-category:name'
-    | 'unresolved';
+  source: 'SpecializationSpells' | 'SkillLineAbility' | 'TalentTree' | 'unresolved';
+}
+
+/** Spells flagged by DB2 attributes that share a name with a talent but couldn't be ID-resolved. */
+interface UnresolvedSpellEntry {
+  spellId: string;
+  name: string;
+  category: string;
+  /** Talent tree spell IDs that share this name (the IDs Blizzard likely meant to flag). */
+  talentSpellIds: string[];
+  talentSpecIds: string[];
 }
 
 interface DiminishEntry {
@@ -175,6 +179,9 @@ interface IGeneratedSpellClassMap {
   diminishingReturns: Record<string, DiminishEntry[]>;
   /** Interrupt (kick) spells that only interrupt, excluding silences. */
   interrupts: InterruptEntry[];
+  /** Spells flagged by DB2 attributes that could not be ID-resolved to player specs.
+   *  These likely represent Blizzard flagging the wrong spell ID. For bug reporting only. */
+  unresolvedSpells: UnresolvedSpellEntry[];
 }
 
 // ── Main ────────────────────────────────────────────────────────────
@@ -352,7 +359,7 @@ async function main() {
 
   // Index 1: spellId → specIds (exact match)
   const talentSpellMap = new Map<string, Set<number>>();
-  // Index 2: spellName → [{specId, spellId}] (for name-based fallback)
+  // Index 2: spellName → [{specId, spellId}] (for detecting unresolved spells with name matches)
   const talentNameMap = new Map<string, Array<{ specId: number; spellId: string }>>();
 
   for (const tree of talentIdMap) {
@@ -388,6 +395,10 @@ async function main() {
 
   // ── 7. Resolve each spell to its spec IDs ───────────────────────
 
+  /**
+   * Resolve a spell ID to its player spec IDs.
+   * Uses only exact ID matching — no name-based fallback.
+   */
   function resolveSpell(spellId: string): SpellClassEntry {
     const name = spellNamesById.get(spellId) || '';
 
@@ -433,23 +444,6 @@ async function main() {
       };
     }
 
-    // Priority 4: Talent tree — name-based fallback.
-    // Some spells have different IDs in SpellMisc vs the talent tree (e.g.,
-    // Survival Instincts is 50322 in bigDefensive but 61336 in talents).
-    if (name) {
-      const byName = talentNameMap.get(name.toLowerCase());
-      if (byName && byName.length > 0) {
-        const specIds = new Set<string>();
-        byName.forEach((hit) => specIds.add(String(hit.specId)));
-        return {
-          spellId,
-          name,
-          specIds: Array.from(specIds).sort((a, b) => Number(a) - Number(b)),
-          source: 'TalentTree:name',
-        };
-      }
-    }
-
     // Not found in any source
     return { spellId, name, specIds: [], source: 'unresolved' };
   }
@@ -462,37 +456,39 @@ async function main() {
   const externalDefensive = resolveCategory(spellIdLists.externalDefensiveSpellIds);
   const important = resolveCategory(spellIdLists.importantSpellIds);
 
-  // ── 7b. Cross-category name resolution ─────────────────────────
-  // Some spells have different IDs for the cast vs the buff/aura (e.g.,
-  // Blur: cast=198589 in `important`, buff=212800 in `bigDefensive`).
-  // For any unresolved spell, check if a spell with the same name was
-  // resolved in another category and inherit its specIds.
-  const allResolved = [...bigDefensive, ...externalDefensive, ...important];
-  const resolvedByName = new Map<string, SpellClassEntry>();
-  for (const entry of allResolved) {
-    if (entry.specIds.length > 0 && entry.name) {
-      const key = entry.name.toLowerCase();
-      // Keep the first resolved entry per name (highest-priority source)
-      if (!resolvedByName.has(key)) {
-        resolvedByName.set(key, entry);
-      }
-    }
-  }
+  // ── 7b. Collect unresolved spells for bug reporting ────────────
+  // Spells flagged by DB2 attributes that can't be ID-resolved to a player
+  // spec, but share a name with a talent tree entry. These likely represent
+  // Blizzard flagging the wrong spell ID. Written to output for bug reporting
+  // only — not used in the app.
+  const unresolvedSpells: UnresolvedSpellEntry[] = [];
+  const categoryEntries: [string, SpellClassEntry[]][] = [
+    ['bigDefensive', bigDefensive],
+    ['externalDefensive', externalDefensive],
+    ['important', important],
+  ];
 
-  function crossResolveCategory(entries: SpellClassEntry[]): void {
+  for (const [category, entries] of categoryEntries) {
     for (const entry of entries) {
       if (entry.specIds.length > 0 || !entry.name) continue;
-      const donor = resolvedByName.get(entry.name.toLowerCase());
-      if (donor) {
-        entry.specIds = donor.specIds;
-        entry.source = 'cross-category:name';
+      const byName = talentNameMap.get(entry.name.toLowerCase());
+      if (byName && byName.length > 0) {
+        const talentSpecIds = new Set<string>();
+        const talentSpellIds = new Set<string>();
+        byName.forEach((hit) => {
+          talentSpecIds.add(String(hit.specId));
+          talentSpellIds.add(hit.spellId);
+        });
+        unresolvedSpells.push({
+          spellId: entry.spellId,
+          name: entry.name,
+          category,
+          talentSpellIds: Array.from(talentSpellIds).sort((a, b) => Number(a) - Number(b)),
+          talentSpecIds: Array.from(talentSpecIds).sort((a, b) => Number(a) - Number(b)),
+        });
       }
     }
   }
-
-  crossResolveCategory(bigDefensive);
-  crossResolveCategory(externalDefensive);
-  crossResolveCategory(important);
 
   // ── 8. Report ───────────────────────────────────────────────────
 
@@ -520,6 +516,13 @@ async function main() {
   reportCategory('bigDefensive', bigDefensive);
   reportCategory('externalDefensive', externalDefensive);
   reportCategory('important', important);
+
+  if (unresolvedSpells.length > 0) {
+    console.log(`\n⚠ ${unresolvedSpells.length} spells have name matches in talent tree but no ID match (likely wrong spell ID in DB2):`);
+    for (const u of unresolvedSpells) {
+      console.log(`  ${u.spellId} "${u.name}" [${u.category}] → talent IDs: ${u.talentSpellIds.join(', ')}`);
+    }
+  }
 
   // ── 8b. Resolve interrupt spells to player specs ────────────────
   const interrupts: InterruptEntry[] = [];
@@ -572,6 +575,7 @@ async function main() {
     important,
     diminishingReturns,
     interrupts,
+    unresolvedSpells,
   };
 
   const outputPath = path.resolve(__dirname, '../../shared/src/data/spellClassMap.json');
