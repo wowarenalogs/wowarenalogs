@@ -74,10 +74,11 @@ export const OFFENSIVE_BUFF_IDS = new Set<string>(
   Object.keys(spells).filter((id) => spells[id].type === 'buffs_offensive'),
 );
 
-/** Defensive buff aura IDs from BigDebuffs (type === 'buffs_defensive'). */
-export const DEFENSIVE_BUFF_IDS = new Set<string>(
-  Object.keys(spells).filter((id) => spells[id].type === 'buffs_defensive'),
-);
+/** Defensive buff aura IDs from spellClassMap (bigDefensive + externalDefensive). */
+export const DEFENSIVE_BUFF_IDS = new Set<string>([
+  ...spellClassMap.bigDefensive.map((e: { spellId: string }) => e.spellId),
+  ...spellClassMap.externalDefensive.map((e: { spellId: string }) => e.spellId),
+]);
 
 /** CC DR categories derived from spellClassMap.json (SpellCategories.DiminishType). */
 export const DR_CATEGORIES: Record<string, Set<string>> = (() => {
