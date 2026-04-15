@@ -105,7 +105,9 @@ const CATEGORIES: CategoryDef[] = [
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
-/** Group spells by WoW class from their specIds */
+const VALID_SPEC_IDS = new Set(Object.values(CombatUnitSpec) as string[]);
+
+/** Group spells by WoW class from their specIds, deduplicating by name within each spec. */
 function groupByClass(
   spells: SpellEntry[],
 ): { className: string; specGroups: { specName: string; specId: string; spells: SpellEntry[] }[] }[] {
@@ -114,6 +116,8 @@ function groupByClass(
   for (const spell of spells) {
     if (!spell.specIds || spell.specIds.length === 0) continue;
     for (const specId of spell.specIds) {
+      // Skip hero specs not in our enum — they duplicate base spec spells
+      if (!VALID_SPEC_IDS.has(specId)) continue;
       const className = SPEC_TO_CLASS[specId] ?? 'Unknown';
       if (!classMap.has(className)) classMap.set(className, new Map());
       const specMap = classMap.get(className) as Map<string, SpellEntry[]>;
@@ -128,17 +132,24 @@ function groupByClass(
       className,
       specGroups: Array.from(specMap.entries())
         .sort(([, a], [, b]) => a[0]?.name.localeCompare(b[0]?.name))
-        .map(([specId, spells]) => ({
-          specName: SPEC_TO_NAME[specId] ?? specId,
-          specId,
-          spells: spells.sort((a, b) => a.name.localeCompare(b.name)),
-        })),
+        .map(([specId, specSpells]) => {
+          // Deduplicate by spell name within each spec (keep the first occurrence)
+          const seen = new Set<string>();
+          const unique = specSpells.filter((s) => {
+            if (seen.has(s.name)) return false;
+            seen.add(s.name);
+            return true;
+          });
+          return {
+            specName: SPEC_TO_NAME[specId] ?? specId,
+            specId,
+            spells: unique.sort((a, b) => a.name.localeCompare(b.name)),
+          };
+        }),
     }));
 }
 
 // ── Components ──────────────────────────────────────────────────────
-
-const VALID_SPEC_IDS = new Set(Object.values(CombatUnitSpec) as string[]);
 
 function SpecIcon({ specId, size }: { specId: string; size: number }) {
   if (!VALID_SPEC_IDS.has(specId)) return null;
@@ -173,6 +184,7 @@ function CategorySection({ category, searchQuery }: { category: CategoryDef; sea
   }, [category.spells, searchQuery]);
 
   const grouped = useMemo(() => groupByClass(filteredSpells), [filteredSpells]);
+  const hasSpecData = filteredSpells.some((s) => s.specIds && s.specIds.length > 0);
 
   // Auto-expand when searching
   const isExpanded = expanded || searchQuery.length > 0;
@@ -194,7 +206,7 @@ function CategorySection({ category, searchQuery }: { category: CategoryDef; sea
         </div>
         <span className="badge badge-ghost badge-sm">{filteredSpells.length}</span>
       </button>
-      {isExpanded && (
+      {isExpanded && hasSpecData && (
         <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {grouped.map(({ className, specGroups }) => (
             <div key={className} className="bg-base-300/40 rounded-lg p-3">
@@ -214,6 +226,16 @@ function CategorySection({ category, searchQuery }: { category: CategoryDef; sea
               ))}
             </div>
           ))}
+        </div>
+      )}
+      {isExpanded && !hasSpecData && (
+        <div className="px-4 pb-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
+          {filteredSpells
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((spell) => (
+              <SpellRow key={spell.spellId} spell={spell} />
+            ))}
         </div>
       )}
     </div>

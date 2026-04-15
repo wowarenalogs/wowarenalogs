@@ -145,6 +145,7 @@ interface SpellClassEntry {
 interface DiminishEntry {
   spellId: string;
   name: string;
+  specIds?: string[];
 }
 
 interface InterruptEntry {
@@ -536,6 +537,19 @@ async function main() {
   console.log(`\nInterrupts: ${interrupts.length} player-class spells`);
   for (const entry of interrupts) {
     console.log(`  ${entry.spellId} ${entry.name}`);
+  }
+
+  // Enrich diminishing returns entries with spec IDs and filter to player spells
+  for (const [group, entries] of Object.entries(diminishingReturns)) {
+    for (const entry of entries) {
+      const resolved = resolveSpell(entry.spellId);
+      if (resolved.specIds.length > 0) {
+        entry.specIds = resolved.specIds;
+      }
+    }
+    const playerSpells = entries.filter((e) => e.specIds && e.specIds.length > 0);
+    diminishingReturns[group] = playerSpells;
+    console.log(`DR group ${group}: ${playerSpells.length}/${entries.length} resolved to player specs`);
   }
 
   // ── 9. Write output ─────────────────────────────────────────────
