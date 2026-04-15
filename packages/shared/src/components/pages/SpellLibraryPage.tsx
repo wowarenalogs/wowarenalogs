@@ -138,7 +138,10 @@ function groupByClass(
 
 // ── Components ──────────────────────────────────────────────────────
 
+const VALID_SPEC_IDS = new Set(Object.values(CombatUnitSpec) as string[]);
+
 function SpecIcon({ specId, size }: { specId: string; size: number }) {
+  if (!VALID_SPEC_IDS.has(specId)) return null;
   const iconUrl = Utils.getSpecIcon(specId as CombatUnitSpec);
   if (!iconUrl) return null;
   return <Image className="rounded" src={iconUrl} alt={SPEC_TO_NAME[specId] ?? ''} width={size} height={size} />;
