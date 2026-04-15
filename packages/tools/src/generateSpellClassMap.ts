@@ -3,11 +3,9 @@ import fs from 'fs-extra';
 import fetch from 'node-fetch';
 import path from 'path';
 
-// ── Configuration ───────────────────────────────────────────────────
+import { WAGO_BUILD, withBuild } from './wagoConfig';
 
-const WAGO_DB2_BASE = 'https://wago.tools/db2';
-const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66838';
-const withBuild = (tableName: string) => `${WAGO_DB2_BASE}/${tableName}/csv?build=${encodeURIComponent(WAGO_BUILD)}`;
+// ── Configuration ───────────────────────────────────────────────────
 
 const SOURCE_TABLES = {
   chrSpecialization: withBuild('ChrSpecialization'),
