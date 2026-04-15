@@ -6,8 +6,12 @@ import { useMemo, useState } from 'react';
 import { TbChevronDown, TbChevronRight, TbSearch } from 'react-icons/tb';
 
 import spellClassMap from '../../data/spellClassMap.json';
+import rawSpellEffects from '../../data/spellEffects.json';
 import { Utils } from '../../utils/utils';
 import { SpellIcon } from '../CombatReport/SpellIcon';
+
+/** Spell IDs that are known to have icons (present in spellEffects data). */
+const KNOWN_ICON_IDS = new Set(Object.keys(rawSpellEffects));
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -133,12 +137,14 @@ function groupByClass(
       specGroups: Array.from(specMap.entries())
         .sort(([, a], [, b]) => a[0]?.name.localeCompare(b[0]?.name))
         .map(([specId, specSpells]) => {
-          // Deduplicate by spell name within each spec, keeping the lowest spell ID
-          // (original version most likely to have a valid icon)
+          // Deduplicate by spell name within each spec, preferring the spell ID
+          // that has a known icon (exists in BigDebuffs or spellEffects data)
           const byName = new Map<string, SpellEntry>();
           for (const s of specSpells) {
             const existing = byName.get(s.name);
-            if (!existing || Number(s.spellId) < Number(existing.spellId)) {
+            if (!existing) {
+              byName.set(s.name, s);
+            } else if (KNOWN_ICON_IDS.has(s.spellId) && !KNOWN_ICON_IDS.has(existing.spellId)) {
               byName.set(s.name, s);
             }
           }
