@@ -11,6 +11,7 @@ const SOURCE_TABLES = {
   chrSpecialization: withBuild('ChrSpecialization'),
   specializationSpells: withBuild('SpecializationSpells'),
   skillLineAbility: withBuild('SkillLineAbility'),
+  pvpTalent: withBuild('PvpTalent'),
   spellName: withBuild('SpellName'),
   spellCategories: withBuild('SpellCategories'),
   spellEffect: withBuild('SpellEffect'),
@@ -133,7 +134,7 @@ interface SpellClassEntry {
   spellId: string;
   name: string;
   specIds: string[];
-  source: 'SpecializationSpells' | 'SkillLineAbility' | 'TalentTree' | 'unresolved';
+  source: 'SpecializationSpells' | 'PvpTalent' | 'SkillLineAbility' | 'TalentTree' | 'unresolved';
 }
 
 /** Spells flagged by DB2 attributes that share a name with a talent but couldn't be ID-resolved. */
@@ -165,6 +166,7 @@ interface IGeneratedSpellClassMap {
     chrSpecializationCsv: string;
     specializationSpellsCsv: string;
     skillLineAbilityCsv: string;
+    pvpTalentCsv: string;
     spellNameCsv: string;
     spellCategoriesCsv: string;
     spellEffectCsv: string;
@@ -189,11 +191,12 @@ interface IGeneratedSpellClassMap {
 async function main() {
   console.log(`Downloading DB2 CSVs from wago.tools (build=${WAGO_BUILD})\n`);
 
-  const [chrSpecRows, specSpellRows, skillLineRows, spellNameRows, spellCategoryRows, spellEffectRows] =
+  const [chrSpecRows, specSpellRows, skillLineRows, pvpTalentRows, spellNameRows, spellCategoryRows, spellEffectRows] =
     await Promise.all([
       loadCsv(SOURCE_TABLES.chrSpecialization),
       loadCsv(SOURCE_TABLES.specializationSpells),
       loadCsv(SOURCE_TABLES.skillLineAbility),
+      loadCsv(SOURCE_TABLES.pvpTalent),
       loadCsv(SOURCE_TABLES.spellName),
       loadCsv(SOURCE_TABLES.spellCategories),
       loadCsv(SOURCE_TABLES.spellEffect),
@@ -238,6 +241,34 @@ async function main() {
   }
 
   console.log(`Built SpecializationSpells index: ${specSpellMap.size} unique spells`);
+
+  // ── 2b. Build spell → specIds from PvpTalent ──────────────────
+  // Columns: Description_lang, ID, SpecID, SpellID, OverridesSpellID, Flags, ActionBarSpellID, ...
+  const pvpTalentMap = new Map<string, Set<string>>();
+
+  for (const row of pvpTalentRows) {
+    const specId = toInt(row.SpecID);
+    const spellId = row.SpellID;
+    if (!spellId || spellId === '0' || specId === 0) continue;
+
+    const spec = specInfoById.get(specId);
+    if (!spec) continue;
+
+    const existing = pvpTalentMap.get(spellId) ?? new Set<string>();
+    existing.add(String(specId));
+    pvpTalentMap.set(spellId, existing);
+
+    // Also index the ActionBarSpellID if present (the castable spell that
+    // appears on the action bar when this PvP talent is selected).
+    const actionBarId = row.ActionBarSpellID;
+    if (actionBarId && actionBarId !== '0' && actionBarId !== spellId) {
+      const abExisting = pvpTalentMap.get(actionBarId) ?? new Set<string>();
+      abExisting.add(String(specId));
+      pvpTalentMap.set(actionBarId, abExisting);
+    }
+  }
+
+  console.log(`Built PvpTalent index: ${pvpTalentMap.size} unique spells`);
 
   // ── 3. Build spell → classId from SkillLineAbility ──────────────
   // Columns: ..., SkillLine, Spell, ..., AcquireMethod, ...
@@ -478,8 +509,33 @@ async function main() {
       };
     }
 
+    // Priority 4: PvpTalent (spec-specific PvP talents)
+    const fromPvpTalent = pvpTalentMap.get(spellId);
+    if (fromPvpTalent && fromPvpTalent.size > 0) {
+      return {
+        spellId,
+        name,
+        specIds: Array.from(fromPvpTalent).sort((a, b) => Number(a) - Number(b)),
+        source: 'PvpTalent',
+      };
+    }
+
     // Not found in any source
     return { spellId, name, specIds: [], source: 'unresolved' };
+  }
+
+  /**
+   * Merge PvP talent spec assignments into an already-resolved entry.
+   * A spell may be in the regular talent tree for some specs and a PvP
+   * talent for others (e.g. Blessing of Spellwarding: Prot via talent
+   * tree, Holy/Ret via PvP talent).
+   */
+  function mergePvpTalentSpecs(entry: SpellClassEntry): void {
+    const pvpSpecs = pvpTalentMap.get(entry.spellId);
+    if (!pvpSpecs || pvpSpecs.size === 0) return;
+    const merged = new Set(entry.specIds);
+    pvpSpecs.forEach((specId) => merged.add(specId));
+    entry.specIds = Array.from(merged).sort((a, b) => Number(a) - Number(b));
   }
 
   function resolveCategory(spellIds: string[]): SpellClassEntry[] {
@@ -489,6 +545,14 @@ async function main() {
   const bigDefensive = resolveCategory(spellIdLists.bigDefensiveSpellIds);
   const externalDefensive = resolveCategory(spellIdLists.externalDefensiveSpellIds);
   const important = resolveCategory(spellIdLists.importantSpellIds);
+
+  // Merge PvP talent specs into resolved entries (a spell can be in the
+  // regular talent tree for some specs and a PvP talent for others).
+  for (const entry of [...bigDefensive, ...externalDefensive, ...important]) {
+    if (entry.specIds.length > 0) {
+      mergePvpTalentSpecs(entry);
+    }
+  }
 
   // ── 7b. Collect unresolved curated spells for bug reporting ─────
   // Spells flagged by DB2 attributes that can't be ID-resolved to a player
@@ -599,6 +663,7 @@ async function main() {
       chrSpecializationCsv: SOURCE_TABLES.chrSpecialization,
       specializationSpellsCsv: SOURCE_TABLES.specializationSpells,
       skillLineAbilityCsv: SOURCE_TABLES.skillLineAbility,
+      pvpTalentCsv: SOURCE_TABLES.pvpTalent,
       spellNameCsv: SOURCE_TABLES.spellName,
       spellCategoriesCsv: SOURCE_TABLES.spellCategories,
       spellEffectCsv: SOURCE_TABLES.spellEffect,
