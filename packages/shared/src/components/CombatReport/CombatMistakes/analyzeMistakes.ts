@@ -119,42 +119,6 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
     }
   }
 
-  // 2. Check SPELL_MISSED events with missType IMMUNE from combat.events
-  //    Only non-CC spells — CC into immune is a separate detector.
-  for (const evt of combat.events) {
-    if (evt.logLine.event !== LogEvent.SPELL_MISSED) continue;
-    if (evt.srcUnitId !== player.id) continue;
-    const missType = evt.logLine.parameters[11]?.toString();
-    if (missType !== 'IMMUNE') continue;
-    if (evt.spellId && ccSpellIds.has(evt.spellId)) continue;
-
-    const targetName = evt.destUnitName?.split('-')[0] ?? 'target';
-    const spellName = evt.spellName ?? 'Attack';
-    // Try to find which immunity aura the target had active at this time
-    const targetId = evt.destUnitId;
-    let immuneAuraId: string | undefined;
-    if (targetId) {
-      const targetWindows = immunityWindows.get(targetId);
-      if (targetWindows) {
-        for (const win of targetWindows) {
-          if (evt.logLine.timestamp >= win.start && evt.logLine.timestamp <= win.end) {
-            immuneAuraId = win.spellId;
-            break;
-          }
-        }
-      }
-    }
-    // Skip if we can't match to a known full immunity — these are often
-    // snare/root immunities (e.g. Freedom) which aren't worth flagging.
-    if (!immuneAuraId) continue;
-    const immunityName = SPELL_NAMES.get(immuneAuraId) ?? 'immunity';
-    evidence.push({
-      timestamp: evt.logLine.timestamp,
-      text: `${spellName} → ${targetName} (${immunityName})`,
-      spellId: evt.spellId ?? undefined,
-      extraSpellId: immuneAuraId,
-    });
-  }
 
   // Sort combined evidence by time
   evidence.sort((a, b) => a.timestamp - b.timestamp);
