@@ -527,7 +527,9 @@ async function main() {
   reportCategory('important', important);
 
   if (unresolvedSpells.length > 0) {
-    console.log(`\n⚠ ${unresolvedSpells.length} spells have name matches in talent tree but no ID match (likely wrong spell ID in DB2):`);
+    console.log(
+      `\n⚠ ${unresolvedSpells.length} spells have name matches in talent tree but no ID match (likely wrong spell ID in DB2):`,
+    );
     for (const u of unresolvedSpells) {
       console.log(`  ${u.spellId} "${u.name}" [${u.category}] → talent IDs: ${u.talentSpellIds.join(', ')}`);
     }
