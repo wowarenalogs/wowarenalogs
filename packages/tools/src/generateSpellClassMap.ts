@@ -456,11 +456,15 @@ async function main() {
   const externalDefensive = resolveCategory(spellIdLists.externalDefensiveSpellIds);
   const important = resolveCategory(spellIdLists.importantSpellIds);
 
-  // ── 7b. Collect unresolved spells for bug reporting ────────────
+  // ── 7b. Handle unresolved curated spells ────────────────────────
   // Spells flagged by DB2 attributes that can't be ID-resolved to a player
   // spec, but share a name with a talent tree entry. These likely represent
-  // Blizzard flagging the wrong spell ID. Written to output for bug reporting
-  // only — not used in the app.
+  // Blizzard flagging the wrong spell ID.
+  //
+  // For curated lists we know every entry is a real player spell, so we
+  // substitute the talent tree spell ID and spec assignments into the
+  // resolved entry. The original DB2 spell ID is recorded in
+  // unresolvedSpells for bug reporting.
   const unresolvedSpells: UnresolvedSpellEntry[] = [];
   const categoryEntries: [string, SpellClassEntry[]][] = [
     ['bigDefensive', bigDefensive],
@@ -479,6 +483,8 @@ async function main() {
           talentSpecIds.add(String(hit.specId));
           talentSpellIds.add(hit.spellId);
         });
+
+        // Record the mismatch for bug reporting
         unresolvedSpells.push({
           spellId: entry.spellId,
           name: entry.name,
@@ -486,6 +492,14 @@ async function main() {
           talentSpellIds: Array.from(talentSpellIds).sort((a, b) => Number(a) - Number(b)),
           talentSpecIds: Array.from(talentSpecIds).sort((a, b) => Number(a) - Number(b)),
         });
+
+        // Substitute talent data so this spell appears in the resolved output.
+        // Use the first talent spell ID (lowest) as the canonical ID since the
+        // DB2-flagged ID may not have icons or other metadata.
+        const sortedTalentIds = Array.from(talentSpellIds).sort((a, b) => Number(a) - Number(b));
+        entry.spellId = sortedTalentIds[0];
+        entry.specIds = Array.from(talentSpecIds).sort((a, b) => Number(a) - Number(b));
+        entry.source = 'TalentTree';
       }
     }
   }
