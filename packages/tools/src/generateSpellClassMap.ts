@@ -319,9 +319,14 @@ async function main() {
   const EFFECT_INTERRUPT_CAST = 68;
   const EFFECT_APPLY_AURA = 6;
   const AURA_MOD_SILENCE = 27;
+  const AURA_OVERRIDE_ACTION_SPELL = 332;
 
   const interruptSpellIds = new Set<string>();
   const silenceSpellIds = new Set<string>();
+  // Override map: talent spell ID → set of replacement spell IDs it grants.
+  // Built from "Override Action Spell" aura effects (EffectAura=332).
+  // e.g. talent 414659 (Ice Cold passive) overrides Ice Block with 414658 (Ice Cold cast).
+  const overrideMap = new Map<string, Set<string>>();
 
   for (const row of spellEffectRows) {
     const effect = toInt(row.Effect);
@@ -334,6 +339,15 @@ async function main() {
     if (effect === EFFECT_APPLY_AURA && toInt(row.EffectAura) === AURA_MOD_SILENCE) {
       silenceSpellIds.add(spellId);
     }
+    if (effect === EFFECT_APPLY_AURA && toInt(row.EffectAura) === AURA_OVERRIDE_ACTION_SPELL) {
+      // EffectBasePointsF is the replacement spell ID
+      const replacementId = row.EffectBasePointsF ? String(Math.round(Number(row.EffectBasePointsF))) : null;
+      if (replacementId && replacementId !== '0' && replacementId !== spellId) {
+        const existing = overrideMap.get(spellId) ?? new Set<string>();
+        existing.add(replacementId);
+        overrideMap.set(spellId, existing);
+      }
+    }
   }
 
   // Remove spells that also silence (e.g., Avenger's Shield)
@@ -344,6 +358,7 @@ async function main() {
   console.log(
     `Found ${interruptSpellIds.size} interrupt spells (after excluding ${silenceSpellIds.size} silence spells)`,
   );
+  console.log(`Built override map: ${overrideMap.size} talent spells with Override Action Spell effects`);
 
   // ── 5. Load existing spellIdLists.json and talentIdMap.json ─────
   const spellIdListsPath = path.resolve(__dirname, '../../shared/src/data/spellIdLists.json');
@@ -373,13 +388,22 @@ async function main() {
         const spellId = String(entry.spellId);
         if (!spellId || spellId === '0') continue;
 
-        // Exact spell ID index — include both spellId and visibleSpellId.
-        // visibleSpellId is the player-facing ID (spellbook/action bar) and
-        // is often the ID that DB2 attributes reference.
+        // Exact spell ID index — include spellId, visibleSpellId, and any
+        // Override Action Spell replacement IDs from SpellEffect data.
         const idsToIndex = [spellId];
         const visibleId = entry.visibleSpellId ? String(entry.visibleSpellId) : null;
         if (visibleId && visibleId !== '0' && visibleId !== spellId) {
           idsToIndex.push(visibleId);
+        }
+        // If this talent spell overrides another spell with a replacement,
+        // index the replacement ID too (e.g. talent 414659 grants cast 414658).
+        const overrides = overrideMap.get(spellId);
+        if (overrides) {
+          Array.from(overrides).forEach((replacementId) => {
+            if (!idsToIndex.includes(replacementId)) {
+              idsToIndex.push(replacementId);
+            }
+          });
         }
 
         for (const id of idsToIndex) {

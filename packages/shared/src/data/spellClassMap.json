@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-15T05:28:27.482Z",
+  "generatedAt": "2026-04-15T05:59:10.362Z",
   "wagoBuild": "12.0.1.66838",
   "sources": {
     "chrSpecializationCsv": "https://wago.tools/db2/ChrSpecialization/csv?build=12.0.1.66838",
@@ -323,8 +323,12 @@
     {
       "spellId": "414658",
       "name": "Ice Cold",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "62",
+        "63",
+        "64"
+      ],
+      "source": "TalentTree"
     }
   ],
   "externalDefensive": [
@@ -1269,8 +1273,10 @@
     {
       "spellId": "383410",
       "name": "Celestial Alignment",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "102"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "387278",
@@ -1327,8 +1333,10 @@
     {
       "spellId": "390414",
       "name": "Incarnation: Chosen of Elune",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "102"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "391109",
@@ -1365,8 +1373,12 @@
     {
       "spellId": "414658",
       "name": "Ice Cold",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "62",
+        "63",
+        "64"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "414944",
@@ -2978,6 +2990,15 @@
         ]
       },
       {
+        "spellId": "130616",
+        "name": "Fear",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
+      },
+      {
         "spellId": "205364",
         "name": "Dominate Mind",
         "specIds": [
@@ -3229,19 +3250,6 @@
       ]
     },
     {
-      "spellId": "414658",
-      "name": "Ice Cold",
-      "category": "bigDefensive",
-      "talentSpellIds": [
-        "414659"
-      ],
-      "talentSpecIds": [
-        "62",
-        "63",
-        "64"
-      ]
-    },
-    {
       "spellId": "51533",
       "name": "Feral Spirit",
       "category": "important",
@@ -3362,17 +3370,6 @@
       ]
     },
     {
-      "spellId": "383410",
-      "name": "Celestial Alignment",
-      "category": "important",
-      "talentSpellIds": [
-        "395022"
-      ],
-      "talentSpecIds": [
-        "102"
-      ]
-    },
-    {
       "spellId": "387278",
       "name": "Summon Darkglare",
       "category": "important",
@@ -3414,19 +3411,6 @@
       ],
       "talentSpecIds": [
         "268"
-      ]
-    },
-    {
-      "spellId": "414658",
-      "name": "Ice Cold",
-      "category": "important",
-      "talentSpellIds": [
-        "414659"
-      ],
-      "talentSpecIds": [
-        "62",
-        "63",
-        "64"
       ]
     },
     {
