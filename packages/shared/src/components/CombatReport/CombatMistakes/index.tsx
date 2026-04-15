@@ -147,6 +147,11 @@ function MistakeExplainer() {
             damage while they have an offensive cooldown active (Shadow Blades, Combustion, etc.) and their target has a
             defensive cooldown up. Offensive cooldowns are best used when the target has no defensives available.
           </div>
+          <div>
+            <span className="font-semibold text-base-content/90">Late defensive</span> — Flags when a player uses a
+            major defensive cooldown while below 30% HP. Defensives are most effective when used early. Full immunities
+            (Divine Shield, Ice Block, Aspect of the Turtle) are excluded since they are effective at any HP.
+          </div>
         </div>
       )}
     </div>

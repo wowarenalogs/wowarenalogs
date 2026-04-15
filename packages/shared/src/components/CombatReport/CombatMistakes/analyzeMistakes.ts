@@ -1,6 +1,7 @@
 import {
   AtomicArenaCombat,
   CombatAction,
+  CombatAdvancedAction,
   CombatUnitReaction,
   CombatUnitSpec,
   CombatUnitType,
@@ -73,6 +74,7 @@ export function analyzeMistakes(combat: AtomicArenaCombat): DetectedMistake[] {
     mistakes.push(...detectCCDROverlap(player, combat));
     mistakes.push(...detectMissedKicks(player, combat));
     mistakes.push(...detectBurstIntoDefensives(player, combat));
+    mistakes.push(...detectLateDefensive(player));
   }
 
   // Sort by timestamp
@@ -528,6 +530,49 @@ function detectBurstIntoDefensives(player: ICombatUnit, combat: AtomicArenaComba
       targetId: entry.targetId,
       evidence: entry.evidence,
     });
+  }
+
+  return mistakes;
+}
+
+const LATE_DEFENSIVE_HP_THRESHOLD = 0.3;
+
+/**
+ * Detect when a player uses a major defensive cooldown at very low HP (<30%).
+ * Full immunities (Divine Shield, Ice Block, Turtle) are excluded since they
+ * are effective regardless of HP.
+ */
+function detectLateDefensive(player: ICombatUnit): DetectedMistake[] {
+  const mistakes: DetectedMistake[] = [];
+
+  const specDefensives = DEFENSIVE_CDS[player.spec];
+  if (!specDefensives || specDefensives.length === 0) return mistakes;
+
+  for (const cast of player.spellCastEvents) {
+    if (cast.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
+    const spellId = cast.spellId ?? '';
+    if (!specDefensives.includes(spellId)) continue;
+    // Full immunities are effective at any HP
+    if (FULL_IMMUNITY_AURA_IDS.has(spellId)) continue;
+
+    // CombatAdvancedAction has HP data for SPELL_CAST_SUCCESS events
+    if (!(cast instanceof CombatAdvancedAction)) continue;
+    if (cast.advancedActorMaxHp <= 0) continue;
+
+    const hpPct = cast.advancedActorCurrentHp / cast.advancedActorMaxHp;
+    if (hpPct < LATE_DEFENSIVE_HP_THRESHOLD) {
+      const spellName = cast.spellName ?? SPELL_NAMES.get(spellId) ?? 'Defensive';
+      const pctDisplay = Math.round(hpPct * 100);
+      mistakes.push({
+        id: 'late_defensive',
+        playerId: player.id,
+        severity: 'MEDIUM',
+        title: `${spellName} used at ${pctDisplay}% HP`,
+        tip: `Defensive cooldowns are most effective when used early. Using ${spellName} at low HP risks dying before it can absorb or mitigate enough damage.`,
+        timestamp: cast.logLine.timestamp,
+        spellId,
+      });
+    }
   }
 
   return mistakes;
