@@ -8,9 +8,7 @@ import taggedSpellsDump from '../../shared/src/data/spells.json';
 
 const taggedSpellIds = Object.keys(taggedSpellsDump);
 
-const WAGO_DB2_BASE = 'https://wago.tools/db2';
-const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66431';
-const withBuild = (tableName: string) => `${WAGO_DB2_BASE}/${tableName}/csv?build=${encodeURIComponent(WAGO_BUILD)}`;
+import { WAGO_BUILD, withBuild } from './wagoConfig';
 const SOURCE_TABLES = {
   spellCooldowns: withBuild('SpellCooldowns'),
   spellCategory: withBuild('SpellCategory'),
