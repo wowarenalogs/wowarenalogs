@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-15T05:23:19.626Z",
+  "generatedAt": "2026-04-15T05:28:27.482Z",
   "wagoBuild": "12.0.1.66838",
   "sources": {
     "chrSpecializationCsv": "https://wago.tools/db2/ChrSpecialization/csv?build=12.0.1.66838",
@@ -145,13 +145,10 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "61336",
+      "spellId": "50322",
       "name": "Survival Instincts",
-      "specIds": [
-        "103",
-        "104"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "53480",
@@ -172,14 +169,10 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "31224",
+      "spellId": "81549",
       "name": "Cloak of Shadows",
-      "specIds": [
-        "259",
-        "260",
-        "261"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "86659",
@@ -219,7 +212,7 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "388917",
+      "spellId": "115203",
       "name": "Fortifying Brew",
       "specIds": [
         "268",
@@ -245,14 +238,10 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "388917",
+      "spellId": "120954",
       "name": "Fortifying Brew",
-      "specIds": [
-        "268",
-        "269",
-        "270"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "184364",
@@ -274,22 +263,16 @@
       "source": "SkillLineAbility"
     },
     {
-      "spellId": "6940",
+      "spellId": "199448",
       "name": "Blessing of Sacrifice",
-      "specIds": [
-        "65",
-        "66",
-        "70"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
-      "spellId": "204021",
+      "spellId": "207771",
       "name": "Fiery Brand",
-      "specIds": [
-        "581"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "212800",
@@ -298,14 +281,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "388917",
+      "spellId": "243435",
       "name": "Fortifying Brew",
-      "specIds": [
-        "268",
-        "269",
-        "270"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "264735",
@@ -318,14 +297,10 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "342245",
+      "spellId": "342246",
       "name": "Alter Time",
-      "specIds": [
-        "62",
-        "63",
-        "64"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "357170",
@@ -346,14 +321,10 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "414659",
+      "spellId": "414658",
       "name": "Ice Cold",
-      "specIds": [
-        "62",
-        "63",
-        "64"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     }
   ],
   "externalDefensive": [
@@ -619,12 +590,10 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "469314",
+      "spellId": "51533",
       "name": "Feral Spirit",
-      "specIds": [
-        "263"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "55233",
@@ -677,8 +646,10 @@
     {
       "spellId": "102560",
       "name": "Incarnation: Chosen of Elune",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "102"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "104773",
@@ -692,11 +663,10 @@
       "source": "SkillLineAbility"
     },
     {
-      "spellId": "50334",
+      "spellId": "106951",
       "name": "Berserk",
       "specIds": [
-        "103",
-        "104"
+        "103"
       ],
       "source": "TalentTree"
     },
@@ -740,14 +710,10 @@
       "source": "SkillLineAbility"
     },
     {
-      "spellId": "342245",
+      "spellId": "110909",
       "name": "Alter Time",
-      "specIds": [
-        "62",
-        "63",
-        "64"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "114051",
@@ -766,7 +732,7 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "388917",
+      "spellId": "115203",
       "name": "Fortifying Brew",
       "specIds": [
         "268",
@@ -880,14 +846,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "115750",
+      "spellId": "152953",
       "name": "Blinding Light",
-      "specIds": [
-        "65",
-        "66",
-        "70"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "184364",
@@ -948,7 +910,7 @@
       "source": "unresolved"
     },
     {
-      "spellId": "395022",
+      "spellId": "194223",
       "name": "Celestial Alignment",
       "specIds": [
         "102"
@@ -956,12 +918,10 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "228260",
+      "spellId": "194249",
       "name": "Voidform",
-      "specIds": [
-        "258"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "198067",
@@ -985,14 +945,10 @@
       "source": "SpecializationSpells"
     },
     {
-      "spellId": "6940",
+      "spellId": "199448",
       "name": "Blessing of Sacrifice",
-      "specIds": [
-        "65",
-        "66",
-        "70"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "204018",
@@ -1033,8 +989,10 @@
     {
       "spellId": "216331",
       "name": "Avenging Crusader",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "65"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "228260",
@@ -1045,12 +1003,10 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "31884",
+      "spellId": "231895",
       "name": "Avenging Wrath",
-      "specIds": [
-        "70"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "237945",
@@ -1077,14 +1033,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "388917",
+      "spellId": "243435",
       "name": "Fortifying Brew",
-      "specIds": [
-        "268",
-        "269",
-        "270"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "248831",
@@ -1155,22 +1107,16 @@
       "source": "unresolved"
     },
     {
-      "spellId": "1122",
+      "spellId": "335235",
       "name": "Summon Infernal",
-      "specIds": [
-        "267"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
-      "spellId": "342245",
+      "spellId": "342246",
       "name": "Alter Time",
-      "specIds": [
-        "62",
-        "63",
-        "64"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "350101",
@@ -1277,12 +1223,10 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "365350",
+      "spellId": "365362",
       "name": "Arcane Surge",
-      "specIds": [
-        "62"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "367679",
@@ -1323,20 +1267,16 @@
       "source": "unresolved"
     },
     {
-      "spellId": "395022",
+      "spellId": "383410",
       "name": "Celestial Alignment",
-      "specIds": [
-        "102"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
-      "spellId": "205180",
+      "spellId": "387278",
       "name": "Summon Darkglare",
-      "specIds": [
-        "265"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "388392",
@@ -1367,12 +1307,10 @@
       "source": "TalentTree"
     },
     {
-      "spellId": "424558",
+      "spellId": "389654",
       "name": "Master Handler",
-      "specIds": [
-        "253"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "389660",
@@ -1381,12 +1319,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "1719",
+      "spellId": "389722",
       "name": "Recklessness",
-      "specIds": [
-        "72"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "390414",
@@ -1401,12 +1337,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "132578",
+      "spellId": "395267",
       "name": "Invoke Niuzao, the Black Ox",
-      "specIds": [
-        "268"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "403876",
@@ -1429,14 +1363,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "414659",
+      "spellId": "414658",
       "name": "Ice Cold",
-      "specIds": [
-        "62",
-        "63",
-        "64"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "414944",
@@ -1535,20 +1465,16 @@
       "source": "unresolved"
     },
     {
-      "spellId": "31884",
+      "spellId": "454351",
       "name": "Avenging Wrath",
-      "specIds": [
-        "70"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
-      "spellId": "31884",
+      "spellId": "454373",
       "name": "Avenging Wrath",
-      "specIds": [
-        "70"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "461796",
@@ -1563,12 +1489,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "384352",
+      "spellId": "466772",
       "name": "Doom Winds",
-      "specIds": [
-        "263"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "468966",
@@ -1621,12 +1545,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "114050",
+      "spellId": "1219480",
       "name": "Ascendance",
-      "specIds": [
-        "262"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1227373",
@@ -1683,12 +1605,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "740",
+      "spellId": "1236574",
       "name": "Tranquility",
-      "specIds": [
-        "105"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1238147",
@@ -1825,12 +1745,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "1250646",
+      "spellId": "1251703",
       "name": "Takedown",
-      "specIds": [
-        "255"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1251789",
@@ -1863,12 +1781,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "11366",
+      "spellId": "1254294",
       "name": "Pyroblast",
-      "specIds": [
-        "63"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1255156",
@@ -1883,22 +1799,16 @@
       "source": "unresolved"
     },
     {
-      "spellId": "1240206",
+      "spellId": "1255743",
       "name": "Total Eclipse",
-      "specIds": [
-        "102"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
-      "spellId": "51514",
+      "spellId": "1256008",
       "name": "Hex",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1256027",
@@ -1955,14 +1865,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "115750",
+      "spellId": "1258514",
       "name": "Blinding Light",
-      "specIds": [
-        "65",
-        "66",
-        "70"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1258681",
@@ -2151,14 +2057,10 @@
       "source": "unresolved"
     },
     {
-      "spellId": "51514",
+      "spellId": "1270766",
       "name": "Hex",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ],
-      "source": "TalentTree"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1270852",
@@ -3264,19 +3166,6 @@
       ]
     },
     {
-      "spellId": "115203",
-      "name": "Fortifying Brew",
-      "category": "bigDefensive",
-      "talentSpellIds": [
-        "388917"
-      ],
-      "talentSpecIds": [
-        "268",
-        "269",
-        "270"
-      ]
-    },
-    {
       "spellId": "120954",
       "name": "Fortifying Brew",
       "category": "bigDefensive",
@@ -3364,19 +3253,6 @@
       ]
     },
     {
-      "spellId": "106951",
-      "name": "Berserk",
-      "category": "important",
-      "talentSpellIds": [
-        "50334",
-        "343223"
-      ],
-      "talentSpecIds": [
-        "103",
-        "104"
-      ]
-    },
-    {
       "spellId": "110909",
       "name": "Alter Time",
       "category": "important",
@@ -3390,19 +3266,6 @@
       ]
     },
     {
-      "spellId": "115203",
-      "name": "Fortifying Brew",
-      "category": "important",
-      "talentSpellIds": [
-        "388917"
-      ],
-      "talentSpecIds": [
-        "268",
-        "269",
-        "270"
-      ]
-    },
-    {
       "spellId": "152953",
       "name": "Blinding Light",
       "category": "important",
@@ -3413,17 +3276,6 @@
         "65",
         "66",
         "70"
-      ]
-    },
-    {
-      "spellId": "194223",
-      "name": "Celestial Alignment",
-      "category": "important",
-      "talentSpellIds": [
-        "395022"
-      ],
-      "talentSpecIds": [
-        "102"
       ]
     },
     {
