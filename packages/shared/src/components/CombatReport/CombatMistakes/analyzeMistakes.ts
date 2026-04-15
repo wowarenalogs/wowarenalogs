@@ -472,6 +472,8 @@ function detectBurstIntoDefensives(player: ICombatUnit, combat: AtomicArenaComba
 
       const targetId = dmg.logLine.parameters[4]?.toString();
       if (!targetId) continue;
+      // Skip self-damage — having an offensive CD + defensive buff on yourself is not a mistake
+      if (targetId === player.id) continue;
 
       const targetDefWindows = defensiveWindows.get(targetId);
       if (!targetDefWindows) continue;
