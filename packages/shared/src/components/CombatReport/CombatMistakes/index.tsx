@@ -68,7 +68,12 @@ function MistakeRow({ mistake, combatStartTime }: { mistake: DetectedMistake; co
                       <td className="bg-transparent w-8 py-0.5">
                         {ev.spellId && <SpellIcon spellId={ev.spellId} size={18} />}
                       </td>
-                      <td className="bg-transparent text-xs py-0.5">{ev.text}</td>
+                      <td className="bg-transparent text-xs py-0.5">
+                        <span className="inline-flex items-center gap-1">
+                          {ev.text}
+                          {ev.extraSpellId && <SpellIcon spellId={ev.extraSpellId} size={18} />}
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -25,6 +25,8 @@ export interface MistakeEvidence {
   timestamp: number;
   text: string;
   spellId?: string;
+  /** Secondary spell ID (e.g. the immunity/defensive aura on the target). */
+  extraSpellId?: string;
 }
 
 export interface DetectedMistake {
@@ -104,6 +106,7 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
           timestamp: dmg.logLine.timestamp,
           text: `${spellName} → ${targetName} (${immunityName})`,
           spellId: dmg.spellId ?? undefined,
+          extraSpellId: win.spellId,
         });
         break;
       }
@@ -121,10 +124,25 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
 
     const targetName = evt.destUnitName?.split('-')[0] ?? 'target';
     const spellName = evt.spellName ?? 'Attack';
+    // Try to find which immunity aura the target had active at this time
+    const targetId = evt.destUnitId;
+    let immuneAuraId: string | undefined;
+    if (targetId) {
+      const targetWindows = immunityWindows.get(targetId);
+      if (targetWindows) {
+        for (const win of targetWindows) {
+          if (evt.logLine.timestamp >= win.start && evt.logLine.timestamp <= win.end) {
+            immuneAuraId = win.spellId;
+            break;
+          }
+        }
+      }
+    }
     evidence.push({
       timestamp: evt.logLine.timestamp,
       text: `${spellName} → ${targetName} (IMMUNE)`,
       spellId: evt.spellId ?? undefined,
+      extraSpellId: immuneAuraId,
     });
   }
 
