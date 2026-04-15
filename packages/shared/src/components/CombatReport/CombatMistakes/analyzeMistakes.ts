@@ -2,12 +2,14 @@ import {
   AtomicArenaCombat,
   CombatAction,
   CombatUnitReaction,
+  CombatUnitSpec,
   CombatUnitType,
   ICombatUnit,
   LogEvent,
 } from '@wowarenalogs/parser';
 
 import { ccSpellIds } from '../../../data/spellTags';
+import { healerSpecs } from '../../../utils/utils';
 import {
   DEFENSIVE_BUFF_IDS,
   DEFENSIVE_CDS,
@@ -476,6 +478,9 @@ function detectMissedKicks(player: ICombatUnit, combat: AtomicArenaCombat): Dete
  */
 function detectBurstIntoDefensives(player: ICombatUnit, combat: AtomicArenaCombat): DetectedMistake[] {
   const mistakes: DetectedMistake[] = [];
+
+  // Healers are exempt — offensive CD resolution is too noisy for healer specs
+  if (healerSpecs.includes(player.spec as CombatUnitSpec)) return mistakes;
 
   // Build windows for this player's offensive buffs
   const offensiveWindows = buildAuraWindows(combat, OFFENSIVE_BUFF_IDS).get(player.id);
