@@ -121,7 +121,6 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
     }
   }
 
-
   // Sort combined evidence by time
   evidence.sort((a, b) => a.timestamp - b.timestamp);
 
