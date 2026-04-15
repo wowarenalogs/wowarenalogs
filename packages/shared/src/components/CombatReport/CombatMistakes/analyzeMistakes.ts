@@ -42,6 +42,10 @@ export interface DetectedMistake {
   spellName?: string;
   /** Optional target unit ID (for rendering target name with spec icon). */
   targetId?: string;
+  /** Optional secondary spell ID (e.g. the defensive aura on the target). */
+  extraSpellId?: string;
+  /** Optional text rendered after the target name (e.g. "'s Defensive Spell"). */
+  titleSuffix?: string;
   /** Individual log events that produced this mistake. */
   evidence?: MistakeEvidence[];
 }
@@ -535,7 +539,9 @@ function detectBurstIntoDefensives(player: ICombatUnit, combat: AtomicArenaComba
       id: 'burst_into_defensive',
       playerId: player.id,
       severity: 'HIGH',
-      title: `${offName} damage into ${defName} on`,
+      title: `${offName} damage into`,
+      extraSpellId: entry.defSpellId,
+      titleSuffix: `'s ${defName}`,
       tip: `${entry.evidence.length} hit${entry.evidence.length !== 1 ? 's' : ''} dealt while ${offName} was active but the target had ${defName} up. Consider swapping targets or waiting for the defensive to expire before committing offensive cooldowns.`,
       timestamp: entry.evidence[0].timestamp,
       spellId: entry.offSpellId,
