@@ -138,9 +138,13 @@ function detectDamageIntoImmunity(player: ICombatUnit, combat: AtomicArenaCombat
         }
       }
     }
+    // Skip if we can't match to a known full immunity — these are often
+    // snare/root immunities (e.g. Freedom) which aren't worth flagging.
+    if (!immuneAuraId) continue;
+    const immunityName = SPELL_NAMES.get(immuneAuraId) ?? 'immunity';
     evidence.push({
       timestamp: evt.logLine.timestamp,
-      text: `${spellName} → ${targetName} (IMMUNE)`,
+      text: `${spellName} → ${targetName} (${immunityName})`,
       spellId: evt.spellId ?? undefined,
       extraSpellId: immuneAuraId,
     });
