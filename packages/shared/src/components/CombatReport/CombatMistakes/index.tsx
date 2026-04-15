@@ -47,7 +47,11 @@ function MistakeRow({ mistake, combatStartTime }: { mistake: DetectedMistake; co
             <div>
               <div className="font-semibold text-sm flex items-center gap-1">
                 <span>{mistake.title}</span>
-                {targetUnit && <CombatUnitName unit={targetUnit} showSpec={true} specSpacing="tight" />}
+                {targetUnit && (
+                  <span className="inline-flex shrink-0">
+                    <CombatUnitName unit={targetUnit} showSpec={true} specSpacing="tight" noEllipsis />
+                  </span>
+                )}
                 {mistake.titleSuffix && (
                   <>
                     {mistake.extraSpellId && <SpellIcon spellId={mistake.extraSpellId} size={20} />}
