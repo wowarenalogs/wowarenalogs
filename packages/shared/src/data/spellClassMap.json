@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-14T18:43:26.678Z",
+  "generatedAt": "2026-04-15T05:59:10.362Z",
   "wagoBuild": "12.0.1.66838",
   "sources": {
     "chrSpecializationCsv": "https://wago.tools/db2/ChrSpecialization/csv?build=12.0.1.66838",
@@ -147,11 +147,8 @@
     {
       "spellId": "50322",
       "name": "Survival Instincts",
-      "specIds": [
-        "103",
-        "104"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "53480",
@@ -174,12 +171,8 @@
     {
       "spellId": "81549",
       "name": "Cloak of Shadows",
-      "specIds": [
-        "259",
-        "260",
-        "261"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "86659",
@@ -226,7 +219,7 @@
         "269",
         "270"
       ],
-      "source": "TalentTree:name"
+      "source": "TalentTree"
     },
     {
       "spellId": "116849",
@@ -247,12 +240,8 @@
     {
       "spellId": "120954",
       "name": "Fortifying Brew",
-      "specIds": [
-        "268",
-        "269",
-        "270"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "184364",
@@ -276,39 +265,26 @@
     {
       "spellId": "199448",
       "name": "Blessing of Sacrifice",
-      "specIds": [
-        "65",
-        "66",
-        "70"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "207771",
       "name": "Fiery Brand",
-      "specIds": [
-        "581"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "212800",
       "name": "Blur",
-      "specIds": [
-        "577",
-        "1480"
-      ],
-      "source": "cross-category:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "243435",
       "name": "Fortifying Brew",
-      "specIds": [
-        "268",
-        "269",
-        "270"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "264735",
@@ -323,12 +299,8 @@
     {
       "spellId": "342246",
       "name": "Alter Time",
-      "specIds": [
-        "62",
-        "63",
-        "64"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "357170",
@@ -356,7 +328,7 @@
         "63",
         "64"
       ],
-      "source": "TalentTree:name"
+      "source": "TalentTree"
     }
   ],
   "externalDefensive": [
@@ -624,10 +596,8 @@
     {
       "spellId": "51533",
       "name": "Feral Spirit",
-      "specIds": [
-        "263"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "55233",
@@ -680,8 +650,10 @@
     {
       "spellId": "102560",
       "name": "Incarnation: Chosen of Elune",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "102"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "104773",
@@ -698,10 +670,9 @@
       "spellId": "106951",
       "name": "Berserk",
       "specIds": [
-        "103",
-        "104"
+        "103"
       ],
-      "source": "TalentTree:name"
+      "source": "TalentTree"
     },
     {
       "spellId": "107574",
@@ -745,12 +716,8 @@
     {
       "spellId": "110909",
       "name": "Alter Time",
-      "specIds": [
-        "62",
-        "63",
-        "64"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "114051",
@@ -776,7 +743,7 @@
         "269",
         "270"
       ],
-      "source": "TalentTree:name"
+      "source": "TalentTree"
     },
     {
       "spellId": "115310",
@@ -885,12 +852,8 @@
     {
       "spellId": "152953",
       "name": "Blinding Light",
-      "specIds": [
-        "65",
-        "66",
-        "70"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "184364",
@@ -956,15 +919,13 @@
       "specIds": [
         "102"
       ],
-      "source": "TalentTree:name"
+      "source": "TalentTree"
     },
     {
       "spellId": "194249",
       "name": "Voidform",
-      "specIds": [
-        "258"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "198067",
@@ -990,12 +951,8 @@
     {
       "spellId": "199448",
       "name": "Blessing of Sacrifice",
-      "specIds": [
-        "65",
-        "66",
-        "70"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "204018",
@@ -1030,17 +987,16 @@
     {
       "spellId": "212800",
       "name": "Blur",
-      "specIds": [
-        "577",
-        "1480"
-      ],
-      "source": "cross-category:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "216331",
       "name": "Avenging Crusader",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "65"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "228260",
@@ -1053,10 +1009,8 @@
     {
       "spellId": "231895",
       "name": "Avenging Wrath",
-      "specIds": [
-        "70"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "237945",
@@ -1085,12 +1039,8 @@
     {
       "spellId": "243435",
       "name": "Fortifying Brew",
-      "specIds": [
-        "268",
-        "269",
-        "270"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "248831",
@@ -1139,20 +1089,14 @@
     {
       "spellId": "297850",
       "name": "Revival",
-      "specIds": [
-        "270"
-      ],
-      "source": "cross-category:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "305395",
       "name": "Blessing of Freedom",
-      "specIds": [
-        "65",
-        "66",
-        "70"
-      ],
-      "source": "cross-category:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "323538",
@@ -1169,20 +1113,14 @@
     {
       "spellId": "335235",
       "name": "Summon Infernal",
-      "specIds": [
-        "267"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "342246",
       "name": "Alter Time",
-      "specIds": [
-        "62",
-        "63",
-        "64"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "350101",
@@ -1291,10 +1229,8 @@
     {
       "spellId": "365362",
       "name": "Arcane Surge",
-      "specIds": [
-        "62"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "367679",
@@ -1340,15 +1276,13 @@
       "specIds": [
         "102"
       ],
-      "source": "TalentTree:name"
+      "source": "TalentTree"
     },
     {
       "spellId": "387278",
       "name": "Summon Darkglare",
-      "specIds": [
-        "265"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "388392",
@@ -1381,10 +1315,8 @@
     {
       "spellId": "389654",
       "name": "Master Handler",
-      "specIds": [
-        "253"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "389660",
@@ -1395,16 +1327,16 @@
     {
       "spellId": "389722",
       "name": "Recklessness",
-      "specIds": [
-        "72"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "390414",
       "name": "Incarnation: Chosen of Elune",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "102"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "391109",
@@ -1415,10 +1347,8 @@
     {
       "spellId": "395267",
       "name": "Invoke Niuzao, the Black Ox",
-      "specIds": [
-        "268"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "403876",
@@ -1437,13 +1367,8 @@
     {
       "spellId": "410358",
       "name": "Anti-Magic Shell",
-      "specIds": [
-        "250",
-        "251",
-        "252",
-        "1455"
-      ],
-      "source": "cross-category:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "414658",
@@ -1453,7 +1378,7 @@
         "63",
         "64"
       ],
-      "source": "TalentTree:name"
+      "source": "TalentTree"
     },
     {
       "spellId": "414944",
@@ -1554,18 +1479,14 @@
     {
       "spellId": "454351",
       "name": "Avenging Wrath",
-      "specIds": [
-        "70"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "454373",
       "name": "Avenging Wrath",
-      "specIds": [
-        "70"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "461796",
@@ -1582,21 +1503,14 @@
     {
       "spellId": "466772",
       "name": "Doom Winds",
-      "specIds": [
-        "263"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "468966",
       "name": "Polymorph",
-      "specIds": [
-        "62",
-        "63",
-        "64",
-        "1449"
-      ],
-      "source": "cross-category:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "472736",
@@ -1645,10 +1559,8 @@
     {
       "spellId": "1219480",
       "name": "Ascendance",
-      "specIds": [
-        "262"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1227373",
@@ -1707,10 +1619,8 @@
     {
       "spellId": "1236574",
       "name": "Tranquility",
-      "specIds": [
-        "105"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1238147",
@@ -1849,10 +1759,8 @@
     {
       "spellId": "1251703",
       "name": "Takedown",
-      "specIds": [
-        "255"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1251789",
@@ -1887,10 +1795,8 @@
     {
       "spellId": "1254294",
       "name": "Pyroblast",
-      "specIds": [
-        "63"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1255156",
@@ -1907,20 +1813,14 @@
     {
       "spellId": "1255743",
       "name": "Total Eclipse",
-      "specIds": [
-        "102"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1256008",
       "name": "Hex",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1256027",
@@ -1979,12 +1879,8 @@
     {
       "spellId": "1258514",
       "name": "Blinding Light",
-      "specIds": [
-        "65",
-        "66",
-        "70"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1258681",
@@ -2043,10 +1939,8 @@
     {
       "spellId": "1261559",
       "name": "Divine Protection",
-      "specIds": [
-        "65"
-      ],
-      "source": "cross-category:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1261704",
@@ -2177,12 +2071,8 @@
     {
       "spellId": "1270766",
       "name": "Hex",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ],
-      "source": "TalentTree:name"
+      "specIds": [],
+      "source": "unresolved"
     },
     {
       "spellId": "1270852",
@@ -2369,6443 +2259,800 @@
     "root": [
       {
         "spellId": "122",
-        "name": "Frost Nova"
+        "name": "Frost Nova",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "339",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "10253",
-        "name": "Chemical Peel"
-      },
-      {
-        "spellId": "11920",
-        "name": "Net Guard"
-      },
-      {
-        "spellId": "31367",
-        "name": "Netherweave Net"
-      },
-      {
-        "spellId": "31368",
-        "name": "Heavy Netherweave Net"
-      },
-      {
-        "spellId": "33395",
-        "name": "Freeze"
-      },
-      {
-        "spellId": "39965",
-        "name": "Frost Grenade"
-      },
-      {
-        "spellId": "40363",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "40525",
-        "name": "Rizzle's Frost Grenade"
-      },
-      {
-        "spellId": "40590",
-        "name": "Rizzle's Frost Grenade (Self"
-      },
-      {
-        "spellId": "40875",
-        "name": "Freeze"
-      },
-      {
-        "spellId": "52883",
-        "name": "Counterattack"
-      },
-      {
-        "spellId": "53148",
-        "name": "Charge"
-      },
-      {
-        "spellId": "53534",
-        "name": "Chains of Ice"
-      },
-      {
-        "spellId": "55536",
-        "name": "Frostweave Net"
-      },
-      {
-        "spellId": "61385",
-        "name": "Bear Trap"
-      },
-      {
-        "spellId": "64695",
-        "name": "Earthgrab"
-      },
-      {
-        "spellId": "64803",
-        "name": "Entrapment"
-      },
-      {
-        "spellId": "65857",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "66070",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "75148",
-        "name": "Embersilk Net"
-      },
-      {
-        "spellId": "96273",
-        "name": "Charge Root"
-      },
-      {
-        "spellId": "96294",
-        "name": "Chains of Ice"
-      },
-      {
-        "spellId": "99800",
-        "name": "Ensnare"
+        "name": "Entangling Roots",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105",
+          "1447"
+        ]
       },
       {
         "spellId": "102359",
-        "name": "Mass Entanglement"
-      },
-      {
-        "spellId": "114404",
-        "name": "Void Tendrils"
-      },
-      {
-        "spellId": "116706",
-        "name": "Disable"
-      },
-      {
-        "spellId": "121948",
-        "name": "Charging Ox Wave"
-      },
-      {
-        "spellId": "122866",
-        "name": "QA Test Root"
-      },
-      {
-        "spellId": "122867",
-        "name": "QA Test Proc Root"
-      },
-      {
-        "spellId": "127111",
-        "name": "Freeze"
-      },
-      {
-        "spellId": "128172",
-        "name": "Kunchong Trap"
-      },
-      {
-        "spellId": "135373",
-        "name": "Entrapment"
-      },
-      {
-        "spellId": "136634",
-        "name": "Narrow Escape"
-      },
-      {
-        "spellId": "144603",
-        "name": "Obsidian Cage"
-      },
-      {
-        "spellId": "144621",
-        "name": "Obsidian Cage"
-      },
-      {
-        "spellId": "145532",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "157563",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "160290",
-        "name": "Frozen Shockwave"
-      },
-      {
-        "spellId": "162480",
-        "name": "Steel Trap"
-      },
-      {
-        "spellId": "168248",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "170855",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "171482",
-        "name": "Item - Hunter WoD PvP Beast Mastery 4P Bonus"
-      },
-      {
-        "spellId": "173357",
-        "name": "Ice Bomb"
-      },
-      {
-        "spellId": "176066",
-        "name": "Phoenix Strike"
-      },
-      {
-        "spellId": "176086",
-        "name": "Phoenix Strike"
-      },
-      {
-        "spellId": "176163",
-        "name": "Freezing Field"
-      },
-      {
-        "spellId": "176165",
-        "name": "Freezing Field"
-      },
-      {
-        "spellId": "177348",
-        "name": "Summon Wild Mushroom"
-      },
-      {
-        "spellId": "177349",
-        "name": "Summon Wild Mushroom"
-      },
-      {
-        "spellId": "177606",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "181350",
-        "name": "BH Ambush!"
-      },
-      {
-        "spellId": "191033",
-        "name": "Bear Trap"
-      },
-      {
-        "spellId": "194991",
-        "name": "Fel Trap"
-      },
-      {
-        "spellId": "198121",
-        "name": "Frostbite"
-      },
-      {
-        "spellId": "199042",
-        "name": "Thunderstruck"
-      },
-      {
-        "spellId": "200108",
-        "name": "Ranger's Net"
-      },
-      {
-        "spellId": "201158",
-        "name": "Super Sticky Tar"
-      },
-      {
-        "spellId": "201192",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "201589",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "204085",
-        "name": "Deathchill"
-      },
-      {
-        "spellId": "207171",
-        "name": "Winter is Coming"
-      },
-      {
-        "spellId": "212638",
-        "name": "Tracker's Net"
-      },
-      {
-        "spellId": "215664",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "220107",
-        "name": "Frostbite"
-      },
-      {
-        "spellId": "220128",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "223667",
-        "name": "Thornstalk"
-      },
-      {
-        "spellId": "233395",
-        "name": "Deathchill"
-      },
-      {
-        "spellId": "233582",
-        "name": "Entrenched in Flame"
-      },
-      {
-        "spellId": "235235",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "235963",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "236077",
-        "name": "Disarm"
-      },
-      {
-        "spellId": "236467",
-        "name": "Pearlescent Clam"
-      },
-      {
-        "spellId": "236601",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "236699",
-        "name": "Super Sticky Tar"
-      },
-      {
-        "spellId": "241392",
-        "name": "Frozen"
-      },
-      {
-        "spellId": "247564",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "258139",
-        "name": "Sand Bolt"
-      },
-      {
-        "spellId": "265583",
-        "name": "Grasping Claw"
-      },
-      {
-        "spellId": "265584",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "265723",
-        "name": "Web"
-      },
-      {
-        "spellId": "267024",
-        "name": "Stranglevines"
-      },
-      {
-        "spellId": "267025",
-        "name": "Animal Trap"
-      },
-      {
-        "spellId": "268965",
-        "name": "Tidespray Linen Net"
-      },
-      {
-        "spellId": "268966",
-        "name": "Hooked Deep Sea Net"
-      },
-      {
-        "spellId": "270196",
-        "name": "Elemental Bindings"
-      },
-      {
-        "spellId": "270399",
-        "name": "Unleashed Roots"
-      },
-      {
-        "spellId": "274801",
-        "name": "Net"
-      },
-      {
-        "spellId": "275424",
-        "name": "Net"
-      },
-      {
-        "spellId": "276806",
-        "name": "Stoutthistle"
-      },
-      {
-        "spellId": "276807",
-        "name": "Crude Net"
-      },
-      {
-        "spellId": "278401",
-        "name": "Grapple"
-      },
-      {
-        "spellId": "283408",
-        "name": "Charge"
-      },
-      {
-        "spellId": "284879",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "288473",
-        "name": "Enslave"
-      },
-      {
-        "spellId": "299804",
-        "name": "Typhoon Vortex"
-      },
-      {
-        "spellId": "299805",
-        "name": "Undertow"
-      },
-      {
-        "spellId": "323996",
-        "name": "The Hunt"
-      },
-      {
-        "spellId": "324382",
-        "name": "Clash"
-      },
-      {
-        "spellId": "330121",
-        "name": "Charge (DNT)"
-      },
-      {
-        "spellId": "330593",
-        "name": "Web"
-      },
-      {
-        "spellId": "330873",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "355689",
-        "name": "Landslide"
-      },
-      {
-        "spellId": "361127",
-        "name": "Tracker's Net"
-      },
-      {
-        "spellId": "361158",
-        "name": "Deep Freeze"
-      },
-      {
-        "spellId": "363355",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "369900",
-        "name": "Lava Trap"
-      },
-      {
-        "spellId": "370970",
-        "name": "The Hunt"
-      },
-      {
-        "spellId": "373249",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "375671",
-        "name": "Ice Shackle"
-      },
-      {
-        "spellId": "378760",
-        "name": "Frostbite"
-      },
-      {
-        "spellId": "383105",
-        "name": "Strangling Seaweed"
-      },
-      {
-        "spellId": "384648",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "385700",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "386722",
-        "name": "Shocking Touch"
-      },
-      {
-        "spellId": "386770",
-        "name": "Freezing Cold"
-      },
-      {
-        "spellId": "387657",
-        "name": "Earthen Hold"
-      },
-      {
-        "spellId": "389280",
-        "name": "Web"
-      },
-      {
-        "spellId": "393456",
-        "name": "Entrapment"
-      },
-      {
-        "spellId": "393813",
-        "name": "Frozen Web"
-      },
-      {
-        "spellId": "394447",
-        "name": "Web"
-      },
-      {
-        "spellId": "396447",
-        "name": "Wintry Blast"
-      },
-      {
-        "spellId": "396454",
-        "name": "Crystallizing Spray"
-      },
-      {
-        "spellId": "396738",
-        "name": "Freezing Spray"
-      },
-      {
-        "spellId": "396797",
-        "name": "Chilling Pursuit"
-      },
-      {
-        "spellId": "397095",
-        "name": "Kelp's Clutches"
-      },
-      {
-        "spellId": "397236",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "397237",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "397238",
-        "name": "Frost Nova"
-      },
-      {
-        "spellId": "400344",
-        "name": "Spike Traps"
-      },
-      {
-        "spellId": "414257",
-        "name": "Landslide"
-      },
-      {
-        "spellId": "442182",
-        "name": "Sea Extraction"
-      },
-      {
-        "spellId": "450906",
-        "name": "Kelp Grasp"
-      },
-      {
-        "spellId": "452884",
-        "name": "Steam Nova"
-      },
-      {
-        "spellId": "454787",
-        "name": "Ice Prison"
-      },
-      {
-        "spellId": "459500",
-        "name": "Reno's Random Root"
-      },
-      {
-        "spellId": "460614",
-        "name": "Entangling Roots"
-      },
-      {
-        "spellId": "473290",
-        "name": "Gravity Lapse"
-      },
-      {
-        "spellId": "1258862",
-        "name": "Encasing Cold"
+        "name": "Mass Entanglement",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
       }
     ],
     "taunt": [
       {
         "spellId": "355",
-        "name": "Taunt"
+        "name": "Taunt",
+        "specIds": [
+          "71",
+          "72",
+          "73",
+          "1446"
+        ]
       },
       {
         "spellId": "1161",
-        "name": "Challenging Shout"
-      },
-      {
-        "spellId": "2649",
-        "name": "Growl"
+        "name": "Challenging Shout",
+        "specIds": [
+          "73"
+        ]
       },
       {
         "spellId": "6795",
-        "name": "Growl"
-      },
-      {
-        "spellId": "20736",
-        "name": "Distracting Shot"
-      },
-      {
-        "spellId": "51399",
-        "name": "Death Grip"
+        "name": "Growl",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105",
+          "1447"
+        ]
       },
       {
         "spellId": "56222",
-        "name": "Dark Command"
+        "name": "Dark Command",
+        "specIds": [
+          "250",
+          "251",
+          "252",
+          "1455"
+        ]
       },
       {
         "spellId": "62124",
-        "name": "Hand of Reckoning"
-      },
-      {
-        "spellId": "75685",
-        "name": "Impaling Pull"
-      },
-      {
-        "spellId": "77761",
-        "name": "Stampeding Roar"
-      },
-      {
-        "spellId": "77764",
-        "name": "Stampeding Roar"
-      },
-      {
-        "spellId": "82745",
-        "name": "Impaling Pull"
-      },
-      {
-        "spellId": "100950",
-        "name": "Crate Grip"
+        "name": "Hand of Reckoning",
+        "specIds": [
+          "65",
+          "66",
+          "70",
+          "1451"
+        ]
       },
       {
         "spellId": "106898",
-        "name": "Stampeding Roar"
-      },
-      {
-        "spellId": "116189",
-        "name": "Provoke"
-      },
-      {
-        "spellId": "118635",
-        "name": "Provoke"
-      },
-      {
-        "spellId": "122719",
-        "name": "Taunt"
-      },
-      {
-        "spellId": "145058",
-        "name": "Taunt"
-      },
-      {
-        "spellId": "159535",
-        "name": "Ride the Wind"
-      },
-      {
-        "spellId": "175366",
-        "name": "Reckoning"
-      },
-      {
-        "spellId": "178393",
-        "name": "Agonize"
+        "name": "Stampeding Roar",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
       },
       {
         "spellId": "185245",
-        "name": "Torment"
-      },
-      {
-        "spellId": "210487",
-        "name": "Hand of Reckoning"
-      },
-      {
-        "spellId": "214413",
-        "name": "Growl"
-      },
-      {
-        "spellId": "218608",
-        "name": "Growl"
-      },
-      {
-        "spellId": "221355",
-        "name": "Tormenting Roar"
-      },
-      {
-        "spellId": "222409",
-        "name": "Dark Command"
-      },
-      {
-        "spellId": "223591",
-        "name": "Challenging Shout"
-      },
-      {
-        "spellId": "232877",
-        "name": "Niuzao's Essence"
-      },
-      {
-        "spellId": "257229",
-        "name": "Blow the Man Down!"
-      },
-      {
-        "spellId": "260244",
-        "name": "Frenzy"
-      },
-      {
-        "spellId": "310592",
-        "name": "Vigilant Protector"
-      },
-      {
-        "spellId": "314582",
-        "name": "Taunt"
-      },
-      {
-        "spellId": "327528",
-        "name": "Dark Command"
-      },
-      {
-        "spellId": "330664",
-        "name": "Taunt"
-      },
-      {
-        "spellId": "330669",
-        "name": "Taunt"
-      },
-      {
-        "spellId": "353777",
-        "name": "Taunt"
+        "name": "Torment",
+        "specIds": [
+          "577",
+          "581",
+          "1456",
+          "1480"
+        ]
       },
       {
         "spellId": "386071",
-        "name": "Disrupting Shout"
-      },
-      {
-        "spellId": "404467",
-        "name": "Provoking Roar"
-      },
-      {
-        "spellId": "406984",
-        "name": "Final Stand"
-      },
-      {
-        "spellId": "423120",
-        "name": "Provoking Roar"
-      },
-      {
-        "spellId": "441493",
-        "name": "Stampeding Roar"
-      },
-      {
-        "spellId": "446447",
-        "name": "Provoking Jeer"
-      },
-      {
-        "spellId": "458000",
-        "name": "Taunt"
+        "name": "Disrupting Shout",
+        "specIds": [
+          "73"
+        ]
       }
     ],
     "stun": [
       {
-        "spellId": "45",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "56",
-        "name": "Stun"
-      },
-      {
-        "spellId": "228",
-        "name": "Polymorph: Chicken"
-      },
-      {
         "spellId": "408",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "835",
-        "name": "Tidal Charm"
-      },
-      {
-        "spellId": "851",
-        "name": "Polymorph: Sheep"
+        "name": "Kidney Shot",
+        "specIds": [
+          "259",
+          "260",
+          "261",
+          "1453"
+        ]
       },
       {
         "spellId": "853",
-        "name": "Hammer of Justice"
+        "name": "Hammer of Justice",
+        "specIds": [
+          "65",
+          "66",
+          "70",
+          "1451"
+        ]
       },
       {
         "spellId": "1833",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "2880",
-        "name": "Stun"
-      },
-      {
-        "spellId": "3609",
-        "name": "Paralyzing Poison"
-      },
-      {
-        "spellId": "3635",
-        "name": "Crystal Gaze"
-      },
-      {
-        "spellId": "3636",
-        "name": "Crystalline Slumber"
-      },
-      {
-        "spellId": "4538",
-        "name": "Extract Essence"
-      },
-      {
-        "spellId": "5106",
-        "name": "Crystal Flash"
+        "name": "Cheap Shot",
+        "specIds": [
+          "259",
+          "260",
+          "261",
+          "1453"
+        ]
       },
       {
         "spellId": "5211",
-        "name": "Mighty Bash"
-      },
-      {
-        "spellId": "5276",
-        "name": "Freeze"
-      },
-      {
-        "spellId": "5918",
-        "name": "Shadowstalker Stab"
-      },
-      {
-        "spellId": "6409",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "6927",
-        "name": "Shadowstalker Slash"
-      },
-      {
-        "spellId": "8151",
-        "name": "Surprise Attack"
-      },
-      {
-        "spellId": "11020",
-        "name": "Petrify"
-      },
-      {
-        "spellId": "11650",
-        "name": "Head Butt"
-      },
-      {
-        "spellId": "11836",
-        "name": "Freeze Solid"
-      },
-      {
-        "spellId": "11876",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "13005",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "13237",
-        "name": "Goblin Mortar"
-      },
-      {
-        "spellId": "13907",
-        "name": "Smite Demon"
-      },
-      {
-        "spellId": "14902",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "15239",
-        "name": "Crystal Charge"
-      },
-      {
-        "spellId": "15283",
-        "name": "Stunning Blow"
-      },
-      {
-        "spellId": "15593",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "15749",
-        "name": "Shield Charge"
-      },
-      {
-        "spellId": "15753",
-        "name": "Knockdown"
-      },
-      {
-        "spellId": "16600",
-        "name": "Might of Shahram"
-      },
-      {
-        "spellId": "16727",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "16740",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "17286",
-        "name": "Crusader's Hammer"
-      },
-      {
-        "spellId": "17308",
-        "name": "Stun"
-      },
-      {
-        "spellId": "17500",
-        "name": "Malown's Slam"
-      },
-      {
-        "spellId": "18763",
-        "name": "Freeze"
-      },
-      {
-        "spellId": "18798",
-        "name": "Freeze"
-      },
-      {
-        "spellId": "19131",
-        "name": "Shield Charge"
-      },
-      {
-        "spellId": "19769",
-        "name": "Thorium Grenade"
-      },
-      {
-        "spellId": "20549",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "20615",
-        "name": "Intercept"
-      },
-      {
-        "spellId": "21152",
-        "name": "Earthshaker"
-      },
-      {
-        "spellId": "21188",
-        "name": "Stun Bomb Attack"
-      },
-      {
-        "spellId": "21990",
-        "name": "Tornado"
-      },
-      {
-        "spellId": "22427",
-        "name": "Concussion Blow"
-      },
-      {
-        "spellId": "22561",
-        "name": "Brood Power: Green"
+        "name": "Mighty Bash",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
       },
       {
         "spellId": "22570",
-        "name": "Maim"
-      },
-      {
-        "spellId": "22692",
-        "name": "Petrify"
-      },
-      {
-        "spellId": "22911",
-        "name": "Charge"
-      },
-      {
-        "spellId": "22915",
-        "name": "Improved Concussive Shot"
-      },
-      {
-        "spellId": "23454",
-        "name": "Stun"
-      },
-      {
-        "spellId": "24023",
-        "name": "Charge"
-      },
-      {
-        "spellId": "24193",
-        "name": "Charge"
-      },
-      {
-        "spellId": "24315",
-        "name": "Charge"
-      },
-      {
-        "spellId": "24375",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "24394",
-        "name": "Intimidation"
-      },
-      {
-        "spellId": "24408",
-        "name": "Charge"
-      },
-      {
-        "spellId": "25056",
-        "name": "Stomp"
-      },
-      {
-        "spellId": "25821",
-        "name": "Charge"
-      },
-      {
-        "spellId": "26108",
-        "name": "Glimpse of Madness"
-      },
-      {
-        "spellId": "27615",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "27758",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "27868",
-        "name": "Freeze"
-      },
-      {
-        "spellId": "27983",
-        "name": "Lightning Strike"
-      },
-      {
-        "spellId": "28725",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "29314",
-        "name": "Quest - Healing Salve"
-      },
-      {
-        "spellId": "29847",
-        "name": "Charge"
-      },
-      {
-        "spellId": "30077",
-        "name": "Carinda's Retribution"
-      },
-      {
-        "spellId": "30112",
-        "name": "Frenzied Dive"
+        "name": "Maim",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
       },
       {
         "spellId": "30283",
-        "name": "Shadowfury"
-      },
-      {
-        "spellId": "30621",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "30832",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "30986",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "31408",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "31480",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "31733",
-        "name": "Charge"
-      },
-      {
-        "spellId": "31819",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "31843",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "31994",
-        "name": "Shoulder Charge"
-      },
-      {
-        "spellId": "32012",
-        "name": "Surge"
-      },
-      {
-        "spellId": "32021",
-        "name": "Rushing Charge"
-      },
-      {
-        "spellId": "32323",
-        "name": "Charge"
-      },
-      {
-        "spellId": "32416",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "32588",
-        "name": "Concussion Blow"
-      },
-      {
-        "spellId": "32654",
-        "name": "Talon of Justice"
-      },
-      {
-        "spellId": "32864",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "32905",
-        "name": "Glare"
-      },
-      {
-        "spellId": "33487",
-        "name": "Addle Humanoid"
-      },
-      {
-        "spellId": "33709",
-        "name": "Charge"
-      },
-      {
-        "spellId": "34108",
-        "name": "Spine Break"
-      },
-      {
-        "spellId": "34243",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "34357",
-        "name": "Vial of Petrification"
-      },
-      {
-        "spellId": "34510",
-        "name": "Stun"
-      },
-      {
-        "spellId": "34885",
-        "name": "Petrify"
-      },
-      {
-        "spellId": "35238",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "35313",
-        "name": "Hypnotic Gaze"
-      },
-      {
-        "spellId": "35373",
-        "name": "Shadowfury"
-      },
-      {
-        "spellId": "35382",
-        "name": "Rushing Charge"
-      },
-      {
-        "spellId": "35385",
-        "name": "Threshalisk Charge"
-      },
-      {
-        "spellId": "35412",
-        "name": "Charge"
-      },
-      {
-        "spellId": "35472",
-        "name": "Shield Charge"
-      },
-      {
-        "spellId": "35492",
-        "name": "Exhaustion"
-      },
-      {
-        "spellId": "35570",
-        "name": "Charge"
-      },
-      {
-        "spellId": "35856",
-        "name": "Stun"
-      },
-      {
-        "spellId": "36138",
-        "name": "Hammer Stun"
-      },
-      {
-        "spellId": "36140",
-        "name": "Charge"
-      },
-      {
-        "spellId": "36254",
-        "name": "Judgment of the Flame"
-      },
-      {
-        "spellId": "36509",
-        "name": "Charge"
-      },
-      {
-        "spellId": "36606",
-        "name": "Mighty Charge"
-      },
-      {
-        "spellId": "36877",
-        "name": "Stun Forever"
-      },
-      {
-        "spellId": "37118",
-        "name": "Shell Shock"
-      },
-      {
-        "spellId": "37511",
-        "name": "Charge"
-      },
-      {
-        "spellId": "37777",
-        "name": "Mighty Charge"
-      },
-      {
-        "spellId": "37871",
-        "name": "Freeze"
-      },
-      {
-        "spellId": "37982",
-        "name": "Earth Stun"
-      },
-      {
-        "spellId": "37991",
-        "name": "Bone Burst"
-      },
-      {
-        "spellId": "38035",
-        "name": "Freeze"
-      },
-      {
-        "spellId": "38059",
-        "name": "Sonic Charge"
-      },
-      {
-        "spellId": "38461",
-        "name": "Charge"
-      },
-      {
-        "spellId": "38682",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "38911",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "39077",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "39082",
-        "name": "Shadowfury"
-      },
-      {
-        "spellId": "39197",
-        "name": "Sonic Charge"
-      },
-      {
-        "spellId": "39229",
-        "name": "Talon of Justice"
-      },
-      {
-        "spellId": "39313",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "39387",
-        "name": "Move to Highest Threat Target Primer"
-      },
-      {
-        "spellId": "39435",
-        "name": "Feral Charge"
-      },
-      {
-        "spellId": "39574",
-        "name": "Charge"
-      },
-      {
-        "spellId": "39865",
-        "name": "Rizzle's Blackjack"
-      },
-      {
-        "spellId": "40262",
-        "name": "Super Jump"
-      },
-      {
-        "spellId": "40864",
-        "name": "Throbbing Stun"
-      },
-      {
-        "spellId": "40936",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "41182",
-        "name": "Concussive Throw"
-      },
-      {
-        "spellId": "41358",
-        "name": "Rizzle's Blackjack"
-      },
-      {
-        "spellId": "41389",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "41534",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "41581",
-        "name": "Charge"
-      },
-      {
-        "spellId": "43519",
-        "name": "Charge"
-      },
-      {
-        "spellId": "43651",
-        "name": "Charge"
-      },
-      {
-        "spellId": "44415",
-        "name": "Blackout"
-      },
-      {
-        "spellId": "45270",
-        "name": "Shadowfury"
-      },
-      {
-        "spellId": "45876",
-        "name": "Stampede"
-      },
-      {
-        "spellId": "46024",
-        "name": "Fel Iron Bomb"
-      },
-      {
-        "spellId": "46026",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "46288",
-        "name": "Petrify"
-      },
-      {
-        "spellId": "46441",
-        "name": "Stun"
-      },
-      {
-        "spellId": "46567",
-        "name": "Rocket Launch"
-      },
-      {
-        "spellId": "49616",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "49838",
-        "name": "Stop Time"
-      },
-      {
-        "spellId": "50876",
-        "name": "Mounted Charge"
-      },
-      {
-        "spellId": "51752",
-        "name": "Stampy's Stompy-Stomp"
-      },
-      {
-        "spellId": "51842",
-        "name": "Charge"
-      },
-      {
-        "spellId": "52169",
-        "name": "Magnataur Charge"
-      },
-      {
-        "spellId": "52271",
-        "name": "Violent Crash"
-      },
-      {
-        "spellId": "52272",
-        "name": "Boulder Throw"
-      },
-      {
-        "spellId": "52719",
-        "name": "Concussion Blow"
-      },
-      {
-        "spellId": "53329",
-        "name": "Smite Undead"
-      },
-      {
-        "spellId": "53625",
-        "name": "Heroic Leap"
-      },
-      {
-        "spellId": "54132",
-        "name": "Concussion Blow"
-      },
-      {
-        "spellId": "54735",
-        "name": "Electromagnetic Pulse"
-      },
-      {
-        "spellId": "55317",
-        "name": "Charge"
-      },
-      {
-        "spellId": "55636",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "55918",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "56062",
-        "name": "Thunderous Stomp"
-      },
-      {
-        "spellId": "56427",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "56733",
-        "name": "Shadowfury"
-      },
-      {
-        "spellId": "57728",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "57741",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "58154",
-        "name": "Hammer of Injustice"
-      },
-      {
-        "spellId": "58534",
-        "name": "Deep Freeze"
-      },
-      {
-        "spellId": "58619",
-        "name": "Charge"
-      },
-      {
-        "spellId": "58747",
-        "name": "Intercept"
-      },
-      {
-        "spellId": "58947",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "58977",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "59040",
-        "name": "Charge"
-      },
-      {
-        "spellId": "59611",
-        "name": "Charge"
-      },
-      {
-        "spellId": "59705",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "60067",
-        "name": "Charge"
-      },
-      {
-        "spellId": "60077",
-        "name": "Stop Time"
-      },
-      {
-        "spellId": "60960",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "61065",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "61463",
-        "name": "Shadowfury"
-      },
-      {
-        "spellId": "61491",
-        "name": "Intercept"
-      },
-      {
-        "spellId": "62613",
-        "name": "Charge"
-      },
-      {
-        "spellId": "62614",
-        "name": "Charge"
-      },
-      {
-        "spellId": "62974",
-        "name": "Sonic Horn"
-      },
-      {
-        "spellId": "64044",
-        "name": "Psychic Horror"
-      },
-      {
-        "spellId": "64719",
-        "name": "Charge"
-      },
-      {
-        "spellId": "65407",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "66007",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "66613",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "67171",
-        "name": "Force Punch"
-      },
-      {
-        "spellId": "67219",
-        "name": "Explosive Punch"
-      },
-      {
-        "spellId": "67573",
-        "name": "Intercept"
-      },
-      {
-        "spellId": "68749",
-        "name": "Stun"
-      },
-      {
-        "spellId": "69613",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "71019",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "71592",
-        "name": "Fel Iron Bomb"
-      },
-      {
-        "spellId": "71784",
-        "name": "Hammer of Betrayal"
-      },
-      {
-        "spellId": "71787",
-        "name": "Fel Iron Bomb"
-      },
-      {
-        "spellId": "72335",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "74606",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "75008",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "75343",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "75417",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "75924",
-        "name": "Heartbreaker"
-      },
-      {
-        "spellId": "76615",
-        "name": "Freeze Solid"
-      },
-      {
-        "spellId": "76632",
-        "name": "Freeze Solid Missile Visual"
-      },
-      {
-        "spellId": "77787",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "79465",
-        "name": "Deep Freeze"
-      },
-      {
-        "spellId": "79872",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "80555",
-        "name": "Sonic Spear"
-      },
-      {
-        "spellId": "80613",
-        "name": "Crushing Stomp"
-      },
-      {
-        "spellId": "81146",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "81429",
-        "name": "Deep Freeze"
-      },
-      {
-        "spellId": "81430",
-        "name": "Cold Hearted"
-      },
-      {
-        "spellId": "81441",
-        "name": "Shadowfury"
-      },
-      {
-        "spellId": "81500",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "83370",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "84165",
-        "name": "Flame Blast"
-      },
-      {
-        "spellId": "84715",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "84834",
-        "name": "Blade Strike"
-      },
-      {
-        "spellId": "86580",
-        "name": "Petrify"
-      },
-      {
-        "spellId": "86790",
-        "name": "Quicksilver Corruption"
-      },
-      {
-        "spellId": "87759",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "89516",
-        "name": "Salhet's Charge"
-      },
-      {
-        "spellId": "89766",
-        "name": "Axe Toss"
-      },
-      {
-        "spellId": "91313",
-        "name": "Flame Blast"
-      },
-      {
-        "spellId": "91726",
-        "name": "Reaper Charge"
-      },
-      {
-        "spellId": "91797",
-        "name": "Monstrous Blow"
-      },
-      {
-        "spellId": "91800",
-        "name": "Gnaw"
-      },
-      {
-        "spellId": "93325",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "99610",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "99646",
-        "name": "Reckless Leap"
-      },
-      {
-        "spellId": "100940",
-        "name": "Improved Concussive Shot"
-      },
-      {
-        "spellId": "107102",
-        "name": "Shockwave"
+        "name": "Shadowfury",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
       },
       {
         "spellId": "107570",
-        "name": "Storm Bolt"
-      },
-      {
-        "spellId": "108194",
-        "name": "Asphyxiate"
-      },
-      {
-        "spellId": "110981",
-        "name": "War Stomp"
+        "name": "Storm Bolt",
+        "specIds": [
+          "71",
+          "72",
+          "73"
+        ]
       },
       {
         "spellId": "117418",
-        "name": "Fists of Fury"
+        "name": "Fists of Fury",
+        "specIds": [
+          "268",
+          "269",
+          "270",
+          "1450"
+        ]
       },
       {
         "spellId": "117526",
-        "name": "Binding Shot"
-      },
-      {
-        "spellId": "117831",
-        "name": "Shield Bash"
-      },
-      {
-        "spellId": "118345",
-        "name": "Pulverize"
-      },
-      {
-        "spellId": "118905",
-        "name": "Capacitor Totem"
+        "name": "Binding Shot",
+        "specIds": [
+          "253",
+          "254",
+          "255",
+          "1448"
+        ]
       },
       {
         "spellId": "119381",
-        "name": "Leg Sweep"
-      },
-      {
-        "spellId": "120086",
-        "name": "Fists of Fury"
-      },
-      {
-        "spellId": "120558",
-        "name": "Intimidation"
-      },
-      {
-        "spellId": "121547",
-        "name": "Polymorph: Sheep"
-      },
-      {
-        "spellId": "122865",
-        "name": "QA Test Stun"
-      },
-      {
-        "spellId": "122868",
-        "name": "QA Test Proc Stun"
-      },
-      {
-        "spellId": "123646",
-        "name": "Intimidation"
-      },
-      {
-        "spellId": "123648",
-        "name": "Shock"
-      },
-      {
-        "spellId": "123687",
-        "name": "Charging Ox Wave"
-      },
-      {
-        "spellId": "125277",
-        "name": "Charge"
-      },
-      {
-        "spellId": "126115",
-        "name": "Ice Arrow"
-      },
-      {
-        "spellId": "126558",
-        "name": "Yaungol Charge"
-      },
-      {
-        "spellId": "128787",
-        "name": "Leg Sweep"
-      },
-      {
-        "spellId": "128846",
-        "name": "Clash"
-      },
-      {
-        "spellId": "129553",
-        "name": "Paralyzed"
-      },
-      {
-        "spellId": "131044",
-        "name": "Sha Charge"
-      },
-      {
-        "spellId": "132168",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "132169",
-        "name": "Storm Bolt"
-      },
-      {
-        "spellId": "133002",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "135621",
-        "name": "Static Charge"
-      },
-      {
-        "spellId": "136426",
-        "name": "Polymorph: Goat"
-      },
-      {
-        "spellId": "136708",
-        "name": "Stone Gaze"
-      },
-      {
-        "spellId": "136794",
-        "name": "Polymorph: Goat"
-      },
-      {
-        "spellId": "138412",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "138935",
-        "name": "Star Slam"
-      },
-      {
-        "spellId": "139275",
-        "name": "Storm Bolt"
-      },
-      {
-        "spellId": "140248",
-        "name": "Petrifying Gaze"
-      },
-      {
-        "spellId": "140446",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "144166",
-        "name": "Charge"
-      },
-      {
-        "spellId": "145047",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "145424",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "146328",
-        "name": "Soporific Pollen"
-      },
-      {
-        "spellId": "146335",
-        "name": "Paralytic Pollen"
-      },
-      {
-        "spellId": "146410",
-        "name": "Elekk Crush"
-      },
-      {
-        "spellId": "146458",
-        "name": "Belly Flop"
-      },
-      {
-        "spellId": "147513",
-        "name": "Exhaustion"
-      },
-      {
-        "spellId": "147651",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "148535",
-        "name": "Ordon Death Chime"
-      },
-      {
-        "spellId": "151110",
-        "name": "Elekk Crush"
-      },
-      {
-        "spellId": "153440",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "155054",
-        "name": "Gladiator Charge"
-      },
-      {
-        "spellId": "159783",
-        "name": "Lion's Shield"
-      },
-      {
-        "spellId": "159857",
-        "name": "March of Iron"
-      },
-      {
-        "spellId": "160168",
-        "name": "Charge"
-      },
-      {
-        "spellId": "162077",
-        "name": "Artillery Strike"
-      },
-      {
-        "spellId": "162614",
-        "name": "Deep Freeze"
-      },
-      {
-        "spellId": "163505",
-        "name": "Rake"
-      },
-      {
-        "spellId": "163581",
-        "name": "Hack and Slash"
-      },
-      {
-        "spellId": "164134",
-        "name": "Vaandamm's Vengeance"
-      },
-      {
-        "spellId": "164154",
-        "name": "Kash'drakor's Killshot"
-      },
-      {
-        "spellId": "164214",
-        "name": "Akaani's Annulment"
-      },
-      {
-        "spellId": "164412",
-        "name": "Limbflayer's Lunacy"
-      },
-      {
-        "spellId": "164416",
-        "name": "Jonaa's Justice"
-      },
-      {
-        "spellId": "164595",
-        "name": "Hack and Slash"
-      },
-      {
-        "spellId": "165425",
-        "name": "Mighty Charge"
-      },
-      {
-        "spellId": "165751",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "166969",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "168379",
-        "name": "Fiery Impact"
-      },
-      {
-        "spellId": "169032",
-        "name": "Exploding Ejector Seat"
-      },
-      {
-        "spellId": "169116",
-        "name": "Spider Silk"
-      },
-      {
-        "spellId": "169916",
-        "name": "Smite"
-      },
-      {
-        "spellId": "171017",
-        "name": "Meteor Strike"
-      },
-      {
-        "spellId": "171018",
-        "name": "Meteor Strike"
-      },
-      {
-        "spellId": "171156",
-        "name": "Meteor Strike"
-      },
-      {
-        "spellId": "171481",
-        "name": "Item - Hunter WoD PvP Beast Mastery 4P Bonus"
-      },
-      {
-        "spellId": "171953",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "174417",
-        "name": "Leg Sweep"
-      },
-      {
-        "spellId": "174559",
-        "name": "Last Rites"
-      },
-      {
-        "spellId": "176050",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "176219",
-        "name": "Pulverize"
-      },
-      {
-        "spellId": "176225",
-        "name": "Boulder Throw"
-      },
-      {
-        "spellId": "176278",
-        "name": "Deep Freeze"
+        "name": "Leg Sweep",
+        "specIds": [
+          "268",
+          "269",
+          "270",
+          "1450"
+        ]
       },
       {
         "spellId": "179057",
-        "name": "Chaos Nova"
-      },
-      {
-        "spellId": "180187",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "183291",
-        "name": "Intercept"
-      },
-      {
-        "spellId": "183898",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "184109",
-        "name": "Primal Pounce"
-      },
-      {
-        "spellId": "185096",
-        "name": "Sucker Punch"
-      },
-      {
-        "spellId": "189504",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "190481",
-        "name": "Mighty Bash"
-      },
-      {
-        "spellId": "191530",
-        "name": "Rock Lob"
-      },
-      {
-        "spellId": "194140",
-        "name": "Stone Gaze"
-      },
-      {
-        "spellId": "195546",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "196591",
-        "name": "Death Glare"
-      },
-      {
-        "spellId": "196958",
-        "name": "Strike from the Shadows"
-      },
-      {
-        "spellId": "199085",
-        "name": "Warpath"
-      },
-      {
-        "spellId": "199566",
-        "name": "Sense of Injustice"
-      },
-      {
-        "spellId": "200166",
-        "name": "Metamorphosis"
-      },
-      {
-        "spellId": "200200",
-        "name": "Holy Word: Chastise"
-      },
-      {
-        "spellId": "200434",
-        "name": "Petrified!"
-      },
-      {
-        "spellId": "202244",
-        "name": "Overrun"
-      },
-      {
-        "spellId": "202346",
-        "name": "Double Barrel"
-      },
-      {
-        "spellId": "203123",
-        "name": "Maim"
-      },
-      {
-        "spellId": "203694",
-        "name": "Slab Lob"
-      },
-      {
-        "spellId": "204437",
-        "name": "Lightning Lasso"
-      },
-      {
-        "spellId": "204717",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "204747",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "205290",
-        "name": "Wake of Ashes"
-      },
-      {
-        "spellId": "205630",
-        "name": "Illidan's Grasp"
-      },
-      {
-        "spellId": "205828",
-        "name": "Blazing Stomp"
-      },
-      {
-        "spellId": "206259",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "206318",
-        "name": "Intercept"
-      },
-      {
-        "spellId": "207165",
-        "name": "Abomination's Might"
-      },
-      {
-        "spellId": "208618",
-        "name": "Illidan's Grasp"
-      },
-      {
-        "spellId": "210141",
-        "name": "Reanimation"
-      },
-      {
-        "spellId": "210368",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "211881",
-        "name": "Fel Eruption"
-      },
-      {
-        "spellId": "212046",
-        "name": "Wandering Keg"
-      },
-      {
-        "spellId": "212131",
-        "name": "Dizzy"
-      },
-      {
-        "spellId": "212246",
-        "name": "Brittle Statue"
-      },
-      {
-        "spellId": "212332",
-        "name": "Smash"
-      },
-      {
-        "spellId": "212337",
-        "name": "Powerful Smash"
-      },
-      {
-        "spellId": "212435",
-        "name": "Shado Strike"
-      },
-      {
-        "spellId": "213427",
-        "name": "Warbringer"
-      },
-      {
-        "spellId": "214203",
-        "name": "Spear of Light"
-      },
-      {
-        "spellId": "215179",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "216007",
-        "name": "Eternal Banishment"
-      },
-      {
-        "spellId": "218529",
-        "name": "Pufferfish"
-      },
-      {
-        "spellId": "218546",
-        "name": "Nightmarish Visions"
-      },
-      {
-        "spellId": "218911",
-        "name": "Barrel Roll"
-      },
-      {
-        "spellId": "218956",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "219397",
-        "name": "Eagle Dive"
-      },
-      {
-        "spellId": "220617",
-        "name": "Charge"
+        "name": "Chaos Nova",
+        "specIds": [
+          "577",
+          "581"
+        ]
       },
       {
         "spellId": "221562",
-        "name": "Asphyxiate"
-      },
-      {
-        "spellId": "221747",
-        "name": "Judgment's Gaze"
-      },
-      {
-        "spellId": "221792",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "222317",
-        "name": "Mark of Thassarian"
-      },
-      {
-        "spellId": "222826",
-        "name": "Chaos Nova"
-      },
-      {
-        "spellId": "222897",
-        "name": "Storm Bolt"
-      },
-      {
-        "spellId": "222935",
-        "name": "Winds of the North"
-      },
-      {
-        "spellId": "223911",
-        "name": "Titan's Wrath"
-      },
-      {
-        "spellId": "224074",
-        "name": "Devilsaur's Bite"
-      },
-      {
-        "spellId": "225416",
-        "name": "Intercept"
-      },
-      {
-        "spellId": "227104",
-        "name": "Stormrage"
-      },
-      {
-        "spellId": "228136",
-        "name": "Gjallar's Horn"
-      },
-      {
-        "spellId": "228365",
-        "name": "Burst of Cold"
-      },
-      {
-        "spellId": "230228",
-        "name": "Thunder Ritual"
-      },
-      {
-        "spellId": "232055",
-        "name": "Fists of Fury"
-      },
-      {
-        "spellId": "233017",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "235612",
-        "name": "Frost Breath"
-      },
-      {
-        "spellId": "236026",
-        "name": "Enraged Maim"
-      },
-      {
-        "spellId": "236223",
-        "name": "Flame Reaver"
-      },
-      {
-        "spellId": "236347",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "237744",
-        "name": "Warbringer"
-      },
-      {
-        "spellId": "239164",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "241759",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "244200",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "244845",
-        "name": "Shank"
-      },
-      {
-        "spellId": "244880",
-        "name": "Charge"
-      },
-      {
-        "spellId": "244893",
-        "name": "Throw Boulder"
-      },
-      {
-        "spellId": "244988",
-        "name": "Throw Boulder"
-      },
-      {
-        "spellId": "245638",
-        "name": "Thick Shell"
-      },
-      {
-        "spellId": "247308",
-        "name": "Light's Judgment"
-      },
-      {
-        "spellId": "248149",
-        "name": "Light's Judgment"
-      },
-      {
-        "spellId": "248406",
-        "name": "Cold Heart"
-      },
-      {
-        "spellId": "249852",
-        "name": "Blind Recompense"
-      },
-      {
-        "spellId": "250490",
-        "name": "Animated Strike"
-      },
-      {
-        "spellId": "251986",
-        "name": "Light's Judgment"
-      },
-      {
-        "spellId": "253983",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "254144",
-        "name": "Shadow Pounce"
-      },
-      {
-        "spellId": "255248",
-        "name": "Throw Grenade"
-      },
-      {
-        "spellId": "255252",
-        "name": "F.R.I.E.D."
-      },
-      {
-        "spellId": "255319",
-        "name": "Accelerated Plague Spreader"
-      },
-      {
-        "spellId": "255723",
-        "name": "Bull Rush"
-      },
-      {
-        "spellId": "255941",
-        "name": "Wake of Ashes"
-      },
-      {
-        "spellId": "256600",
-        "name": "Point Blank Blast"
-      },
-      {
-        "spellId": "257222",
-        "name": "Swooping Charge"
-      },
-      {
-        "spellId": "257531",
-        "name": "Lightning Bomb"
-      },
-      {
-        "spellId": "257738",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "258182",
-        "name": "Boulder Throw"
-      },
-      {
-        "spellId": "258328",
-        "name": "Intercept"
-      },
-      {
-        "spellId": "258371",
-        "name": "Crystal Gaze"
-      },
-      {
-        "spellId": "258390",
-        "name": "Petrifying Gaze"
-      },
-      {
-        "spellId": "258636",
-        "name": "Glacial Dance"
-      },
-      {
-        "spellId": "258880",
-        "name": "The Chief's Enforcer"
-      },
-      {
-        "spellId": "258884",
-        "name": "The Chief's Enforcer"
-      },
-      {
-        "spellId": "260563",
-        "name": "Gnaw"
-      },
-      {
-        "spellId": "261731",
-        "name": "Buzz SAW"
-      },
-      {
-        "spellId": "261973",
-        "name": "Wild Swipes"
-      },
-      {
-        "spellId": "262146",
-        "name": "Wild Charge"
-      },
-      {
-        "spellId": "262147",
-        "name": "Wild Charge"
-      },
-      {
-        "spellId": "262466",
-        "name": "Trample"
-      },
-      {
-        "spellId": "262539",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "262906",
-        "name": "Arcane Charge"
-      },
-      {
-        "spellId": "263244",
-        "name": "Flaming Charge"
-      },
-      {
-        "spellId": "265280",
-        "name": "Stun"
-      },
-      {
-        "spellId": "265615",
-        "name": "Icy Charge"
-      },
-      {
-        "spellId": "266989",
-        "name": "Swooping Charge"
-      },
-      {
-        "spellId": "267029",
-        "name": "Glowing Seed"
-      },
-      {
-        "spellId": "267030",
-        "name": "Heavy Crate"
-      },
-      {
-        "spellId": "268788",
-        "name": "Crystal Flash"
-      },
-      {
-        "spellId": "268987",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "268993",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "269068",
-        "name": "Bomb-samdi Mojo Bomb"
-      },
-      {
-        "spellId": "269341",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "270410",
-        "name": "Petrifying Gaze"
-      },
-      {
-        "spellId": "270411",
-        "name": "Earthshatter"
-      },
-      {
-        "spellId": "270457",
-        "name": "Slam"
-      },
-      {
-        "spellId": "270459",
-        "name": "Earth Blast"
-      },
-      {
-        "spellId": "270460",
-        "name": "Stone Eruption"
-      },
-      {
-        "spellId": "270461",
-        "name": "Seismic Force"
-      },
-      {
-        "spellId": "270463",
-        "name": "Jagged Slash"
-      },
-      {
-        "spellId": "273664",
-        "name": "Crush"
-      },
-      {
-        "spellId": "275748",
-        "name": "Paralyzing Fang"
-      },
-      {
-        "spellId": "276061",
-        "name": "Boulder Throw"
-      },
-      {
-        "spellId": "276808",
-        "name": "Heavy Boulder"
-      },
-      {
-        "spellId": "276809",
-        "name": "Crude Spear"
-      },
-      {
-        "spellId": "276992",
-        "name": "Big Foot Kick"
-      },
-      {
-        "spellId": "277161",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "278193",
-        "name": "Crush"
-      },
-      {
-        "spellId": "279367",
-        "name": "Sporonite Bomb"
-      },
-      {
-        "spellId": "279439",
-        "name": "Earthshaking Smash"
-      },
-      {
-        "spellId": "280061",
-        "name": "Fetid Limb"
-      },
-      {
-        "spellId": "282299",
-        "name": "Fists of Fury"
-      },
-      {
-        "spellId": "283618",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "283655",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "283661",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "283778",
-        "name": "Fists of Fury"
-      },
-      {
-        "spellId": "284379",
-        "name": "Intimidation"
-      },
-      {
-        "spellId": "285266",
-        "name": "Asphyxiate"
-      },
-      {
-        "spellId": "285270",
-        "name": "Leg Sweep"
-      },
-      {
-        "spellId": "287254",
-        "name": "Dead of Winter"
-      },
-      {
-        "spellId": "287478",
-        "name": "Oppressive Power"
-      },
-      {
-        "spellId": "287712",
-        "name": "Haymaker"
-      },
-      {
-        "spellId": "288588",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "290529",
-        "name": "Lightning Zap 5000"
-      },
-      {
-        "spellId": "290560",
-        "name": "Lightning Zap 5000"
-      },
-      {
-        "spellId": "290592",
-        "name": "Lightning Zap 5000"
-      },
-      {
-        "spellId": "290661",
-        "name": "Loose Parts"
-      },
-      {
-        "spellId": "290764",
-        "name": "Dragon Roar"
-      },
-      {
-        "spellId": "290877",
-        "name": "Apply 1 Parts < 10"
-      },
-      {
-        "spellId": "290893",
-        "name": "Apply 10 Parts (Spawn)"
-      },
-      {
-        "spellId": "290894",
-        "name": "Apply 10 Parts (Restock)"
-      },
-      {
-        "spellId": "291191",
-        "name": "Spare Parts (Visual)"
-      },
-      {
-        "spellId": "291195",
-        "name": "Create 3 Spare Parts"
-      },
-      {
-        "spellId": "292224",
-        "name": "Chaos Nova"
-      },
-      {
-        "spellId": "292306",
-        "name": "Leg Sweep"
-      },
-      {
-        "spellId": "294286",
-        "name": "Clawed Leap"
-      },
-      {
-        "spellId": "295366",
-        "name": "Purifying Blast"
-      },
-      {
-        "spellId": "295953",
-        "name": "Gnaw"
-      },
-      {
-        "spellId": "296114",
-        "name": "Boot Slap"
-      },
-      {
-        "spellId": "296390",
-        "name": "Electro-Stun Augmentation"
-      },
-      {
-        "spellId": "297068",
-        "name": "Create Power Core Schematics"
-      },
-      {
-        "spellId": "298272",
-        "name": "Massive Stone"
-      },
-      {
-        "spellId": "299768",
-        "name": "Shiv and Shank"
-      },
-      {
-        "spellId": "299769",
-        "name": "Undercut"
-      },
-      {
-        "spellId": "299772",
-        "name": "Tsunami Slam"
-      },
-      {
-        "spellId": "299785",
-        "name": "Maelstrom"
-      },
-      {
-        "spellId": "299802",
-        "name": "Eel Trap"
-      },
-      {
-        "spellId": "299803",
-        "name": "Greater Eel Trap"
-      },
-      {
-        "spellId": "304705",
-        "name": "Razorshell"
-      },
-      {
-        "spellId": "304706",
-        "name": "Razorshell"
-      },
-      {
-        "spellId": "305485",
-        "name": "Lightning Lasso"
-      },
-      {
-        "spellId": "307452",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "308810",
-        "name": "Stun"
-      },
-      {
-        "spellId": "313065",
-        "name": "Light Impalement"
-      },
-      {
-        "spellId": "313107",
-        "name": "Energy Core"
-      },
-      {
-        "spellId": "314723",
-        "name": "War Stomp"
-      },
-      {
-        "spellId": "315941",
-        "name": "Fists of Fury"
-      },
-      {
-        "spellId": "320566",
-        "name": "Surprise!"
-      },
-      {
-        "spellId": "324849",
-        "name": "Dark Leap"
-      },
-      {
-        "spellId": "325321",
-        "name": "Wild Hunt's Charge"
-      },
-      {
-        "spellId": "326696",
-        "name": "Cheap Shot"
-      },
-      {
-        "spellId": "326697",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "330858",
-        "name": "Creeping Freeze"
-      },
-      {
-        "spellId": "330888",
-        "name": "Creeping Freeze"
-      },
-      {
-        "spellId": "332423",
-        "name": "Sparkling Driftglobe Core"
-      },
-      {
-        "spellId": "332531",
-        "name": "Ancient Drake Breath"
-      },
-      {
-        "spellId": "332773",
-        "name": "Ancient Drake Breath"
-      },
-      {
-        "spellId": "333762",
-        "name": "The Hunt"
-      },
-      {
-        "spellId": "334693",
-        "name": "Absolute Zero"
-      },
-      {
-        "spellId": "335802",
-        "name": "Hurl Wild Spear"
-      },
-      {
-        "spellId": "337942",
-        "name": "Lumbering Form"
-      },
-      {
-        "spellId": "339391",
-        "name": "Big Blue Fist"
-      },
-      {
-        "spellId": "339392",
-        "name": "Big Blue Fist"
-      },
-      {
-        "spellId": "340031",
-        "name": "Charge"
-      },
-      {
-        "spellId": "341661",
-        "name": "Stun"
-      },
-      {
-        "spellId": "341683",
-        "name": "Anima Devour"
-      },
-      {
-        "spellId": "341788",
-        "name": "Crystallize"
-      },
-      {
-        "spellId": "342875",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "347008",
-        "name": "Axe Toss"
-      },
-      {
-        "spellId": "347999",
-        "name": "Stunned"
-      },
-      {
-        "spellId": "348045",
-        "name": "Lumbering Form"
-      },
-      {
-        "spellId": "350020",
-        "name": "Pounce"
-      },
-      {
-        "spellId": "353104",
-        "name": "Briefcase Bash"
-      },
-      {
-        "spellId": "354625",
-        "name": "Bubble Trap"
-      },
-      {
-        "spellId": "355465",
-        "name": "Boulder Throw"
-      },
-      {
-        "spellId": "355683",
-        "name": "Shocked"
-      },
-      {
-        "spellId": "357021",
-        "name": "Consecutive Concussion"
-      },
-      {
-        "spellId": "357862",
-        "name": "Staggering Slam"
-      },
-      {
-        "spellId": "361228",
-        "name": "Hands Up"
-      },
-      {
-        "spellId": "361399",
-        "name": "Haymaker"
-      },
-      {
-        "spellId": "361625",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "362043",
-        "name": "Heroic Leap"
-      },
-      {
-        "spellId": "362349",
-        "name": "Fists of Earthen Fury"
-      },
-      {
-        "spellId": "363523",
-        "name": "Blinding Light"
-      },
-      {
-        "spellId": "367077",
-        "name": "Primeval Snare"
-      },
-      {
-        "spellId": "369074",
-        "name": "Trampled"
-      },
-      {
-        "spellId": "369506",
-        "name": "Gale Breath"
-      },
-      {
-        "spellId": "372245",
-        "name": "Terror of the Skies"
-      },
-      {
-        "spellId": "373521",
-        "name": "Petrifying Gaze"
-      },
-      {
-        "spellId": "374797",
-        "name": "Wing Gust"
-      },
-      {
-        "spellId": "375011",
-        "name": "Seismic Force"
-      },
-      {
-        "spellId": "376472",
-        "name": "Overhead Smash"
-      },
-      {
-        "spellId": "377048",
-        "name": "Absolute Zero"
-      },
-      {
-        "spellId": "377697",
-        "name": "Sonic Horn"
-      },
-      {
-        "spellId": "378058",
-        "name": "Seismic Force"
-      },
-      {
-        "spellId": "378397",
-        "name": "Slam"
-      },
-      {
-        "spellId": "378886",
-        "name": "Freeze Over"
-      },
-      {
-        "spellId": "382308",
-        "name": "Empowered Stomp"
-      },
-      {
-        "spellId": "385149",
-        "name": "Exorcism"
-      },
-      {
-        "spellId": "385954",
-        "name": "Shield Charge"
-      },
-      {
-        "spellId": "386700",
-        "name": "Crashing Ice"
-      },
-      {
-        "spellId": "386761",
-        "name": "Imprison"
-      },
-      {
-        "spellId": "387045",
-        "name": "Stone Eruption"
-      },
-      {
-        "spellId": "387343",
-        "name": "Tectonic Spike"
-      },
-      {
-        "spellId": "388182",
-        "name": "Boulder Toss"
-      },
-      {
-        "spellId": "389270",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "389831",
-        "name": "Snowdrift"
-      },
-      {
-        "spellId": "390361",
-        "name": "Lightning Crash"
-      },
-      {
-        "spellId": "390532",
-        "name": "Frozen"
-      },
-      {
-        "spellId": "392013",
-        "name": "Golem Smash"
-      },
-      {
-        "spellId": "392359",
-        "name": "Cataclysmic Punch"
-      },
-      {
-        "spellId": "392376",
-        "name": "Cataclysmic Punch"
-      },
-      {
-        "spellId": "393458",
-        "name": "Earth Spike"
-      },
-      {
-        "spellId": "394070",
-        "name": "Frost Breath"
-      },
-      {
-        "spellId": "394450",
-        "name": "Paralytic Toxins"
-      },
-      {
-        "spellId": "395810",
-        "name": "Boneshattering Blow"
-      },
-      {
-        "spellId": "396218",
-        "name": "Toxic Stimulant"
-      },
-      {
-        "spellId": "396350",
-        "name": "Wing Blast"
-      },
-      {
-        "spellId": "396423",
-        "name": "Crashing Thunder"
-      },
-      {
-        "spellId": "396775",
-        "name": "Earthen Brutality"
-      },
-      {
-        "spellId": "396829",
-        "name": "Freezing Mucus"
-      },
-      {
-        "spellId": "396859",
-        "name": "Seismic Spike"
-      },
-      {
-        "spellId": "396872",
-        "name": "Static Charge"
-      },
-      {
-        "spellId": "397110",
-        "name": "Crashing Thunder"
-      },
-      {
-        "spellId": "397227",
-        "name": "Static Charge"
-      },
-      {
-        "spellId": "397228",
-        "name": "Static Charge"
-      },
-      {
-        "spellId": "397229",
-        "name": "Static Charge"
-      },
-      {
-        "spellId": "398373",
-        "name": "Petrifying Bite"
-      },
-      {
-        "spellId": "398379",
-        "name": "Fists of Earthen Fury"
-      },
-      {
-        "spellId": "398382",
-        "name": "Fists of Earthen Fury"
-      },
-      {
-        "spellId": "398390",
-        "name": "Fists of Earthen Fury"
-      },
-      {
-        "spellId": "399063",
-        "name": "Boulder Throw"
-      },
-      {
-        "spellId": "399069",
-        "name": "Tidelord's Fury"
-      },
-      {
-        "spellId": "400296",
-        "name": "Concussive Blast"
-      },
-      {
-        "spellId": "401297",
-        "name": "Freeze"
-      },
-      {
-        "spellId": "402769",
-        "name": "Paralysis Weave"
-      },
-      {
-        "spellId": "403169",
-        "name": "Judgment Wave"
-      },
-      {
-        "spellId": "405397",
-        "name": "Hammer of Retribution"
-      },
-      {
-        "spellId": "406488",
-        "name": "Angry Friend"
-      },
-      {
-        "spellId": "408544",
-        "name": "Seismic Slam"
-      },
-      {
-        "spellId": "409438",
-        "name": "Seismic Slam"
-      },
-      {
-        "spellId": "412361",
-        "name": "Calcifying Burst"
-      },
-      {
-        "spellId": "413815",
-        "name": "Charge"
-      },
-      {
-        "spellId": "415001",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "415055",
-        "name": "Freezing Breath"
-      },
-      {
-        "spellId": "417041",
-        "name": "Freya's Blessing"
-      },
-      {
-        "spellId": "417786",
-        "name": "Amber Prison"
-      },
-      {
-        "spellId": "418119",
-        "name": "Earthbreaker"
-      },
-      {
-        "spellId": "418225",
-        "name": "Scourge Slice"
-      },
-      {
-        "spellId": "418583",
-        "name": "Metamorphosis - Alex S Copy"
-      },
-      {
-        "spellId": "425027",
-        "name": "Seismic Wave"
-      },
-      {
-        "spellId": "426589",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "427114",
-        "name": "Storm Bolt"
-      },
-      {
-        "spellId": "432121",
-        "name": "Bedrock Toss"
-      },
-      {
-        "spellId": "442044",
-        "name": "Unstable Concoction: Slumber"
-      },
-      {
-        "spellId": "442305",
-        "name": "Woven Cocoon"
-      },
-      {
-        "spellId": "442960",
-        "name": "Pure Light"
-      },
-      {
-        "spellId": "442961",
-        "name": "Pure Light"
-      },
-      {
-        "spellId": "443553",
-        "name": "Moose Charge Knockback"
-      },
-      {
-        "spellId": "449700",
-        "name": "Gravity Lapse"
-      },
-      {
-        "spellId": "451118",
-        "name": "Charge"
-      },
-      {
-        "spellId": "458575",
-        "name": "Fists of Fury"
-      },
-      {
-        "spellId": "458605",
-        "name": "Leg Sweep"
-      },
-      {
-        "spellId": "459501",
-        "name": "Reno's Random Stun"
-      },
-      {
-        "spellId": "459690",
-        "name": "Spearhead"
-      },
-      {
-        "spellId": "465421",
-        "name": "Enveloping Winds"
-      },
-      {
-        "spellId": "465855",
-        "name": "Knocked Back"
-      },
-      {
-        "spellId": "466152",
-        "name": "Enveloping Winds"
-      },
-      {
-        "spellId": "466517",
-        "name": "Stormfury Cloud"
-      },
-      {
-        "spellId": "468587",
-        "name": "Hook Slam"
-      },
-      {
-        "spellId": "468966",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "473291",
-        "name": "Gravity Lapse"
-      },
-      {
-        "spellId": "1219295",
-        "name": "Hammer of Justice"
-      },
-      {
-        "spellId": "1226941",
-        "name": "Fear the Dark"
-      },
-      {
-        "spellId": "1229412",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "1232228",
-        "name": "Mana-Tinted Glasses"
+        "name": "Asphyxiate",
+        "specIds": [
+          "250",
+          "251",
+          "252"
+        ]
       },
       {
         "spellId": "1234195",
-        "name": "Void Nova"
-      },
-      {
-        "spellId": "1239731",
-        "name": "Golem Smash"
-      },
-      {
-        "spellId": "1244953",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "1246355",
-        "name": "Sandstorm"
-      },
-      {
-        "spellId": "1260833",
-        "name": "Kidney Shot"
-      },
-      {
-        "spellId": "1272244",
-        "name": "Stun"
-      },
-      {
-        "spellId": "1275812",
-        "name": "Deafening Roar"
-      },
-      {
-        "spellId": "1276084",
-        "name": "Victor's Presence"
+        "name": "Void Nova",
+        "specIds": [
+          "1480"
+        ]
       }
     ],
     "knockback": [
       {
         "spellId": "51490",
-        "name": "Thunderstorm"
+        "name": "Thunderstorm",
+        "specIds": [
+          "262"
+        ]
       },
       {
         "spellId": "61391",
-        "name": "Typhoon"
+        "name": "Typhoon",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105",
+          "1447"
+        ]
       },
       {
         "spellId": "108199",
-        "name": "Gorefiend's Grasp"
-      },
-      {
-        "spellId": "115770",
-        "name": "Fellash"
-      },
-      {
-        "spellId": "118283",
-        "name": "Ursol's Vortex"
+        "name": "Gorefiend's Grasp",
+        "specIds": [
+          "250"
+        ]
       },
       {
         "spellId": "132469",
-        "name": "Typhoon"
-      },
-      {
-        "spellId": "137706",
-        "name": "Whiplash"
-      },
-      {
-        "spellId": "142895",
-        "name": "Ring of Peace"
-      },
-      {
-        "spellId": "146599",
-        "name": "Gorefiend's Grasp"
-      },
-      {
-        "spellId": "156483",
-        "name": "Magnetic Personality"
-      },
-      {
-        "spellId": "156484",
-        "name": "Magnetic Personality"
-      },
-      {
-        "spellId": "172738",
-        "name": "Primal Vengeance"
-      },
-      {
-        "spellId": "172740",
-        "name": "Primal Vengeance"
-      },
-      {
-        "spellId": "199544",
-        "name": "Steed of Glory"
-      },
-      {
-        "spellId": "204263",
-        "name": "Shining Force"
-      },
-      {
-        "spellId": "204406",
-        "name": "Thunderstorm"
-      },
-      {
-        "spellId": "204408",
-        "name": "Thunderstorm"
-      },
-      {
-        "spellId": "204834",
-        "name": "Sigil of Chains"
-      },
-      {
-        "spellId": "208548",
-        "name": "Dire Beast: Gorilla"
-      },
-      {
-        "spellId": "208674",
-        "name": "Sigil of Chains"
-      },
-      {
-        "spellId": "211400",
-        "name": "Static Cling"
-      },
-      {
-        "spellId": "228947",
-        "name": "Thunderstorm"
-      },
-      {
-        "spellId": "236777",
-        "name": "High Explosive Trap"
-      },
-      {
-        "spellId": "237371",
-        "name": "Ring of Peace"
-      },
-      {
-        "spellId": "261623",
-        "name": "Grav-O-Bomb 3000"
-      },
-      {
-        "spellId": "268467",
-        "name": "Blast Wave"
-      },
-      {
-        "spellId": "268473",
-        "name": "Blast Wave"
-      },
-      {
-        "spellId": "268474",
-        "name": "Blast Wave"
-      },
-      {
-        "spellId": "268475",
-        "name": "Blast Wave"
-      },
-      {
-        "spellId": "292155",
-        "name": "Typhoon"
-      },
-      {
-        "spellId": "292156",
-        "name": "Typhoon"
-      },
-      {
-        "spellId": "297579",
-        "name": "Tremorbeast Tusk"
-      },
-      {
-        "spellId": "298971",
-        "name": "Magma Fist"
-      },
-      {
-        "spellId": "307963",
-        "name": "Spear of Bastion"
-      },
-      {
-        "spellId": "316594",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "321635",
-        "name": "Gravimetric Scrambler Cannon"
-      },
-      {
-        "spellId": "339672",
-        "name": "Gravimetric Scrambler"
-      },
-      {
-        "spellId": "340152",
-        "name": "Stygia Shards"
-      },
-      {
-        "spellId": "341717",
-        "name": "Gravimetric Scrambler Cannon"
-      },
-      {
-        "spellId": "341765",
-        "name": "Gravimetric Scrambler"
-      },
-      {
-        "spellId": "357214",
-        "name": "Wing Buffet"
-      },
-      {
-        "spellId": "369506",
-        "name": "Gale Breath"
-      },
-      {
-        "spellId": "370259",
-        "name": "Piercing Stalagmite"
-      },
-      {
-        "spellId": "371793",
-        "name": "Typhoon"
-      },
-      {
-        "spellId": "371896",
-        "name": "Flame Bound Blast"
-      },
-      {
-        "spellId": "372532",
-        "name": "Thunderstorm"
-      },
-      {
-        "spellId": "374050",
-        "name": "Gorefiend's Grasp"
-      },
-      {
-        "spellId": "374831",
-        "name": "Wind Bombardment"
-      },
-      {
-        "spellId": "375058",
-        "name": "Horn Toss"
-      },
-      {
-        "spellId": "375445",
-        "name": "Charge"
-      },
-      {
-        "spellId": "375944",
-        "name": "Butting Charge"
-      },
-      {
-        "spellId": "376084",
-        "name": "Champion's Spear"
-      },
-      {
-        "spellId": "384496",
-        "name": "Gravitational Displacer"
-      },
-      {
-        "spellId": "384516",
-        "name": "Gravitational Displacer"
-      },
-      {
-        "spellId": "384519",
-        "name": "Gravitational Displacer"
-      },
-      {
-        "spellId": "384766",
-        "name": "Quack"
-      },
-      {
-        "spellId": "384767",
-        "name": "Quack"
-      },
-      {
-        "spellId": "385170",
-        "name": "Wind Burst"
-      },
-      {
-        "spellId": "386584",
-        "name": "EZ-Thro Gravitational Displacer"
-      },
-      {
-        "spellId": "386587",
-        "name": "EZ-Thro Gravitational Displacer"
-      },
-      {
-        "spellId": "386589",
-        "name": "EZ-Thro Gravitational Displacer"
-      },
-      {
-        "spellId": "387748",
-        "name": "Thunder Kick"
-      },
-      {
-        "spellId": "387950",
-        "name": "Lava Spout"
-      },
-      {
-        "spellId": "388211",
-        "name": "Tectonic Slam"
-      },
-      {
-        "spellId": "388305",
-        "name": "Frozen Trample"
-      },
-      {
-        "spellId": "388383",
-        "name": "Tuskarr Punch"
-      },
-      {
-        "spellId": "388529",
-        "name": "Undertow"
-      },
-      {
-        "spellId": "388540",
-        "name": "Tidal Smash"
-      },
-      {
-        "spellId": "388844",
-        "name": "Giant Stomp"
-      },
-      {
-        "spellId": "388857",
-        "name": "Giant Stomp"
-      },
-      {
-        "spellId": "388941",
-        "name": "Waterspout"
-      },
-      {
-        "spellId": "389268",
-        "name": "Shield Charge"
-      },
-      {
-        "spellId": "389475",
-        "name": "Aquanova"
-      },
-      {
-        "spellId": "389526",
-        "name": "Stone Haymaker"
-      },
-      {
-        "spellId": "389631",
-        "name": "Blast Wave"
-      },
-      {
-        "spellId": "392088",
-        "name": "Quaking Leap"
-      },
-      {
-        "spellId": "392698",
-        "name": "Clobber"
-      },
-      {
-        "spellId": "392712",
-        "name": "Storm Slash"
-      },
-      {
-        "spellId": "392957",
-        "name": "Defiant Kick"
-      },
-      {
-        "spellId": "393439",
-        "name": "Strong Gust"
-      },
-      {
-        "spellId": "394037",
-        "name": "Crystal Spike"
-      },
-      {
-        "spellId": "394362",
-        "name": "Giant Roar"
-      },
-      {
-        "spellId": "395991",
-        "name": "Torrential Crash"
-      },
-      {
-        "spellId": "396069",
-        "name": "Earthen Spikes"
-      },
-      {
-        "spellId": "396344",
-        "name": "Thundering Stomp"
-      },
-      {
-        "spellId": "396415",
-        "name": "Hurricane Blast"
-      },
-      {
-        "spellId": "396477",
-        "name": "Gravity Well"
-      },
-      {
-        "spellId": "396601",
-        "name": "Massive Charge"
-      },
-      {
-        "spellId": "396615",
-        "name": "Water Spout"
-      },
-      {
-        "spellId": "396617",
-        "name": "Tempest Rend"
-      },
-      {
-        "spellId": "396740",
-        "name": "Colossal Leap"
-      },
-      {
-        "spellId": "396856",
-        "name": "Blazing Whirl"
-      },
-      {
-        "spellId": "396861",
-        "name": "Crystal Blast"
-      },
-      {
-        "spellId": "396879",
-        "name": "Steamspout"
-      },
-      {
-        "spellId": "397109",
-        "name": "Hurricane Blast"
-      },
-      {
-        "spellId": "397265",
-        "name": "Thunderstorm"
-      },
-      {
-        "spellId": "397266",
-        "name": "Thunderstorm"
-      },
-      {
-        "spellId": "397267",
-        "name": "Thunderstorm"
-      },
-      {
-        "spellId": "397268",
-        "name": "Gorefiend's Grasp"
-      },
-      {
-        "spellId": "397269",
-        "name": "Gorefiend's Grasp"
-      },
-      {
-        "spellId": "397270",
-        "name": "Gorefiend's Grasp"
-      },
-      {
-        "spellId": "399662",
-        "name": "Shadowlava Geyser"
-      },
-      {
-        "spellId": "399678",
-        "name": "Shadowlava Nova"
-      },
-      {
-        "spellId": "400381",
-        "name": "Fracture"
-      },
-      {
-        "spellId": "400492",
-        "name": "Dragonslayer's Shout"
-      },
-      {
-        "spellId": "400964",
-        "name": "Unstable Burn"
-      },
-      {
-        "spellId": "401193",
-        "name": "Landslide"
-      },
-      {
-        "spellId": "404220",
-        "name": "Arcane Gust"
-      },
-      {
-        "spellId": "412408",
-        "name": "Clock 'Em Knock 'Em"
-      },
-      {
-        "spellId": "414765",
-        "name": "Slag Slam"
-      },
-      {
-        "spellId": "418121",
-        "name": "Tectonic Slam"
-      },
-      {
-        "spellId": "420500",
-        "name": "Ancient Stomp"
-      },
-      {
-        "spellId": "421851",
-        "name": "Galloping Charge"
-      },
-      {
-        "spellId": "422817",
-        "name": "Combination Attack"
-      },
-      {
-        "spellId": "424176",
-        "name": "Ancient Crash"
-      },
-      {
-        "spellId": "425045",
-        "name": "Flame Stomp"
-      },
-      {
-        "spellId": "432601",
-        "name": "Expunge"
-      },
-      {
-        "spellId": "434268",
-        "name": "Quack Splash"
-      },
-      {
-        "spellId": "441668",
-        "name": "Shockwave"
-      },
-      {
-        "spellId": "460280",
-        "name": "Rising Dragon Sweep"
-      },
-      {
-        "spellId": "461039",
-        "name": "Wing Buffet"
-      },
-      {
-        "spellId": "472731",
-        "name": "Horsehair Tether"
-      },
-      {
-        "spellId": "1214690",
-        "name": "Giant Stomp"
-      },
-      {
-        "spellId": "1218087",
-        "name": "Storm Slash"
-      },
-      {
-        "spellId": "1230714",
-        "name": "Sand Devil"
-      },
-      {
-        "spellId": "1239681",
-        "name": "Cleave in Twain"
-      },
-      {
-        "spellId": "1241014",
-        "name": "Howl From Hell"
-      },
-      {
-        "spellId": "1241107",
-        "name": "Arcane Gust"
-      },
-      {
-        "spellId": "1261759",
-        "name": "Champion's Spear"
-      },
-      {
-        "spellId": "1264503",
-        "name": "Tectonic Slam"
-      },
-      {
-        "spellId": "1275813",
-        "name": "Weight of War"
+        "name": "Typhoon",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
       }
     ],
     "incapacitate": [
       {
         "spellId": "99",
-        "name": "Incapacitating Roar"
+        "name": "Incapacitating Roar",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
       },
       {
         "spellId": "118",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "700",
-        "name": "Sleep"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "710",
-        "name": "Banish"
-      },
-      {
-        "spellId": "1090",
-        "name": "Sleep"
+        "name": "Banish",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
       },
       {
         "spellId": "1776",
-        "name": "Gouge"
+        "name": "Gouge",
+        "specIds": [
+          "259",
+          "260",
+          "261"
+        ]
       },
       {
         "spellId": "2637",
-        "name": "Hibernate"
-      },
-      {
-        "spellId": "3355",
-        "name": "Freezing Trap"
-      },
-      {
-        "spellId": "3442",
-        "name": "Enslave"
-      },
-      {
-        "spellId": "4064",
-        "name": "Rough Copper Bomb"
-      },
-      {
-        "spellId": "4065",
-        "name": "Large Copper Bomb"
-      },
-      {
-        "spellId": "4066",
-        "name": "Small Bronze Bomb"
-      },
-      {
-        "spellId": "4067",
-        "name": "Big Bronze Bomb"
-      },
-      {
-        "spellId": "4068",
-        "name": "Iron Grenade"
-      },
-      {
-        "spellId": "4069",
-        "name": "Big Iron Bomb"
-      },
-      {
-        "spellId": "5403",
-        "name": "Crash of Waves"
-      },
-      {
-        "spellId": "6728",
-        "name": "Enveloping Winds"
+        "name": "Hibernate",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
       },
       {
         "spellId": "6770",
-        "name": "Sap"
+        "name": "Sap",
+        "specIds": [
+          "259",
+          "260",
+          "261",
+          "1453"
+        ]
       },
       {
         "spellId": "6789",
-        "name": "Mortal Coil"
-      },
-      {
-        "spellId": "7033",
-        "name": "Charm+ (TEST)"
-      },
-      {
-        "spellId": "8040",
-        "name": "Druid's Slumber"
-      },
-      {
-        "spellId": "8345",
-        "name": "Control Machine"
-      },
-      {
-        "spellId": "8399",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "8901",
-        "name": "Gas Bomb"
-      },
-      {
-        "spellId": "8902",
-        "name": "Gas Bomb"
-      },
-      {
-        "spellId": "9159",
-        "name": "Sleep"
+        "name": "Mortal Coil",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
       },
       {
         "spellId": "9484",
-        "name": "Shackle Horror"
+        "name": "Shackle Horror",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
       },
       {
         "spellId": "10326",
-        "name": "Turn Evil"
-      },
-      {
-        "spellId": "11444",
-        "name": "Shackle Undead"
-      },
-      {
-        "spellId": "12098",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "12421",
-        "name": "Mithril Frag Bomb"
-      },
-      {
-        "spellId": "12540",
-        "name": "Gouge"
-      },
-      {
-        "spellId": "12543",
-        "name": "Hi-Explosive Bomb"
-      },
-      {
-        "spellId": "12562",
-        "name": "The Big One"
-      },
-      {
-        "spellId": "13181",
-        "name": "Mind Amplification Dish"
-      },
-      {
-        "spellId": "13323",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "13327",
-        "name": "Reckless Charge"
-      },
-      {
-        "spellId": "13579",
-        "name": "Gouge"
-      },
-      {
-        "spellId": "13808",
-        "name": "M73 Frag Grenade"
-      },
-      {
-        "spellId": "14621",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "15534",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "15535",
-        "name": "Enveloping Winds"
-      },
-      {
-        "spellId": "15970",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "16451",
-        "name": "Judge's Gavel"
-      },
-      {
-        "spellId": "16798",
-        "name": "Enchanting Lullaby"
-      },
-      {
-        "spellId": "17405",
-        "name": "Domination"
-      },
-      {
-        "spellId": "19386",
-        "name": "Wyvern Sting"
-      },
-      {
-        "spellId": "19784",
-        "name": "Dark Iron Bomb"
-      },
-      {
-        "spellId": "20066",
-        "name": "Repentance"
-      },
-      {
-        "spellId": "20663",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "20669",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "20989",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "22274",
-        "name": "Greater Polymorph"
-      },
-      {
-        "spellId": "23103",
-        "name": "Enveloping Winds"
-      },
-      {
-        "spellId": "23603",
-        "name": "Wild Polymorph"
-      },
-      {
-        "spellId": "24335",
-        "name": "Wyvern Sting"
-      },
-      {
-        "spellId": "24698",
-        "name": "Gouge"
-      },
-      {
-        "spellId": "25189",
-        "name": "Enveloping Winds"
-      },
-      {
-        "spellId": "26180",
-        "name": "Wyvern Sting"
-      },
-      {
-        "spellId": "26740",
-        "name": "Mind Amplification Dish"
-      },
-      {
-        "spellId": "27760",
-        "name": "Polymorph"
+        "name": "Turn Evil",
+        "specIds": [
+          "65",
+          "66",
+          "70"
+        ]
       },
       {
         "spellId": "28271",
-        "name": "Polymorph"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "28272",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "28456",
-        "name": "Gouge"
-      },
-      {
-        "spellId": "29425",
-        "name": "Gouge"
-      },
-      {
-        "spellId": "29679",
-        "name": "Bad Poetry"
-      },
-      {
-        "spellId": "29848",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "30216",
-        "name": "Fel Iron Bomb"
-      },
-      {
-        "spellId": "30217",
-        "name": "Adamantite Grenade"
-      },
-      {
-        "spellId": "30461",
-        "name": "The Bigger One"
-      },
-      {
-        "spellId": "30501",
-        "name": "Poultryized!"
-      },
-      {
-        "spellId": "30504",
-        "name": "Poultryized!"
-      },
-      {
-        "spellId": "30506",
-        "name": "Poultryized!"
-      },
-      {
-        "spellId": "30838",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "30980",
-        "name": "Sap"
-      },
-      {
-        "spellId": "31292",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "31541",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "31548",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "31718",
-        "name": "Enveloping Winds"
-      },
-      {
-        "spellId": "31719",
-        "name": "Suspension"
-      },
-      {
-        "spellId": "32826",
-        "name": "Polymorph Cast Visual"
-      },
-      {
-        "spellId": "32974",
-        "name": "Cinematic - Mind Control"
-      },
-      {
-        "spellId": "32976",
-        "name": "Cinematic - Mind Control"
-      },
-      {
-        "spellId": "32990",
-        "name": "Enchanting Cast Visual"
-      },
-      {
-        "spellId": "32991",
-        "name": "Nature Cast Visual"
-      },
-      {
-        "spellId": "33502",
-        "name": "Brain Wash"
-      },
-      {
-        "spellId": "34639",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "34940",
-        "name": "Gouge"
-      },
-      {
-        "spellId": "36333",
-        "name": "Anesthetic"
-      },
-      {
-        "spellId": "36402",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "36570",
-        "name": "Drag Body"
-      },
-      {
-        "spellId": "36840",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "36862",
-        "name": "Gouge"
-      },
-      {
-        "spellId": "37122",
-        "name": "Domination"
-      },
-      {
-        "spellId": "38510",
-        "name": "Sablemane's Sleeping Powder"
-      },
-      {
-        "spellId": "38626",
-        "name": "Domination"
-      },
-      {
-        "spellId": "38863",
-        "name": "Gouge"
-      },
-      {
-        "spellId": "38896",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "38915",
-        "name": "Mental Interference"
-      },
-      {
-        "spellId": "40135",
-        "name": "Shackle Undead"
-      },
-      {
-        "spellId": "41186",
-        "name": "Wyvern Sting"
-      },
-      {
-        "spellId": "43415",
-        "name": "Freezing Trap"
-      },
-      {
-        "spellId": "43448",
-        "name": "Freezing Trap"
-      },
-      {
-        "spellId": "43550",
-        "name": "Mind Control"
-      },
-      {
-        "spellId": "44547",
-        "name": "Deadly Embrace"
-      },
-      {
-        "spellId": "46590",
-        "name": "Ninja Grenade [PH]"
-      },
-      {
-        "spellId": "47731",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "48558",
-        "name": "Backfire"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "51514",
-        "name": "Hex"
-      },
-      {
-        "spellId": "52721",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "52743",
-        "name": "Head Smack"
-      },
-      {
-        "spellId": "53045",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "53261",
-        "name": "Saronite Grenade"
-      },
-      {
-        "spellId": "53325",
-        "name": "SelfSheep"
-      },
-      {
-        "spellId": "53570",
-        "name": "Hungering Cold"
-      },
-      {
-        "spellId": "55041",
-        "name": "Freezing Trap"
-      },
-      {
-        "spellId": "58537",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "58849",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "59165",
-        "name": "Sleep"
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264"
+        ]
       },
       {
         "spellId": "61025",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "61058",
-        "name": "Hungering Cold"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "61305",
-        "name": "Polymorph"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "61721",
-        "name": "Polymorph"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "61780",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "65545",
-        "name": "Psychic Horror"
-      },
-      {
-        "spellId": "65633",
-        "name": "Arcane Cast Visual"
-      },
-      {
-        "spellId": "65801",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "65820",
-        "name": "Death Coil"
-      },
-      {
-        "spellId": "65859",
-        "name": "Cyclone"
-      },
-      {
-        "spellId": "65877",
-        "name": "Wyvern Sting"
-      },
-      {
-        "spellId": "66008",
-        "name": "Repentance"
-      },
-      {
-        "spellId": "66043",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "66054",
-        "name": "Hex"
-      },
-      {
-        "spellId": "67769",
-        "name": "Cobalt Frag Bomb"
-      },
-      {
-        "spellId": "67794",
-        "name": "Polymorph Insect"
-      },
-      {
-        "spellId": "67890",
-        "name": "Cobalt Frag Bomb"
-      },
-      {
-        "spellId": "70410",
-        "name": "Polymorph: Spider"
-      },
-      {
-        "spellId": "70432",
-        "name": "Blood Sap"
-      },
-      {
-        "spellId": "70794",
-        "name": "Freezing Trap Effect"
-      },
-      {
-        "spellId": "71103",
-        "name": "Combobulating Spray"
-      },
-      {
-        "spellId": "71298",
-        "name": "Banish"
-      },
-      {
-        "spellId": "71319",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "71755",
-        "name": "Crafty Bomb"
-      },
-      {
-        "spellId": "71988",
-        "name": "Vile Fumes"
-      },
-      {
-        "spellId": "72106",
-        "name": "Polymorph: Spider"
-      },
-      {
-        "spellId": "76484",
-        "name": "Shackles"
-      },
-      {
-        "spellId": "76582",
-        "name": "Gouge"
-      },
-      {
-        "spellId": "76826",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "77695",
-        "name": "Dragon's Breath"
-      },
-      {
-        "spellId": "77718",
-        "name": "Shadowflame"
-      },
-      {
-        "spellId": "77773",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "78521",
-        "name": "Dragon's Breath"
-      },
-      {
-        "spellId": "79092",
-        "name": "Hungering Cold"
-      },
-      {
-        "spellId": "82691",
-        "name": "Ring of Frost"
-      },
-      {
-        "spellId": "82760",
-        "name": "Hex"
-      },
-      {
-        "spellId": "85800",
-        "name": "Shadowflame"
-      },
-      {
-        "spellId": "88010",
-        "name": "Cyclone"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "88625",
-        "name": "Holy Word: Chastise"
-      },
-      {
-        "spellId": "89637",
-        "name": "Big Daddy"
-      },
-      {
-        "spellId": "90488",
-        "name": "Wyvern Sting"
-      },
-      {
-        "spellId": "97565",
-        "name": "Chain Trap"
-      },
-      {
-        "spellId": "107079",
-        "name": "Quaking Palm"
+        "name": "Holy Word: Chastise",
+        "specIds": [
+          "257"
+        ]
       },
       {
         "spellId": "115078",
-        "name": "Paralysis"
-      },
-      {
-        "spellId": "115268",
-        "name": "Mesmerize"
-      },
-      {
-        "spellId": "122870",
-        "name": "QA Test Horror"
-      },
-      {
-        "spellId": "122879",
-        "name": "QA Test Incapacitate (Mez DR)"
-      },
-      {
-        "spellId": "122880",
-        "name": "QA Test Incapacitate (Mez DR)"
-      },
-      {
-        "spellId": "126118",
-        "name": "Dart of Lethargy"
+        "name": "Paralysis",
+        "specIds": [
+          "268",
+          "269",
+          "270"
+        ]
       },
       {
         "spellId": "126819",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "127266",
-        "name": "Amber Prison"
-      },
-      {
-        "spellId": "127355",
-        "name": "Master of Puppets"
-      },
-      {
-        "spellId": "134205",
-        "name": "Sap"
-      },
-      {
-        "spellId": "135030",
-        "name": "Arcane Cast Visual - Instant"
-      },
-      {
-        "spellId": "136287",
-        "name": "Mind Control"
-      },
-      {
-        "spellId": "136722",
-        "name": "Slumber Spores"
-      },
-      {
-        "spellId": "144590",
-        "name": "Moonfang's Curse"
-      },
-      {
-        "spellId": "145067",
-        "name": "Turn Evil"
-      },
-      {
-        "spellId": "146340",
-        "name": "Mesmerizing Pollen"
-      },
-      {
-        "spellId": "157356",
-        "name": "Paralytic Sting"
-      },
-      {
-        "spellId": "160209",
-        "name": "Cyclone"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "161353",
-        "name": "Polymorph"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "161354",
-        "name": "Polymorph"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "161355",
-        "name": "Polymorph"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "161372",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "167536",
-        "name": "Eyes"
-      },
-      {
-        "spellId": "170895",
-        "name": "Ango'rosh Sorcerer Stone"
-      },
-      {
-        "spellId": "171483",
-        "name": "Item - Hunter WoD PvP Beast Mastery 4P Bonus"
-      },
-      {
-        "spellId": "173098",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "173315",
-        "name": "Repentance"
-      },
-      {
-        "spellId": "173850",
-        "name": "Test Agility"
-      },
-      {
-        "spellId": "173865",
-        "name": "Test Haste"
-      },
-      {
-        "spellId": "174050",
-        "name": "Frozen"
-      },
-      {
-        "spellId": "174955",
-        "name": "Frozen"
-      },
-      {
-        "spellId": "183191",
-        "name": "Mind Control"
-      },
-      {
-        "spellId": "189564",
-        "name": "Torpor"
-      },
-      {
-        "spellId": "189565",
-        "name": "Torpor"
-      },
-      {
-        "spellId": "193082",
-        "name": "Sap"
-      },
-      {
-        "spellId": "194275",
-        "name": "Wyvern Hatchet Toss"
-      },
-      {
-        "spellId": "196942",
-        "name": "Hex"
-      },
-      {
-        "spellId": "199743",
-        "name": "Parley"
-      },
-      {
-        "spellId": "200196",
-        "name": "Holy Word: Chastise"
-      },
-      {
-        "spellId": "202274",
-        "name": "Hot Trub"
-      },
-      {
-        "spellId": "203126",
-        "name": "Maim"
-      },
-      {
-        "spellId": "203337",
-        "name": "Freezing Trap"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "205364",
-        "name": "Dominate Mind"
-      },
-      {
-        "spellId": "205606",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "206961",
-        "name": "Tremble Before Me"
-      },
-      {
-        "spellId": "207862",
-        "name": "Spellstone of Kel'danath"
-      },
-      {
-        "spellId": "209790",
-        "name": "Freezing Arrow"
+        "name": "Dominate Mind",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
       },
       {
         "spellId": "210873",
-        "name": "Hex"
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
       },
       {
         "spellId": "211004",
-        "name": "Hex"
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
       },
       {
         "spellId": "211010",
-        "name": "Hex"
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
       },
       {
         "spellId": "211015",
-        "name": "Hex"
-      },
-      {
-        "spellId": "211521",
-        "name": "Test Mastery"
-      },
-      {
-        "spellId": "211946",
-        "name": "Breath of Fire"
-      },
-      {
-        "spellId": "212365",
-        "name": "Freezing Trap"
-      },
-      {
-        "spellId": "213369",
-        "name": "Paralysis"
-      },
-      {
-        "spellId": "213691",
-        "name": "Scatter Shot"
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
       },
       {
         "spellId": "217832",
-        "name": "Imprison"
-      },
-      {
-        "spellId": "218434",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219215",
-        "name": "Hex"
-      },
-      {
-        "spellId": "219216",
-        "name": "Hex"
-      },
-      {
-        "spellId": "219217",
-        "name": "Hex"
-      },
-      {
-        "spellId": "219218",
-        "name": "Hex"
-      },
-      {
-        "spellId": "219219",
-        "name": "Hex"
-      },
-      {
-        "spellId": "219393",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219394",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219398",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219399",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219400",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219401",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219402",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219403",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219404",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219405",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219406",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219407",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "219692",
-        "name": "Sap"
-      },
-      {
-        "spellId": "220682",
-        "name": "Debilitating Knives"
-      },
-      {
-        "spellId": "221527",
-        "name": "Imprison"
-      },
-      {
-        "spellId": "224553",
-        "name": "Spellstone of Kel'danath"
-      },
-      {
-        "spellId": "226452",
-        "name": "Silence"
-      },
-      {
-        "spellId": "228607",
-        "name": "Lured"
-      },
-      {
-        "spellId": "231300",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "236025",
-        "name": "Enraged Maim"
-      },
-      {
-        "spellId": "237997",
-        "name": "Weak Sap"
-      },
-      {
-        "spellId": "238559",
-        "name": "Bursting Shot"
-      },
-      {
-        "spellId": "240134",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "240574",
-        "name": "Freezing Trap"
-      },
-      {
-        "spellId": "244959",
-        "name": "Time Stop"
-      },
-      {
-        "spellId": "247587",
-        "name": "Holy Word: Chastise"
-      },
-      {
-        "spellId": "248516",
-        "name": "Sleep"
-      },
-      {
-        "spellId": "248888",
-        "name": "Critical Polymorph"
-      },
-      {
-        "spellId": "250238",
-        "name": "Junior Hex: Saurid"
-      },
-      {
-        "spellId": "251073",
-        "name": "Polymorph: Talbuk"
-      },
-      {
-        "spellId": "254412",
-        "name": "Hex"
-      },
-      {
-        "spellId": "255228",
-        "name": "Polymorphed"
-      },
-      {
-        "spellId": "257740",
-        "name": "Sap"
-      },
-      {
-        "spellId": "258219",
-        "name": "Wyvern Sting"
-      },
-      {
-        "spellId": "260457",
-        "name": "Wyvern Sting"
-      },
-      {
-        "spellId": "261589",
-        "name": "Seduction"
-      },
-      {
-        "spellId": "262000",
-        "name": "Wyvern Sting"
-      },
-      {
-        "spellId": "262007",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "262342",
-        "name": "Hex"
-      },
-      {
-        "spellId": "262349",
-        "name": "Hex"
-      },
-      {
-        "spellId": "263652",
-        "name": "Witch's Curse: Newt"
-      },
-      {
-        "spellId": "263672",
-        "name": "Repentance"
-      },
-      {
-        "spellId": "267918",
-        "name": "Siphon Quilljet"
+        "name": "Imprison",
+        "specIds": [
+          "577",
+          "581",
+          "1480"
+        ]
       },
       {
         "spellId": "269352",
-        "name": "Hex"
-      },
-      {
-        "spellId": "269355",
-        "name": "Hex"
-      },
-      {
-        "spellId": "271249",
-        "name": "Master Hex"
-      },
-      {
-        "spellId": "277006",
-        "name": "Polymorph"
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
       },
       {
         "spellId": "277778",
-        "name": "Hex"
-      },
-      {
-        "spellId": "277780",
-        "name": "Hex"
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
       },
       {
         "spellId": "277784",
-        "name": "Hex"
-      },
-      {
-        "spellId": "277785",
-        "name": "Hex"
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
       },
       {
         "spellId": "277787",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "277788",
-        "name": "Polymorph"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "277792",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "277793",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "289645",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "290110",
-        "name": "Holy Word: Chastise"
-      },
-      {
-        "spellId": "290438",
-        "name": "Hex"
-      },
-      {
-        "spellId": "291391",
-        "name": "Sap"
-      },
-      {
-        "spellId": "292649",
-        "name": "Sap"
-      },
-      {
-        "spellId": "295459",
-        "name": "Mortal Coil"
-      },
-      {
-        "spellId": "298326",
-        "name": "KRISPYR"
-      },
-      {
-        "spellId": "302583",
-        "name": "Polymorph"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "309328",
-        "name": "Hex"
-      },
-      {
-        "spellId": "309329",
-        "name": "Hex"
-      },
-      {
-        "spellId": "309648",
-        "name": "Tainted Polymorph"
-      },
-      {
-        "spellId": "316593",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "316595",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "321134",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "321177",
-        "name": "Freezing Trap"
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
       },
       {
         "spellId": "321395",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "329398",
-        "name": "Pandemonium"
-      },
-      {
-        "spellId": "329491",
-        "name": "Slumberwood Band"
-      },
-      {
-        "spellId": "330607",
-        "name": "50UL-TR4P!"
-      },
-      {
-        "spellId": "332544",
-        "name": "Imprison"
-      },
-      {
-        "spellId": "334307",
-        "name": "Imperfect Polymorph"
-      },
-      {
-        "spellId": "335825",
-        "name": "Charm Beast"
-      },
-      {
-        "spellId": "339581",
-        "name": "Transmute Anima"
-      },
-      {
-        "spellId": "353084",
-        "name": "Ring of Fire"
-      },
-      {
-        "spellId": "354556",
-        "name": "Sleeping Mist"
-      },
-      {
-        "spellId": "357768",
-        "name": "Paralysis"
-      },
-      {
-        "spellId": "361064",
-        "name": "Mortal Coil"
-      },
-      {
-        "spellId": "361095",
-        "name": "Mass Polymorph"
-      },
-      {
-        "spellId": "372410",
-        "name": "Gouge"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "383121",
-        "name": "Mass Polymorph"
+        "name": "Mass Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64"
+        ]
       },
       {
         "spellId": "391622",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "391631",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "396392",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "396623",
-        "name": "Polymorph - Fancy Chair"
-      },
-      {
-        "spellId": "396693",
-        "name": "Polymorph - Lamppost"
-      },
-      {
-        "spellId": "397253",
-        "name": "Icebind"
-      },
-      {
-        "spellId": "397254",
-        "name": "Icebind"
-      },
-      {
-        "spellId": "397255",
-        "name": "Icebind"
-      },
-      {
-        "spellId": "397256",
-        "name": "Icebind"
-      },
-      {
-        "spellId": "411512",
-        "name": "Titan Orb"
-      },
-      {
-        "spellId": "416701",
-        "name": "Disabled Legion Console"
-      },
-      {
-        "spellId": "418756",
-        "name": "Potent Lullaby"
-      },
-      {
-        "spellId": "424682",
-        "name": "Potent Lullaby"
-      },
-      {
-        "spellId": "425125",
-        "name": "Transform into sprite [DNT]"
-      },
-      {
-        "spellId": "425347",
-        "name": "Bon-Bomb!"
-      },
-      {
-        "spellId": "425641",
-        "name": "Bon-Bombs Away!"
-      },
-      {
-        "spellId": "427773",
-        "name": "Blind"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       },
       {
         "spellId": "460392",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "460396",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "461489",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "465421",
-        "name": "Enveloping Winds"
-      },
-      {
-        "spellId": "466152",
-        "name": "Enveloping Winds"
-      },
-      {
-        "spellId": "1238306",
-        "name": "Polymorph"
-      },
-      {
-        "spellId": "1256008",
-        "name": "Hex"
-      },
-      {
-        "spellId": "1261760",
-        "name": "Bone"
-      },
-      {
-        "spellId": "1270766",
-        "name": "Hex"
-      },
-      {
-        "spellId": "1271225",
-        "name": "Freezing Trap"
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
       }
     ],
     "disorient": [
       {
         "spellId": "605",
-        "name": "Mind Control"
+        "name": "Mind Control",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
       },
       {
         "spellId": "1513",
-        "name": "Scare Beast"
+        "name": "Scare Beast",
+        "specIds": [
+          "253",
+          "254",
+          "255"
+        ]
       },
       {
         "spellId": "2094",
-        "name": "Blind"
-      },
-      {
-        "spellId": "3109",
-        "name": "Presence of Death"
-      },
-      {
-        "spellId": "5134",
-        "name": "Flash Bomb"
+        "name": "Blind",
+        "specIds": [
+          "259",
+          "260",
+          "261"
+        ]
       },
       {
         "spellId": "5246",
-        "name": "Intimidating Shout"
+        "name": "Intimidating Shout",
+        "specIds": [
+          "71",
+          "72",
+          "73"
+        ]
       },
       {
         "spellId": "5484",
-        "name": "Howl of Terror"
-      },
-      {
-        "spellId": "6358",
-        "name": "Seduction"
+        "name": "Howl of Terror",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
       },
       {
         "spellId": "8122",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "8225",
-        "name": "Run Away!"
+        "name": "Psychic Scream",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
       },
       {
         "spellId": "10326",
-        "name": "Turn Evil"
-      },
-      {
-        "spellId": "12096",
-        "name": "Fear"
-      },
-      {
-        "spellId": "12542",
-        "name": "Fear"
-      },
-      {
-        "spellId": "13704",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "21898",
-        "name": "Warlock Terror"
-      },
-      {
-        "spellId": "22678",
-        "name": "Fear"
-      },
-      {
-        "spellId": "22884",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "23275",
-        "name": "Dreadful Fright"
-      },
-      {
-        "spellId": "25260",
-        "name": "Wings of Despair"
-      },
-      {
-        "spellId": "25815",
-        "name": "Frightening Shriek"
-      },
-      {
-        "spellId": "26042",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "26070",
-        "name": "Fear"
-      },
-      {
-        "spellId": "26661",
-        "name": "Fear"
-      },
-      {
-        "spellId": "27610",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "27641",
-        "name": "Fear"
-      },
-      {
-        "spellId": "27990",
-        "name": "Fear"
-      },
-      {
-        "spellId": "29168",
-        "name": "Fear"
-      },
-      {
-        "spellId": "29321",
-        "name": "Fear"
-      },
-      {
-        "spellId": "29419",
-        "name": "Flash Bomb"
-      },
-      {
-        "spellId": "29516",
-        "name": "Dance Trance"
-      },
-      {
-        "spellId": "29544",
-        "name": "Frightening Shout"
-      },
-      {
-        "spellId": "30002",
-        "name": "Fear"
-      },
-      {
-        "spellId": "30615",
-        "name": "Fear"
-      },
-      {
-        "spellId": "31013",
-        "name": "Frightened Scream"
-      },
-      {
-        "spellId": "31358",
-        "name": "Fear"
-      },
-      {
-        "spellId": "31365",
-        "name": "Self Fear"
-      },
-      {
-        "spellId": "31404",
-        "name": "Shrill Cry"
+        "name": "Turn Evil",
+        "specIds": [
+          "65",
+          "66",
+          "70"
+        ]
       },
       {
         "spellId": "31661",
-        "name": "Dragon's Breath"
-      },
-      {
-        "spellId": "32040",
-        "name": "Scare Daggerfen"
-      },
-      {
-        "spellId": "32421",
-        "name": "Soul Scream"
-      },
-      {
-        "spellId": "33547",
-        "name": "Fear"
+        "name": "Dragon's Breath",
+        "specIds": [
+          "62",
+          "63",
+          "64"
+        ]
       },
       {
         "spellId": "33786",
-        "name": "Cyclone"
-      },
-      {
-        "spellId": "33829",
-        "name": "Fleeing in Terror"
-      },
-      {
-        "spellId": "33924",
-        "name": "Fear"
-      },
-      {
-        "spellId": "34259",
-        "name": "Fear"
-      },
-      {
-        "spellId": "34322",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "35474",
-        "name": "Drums of Panic"
-      },
-      {
-        "spellId": "36241",
-        "name": "Mad Seduction"
-      },
-      {
-        "spellId": "36661",
-        "name": "Confused Ogre"
-      },
-      {
-        "spellId": "36950",
-        "name": "Blinding Light"
-      },
-      {
-        "spellId": "37200",
-        "name": "Confused Cansis"
-      },
-      {
-        "spellId": "38154",
-        "name": "Fear"
-      },
-      {
-        "spellId": "38595",
-        "name": "Fear"
-      },
-      {
-        "spellId": "38660",
-        "name": "Fear"
-      },
-      {
-        "spellId": "38946",
-        "name": "Frightening Shout"
-      },
-      {
-        "spellId": "39119",
-        "name": "Fear"
-      },
-      {
-        "spellId": "39210",
-        "name": "Fear"
-      },
-      {
-        "spellId": "39415",
-        "name": "Fear"
-      },
-      {
-        "spellId": "40221",
-        "name": "Terrifying Roar"
-      },
-      {
-        "spellId": "43432",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "43590",
-        "name": "Psychic Wail"
-      },
-      {
-        "spellId": "47534",
-        "name": "Cower in Fear"
-      },
-      {
-        "spellId": "51240",
-        "name": "Fear"
-      },
-      {
-        "spellId": "54196",
-        "name": "Cower in Fear"
-      },
-      {
-        "spellId": "54683",
-        "name": "Ablaze"
-      },
-      {
-        "spellId": "57546",
-        "name": "Greater Turn Evil"
-      },
-      {
-        "spellId": "58958",
-        "name": "Presence of the Master"
-      },
-      {
-        "spellId": "59669",
-        "name": "Fear"
-      },
-      {
-        "spellId": "65543",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "65809",
-        "name": "Fear"
-      },
-      {
-        "spellId": "65930",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "65931",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "65960",
-        "name": "Blind"
-      },
-      {
-        "spellId": "68326",
-        "name": "Fear Self"
-      },
-      {
-        "spellId": "70171",
-        "name": "Fear"
-      },
-      {
-        "spellId": "73155",
-        "name": "Stun"
-      },
-      {
-        "spellId": "81442",
-        "name": "Fear"
-      },
-      {
-        "spellId": "83175",
-        "name": "Cower"
-      },
-      {
-        "spellId": "85966",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "91979",
-        "name": "Wedding Jitters"
-      },
-      {
-        "spellId": "97933",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "97934",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "98716",
-        "name": "Ignite"
-      },
-      {
-        "spellId": "105421",
-        "name": "Blinding Light"
-      },
-      {
-        "spellId": "113712",
-        "name": "Fear"
-      },
-      {
-        "spellId": "115268",
-        "name": "Mesmerize"
-      },
-      {
-        "spellId": "118699",
-        "name": "Fear"
-      },
-      {
-        "spellId": "120065",
-        "name": "Scared"
-      },
-      {
-        "spellId": "122869",
-        "name": "QA Test Fear"
-      },
-      {
-        "spellId": "123954",
-        "name": "Fear Self Forever"
-      },
-      {
-        "spellId": "124004",
-        "name": "Frantic"
-      },
-      {
-        "spellId": "125204",
-        "name": "Fear"
-      },
-      {
-        "spellId": "126813",
-        "name": "Broken Will"
-      },
-      {
-        "spellId": "128098",
-        "name": "Fear"
+        "name": "Cyclone",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
       },
       {
         "spellId": "130616",
-        "name": "Fear"
-      },
-      {
-        "spellId": "130940",
-        "name": "Fear"
-      },
-      {
-        "spellId": "130941",
-        "name": "flight"
-      },
-      {
-        "spellId": "142152",
-        "name": "Howl of Horror"
-      },
-      {
-        "spellId": "142884",
-        "name": "Fear"
-      },
-      {
-        "spellId": "144506",
-        "name": "Horrific Howl"
-      },
-      {
-        "spellId": "144564",
-        "name": "Dreadful Howl"
-      },
-      {
-        "spellId": "145067",
-        "name": "Turn Evil"
-      },
-      {
-        "spellId": "146350",
-        "name": "Hallucinogenic Pollen"
-      },
-      {
-        "spellId": "146353",
-        "name": "Hallucinogenic Pollen"
-      },
-      {
-        "spellId": "155582",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "155778",
-        "name": "Wildlife Self Fear"
-      },
-      {
-        "spellId": "164464",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "164465",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "165764",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "167259",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "167261",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "168382",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "169432",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "171484",
-        "name": "Item - Hunter WoD PvP Beast Mastery 4P Bonus"
-      },
-      {
-        "spellId": "175847",
-        "name": "Illusory Nightmares"
-      },
-      {
-        "spellId": "177586",
-        "name": "Cower"
-      },
-      {
-        "spellId": "178058",
-        "name": "Blind"
-      },
-      {
-        "spellId": "188893",
-        "name": "Burning Shrapnel"
-      },
-      {
-        "spellId": "198909",
-        "name": "Song of Chi-Ji"
-      },
-      {
-        "spellId": "202274",
-        "name": "Hot Trub"
-      },
-      {
-        "spellId": "203441",
-        "name": "Heavy Drog"
-      },
-      {
-        "spellId": "203575",
-        "name": "Heavy Drog"
-      },
-      {
-        "spellId": "205097",
-        "name": "Fel Blind"
+        "name": "Fear",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
       },
       {
         "spellId": "205364",
-        "name": "Dominate Mind"
-      },
-      {
-        "spellId": "205605",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "206961",
-        "name": "Tremble Before Me"
+        "name": "Dominate Mind",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
       },
       {
         "spellId": "207167",
-        "name": "Blinding Sleet"
-      },
-      {
-        "spellId": "207685",
-        "name": "Sigil of Misery"
-      },
-      {
-        "spellId": "212559",
-        "name": "Frightening Shout"
-      },
-      {
-        "spellId": "216515",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "220540",
-        "name": "Fear"
-      },
-      {
-        "spellId": "221424",
-        "name": "Fear"
-      },
-      {
-        "spellId": "222414",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "223169",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "236353",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "236748",
-        "name": "Intimidating Roar"
-      },
-      {
-        "spellId": "238559",
-        "name": "Bursting Shot"
-      },
-      {
-        "spellId": "240190",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "240410",
-        "name": "Dreadful Fright"
-      },
-      {
-        "spellId": "243576",
-        "name": "Sticky Starfish"
-      },
-      {
-        "spellId": "244888",
-        "name": "Bonk"
-      },
-      {
-        "spellId": "245167",
-        "name": "Ignite"
-      },
-      {
-        "spellId": "246277",
-        "name": "Fear"
-      },
-      {
-        "spellId": "250280",
-        "name": "Poison Tipped Dart"
-      },
-      {
-        "spellId": "250285",
-        "name": "Poison Induced Terror"
-      },
-      {
-        "spellId": "251274",
-        "name": "Pterrorfying Roar"
-      },
-      {
-        "spellId": "255890",
-        "name": "Dragon's Breath"
-      },
-      {
-        "spellId": "257748",
-        "name": "Blind"
-      },
-      {
-        "spellId": "258822",
-        "name": "Blinding Peck"
-      },
-      {
-        "spellId": "258822",
-        "name": "Blinding Peck"
-      },
-      {
-        "spellId": "259874",
-        "name": "Fear"
-      },
-      {
-        "spellId": "259995",
-        "name": "Fear"
-      },
-      {
-        "spellId": "260009",
-        "name": "Befuddle"
-      },
-      {
-        "spellId": "261589",
-        "name": "Seduction"
-      },
-      {
-        "spellId": "261688",
-        "name": "Shock Baton"
-      },
-      {
-        "spellId": "261794",
-        "name": "Shock Baton"
-      },
-      {
-        "spellId": "266151",
-        "name": "Fire Bomb"
-      },
-      {
-        "spellId": "266918",
-        "name": "Fear"
-      },
-      {
-        "spellId": "267026",
-        "name": "Giant Flower"
-      },
-      {
-        "spellId": "267028",
-        "name": "Bright Lantern"
-      },
-      {
-        "spellId": "267934",
-        "name": "Poison Tipped Dart"
-      },
-      {
-        "spellId": "270211",
-        "name": "Fear of Rats"
-      },
-      {
-        "spellId": "273867",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "276804",
-        "name": "Crude Boomerang"
-      },
-      {
-        "spellId": "276805",
-        "name": "Gloomspore Shroom"
-      },
-      {
-        "spellId": "277022",
-        "name": "Arcane Devastation"
-      },
-      {
-        "spellId": "280062",
-        "name": "Mass Confusion"
-      },
-      {
-        "spellId": "285643",
-        "name": "Battle Screech"
-      },
-      {
-        "spellId": "285655",
-        "name": "Dig Up"
-      },
-      {
-        "spellId": "286242",
-        "name": "Dig Up"
-      },
-      {
-        "spellId": "286244",
-        "name": "Dig Up"
-      },
-      {
-        "spellId": "286245",
-        "name": "Dig Up"
-      },
-      {
-        "spellId": "286907",
-        "name": "Volatile Eruption"
-      },
-      {
-        "spellId": "289065",
-        "name": "Monkey Fear"
-      },
-      {
-        "spellId": "290105",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "295240",
-        "name": "Dragon's Breath"
-      },
-      {
-        "spellId": "296273",
-        "name": "Mirror Charm"
-      },
-      {
-        "spellId": "304182",
-        "name": "Dire Bonk"
-      },
-      {
-        "spellId": "304402",
-        "name": "Magma Spew"
-      },
-      {
-        "spellId": "304457",
-        "name": "Shadow Spew"
-      },
-      {
-        "spellId": "304462",
-        "name": "Viscous Spew"
-      },
-      {
-        "spellId": "306748",
-        "name": "Psychic Scream"
-      },
-      {
-        "spellId": "315963",
-        "name": "Panic Stricken"
-      },
-      {
-        "spellId": "316593",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "316595",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "324263",
-        "name": "Sulfuric Emission"
-      },
-      {
-        "spellId": "324685",
-        "name": "Summon Animacone"
-      },
-      {
-        "spellId": "329398",
-        "name": "Pandemonium"
-      },
-      {
-        "spellId": "331866",
-        "name": "Agent of Chaos"
-      },
-      {
-        "spellId": "340759",
-        "name": "Manifest Dread"
-      },
-      {
-        "spellId": "350958",
-        "name": "Visage of Lethality"
-      },
-      {
-        "spellId": "351044",
-        "name": "Dirge of Dread"
-      },
-      {
-        "spellId": "353333",
-        "name": "Moonberry's Trick: Snail"
-      },
-      {
-        "spellId": "354330",
-        "name": "Disoriented"
-      },
-      {
-        "spellId": "357401",
-        "name": "Sire Denathrius's Surprise!"
+        "name": "Blinding Sleet",
+        "specIds": [
+          "250",
+          "251",
+          "252"
+        ]
       },
       {
         "spellId": "360806",
-        "name": "Sleep Walk"
-      },
-      {
-        "spellId": "363405",
-        "name": "Ring of Fire"
-      },
-      {
-        "spellId": "371846",
-        "name": "Dragon's Breath"
-      },
-      {
-        "spellId": "372405",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "372407",
-        "name": "Blind"
-      },
-      {
-        "spellId": "372529",
-        "name": "Hideous Laughter"
-      },
-      {
-        "spellId": "373248",
-        "name": "Cyclone"
-      },
-      {
-        "spellId": "373390",
-        "name": "Disoriented [Unused/DNT/Not WAI]"
-      },
-      {
-        "spellId": "377140",
-        "name": "Superheated Spray"
-      },
-      {
-        "spellId": "377421",
-        "name": "Fearsome Snarl"
-      },
-      {
-        "spellId": "377478",
-        "name": "Eye Rake"
-      },
-      {
-        "spellId": "378746",
-        "name": "Heavy Whiteout"
-      },
-      {
-        "spellId": "387243",
-        "name": "Mrgl Grgl"
-      },
-      {
-        "spellId": "388374",
-        "name": "Horrifying Screech"
-      },
-      {
-        "spellId": "389364",
-        "name": "Blinding Sand"
-      },
-      {
-        "spellId": "394598",
-        "name": "Grievous Roar"
-      },
-      {
-        "spellId": "396078",
-        "name": "Explosive Blast"
-      },
-      {
-        "spellId": "396360",
-        "name": "Blinding Slash"
-      },
-      {
-        "spellId": "396520",
-        "name": "Blinding Blast"
-      },
-      {
-        "spellId": "397233",
-        "name": "Dragon's Breath"
-      },
-      {
-        "spellId": "397234",
-        "name": "Dragon's Breath"
-      },
-      {
-        "spellId": "397235",
-        "name": "Dragon's Breath"
-      },
-      {
-        "spellId": "397242",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "397243",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "397244",
-        "name": "Intimidating Shout"
-      },
-      {
-        "spellId": "400057",
-        "name": "Horrifying Screech"
-      },
-      {
-        "spellId": "406342",
-        "name": "Dread Torrent"
-      },
-      {
-        "spellId": "412378",
-        "name": "Dizzying Sands"
-      },
-      {
-        "spellId": "415038",
-        "name": "Fear for your Life"
-      },
-      {
-        "spellId": "415559",
-        "name": "Ash Bomb"
-      },
-      {
-        "spellId": "418178",
-        "name": "Fanatics Fear"
-      },
-      {
-        "spellId": "418238",
-        "name": "Shred Psyche"
-      },
-      {
-        "spellId": "422170",
-        "name": "Rgl! Rgl!"
-      },
-      {
-        "spellId": "427773",
-        "name": "Blind"
-      },
-      {
-        "spellId": "431003",
-        "name": "Cower"
-      },
-      {
-        "spellId": "432663",
-        "name": "Terrified"
-      },
-      {
-        "spellId": "433728",
-        "name": "Horrifying Screech"
-      },
-      {
-        "spellId": "466063",
-        "name": "Dread Screech"
-      },
-      {
-        "spellId": "1201554",
-        "name": "Seduction"
-      },
-      {
-        "spellId": "1243765",
-        "name": "Frantic"
-      },
-      {
-        "spellId": "1243948",
-        "name": "Frantic"
-      },
-      {
-        "spellId": "1287366",
-        "name": "Frantic"
+        "name": "Sleep Walk",
+        "specIds": [
+          "1467",
+          "1468",
+          "1473"
+        ]
       }
     ],
     "silence": [
       {
-        "spellId": "1330",
-        "name": "Garrote - Silence"
-      },
-      {
-        "spellId": "3603",
-        "name": "Distracting Pain"
-      },
-      {
-        "spellId": "4243",
-        "name": "Pester Effect"
-      },
-      {
-        "spellId": "4320",
-        "name": "Trelane's Freezing Touch"
-      },
-      {
-        "spellId": "6726",
-        "name": "Silence"
-      },
-      {
-        "spellId": "7074",
-        "name": "Screams of the Past"
-      },
-      {
-        "spellId": "15471",
-        "name": "Enveloping Web"
-      },
-      {
         "spellId": "15487",
-        "name": "Silence"
-      },
-      {
-        "spellId": "18278",
-        "name": "Silence"
-      },
-      {
-        "spellId": "19821",
-        "name": "Arcane Bomb"
-      },
-      {
-        "spellId": "22666",
-        "name": "Silence"
-      },
-      {
-        "spellId": "23207",
-        "name": "Silence"
-      },
-      {
-        "spellId": "24110",
-        "name": "Enveloping Webs"
-      },
-      {
-        "spellId": "27559",
-        "name": "Silence"
+        "name": "Silence",
+        "specIds": [
+          "258"
+        ]
       },
       {
         "spellId": "31935",
-        "name": "Avenger's Shield"
-      },
-      {
-        "spellId": "33390",
-        "name": "Arcane Torrent"
-      },
-      {
-        "spellId": "34087",
-        "name": "Chilling Words"
-      },
-      {
-        "spellId": "34088",
-        "name": "Feeble Weapons"
-      },
-      {
-        "spellId": "34089",
-        "name": "Doubting Mind"
-      },
-      {
-        "spellId": "35892",
-        "name": "Suppression"
-      },
-      {
-        "spellId": "36022",
-        "name": "Arcane Torrent"
-      },
-      {
-        "spellId": "38913",
-        "name": "Silence"
-      },
-      {
-        "spellId": "43523",
-        "name": "Unstable Affliction"
-      },
-      {
-        "spellId": "47779",
-        "name": "Arcane Torrent"
-      },
-      {
-        "spellId": "56777",
-        "name": "Silence"
-      },
-      {
-        "spellId": "57490",
-        "name": "Librarian's Shush"
-      },
-      {
-        "spellId": "65542",
-        "name": "Silence"
-      },
-      {
-        "spellId": "65813",
-        "name": "Unstable Affliction"
-      },
-      {
-        "spellId": "66018",
-        "name": "Strangulate"
-      },
-      {
-        "spellId": "80967",
-        "name": "Silence"
-      },
-      {
-        "spellId": "84838",
-        "name": "Twist Phase"
-      },
-      {
-        "spellId": "122882",
-        "name": "QA Test Silence"
-      },
-      {
-        "spellId": "128904",
-        "name": "Garrote - Silence"
-      },
-      {
-        "spellId": "164969",
-        "name": "Stolen Breath"
-      },
-      {
-        "spellId": "171159",
-        "name": "Crushing Vines"
-      },
-      {
-        "spellId": "172795",
-        "name": "Life Steal"
-      },
-      {
-        "spellId": "174520",
-        "name": "Item - Hunter WoD PvP Beast Mastery 4P Bonus"
-      },
-      {
-        "spellId": "199512",
-        "name": "Avenger's Shield"
-      },
-      {
-        "spellId": "199683",
-        "name": "Last Word"
-      },
-      {
-        "spellId": "202933",
-        "name": "Spider Sting"
-      },
-      {
-        "spellId": "204490",
-        "name": "Sigil of Silence"
-      },
-      {
-        "spellId": "214459",
-        "name": "Choking Flames"
-      },
-      {
-        "spellId": "215774",
-        "name": "Silence"
-      },
-      {
-        "spellId": "217824",
-        "name": "Shield of Virtue"
-      },
-      {
-        "spellId": "222783",
-        "name": "Arcane Torrent"
-      },
-      {
-        "spellId": "226452",
-        "name": "Silence"
-      },
-      {
-        "spellId": "230122",
-        "name": "Garrote - Silence"
-      },
-      {
-        "spellId": "240569",
-        "name": "Counter Shot"
-      },
-      {
-        "spellId": "258347",
-        "name": "Sonic Screech"
-      },
-      {
-        "spellId": "280322",
-        "name": "Garrote - Silence"
-      },
-      {
-        "spellId": "288560",
-        "name": "Slowed"
-      },
-      {
-        "spellId": "290494",
-        "name": "Avenger's Shield"
-      },
-      {
-        "spellId": "328927",
-        "name": "Final Strike"
-      },
-      {
-        "spellId": "346991",
-        "name": "Silence"
+        "name": "Avenger's Shield",
+        "specIds": [
+          "66"
+        ]
       },
       {
         "spellId": "355596",
-        "name": "Wailing Arrow"
-      },
-      {
-        "spellId": "356727",
-        "name": "Spider Venom"
-      },
-      {
-        "spellId": "362820",
-        "name": "Muted"
-      },
-      {
-        "spellId": "374776",
-        "name": "Tightening Grasp"
-      },
-      {
-        "spellId": "392061",
-        "name": "Wailing Arrow"
-      },
-      {
-        "spellId": "420330",
-        "name": "Avenger's Shield"
-      },
-      {
-        "spellId": "426240",
-        "name": "Counter Shot"
-      },
-      {
-        "spellId": "1277104",
-        "name": "Javelineer"
+        "name": "Wailing Arrow",
+        "specIds": [
+          "253",
+          "254",
+          "255",
+          "1448"
+        ]
       }
     ],
-    "disarm": [
-      {
-        "spellId": "207777",
-        "name": "Dismantle"
-      },
-      {
-        "spellId": "209749",
-        "name": "Faerie Swarm"
-      },
-      {
-        "spellId": "233759",
-        "name": "Grapple Weapon"
-      },
-      {
-        "spellId": "236077",
-        "name": "Disarm"
-      },
-      {
-        "spellId": "236236",
-        "name": "Disarm"
-      },
-      {
-        "spellId": "328927",
-        "name": "Final Strike"
-      },
-      {
-        "spellId": "332547",
-        "name": "Animate Armaments"
-      },
-      {
-        "spellId": "387729",
-        "name": "Slippery Mucus"
-      },
-      {
-        "spellId": "395943",
-        "name": "Scorching Mucus"
-      },
-      {
-        "spellId": "407032",
-        "name": "Sticky Tar Bomb"
-      }
-    ]
+    "disarm": []
   },
   "interrupts": [
     {
@@ -8848,58 +3095,7 @@
       ]
     },
     {
-      "spellId": "53550",
-      "name": "Mind Freeze",
-      "specIds": [
-        "250",
-        "251",
-        "252"
-      ]
-    },
-    {
       "spellId": "57994",
-      "name": "Wind Shear",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ]
-    },
-    {
-      "spellId": "71022",
-      "name": "Disrupting Shout",
-      "specIds": [
-        "73"
-      ]
-    },
-    {
-      "spellId": "77334",
-      "name": "Wind Shear",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ]
-    },
-    {
-      "spellId": "83005",
-      "name": "Wind Shear",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ]
-    },
-    {
-      "spellId": "93985",
-      "name": "Skull Bash",
-      "specIds": [
-        "103",
-        "104"
-      ]
-    },
-    {
-      "spellId": "95038",
       "name": "Wind Shear",
       "specIds": [
         "262",
@@ -8916,20 +3112,6 @@
       ]
     },
     {
-      "spellId": "97547",
-      "name": "Solar Beam",
-      "specIds": [
-        "102"
-      ]
-    },
-    {
-      "spellId": "103414",
-      "name": "Stomp",
-      "specIds": [
-        "253"
-      ]
-    },
-    {
       "spellId": "116705",
       "name": "Spear Hand Strike",
       "specIds": [
@@ -8938,74 +3120,11 @@
       ]
     },
     {
-      "spellId": "128136",
-      "name": "Wind Shear",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ]
-    },
-    {
-      "spellId": "129891",
-      "name": "Solar Beam",
-      "specIds": [
-        "102"
-      ]
-    },
-    {
-      "spellId": "131772",
-      "name": "Spear Hand Strike",
-      "specIds": [
-        "268",
-        "269"
-      ]
-    },
-    {
-      "spellId": "134008",
-      "name": "Rebuke",
-      "specIds": [
-        "66",
-        "70"
-      ]
-    },
-    {
-      "spellId": "136473",
-      "name": "Counter Shot",
-      "specIds": [
-        "253",
-        "254"
-      ]
-    },
-    {
-      "spellId": "142657",
-      "name": "Skull Bash",
-      "specIds": [
-        "103",
-        "104"
-      ]
-    },
-    {
-      "spellId": "142699",
-      "name": "Counter Shot",
-      "specIds": [
-        "253",
-        "254"
-      ]
-    },
-    {
       "spellId": "147362",
       "name": "Counter Shot",
       "specIds": [
         "253",
         "254"
-      ]
-    },
-    {
-      "spellId": "177155",
-      "name": "Disrupting Shout",
-      "specIds": [
-        "73"
       ]
     },
     {
@@ -9019,163 +3138,10 @@
       ]
     },
     {
-      "spellId": "186562",
-      "name": "Consume Magic",
-      "specIds": [
-        "577",
-        "581",
-        "1480"
-      ]
-    },
-    {
       "spellId": "187707",
       "name": "Muzzle",
       "specIds": [
         "255"
-      ]
-    },
-    {
-      "spellId": "220977",
-      "name": "Disrupting Shout",
-      "specIds": [
-        "73"
-      ]
-    },
-    {
-      "spellId": "227363",
-      "name": "Mighty Stomp",
-      "specIds": [
-        "268"
-      ]
-    },
-    {
-      "spellId": "240569",
-      "name": "Counter Shot",
-      "specIds": [
-        "253",
-        "254"
-      ]
-    },
-    {
-      "spellId": "245000",
-      "name": "Consume Magic",
-      "specIds": [
-        "577",
-        "581",
-        "1480"
-      ]
-    },
-    {
-      "spellId": "247733",
-      "name": "Stomp",
-      "specIds": [
-        "253"
-      ]
-    },
-    {
-      "spellId": "254410",
-      "name": "Wind Shear",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ]
-    },
-    {
-      "spellId": "262074",
-      "name": "Wind Shear",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ]
-    },
-    {
-      "spellId": "277600",
-      "name": "Rebuke",
-      "specIds": [
-        "66",
-        "70"
-      ]
-    },
-    {
-      "spellId": "282151",
-      "name": "Mind Freeze",
-      "specIds": [
-        "250",
-        "251",
-        "252"
-      ]
-    },
-    {
-      "spellId": "282220",
-      "name": "Muzzle",
-      "specIds": [
-        "255"
-      ]
-    },
-    {
-      "spellId": "282315",
-      "name": "Spear Hand Strike",
-      "specIds": [
-        "268",
-        "269"
-      ]
-    },
-    {
-      "spellId": "283490",
-      "name": "Mind Freeze",
-      "specIds": [
-        "250",
-        "251",
-        "252"
-      ]
-    },
-    {
-      "spellId": "283616",
-      "name": "Rebuke",
-      "specIds": [
-        "66",
-        "70"
-      ]
-    },
-    {
-      "spellId": "283774",
-      "name": "Spear Hand Strike",
-      "specIds": [
-        "268",
-        "269"
-      ]
-    },
-    {
-      "spellId": "290439",
-      "name": "Wind Shear",
-      "specIds": [
-        "262",
-        "263",
-        "264"
-      ]
-    },
-    {
-      "spellId": "292599",
-      "name": "Skull Bash",
-      "specIds": [
-        "103",
-        "104"
-      ]
-    },
-    {
-      "spellId": "301548",
-      "name": "Disrupting Shout",
-      "specIds": [
-        "73"
-      ]
-    },
-    {
-      "spellId": "317745",
-      "name": "Disrupting Shout",
-      "specIds": [
-        "73"
       ]
     },
     {
@@ -9192,85 +3158,386 @@
       "specIds": [
         "73"
       ]
-    },
+    }
+  ],
+  "unresolvedSpells": [
     {
-      "spellId": "398392",
-      "name": "Stomp",
-      "specIds": [
-        "253"
+      "spellId": "50322",
+      "name": "Survival Instincts",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "61336"
+      ],
+      "talentSpecIds": [
+        "103",
+        "104"
       ]
     },
     {
-      "spellId": "401165",
-      "name": "Shockwave",
-      "specIds": [
-        "71",
-        "72",
-        "73"
+      "spellId": "81549",
+      "name": "Cloak of Shadows",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "31224"
+      ],
+      "talentSpecIds": [
+        "259",
+        "260",
+        "261"
       ]
     },
     {
-      "spellId": "413672",
-      "name": "Mind Freeze",
-      "specIds": [
-        "250",
-        "251",
-        "252"
+      "spellId": "120954",
+      "name": "Fortifying Brew",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "388917"
+      ],
+      "talentSpecIds": [
+        "268",
+        "269",
+        "270"
       ]
     },
     {
-      "spellId": "420090",
-      "name": "Rebuke",
-      "specIds": [
+      "spellId": "199448",
+      "name": "Blessing of Sacrifice",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "6940"
+      ],
+      "talentSpecIds": [
+        "65",
         "66",
         "70"
       ]
     },
     {
-      "spellId": "420320",
-      "name": "Wind Shear",
-      "specIds": [
+      "spellId": "207771",
+      "name": "Fiery Brand",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "204021"
+      ],
+      "talentSpecIds": [
+        "581"
+      ]
+    },
+    {
+      "spellId": "243435",
+      "name": "Fortifying Brew",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "388917"
+      ],
+      "talentSpecIds": [
+        "268",
+        "269",
+        "270"
+      ]
+    },
+    {
+      "spellId": "342246",
+      "name": "Alter Time",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "342245"
+      ],
+      "talentSpecIds": [
+        "62",
+        "63",
+        "64"
+      ]
+    },
+    {
+      "spellId": "51533",
+      "name": "Feral Spirit",
+      "category": "important",
+      "talentSpellIds": [
+        "469314"
+      ],
+      "talentSpecIds": [
+        "263"
+      ]
+    },
+    {
+      "spellId": "110909",
+      "name": "Alter Time",
+      "category": "important",
+      "talentSpellIds": [
+        "342245"
+      ],
+      "talentSpecIds": [
+        "62",
+        "63",
+        "64"
+      ]
+    },
+    {
+      "spellId": "152953",
+      "name": "Blinding Light",
+      "category": "important",
+      "talentSpellIds": [
+        "115750"
+      ],
+      "talentSpecIds": [
+        "65",
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "194249",
+      "name": "Voidform",
+      "category": "important",
+      "talentSpellIds": [
+        "228260"
+      ],
+      "talentSpecIds": [
+        "258"
+      ]
+    },
+    {
+      "spellId": "199448",
+      "name": "Blessing of Sacrifice",
+      "category": "important",
+      "talentSpellIds": [
+        "6940"
+      ],
+      "talentSpecIds": [
+        "65",
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "231895",
+      "name": "Avenging Wrath",
+      "category": "important",
+      "talentSpellIds": [
+        "31884"
+      ],
+      "talentSpecIds": [
+        "70"
+      ]
+    },
+    {
+      "spellId": "243435",
+      "name": "Fortifying Brew",
+      "category": "important",
+      "talentSpellIds": [
+        "388917"
+      ],
+      "talentSpecIds": [
+        "268",
+        "269",
+        "270"
+      ]
+    },
+    {
+      "spellId": "335235",
+      "name": "Summon Infernal",
+      "category": "important",
+      "talentSpellIds": [
+        "1122"
+      ],
+      "talentSpecIds": [
+        "267"
+      ]
+    },
+    {
+      "spellId": "342246",
+      "name": "Alter Time",
+      "category": "important",
+      "talentSpellIds": [
+        "342245"
+      ],
+      "talentSpecIds": [
+        "62",
+        "63",
+        "64"
+      ]
+    },
+    {
+      "spellId": "365362",
+      "name": "Arcane Surge",
+      "category": "important",
+      "talentSpellIds": [
+        "365350"
+      ],
+      "talentSpecIds": [
+        "62"
+      ]
+    },
+    {
+      "spellId": "387278",
+      "name": "Summon Darkglare",
+      "category": "important",
+      "talentSpellIds": [
+        "205180"
+      ],
+      "talentSpecIds": [
+        "265"
+      ]
+    },
+    {
+      "spellId": "389654",
+      "name": "Master Handler",
+      "category": "important",
+      "talentSpellIds": [
+        "424558"
+      ],
+      "talentSpecIds": [
+        "253"
+      ]
+    },
+    {
+      "spellId": "389722",
+      "name": "Recklessness",
+      "category": "important",
+      "talentSpellIds": [
+        "1719"
+      ],
+      "talentSpecIds": [
+        "72"
+      ]
+    },
+    {
+      "spellId": "395267",
+      "name": "Invoke Niuzao, the Black Ox",
+      "category": "important",
+      "talentSpellIds": [
+        "132578"
+      ],
+      "talentSpecIds": [
+        "268"
+      ]
+    },
+    {
+      "spellId": "454351",
+      "name": "Avenging Wrath",
+      "category": "important",
+      "talentSpellIds": [
+        "31884"
+      ],
+      "talentSpecIds": [
+        "70"
+      ]
+    },
+    {
+      "spellId": "454373",
+      "name": "Avenging Wrath",
+      "category": "important",
+      "talentSpellIds": [
+        "31884"
+      ],
+      "talentSpecIds": [
+        "70"
+      ]
+    },
+    {
+      "spellId": "466772",
+      "name": "Doom Winds",
+      "category": "important",
+      "talentSpellIds": [
+        "384352"
+      ],
+      "talentSpecIds": [
+        "263"
+      ]
+    },
+    {
+      "spellId": "1219480",
+      "name": "Ascendance",
+      "category": "important",
+      "talentSpellIds": [
+        "114050"
+      ],
+      "talentSpecIds": [
+        "262"
+      ]
+    },
+    {
+      "spellId": "1236574",
+      "name": "Tranquility",
+      "category": "important",
+      "talentSpellIds": [
+        "740"
+      ],
+      "talentSpecIds": [
+        "105"
+      ]
+    },
+    {
+      "spellId": "1251703",
+      "name": "Takedown",
+      "category": "important",
+      "talentSpellIds": [
+        "1250646"
+      ],
+      "talentSpecIds": [
+        "255"
+      ]
+    },
+    {
+      "spellId": "1254294",
+      "name": "Pyroblast",
+      "category": "important",
+      "talentSpellIds": [
+        "11366"
+      ],
+      "talentSpecIds": [
+        "63"
+      ]
+    },
+    {
+      "spellId": "1255743",
+      "name": "Total Eclipse",
+      "category": "important",
+      "talentSpellIds": [
+        "1240206"
+      ],
+      "talentSpecIds": [
+        "102"
+      ]
+    },
+    {
+      "spellId": "1256008",
+      "name": "Hex",
+      "category": "important",
+      "talentSpellIds": [
+        "51514"
+      ],
+      "talentSpecIds": [
         "262",
         "263",
         "264"
       ]
     },
     {
-      "spellId": "426240",
-      "name": "Counter Shot",
-      "specIds": [
-        "253",
-        "254"
-      ]
-    },
-    {
-      "spellId": "427609",
-      "name": "Disrupting Shout",
-      "specIds": [
-        "73"
-      ]
-    },
-    {
-      "spellId": "431157",
-      "name": "Quell",
-      "specIds": [
-        "1467",
-        "1473"
-      ]
-    },
-    {
-      "spellId": "451441",
-      "name": "Rebuke",
-      "specIds": [
+      "spellId": "1258514",
+      "name": "Blinding Light",
+      "category": "important",
+      "talentSpellIds": [
+        "115750"
+      ],
+      "talentSpecIds": [
+        "65",
         "66",
         "70"
       ]
     },
     {
-      "spellId": "1264227",
-      "name": "Solar Beam",
-      "specIds": [
-        "102"
+      "spellId": "1270766",
+      "name": "Hex",
+      "category": "important",
+      "talentSpellIds": [
+        "51514"
+      ],
+      "talentSpecIds": [
+        "262",
+        "263",
+        "264"
       ]
     }
   ]
