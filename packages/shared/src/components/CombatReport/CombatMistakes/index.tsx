@@ -54,8 +54,8 @@ function MistakeRow({ mistake, combatStartTime }: { mistake: DetectedMistake; co
                 )}
                 {mistake.titleSuffix && (
                   <>
-                    {mistake.extraSpellId && <SpellIcon spellId={mistake.extraSpellId} size={20} />}
                     <span>{mistake.titleSuffix}</span>
+                    {mistake.extraSpellId && <SpellIcon spellId={mistake.extraSpellId} size={20} />}
                   </>
                 )}
               </div>
