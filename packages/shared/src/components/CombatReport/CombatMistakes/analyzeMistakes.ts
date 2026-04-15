@@ -395,13 +395,21 @@ function detectMissedKicks(player: ICombatUnit, combat: AtomicArenaCombat): Dete
     }
   }
 
-  // Find all kick casts from combat.events
+  // Find all kick casts and SPELL_MISSED IMMUNE events for kicks from combat.events
   const kickCasts: CombatAction[] = [];
+  // Map of timestamp → true for kick spells that got IMMUNE
+  const kickImmuneTimestamps = new Set<number>();
   for (const evt of combat.events) {
-    if (evt.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
     if (evt.srcUnitId !== player.id) continue;
     if (!evt.spellId || !INTERRUPT_SPELL_IDS.has(evt.spellId)) continue;
-    kickCasts.push(evt);
+    if (evt.logLine.event === LogEvent.SPELL_CAST_SUCCESS) {
+      kickCasts.push(evt);
+    } else if (evt.logLine.event === LogEvent.SPELL_MISSED) {
+      const missType = evt.logLine.parameters[11]?.toString();
+      if (missType === 'IMMUNE') {
+        kickImmuneTimestamps.add(evt.logLine.timestamp);
+      }
+    }
   }
 
   for (const cast of kickCasts) {
@@ -418,12 +426,15 @@ function detectMissedKicks(player: ICombatUnit, combat: AtomicArenaCombat): Dete
 
     if (!interrupted) {
       const spellName = cast.spellName ?? SPELL_NAMES.get(cast.spellId ?? '') ?? 'Interrupt';
+      const wasImmune = kickImmuneTimestamps.has(castTime);
       mistakes.push({
         id: 'missed_kick',
         playerId: player.id,
-        severity: 'MEDIUM',
-        title: `${spellName} missed`,
-        tip: 'This interrupt was cast but did not interrupt a spell. The target may not have been casting, or the cast finished before the kick landed.',
+        severity: wasImmune ? 'LOW' : 'MEDIUM',
+        title: wasImmune ? `${spellName} into immune target` : `${spellName} missed`,
+        tip: wasImmune
+          ? 'This interrupt was cast on a target that was immune. Check for active immunities before kicking.'
+          : 'This interrupt was cast but did not interrupt a spell. The target may not have been casting, or the cast finished before the kick landed.',
         timestamp: castTime,
         spellId: cast.spellId ?? undefined,
         targetId: cast.destUnitId || undefined,
