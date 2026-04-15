@@ -19,7 +19,6 @@ import {
 import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
 
-
 interface IProps {
   children?: React.ReactNode[] | React.ReactNode;
 }

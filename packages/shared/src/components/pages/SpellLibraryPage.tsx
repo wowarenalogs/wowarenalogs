@@ -275,9 +275,7 @@ function UnresolvedSection({ searchQuery }: { searchQuery: string }) {
   const filtered = useMemo(() => {
     if (!searchQuery) return unresolvedSpells;
     const q = searchQuery.toLowerCase();
-    return unresolvedSpells.filter(
-      (s) => s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q),
-    );
+    return unresolvedSpells.filter((s) => s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q));
   }, [searchQuery]);
 
   const isExpanded = expanded || searchQuery.length > 0;
@@ -352,7 +350,7 @@ export function SpellLibraryPage() {
         <h1 className="text-2xl font-bold">Spell Library</h1>
         <p className="text-sm text-base-content/60 mt-1">
           Browse the spells that WoW Arena Logs tracks across all classes and specializations. This data is sourced from
-          Blizzard's DB2 game data and mapped to player specializations.
+          Blizzard&apos;s DB2 game data and mapped to player specializations.
         </p>
       </div>
       <div className="bg-base-200 border border-warning/30 rounded-lg px-3 py-2 text-sm text-base-content/70">
