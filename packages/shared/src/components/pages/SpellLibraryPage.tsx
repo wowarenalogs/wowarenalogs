@@ -21,6 +21,14 @@ interface SpellEntry {
   specIds?: string[];
 }
 
+interface UnresolvedEntry {
+  spellId: string;
+  name: string;
+  category: string;
+  talentSpellIds: string[];
+  talentSpecIds: string[];
+}
+
 interface CategoryDef {
   key: string;
   label: string;
@@ -257,6 +265,82 @@ function CategorySection({ category, searchQuery }: { category: CategoryDef; sea
   );
 }
 
+// ── Unresolved Spells (dev only) ───────────────────────────────────
+
+const unresolvedSpells = (spellClassMap.unresolvedSpells ?? []) as UnresolvedEntry[];
+
+function UnresolvedSection({ searchQuery }: { searchQuery: string }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const filtered = useMemo(() => {
+    if (!searchQuery) return unresolvedSpells;
+    const q = searchQuery.toLowerCase();
+    return unresolvedSpells.filter(
+      (s) => s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q),
+    );
+  }, [searchQuery]);
+
+  const isExpanded = expanded || searchQuery.length > 0;
+
+  if (filtered.length === 0) return null;
+
+  return (
+    <div className="bg-base-200 border border-warning/30 rounded-lg">
+      <button
+        className="flex w-full items-center gap-3 px-4 py-3 hover:bg-base-300/50 rounded-lg transition-colors"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <span className="text-base-content/40">
+          {isExpanded ? <TbChevronDown size={16} /> : <TbChevronRight size={16} />}
+        </span>
+        <div className="flex-1 text-left">
+          <div className="font-semibold text-warning">Unresolved Spells (DEV)</div>
+          <div className="text-xs text-base-content/60">
+            Spells flagged by DB2 attributes that could not be ID-resolved to a player spec. Likely wrong spell IDs in
+            Blizzard data.
+          </div>
+        </div>
+        <span className="badge badge-warning badge-sm">{filtered.length}</span>
+      </button>
+      {isExpanded && (
+        <div className="px-4 pb-4">
+          <table className="table table-xs">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>DB2 Spell ID</th>
+                <th>Category</th>
+                <th>Talent Spell ID(s)</th>
+                <th>Talent Spec(s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((u) => (
+                <tr key={`${u.spellId}-${u.category}`}>
+                  <td className="font-medium">{u.name}</td>
+                  <td className="font-mono text-xs">{u.spellId}</td>
+                  <td className="text-xs">{u.category}</td>
+                  <td className="font-mono text-xs">{u.talentSpellIds.join(', ')}</td>
+                  <td className="text-xs">
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {u.talentSpecIds.map((specId) => (
+                        <span key={specId} className="flex items-center gap-0.5">
+                          <SpecIcon specId={specId} size={14} />
+                          <span>{SPEC_TO_NAME[specId] ?? specId}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Page ────────────────────────────────────────────────────────────
 
 export function SpellLibraryPage() {
@@ -267,8 +351,13 @@ export function SpellLibraryPage() {
       <div>
         <h1 className="text-2xl font-bold">Spell Library</h1>
         <p className="text-sm text-base-content/60 mt-1">
-          Browse the spells that WoW Arena Logs tracks across all classes and specializations.
+          Browse the spells that WoW Arena Logs tracks across all classes and specializations. This data is sourced from
+          Blizzard's DB2 game data and mapped to player specializations.
         </p>
+      </div>
+      <div className="bg-base-200 border border-warning/30 rounded-lg px-3 py-2 text-sm text-base-content/70">
+        This page is in beta. Some spells may be missing or incorrectly categorized due to inconsistencies in the
+        upstream game data.
       </div>
       <div className="relative max-w-md">
         <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40" size={18} />
@@ -284,6 +373,7 @@ export function SpellLibraryPage() {
         {CATEGORIES.map((cat) => (
           <CategorySection key={cat.key} category={cat} searchQuery={searchQuery} />
         ))}
+        {process.env.NODE_ENV === 'development' && <UnresolvedSection searchQuery={searchQuery} />}
       </div>
     </div>
   );
