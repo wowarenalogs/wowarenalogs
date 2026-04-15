@@ -177,7 +177,7 @@ export const CombatMistakes = () => {
 
   return (
     <div className="animate-fadein flex flex-col gap-4">
-      <div className="bg-warning/10 border border-warning/30 rounded-lg px-3 py-2 text-sm text-warning-content/80">
+      <div className="bg-base-200 border border-warning/30 rounded-lg px-3 py-2 text-sm text-base-content/70">
         This feature is in beta. Not all detected mistakes may be accurate.
       </div>
       <MistakeExplainer />
