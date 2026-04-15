@@ -7,6 +7,8 @@ export const features = {
   awcSearch: 'awc-search',
   /** Allows user to see the Mistakes analysis tab on combat replays */
   mistakesTab: 'mistakes-tab',
+  /** Allows user to see the Spell Library page in the main navigation */
+  spellLibrary: 'spell-library',
 };
 
 export const canUseFeature = (flag: string, user?: GetProfileQuery | undefined | null, localFlags?: string[]) => {

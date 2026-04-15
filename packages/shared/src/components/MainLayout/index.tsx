@@ -5,6 +5,7 @@ import NProgress from 'nprogress';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   TbAlertTriangle,
+  TbBook,
   TbBug,
   TbChartBar,
   TbHistory,
@@ -17,6 +18,7 @@ import {
 
 import { useAuth } from '../../hooks/AuthContext';
 import { useClientContext } from '../../hooks/ClientContext';
+import { canUseFeature, features } from '../../utils/featureFlags';
 
 interface IProps {
   children?: React.ReactNode[] | React.ReactNode;
@@ -137,6 +139,15 @@ export function MainLayout(props: IProps) {
             <TbChartBar size="32" />
           </Link>
         </div>
+        {canUseFeature(features.spellLibrary, null, clientContext.localFlags) && (
+          <div
+            className={`p-2 hover:text-primary ${selectedNavMenuKey === '/library' ? 'bg-base-100 text-primary' : ''}`}
+          >
+            <Link href="/library" aria-label="Spell Library" title="Spell Library">
+              <TbBook size="32" />
+            </Link>
+          </div>
+        )}
         <div className="flex-1" />
         {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
           <div
