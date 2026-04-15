@@ -541,7 +541,7 @@ function detectBurstIntoDefensives(player: ICombatUnit, combat: AtomicArenaComba
       severity: 'HIGH',
       title: `${offName} damage into`,
       extraSpellId: entry.defSpellId,
-      titleSuffix: `'s ${defName}`,
+      titleSuffix: defName,
       tip: `${entry.evidence.length} hit${entry.evidence.length !== 1 ? 's' : ''} dealt while ${offName} was active but the target had ${defName} up. Consider swapping targets or waiting for the defensive to expire before committing offensive cooldowns.`,
       timestamp: entry.evidence[0].timestamp,
       spellId: entry.offSpellId,
