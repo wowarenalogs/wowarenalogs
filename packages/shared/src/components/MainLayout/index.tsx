@@ -23,18 +23,6 @@ interface IProps {
   children?: React.ReactNode[] | React.ReactNode;
 }
 
-function _isVersionLessThan(version: string, target: string): boolean {
-  const vParts = version.split('.').map(Number);
-  const tParts = target.split('.').map(Number);
-  for (let i = 0; i < Math.max(vParts.length, tParts.length); i++) {
-    const v = vParts[i] || 0;
-    const t = tParts[i] || 0;
-    if (v < t) return true;
-    if (v > t) return false;
-  }
-  return false;
-}
-
 export function MainLayout(props: IProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();

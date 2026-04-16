@@ -7,6 +7,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
     "build:cloud": "shx rm -rf dist && cd ../.. && npm run build:parser && npm run build:sql && cd packages/cloud && tsc && tsup && shx cp -r ./deploy/* ./dist && shx cp wowarenalogs*.json ./dist && shx cp .env ./dist && shx cp ../sql/prisma/schema.prisma ./dist",
     "deploy:dev": "npm run build:cloud && bash ./deploy/deploy_dev.sh",
     "deploy:prod": "npm run build:cloud && bash ./deploy/deploy_prod.sh",

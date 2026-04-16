@@ -138,8 +138,27 @@ function buildDeathRootCauseTrace(
   deathTimeSeconds: number,
   ownerCooldowns: IMajorCooldownInfo[],
   dyingPlayerCC: IPlayerCCTrinketSummary | undefined,
+  dyingUnit: ICombatUnit | undefined,
+  matchStartMs: number,
 ): string[] {
   const traces: string[] = [];
+
+  // 0. HP trajectory leading to death
+  if (dyingUnit) {
+    const checkpoints = [15, 10, 5, 3];
+    const trajectory: string[] = [];
+    for (const secondsBefore of checkpoints) {
+      const pct = getHpPercentAtTime(dyingUnit, deathTimeSeconds - secondsBefore, matchStartMs);
+      if (pct !== null) {
+        trajectory.push(`${Math.round(pct)}% at T-${secondsBefore}s`);
+      }
+    }
+    if (trajectory.length > 0) {
+      traces.push(
+        `HP trajectory before death: ${trajectory.join(' → ')} → dead (sampled from last action as source — readings may lag by a few seconds if player was CCed or not casting)`,
+      );
+    }
+  }
 
   // 1. Check each owner major CD: on CD (and why) vs available-but-not-pressed
   for (const cd of ownerCooldowns) {
@@ -210,6 +229,7 @@ function buildKillMomentFields(
   cooldowns: IMajorCooldownInfo[],
   dyingPlayerCC: IPlayerCCTrinketSummary | undefined,
   constrainedTradePreceded: boolean,
+  dyingHpPct: number | null,
 ): {
   mechanicalAvailability: string[];
   interpretation: string[];
@@ -324,7 +344,10 @@ function buildKillMomentFields(
       microMistakes.push(`Positioning allowed melee-range ${nearDeathMeleeCC.spellName} (uncertain impact)`);
     }
     finalAssessment = {
-      macroOutcome: 'All major defensive CDs committed in opening trade with no recovery window before this death',
+      macroOutcome:
+        dyingHpPct !== null
+          ? `All major defensive CDs committed in opening trade with no recovery window before this death (player was at ${Math.round(dyingHpPct)}% HP 5s before death)`
+          : 'All major defensive CDs committed in opening trade with no recovery window before this death',
       microMistakes,
     };
   }
@@ -380,6 +403,23 @@ function identifyCriticalMoments(
         constrainedTradePreceded = true;
         const cdNames = tradedDefCDs.map((cd) => cd.spellName).join(' + ');
         const enemyState = getEnemyStateAtTime(firstBurst.fromSeconds, enemyCDTimeline, peakDamagePressure5s);
+
+        // Find the lowest HP friendly unit during the burst window to quantify pressure
+        const burstMidpoint = (firstBurst.fromSeconds + firstBurst.toSeconds) / 2;
+        let burstTargetHpNote = '';
+        let lowestHpPct: number | null = null;
+        let lowestHpName = '';
+        for (const friend of friends) {
+          const pct = getHpPercentAtTime(friend, burstMidpoint, matchStartMs);
+          if (pct !== null && (lowestHpPct === null || pct < lowestHpPct)) {
+            lowestHpPct = pct;
+            lowestHpName = friend.name;
+          }
+        }
+        if (lowestHpPct !== null) {
+          burstTargetHpNote = ` Most pressured player (${lowestHpName}) reached ${Math.round(lowestHpPct)}% HP at burst midpoint.`;
+        }
+
         moments.push({
           timeSeconds: firstBurst.fromSeconds,
           impactScore: 90,
@@ -388,7 +428,7 @@ function identifyCriticalMoments(
           title: 'Opening burst forced full defensive trade',
           enemyState,
           friendlyState: `${cdNames} committed to survive the burst`,
-          whatHappened: `${cdNames} committed at ~${fmtTime(firstBurst.fromSeconds + 2)} to survive burst (${Math.round(peakDamagePressure5s / 1000)}k peak). Trade was likely correct given burst strength.`,
+          whatHappened: `${cdNames} committed at ~${fmtTime(firstBurst.fromSeconds + 2)} to survive burst (${Math.round(peakDamagePressure5s / 1000)}k peak).${burstTargetHpNote} Trade was likely correct given burst strength.`,
           implication: [
             `All major defensive CDs committed with no recovery window in a ${fmtTime(durationSeconds)} match`,
             'Any subsequent burst window would have no defensive answer available',
@@ -401,7 +441,10 @@ function identifyCriticalMoments(
             'Holding any single CD risked death; the constraint is the match duration, not the decision',
           ],
           availableOptions: '',
-          uncertainty: 'Cannot confirm HP% during burst or whether a partial CD hold was viable.',
+          uncertainty:
+            lowestHpPct !== null
+              ? 'Log confirms HP% at burst midpoint. Whether a partial CD hold was viable depends on HP trajectory, which is directional only (HP sampled from caster advanced data, not per-hit).'
+              : 'Cannot confirm HP% during burst or whether a partial CD hold was viable.',
         });
       }
     }
@@ -419,12 +462,13 @@ function identifyCriticalMoments(
       ? `${death.spec} died at ${fmtTime(death.atSeconds)}.${hpContext} A ${nearbyGap.durationSeconds.toFixed(1)}s healing gap (${nearbyGap.freeCastSeconds.toFixed(1)}s free-cast) was active from ${fmtTime(nearbyGap.fromSeconds)} — healer was not CC'd during this time.`
       : `${death.spec} died at ${fmtTime(death.atSeconds)}.${hpContext}`;
     const dyingPlayerCC = ccTrinketSummaries.find((s) => s.playerName === death.name);
-    const rootCauseTrace = buildDeathRootCauseTrace(death.atSeconds, cooldowns, dyingPlayerCC);
+    const rootCauseTrace = buildDeathRootCauseTrace(death.atSeconds, cooldowns, dyingPlayerCC, dyingUnit, matchStartMs);
     const { mechanicalAvailability, interpretation, tieredOptions, finalAssessment } = buildKillMomentFields(
       death.atSeconds,
       cooldowns,
       dyingPlayerCC,
       constrainedTradePreceded,
+      dyingHpBefore,
     );
     moments.push({
       timeSeconds: death.atSeconds,

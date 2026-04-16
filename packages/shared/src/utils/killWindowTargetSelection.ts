@@ -137,7 +137,7 @@ function getDefensiveStateAtTime(
     if (!effectData) continue;
 
     const cdSeconds = effectData.cooldownSeconds ?? effectData.charges?.chargeCooldownSeconds ?? 0;
-    const maxCharges = effectData.charges?.maxCharges ?? 1;
+    const maxCharges = effectData.charges?.charges ?? 1;
     const buffSeconds = effectData.durationSeconds && effectData.durationSeconds > 0 ? effectData.durationSeconds : 8;
 
     // Simulate charge regeneration sequentially
@@ -211,7 +211,7 @@ function snapshotEnemy(enemy: ICombatUnit, windowStartSeconds: number, matchStar
   const isHealerUnit = false; // spec-based healer check would require cooldowns import — use fixed DPS CD for enemies
   const trinketAvailable = getTrinketStateAtTime(enemy, windowStartSeconds, matchStartMs, isHealerUnit);
 
-  const trinketScore = trinketAvailable === false ? 1 : (trinketAvailable === true ? 0 : 0.5);
+  const trinketScore = trinketAvailable === false ? 1 : trinketAvailable === true ? 0 : 0.5;
   const totalTracked = available.length + unavailable.length + 1; // +1 for trinket
   const spentTracked = unavailable.length + trinketScore;
   const defensivesFraction = totalTracked > 0 ? spentTracked / totalTracked : 0;

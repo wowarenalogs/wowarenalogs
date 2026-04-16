@@ -114,7 +114,15 @@
       "Bash(awk -F' ' '{sum+=$1; n++} END{print \"avg CC events per match: \" sum/n \" \\(n=\" n \"\\)\"}')",
       "Bash(npx ts-node:*)",
       "Bash(tee /tmp/local_fixed.txt)",
-      "Bash(tee match_prompts_3games.txt)"
+      "Bash(tee match_prompts_3games.txt)",
+      "Read(//Users/mingjianliu/Desktop/**)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(nslookup *)",
+      "Bash(claude *)",
+      "Bash(WAGO_BUILD=12.0.5.66741 npx ts-node *)",
+      "Bash(npm run *)",
+      "Bash(echo \"Started PID: $!\")",
+      "Bash(open *)"
     ]
   }
 }
