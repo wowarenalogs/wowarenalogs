@@ -109,7 +109,7 @@
     "test": "npm run test --workspaces --if-present",
     "start:simlog": "npm run start:simlog --workspaces --if-present",
     "postinstall": "patch-package",
-    "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
+    "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || (husky install && electron-builder install-app-deps)"
   },
   "devDependencies": {
     "@electron/notarize": "^3.0.0",
