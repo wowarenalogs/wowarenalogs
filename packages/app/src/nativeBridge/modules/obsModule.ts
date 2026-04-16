@@ -58,6 +58,9 @@ export class ObsModule extends NativeBridgeModule {
           this.configUpdated(mainWindow, newValue);
         });
         this.manager.recorder.onStatusUpdates((status, err) => this.recorderStatusUpdated(mainWindow, status, err));
+        this.manager.recorder.onVolumeChange((type, sourceName, volume) =>
+          this.audioVolumeChanged(mainWindow, type, sourceName, volume),
+        );
         this.manager.messageBus.on('video-written', (video) => {
           this.videoRecorded(mainWindow, video);
           this.checkDiskSpace(mainWindow);
@@ -158,6 +161,16 @@ export class ObsModule extends NativeBridgeModule {
 
   @moduleEvent('on')
   public diskSpaceBecameCritical(_mainWindow: BrowserWindow, _bytesRemaining: number, _driveLabel?: string) {
+    return;
+  }
+
+  @moduleEvent('on')
+  public audioVolumeChanged(
+    _mainWindow: BrowserWindow,
+    _type: 'input' | 'output',
+    _sourceName: string,
+    _volume: number,
+  ) {
     return;
   }
 

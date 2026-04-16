@@ -144,6 +144,10 @@
     "name": "Alter Time"
   },
   {
+    "spellId": "114051",
+    "name": "Ascendance"
+  },
+  {
     "spellId": "114052",
     "name": "Ascendance"
   },
@@ -266,6 +270,10 @@
   {
     "spellId": "198589",
     "name": "Blur"
+  },
+  {
+    "spellId": "199448",
+    "name": "Blessing of Sacrifice"
   },
   {
     "spellId": "204018",
@@ -608,6 +616,10 @@
     "name": "Dark Prayer"
   },
   {
+    "spellId": "466772",
+    "name": "Doom Winds"
+  },
+  {
     "spellId": "468966",
     "name": "Polymorph"
   },
@@ -638,6 +650,10 @@
   {
     "spellId": "1217989",
     "name": "Felshield"
+  },
+  {
+    "spellId": "1219480",
+    "name": "Ascendance"
   },
   {
     "spellId": "1227373",
@@ -1114,5 +1130,13 @@
   {
     "spellId": "1294563",
     "name": "Broken Shield"
+  },
+  {
+    "spellId": "1295237",
+    "name": "Netherburst"
+  },
+  {
+    "spellId": "1295243",
+    "name": "Netherburst"
   }
 ]

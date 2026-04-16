@@ -5,6 +5,7 @@ import NProgress from 'nprogress';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   TbAlertTriangle,
+  TbBook,
   TbBrandOpenai,
   TbBug,
   TbChartBar,
@@ -118,6 +119,13 @@ export function MainLayout(props: IProps) {
         <div className={`p-2 hover:text-primary ${selectedNavMenuKey === '/stats' ? 'bg-base-100 text-primary' : ''}`}>
           <Link href="/stats" aria-label="Competitive stats" title="Competitive stats">
             <TbChartBar size="32" />
+          </Link>
+        </div>
+        <div
+          className={`p-2 hover:text-primary ${selectedNavMenuKey === '/library' ? 'bg-base-100 text-primary' : ''}`}
+        >
+          <Link href="/library" aria-label="Spell Library" title="Spell Library">
+            <TbBook size="32" />
           </Link>
         </div>
         <div className="flex-1" />

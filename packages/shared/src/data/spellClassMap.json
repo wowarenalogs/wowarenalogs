@@ -1,0 +1,3614 @@
+{
+  "generatedAt": "2026-04-15T06:27:38.227Z",
+  "wagoBuild": "12.0.1.66838",
+  "sources": {
+    "chrSpecializationCsv": "https://wago.tools/db2/ChrSpecialization/csv?build=12.0.1.66838",
+    "specializationSpellsCsv": "https://wago.tools/db2/SpecializationSpells/csv?build=12.0.1.66838",
+    "skillLineAbilityCsv": "https://wago.tools/db2/SkillLineAbility/csv?build=12.0.1.66838",
+    "pvpTalentCsv": "https://wago.tools/db2/PvpTalent/csv?build=12.0.1.66838",
+    "spellNameCsv": "https://wago.tools/db2/SpellName/csv?build=12.0.1.66838",
+    "spellCategoriesCsv": "https://wago.tools/db2/SpellCategories/csv?build=12.0.1.66838",
+    "spellEffectCsv": "https://wago.tools/db2/SpellEffect/csv?build=12.0.1.66838",
+    "spellIdListsJson": "packages/shared/src/data/spellIdLists.json",
+    "talentIdMapJson": "packages/shared/src/data/talentIdMap.json"
+  },
+  "bigDefensive": [
+    {
+      "spellId": "498",
+      "name": "Divine Protection",
+      "specIds": [
+        "65"
+      ],
+      "source": "SpecializationSpells"
+    },
+    {
+      "spellId": "642",
+      "name": "Divine Shield",
+      "specIds": [
+        "65",
+        "66",
+        "70",
+        "1451"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "871",
+      "name": "Shield Wall",
+      "specIds": [
+        "73"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "6940",
+      "name": "Blessing of Sacrifice",
+      "specIds": [
+        "65",
+        "66",
+        "70"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "19236",
+      "name": "Desperate Prayer",
+      "specIds": [
+        "256",
+        "257",
+        "258"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "22812",
+      "name": "Barkskin",
+      "specIds": [
+        "102",
+        "103",
+        "104",
+        "105",
+        "1447"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "31224",
+      "name": "Cloak of Shadows",
+      "specIds": [
+        "259",
+        "260",
+        "261"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "31850",
+      "name": "Ardent Defender",
+      "specIds": [
+        "66"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "33206",
+      "name": "Pain Suppression",
+      "specIds": [
+        "256"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "45438",
+      "name": "Ice Block",
+      "specIds": [
+        "62",
+        "63",
+        "64"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "47585",
+      "name": "Dispersion",
+      "specIds": [
+        "258"
+      ],
+      "source": "SpecializationSpells"
+    },
+    {
+      "spellId": "47788",
+      "name": "Guardian Spirit",
+      "specIds": [
+        "257"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "48707",
+      "name": "Anti-Magic Shell",
+      "specIds": [
+        "250",
+        "251",
+        "252",
+        "1455"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "48792",
+      "name": "Icebound Fortitude",
+      "specIds": [
+        "250",
+        "251",
+        "252"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "50322",
+      "name": "Survival Instincts",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "53480",
+      "name": "Roar of Sacrifice",
+      "specIds": [
+        "253",
+        "254",
+        "255"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "55233",
+      "name": "Vampiric Blood",
+      "specIds": [
+        "250"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "81549",
+      "name": "Cloak of Shadows",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "86659",
+      "name": "Guardian of Ancient Kings",
+      "specIds": [
+        "66"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "102342",
+      "name": "Ironbark",
+      "specIds": [
+        "105"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "104773",
+      "name": "Unending Resolve",
+      "specIds": [
+        "265",
+        "266",
+        "267",
+        "1454"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "108271",
+      "name": "Astral Shift",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "115203",
+      "name": "Fortifying Brew",
+      "specIds": [
+        "268",
+        "269",
+        "270"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "116849",
+      "name": "Life Cocoon",
+      "specIds": [
+        "270"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "118038",
+      "name": "Die by the Sword",
+      "specIds": [
+        "71"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "120954",
+      "name": "Fortifying Brew",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "184364",
+      "name": "Enraged Regeneration",
+      "specIds": [
+        "72"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "186265",
+      "name": "Aspect of the Turtle",
+      "specIds": [
+        "253",
+        "254",
+        "255",
+        "1448"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "199448",
+      "name": "Blessing of Sacrifice",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "207771",
+      "name": "Fiery Brand",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "212800",
+      "name": "Blur",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "243435",
+      "name": "Fortifying Brew",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "264735",
+      "name": "Survival of the Fittest",
+      "specIds": [
+        "253",
+        "254",
+        "255"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "342246",
+      "name": "Alter Time",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "357170",
+      "name": "Time Dilation",
+      "specIds": [
+        "1468"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "363916",
+      "name": "Obsidian Scales",
+      "specIds": [
+        "1467",
+        "1468",
+        "1473"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "414658",
+      "name": "Ice Cold",
+      "specIds": [
+        "62",
+        "63",
+        "64"
+      ],
+      "source": "TalentTree"
+    }
+  ],
+  "externalDefensive": [
+    {
+      "spellId": "1022",
+      "name": "Blessing of Protection",
+      "specIds": [
+        "65",
+        "66",
+        "70"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "6940",
+      "name": "Blessing of Sacrifice",
+      "specIds": [
+        "65",
+        "66",
+        "70"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "33206",
+      "name": "Pain Suppression",
+      "specIds": [
+        "256"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "47788",
+      "name": "Guardian Spirit",
+      "specIds": [
+        "257"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "53480",
+      "name": "Roar of Sacrifice",
+      "specIds": [
+        "253",
+        "254",
+        "255"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "102342",
+      "name": "Ironbark",
+      "specIds": [
+        "105"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "116849",
+      "name": "Life Cocoon",
+      "specIds": [
+        "270"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "204018",
+      "name": "Blessing of Spellwarding",
+      "specIds": [
+        "65",
+        "66",
+        "70"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "357170",
+      "name": "Time Dilation",
+      "specIds": [
+        "1468"
+      ],
+      "source": "TalentTree"
+    }
+  ],
+  "important": [
+    {
+      "spellId": "118",
+      "name": "Polymorph",
+      "specIds": [
+        "62",
+        "63",
+        "64",
+        "1449"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "498",
+      "name": "Divine Protection",
+      "specIds": [
+        "65"
+      ],
+      "source": "SpecializationSpells"
+    },
+    {
+      "spellId": "642",
+      "name": "Divine Shield",
+      "specIds": [
+        "65",
+        "66",
+        "70",
+        "1451"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "871",
+      "name": "Shield Wall",
+      "specIds": [
+        "73"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "1044",
+      "name": "Blessing of Freedom",
+      "specIds": [
+        "65",
+        "66",
+        "70"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "5277",
+      "name": "Evasion",
+      "specIds": [
+        "259",
+        "260",
+        "261"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "8178",
+      "name": "Grounding Totem",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "12472",
+      "name": "Icy Veins",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "13750",
+      "name": "Adrenaline Rush",
+      "specIds": [
+        "260"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "19236",
+      "name": "Desperate Prayer",
+      "specIds": [
+        "256",
+        "257",
+        "258"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "22812",
+      "name": "Barkskin",
+      "specIds": [
+        "102",
+        "103",
+        "104",
+        "105",
+        "1447"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "31850",
+      "name": "Ardent Defender",
+      "specIds": [
+        "66"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "31884",
+      "name": "Avenging Wrath",
+      "specIds": [
+        "65",
+        "66",
+        "70"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "45438",
+      "name": "Ice Block",
+      "specIds": [
+        "62",
+        "63",
+        "64"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "47585",
+      "name": "Dispersion",
+      "specIds": [
+        "258"
+      ],
+      "source": "SpecializationSpells"
+    },
+    {
+      "spellId": "48707",
+      "name": "Anti-Magic Shell",
+      "specIds": [
+        "250",
+        "251",
+        "252",
+        "1455"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "48792",
+      "name": "Icebound Fortitude",
+      "specIds": [
+        "250",
+        "251",
+        "252"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "49028",
+      "name": "Dancing Rune Weapon",
+      "specIds": [
+        "250"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "50334",
+      "name": "Berserk",
+      "specIds": [
+        "104"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "51271",
+      "name": "Pillar of Frost",
+      "specIds": [
+        "251"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "51533",
+      "name": "Feral Spirit",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "55233",
+      "name": "Vampiric Blood",
+      "specIds": [
+        "250"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "55342",
+      "name": "Mirror Image",
+      "specIds": [
+        "62",
+        "63",
+        "64"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "64843",
+      "name": "Divine Hymn",
+      "specIds": [
+        "257"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "79140",
+      "name": "Vendetta",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "102543",
+      "name": "Incarnation: Avatar of Ashamane",
+      "specIds": [
+        "103"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "102558",
+      "name": "Incarnation: Guardian of Ursoc",
+      "specIds": [
+        "104"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "102560",
+      "name": "Incarnation: Chosen of Elune",
+      "specIds": [
+        "102"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "104773",
+      "name": "Unending Resolve",
+      "specIds": [
+        "265",
+        "266",
+        "267",
+        "1454"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "106951",
+      "name": "Berserk",
+      "specIds": [
+        "103"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "107574",
+      "name": "Avatar",
+      "specIds": [
+        "71",
+        "72",
+        "73"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "108271",
+      "name": "Astral Shift",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "108280",
+      "name": "Healing Tide Totem",
+      "specIds": [
+        "264"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "109304",
+      "name": "Exhilaration",
+      "specIds": [
+        "253",
+        "254",
+        "255",
+        "1448"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "110909",
+      "name": "Alter Time",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "114051",
+      "name": "Ascendance",
+      "specIds": [
+        "263"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "114052",
+      "name": "Ascendance",
+      "specIds": [
+        "264"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "115203",
+      "name": "Fortifying Brew",
+      "specIds": [
+        "268",
+        "269",
+        "270"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "115310",
+      "name": "Revival",
+      "specIds": [
+        "270"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "118038",
+      "name": "Die by the Sword",
+      "specIds": [
+        "71"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "121471",
+      "name": "Shadow Blades",
+      "specIds": [
+        "261"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "132578",
+      "name": "Invoke Niuzao, the Black Ox",
+      "specIds": [
+        "268"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "134536",
+      "name": "Slippy",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "134789",
+      "name": "Fallen Kin",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "137639",
+      "name": "Storm, Earth, and Fire",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "141396",
+      "name": "Intensifying Assault",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "141401",
+      "name": "Precision Artillery",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "141558",
+      "name": "Mecha Armor Alpha",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "142756",
+      "name": "Mecha-Armor: Beta",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "142777",
+      "name": "Mecha-Armor: Gamma",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "142778",
+      "name": "Mecha-Armor: Delta",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "142779",
+      "name": "Mecha-Armor: Epsilon",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "142780",
+      "name": "Mecha-Armor: Omega",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "142795",
+      "name": "Better, Stronger, Faster",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "152953",
+      "name": "Blinding Light",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "184364",
+      "name": "Enraged Regeneration",
+      "specIds": [
+        "72"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "185422",
+      "name": "Shadow Dance",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "186265",
+      "name": "Aspect of the Turtle",
+      "specIds": [
+        "253",
+        "254",
+        "255",
+        "1448"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "187827",
+      "name": "Metamorphosis",
+      "specIds": [
+        "581"
+      ],
+      "source": "SpecializationSpells"
+    },
+    {
+      "spellId": "190319",
+      "name": "Combustion",
+      "specIds": [
+        "63"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "191427",
+      "name": "Metamorphosis",
+      "specIds": [
+        "577",
+        "581",
+        "1456",
+        "1480"
+      ],
+      "source": "SkillLineAbility"
+    },
+    {
+      "spellId": "192249",
+      "name": "Storm Elemental",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "194223",
+      "name": "Celestial Alignment",
+      "specIds": [
+        "102"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "194249",
+      "name": "Voidform",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "198067",
+      "name": "Fire Elemental",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "198144",
+      "name": "Ice Form",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "198589",
+      "name": "Blur",
+      "specIds": [
+        "577",
+        "1480"
+      ],
+      "source": "SpecializationSpells"
+    },
+    {
+      "spellId": "199448",
+      "name": "Blessing of Sacrifice",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "204018",
+      "name": "Blessing of Spellwarding",
+      "specIds": [
+        "65",
+        "66",
+        "70"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "204021",
+      "name": "Fiery Brand",
+      "specIds": [
+        "581"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "205180",
+      "name": "Summon Darkglare",
+      "specIds": [
+        "265"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "212295",
+      "name": "Nether Ward",
+      "specIds": [
+        "265",
+        "266",
+        "267"
+      ],
+      "source": "PvpTalent"
+    },
+    {
+      "spellId": "212800",
+      "name": "Blur",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "216331",
+      "name": "Avenging Crusader",
+      "specIds": [
+        "65"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "228260",
+      "name": "Voidform",
+      "specIds": [
+        "258"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "231895",
+      "name": "Avenging Wrath",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "237945",
+      "name": "Blood of the Father",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "237947",
+      "name": "Berserker's Rage",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "237952",
+      "name": "Ancestral Knowledge",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "242733",
+      "name": "Fel Burst",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "243435",
+      "name": "Fortifying Brew",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "248831",
+      "name": "Dread Screech",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "264735",
+      "name": "Survival of the Fittest",
+      "specIds": [
+        "253",
+        "254",
+        "255"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "265187",
+      "name": "Summon Demonic Tyrant",
+      "specIds": [
+        "266"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "266779",
+      "name": "Coordinated Assault",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "275699",
+      "name": "Apocalypse",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "288613",
+      "name": "Trueshot",
+      "specIds": [
+        "254"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "297850",
+      "name": "Revival",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "305395",
+      "name": "Blessing of Freedom",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "323538",
+      "name": "Anima Bolt",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "326450",
+      "name": "Loyal Beasts",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "335235",
+      "name": "Summon Infernal",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "342246",
+      "name": "Alter Time",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "350101",
+      "name": "Chains of Damnation",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "350922",
+      "name": "Menacing Shout",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "351119",
+      "name": "Shuriken Blitz",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "355057",
+      "name": "Cry of Mrrggllrrgg",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "355139",
+      "name": "Invigorate",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "355934",
+      "name": "Hard Light Barrier",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "356407",
+      "name": "Ancient Dread",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "357260",
+      "name": "Unstable Rift",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "357404",
+      "name": "Dischordant Song",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "358131",
+      "name": "Lightning Nova",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "359844",
+      "name": "Call of the Wild",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "360194",
+      "name": "Deathmark",
+      "specIds": [
+        "259"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "360952",
+      "name": "Coordinated Assault",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "361175",
+      "name": "Midnight",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "363916",
+      "name": "Obsidian Scales",
+      "specIds": [
+        "1467",
+        "1468",
+        "1473"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "365350",
+      "name": "Arcane Surge",
+      "specIds": [
+        "62"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "365362",
+      "name": "Arcane Surge",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "367679",
+      "name": "Summon Blasphemy",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "375087",
+      "name": "Dragonrage",
+      "specIds": [
+        "1467"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "377362",
+      "name": "Precognition",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "377572",
+      "name": "Coordinated Assault",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "378441",
+      "name": "Time Stop",
+      "specIds": [
+        "1467",
+        "1468",
+        "1473"
+      ],
+      "source": "PvpTalent"
+    },
+    {
+      "spellId": "378464",
+      "name": "Nullifying Shroud",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "383410",
+      "name": "Celestial Alignment",
+      "specIds": [
+        "102"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "387278",
+      "name": "Summon Darkglare",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "388392",
+      "name": "Monotonous Lecture",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "388615",
+      "name": "Restoral",
+      "specIds": [
+        "270"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "388862",
+      "name": "Surge",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "389539",
+      "name": "Sentinel",
+      "specIds": [
+        "66"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "389654",
+      "name": "Master Handler",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "389660",
+      "name": "Snake Bite",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "389722",
+      "name": "Recklessness",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "390414",
+      "name": "Incarnation: Chosen of Elune",
+      "specIds": [
+        "102"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "391109",
+      "name": "Dark Ascension",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "395267",
+      "name": "Invoke Niuzao, the Black Ox",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "403876",
+      "name": "Divine Protection",
+      "specIds": [
+        "70"
+      ],
+      "source": "SpecializationSpells"
+    },
+    {
+      "spellId": "408558",
+      "name": "Phase Shift",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "410358",
+      "name": "Anti-Magic Shell",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "414658",
+      "name": "Ice Cold",
+      "specIds": [
+        "62",
+        "63",
+        "64"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "414944",
+      "name": "Battle Roar",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "423051",
+      "name": "Burning Light",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "424419",
+      "name": "Battle Cry",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "424773",
+      "name": "Sporogenesis",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "427356",
+      "name": "Greater Heal",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "432967",
+      "name": "Alarm Shrill",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "433841",
+      "name": "Venom Volley",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "434802",
+      "name": "Horrifying Shrill",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "442210",
+      "name": "Silken Restraints",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "443069",
+      "name": "Well of Flame",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "444743",
+      "name": "Fireball Volley",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "446657",
+      "name": "Burning Light",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "448248",
+      "name": "Revolting Volley",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "449734",
+      "name": "Acidic Eruption",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "451026",
+      "name": "Darkness Comes",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "452099",
+      "name": "Congealed Darkness",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "454351",
+      "name": "Avenging Wrath",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "454373",
+      "name": "Avenging Wrath",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "461796",
+      "name": "Reload",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "462508",
+      "name": "Dark Prayer",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "466772",
+      "name": "Doom Winds",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "468966",
+      "name": "Polymorph",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "472736",
+      "name": "Debilitating Shriek",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "473663",
+      "name": "Pulsing Shriek",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "473794",
+      "name": "Poison Blades",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1214780",
+      "name": "Maximum Distortion",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1216848",
+      "name": "Fire Spit",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1217605",
+      "name": "Void Metamorphosis",
+      "specIds": [
+        "1480"
+      ],
+      "source": "SpecializationSpells"
+    },
+    {
+      "spellId": "1217989",
+      "name": "Felshield",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1219480",
+      "name": "Ascendance",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1227373",
+      "name": "Shattershell",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1229474",
+      "name": "Gorge",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1229510",
+      "name": "Arcing Zap",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1230289",
+      "name": "Illicit Infusion",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1230302",
+      "name": "Self-Destruct",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1231871",
+      "name": "Shockwave Slam",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1232221",
+      "name": "Death Throes",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1232760",
+      "name": "Crystal Lacerations",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1233398",
+      "name": "Mad Shriek",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1236574",
+      "name": "Tranquility",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1238147",
+      "name": "Mending Tides",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1238158",
+      "name": "Lightboom Pollination",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1238294",
+      "name": "Disorienting Screech",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1238392",
+      "name": "Piercing Screech",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1239874",
+      "name": "Frigid Wrath",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1243852",
+      "name": "Light Eruption",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1243854",
+      "name": "Void Eruption",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1245752",
+      "name": "Triple Technique",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1246541",
+      "name": "Null Binding",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1246664",
+      "name": "Revitalizing Waters",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1246918",
+      "name": "Cosmic Barrier",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1246965",
+      "name": "Psychic Shroud",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1249017",
+      "name": "Fearsome Cry",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1249265",
+      "name": "Umbral Collapse",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1249639",
+      "name": "Mana Battery",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1249796",
+      "name": "Shattered Sky",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1250646",
+      "name": "Takedown",
+      "specIds": [
+        "255"
+      ],
+      "source": "TalentTree"
+    },
+    {
+      "spellId": "1251331",
+      "name": "The Dark Archangel",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1251361",
+      "name": "Shadow's Advance",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1251390",
+      "name": "Safeguard",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1251392",
+      "name": "Safeguard",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1251583",
+      "name": "March of the Endless",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1251703",
+      "name": "Takedown",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1251789",
+      "name": "Cosmic Fracture",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1252204",
+      "name": "Leech Veil",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1252436",
+      "name": "Void Lash",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1252952",
+      "name": "Void Burst",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1254088",
+      "name": "Shadow Fracture",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1254294",
+      "name": "Pyroblast",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1255156",
+      "name": "Fearsome Cry",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1255377",
+      "name": "Repel",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1255743",
+      "name": "Total Eclipse",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1256008",
+      "name": "Hex",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1256027",
+      "name": "Terrifying Power",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1256093",
+      "name": "Shadowveil Annihilation",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1256174",
+      "name": "Umbral Rage",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1256276",
+      "name": "Deep Corruption",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1256358",
+      "name": "Devouring Essence",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1256388",
+      "name": "Mortal Tear",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1256533",
+      "name": "Shadow Crash",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1257126",
+      "name": "Corespark Overload",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1257984",
+      "name": "Nascent Energy",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1258514",
+      "name": "Blinding Light",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1258681",
+      "name": "Nullify",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1258810",
+      "name": "Twin Emperor Penguins",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1258811",
+      "name": "Twin Emperor Penguins",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1258997",
+      "name": "Plungegrip",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1260197",
+      "name": "Curse of Dread",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1260742",
+      "name": "Withering Siphon",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1260831",
+      "name": "Sullen Shadowball",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1261287",
+      "name": "Cosmic Barrier",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1261329",
+      "name": "Withering Siphon",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1261559",
+      "name": "Divine Protection",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1261704",
+      "name": "Ghastly Crash",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1261758",
+      "name": "Ghastly Strike",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1262075",
+      "name": "Coalescing Malediction",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1262250",
+      "name": "Felstorm",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1262523",
+      "name": "Summon Voidcaller",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1262525",
+      "name": "Horrifying Blast",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1262526",
+      "name": "Abyssal Enhancement",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1262776",
+      "name": "Shadow's Advance",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1263292",
+      "name": "Shrink",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1263601",
+      "name": "Submit to the Void",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1263741",
+      "name": "Wildroot Weave",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1263775",
+      "name": "Fixate",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1263970",
+      "name": "Heaven's Lance",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1264106",
+      "name": "Felstorm",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1264114",
+      "name": "Empowered Felshield",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1264693",
+      "name": "Terror Wave",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1266104",
+      "name": "Shadow Strikes",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1267274",
+      "name": "Void Portal",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1270189",
+      "name": "Twilight Bond",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1270250",
+      "name": "Twilight Fury",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1270294",
+      "name": "Mystic Brand",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1270766",
+      "name": "Hex",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1270852",
+      "name": "Diminish",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1271074",
+      "name": "Icy Blast",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1271385",
+      "name": "Spouting Floret",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1271479",
+      "name": "Netherburst",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1271678",
+      "name": "Shade Bomb",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1272265",
+      "name": "Mangling Claws",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1275056",
+      "name": "Nexus Shield",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1275059",
+      "name": "Black Miasma",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1277341",
+      "name": "Piercing Shriek",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1278156",
+      "name": "Lindormi's Guidance",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1278893",
+      "name": "Death Bolt",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1280088",
+      "name": "Devouring Essence",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1280958",
+      "name": "Glacial Ray",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1282138",
+      "name": "Shade Bomb",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1282249",
+      "name": "Cosmic Fission",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1282415",
+      "name": "Void Eruption",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1282416",
+      "name": "Light Eruption",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1282665",
+      "name": "Void Lash",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1282722",
+      "name": "Nullify",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1284095",
+      "name": "Submit to the Void",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1284932",
+      "name": "Terminate",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1284934",
+      "name": "Terminate",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1285978",
+      "name": "Safeguard",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1286142",
+      "name": "Memories of Alleria",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1286143",
+      "name": "Memories of Alleria",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1286276",
+      "name": "Terminate",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1293726",
+      "name": "Terrifying Power",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1294563",
+      "name": "Broken Shield",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1295237",
+      "name": "Netherburst",
+      "specIds": [],
+      "source": "unresolved"
+    },
+    {
+      "spellId": "1295243",
+      "name": "Netherburst",
+      "specIds": [],
+      "source": "unresolved"
+    }
+  ],
+  "diminishingReturns": {
+    "root": [
+      {
+        "spellId": "122",
+        "name": "Frost Nova",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "339",
+        "name": "Entangling Roots",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105",
+          "1447"
+        ]
+      },
+      {
+        "spellId": "102359",
+        "name": "Mass Entanglement",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
+      },
+      {
+        "spellId": "212638",
+        "name": "Tracker's Net",
+        "specIds": [
+          "255"
+        ]
+      },
+      {
+        "spellId": "236077",
+        "name": "Disarm",
+        "specIds": [
+          "71",
+          "72",
+          "73"
+        ]
+      }
+    ],
+    "taunt": [
+      {
+        "spellId": "355",
+        "name": "Taunt",
+        "specIds": [
+          "71",
+          "72",
+          "73",
+          "1446"
+        ]
+      },
+      {
+        "spellId": "1161",
+        "name": "Challenging Shout",
+        "specIds": [
+          "73"
+        ]
+      },
+      {
+        "spellId": "6795",
+        "name": "Growl",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105",
+          "1447"
+        ]
+      },
+      {
+        "spellId": "56222",
+        "name": "Dark Command",
+        "specIds": [
+          "250",
+          "251",
+          "252",
+          "1455"
+        ]
+      },
+      {
+        "spellId": "62124",
+        "name": "Hand of Reckoning",
+        "specIds": [
+          "65",
+          "66",
+          "70",
+          "1451"
+        ]
+      },
+      {
+        "spellId": "106898",
+        "name": "Stampeding Roar",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
+      },
+      {
+        "spellId": "185245",
+        "name": "Torment",
+        "specIds": [
+          "577",
+          "581",
+          "1456",
+          "1480"
+        ]
+      },
+      {
+        "spellId": "386071",
+        "name": "Disrupting Shout",
+        "specIds": [
+          "73"
+        ]
+      }
+    ],
+    "stun": [
+      {
+        "spellId": "408",
+        "name": "Kidney Shot",
+        "specIds": [
+          "259",
+          "260",
+          "261",
+          "1453"
+        ]
+      },
+      {
+        "spellId": "853",
+        "name": "Hammer of Justice",
+        "specIds": [
+          "65",
+          "66",
+          "70",
+          "1451"
+        ]
+      },
+      {
+        "spellId": "1833",
+        "name": "Cheap Shot",
+        "specIds": [
+          "259",
+          "260",
+          "261",
+          "1453"
+        ]
+      },
+      {
+        "spellId": "5211",
+        "name": "Mighty Bash",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
+      },
+      {
+        "spellId": "22570",
+        "name": "Maim",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
+      },
+      {
+        "spellId": "30283",
+        "name": "Shadowfury",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
+      },
+      {
+        "spellId": "107570",
+        "name": "Storm Bolt",
+        "specIds": [
+          "71",
+          "72",
+          "73"
+        ]
+      },
+      {
+        "spellId": "117418",
+        "name": "Fists of Fury",
+        "specIds": [
+          "268",
+          "269",
+          "270",
+          "1450"
+        ]
+      },
+      {
+        "spellId": "117526",
+        "name": "Binding Shot",
+        "specIds": [
+          "253",
+          "254",
+          "255",
+          "1448"
+        ]
+      },
+      {
+        "spellId": "119381",
+        "name": "Leg Sweep",
+        "specIds": [
+          "268",
+          "269",
+          "270",
+          "1450"
+        ]
+      },
+      {
+        "spellId": "179057",
+        "name": "Chaos Nova",
+        "specIds": [
+          "577",
+          "581"
+        ]
+      },
+      {
+        "spellId": "205630",
+        "name": "Illidan's Grasp",
+        "specIds": [
+          "577",
+          "581"
+        ]
+      },
+      {
+        "spellId": "221562",
+        "name": "Asphyxiate",
+        "specIds": [
+          "250",
+          "251",
+          "252"
+        ]
+      },
+      {
+        "spellId": "1234195",
+        "name": "Void Nova",
+        "specIds": [
+          "1480"
+        ]
+      }
+    ],
+    "knockback": [
+      {
+        "spellId": "51490",
+        "name": "Thunderstorm",
+        "specIds": [
+          "262"
+        ]
+      },
+      {
+        "spellId": "61391",
+        "name": "Typhoon",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105",
+          "1447"
+        ]
+      },
+      {
+        "spellId": "108199",
+        "name": "Gorefiend's Grasp",
+        "specIds": [
+          "250"
+        ]
+      },
+      {
+        "spellId": "132469",
+        "name": "Typhoon",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
+      }
+    ],
+    "incapacitate": [
+      {
+        "spellId": "99",
+        "name": "Incapacitating Roar",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
+      },
+      {
+        "spellId": "118",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "710",
+        "name": "Banish",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
+      },
+      {
+        "spellId": "1776",
+        "name": "Gouge",
+        "specIds": [
+          "259",
+          "260",
+          "261"
+        ]
+      },
+      {
+        "spellId": "2637",
+        "name": "Hibernate",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
+      },
+      {
+        "spellId": "6770",
+        "name": "Sap",
+        "specIds": [
+          "259",
+          "260",
+          "261",
+          "1453"
+        ]
+      },
+      {
+        "spellId": "6789",
+        "name": "Mortal Coil",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
+      },
+      {
+        "spellId": "9484",
+        "name": "Shackle Horror",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
+      },
+      {
+        "spellId": "10326",
+        "name": "Turn Evil",
+        "specIds": [
+          "65",
+          "66",
+          "70"
+        ]
+      },
+      {
+        "spellId": "28271",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "28272",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "51514",
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264"
+        ]
+      },
+      {
+        "spellId": "61025",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "61305",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "61721",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "61780",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "88625",
+        "name": "Holy Word: Chastise",
+        "specIds": [
+          "257"
+        ]
+      },
+      {
+        "spellId": "115078",
+        "name": "Paralysis",
+        "specIds": [
+          "268",
+          "269",
+          "270"
+        ]
+      },
+      {
+        "spellId": "126819",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "161353",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "161354",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "161355",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "161372",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "205364",
+        "name": "Dominate Mind",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
+      },
+      {
+        "spellId": "210873",
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
+      },
+      {
+        "spellId": "211004",
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
+      },
+      {
+        "spellId": "211010",
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
+      },
+      {
+        "spellId": "211015",
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
+      },
+      {
+        "spellId": "217832",
+        "name": "Imprison",
+        "specIds": [
+          "577",
+          "581",
+          "1480"
+        ]
+      },
+      {
+        "spellId": "269352",
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
+      },
+      {
+        "spellId": "277778",
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
+      },
+      {
+        "spellId": "277784",
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
+      },
+      {
+        "spellId": "277787",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "277792",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "309328",
+        "name": "Hex",
+        "specIds": [
+          "262",
+          "263",
+          "264",
+          "1444"
+        ]
+      },
+      {
+        "spellId": "321395",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "383121",
+        "name": "Mass Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64"
+        ]
+      },
+      {
+        "spellId": "391622",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      },
+      {
+        "spellId": "460392",
+        "name": "Polymorph",
+        "specIds": [
+          "62",
+          "63",
+          "64",
+          "1449"
+        ]
+      }
+    ],
+    "disorient": [
+      {
+        "spellId": "605",
+        "name": "Mind Control",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
+      },
+      {
+        "spellId": "1513",
+        "name": "Scare Beast",
+        "specIds": [
+          "253",
+          "254",
+          "255"
+        ]
+      },
+      {
+        "spellId": "2094",
+        "name": "Blind",
+        "specIds": [
+          "259",
+          "260",
+          "261"
+        ]
+      },
+      {
+        "spellId": "5246",
+        "name": "Intimidating Shout",
+        "specIds": [
+          "71",
+          "72",
+          "73"
+        ]
+      },
+      {
+        "spellId": "5484",
+        "name": "Howl of Terror",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
+      },
+      {
+        "spellId": "8122",
+        "name": "Psychic Scream",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
+      },
+      {
+        "spellId": "10326",
+        "name": "Turn Evil",
+        "specIds": [
+          "65",
+          "66",
+          "70"
+        ]
+      },
+      {
+        "spellId": "31661",
+        "name": "Dragon's Breath",
+        "specIds": [
+          "62",
+          "63",
+          "64"
+        ]
+      },
+      {
+        "spellId": "33786",
+        "name": "Cyclone",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
+      },
+      {
+        "spellId": "130616",
+        "name": "Fear",
+        "specIds": [
+          "265",
+          "266",
+          "267"
+        ]
+      },
+      {
+        "spellId": "205364",
+        "name": "Dominate Mind",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
+      },
+      {
+        "spellId": "207167",
+        "name": "Blinding Sleet",
+        "specIds": [
+          "250",
+          "251",
+          "252"
+        ]
+      },
+      {
+        "spellId": "360806",
+        "name": "Sleep Walk",
+        "specIds": [
+          "1467",
+          "1468",
+          "1473"
+        ]
+      }
+    ],
+    "silence": [
+      {
+        "spellId": "15487",
+        "name": "Silence",
+        "specIds": [
+          "258"
+        ]
+      },
+      {
+        "spellId": "31935",
+        "name": "Avenger's Shield",
+        "specIds": [
+          "66"
+        ]
+      },
+      {
+        "spellId": "355596",
+        "name": "Wailing Arrow",
+        "specIds": [
+          "253",
+          "254",
+          "255",
+          "1448"
+        ]
+      }
+    ],
+    "disarm": [
+      {
+        "spellId": "207777",
+        "name": "Dismantle",
+        "specIds": [
+          "259",
+          "260",
+          "261"
+        ]
+      },
+      {
+        "spellId": "209749",
+        "name": "Faerie Swarm",
+        "specIds": [
+          "102"
+        ]
+      },
+      {
+        "spellId": "233759",
+        "name": "Grapple Weapon",
+        "specIds": [
+          "269"
+        ]
+      },
+      {
+        "spellId": "236077",
+        "name": "Disarm",
+        "specIds": [
+          "71",
+          "72",
+          "73"
+        ]
+      }
+    ]
+  },
+  "interrupts": [
+    {
+      "spellId": "1766",
+      "name": "Kick",
+      "specIds": [
+        "259",
+        "260",
+        "261",
+        "1453"
+      ]
+    },
+    {
+      "spellId": "2139",
+      "name": "Counterspell",
+      "specIds": [
+        "62",
+        "63",
+        "64",
+        "1449"
+      ]
+    },
+    {
+      "spellId": "6552",
+      "name": "Pummel",
+      "specIds": [
+        "71",
+        "72",
+        "73",
+        "1446"
+      ]
+    },
+    {
+      "spellId": "47528",
+      "name": "Mind Freeze",
+      "specIds": [
+        "250",
+        "251",
+        "252"
+      ]
+    },
+    {
+      "spellId": "57994",
+      "name": "Wind Shear",
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "96231",
+      "name": "Rebuke",
+      "specIds": [
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "116705",
+      "name": "Spear Hand Strike",
+      "specIds": [
+        "268",
+        "269"
+      ]
+    },
+    {
+      "spellId": "147362",
+      "name": "Counter Shot",
+      "specIds": [
+        "253",
+        "254"
+      ]
+    },
+    {
+      "spellId": "183752",
+      "name": "Disrupt",
+      "specIds": [
+        "577",
+        "581",
+        "1456",
+        "1480"
+      ]
+    },
+    {
+      "spellId": "187707",
+      "name": "Muzzle",
+      "specIds": [
+        "255"
+      ]
+    },
+    {
+      "spellId": "351338",
+      "name": "Quell",
+      "specIds": [
+        "1467",
+        "1473"
+      ]
+    },
+    {
+      "spellId": "386071",
+      "name": "Disrupting Shout",
+      "specIds": [
+        "73"
+      ]
+    }
+  ],
+  "unresolvedSpells": [
+    {
+      "spellId": "50322",
+      "name": "Survival Instincts",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "61336"
+      ],
+      "talentSpecIds": [
+        "103",
+        "104"
+      ]
+    },
+    {
+      "spellId": "81549",
+      "name": "Cloak of Shadows",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "31224"
+      ],
+      "talentSpecIds": [
+        "259",
+        "260",
+        "261"
+      ]
+    },
+    {
+      "spellId": "120954",
+      "name": "Fortifying Brew",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "388917"
+      ],
+      "talentSpecIds": [
+        "268",
+        "269",
+        "270"
+      ]
+    },
+    {
+      "spellId": "199448",
+      "name": "Blessing of Sacrifice",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "6940"
+      ],
+      "talentSpecIds": [
+        "65",
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "207771",
+      "name": "Fiery Brand",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "204021"
+      ],
+      "talentSpecIds": [
+        "581"
+      ]
+    },
+    {
+      "spellId": "243435",
+      "name": "Fortifying Brew",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "388917"
+      ],
+      "talentSpecIds": [
+        "268",
+        "269",
+        "270"
+      ]
+    },
+    {
+      "spellId": "342246",
+      "name": "Alter Time",
+      "category": "bigDefensive",
+      "talentSpellIds": [
+        "342245"
+      ],
+      "talentSpecIds": [
+        "62",
+        "63",
+        "64"
+      ]
+    },
+    {
+      "spellId": "51533",
+      "name": "Feral Spirit",
+      "category": "important",
+      "talentSpellIds": [
+        "469314"
+      ],
+      "talentSpecIds": [
+        "263"
+      ]
+    },
+    {
+      "spellId": "110909",
+      "name": "Alter Time",
+      "category": "important",
+      "talentSpellIds": [
+        "342245"
+      ],
+      "talentSpecIds": [
+        "62",
+        "63",
+        "64"
+      ]
+    },
+    {
+      "spellId": "152953",
+      "name": "Blinding Light",
+      "category": "important",
+      "talentSpellIds": [
+        "115750"
+      ],
+      "talentSpecIds": [
+        "65",
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "194249",
+      "name": "Voidform",
+      "category": "important",
+      "talentSpellIds": [
+        "228260"
+      ],
+      "talentSpecIds": [
+        "258"
+      ]
+    },
+    {
+      "spellId": "199448",
+      "name": "Blessing of Sacrifice",
+      "category": "important",
+      "talentSpellIds": [
+        "6940"
+      ],
+      "talentSpecIds": [
+        "65",
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "231895",
+      "name": "Avenging Wrath",
+      "category": "important",
+      "talentSpellIds": [
+        "31884"
+      ],
+      "talentSpecIds": [
+        "70"
+      ]
+    },
+    {
+      "spellId": "243435",
+      "name": "Fortifying Brew",
+      "category": "important",
+      "talentSpellIds": [
+        "388917"
+      ],
+      "talentSpecIds": [
+        "268",
+        "269",
+        "270"
+      ]
+    },
+    {
+      "spellId": "335235",
+      "name": "Summon Infernal",
+      "category": "important",
+      "talentSpellIds": [
+        "1122"
+      ],
+      "talentSpecIds": [
+        "267"
+      ]
+    },
+    {
+      "spellId": "342246",
+      "name": "Alter Time",
+      "category": "important",
+      "talentSpellIds": [
+        "342245"
+      ],
+      "talentSpecIds": [
+        "62",
+        "63",
+        "64"
+      ]
+    },
+    {
+      "spellId": "365362",
+      "name": "Arcane Surge",
+      "category": "important",
+      "talentSpellIds": [
+        "365350"
+      ],
+      "talentSpecIds": [
+        "62"
+      ]
+    },
+    {
+      "spellId": "387278",
+      "name": "Summon Darkglare",
+      "category": "important",
+      "talentSpellIds": [
+        "205180"
+      ],
+      "talentSpecIds": [
+        "265"
+      ]
+    },
+    {
+      "spellId": "389654",
+      "name": "Master Handler",
+      "category": "important",
+      "talentSpellIds": [
+        "424558"
+      ],
+      "talentSpecIds": [
+        "253"
+      ]
+    },
+    {
+      "spellId": "389722",
+      "name": "Recklessness",
+      "category": "important",
+      "talentSpellIds": [
+        "1719"
+      ],
+      "talentSpecIds": [
+        "72"
+      ]
+    },
+    {
+      "spellId": "395267",
+      "name": "Invoke Niuzao, the Black Ox",
+      "category": "important",
+      "talentSpellIds": [
+        "132578"
+      ],
+      "talentSpecIds": [
+        "268"
+      ]
+    },
+    {
+      "spellId": "454351",
+      "name": "Avenging Wrath",
+      "category": "important",
+      "talentSpellIds": [
+        "31884"
+      ],
+      "talentSpecIds": [
+        "70"
+      ]
+    },
+    {
+      "spellId": "454373",
+      "name": "Avenging Wrath",
+      "category": "important",
+      "talentSpellIds": [
+        "31884"
+      ],
+      "talentSpecIds": [
+        "70"
+      ]
+    },
+    {
+      "spellId": "466772",
+      "name": "Doom Winds",
+      "category": "important",
+      "talentSpellIds": [
+        "384352"
+      ],
+      "talentSpecIds": [
+        "263"
+      ]
+    },
+    {
+      "spellId": "1219480",
+      "name": "Ascendance",
+      "category": "important",
+      "talentSpellIds": [
+        "114050"
+      ],
+      "talentSpecIds": [
+        "262"
+      ]
+    },
+    {
+      "spellId": "1236574",
+      "name": "Tranquility",
+      "category": "important",
+      "talentSpellIds": [
+        "740"
+      ],
+      "talentSpecIds": [
+        "105"
+      ]
+    },
+    {
+      "spellId": "1251703",
+      "name": "Takedown",
+      "category": "important",
+      "talentSpellIds": [
+        "1250646"
+      ],
+      "talentSpecIds": [
+        "255"
+      ]
+    },
+    {
+      "spellId": "1254294",
+      "name": "Pyroblast",
+      "category": "important",
+      "talentSpellIds": [
+        "11366"
+      ],
+      "talentSpecIds": [
+        "63"
+      ]
+    },
+    {
+      "spellId": "1255743",
+      "name": "Total Eclipse",
+      "category": "important",
+      "talentSpellIds": [
+        "1240206"
+      ],
+      "talentSpecIds": [
+        "102"
+      ]
+    },
+    {
+      "spellId": "1256008",
+      "name": "Hex",
+      "category": "important",
+      "talentSpellIds": [
+        "51514"
+      ],
+      "talentSpecIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "spellId": "1258514",
+      "name": "Blinding Light",
+      "category": "important",
+      "talentSpellIds": [
+        "115750"
+      ],
+      "talentSpecIds": [
+        "65",
+        "66",
+        "70"
+      ]
+    },
+    {
+      "spellId": "1270766",
+      "name": "Hex",
+      "category": "important",
+      "talentSpellIds": [
+        "51514"
+      ],
+      "talentSpecIds": [
+        "262",
+        "263",
+        "264"
+      ]
+    }
+  ]
+}

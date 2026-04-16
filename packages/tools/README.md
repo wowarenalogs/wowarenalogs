@@ -3,7 +3,7 @@
 This document outlines how to generate the spellEffects.json file used by WAL for cooldown and duration information of spells
 
 Spell DB2 data is now pulled directly from https://wago.tools during generation.
-By default tools use build `12.0.1.66431`; override with environment variable `WAGO_BUILD`.
+The default build is defined in `src/wagoConfig.ts`; override with environment variable `WAGO_BUILD`.
 
 Key source endpoints include:
 

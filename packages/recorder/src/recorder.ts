@@ -239,6 +239,13 @@ export class Recorder {
    */
   public recordingStateChangedCallback: ((status: RecStatus, error?: string) => void) | null = null;
 
+  /**
+   * Callback to fire when audio volume levels change (from volmeter signals).
+   * The type is 'input' or 'output', sourceName is the OBS source name, and
+   * volume is a 0-1 float.
+   */
+  public volumeChangeCallback: ((type: 'input' | 'output', sourceName: string, volume: number) => void) | null = null;
+
   private _recorderStatus: RecStatus = 'WaitingForWoW';
 
   public static logger: ILogger = console;
@@ -304,6 +311,7 @@ export class Recorder {
 
       getNoobs().Init(noobsPath, logPath, (signal: Signal) => this.handleSignal(signal));
       getNoobs().SetBuffering(true);
+      getNoobs().SetVolmeterEnabled(true);
 
       const hwnd = this.mainWindow.getNativeWindowHandle();
       getNoobs().InitPreview(hwnd);
@@ -358,6 +366,15 @@ export class Recorder {
   }
 
   private handleSignal(obsSignal: Signal) {
+    // Handle volmeter signals early to avoid log spam from high-frequency updates
+    if (obsSignal.type === 'volmeter') {
+      const sourceType = this.classifyAudioSource(obsSignal.id);
+      if (this.volumeChangeCallback && obsSignal.value !== undefined && sourceType) {
+        this.volumeChangeCallback(sourceType, obsSignal.id, obsSignal.value);
+      }
+      return;
+    }
+
     Recorder.logger.info(`[Recorder] Got signal: ${JSON.stringify(obsSignal)}`);
 
     switch (obsSignal.id) {
@@ -1061,6 +1078,29 @@ export class Recorder {
    */
   public onStatusUpdates(callback: (status: RecStatus, err?: string) => void) {
     this.recordingStateChangedCallback = callback;
+  }
+
+  /**
+   * Classify a volmeter signal source as input or output.
+   * Checks against known source names first, then falls back to ID-based heuristics
+   * to handle wrapper sources like "WR Audio Input Enum" / "WR Audio Output Enum".
+   */
+  private classifyAudioSource(sourceId: string): 'input' | 'output' | null {
+    if (this.audioInputSourceNames.includes(sourceId)) return 'input';
+    if (this.audioOutputSourceNames.includes(sourceId)) return 'output';
+    if (sourceId.startsWith('mic-')) return 'input';
+    if (sourceId.startsWith('desktop-')) return 'output';
+    const lower = sourceId.toLowerCase();
+    if (lower.includes('input')) return 'input';
+    if (lower.includes('output')) return 'output';
+    return null;
+  }
+
+  /**
+   * Register a callback for audio volume level changes from the volmeter.
+   */
+  public onVolumeChange(callback: (type: 'input' | 'output', sourceName: string, volume: number) => void) {
+    this.volumeChangeCallback = callback;
   }
 
   /**
