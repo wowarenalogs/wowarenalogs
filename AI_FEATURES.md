@@ -86,12 +86,3 @@ For each critical moment below, evaluate the decision made:
 - What is the estimated impact difference between the two?
 - What uncertainty remains that prevents a definitive verdict?
 ```
-
----
-
-## Build Order Reference
-
-- **Sprint 1**: Prompt rewrite, purge blame attribution, purge blocklist (done)
-- **Sprint 2**: Kill window quality (F12), timing classification (F13 done), offensive windows (F14 done), trade necessity (F22), blame assignment (F23), avoidability (F24), prompt optimization (F34), match archetype (F35)
-- **Sprint 3**: DR chain tracking (F15 done), CC avoidability (F27 done), CDR heuristics (F16), CC during burst (F17), target selection (F25)
-- **Sprint 4**: Fatal dispel flagging (F18), mana curve (F19), interrupt analysis (F20)
