@@ -534,7 +534,7 @@ function identifyCriticalMoments(
   }
 
   return {
-    moments: moments.sort((a, b) => b.impactScore - a.impactScore).slice(0, 3),
+    moments: moments.sort((a, b) => b.impactScore - a.impactScore).slice(0, 5),
     constrainedTrade: constrainedTradePreceded,
   };
 }
@@ -591,7 +591,7 @@ function buildMatchFlow(
   }
 
   if (tradedDefItems.length > 0) {
-    const formatted = tradedDefItems.map(item => `${item.spec}'s ${item.spellName}`).join(' + ');
+    const formatted = tradedDefItems.map((item) => `${item.spec}'s ${item.spellName}`).join(' + ');
     lines.push(`    - Team responded: ${formatted} committed`);
   } else {
     lines.push(`    - No major defensive CDs traded into this burst`);
@@ -599,7 +599,7 @@ function buildMatchFlow(
 
   // Check if match duration is shorter than the shortest traded team defensive CD's cooldown
   if (tradedDefItems.length > 0) {
-    const minCooldown = Math.min(...tradedDefItems.map(item => item.cooldownSeconds));
+    const minCooldown = Math.min(...tradedDefItems.map((item) => item.cooldownSeconds));
     if (durationSeconds < minCooldown) {
       lines.push(
         `    - Match duration (${fmtTime(durationSeconds)}) did not allow recovery of these major cooldowns after this trade`,
@@ -799,8 +799,8 @@ export function buildMatchContext(
   // ── MATCH FLOW ─────────────────────────────────────────────────────────────
   lines.push('');
   const allTeamCooldownsWithPlayer = [
-    ...cooldowns.map(cd => ({ player: owner as ICombatUnit, cd })),
-    ...teammateCooldowns.flatMap(({ player, cds }) => cds.map(cd => ({ player: player as ICombatUnit, cd })))
+    ...cooldowns.map((cd) => ({ player: owner as ICombatUnit, cd })),
+    ...teammateCooldowns.flatMap(({ player, cds }) => cds.map((cd) => ({ player: player as ICombatUnit, cd }))),
   ];
   buildMatchFlow(enemyCDTimeline, cooldowns, allTeamCooldownsWithPlayer, friendlyDeaths, durationSeconds).forEach((l) =>
     lines.push(l),

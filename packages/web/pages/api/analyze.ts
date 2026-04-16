@@ -19,7 +19,7 @@ For each CRITICAL MOMENT listed in the input, evaluate the decision:
 3. What is the estimated impact difference between the two choices?
 4. What uncertainty prevents a definitive verdict?
 
-Output format — exactly 3 findings maximum (fewer only if fewer moments exist), ranked by estimated match impact. Most impactful first:
+Output format — exactly 5 findings maximum (fewer only if fewer moments exist), ranked by estimated match impact. Most impactful first:
 
 ## Finding 1: [short title]
 **What happened:** [one sentence]
