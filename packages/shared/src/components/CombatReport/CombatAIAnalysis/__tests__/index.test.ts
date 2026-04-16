@@ -24,7 +24,7 @@ import {
   getEnemyStateAtTime,
   getOwnerCDsAvailable,
   identifyCriticalMoments,
-} from '../index';
+} from '../utils';
 
 // ─── Shared test-data factories ────────────────────────────────────────────────
 
@@ -394,10 +394,10 @@ describe('buildDeathRootCauseTrace', () => {
   it('includes HP trajectory when dyingUnit has advancedActions', () => {
     const unit = makeUnit('player-1', {
       advancedActions: [
-        makeAdvancedAction(MATCH_START_MS + 40_000, 0, 0, 100_000, 60_000) as any, // at T-20s: 60%
-        makeAdvancedAction(MATCH_START_MS + 50_000, 0, 0, 100_000, 40_000) as any, // at T-10s: 40%
-        makeAdvancedAction(MATCH_START_MS + 55_000, 0, 0, 100_000, 20_000) as any, // at T-5s:  20%
-      ] as any,
+        makeAdvancedAction(MATCH_START_MS + 40_000, 0, 0, 100_000, 60_000), // at T-20s: 60%
+        makeAdvancedAction(MATCH_START_MS + 50_000, 0, 0, 100_000, 40_000), // at T-10s: 40%
+        makeAdvancedAction(MATCH_START_MS + 55_000, 0, 0, 100_000, 20_000), // at T-5s:  20%
+      ],
     });
     const result = buildDeathRootCauseTrace(60, [], undefined, unit, MATCH_START_MS);
     expect(result.length).toBeGreaterThan(0);
