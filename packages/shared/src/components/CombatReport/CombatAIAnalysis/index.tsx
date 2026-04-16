@@ -32,6 +32,7 @@ import {
   analyzeKillWindowTargetSelection,
   formatKillWindowTargetSelectionForContext,
   getHpPercentAtTime,
+  getLowestHpPercentInWindow,
 } from '../../../utils/killWindowTargetSelection';
 import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../../utils/matchArchetype';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../../utils/offensiveWindows';
@@ -343,11 +344,9 @@ function buildKillMomentFields(
     if (nearDeathMeleeCC) {
       microMistakes.push(`Positioning allowed melee-range ${nearDeathMeleeCC.spellName} (uncertain impact)`);
     }
+    const hpNote = dyingHpPct !== null ? ` (player was at ${Math.round(dyingHpPct)}% HP 5s before death)` : '';
     finalAssessment = {
-      macroOutcome:
-        dyingHpPct !== null
-          ? `All major defensive CDs committed in opening trade with no recovery window before this death (player was at ${Math.round(dyingHpPct)}% HP 5s before death)`
-          : 'All major defensive CDs committed in opening trade with no recovery window before this death',
+      macroOutcome: `All major defensive CDs committed in opening trade with no recovery window before this death${hpNote}`,
       microMistakes,
     };
   }
@@ -404,20 +403,21 @@ function identifyCriticalMoments(
         const cdNames = tradedDefCDs.map((cd) => cd.spellName).join(' + ');
         const enemyState = getEnemyStateAtTime(firstBurst.fromSeconds, enemyCDTimeline, peakDamagePressure5s);
 
-        // Find the lowest HP friendly unit during the burst window to quantify pressure
-        const burstMidpoint = (firstBurst.fromSeconds + firstBurst.toSeconds) / 2;
+        // Find the lowest HP friendly unit during the burst window to quantify pressure.
+        // Scan the full window (not midpoint) so we capture the actual trough even if the
+        // player is CC'd and not casting during the first half of the burst.
         let burstTargetHpNote = '';
         let lowestHpPct: number | null = null;
         let lowestHpName = '';
         for (const friend of friends) {
-          const pct = getHpPercentAtTime(friend, burstMidpoint, matchStartMs);
+          const pct = getLowestHpPercentInWindow(friend, firstBurst.fromSeconds, firstBurst.toSeconds, matchStartMs);
           if (pct !== null && (lowestHpPct === null || pct < lowestHpPct)) {
             lowestHpPct = pct;
             lowestHpName = friend.name;
           }
         }
         if (lowestHpPct !== null) {
-          burstTargetHpNote = ` Most pressured player (${lowestHpName}) reached ${Math.round(lowestHpPct)}% HP at burst midpoint.`;
+          burstTargetHpNote = ` Most pressured player (${lowestHpName}) reached ${Math.round(lowestHpPct)}% HP during burst window.`;
         }
 
         moments.push({

@@ -80,20 +80,43 @@ export function getHpPercentAtTime(enemy: ICombatUnit, atSeconds: number, matchS
 
   const targetMs = matchStartMs + atSeconds * 1000;
 
-  // Find the latest action at or before the target time
-  let best = null;
-  for (const a of actions) {
+  // Iterate backwards — first entry at or before targetMs is the answer (O(1) common case)
+  for (let i = actions.length - 1; i >= 0; i--) {
+    const a = actions[i];
     if (a.logLine.timestamp <= targetMs) {
-      best = a;
-    } else {
-      break; // actions are chronological
+      if (a.advancedActorMaxHp <= 0) return null;
+      return Math.min(100, Math.max(0, (a.advancedActorCurrentHp / a.advancedActorMaxHp) * 100));
     }
   }
 
-  if (!best) return null;
-  if (best.advancedActorMaxHp <= 0) return null;
+  return null;
+}
 
-  return Math.min(100, Math.max(0, (best.advancedActorCurrentHp / best.advancedActorMaxHp) * 100));
+/**
+ * Returns the lowest HP% (0–100) observed for `unit` within [fromSeconds, toSeconds].
+ * Scans all advancedActions in that window; returns null if none exist (advanced logging off).
+ */
+export function getLowestHpPercentInWindow(
+  unit: ICombatUnit,
+  fromSeconds: number,
+  toSeconds: number,
+  matchStartMs: number,
+): number | null {
+  const actions = unit.advancedActions;
+  if (actions.length === 0) return null;
+
+  const fromMs = matchStartMs + fromSeconds * 1000;
+  const toMs = matchStartMs + toSeconds * 1000;
+
+  let lowest: number | null = null;
+  for (const a of actions) {
+    if (a.logLine.timestamp < fromMs) continue;
+    if (a.logLine.timestamp > toMs) break;
+    if (a.advancedActorMaxHp <= 0) continue;
+    const pct = Math.min(100, Math.max(0, (a.advancedActorCurrentHp / a.advancedActorMaxHp) * 100));
+    if (lowest === null || pct < lowest) lowest = pct;
+  }
+  return lowest;
 }
 
 /**
