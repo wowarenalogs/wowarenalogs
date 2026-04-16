@@ -15,6 +15,8 @@ const SOURCE_TABLES = {
   spellName: withBuild('SpellName'),
   spellCategories: withBuild('SpellCategories'),
   spellEffect: withBuild('SpellEffect'),
+  spellLabel: withBuild('SpellLabel'),
+  spell: withBuild('Spell'),
 };
 
 // Class skill line IDs from the WoW DB2 SkillLine table.
@@ -170,6 +172,8 @@ interface IGeneratedSpellClassMap {
     spellNameCsv: string;
     spellCategoriesCsv: string;
     spellEffectCsv: string;
+    spellLabelCsv: string;
+    spellCsv: string;
     spellIdListsJson: string;
     talentIdMapJson: string;
   };
@@ -191,16 +195,27 @@ interface IGeneratedSpellClassMap {
 async function main() {
   console.log(`Downloading DB2 CSVs from wago.tools (build=${WAGO_BUILD})\n`);
 
-  const [chrSpecRows, specSpellRows, skillLineRows, pvpTalentRows, spellNameRows, spellCategoryRows, spellEffectRows] =
-    await Promise.all([
-      loadCsv(SOURCE_TABLES.chrSpecialization),
-      loadCsv(SOURCE_TABLES.specializationSpells),
-      loadCsv(SOURCE_TABLES.skillLineAbility),
-      loadCsv(SOURCE_TABLES.pvpTalent),
-      loadCsv(SOURCE_TABLES.spellName),
-      loadCsv(SOURCE_TABLES.spellCategories),
-      loadCsv(SOURCE_TABLES.spellEffect),
-    ]);
+  const [
+    chrSpecRows,
+    specSpellRows,
+    skillLineRows,
+    pvpTalentRows,
+    spellNameRows,
+    spellCategoryRows,
+    spellEffectRows,
+    spellLabelRows,
+    spellRows,
+  ] = await Promise.all([
+    loadCsv(SOURCE_TABLES.chrSpecialization),
+    loadCsv(SOURCE_TABLES.specializationSpells),
+    loadCsv(SOURCE_TABLES.skillLineAbility),
+    loadCsv(SOURCE_TABLES.pvpTalent),
+    loadCsv(SOURCE_TABLES.spellName),
+    loadCsv(SOURCE_TABLES.spellCategories),
+    loadCsv(SOURCE_TABLES.spellEffect),
+    loadCsv(SOURCE_TABLES.spellLabel),
+    loadCsv(SOURCE_TABLES.spell),
+  ]);
 
   // ── 1. Build spec info lookup: specId → { classId, specName } ───
   // ChrSpecialization columns: Name_lang, ID, ClassID, ...
@@ -273,7 +288,12 @@ async function main() {
   // ── 3. Build spell → classId from SkillLineAbility ──────────────
   // Columns: ..., SkillLine, Spell, ..., AcquireMethod, ...
   // Only keep rows where SkillLine is a known class skill ID.
-  // Following simc's filter: exclude AcquireMethod 3.
+  // AcquireMethod filtering: only include entries with AcquireMethod >= 2.
+  // AcquireMethod=0 entries are legacy/deprecated spells that were never
+  // cleaned up (e.g. Fists of Fury 117418 still listed as class-wide Monk
+  // even though it's Windwalker-only and no longer stuns).
+  // AcquireMethod=2 = auto-learned baseline, 3 = learned via other means,
+  // 4 = base variant of cosmetic set (e.g. Polymorph sheep).
   const classSpellMap = new Map<string, Set<number>>();
 
   for (const row of skillLineRows) {
@@ -285,7 +305,7 @@ async function main() {
     if (!spellId || spellId === '0') continue;
 
     const acquireMethod = toInt(row.AcquireMethod);
-    if (acquireMethod === 3) continue;
+    if (acquireMethod < 2) continue;
 
     const existingClasses = classSpellMap.get(spellId) ?? new Set<number>();
     existingClasses.add(classId);
@@ -391,6 +411,48 @@ async function main() {
   );
   console.log(`Built override map: ${overrideMap.size} talent spells with Override Action Spell effects`);
 
+  // ── 4d. Build totem spell linkage from SpellLabel ──────────────
+  // SpellLabel 1660 groups totem placement spells with their effect spells.
+  // e.g. Capacitor Totem placement (192058) shares label 1660 with the
+  // stun effect (118905). This lets us attribute totem CC effects to the
+  // specs that have the placement talent.
+  const TOTEM_LABEL_ID = '1660';
+  const totemLabelSpellIds = new Set<string>();
+  for (const row of spellLabelRows) {
+    if (row.LabelID === TOTEM_LABEL_ID) {
+      totemLabelSpellIds.add(row.SpellID);
+    }
+  }
+  console.log(`Built totem label index (label ${TOTEM_LABEL_ID}): ${totemLabelSpellIds.size} spells`);
+
+  // ── 4e. Build description-referenced spell map from Spell table ──
+  // Spell descriptions reference other spell IDs for duration display via
+  // $SPELLIDd syntax (e.g. "stunning them for $117526d"). This links talent
+  // placement spells to their CC effect spells (e.g. Binding Shot 109248
+  // references stun 117526). We only match duration references ($IDd) to
+  // avoid false positives from damage coefficient references ($IDs1).
+  const descriptionRefMap = new Map<string, Set<string>>();
+  const DURATION_REF_REGEX = /\$(\d{4,})d/g;
+
+  for (const row of spellRows) {
+    const spellId = row.ID;
+    if (!spellId || spellId === '0') continue;
+    const desc = row.Description_lang || '';
+    if (!desc) continue;
+
+    let match;
+    DURATION_REF_REGEX.lastIndex = 0;
+    while ((match = DURATION_REF_REGEX.exec(desc)) !== null) {
+      const refId = match[1];
+      if (refId === spellId) continue;
+      const existing = descriptionRefMap.get(spellId) ?? new Set<string>();
+      existing.add(refId);
+      descriptionRefMap.set(spellId, existing);
+    }
+  }
+
+  console.log(`Built description reference map: ${descriptionRefMap.size} spells with duration references`);
+
   // ── 5. Load existing spellIdLists.json and talentIdMap.json ─────
   const spellIdListsPath = path.resolve(__dirname, '../../shared/src/data/spellIdLists.json');
   const spellIdLists = await fs.readJson(spellIdListsPath);
@@ -433,6 +495,27 @@ async function main() {
           Array.from(overrides).forEach((replacementId) => {
             if (!idsToIndex.includes(replacementId)) {
               idsToIndex.push(replacementId);
+            }
+          });
+        }
+        // If this talent spell shares SpellLabel 1660 (totem label) with other
+        // spells, index those too. This links totem placements to their effects
+        // (e.g. Capacitor Totem 192058 → stun 118905).
+        if (totemLabelSpellIds.has(spellId)) {
+          totemLabelSpellIds.forEach((labeledId) => {
+            if (labeledId !== spellId && !idsToIndex.includes(labeledId)) {
+              idsToIndex.push(labeledId);
+            }
+          });
+        }
+        // If this talent spell's description references other spell IDs via
+        // $SPELLIDd (duration), index those too. This links talent casters to
+        // their CC effects (e.g. Binding Shot 109248 → stun 117526).
+        const descRefs = descriptionRefMap.get(spellId);
+        if (descRefs) {
+          descRefs.forEach((refId) => {
+            if (!idsToIndex.includes(refId)) {
+              idsToIndex.push(refId);
             }
           });
         }
@@ -667,6 +750,8 @@ async function main() {
       spellNameCsv: SOURCE_TABLES.spellName,
       spellCategoriesCsv: SOURCE_TABLES.spellCategories,
       spellEffectCsv: SOURCE_TABLES.spellEffect,
+      spellLabelCsv: SOURCE_TABLES.spellLabel,
+      spellCsv: SOURCE_TABLES.spell,
       spellIdListsJson: 'packages/shared/src/data/spellIdLists.json',
       talentIdMapJson: 'packages/shared/src/data/talentIdMap.json',
     },
