@@ -4582,6 +4582,13 @@
     "durationSeconds": 120,
     "dispelType": null
   },
+  "433475": {
+    "spellId": "433475",
+    "name": "Phase Blades",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 0,
+    "dispelType": null
+  },
   "433841": {
     "spellId": "433841",
     "name": "Venom Volley",
@@ -4887,7 +4894,7 @@
     "spellId": "1246965",
     "name": "Psychic Shroud",
     "cooldownSeconds": 999.999,
-    "durationSeconds": 15,
+    "durationSeconds": 6,
     "dispelType": "Magic"
   },
   "1249017": {
@@ -4902,6 +4909,17 @@
     "name": "Umbral Collapse",
     "cooldownSeconds": 999.999,
     "durationSeconds": 5.5,
+    "dispelType": null
+  },
+  "1249625": {
+    "spellId": "1249625",
+    "name": "Zenith",
+    "cooldownSeconds": 90,
+    "charges": {
+      "charges": 2,
+      "chargeCooldownSeconds": 90
+    },
+    "durationSeconds": 15,
     "dispelType": null
   },
   "1249639": {
@@ -5394,9 +5412,16 @@
     "durationSeconds": 3,
     "dispelType": null
   },
+  "1277797": {
+    "spellId": "1277797",
+    "name": "Searing Motivation",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 0,
+    "dispelType": null
+  },
   "1278156": {
     "spellId": "1278156",
-    "name": "Temporal Sands",
+    "name": "Lindormi's Guidance",
     "cooldownSeconds": 999.999,
     "durationSeconds": -0.001,
     "dispelType": null
@@ -5421,6 +5446,13 @@
     "cooldownSeconds": 999.999,
     "durationSeconds": 5,
     "dispelType": null
+  },
+  "1281909": {
+    "spellId": "1281909",
+    "name": "Mind Eraser",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 6,
+    "dispelType": "Magic"
   },
   "1282138": {
     "spellId": "1282138",
@@ -5460,6 +5492,20 @@
   "1282722": {
     "spellId": "1282722",
     "name": "Nullify",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 0,
+    "dispelType": null
+  },
+  "1284019": {
+    "spellId": "1284019",
+    "name": "Fragility",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 0,
+    "dispelType": null
+  },
+  "1284083": {
+    "spellId": "1284083",
+    "name": "Dissonant Realities",
     "cooldownSeconds": 999.999,
     "durationSeconds": 0,
     "dispelType": null
@@ -5513,11 +5559,32 @@
     "durationSeconds": 0,
     "dispelType": null
   },
-  "1293726": {
-    "spellId": "1293726",
-    "name": "NAME_NOT_FOUND",
+  "1288077": {
+    "spellId": "1288077",
+    "name": "Power Source",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": -0.001,
+    "dispelType": null
+  },
+  "1288765": {
+    "spellId": "1288765",
+    "name": "Fragility",
     "cooldownSeconds": 999.999,
     "durationSeconds": 0,
+    "dispelType": null
+  },
+  "1293726": {
+    "spellId": "1293726",
+    "name": "Terrifying Power",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": 3,
+    "dispelType": "Magic"
+  },
+  "1294563": {
+    "spellId": "1294563",
+    "name": "Broken Shield",
+    "cooldownSeconds": 999.999,
+    "durationSeconds": -0.001,
     "dispelType": null
   }
 }

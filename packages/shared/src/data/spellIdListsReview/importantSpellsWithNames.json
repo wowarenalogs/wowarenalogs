@@ -44,6 +44,10 @@
     "name": "Barkskin"
   },
   {
+    "spellId": "31224",
+    "name": "Cloak of Shadows"
+  },
+  {
     "spellId": "31850",
     "name": "Ardent Defender"
   },
@@ -138,6 +142,10 @@
   {
     "spellId": "110909",
     "name": "Alter Time"
+  },
+  {
+    "spellId": "114052",
+    "name": "Ascendance"
   },
   {
     "spellId": "115203",
@@ -540,6 +548,10 @@
     "name": "Alarm Shrill"
   },
   {
+    "spellId": "433475",
+    "name": "Phase Blades"
+  },
+  {
     "spellId": "433841",
     "name": "Venom Volley"
   },
@@ -722,6 +734,10 @@
   {
     "spellId": "1249265",
     "name": "Umbral Collapse"
+  },
+  {
+    "spellId": "1249625",
+    "name": "Zenith"
   },
   {
     "spellId": "1249639",
@@ -1004,6 +1020,10 @@
     "name": "Piercing Shriek"
   },
   {
+    "spellId": "1277797",
+    "name": "Searing Motivation"
+  },
+  {
     "spellId": "1278156",
     "name": "Lindormi's Guidance"
   },
@@ -1018,6 +1038,10 @@
   {
     "spellId": "1280958",
     "name": "Glacial Ray"
+  },
+  {
+    "spellId": "1281909",
+    "name": "Mind Eraser"
   },
   {
     "spellId": "1282138",
@@ -1042,6 +1066,14 @@
   {
     "spellId": "1282722",
     "name": "Nullify"
+  },
+  {
+    "spellId": "1284019",
+    "name": "Fragility"
+  },
+  {
+    "spellId": "1284083",
+    "name": "Dissonant Realities"
   },
   {
     "spellId": "1284095",
@@ -1072,7 +1104,15 @@
     "name": "Terminate"
   },
   {
+    "spellId": "1288765",
+    "name": "Fragility"
+  },
+  {
     "spellId": "1293726",
     "name": "Terrifying Power"
+  },
+  {
+    "spellId": "1294563",
+    "name": "Broken Shield"
   }
 ]
