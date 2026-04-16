@@ -40,9 +40,9 @@ import { useCombatReportContext } from '../CombatReportContext';
 
 // ── Critical moment identification helpers ─────────────────────────────────
 
-type MomentRole = 'Constraint' | 'Kill' | 'Trade' | 'Setup';
+export type MomentRole = 'Constraint' | 'Kill' | 'Trade' | 'Setup';
 
-interface CriticalMoment {
+export interface CriticalMoment {
   timeSeconds: number;
   impactScore: number;
   impactLabel: 'Critical' | 'High' | 'Moderate';
@@ -71,7 +71,7 @@ interface CriticalMoment {
   rootCauseTrace?: string[];
 }
 
-function getEnemyStateAtTime(
+export function getEnemyStateAtTime(
   timeSeconds: number,
   enemyCDTimeline: IEnemyCDTimeline,
   peakDamagePressure5s?: number,
@@ -102,7 +102,7 @@ function getEnemyStateAtTime(
   return 'No coordinated burst detected in this window';
 }
 
-function getOwnerCDsAvailable(timeSeconds: number, cooldowns: IMajorCooldownInfo[]): string {
+export function getOwnerCDsAvailable(timeSeconds: number, cooldowns: IMajorCooldownInfo[]): string {
   const available: string[] = [];
   const onCD: string[] = [];
   for (const cd of cooldowns) {
@@ -135,7 +135,7 @@ function getOwnerCDsAvailable(timeSeconds: number, cooldowns: IMajorCooldownInfo
  * - Which owner CDs were available but never pressed
  * - Whether the dying player was CC'd in the window before death, and if it was avoidable
  */
-function buildDeathRootCauseTrace(
+export function buildDeathRootCauseTrace(
   deathTimeSeconds: number,
   ownerCooldowns: IMajorCooldownInfo[],
   dyingPlayerCC: IPlayerCCTrinketSummary | undefined,
@@ -216,7 +216,7 @@ function buildDeathRootCauseTrace(
 
 const DEATH_LOOKFORWARD_SECONDS = 45;
 
-function findContributingDeath(
+export function findContributingDeath(
   momentTimeSeconds: number,
   friendlyDeaths: Array<{ spec: string; name: string; atSeconds: number }>,
 ): { spec: string; atSeconds: number } | undefined {
@@ -225,7 +225,7 @@ function findContributingDeath(
   );
 }
 
-function buildKillMomentFields(
+export function buildKillMomentFields(
   deathTimeSeconds: number,
   cooldowns: IMajorCooldownInfo[],
   dyingPlayerCC: IPlayerCCTrinketSummary | undefined,
@@ -359,7 +359,7 @@ function buildKillMomentFields(
   };
 }
 
-function identifyCriticalMoments(
+export function identifyCriticalMoments(
   isHealer: boolean,
   cooldowns: IMajorCooldownInfo[],
   enemyCDTimeline: IEnemyCDTimeline,
@@ -590,7 +590,7 @@ function identifyCriticalMoments(
  * Segments are defined by burst windows (not time slices) so the LLM sees
  * Opening Burst → Post-Trade Window → Final Burst/Phase in causal order.
  */
-function buildMatchFlow(
+export function buildMatchFlow(
   enemyCDTimeline: IEnemyCDTimeline,
   ownerCooldowns: IMajorCooldownInfo[],
   allTeamCooldownsWithPlayer: Array<{ player: ICombatUnit; cd: IMajorCooldownInfo }>,
