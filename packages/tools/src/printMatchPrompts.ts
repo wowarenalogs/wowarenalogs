@@ -60,6 +60,7 @@ import {
 } from '../../shared/src/utils/killWindowTargetSelection';
 import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../shared/src/utils/matchArchetype';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../shared/src/utils/offensiveWindows';
+import { benchmarks, formatSpecBaselines } from '../../shared/src/utils/specBaselines';
 
 const API_BASE = 'https://wowarenalogs.com';
 
@@ -498,6 +499,12 @@ function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
       ? `  Team offensive purgers: ${teamPurgers.join(', ')}`
       : '  Team offensive purgers: None (no teammate has an offensive purge ability)',
   );
+
+  const baselineLines = formatSpecBaselines(ownerSpec, cooldowns, benchmarks);
+  if (baselineLines.length > 0) {
+    lines.push('');
+    baselineLines.forEach((l) => lines.push(l));
+  }
 
   lines.push('');
   lines.push(`COOLDOWN USAGE — LOG OWNER (${ownerSpec}) — major CDs ≥30s:`);
