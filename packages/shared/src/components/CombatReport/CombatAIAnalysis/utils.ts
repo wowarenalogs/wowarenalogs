@@ -14,7 +14,7 @@ import { getHpPercentAtTime, getLowestHpPercentInWindow } from '../../../utils/k
 
 // ── Critical moment identification helpers ─────────────────────────────────
 
-export type MomentRole = 'Constraint' | 'Kill' | 'Trade' | 'Setup';
+export type MomentRole = 'Constraint' | 'Kill' | 'Trade' | 'Setup' | 'Consequence' | 'Standalone';
 
 export interface CriticalMoment {
   timeSeconds: number;
@@ -138,7 +138,7 @@ export function buildDeathRootCauseTrace(
   // 1. Check each owner major CD: on CD (and why) vs available-but-not-pressed
   for (const cd of ownerCooldowns) {
     if (cd.neverUsed) {
-      traces.push(`${cd.spellName} [${cd.tag}]: NEVER USED — was available throughout the match`);
+      traces.push(`${cd.spellName} [${cd.tag}]: no cast recorded — was mechanically available throughout the match`);
       continue;
     }
     const castsBeforeDeath = cd.casts.filter((c) => c.timeSeconds <= deathTimeSeconds);
@@ -161,7 +161,7 @@ export function buildDeathRootCauseTrace(
       );
     } else {
       // Ready at death but not pressed
-      traces.push(`${cd.spellName} [${cd.tag}]: available at death time — not pressed`);
+      traces.push(`${cd.spellName} [${cd.tag}]: available at death time — no cast recorded`);
     }
   }
 
@@ -551,8 +551,32 @@ export function identifyCriticalMoments(
     });
   }
 
+  // Sort and limit before role refinement so we work on the final set
+  const sorted = moments.sort((a, b) => b.impactScore - a.impactScore).slice(0, 5);
+
+  // Refine roles on the final sorted set:
+  // - Trade with no contributingDeathAtSeconds → Standalone
+  // - Setup: first moment pointing to a given death timestamp keeps Setup; subsequent ones → Consequence
+  const claimedDeathTimestamps = new Set<number>();
+  for (const m of sorted) {
+    if (m.roleLabel === 'Trade') {
+      if (m.contributingDeathAtSeconds === undefined) {
+        m.roleLabel = 'Standalone';
+      }
+      // Trade with contributingDeathAtSeconds stays as Setup (already assigned in event loops above)
+    }
+    if (m.roleLabel === 'Setup') {
+      const key = Math.round(m.contributingDeathAtSeconds ?? -1);
+      if (claimedDeathTimestamps.has(key)) {
+        m.roleLabel = 'Consequence';
+      } else {
+        claimedDeathTimestamps.add(key);
+      }
+    }
+  }
+
   return {
-    moments: moments.sort((a, b) => b.impactScore - a.impactScore).slice(0, 5),
+    moments: sorted,
     constrainedTrade: constrainedTradePreceded,
   };
 }
@@ -677,6 +701,122 @@ export function buildMatchFlow(
     lines.push(`    - → No friendly deaths — match ended in a win`);
   }
   lines.push('');
+
+  return lines;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Builds a compact 3-sentence match arc (Early / Mid / Late) before the CRITICAL MOMENTS
+ * section, so the LLM understands match flow before evaluating individual moments.
+ *
+ * Phase boundaries (per AI_CONTEXT_REFACTOR.md):
+ *   Early: match start → first major defensive used by either team
+ *   Mid:   first defensive → first friendly death OR first burst window resolved
+ *   Late:  that boundary → match end
+ *
+ * Edge cases:
+ *   - Match < 90s: collapse to two phases (Pressure / Death or Resolution)
+ *   - 3v3 + duration > 180s + no deaths: Late = "dampening reached"
+ *   - Win with no friendly deaths: three phases still emitted; Late describes kill finish
+ */
+export function buildMatchArc(
+  enemyCDTimeline: IEnemyCDTimeline,
+  allTeamCooldownsWithPlayer: Array<{ player: ICombatUnit; cd: IMajorCooldownInfo }>,
+  friendlyDeaths: Array<{ spec: string; atSeconds: number }>,
+  durationSeconds: number,
+  bracket: string,
+): string[] {
+  const lines: string[] = [];
+  lines.push('MATCH ARC:');
+
+  // Edge case: very short match — collapse to two phases
+  if (durationSeconds < 90) {
+    const mid = Math.round(durationSeconds / 2);
+    lines.push(`  Pressure (0:00–${fmtTime(mid)}): Early pressure established — no recovery window.`);
+    if (friendlyDeaths.length > 0) {
+      const d = friendlyDeaths[0];
+      lines.push(
+        `  Death (${fmtTime(mid)}–${fmtTime(durationSeconds)}): ${d.spec} died at ${fmtTime(d.atSeconds)} — speed kill.`,
+      );
+    } else {
+      lines.push(
+        `  Resolution (${fmtTime(mid)}–${fmtTime(durationSeconds)}): Match resolved quickly — no friendly deaths.`,
+      );
+    }
+    return lines;
+  }
+
+  const burstsSorted = [...enemyCDTimeline.alignedBurstWindows].sort((a, b) => a.fromSeconds - b.fromSeconds);
+  const firstBurst = burstsSorted[0];
+  const firstDeath = friendlyDeaths[0];
+
+  // Find first defensive cast from either team
+  let firstDefensiveSeconds = Infinity;
+  let firstDefensiveName = '';
+  let firstDefensiveSpec = '';
+  for (const { player, cd } of allTeamCooldownsWithPlayer) {
+    if (cd.tag !== 'Defensive' || cd.neverUsed || cd.casts.length === 0) continue;
+    const cast = cd.casts[0];
+    if (cast.timeSeconds < firstDefensiveSeconds) {
+      firstDefensiveSeconds = cast.timeSeconds;
+      firstDefensiveName = cd.spellName;
+      firstDefensiveSpec = specToString(player.spec);
+    }
+  }
+
+  // Phase boundaries
+  const earlyEnd = firstDefensiveSeconds < Infinity ? firstDefensiveSeconds : durationSeconds / 2;
+  const firstBurstResolved = firstBurst ? firstBurst.toSeconds : Infinity;
+  const firstFriendlyDeathSeconds = firstDeath?.atSeconds ?? Infinity;
+  const midEnd = Math.min(firstFriendlyDeathSeconds, firstBurstResolved);
+  // Clamp lateStart >= earlyEnd to prevent inverted phase ranges (e.g. "Mid (1:11–0:53)")
+  // when a death/burst occurs before the first defensive is spent.
+  const rawLateStart = midEnd < Infinity ? midEnd : earlyEnd + (durationSeconds - earlyEnd) / 2;
+  const lateStart = Math.max(earlyEnd, rawLateStart);
+
+  // Early phase prose
+  const earlyBursts = burstsSorted.filter((b) => b.fromSeconds < earlyEnd);
+  let earlyProse: string;
+  if (earlyBursts.length > 0) {
+    const burst = earlyBursts[0];
+    const cdNames = burst.activeCDs.map((c) => c.spellName).join(' + ');
+    earlyProse = `Enemy aligned burst established pressure (${burst.dangerLabel} — ${cdNames}); no major defensives spent.`;
+  } else if (firstDefensiveSeconds === Infinity) {
+    earlyProse = 'No coordinated burst; match opened with sustained pressure and no defensive CDs committed.';
+  } else {
+    earlyProse = 'No coordinated enemy burst in opening phase; sustained/DoT pressure building.';
+  }
+  lines.push(`  Early (0:00–${fmtTime(earlyEnd)}): ${earlyProse}`);
+
+  // Mid phase prose
+  let midProse: string;
+  if (firstDefensiveSeconds < Infinity) {
+    const midBursts = burstsSorted.filter((b) => b.fromSeconds >= earlyEnd && b.fromSeconds < lateStart);
+    const burstNote =
+      midBursts.length > 0
+        ? ` in response to ${midBursts[0].dangerLabel} burst at ${fmtTime(midBursts[0].fromSeconds)}`
+        : '';
+    midProse = `${firstDefensiveSpec}'s ${firstDefensiveName} committed${burstNote} — limited major CD coverage remaining.`;
+  } else {
+    midProse = 'No major defensive CDs committed; match progressed through sustained pressure.';
+  }
+  lines.push(`  Mid (${fmtTime(earlyEnd)}–${fmtTime(lateStart)}): ${midProse}`);
+
+  // Late phase prose
+  let lateProse: string;
+  const lateBursts = burstsSorted.filter((b) => b.fromSeconds >= lateStart);
+  const lateBurstNote =
+    lateBursts.length > 0 ? `Second burst (${lateBursts[0].dangerLabel}) aligned with` : 'Pressure continued with';
+  if (firstDeath) {
+    lateProse = `${lateBurstNote} limited defensive options → ${firstDeath.spec} died at ${fmtTime(firstDeath.atSeconds)}.`;
+  } else if (bracket === '3v3' && durationSeconds > 180) {
+    lateProse = 'Dampening reached — healing reduced; match extended to kill window.';
+  } else {
+    lateProse = 'Match concluded — no friendly deaths; pressure neutralized.';
+  }
+  lines.push(`  Late (${fmtTime(lateStart)}–${fmtTime(durationSeconds)}): ${lateProse}`);
 
   return lines;
 }

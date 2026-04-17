@@ -71,7 +71,8 @@ Core rules:
 - Express uncertainty explicitly. Avoid "must", "always", "should have" — prefer "likely", "probably", "the log suggests", "without HP data it's unclear whether...".
 - This player already plays correctly most of the time. Focus on timing, trades, and decision quality — not rule-based mistakes.
 - For purge analysis: check PURGE RESPONSIBILITY before attributing missed purges. Do not blame the log owner for purges if they cannot offensive purge.
-- NEVER USED or "no cast recorded" anywhere in this data means only that the cast was not recorded. Do not conclude the ability was not needed, not appropriate, or irrelevant — or draw any inference from its absence. The counterfactual (would using it have changed the outcome?) cannot be determined from combat log data.
+- NEVER USED on the log owner's own abilities means only that the cast was not recorded. Do not conclude the ability was not needed, not appropriate, or irrelevant — or draw any inference from its absence.
+- NEVER USED on a teammate's ability is a real structural observation when: (a) the ability appears in the TEAMMATE COOLDOWNS section, AND (b) other abilities from that same player DO have recorded casts. In that case, the absence is likely genuine — flag it as a potential decision gap with stated uncertainty. Do not treat it as a recording artifact.
 
 Your task:
 The CRITICAL MOMENTS section represents the most important events in the match. Interpret them as a sequence where earlier events constrain later options — not as independent problems. Use the MATCH ARC section to understand the causal structure before evaluating individual moments. Use supporting data only to verify or refine your conclusions, not to introduce unrelated issues.
@@ -196,7 +197,7 @@ async function callClaude(prompt: string, testPromptMode = false): Promise<strin
 // ---------------------------------------------------------------------------
 
 // Cloud matches have no single "owner" — pick friendly[0] as the log owner proxy
-function buildMatchPrompt(combat: ParsedCombat): string {
+function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
   const allUnits = Object.values(combat.units);
   const friends = allUnits.filter(
     (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Friendly,
@@ -209,8 +210,10 @@ function buildMatchPrompt(combat: ParsedCombat): string {
   const durationSeconds = (combat.endTime - combat.startTime) / 1000;
   if (durationSeconds < 10) return '';
 
-  // Pick log owner: prefer non-healer DPS so we have interesting cooldown data
-  const owner = friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0];
+  // Pick log owner: --healer forces a healer; otherwise prefer non-healer DPS
+  const owner = forceHealer
+    ? (friends.find((p) => isHealerSpec(p.spec)) ?? friends[0])
+    : (friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0]);
 
   const ownerSpec = specToString(owner.spec);
   const healer = isHealerSpec(owner.spec);
@@ -599,7 +602,7 @@ async function printMatch(
 // Cloud runner
 // ---------------------------------------------------------------------------
 
-async function runCloud(count: number, bracket: string, aiMode: boolean, testPromptMode = false) {
+async function runCloud(count: number, bracket: string, aiMode: boolean, testPromptMode = false, forceHealer = false) {
   console.log(`Fetching ${count} matches (bracket: ${bracket}) from ${API_BASE}...\n`);
 
   const stubs = await fetchStubs(bracket, count);
@@ -636,7 +639,7 @@ async function runCloud(count: number, bracket: string, aiMode: boolean, testPro
       }
 
       for (const combat of combats) {
-        const prompt = buildMatchPrompt(combat);
+        const prompt = buildMatchPrompt(combat, forceHealer);
         if (!prompt) continue;
         matchCount++;
         const label = `${stub.id} (${stub.startInfo?.bracket ?? bracket}, ${date})`;
@@ -655,7 +658,7 @@ async function runCloud(count: number, bracket: string, aiMode: boolean, testPro
 // Local runner
 // ---------------------------------------------------------------------------
 
-async function runLocal(logDir: string, aiMode: boolean, testPromptMode = false) {
+async function runLocal(logDir: string, aiMode: boolean, testPromptMode = false, forceHealer = false) {
   const files = (await fs.readdir(logDir))
     .filter((f) => f.endsWith('.txt') && f.startsWith('WoWCombatLog'))
     .map((f) => path.join(logDir, f))
@@ -681,7 +684,7 @@ async function runLocal(logDir: string, aiMode: boolean, testPromptMode = false)
     if (combats.length === 0) continue;
 
     for (const combat of combats) {
-      const prompt = buildMatchPrompt(combat);
+      const prompt = buildMatchPrompt(combat, forceHealer);
       if (!prompt) continue;
       matchCount++;
       await printMatch(fileName, prompt, matchCount, aiMode, testPromptMode);
@@ -701,6 +704,7 @@ async function main() {
   const localMode = args.includes('--local');
   const aiMode = args.includes('--ai');
   const testPromptMode = args.includes('--test-prompt');
+  const forceHealer = args.includes('--healer');
   const countIdx = args.indexOf('--count');
   const bracketIdx = args.indexOf('--bracket');
   const bracket = bracketIdx !== -1 ? args[bracketIdx + 1] : 'Rated Solo Shuffle';
@@ -722,9 +726,9 @@ async function main() {
       /^~/,
       os.homedir(),
     );
-    await runLocal(logDir, aiMode, testPromptMode);
+    await runLocal(logDir, aiMode, testPromptMode, forceHealer);
   } else {
-    await runCloud(count, bracket, aiMode, testPromptMode);
+    await runCloud(count, bracket, aiMode, testPromptMode, forceHealer);
   }
 }
 

@@ -2,7 +2,7 @@ import { ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { ccSpellIds } from '../data/spellTags';
 import { fmtTime, isHealerSpec, specToString } from './cooldowns';
-import { computeIncomingDR, DR_LEVEL_LABEL, IDRInfo } from './drAnalysis';
+import { computeIncomingDR, IDRInfo } from './drAnalysis';
 import { distanceBetween, getUnitPositionAtTime, hasLineOfSight } from './losAnalysis';
 
 // ---------------------------------------------------------------------------
@@ -289,7 +289,7 @@ export function analyzePlayerCCAndTrinket(
 
 export function formatCCTrinketForContext(summaries: IPlayerCCTrinketSummary[]): string[] {
   const lines: string[] = [];
-  lines.push('CROWD CONTROL RECEIVED & TRINKET USAGE (on your team):');
+  lines.push('CC RECEIVED BY YOUR TEAM (enemies CCing you) + TRINKET USAGE:');
 
   const hasCCData = summaries.some((s) => s.ccInstances.length > 0);
   if (!hasCCData) {
@@ -298,75 +298,47 @@ export function formatCCTrinketForContext(summaries: IPlayerCCTrinketSummary[]):
   }
 
   for (const s of summaries) {
-    const cdStr =
-      s.trinketType === 'Relentless' || s.trinketType === 'Unknown'
-        ? s.trinketType
-        : `${s.trinketType}, ${s.trinketCooldownSeconds}s CD`;
-    lines.push('');
-    lines.push(`  ${s.playerSpec} (${s.playerName}) — Trinket: ${cdStr}`);
+    if (s.ccInstances.length === 0) continue;
 
-    if (s.ccInstances.length === 0) {
-      lines.push('    No hard CC received.');
-      continue;
-    }
+    // Aggregate CC counts by type
+    const countBySpell = new Map<string, number>();
+    let immuneOrReducedCount = 0;
+    let meleeCCCount = 0;
+    const missedTrinketCount = s.missedTrinketWindows.length;
 
     for (const cc of s.ccInstances) {
-      const dur = cc.durationSeconds.toFixed(1);
-      const dmgK = Math.round(cc.damageTakenDuring / 1000);
-      const dmgStr = dmgK > 0 ? `, ${dmgK}k dmg during CC` : '';
-
-      let trinketStr: string;
-      switch (cc.trinketState) {
-        case 'used':
-          trinketStr = '✓ trinket used';
-          break;
-        case 'available_unused':
-          trinketStr =
-            dmgK >= Math.round(SIGNIFICANT_CC_DAMAGE / 1000)
-              ? '⚠ trinket AVAILABLE — not used'
-              : 'trinket available, not used';
-          break;
-        case 'on_cooldown':
-          trinketStr = 'trinket on cooldown';
-          break;
-        case 'passive_trinket':
-          trinketStr = 'passive trinket (Relentless)';
-          break;
-      }
-
-      const drStr = cc.drInfo
-        ? ` [${cc.drInfo.category}: ${DR_LEVEL_LABEL[cc.drInfo.level]}${cc.drInfo.sequenceIndex > 0 ? `, #${cc.drInfo.sequenceIndex + 1} in sequence` : ''}]`
-        : '';
-
-      const distStr = cc.distanceYards !== null ? ` ${cc.distanceYards}yd` : '';
-      const losStr = cc.losBlocked === true ? ' [LoS blocked — behind pillar]' : '';
-      // Flag melee-range CCs (≤8 yards) when not LoS-blocked as a positioning signal
-      const meleeStr =
-        cc.distanceYards !== null && cc.distanceYards <= 8 && cc.losBlocked !== true
-          ? ' [MELEE RANGE — possible positioning mistake]'
-          : '';
-
-      lines.push(
-        `    ${fmtTime(cc.atSeconds)}: ${cc.spellName} by ${cc.sourceSpec} (${cc.sourceName}) — ${dur}s${drStr}${dmgStr} — ${trinketStr}${distStr}${losStr}${meleeStr}`,
-      );
+      countBySpell.set(cc.spellName, (countBySpell.get(cc.spellName) ?? 0) + 1);
+      if (cc.drInfo && cc.drInfo.level !== 'Full') immuneOrReducedCount++;
+      if (cc.distanceYards !== null && cc.distanceYards <= 8 && cc.losBlocked !== true) meleeCCCount++;
     }
 
-    // Summarise trinket uses that were NOT near any CC window (regardless of trinketState),
-    // to avoid double-reporting a cast as both a missed window and an off-CC use.
+    const ccBreakdown = [...countBySpell.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => `${count}× ${name}`)
+      .join(', ');
+    const trinketCdStr =
+      s.trinketType === 'Relentless' || s.trinketType === 'Unknown' ? s.trinketType : `${s.trinketType} trinket`;
+
+    const notes: string[] = [];
+    if (immuneOrReducedCount > 0) notes.push(`${immuneOrReducedCount} reduced/immune DR`);
+    if (meleeCCCount > 0) notes.push(`${meleeCCCount} at melee range`);
+    if (missedTrinketCount > 0) {
+      const totalDmg = s.missedTrinketWindows.reduce((sum, w) => sum + w.damageTakenDuring, 0);
+      notes.push(`⚠ ${missedTrinketCount} missed trinket window(s) (${Math.round(totalDmg / 1000)}k dmg total)`);
+    }
+    const noteStr = notes.length > 0 ? ` [${notes.join('; ')}]` : '';
+
+    // Trinket use times outside CC windows
     const trinketResponseWindowS = TRINKET_RESPONSE_WINDOW_MS / 1000;
     const offCCUses = s.trinketUseTimes.filter(
       (t) => !s.ccInstances.some((cc) => Math.abs(cc.atSeconds - t) <= trinketResponseWindowS),
     );
-    if (offCCUses.length > 0) {
-      lines.push(`    Trinket used outside CC: ${offCCUses.map(fmtTime).join(', ')}`);
-    }
+    const trinketStr =
+      offCCUses.length > 0 ? `${trinketCdStr} used off-CC at ${offCCUses.map(fmtTime).join(', ')}` : trinketCdStr;
 
-    if (s.missedTrinketWindows.length > 0) {
-      const missed = s.missedTrinketWindows.map(
-        (w) => `${fmtTime(w.atSeconds)} (${Math.round(w.damageTakenDuring / 1000)}k dmg)`,
-      );
-      lines.push(`    ⚠ Missed trinket window(s): ${missed.join(', ')}`);
-    }
+    lines.push(
+      `  ${s.playerSpec} (${s.playerName}): ${s.ccInstances.length} CC — ${ccBreakdown} | ${trinketStr}${noteStr}`,
+    );
   }
 
   return lines;

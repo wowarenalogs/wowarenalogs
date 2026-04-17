@@ -816,13 +816,9 @@ export function detectOverlappedDefensives(
 }
 
 export function formatOverlappedDefensivesForContext(overlaps: IOverlappedDefensive[]): string[] {
+  if (overlaps.length === 0) return [];
   const lines: string[] = [];
   lines.push('PANIC TRADING — MAJOR DEFENSIVE OVERLAPS (two buffs simultaneously active on the same target):');
-
-  if (overlaps.length === 0) {
-    lines.push('  None detected.');
-    return lines;
-  }
 
   for (const o of overlaps) {
     const sim = o.simultaneousSeconds.toFixed(1);
@@ -1053,13 +1049,9 @@ export function detectPanicDefensives(
 }
 
 export function formatPanicDefensivesForContext(panics: IPanicDefensive[]): string[] {
+  if (panics.length === 0) return [];
   const lines: string[] = [];
   lines.push('PANIC PRESSES (major defensive used with no enemy offensive threat and target not under pressure):');
-
-  if (panics.length === 0) {
-    lines.push('  None detected.');
-    return lines;
-  }
 
   for (const p of panics) {
     lines.push(

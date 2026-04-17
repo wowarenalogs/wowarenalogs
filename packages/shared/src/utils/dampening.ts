@@ -176,9 +176,14 @@ export function formatDampeningForContext(
   endTime: number,
 ): string[] {
   const timeline = computeDampeningTimeline(bracket, players, startTime, endTime);
-  const lines: string[] = [];
   const initialDamp = timeline[0].dampening;
   const finalDamp = timeline[timeline.length - 1].dampening;
+
+  // Suppress for short matches or when dampening barely moved — noise with no analytical value
+  const durationSeconds = (endTime - startTime) / 1000;
+  if (durationSeconds < 90 && finalDamp < 0.15) return [];
+
+  const lines: string[] = [];
 
   // Compact single-line summary — the ramp schedule is fixed per bracket so only the
   // endpoint matters for AI reasoning. Full timeline is visible in the Dispels UI tab.

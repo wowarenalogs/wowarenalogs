@@ -7,7 +7,7 @@ import { fmtTime, isHealerSpec, specToString } from './cooldowns';
 type SpellEntry = { type: string };
 const SPELLS = spellsData as Record<string, SpellEntry>;
 import { computeDampening, dampeningDangerMultiplier, fmtDampening } from './dampening';
-import { dangerLabel, isOffensiveSpell, SPELL_EFFECT_OVERRIDES, spellDangerWeight } from './spellDanger';
+import { dangerLabel, isOffensiveSpell, spellDangerWeight } from './spellDanger';
 
 const MIN_CD_SECONDS = 30;
 /** Two enemy offensive CD casts within this window are considered an aligned burst */
@@ -107,7 +107,7 @@ export function reconstructEnemyCDTimeline(
   }
 
   // Find aligned burst windows: clusters of 2+ casts within BURST_CLUSTER_SECONDS
-  const allCasts = players
+  const allCastsRaw = players
     .flatMap((p) =>
       p.offensiveCDs.map((cd) => ({
         time: cd.castTimeSeconds,
@@ -119,6 +119,12 @@ export function reconstructEnemyCDTimeline(
       })),
     )
     .sort((a, b) => a.time - b.time);
+
+  // Deduplicate: same player + same spellId within 1s = one cast (guards against double-parsed events)
+  const allCasts = allCastsRaw.filter((c, idx) => {
+    const prev = allCastsRaw[idx - 1];
+    return !(prev && prev.playerName === c.playerName && prev.spellId === c.spellId && c.time - prev.time < 1);
+  });
 
   // Compute total friendly damage for ratio calculation
   const allFriendlyDamage = (friendlies ?? []).flatMap((u) => u.damageIn);
@@ -230,60 +236,51 @@ export function reconstructEnemyCDTimeline(
 
 /**
  * Renders the enemy CD timeline as plain text lines for inclusion in the AI context prompt.
+ * Outputs burst window summaries only — individual per-player cast timestamps are captured
+ * by MATCH ARC and would dilute LLM attention if repeated here.
  */
 export function formatEnemyCDTimelineForContext(timeline: IEnemyCDTimeline, matchDurationSeconds: number): string[] {
   const lines: string[] = [];
 
-  lines.push('ENEMY OFFENSIVE COOLDOWN TIMELINE:');
+  lines.push('ENEMY BURST WINDOWS:');
 
-  if (timeline.players.length === 0) {
-    lines.push('  No enemy offensive cooldown data found.');
+  if (timeline.alignedBurstWindows.length === 0) {
+    lines.push(
+      timeline.players.length === 0
+        ? '  No enemy offensive cooldown data found.'
+        : '  No coordinated enemy burst windows detected — sustained/individual pressure only.',
+    );
     return lines;
   }
 
+  timeline.alignedBurstWindows.forEach((w, idx) => {
+    const scoreStr = w.dangerScore.toFixed(1);
+    const labelStr = w.dangerLabel.toUpperCase();
+    const dampStr = fmtDampening(w.dampeningPct);
+    const cdNames = w.activeCDs.map((c) => `${c.spellName} (${c.playerName})`).join(' + ');
+    const dmgM = (w.damageInWindow / 1_000_000).toFixed(2);
+    const ratioStr = `${w.damageRatio.toFixed(1)}× match avg`;
+    const healerStr = w.healerCCed ? 'healer CCed' : 'healer free';
+    lines.push(
+      `  #${idx + 1} — ${fmtTime(w.fromSeconds)}–${fmtTime(w.toSeconds)} | Score: ${scoreStr} [${labelStr}] | Dampening: ${dampStr}`,
+    );
+    lines.push(`    CDs: ${cdNames}`);
+    lines.push(`    Damage: ${dmgM}M (${ratioStr}) | ${healerStr}`);
+  });
+
+  // Include never-used offensive CDs as hallucination guard: if an enemy CD never appeared
+  // in a burst window, Claude should not claim it was used as part of a coordinated burst.
+  const unusedByCDId = new Set<string>();
   for (const player of timeline.players) {
-    lines.push('');
-    lines.push(`  ${player.specName} (${player.playerName}):`);
     for (const cd of player.offensiveCDs) {
-      const effects = SPELL_EFFECT_OVERRIDES[cd.spellId];
-      const effectStr = effects ? effects.join(', ') : 'DamageAmp';
-      const buffWindow =
-        cd.buffEndSeconds > cd.castTimeSeconds
-          ? ` active ${fmtTime(cd.castTimeSeconds)}–${fmtTime(cd.buffEndSeconds)}`
-          : ` cast at ${fmtTime(cd.castTimeSeconds)}`;
-      const backStr =
-        cd.availableAgainAtSeconds <= matchDurationSeconds
-          ? ` → back at ${fmtTime(cd.availableAgainAtSeconds)}`
-          : ' → not available again before match ended';
-      lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD, ${effectStr}]:${buffWindow}${backStr}`);
+      const usedInBurst = timeline.alignedBurstWindows.some((w) => w.activeCDs.some((a) => a.spellId === cd.spellId));
+      if (!usedInBurst && cd.availableAgainAtSeconds > matchDurationSeconds) {
+        unusedByCDId.add(`${player.specName}: ${cd.spellName} — not used again after ${fmtTime(cd.castTimeSeconds)}`);
+      }
     }
   }
-
-  if (timeline.alignedBurstWindows.length > 0) {
-    lines.push('');
-    lines.push('ENEMY ALIGNED BURST WINDOWS:');
-    timeline.alignedBurstWindows.forEach((w, idx) => {
-      const scoreStr = w.dangerScore.toFixed(1);
-      const labelStr = w.dangerLabel.toUpperCase();
-      const dampStr = fmtDampening(w.dampeningPct);
-      lines.push(
-        `  #${idx + 1} — ${fmtTime(w.fromSeconds)} | Score: ${scoreStr} [${labelStr}] | Dampening: ${dampStr}`,
-      );
-
-      for (const cd of w.activeCDs) {
-        const cdData = timeline.players
-          .filter((p) => p.playerName === cd.playerName)
-          .flatMap((p) => p.offensiveCDs)
-          .find((c) => c.spellId === cd.spellId);
-        const weight = cdData ? spellDangerWeight(cd.spellId, cdData.cooldownSeconds).toFixed(2) : '?';
-        lines.push(`    ${cd.spellName} (${cd.playerName}, weight ${weight})`);
-      }
-
-      const dmgM = (w.damageInWindow / 1_000_000).toFixed(2);
-      const ratioStr = `${w.damageRatio.toFixed(1)}× match avg`;
-      const healerStr = w.healerCCed ? 'Healer CCed: YES' : 'Healer: free to cast';
-      lines.push(`    Damage: ${dmgM}M (${ratioStr}) | ${healerStr}`);
-    });
+  if (unusedByCDId.size > 0) {
+    lines.push('  CDs not recovered before match ended: ' + [...unusedByCDId].join('; '));
   }
 
   return lines;
