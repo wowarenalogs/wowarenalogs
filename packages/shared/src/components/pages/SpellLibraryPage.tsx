@@ -46,7 +46,7 @@ for (const key of Object.keys(CombatUnitSpec)) {
   if (specId === '0') continue;
   const parts = key.split('_');
   SPEC_TO_CLASS[specId] = parts[0];
-  SPEC_TO_NAME[specId] = parts.reverse().join(' ');
+  SPEC_TO_NAME[specId] = parts.slice(1).join(' ');
 }
 
 /** Ordered categories to display */
