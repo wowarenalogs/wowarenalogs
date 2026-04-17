@@ -192,31 +192,49 @@ Sources it draws from (all already computed before the call):
 - `pressureWindows` (≥300k threshold) — `[DMG SPIKE]` events
 - `healingGaps` (healer only) — `[HEALING GAP]` events
 
+### Feature Flag Strategy
+
+The new prompt runs alongside the old one behind a flag. The old prompt is **not modified** during this phase. Once side-by-side comparison confirms the new format is better, a single flag flip activates it everywhere.
+
+**Flag name:** `useTimelinePrompt: boolean` (default `false`)
+
+**Where the flag lives:**
+
+- `buildMatchContext(combat, friends, enemies, useTimelinePrompt?)` in `index.tsx` — optional parameter, defaults `false`; the web app passes `false` until the flip
+- `printMatchPrompts.ts` — new CLI flag `--new-prompt` sets it to `true`; omitting it keeps old behavior
+- `analyze.ts` — adds `NEW_SYSTEM_PROMPT` constant alongside existing `SYSTEM_PROMPT`; the API route selects based on which context was passed (old context → old prompt, new context → new prompt)
+
+**Side-by-side comparison workflow:**
+
+```bash
+# Run old prompt
+npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 5 --ai
+
+# Run new prompt
+npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 5 --ai --new-prompt
+```
+
+Both modes print the prompt + AI response to stdout so outputs can be diffed directly.
+
+**Flip switch:** When ready to go live, change the default of `useTimelinePrompt` to `true` in `buildMatchContext`. No other changes needed.
+
 ### Files Changed
 
-| File                                                                     | Change                                                                                                                                                                                       |
-| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/shared/src/components/CombatReport/CombatAIAnalysis/utils.ts`  | Add `buildPlayerLoadout`, `buildMatchTimeline`                                                                                                                                               |
-| `packages/shared/src/components/CombatReport/CombatAIAnalysis/index.tsx` | Rewrite `buildMatchContext`: context block → `buildPlayerLoadout` → `buildMatchTimeline`. Remove calls to `buildMatchArc`, `identifyCriticalMoments`, and old `format*ForContext` functions. |
-| `packages/tools/src/printMatchPrompts.ts`                                | Rewrite `buildMatchPrompt` to call `buildPlayerLoadout` + `buildMatchTimeline` from shared utils. Merge `TEST_SYSTEM_PROMPT` into main `SYSTEM_PROMPT` (DATA UTILITY always on).             |
-| `packages/web/pages/api/analyze.ts`                                      | Rewrite `SYSTEM_PROMPT` as described above.                                                                                                                                                  |
+| File                                                                     | Change                                                                                                                                                                          |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/shared/src/components/CombatReport/CombatAIAnalysis/utils.ts`  | Add `buildPlayerLoadout`, `buildMatchTimeline`                                                                                                                                  |
+| `packages/shared/src/components/CombatReport/CombatAIAnalysis/index.tsx` | Add `useTimelinePrompt?` param to `buildMatchContext`; when `true`, use context block + `buildPlayerLoadout` + `buildMatchTimeline`; when `false`, existing code path unchanged |
+| `packages/tools/src/printMatchPrompts.ts`                                | Add `--new-prompt` CLI flag; when set, calls `buildPlayerLoadout` + `buildMatchTimeline` + `NEW_SYSTEM_PROMPT`; old path unchanged                                              |
+| `packages/web/pages/api/analyze.ts`                                      | Add `NEW_SYSTEM_PROMPT` constant; route selects prompt based on `useTimelinePrompt` flag passed in request (default `false`)                                                    |
 
-### What Becomes Dead Code (keep, don't delete)
+### What Old Code Remains Untouched
 
-- `buildMatchArc`
-- `identifyCriticalMoments`
-- `buildDeathRootCauseTrace`
-- `buildKillMomentFields`
-- `formatEnemyCDTimelineForContext`
-- `formatHealerExposureForContext`
-- `formatOutgoingCCChainsForContext`
-- `formatKillWindowTargetSelectionForContext`
-- `formatOverlappedDefensivesForContext`
-- `formatPanicDefensivesForContext`
-- `formatMatchArchetypeForContext` / `computeMatchArchetype` (MATCH MEASUREMENTS section removed — its data is now captured inline in timeline events)
-- `formatDampeningForContext` (replaced by a single summary line in MATCH FACTS)
+All existing functions stay in place and continue to be called by the `useTimelinePrompt = false` path:
 
-These are not deleted because the improvement loop may reintroduce some of them as the data utility feedback accumulates.
+- `buildMatchArc`, `identifyCriticalMoments`, `buildDeathRootCauseTrace`, `buildKillMomentFields`
+- All `format*ForContext` functions
+- `computeMatchArchetype`, `formatMatchArchetypeForContext`
+- `formatDampeningForContext`
 
 ### Data Computations That Survive Unchanged
 
