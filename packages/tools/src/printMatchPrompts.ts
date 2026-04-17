@@ -351,7 +351,52 @@ function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
   lines.push('');
 
   if (criticalMoments.length === 0) {
-    lines.push('  No critical moments identified from available data.');
+    // Fallback: derive top signals from supporting data so the prompt is not architecturally orphaned
+    const fallbackMoments: string[] = [];
+
+    // 1. Highest-danger burst window
+    const topBurst = [...enemyCDTimeline.alignedBurstWindows].sort((a, b) => b.dangerScore - a.dangerScore)[0];
+    if (topBurst) {
+      const cdNames = topBurst.activeCDs.map((c) => c.spellName).join(' + ');
+      fallbackMoments.push(
+        `[Derived] Peak enemy burst at ${fmtTime(topBurst.fromSeconds)}–${fmtTime(topBurst.toSeconds)} (${topBurst.dangerLabel}, ${cdNames}) — evaluate whether defensive response was optimal`,
+      );
+    }
+
+    // 2. Never-used teammate CDs where the player has other recorded casts
+    for (const { player, cds } of teammateCooldowns) {
+      const hasAnyCast = cds.some((cd) => !cd.neverUsed);
+      if (!hasAnyCast) continue;
+      for (const cd of cds) {
+        if (cd.neverUsed) {
+          fallbackMoments.push(
+            `[Derived] ${specToString(player.spec)}'s ${cd.spellName} [${cd.cooldownSeconds}s CD] was never used — evaluate whether a use was warranted given match pressure`,
+          );
+          break;
+        }
+      }
+    }
+
+    // 3. Missed dispel opportunities
+    if (dispelSummary.missedCleanseWindows.length > 0) {
+      fallbackMoments.push(
+        `[Derived] ${dispelSummary.missedCleanseWindows.length} missed cleanse opportunity(s) detected — evaluate timing and prioritisation`,
+      );
+    }
+
+    if (fallbackMoments.length === 0) {
+      lines.push('  No critical moments identified from available data.');
+    } else {
+      lines.push(
+        '  NOTE: No primary critical moments detected. The following are derived from highest-signal supporting data:',
+      );
+      lines.push('');
+      fallbackMoments.forEach((m, i) => {
+        lines.push(`--- MOMENT ${i + 1} [Derived] ---`);
+        lines.push(`  ${m}`);
+        lines.push('');
+      });
+    }
   } else {
     criticalMoments.forEach((m, i) => {
       const impactStr = m.roleLabel === 'Constraint' ? 'Context-setting — not a mistake' : m.impactLabel;
@@ -558,10 +603,13 @@ function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
   lines.push('');
   formatOffensiveWindowsForContext(offensiveWindows).forEach((l) => lines.push(l));
 
-  const targetSelectionLines = formatKillWindowTargetSelectionForContext(killWindowTargetEvals);
-  if (targetSelectionLines.length > 0) {
-    lines.push('');
-    targetSelectionLines.forEach((l) => lines.push(l));
+  // Skip kill window target selection when log owner is a healer — they observe but cannot enforce target choices
+  if (!healer) {
+    const targetSelectionLines = formatKillWindowTargetSelectionForContext(killWindowTargetEvals);
+    if (targetSelectionLines.length > 0) {
+      lines.push('');
+      targetSelectionLines.forEach((l) => lines.push(l));
+    }
   }
 
   lines.push('');
