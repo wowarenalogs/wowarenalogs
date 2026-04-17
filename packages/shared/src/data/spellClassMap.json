@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-16T13:09:47.542Z",
+  "generatedAt": "2026-04-17T01:16:24.095Z",
   "wagoBuild": "12.0.1.66838",
   "sources": {
     "chrSpecializationCsv": "https://wago.tools/db2/ChrSpecialization/csv?build=12.0.1.66838",
@@ -11,6 +11,7 @@
     "spellEffectCsv": "https://wago.tools/db2/SpellEffect/csv?build=12.0.1.66838",
     "spellLabelCsv": "https://wago.tools/db2/SpellLabel/csv?build=12.0.1.66838",
     "spellCsv": "https://wago.tools/db2/Spell/csv?build=12.0.1.66838",
+    "skillLineCsv": "https://wago.tools/db2/SkillLine/csv?build=12.0.1.66838",
     "spellIdListsJson": "packages/shared/src/data/spellIdLists.json",
     "talentIdMapJson": "packages/shared/src/data/talentIdMap.json"
   },
@@ -277,8 +278,10 @@
     {
       "spellId": "199448",
       "name": "Blessing of Sacrifice",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "65"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "207771",
@@ -291,8 +294,11 @@
     {
       "spellId": "212800",
       "name": "Blur",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "577",
+        "1480"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "243435",
@@ -983,8 +989,10 @@
     {
       "spellId": "199448",
       "name": "Blessing of Sacrifice",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "65"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "204018",
@@ -1025,8 +1033,11 @@
     {
       "spellId": "212800",
       "name": "Blur",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "577",
+        "1480"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "216331",
@@ -1311,8 +1322,12 @@
     {
       "spellId": "378464",
       "name": "Nullifying Shroud",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "1467",
+        "1468",
+        "1473"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "383410",
@@ -1405,8 +1420,12 @@
     {
       "spellId": "408558",
       "name": "Phase Shift",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "256",
+        "257",
+        "258"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "410358",
@@ -1741,8 +1760,12 @@
     {
       "spellId": "1246965",
       "name": "Psychic Shroud",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "256",
+        "257",
+        "258"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "1249017",
@@ -2329,6 +2352,13 @@
         ]
       },
       {
+        "spellId": "33395",
+        "name": "Freeze",
+        "specIds": [
+          "64"
+        ]
+      },
+      {
         "spellId": "64695",
         "name": "Earthgrab",
         "specIds": [
@@ -2363,6 +2393,23 @@
           "268",
           "269",
           "270"
+        ]
+      },
+      {
+        "spellId": "136634",
+        "name": "Narrow Escape",
+        "specIds": [
+          "253",
+          "254",
+          "255",
+          "1448"
+        ]
+      },
+      {
+        "spellId": "170855",
+        "name": "Entangling Roots",
+        "specIds": [
+          "105"
         ]
       },
       {
@@ -2495,6 +2542,16 @@
         ]
       },
       {
+        "spellId": "116189",
+        "name": "Provoke",
+        "specIds": [
+          "268",
+          "269",
+          "270",
+          "1450"
+        ]
+      },
+      {
         "spellId": "185245",
         "name": "Torment",
         "specIds": [
@@ -2582,6 +2639,27 @@
         ]
       },
       {
+        "spellId": "89766",
+        "name": "Axe Toss",
+        "specIds": [
+          "266"
+        ]
+      },
+      {
+        "spellId": "91797",
+        "name": "Monstrous Blow",
+        "specIds": [
+          "252"
+        ]
+      },
+      {
+        "spellId": "91800",
+        "name": "Gnaw",
+        "specIds": [
+          "252"
+        ]
+      },
+      {
         "spellId": "107570",
         "name": "Storm Bolt",
         "specIds": [
@@ -2597,6 +2675,15 @@
           "253",
           "254",
           "255"
+        ]
+      },
+      {
+        "spellId": "118345",
+        "name": "Pulverize",
+        "specIds": [
+          "262",
+          "263",
+          "264"
         ]
       },
       {
@@ -2647,11 +2734,28 @@
         ]
       },
       {
+        "spellId": "171017",
+        "name": "Meteor Strike",
+        "specIds": [
+          "267"
+        ]
+      },
+      {
         "spellId": "179057",
         "name": "Chaos Nova",
         "specIds": [
           "577",
           "581"
+        ]
+      },
+      {
+        "spellId": "200166",
+        "name": "Metamorphosis",
+        "specIds": [
+          "577",
+          "581",
+          "1456",
+          "1480"
         ]
       },
       {
@@ -2662,11 +2766,56 @@
         ]
       },
       {
+        "spellId": "202244",
+        "name": "Overrun",
+        "specIds": [
+          "104"
+        ]
+      },
+      {
+        "spellId": "202346",
+        "name": "Double Barrel",
+        "specIds": [
+          "268"
+        ]
+      },
+      {
+        "spellId": "205290",
+        "name": "Wake of Ashes",
+        "specIds": [
+          "65",
+          "66",
+          "70",
+          "1451"
+        ]
+      },
+      {
         "spellId": "205630",
         "name": "Illidan's Grasp",
         "specIds": [
           "577",
           "581"
+        ]
+      },
+      {
+        "spellId": "210141",
+        "name": "Reanimation",
+        "specIds": [
+          "252"
+        ]
+      },
+      {
+        "spellId": "212332",
+        "name": "Smash",
+        "specIds": [
+          "252"
+        ]
+      },
+      {
+        "spellId": "212337",
+        "name": "Powerful Smash",
+        "specIds": [
+          "252"
         ]
       },
       {
@@ -2683,6 +2832,22 @@
         "name": "Wake of Ashes",
         "specIds": [
           "70"
+        ]
+      },
+      {
+        "spellId": "305485",
+        "name": "Lightning Lasso",
+        "specIds": [
+          "262",
+          "263",
+          "264"
+        ]
+      },
+      {
+        "spellId": "357021",
+        "name": "Consecutive Concussion",
+        "specIds": [
+          "254"
         ]
       },
       {
@@ -2706,6 +2871,13 @@
         "name": "Shield Charge",
         "specIds": [
           "73"
+        ]
+      },
+      {
+        "spellId": "389831",
+        "name": "Snowdrift",
+        "specIds": [
+          "64"
         ]
       },
       {
@@ -2802,6 +2974,16 @@
         ]
       },
       {
+        "spellId": "3355",
+        "name": "Freezing Trap",
+        "specIds": [
+          "253",
+          "254",
+          "255",
+          "1448"
+        ]
+      },
+      {
         "spellId": "6770",
         "name": "Sap",
         "specIds": [
@@ -2881,6 +3063,22 @@
         ]
       },
       {
+        "spellId": "202274",
+        "name": "Hot Trub",
+        "specIds": [
+          "268"
+        ]
+      },
+      {
+        "spellId": "203337",
+        "name": "Freezing Trap",
+        "specIds": [
+          "253",
+          "254",
+          "255"
+        ]
+      },
+      {
         "spellId": "205364",
         "name": "Dominate Mind",
         "specIds": [
@@ -2896,6 +3094,15 @@
           "577",
           "581",
           "1480"
+        ]
+      },
+      {
+        "spellId": "353084",
+        "name": "Ring of Fire",
+        "specIds": [
+          "62",
+          "63",
+          "64"
         ]
       },
       {
@@ -3003,6 +3210,16 @@
         ]
       },
       {
+        "spellId": "118699",
+        "name": "Fear",
+        "specIds": [
+          "265",
+          "266",
+          "267",
+          "1454"
+        ]
+      },
+      {
         "spellId": "130616",
         "name": "Fear",
         "specIds": [
@@ -3018,6 +3235,13 @@
           "268",
           "269",
           "270"
+        ]
+      },
+      {
+        "spellId": "202274",
+        "name": "Hot Trub",
+        "specIds": [
+          "268"
         ]
       },
       {
@@ -3058,6 +3282,13 @@
       }
     ],
     "silence": [
+      {
+        "spellId": "1330",
+        "name": "Garrote - Silence",
+        "specIds": [
+          "259"
+        ]
+      },
       {
         "spellId": "15487",
         "name": "Silence",
@@ -3128,6 +3359,13 @@
           "72",
           "73"
         ]
+      },
+      {
+        "spellId": "407032",
+        "name": "Sticky Tar Bomb",
+        "specIds": [
+          "255"
+        ]
       }
     ]
   },
@@ -3163,6 +3401,16 @@
       ]
     },
     {
+      "spellId": "19647",
+      "name": "Spell Lock",
+      "specIds": [
+        "265",
+        "266",
+        "267",
+        "1454"
+      ]
+    },
+    {
       "spellId": "47528",
       "name": "Mind Freeze",
       "specIds": [
@@ -3178,6 +3426,13 @@
         "262",
         "263",
         "264"
+      ]
+    },
+    {
+      "spellId": "91807",
+      "name": "Shambling Rush",
+      "specIds": [
+        "252"
       ]
     },
     {
@@ -3213,6 +3468,13 @@
       ]
     },
     {
+      "spellId": "171138",
+      "name": "Shadow Lock",
+      "specIds": [
+        "266"
+      ]
+    },
+    {
       "spellId": "183752",
       "name": "Disrupt",
       "specIds": [
@@ -3227,6 +3489,13 @@
       "name": "Muzzle",
       "specIds": [
         "255"
+      ]
+    },
+    {
+      "spellId": "263715",
+      "name": "Silence",
+      "specIds": [
+        "258"
       ]
     },
     {
@@ -3257,19 +3526,6 @@
         "259",
         "260",
         "261"
-      ]
-    },
-    {
-      "spellId": "199448",
-      "name": "Blessing of Sacrifice",
-      "category": "bigDefensive",
-      "talentSpellIds": [
-        "6940"
-      ],
-      "talentSpecIds": [
-        "65",
-        "66",
-        "70"
       ]
     },
     {
@@ -3315,19 +3571,6 @@
       "category": "important",
       "talentSpellIds": [
         "115750"
-      ],
-      "talentSpecIds": [
-        "65",
-        "66",
-        "70"
-      ]
-    },
-    {
-      "spellId": "199448",
-      "name": "Blessing of Sacrifice",
-      "category": "important",
-      "talentSpellIds": [
-        "6940"
       ],
       "talentSpecIds": [
         "65",
