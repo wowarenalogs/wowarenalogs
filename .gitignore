@@ -145,3 +145,4 @@ dist
 .aider*
 packages/parser/perf/results/
 .claude/
+.worktrees/
