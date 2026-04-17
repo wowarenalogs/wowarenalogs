@@ -267,7 +267,7 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
       .map((e) => {
         const timeSeconds = (e.logLine.timestamp - matchStartMs) / 1000;
         const cast: ICooldownCast = { timeSeconds };
-        if (isDefOrExternal && e.destUnitId && e.destUnitName) {
+        if (isDefOrExternal && e.destUnitId && e.destUnitName && e.destUnitName !== 'nil') {
           cast.targetName = e.destUnitName;
           const targetUnit = combat.units[e.destUnitId];
           if (targetUnit) {
