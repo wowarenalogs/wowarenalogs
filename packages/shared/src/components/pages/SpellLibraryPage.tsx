@@ -38,6 +38,9 @@ interface CategoryDef {
 
 // ── Data ───────────────────────────────────────────────────────────
 
+/** Insert a space between camelCase words — "DeathKnight" → "Death Knight". */
+const prettify = (s: string) => s.replace(/([a-z])([A-Z])/g, '$1 $2');
+
 /** Map specId → class name (e.g. "65" → "Paladin") */
 const SPEC_TO_CLASS: Record<string, string> = {};
 const SPEC_TO_NAME: Record<string, string> = {};
@@ -45,8 +48,8 @@ for (const key of Object.keys(CombatUnitSpec)) {
   const specId = CombatUnitSpec[key as keyof typeof CombatUnitSpec];
   if (specId === '0') continue;
   const parts = key.split('_');
-  SPEC_TO_CLASS[specId] = parts[0];
-  SPEC_TO_NAME[specId] = parts.slice(1).join(' ');
+  SPEC_TO_CLASS[specId] = prettify(parts[0]);
+  SPEC_TO_NAME[specId] = parts.slice(1).map(prettify).join(' ');
 }
 
 /** Ordered categories to display */
