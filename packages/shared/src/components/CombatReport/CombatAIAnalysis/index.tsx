@@ -28,13 +28,14 @@ import {
 import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../../utils/matchArchetype';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../../utils/offensiveWindows';
 import { useCombatReportContext } from '../CombatReportContext';
-import { buildMatchFlow, identifyCriticalMoments } from './utils';
+import { buildMatchArc, identifyCriticalMoments } from './utils';
 
 // re-export pure helpers so existing imports from this file continue to work
 export type { CriticalMoment, MomentRole } from './utils';
 export {
   buildDeathRootCauseTrace,
   buildKillMomentFields,
+  buildMatchArc,
   buildMatchFlow,
   findContributingDeath,
   getEnemyStateAtTime,
@@ -175,15 +176,19 @@ export function buildMatchContext(
   lines.push('');
   formatMatchArchetypeForContext(matchArchetype).forEach((l) => lines.push(l));
 
-  // ── MATCH FLOW ─────────────────────────────────────────────────────────────
+  // ── MATCH ARC ──────────────────────────────────────────────────────────────
   lines.push('');
   const allTeamCooldownsWithPlayer = [
     ...cooldowns.map((cd) => ({ player: owner as ICombatUnit, cd })),
     ...teammateCooldowns.flatMap(({ player, cds }) => cds.map((cd) => ({ player: player as ICombatUnit, cd }))),
   ];
-  buildMatchFlow(enemyCDTimeline, cooldowns, allTeamCooldownsWithPlayer, friendlyDeaths, durationSeconds).forEach((l) =>
-    lines.push(l),
-  );
+  buildMatchArc(
+    enemyCDTimeline,
+    allTeamCooldownsWithPlayer,
+    friendlyDeaths,
+    durationSeconds,
+    combat.startInfo.bracket,
+  ).forEach((l) => lines.push(l));
 
   // ── CRITICAL MOMENTS ───────────────────────────────────────────────────────
   lines.push('CRITICAL MOMENTS (interpret as a sequence where earlier events constrain later options):');
@@ -194,7 +199,7 @@ export function buildMatchContext(
   } else {
     criticalMoments.forEach((m, i) => {
       const impactStr = m.roleLabel === 'Constraint' ? 'Context-setting — not a mistake' : m.impactLabel;
-      lines.push(`--- MOMENT ${i + 1} (${m.roleLabel}) (impact: ${impactStr}) ---`);
+      lines.push(`--- MOMENT ${i + 1} [${m.roleLabel}] (impact: ${impactStr}) ---`);
       lines.push(`${fmtTime(m.timeSeconds)} — ${m.title}`);
       lines.push(`  Enemy state: ${m.enemyState}`);
 
@@ -202,7 +207,6 @@ export function buildMatchContext(
         lines.push(
           `  NOTE: This moment is not a mistake. It defines the resource constraints for the rest of the match.`,
         );
-        lines.push(`  What happened:`);
         lines.push(`  What happened: ${m.whatHappened}`);
         if (m.implication && m.implication.length > 0) {
           lines.push(`  Implication:`);
@@ -216,6 +220,13 @@ export function buildMatchContext(
             lines.push(
               `  ⚠ Contributing factor: ${m.contributingDeathSpec} died ${deltaSeconds}s later at ${fmtTime(m.contributingDeathAtSeconds)}`,
             );
+            if (m.roleLabel === 'Setup') {
+              lines.push(`  → This committed resources ${deltaSeconds}s before they were needed at the kill window.`);
+            } else if (m.roleLabel === 'Consequence') {
+              lines.push(
+                `  → Resources were already depleted from an earlier commitment — ${deltaSeconds}s gap to the death.`,
+              );
+            }
           }
         }
         lines.push(`  What happened: ${m.whatHappened}`);
@@ -309,7 +320,7 @@ export function buildMatchContext(
         });
       }
       if (cd.availableWindows.length > 0) {
-        lines.push(`    Idle windows:`);
+        lines.push(`    Pressure correlation (counterfactual unknown — not evidence of missed opportunity):`);
         cd.availableWindows.forEach((w) => {
           const overlapping = pressureWindows.filter((p) => p.fromSeconds < w.toSeconds && p.toSeconds > w.fromSeconds);
           const pressureNote =

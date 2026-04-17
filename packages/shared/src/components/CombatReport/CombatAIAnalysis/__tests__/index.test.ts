@@ -19,6 +19,7 @@ import { IHealingGap } from '../../../../utils/healingGaps';
 import {
   buildDeathRootCauseTrace,
   buildKillMomentFields,
+  buildMatchArc,
   buildMatchFlow,
   findContributingDeath,
   getEnemyStateAtTime,
@@ -1100,5 +1101,124 @@ describe('buildMatchFlow', () => {
     ]);
     const lines = callBuildMatchFlow({ timeline: makeTimeline([burst]) });
     expect(lines.join('\n')).toContain('No friendly deaths');
+  });
+});
+
+// ─── buildMatchArc ─────────────────────────────────────────────────────────────
+
+describe('buildMatchArc', () => {
+  const ownerUnit = makeUnit('owner', { spec: CombatUnitSpec.Priest_Holy, name: 'Healer' });
+
+  function makeDefCD(castAtSeconds: number, cooldownSeconds = 180): ReturnType<typeof makeCooldown> {
+    return makeCooldown({
+      spellName: 'Apotheosis',
+      tag: 'Defensive',
+      cooldownSeconds,
+      casts: [{ timeSeconds: castAtSeconds, timingLabel: 'Reactive', timingContext: '' }],
+    });
+  }
+
+  function callBuildMatchArc(overrides: {
+    timeline?: IEnemyCDTimeline;
+    teamCDs?: Array<{ player: ReturnType<typeof makeUnit>; cd: IMajorCooldownInfo }>;
+    deaths?: Array<{ spec: string; atSeconds: number }>;
+    durationSeconds?: number;
+    bracket?: string;
+  }) {
+    return buildMatchArc(
+      overrides.timeline ?? makeTimeline(),
+      overrides.teamCDs ?? [],
+      overrides.deaths ?? [],
+      overrides.durationSeconds ?? 210,
+      overrides.bracket ?? '3v3',
+    );
+  }
+
+  it('emits MATCH ARC header', () => {
+    const lines = callBuildMatchArc({});
+    expect(lines[0]).toBe('MATCH ARC:');
+  });
+
+  it('produces 3 phase lines for a normal match', () => {
+    const burst = makeBurstWindow(15, 30, 6.5, 'High', [
+      { playerName: 'EnemyA', spellName: 'Pillar of Frost', spellId: '51271' },
+    ]);
+    const defCD = makeDefCD(15);
+    const lines = callBuildMatchArc({
+      timeline: makeTimeline([burst]),
+      teamCDs: [{ player: ownerUnit as any, cd: defCD }],
+      deaths: [{ spec: 'Holy Priest', atSeconds: 170 }],
+    });
+    // Header + 3 phase lines = 4 total
+    expect(lines.length).toBe(4);
+    expect(lines[1]).toContain('Early');
+    expect(lines[2]).toContain('Mid');
+    expect(lines[3]).toContain('Late');
+  });
+
+  it('collapses to 2 phases when match duration < 90s', () => {
+    const lines = callBuildMatchArc({
+      durationSeconds: 70,
+      deaths: [{ spec: 'Holy Priest', atSeconds: 55 }],
+    });
+    expect(lines.length).toBe(3); // header + 2 phases
+    expect(lines[1]).toContain('Pressure');
+    expect(lines[2]).toContain('Death');
+  });
+
+  it('collapses to 2 phases with Resolution when no death and match < 90s', () => {
+    const lines = callBuildMatchArc({ durationSeconds: 60 });
+    expect(lines.length).toBe(3);
+    expect(lines[2]).toContain('Resolution');
+  });
+
+  it('win with no friendly deaths: still emits 3 phases', () => {
+    const burst = makeBurstWindow(20, 35, 5.5, 'Moderate', [
+      { playerName: 'EnemyA', spellName: 'Combustion', spellId: '190319' },
+    ]);
+    const defCD = makeDefCD(22);
+    const lines = callBuildMatchArc({
+      timeline: makeTimeline([burst]),
+      teamCDs: [{ player: ownerUnit as any, cd: defCD }],
+      durationSeconds: 180,
+    });
+    expect(lines.length).toBe(4);
+    expect(lines[3]).toContain('Late');
+  });
+
+  it('no deaths + 3v3 + duration > 180s → Late mentions dampening', () => {
+    const defCD = makeDefCD(30);
+    const lines = callBuildMatchArc({
+      teamCDs: [{ player: ownerUnit as any, cd: defCD }],
+      durationSeconds: 210,
+      bracket: '3v3',
+    });
+    expect(lines[3]).toContain('ampening');
+  });
+
+  it('no deaths + 2v2 + long duration → Late does not force dampening text', () => {
+    const defCD = makeDefCD(30);
+    const lines = callBuildMatchArc({
+      teamCDs: [{ player: ownerUnit as any, cd: defCD }],
+      durationSeconds: 210,
+      bracket: '2v2',
+    });
+    // Should not say dampening for 2v2
+    expect(lines[3]).not.toContain('ampening');
+  });
+
+  it('Late phase references friendly death spec', () => {
+    const defCD = makeDefCD(20);
+    const lines = callBuildMatchArc({
+      teamCDs: [{ player: ownerUnit as any, cd: defCD }],
+      deaths: [{ spec: 'Holy Priest', atSeconds: 150 }],
+      durationSeconds: 165,
+    });
+    expect(lines[3]).toContain('Holy Priest');
+  });
+
+  it('no defensive CDs committed: Mid phase reflects that', () => {
+    const lines = callBuildMatchArc({ durationSeconds: 180 });
+    expect(lines[2]).toContain('No major defensive CDs committed');
   });
 });

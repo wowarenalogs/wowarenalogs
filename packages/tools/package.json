@@ -20,12 +20,13 @@
   "devDependencies": {
     "@types/node": "^22",
     "@types/node-fetch": "2.3.0",
-    "eslint-config-wowarenalogs": "*",
     "dotenv": "^16.0.3",
     "dotenv-cli": "^7.0.0",
+    "eslint-config-wowarenalogs": "*",
     "ts-node": "^10.9.1"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "@wowarenalogs/parser": "*",
     "fengari-web": "^0.1.4",
     "fs-extra": "^11.1.0",

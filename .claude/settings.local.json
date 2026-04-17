@@ -123,7 +123,11 @@
       "Bash(npm run *)",
       "Bash(echo \"Started PID: $!\")",
       "Bash(open *)",
-      "Bash(npx husky *)"
+      "Bash(npx husky *)",
+      "Bash(npm test *)",
+      "Bash(tee /Users/mingjianliu/Desktop/match_prompts_with_responses.txt)",
+      "Bash(echo \"Done, exit: $?\")",
+      "Bash(clear *)"
     ]
   }
 }

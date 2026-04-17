@@ -912,61 +912,49 @@ export function formatDispelContextForAI(summary: IDispelSummary): string[] {
   const lines: string[] = [];
   const { missedCleanseWindows, ccEfficiency, missedPurgeWindows } = summary;
 
-  lines.push('DISPEL ANALYSIS:');
+  lines.push('DISPEL SUMMARY:');
 
-  // Only Critical hard CC and significant High CC — avoid flooding the prompt with low-value cleanse logs.
-  const significantMissed = missedCleanseWindows.filter(
-    (w) => w.priority === 'Critical' || (w.priority === 'High' && (w.durationSeconds > 5 || w.postCcDamage > 50_000)),
-  );
-  lines.push('  Missed cleanse opportunities (dispellable CC/debuff on ally lasting >3s, not broken by damage):');
-  if (significantMissed.length === 0) {
-    lines.push('    None detected');
+  // Cleanse summary
+  const totalCCWindows = ccEfficiency.reduce((s, e) => s + e.totalCCWindows, 0);
+  const totalMissed = ccEfficiency.reduce((s, e) => s + e.missedCount, 0);
+  const totalCleansed = ccEfficiency.reduce((s, e) => s + e.cleanseCount, 0);
+  const totalBroken = ccEfficiency.reduce((s, e) => s + e.brokenCount, 0);
+
+  if (totalCCWindows === 0) {
+    lines.push('  No significant CC applied to your team.');
   } else {
-    for (const w of significantMissed) {
-      const dmg = w.postCcDamage > 0 ? `, ${Math.round(w.postCcDamage / 1000)}k dmg followed` : '';
-      let cdContext = '';
-      if (w.cleanseWasOnCD && w.cdBurnedOn) {
-        const sec = w.cdBurnedOn.secondsBefore.toFixed(1);
-        cdContext = ` (cleanse was on CD, burned ${sec}s earlier on ${w.cdBurnedOn.spellName} [${w.cdBurnedOn.priority}])`;
+    const brokenStr = totalBroken > 0 ? `, ${totalBroken} broken by damage` : '';
+    lines.push(
+      `  CC windows on your team: ${totalCCWindows} total — ${totalMissed} missed, ${totalCleansed} cleansed${brokenStr}`,
+    );
+
+    // Worst missed cleanse
+    const significantMissed = missedCleanseWindows.filter(
+      (w) => w.priority === 'Critical' || (w.priority === 'High' && (w.durationSeconds > 5 || w.postCcDamage > 50_000)),
+    );
+    if (significantMissed.length > 0) {
+      const worst = [...significantMissed].sort((a, b) => b.durationSeconds - a.durationSeconds)[0];
+      const dmgStr = worst.postCcDamage > 0 ? `, ${Math.round(worst.postCcDamage / 1000)}k dmg taken` : '';
+      lines.push(
+        `  Worst missed cleanse: ${worst.spellName} [${worst.priority}] on ${worst.targetSpec} at ${fmtTime(worst.timeSeconds)} (${Math.round(worst.durationSeconds)}s${dmgStr})`,
+      );
+      const highDamageMisses = significantMissed.filter((w) => w.postCcDamage > 100_000);
+      if (highDamageMisses.length > 0) {
+        lines.push(`  High-damage missed cleanses: ${highDamageMisses.length} with >100k dmg taken during CC`);
       }
-      lines.push(
-        `    ${fmtTime(w.timeSeconds)} — ${w.targetName} [${w.targetSpec}] was in ${w.spellName} [${w.dispelType}, ${w.priority}] for ${Math.round(w.durationSeconds)}s${dmg}${cdContext}`,
-      );
     }
   }
 
-  if (ccEfficiency.length > 0) {
-    lines.push('  CC cleanse efficiency (Critical/High CC applied to your team):');
-    for (const e of ccEfficiency) {
-      const dispelableWindows = e.cleanseCount + e.missedCount;
-      const pct = dispelableWindows > 0 ? Math.round(e.cleanseRate * 100) : 100;
-      const brokenStr = e.brokenCount > 0 ? `, ${e.brokenCount} broke from damage` : '';
-      lines.push(
-        `    ${e.targetName} (${e.targetSpec}): ${e.totalCCWindows} CC windows — ${e.cleanseCount} cleansed, ${e.missedCount} missed${brokenStr} (${pct}% cleanse rate)`,
-      );
-    }
-  }
-
+  // Purge summary
   const significantMissedPurges = missedPurgeWindows.filter((w) => w.priority === 'Critical' || w.priority === 'High');
-  lines.push('  Missed offensive purge opportunities (Critical/High magic buffs on enemies lasting >3s):');
   if (significantMissedPurges.length === 0) {
-    lines.push('    None detected');
+    lines.push('  Missed purge windows: None (Critical/High)');
   } else {
-    for (const w of significantMissedPurges) {
-      const expectedStr =
-        w.expectedBuffDurationSeconds != null
-          ? ` (buff lasts ${w.expectedBuffDurationSeconds}s; ${Math.round(w.durationSeconds)}s sat unpurged)`
-          : ` (${Math.round(w.durationSeconds)}s unpurged)`;
-      let cdContext = '';
-      if (w.purgeWasOnCD && w.cdBurnedOn) {
-        const sec = w.cdBurnedOn.secondsBefore.toFixed(1);
-        cdContext = ` — purge on CD, burned ${sec}s earlier on ${w.cdBurnedOn.spellName} [${w.cdBurnedOn.priority}]`;
-      }
-      const pressureStr = w.teamUnderPressure ? ' — team under pressure' : '';
-      lines.push(
-        `    ${fmtTime(w.timeSeconds)} — ${w.enemyName} [${w.enemySpec}] had ${w.spellName}${expectedStr} [${w.priority}]${cdContext}${pressureStr}`,
-      );
-    }
+    const worst = [...significantMissedPurges].sort((a, b) => b.durationSeconds - a.durationSeconds)[0];
+    const pressureStr = worst.teamUnderPressure ? ' during pressure' : '';
+    lines.push(
+      `  Missed purge windows: ${significantMissedPurges.length} — worst: ${worst.spellName} on ${worst.enemySpec} (${Math.round(worst.durationSeconds)}s unpurged${pressureStr})`,
+    );
   }
 
   return lines;

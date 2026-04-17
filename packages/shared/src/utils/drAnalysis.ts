@@ -23,7 +23,7 @@ import {
 } from '@wowarenalogs/parser';
 
 import { ccSpellIds } from '../data/spellTags';
-import { fmtTime, specToString } from './cooldowns';
+import { specToString } from './cooldowns';
 
 // ── DR category constants ─────────────────────────────────────────────────────
 
@@ -382,41 +382,32 @@ export function formatOutgoingCCChainsForContext(chains: IOutgoingCCChain[]): st
   const notable = chains.filter((c) => c.applications.some((a) => a.drInfo.level !== 'Full'));
   if (notable.length === 0) return lines;
 
-  lines.push('CC APPLIED ON ENEMIES (DR state):');
+  lines.push('CC APPLIED ON ENEMIES (DR summary):');
 
   for (const chain of notable) {
-    lines.push('');
-    lines.push(`  ${chain.targetSpec} (${chain.targetName}):`);
+    const total = chain.applications.length;
+    const immuneCount = chain.applications.filter((a) => a.drInfo.level === 'Immune').length;
+    const reducedCount = chain.applications.filter(
+      (a) => a.drInfo.level !== 'Full' && a.drInfo.level !== 'Immune',
+    ).length;
 
+    // Group by DR category for the summary
+    const categoryMap = new Map<string, number>();
     for (const app of chain.applications) {
-      const dur = app.durationSeconds.toFixed(1);
-      const drStr = DR_LEVEL_LABEL[app.drInfo.level];
-      const seqNote =
-        app.drInfo.sequenceIndex > 0
-          ? ` — ${ordinal(app.drInfo.sequenceIndex + 1)} ${app.drInfo.category} in sequence`
-          : '';
-      const warnFlag = app.drInfo.level === 'Immune' ? ' ⚠' : app.drInfo.level === '25%' ? ' ⚠' : '';
-      lines.push(
-        `    ${fmtTime(app.atSeconds)}: ${app.spellName} by ${app.casterSpec} — ${dur}s [${app.drInfo.category}: ${drStr}${seqNote}]${warnFlag}`,
-      );
+      categoryMap.set(app.drInfo.category, (categoryMap.get(app.drInfo.category) ?? 0) + 1);
     }
+    const categoryStr = [...categoryMap.entries()].map(([cat, count]) => `${count}× ${cat}`).join(', ');
 
-    if (chain.hasWastedApplications) {
-      const immuneApps = chain.applications.filter((a) => a.drInfo.level === 'Immune');
-      if (immuneApps.length > 0) {
-        lines.push(
-          `    ⚠ ${immuneApps.length} application(s) hit immune — switch CC category or target after 2 applications`,
-        );
-      }
-    }
+    const wastedNote = chain.hasWastedApplications ? ` ⚠ ${immuneAppsNote(immuneCount)}` : '';
+
+    lines.push(
+      `  ${chain.targetSpec} (${chain.targetName}): ${total} CC — ${categoryStr} | ${reducedCount} reduced, ${immuneCount} immune${wastedNote}`,
+    );
   }
 
   return lines;
 }
 
-function ordinal(n: number): string {
-  if (n === 1) return '1st';
-  if (n === 2) return '2nd';
-  if (n === 3) return '3rd';
-  return `${n}th`;
+function immuneAppsNote(count: number): string {
+  return count > 0 ? `${count} hit immune — switch CC category or target after 2 applications` : 'DR wasted';
 }
