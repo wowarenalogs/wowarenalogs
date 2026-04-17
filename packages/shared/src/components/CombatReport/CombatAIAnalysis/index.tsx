@@ -27,6 +27,7 @@ import {
 } from '../../../utils/killWindowTargetSelection';
 import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../../utils/matchArchetype';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../../utils/offensiveWindows';
+import { benchmarks, formatSpecBaselines } from '../../../utils/specBaselines';
 import { useCombatReportContext } from '../CombatReportContext';
 import { buildMatchArc, identifyCriticalMoments } from './utils';
 
@@ -298,6 +299,12 @@ export function buildMatchContext(
       ? `  Team offensive purgers: ${teamPurgers.join(', ')}`
       : '  Team offensive purgers: None (no teammate has an offensive purge ability)',
   );
+
+  const baselineLines = formatSpecBaselines(ownerSpec, cooldowns, benchmarks);
+  if (baselineLines.length > 0) {
+    lines.push('');
+    baselineLines.forEach((l) => lines.push(l));
+  }
 
   // Owner cooldowns
   lines.push('');
