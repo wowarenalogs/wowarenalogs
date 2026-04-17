@@ -36,6 +36,7 @@ import {
   fmtTime,
   formatOverlappedDefensivesForContext,
   formatPanicDefensivesForContext,
+  getUnitHpAtTimestamp,
   IEnemyCDTimelineForTiming,
   isHealerSpec,
   specToString,
@@ -228,11 +229,11 @@ function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
   const friendlyDeaths = friends
     .filter((p) => p.deathRecords.length > 0)
     .flatMap((p) =>
-      p.deathRecords.map((d) => ({
-        spec: specToString(p.spec),
-        name: p.name,
-        atSeconds: (d.timestamp - combat.startTime) / 1000,
-      })),
+      p.deathRecords.map((d) => {
+        const atSeconds = (d.timestamp - combat.startTime) / 1000;
+        const hpBeforeDeath = getUnitHpAtTimestamp(p, d.timestamp - 3_000);
+        return { spec: specToString(p.spec), name: p.name, atSeconds, hpBeforeDeath };
+      }),
     )
     .sort((a, b) => a.atSeconds - b.atSeconds);
 
@@ -320,7 +321,10 @@ function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
   lines.push(`  My team: ${myTeam}`);
   lines.push(`  Enemy team: ${enemyTeam}`);
   const deathParts = [
-    ...friendlyDeaths.map((d) => `${d.spec} (my team, ${fmtTime(d.atSeconds)})`),
+    ...friendlyDeaths.map((d) => {
+      const hp = d.hpBeforeDeath !== null && d.hpBeforeDeath !== undefined ? ` ${d.hpBeforeDeath}% HP at T-3s` : '';
+      return `${d.spec} (my team, ${fmtTime(d.atSeconds)}${hp})`;
+    }),
     ...enemyDeaths.map((d) => `${d.spec} (enemy, ${fmtTime(d.atSeconds)})`),
   ];
   lines.push(`  Deaths: ${deathParts.length > 0 ? deathParts.join(', ') : 'None'}`);
@@ -466,7 +470,9 @@ function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
             c.timingLabel && c.timingLabel !== 'Unknown'
               ? ` [${c.timingLabel.toUpperCase()}${c.timingContext ? ` — ${c.timingContext}` : ''}]`
               : '';
-          lines.push(`    Cast at: ${fmtTime(c.timeSeconds)}${timing}`);
+          const targetStr = c.targetName ? ` → on: ${c.targetName}` : '';
+          const hpStr = c.targetHpPct !== undefined ? ` (target ${c.targetHpPct}% HP)` : '';
+          lines.push(`    Cast at: ${fmtTime(c.timeSeconds)}${timing}${targetStr}${hpStr}`);
         });
       }
       if (cd.availableWindows.length > 0) {
@@ -483,6 +489,28 @@ function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
         });
       }
     });
+  }
+
+  // Trinket timestamps for log owner (sourced from ccTrinketAnalysis — not in major CD list)
+  const ownerTrinket = ccTrinketSummaries.find((s) => s.playerName === owner.name);
+  if (ownerTrinket && ownerTrinket.trinketType !== 'Unknown') {
+    const trinketLabel =
+      ownerTrinket.trinketType === 'Relentless'
+        ? 'Relentless (passive)'
+        : `${ownerTrinket.trinketType} trinket [${ownerTrinket.trinketCooldownSeconds}s CD]`;
+    if (ownerTrinket.trinketUseTimes.length === 0) {
+      lines.push('');
+      lines.push(`  PvP Trinket — ${trinketLabel}: STATUS: NEVER USED`);
+    } else {
+      lines.push('');
+      lines.push(`  PvP Trinket — ${trinketLabel}: cast at ${ownerTrinket.trinketUseTimes.map(fmtTime).join(', ')}`);
+    }
+    if (ownerTrinket.missedTrinketWindows.length > 0) {
+      const totalDmg = ownerTrinket.missedTrinketWindows.reduce((s, w) => s + w.damageTakenDuring, 0);
+      lines.push(
+        `    ⚠ ${ownerTrinket.missedTrinketWindows.length} missed trinket window(s) — ${Math.round(totalDmg / 1000)}k dmg while trinket available`,
+      );
+    }
   }
 
   if (teammateCooldowns.length > 0) {

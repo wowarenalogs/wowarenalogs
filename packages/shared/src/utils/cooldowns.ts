@@ -145,6 +145,28 @@ export interface ICooldownCast {
   timingLabel?: DefensiveTimingLabel;
   /** One-line reason for the timing label */
   timingContext?: string;
+  /** HP% of the target unit at cast time, 0–100, when available from advanced logging */
+  targetHpPct?: number;
+  /** Name of the unit the spell was cast on (from destUnitName), when available */
+  targetName?: string;
+}
+
+/**
+ * Returns the HP% (0–100) of `unit` at the given timestamp by finding the nearest
+ * advancedAction where advancedActorId === unit.id. Returns null when no data exists.
+ */
+export function getUnitHpAtTimestamp(unit: ICombatUnit, timestampMs: number): number | null {
+  let best: { dt: number; pct: number } | null = null;
+  for (const a of unit.advancedActions) {
+    if (a.advancedActorId !== unit.id) continue;
+    if (a.advancedActorMaxHp <= 0) continue;
+    const dt = Math.abs(a.logLine.timestamp - timestampMs);
+    if (dt > 10_000) continue; // ignore events > 10s away
+    if (best === null || dt < best.dt) {
+      best = { dt, pct: Math.round((a.advancedActorCurrentHp / a.advancedActorMaxHp) * 100) };
+    }
+  }
+  return best?.pct ?? null;
 }
 
 export interface IAvailableWindow {
@@ -239,8 +261,22 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
       (e) => e.spellId === spell.spellId && e.logLine.event === LogEvent.SPELL_CAST_SUCCESS,
     );
 
+    const isDefOrExternal = spell.tags.includes(SpellTag.Defensive) || spell.tags.includes(SpellTag.External);
+
     const casts: ICooldownCast[] = castEvents
-      .map((e) => ({ timeSeconds: (e.logLine.timestamp - matchStartMs) / 1000 }))
+      .map((e) => {
+        const timeSeconds = (e.logLine.timestamp - matchStartMs) / 1000;
+        const cast: ICooldownCast = { timeSeconds };
+        if (isDefOrExternal && e.destUnitId && e.destUnitName) {
+          cast.targetName = e.destUnitName;
+          const targetUnit = combat.units[e.destUnitId];
+          if (targetUnit) {
+            const hp = getUnitHpAtTimestamp(targetUnit, e.logLine.timestamp);
+            if (hp !== null) cast.targetHpPct = hp;
+          }
+        }
+        return cast;
+      })
       .sort((a, b) => a.timeSeconds - b.timeSeconds);
 
     const availableWindows: IAvailableWindow[] = [];
