@@ -125,10 +125,28 @@ const CATEGORIES: CategoryDef[] = [
 
 const VALID_SPEC_IDS = new Set(Object.values(CombatUnitSpec) as string[]);
 
+/** Deduplicate spell entries by name, preferring IDs with known icons. */
+function dedupByName(entries: SpellEntry[]): SpellEntry[] {
+  const byName = new Map<string, SpellEntry>();
+  for (const s of entries) {
+    const existing = byName.get(s.name);
+    if (!existing) {
+      byName.set(s.name, s);
+    } else if (KNOWN_ICON_IDS.has(s.spellId) && !KNOWN_ICON_IDS.has(existing.spellId)) {
+      byName.set(s.name, s);
+    }
+  }
+  return Array.from(byName.values());
+}
+
+interface ClassGroup {
+  className: string;
+  classWideSpells: SpellEntry[];
+  specGroups: { specName: string; specId: string; spells: SpellEntry[] }[];
+}
+
 /** Group spells by WoW class from their specIds, deduplicating by name within each spec. */
-function groupByClass(
-  spells: SpellEntry[],
-): { className: string; specGroups: { specName: string; specId: string; spells: SpellEntry[] }[] }[] {
+function groupByClass(spells: SpellEntry[]): ClassGroup[] {
   const classMap = new Map<string, Map<string, SpellEntry[]>>();
 
   for (const spell of spells) {
@@ -146,30 +164,52 @@ function groupByClass(
 
   return Array.from(classMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([className, specMap]) => ({
-      className,
-      specGroups: Array.from(specMap.entries())
+    .map(([className, specMap]) => {
+      // Determine which spell names appear in every spec represented for this
+      // class in the current category. Those bubble up to a class-wide section.
+      // Require at least 2 specs to be meaningful — a single-spec class group
+      // shouldn't have anything bubbled up.
+      const classSpecIds = Array.from(specMap.keys());
+      const presenceByName = new Map<string, { spell: SpellEntry; specs: Set<string> }>();
+      specMap.forEach((specSpells, specId) => {
+        for (const s of specSpells) {
+          let entry = presenceByName.get(s.name);
+          if (!entry) {
+            entry = { spell: s, specs: new Set() };
+            presenceByName.set(s.name, entry);
+          } else if (KNOWN_ICON_IDS.has(s.spellId) && !KNOWN_ICON_IDS.has(entry.spell.spellId)) {
+            entry.spell = s;
+          }
+          entry.specs.add(specId);
+        }
+      });
+
+      const sharedNames = new Set<string>();
+      const classWideRaw: SpellEntry[] = [];
+      if (classSpecIds.length >= 2) {
+        presenceByName.forEach((entry, name) => {
+          if (entry.specs.size === classSpecIds.length) {
+            sharedNames.add(name);
+            classWideRaw.push(entry.spell);
+          }
+        });
+      }
+      const classWideSpells = dedupByName(classWideRaw).sort((a, b) => a.name.localeCompare(b.name));
+
+      const specGroups = Array.from(specMap.entries())
         .sort(([, a], [, b]) => a[0]?.name.localeCompare(b[0]?.name))
         .map(([specId, specSpells]) => {
-          // Deduplicate by spell name within each spec, preferring the spell ID
-          // that has a known icon (exists in BigDebuffs or spellEffects data)
-          const byName = new Map<string, SpellEntry>();
-          for (const s of specSpells) {
-            const existing = byName.get(s.name);
-            if (!existing) {
-              byName.set(s.name, s);
-            } else if (KNOWN_ICON_IDS.has(s.spellId) && !KNOWN_ICON_IDS.has(existing.spellId)) {
-              byName.set(s.name, s);
-            }
-          }
-          const unique = Array.from(byName.values());
+          const filtered = specSpells.filter((s) => !sharedNames.has(s.name));
           return {
             specName: SPEC_TO_NAME[specId] ?? specId,
             specId,
-            spells: unique.sort((a, b) => a.name.localeCompare(b.name)),
+            spells: dedupByName(filtered).sort((a, b) => a.name.localeCompare(b.name)),
           };
-        }),
-    }));
+        })
+        .filter((g) => g.spells.length > 0);
+
+      return { className, classWideSpells, specGroups };
+    });
 }
 
 // ── Components ──────────────────────────────────────────────────────
@@ -231,9 +271,19 @@ function CategorySection({ category, searchQuery }: { category: CategoryDef; sea
       </button>
       {isExpanded && hasSpecData && (
         <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {grouped.map(({ className, specGroups }) => (
+          {grouped.map(({ className, classWideSpells, specGroups }) => (
             <div key={className} className="bg-base-300/40 rounded-lg p-3">
               <div className="font-semibold text-sm mb-2 text-base-content/80">{className}</div>
+              {classWideSpells.length > 0 && (
+                <div className="mb-2">
+                  <div className="text-xs text-base-content/60 mb-1 italic">All specs</div>
+                  <div className="pl-1">
+                    {classWideSpells.map((spell) => (
+                      <SpellRow key={spell.spellId} spell={spell} />
+                    ))}
+                  </div>
+                </div>
+              )}
               {specGroups.map(({ specName, specId, spells }) => (
                 <div key={specId} className="mb-2 last:mb-0">
                   <div className="flex items-center gap-1.5 mb-1">
