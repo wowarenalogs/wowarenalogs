@@ -138,7 +138,7 @@ export function buildDeathRootCauseTrace(
   // 1. Check each owner major CD: on CD (and why) vs available-but-not-pressed
   for (const cd of ownerCooldowns) {
     if (cd.neverUsed) {
-      traces.push(`${cd.spellName} [${cd.tag}]: no cast recorded — was mechanically available throughout the match`);
+      traces.push(`${cd.spellName} [${cd.tag}]: NEVER USED — was available throughout the match`);
       continue;
     }
     const castsBeforeDeath = cd.casts.filter((c) => c.timeSeconds <= deathTimeSeconds);
@@ -161,7 +161,7 @@ export function buildDeathRootCauseTrace(
       );
     } else {
       // Ready at death but not pressed
-      traces.push(`${cd.spellName} [${cd.tag}]: available at death time — no cast recorded`);
+      traces.push(`${cd.spellName} [${cd.tag}]: available at death time — not pressed`);
     }
   }
 

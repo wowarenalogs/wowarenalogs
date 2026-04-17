@@ -261,7 +261,7 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
       (e) => e.spellId === spell.spellId && e.logLine.event === LogEvent.SPELL_CAST_SUCCESS,
     );
 
-    const isDefOrExternal = spell.tags.includes(SpellTag.Defensive) || spell.tags.includes(SpellTag.External);
+    const isDefOrExternal = spell.tags.includes(SpellTag.Defensive) || (spell.tags as string[]).includes('External');
 
     const casts: ICooldownCast[] = castEvents
       .map((e) => {
