@@ -144,7 +144,7 @@ export function buildDeathRootCauseTrace(
       if (d.logLine.timestamp < deathMs - killWindowMs || d.logLine.timestamp > deathMs) continue;
       const dmg = Math.abs(d.effectiveAmount);
       if (dmg <= 0) continue;
-      const key = d.srcUnitName + ' — ' + (d.spellName ?? 'melee');
+      const key = (d.srcUnitName || 'Unknown') + ' — ' + (d.spellName ?? 'melee');
       buckets.set(key, (buckets.get(key) ?? 0) + dmg);
     }
     const sorted = [...buckets.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);

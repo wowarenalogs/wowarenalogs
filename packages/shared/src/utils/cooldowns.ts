@@ -155,13 +155,13 @@ export interface ICooldownCast {
  * Returns the HP% (0–100) of `unit` at the given timestamp by finding the nearest
  * advancedAction where advancedActorId === unit.id. Returns null when no data exists.
  */
-export function getUnitHpAtTimestamp(unit: ICombatUnit, timestampMs: number): number | null {
+export function getUnitHpAtTimestamp(unit: ICombatUnit, timestampMs: number, maxDtMs = 10_000): number | null {
   let best: { dt: number; pct: number } | null = null;
   for (const a of unit.advancedActions) {
     if (a.advancedActorId !== unit.id) continue;
     if (a.advancedActorMaxHp <= 0) continue;
     const dt = Math.abs(a.logLine.timestamp - timestampMs);
-    if (dt > 10_000) continue; // ignore events > 10s away
+    if (dt > maxDtMs) continue;
     if (best === null || dt < best.dt) {
       best = { dt, pct: Math.round((a.advancedActorCurrentHp / a.advancedActorMaxHp) * 100) };
     }

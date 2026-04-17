@@ -169,13 +169,14 @@ export function reconstructEnemyCDTimeline(
       const dampening = computeDampening(windowStart * 1000 + matchStartMs, bracket, allPlayers);
       const dampeningMult = dampeningDangerMultiplier(dampening);
 
+      // Hoist window timestamps here so both the healer CC block and HP sampling share the same values
+      const windowStartMs = matchStartMs + windowStart * 1000;
+      const windowEndMs = matchStartMs + windowEnd * 1000;
+      const windowDuration = windowEnd - windowStart;
+
       // Healer CC explicit check: find if the healer had an active CC aura during this window
       let healerCCed = false;
-      const windowDuration = windowEnd - windowStart;
       if (owner && isHealerSpec(owner.spec)) {
-        const windowStartMs = matchStartMs + windowStart * 1000;
-        const windowEndMs = matchStartMs + windowEnd * 1000;
-
         // Track CC start time per spellId to handle multiple overlapping CC auras correctly
         const ccStartBySpell = new Map<string, number>();
         for (const a of owner.auraEvents) {
@@ -217,9 +218,10 @@ export function reconstructEnemyCDTimeline(
 
       const score = cdScore * alignmentMultiplier * damageRatio * dampeningMult * healerMult;
 
-      // Find the most-pressured friendly unit (highest damageIn during the burst window)
-      const windowStartMs = matchStartMs + windowStart * 1000;
-      const windowEndMs = matchStartMs + windowEnd * 1000;
+      // Find the most-pressured friendly unit (highest damageIn during the burst window).
+      // HP is sampled with a bounded window (half the burst duration, min 3s) so readings
+      // stay within the burst period rather than bleeding into adjacent periods.
+      const hpLookupRadiusMs = Math.max((windowEndMs - windowStartMs) / 2, 3_000);
       let mostPressuredTarget: IAlignedBurstWindow['mostPressuredTarget'];
       if (friendlies && friendlies.length > 0) {
         let topUnit: ICombatUnit | null = null;
@@ -237,9 +239,9 @@ export function reconstructEnemyCDTimeline(
           const midMs = windowStartMs + (windowEndMs - windowStartMs) / 2;
           mostPressuredTarget = {
             unitName: topUnit.name,
-            startHpPct: getUnitHpAtTimestamp(topUnit, windowStartMs),
-            midHpPct: getUnitHpAtTimestamp(topUnit, midMs),
-            endHpPct: getUnitHpAtTimestamp(topUnit, windowEndMs),
+            startHpPct: getUnitHpAtTimestamp(topUnit, windowStartMs, hpLookupRadiusMs),
+            midHpPct: getUnitHpAtTimestamp(topUnit, midMs, hpLookupRadiusMs),
+            endHpPct: getUnitHpAtTimestamp(topUnit, windowEndMs, hpLookupRadiusMs),
           };
         }
       }
