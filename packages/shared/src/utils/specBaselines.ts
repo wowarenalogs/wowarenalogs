@@ -1,6 +1,9 @@
 import benchmarksJson from '../data/benchmarks.json';
 import { fmtTime, IMajorCooldownInfo } from './cooldowns';
 
+// benchmarks.json is a copy of packages/tools/benchmarks/benchmark_data.json.
+// Re-run collectBenchmarks and copy the output here to keep them in sync.
+
 interface ISpecCDBaseline {
   neverUsedRate: number;
   medianFirstUseSeconds: number | null;
