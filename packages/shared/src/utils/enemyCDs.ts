@@ -2,7 +2,7 @@ import { AtomicArenaCombat, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { spellEffectData } from '../data/spellEffectData';
 import spellsData from '../data/spells.json';
-import { fmtTime, isHealerSpec, specToString } from './cooldowns';
+import { fmtTime, getUnitHpAtTimestamp, isHealerSpec, specToString } from './cooldowns';
 
 type SpellEntry = { type: string };
 const SPELLS = spellsData as Record<string, SpellEntry>;
@@ -43,6 +43,13 @@ export interface IAlignedBurstWindow {
   damageInWindow: number;
   damageRatio: number;
   healerCCed: boolean;
+  /** HP% of the most-pressured friendly at window start, midpoint, and end */
+  mostPressuredTarget?: {
+    unitName: string;
+    startHpPct: number | null;
+    midHpPct: number | null;
+    endHpPct: number | null;
+  };
 }
 
 export interface IEnemyCDTimeline {
@@ -210,6 +217,33 @@ export function reconstructEnemyCDTimeline(
 
       const score = cdScore * alignmentMultiplier * damageRatio * dampeningMult * healerMult;
 
+      // Find the most-pressured friendly unit (highest damageIn during the burst window)
+      const windowStartMs = matchStartMs + windowStart * 1000;
+      const windowEndMs = matchStartMs + windowEnd * 1000;
+      let mostPressuredTarget: IAlignedBurstWindow['mostPressuredTarget'];
+      if (friendlies && friendlies.length > 0) {
+        let topUnit: ICombatUnit | null = null;
+        let topDmg = 0;
+        for (const f of friendlies) {
+          const dmg = f.damageIn
+            .filter((d) => d.logLine.timestamp >= windowStartMs && d.logLine.timestamp <= windowEndMs)
+            .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+          if (dmg > topDmg) {
+            topDmg = dmg;
+            topUnit = f;
+          }
+        }
+        if (topUnit && topDmg > 0) {
+          const midMs = windowStartMs + (windowEndMs - windowStartMs) / 2;
+          mostPressuredTarget = {
+            unitName: topUnit.name,
+            startHpPct: getUnitHpAtTimestamp(topUnit, windowStartMs),
+            midHpPct: getUnitHpAtTimestamp(topUnit, midMs),
+            endHpPct: getUnitHpAtTimestamp(topUnit, windowEndMs),
+          };
+        }
+      }
+
       alignedBurstWindows.push({
         fromSeconds: windowStart,
         toSeconds: windowEnd,
@@ -224,6 +258,7 @@ export function reconstructEnemyCDTimeline(
         damageInWindow: windowDamage,
         damageRatio,
         healerCCed,
+        mostPressuredTarget,
       });
       i += inWindow.length;
     } else {
@@ -266,6 +301,17 @@ export function formatEnemyCDTimelineForContext(timeline: IEnemyCDTimeline, matc
     );
     lines.push(`    CDs: ${cdNames}`);
     lines.push(`    Damage: ${dmgM}M (${ratioStr}) | ${healerStr}`);
+    if (w.mostPressuredTarget) {
+      const t = w.mostPressuredTarget;
+      const hpStr = [
+        t.startHpPct !== null ? `${t.startHpPct}% start` : null,
+        t.midHpPct !== null ? `${t.midHpPct}% mid` : null,
+        t.endHpPct !== null ? `${t.endHpPct}% end` : null,
+      ]
+        .filter(Boolean)
+        .join(' → ');
+      if (hpStr) lines.push(`    Most pressured: ${t.unitName} HP: ${hpStr}`);
+    }
   });
 
   // Include never-used offensive CDs as hallucination guard: if an enemy CD never appeared

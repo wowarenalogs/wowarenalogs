@@ -118,7 +118,7 @@ export function buildDeathRootCauseTrace(
 ): string[] {
   const traces: string[] = [];
 
-  // 0. HP trajectory leading to death
+  // 0a. HP trajectory leading to death
   if (dyingUnit) {
     const checkpoints = [15, 10, 5, 3];
     const trajectory: string[] = [];
@@ -132,6 +132,25 @@ export function buildDeathRootCauseTrace(
       traces.push(
         `HP trajectory before death: ${trajectory.join(' → ')} → dead (sampled from last action as source — readings may lag by a few seconds if player was CCed or not casting)`,
       );
+    }
+  }
+
+  // 0b. Top damage contributors in the 10s kill window
+  if (dyingUnit) {
+    const deathMs = matchStartMs + deathTimeSeconds * 1000;
+    const killWindowMs = 10_000;
+    const buckets = new Map<string, number>();
+    for (const d of dyingUnit.damageIn) {
+      if (d.logLine.timestamp < deathMs - killWindowMs || d.logLine.timestamp > deathMs) continue;
+      const dmg = Math.abs(d.effectiveAmount);
+      if (dmg <= 0) continue;
+      const key = d.srcUnitName + ' — ' + (d.spellName ?? 'melee');
+      buckets.set(key, (buckets.get(key) ?? 0) + dmg);
+    }
+    const sorted = [...buckets.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if (sorted.length > 0) {
+      const parts = sorted.map(([k, v]) => `${k} (${Math.round(v / 1000)}k)`).join(', ');
+      traces.push(`Top damage sources in final 10s: ${parts}`);
     }
   }
 
