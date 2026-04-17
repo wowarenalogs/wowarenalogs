@@ -83,7 +83,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (debug) {
       responseBody.debug = {
         model,
-        systemPrompt: SYSTEM_PROMPT,
+        systemPrompt: activeSystemPrompt,
         userMessage: matchContext,
         inputTokens: message.usage.input_tokens,
         outputTokens: message.usage.output_tokens,
