@@ -56,8 +56,9 @@ export function buildMatchContext(
   combat: NonNullable<ReturnType<typeof useCombatReportContext>['combat']>,
   friends: ReturnType<typeof useCombatReportContext>['friends'],
   enemies: ReturnType<typeof useCombatReportContext>['enemies'],
-  useTimelinePrompt = false,
+  options: { useTimelinePrompt?: boolean } = {},
 ): string {
+  const { useTimelinePrompt = false } = options;
   const durationSeconds = (combat.endTime - combat.startTime) / 1000;
 
   // Find the log owner (the player who recorded the log)
@@ -202,13 +203,11 @@ export function buildMatchContext(
     ).forEach((l) => tLines.push(l));
 
     tLines.push('');
-    const { text: loadoutText, playerIdMap } = buildPlayerLoadout(
-      owner as ICombatUnit,
-      ownerSpec,
-      cooldowns,
-      allTeamCDsWithSpec,
-      enemyCDTimeline,
-    );
+    const {
+      text: loadoutText,
+      playerIdMap,
+      enemyIdMap,
+    } = buildPlayerLoadout(owner as ICombatUnit, ownerSpec, cooldowns, allTeamCDsWithSpec, enemyCDTimeline);
     tLines.push(loadoutText);
 
     tLines.push('');
@@ -229,6 +228,7 @@ export function buildMatchContext(
         matchEndMs: combat.endTime,
         isHealer: healer,
         playerIdMap,
+        enemyIdMap,
       } as BuildMatchTimelineParams),
     );
 

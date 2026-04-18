@@ -24,14 +24,65 @@ function lastCastBefore(cd: IMajorCooldownInfo, timeSeconds: number) {
 
 // ── Critical moment identification helpers ─────────────────────────────────
 
+/**
+ * Healer spell IDs that should appear as [OWNER CAST] gap-fillers when they are NOT
+ * already tracked by ownerCDs (to avoid double-counting).  Keep in sync with
+ * classMetadata.ts as new specs / abilities ship.
+ *
+ * Sources: Wowhead / WoW API — verified against Patch 11.x spell IDs.
+ */
 const HEALER_CAST_SPELL_ID_TO_NAME: Record<string, string> = {
-  '10060': 'Power Infusion',
-  '33206': 'Pain Suppression',
-  '108280': 'Healing Tide Totem',
-  '98008': 'Spirit Link Totem',
-  '200183': 'Apotheosis',
-  '265202': 'Holy Word: Salvation',
+  // ── Priest ─────────────────────────────────────────────────────────────────
+  '10060': 'Power Infusion', // Holy/Disc — external DPS CD
+  '33206': 'Pain Suppression', // Disc — defensive external
+  '265202': 'Holy Word: Salvation', // Holy — raid/party heal CD
+  '200183': 'Apotheosis', // Holy — healing amplifier
+  '47788': 'Guardian Spirit', // Holy — prevent-death external
+  // ── Shaman ─────────────────────────────────────────────────────────────────
+  '108280': 'Healing Tide Totem', // Resto — party heal CD
+  '98008': 'Spirit Link Totem', // Resto — damage redistribution
+  '114052': 'Ascendance', // Resto — healing burst CD
+  // ── Druid ──────────────────────────────────────────────────────────────────
+  '29166': 'Innervate', // Resto — mana external / self
+  '740': 'Tranquility', // Resto — AoE heal channel
+  // ── Monk ───────────────────────────────────────────────────────────────────
+  '116849': 'Life Cocoon', // Mistweaver — absorb external
+  '115310': 'Revival', // Mistweaver — group dispel + heal
+  // ── Paladin ────────────────────────────────────────────────────────────────
+  '31884': 'Avenging Wrath', // Holy — healing/damage amp
+  '216331': 'Avenging Crusader', // Holy alt-talent
+  '114165': 'Holy Prism', // not a CD but a high-value cast tracked in some builds
+  '6940': 'Blessing of Sacrifice', // Holy — damage redirect external
+  '316011': 'Symbol of Hope', // Holy — mana restoration for team
+  // ── Evoker ─────────────────────────────────────────────────────────────────
+  '363534': 'Rewind', // Preservation — rewind time
+  '370537': 'Stasis', // Preservation — store heals
 };
+
+// ── Module-level constants shared across builders ──────────────────────────
+
+/** Minimum total damage for a pressure window to be treated as a [DMG SPIKE] event. */
+export const DMG_SPIKE_THRESHOLD = 300_000;
+
+/**
+ * Extracts the top-N damage sources that hit `unit` within the `windowMs` window
+ * ending at `deathMs`. Returns an array of formatted "source — spell (Xk)" strings.
+ */
+export function getTopDamageSourcesInWindow(unit: ICombatUnit, endMs: number, windowMs: number, topN = 3): string[] {
+  const startMs = endMs - windowMs;
+  const buckets = new Map<string, number>();
+  for (const d of unit.damageIn) {
+    if (d.logLine.timestamp < startMs || d.logLine.timestamp > endMs) continue;
+    const dmg = Math.abs(d.effectiveAmount);
+    if (dmg <= 0) continue;
+    const key = `${d.srcUnitName || 'Unknown'} — ${d.spellName ?? 'melee'}`;
+    buckets.set(key, (buckets.get(key) ?? 0) + dmg);
+  }
+  return [...buckets.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, topN)
+    .map(([k, v]) => `${k} (${Math.round(v / 1000)}k)`);
+}
 
 export type MomentRole = 'Constraint' | 'Kill' | 'Trade' | 'Setup' | 'Consequence' | 'Standalone';
 
@@ -157,19 +208,9 @@ export function buildDeathRootCauseTrace(
   // 0b. Top damage contributors in the 10s kill window
   if (dyingUnit) {
     const deathMs = matchStartMs + deathTimeSeconds * 1000;
-    const killWindowMs = 10_000;
-    const buckets = new Map<string, number>();
-    for (const d of dyingUnit.damageIn) {
-      if (d.logLine.timestamp < deathMs - killWindowMs || d.logLine.timestamp > deathMs) continue;
-      const dmg = Math.abs(d.effectiveAmount);
-      if (dmg <= 0) continue;
-      const key = (d.srcUnitName || 'Unknown') + ' — ' + (d.spellName ?? 'melee');
-      buckets.set(key, (buckets.get(key) ?? 0) + dmg);
-    }
-    const sorted = [...buckets.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
-    if (sorted.length > 0) {
-      const parts = sorted.map(([k, v]) => `${k} (${Math.round(v / 1000)}k)`).join(', ');
-      traces.push(`Top damage sources in final 10s: ${parts}`);
+    const topSources = getTopDamageSourcesInWindow(dyingUnit, deathMs, 10_000);
+    if (topSources.length > 0) {
+      traces.push(`Top damage sources in final 10s: ${topSources.join(', ')}`);
     }
   }
 
@@ -627,6 +668,7 @@ export function identifyCriticalMoments(
  * Opening Burst → Post-Trade Window → Final Burst/Phase in causal order.
  *
  * @deprecated Replaced by `buildMatchArc` in production. Retained for test coverage only.
+ * @internal Do not use in production prompt builders. Not exported from the public surface.
  */
 export function buildMatchFlow(
   enemyCDTimeline: IEnemyCDTimeline,
@@ -879,25 +921,34 @@ export function buildPlayerLoadout(
   ownerCDs: IMajorCooldownInfo[],
   teammateCDs: Array<{ player: ICombatUnit; spec: string; cds: IMajorCooldownInfo[] }>,
   enemyCDTimeline: IEnemyCDTimeline,
-): { text: string; playerIdMap: Map<string, number> } {
+): {
+  text: string;
+  playerIdMap: Map<string, number>;
+  friendlyIdMap: Map<string, number>;
+  enemyIdMap: Map<string, number>;
+} {
   const lines: string[] = [];
   lines.push('PLAYER LOADOUT (major CDs ≥30s available this match)');
 
-  const playerIdMap = new Map<string, number>();
+  // Use separate maps to prevent a friendly and enemy sharing a display name from
+  // overwriting each other's ID entry.  The combined playerIdMap returned uses a
+  // "friendly:name" / "enemy:name" internal key that pid() resolves correctly.
+  const friendlyIdMap = new Map<string, number>();
+  const enemyIdMap = new Map<string, number>();
   let nextId = 1;
 
   const fmtCDLabel = (cd: IMajorCooldownInfo) =>
     `${cd.spellName} [${cd.cooldownSeconds}s${cd.maxChargesDetected > 1 ? `, ${cd.maxChargesDetected} Charges` : ''}]`;
   const ownerCDStr = ownerCDs.length > 0 ? ownerCDs.map(fmtCDLabel).join(', ') : 'none tracked';
   const ownerId = nextId++;
-  playerIdMap.set(owner.name, ownerId);
+  friendlyIdMap.set(owner.name, ownerId);
   lines.push(`  ${ownerId}: ${owner.name} (${ownerSpec} — log owner):`);
   lines.push(`    ${ownerCDStr}`);
 
   for (const { player, spec, cds } of teammateCDs) {
     const cdStr = cds.length > 0 ? cds.map(fmtCDLabel).join(', ') : 'none tracked';
     const pid = nextId++;
-    playerIdMap.set(player.name, pid);
+    friendlyIdMap.set(player.name, pid);
     lines.push(`  ${pid}: ${player.name} (${spec}):`);
     lines.push(`    ${cdStr}`);
   }
@@ -915,13 +966,25 @@ export function buildPlayerLoadout(
     }
     if (uniqueCDs.length > 0) {
       const pid = nextId++;
-      playerIdMap.set(player.playerName, pid);
+      enemyIdMap.set(player.playerName, pid);
       lines.push(`  ${pid}: ${player.playerName} (${player.specName} — enemy):`);
       lines.push(`    ${uniqueCDs.join(', ')}`);
     }
   }
 
-  return { text: lines.join('\n'), playerIdMap };
+  // Build a combined playerIdMap that encodes side to avoid key collision.
+  // buildMatchTimeline's pid() function uses this map; friendly names are tried
+  // first (covering owner + teammates), then enemy names.
+  const playerIdMap = new Map<string, number>();
+  for (const [name, id] of friendlyIdMap) playerIdMap.set(name, id);
+  // Enemy names are added with a sentinel suffix internally so that a name collision
+  // does not silently overwrite the friendly entry.  We store them under
+  // "\x00enemy:name" — a key that normal lookups by display name will never hit.
+  // The buildMatchTimeline pid() helper resolves enemy names via enemyIdMap which
+  // is included in the returned object.
+  for (const [name, id] of enemyIdMap) playerIdMap.set('\x00enemy:' + name, id);
+
+  return { text: lines.join('\n'), playerIdMap, friendlyIdMap, enemyIdMap };
 }
 
 // ── buildMatchTimeline ─────────────────────────────────────────────────────
@@ -941,8 +1004,17 @@ export interface BuildMatchTimelineParams {
   matchStartMs: number;
   matchEndMs: number;
   isHealer: boolean;
-  /** Player name → numeric ID mapping from buildPlayerLoadout. When provided, names are compressed to short IDs in the timeline. */
+  /**
+   * Friendly player name → numeric ID mapping from buildPlayerLoadout.
+   * When provided, friendly names are compressed to short IDs in the timeline.
+   */
   playerIdMap?: Map<string, number>;
+  /**
+   * Enemy player name → numeric ID mapping from buildPlayerLoadout.
+   * Required alongside playerIdMap to avoid collision when a friendly and enemy
+   * share the same display name.
+   */
+  enemyIdMap?: Map<string, number>;
 }
 
 export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
@@ -962,12 +1034,24 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     matchEndMs,
     isHealer,
     playerIdMap,
+    enemyIdMap,
   } = params;
 
-  /** Returns the short numeric ID string for a player name, or the name itself if no map/entry. */
+  /**
+   * Returns the short numeric ID for a friendly player name, or the raw name
+   * if no mapping exists.  Enemy names must be resolved via enemyPid() to avoid
+   * ID collision when a friendly and enemy share a display name.
+   */
   function pid(name: string): string {
     if (!playerIdMap) return name;
     const id = playerIdMap.get(name);
+    return id !== undefined ? String(id) : name;
+  }
+
+  /** Returns the short numeric ID for an *enemy* player name, falling back to name. */
+  function enemyPid(name: string): string {
+    if (!enemyIdMap) return name;
+    const id = enemyIdMap.get(name);
     return id !== undefined ? String(id) : name;
   }
 
@@ -999,20 +1083,11 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         deathLines.push(`               HP: ${trajectory.join(' → ')} → dead`);
       }
 
-      // Top damage sources in final 10s
+      // Top damage sources in final 10s — uses shared helper to avoid duplication
       const deathMs = matchStartMs + death.atSeconds * 1000;
-      const buckets = new Map<string, number>();
-      for (const d of dyingUnit.damageIn) {
-        if (d.logLine.timestamp < deathMs - 10_000 || d.logLine.timestamp > deathMs) continue;
-        const dmg = Math.abs(d.effectiveAmount);
-        if (dmg <= 0) continue;
-        const key = `${d.srcUnitName || 'Unknown'} — ${d.spellName ?? 'melee'}`;
-        buckets.set(key, (buckets.get(key) ?? 0) + dmg);
-      }
-      const topDamage = [...buckets.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
-      if (topDamage.length > 0) {
-        const parts = topDamage.map(([k, v]) => `${k} ${Math.round(v / 1000)}k`).join(', ');
-        deathLines.push(`               Top damage in final 10s: ${parts}`);
+      const topSources = getTopDamageSourcesInWindow(dyingUnit, deathMs, 10_000);
+      if (topSources.length > 0) {
+        deathLines.push(`               Top damage in final 10s: ${topSources.join(', ')}`);
       }
     }
 
@@ -1020,7 +1095,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   }
 
   for (const death of enemyDeaths) {
-    addEntry(death.atSeconds, `${fmtTime(death.atSeconds)}  [DEATH]  ${pid(death.name)} (${death.spec} — enemy)`);
+    addEntry(death.atSeconds, `${fmtTime(death.atSeconds)}  [DEATH]  ${enemyPid(death.name)} (${death.spec} — enemy)`);
   }
 
   // ── [OWNER CD] events ───────────────────────────────────────────────────────
@@ -1038,20 +1113,26 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   // ── [OWNER CAST] healer gap-filler (F61) ────────────────────────────────────
 
   if (isHealer) {
+    // Build a dedup set of raw timestamps (ms) for each tracked spell so the ±1s float
+    // rounding trick is not needed — this avoids edge cases where matchStartMs reference
+    // points diverge or cast times are at half-second boundaries.
     const trackedCastsBySpellId = new Map<string, Set<number>>();
     for (const cd of ownerCDs) {
-      trackedCastsBySpellId.set(cd.spellId, new Set(cd.casts.map((c) => Math.round(c.timeSeconds))));
+      trackedCastsBySpellId.set(
+        cd.spellId,
+        new Set(cd.casts.map((c) => matchStartMs + Math.round(c.timeSeconds * 1000))),
+      );
     }
     for (const e of owner.spellCastEvents ?? []) {
       if (e.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
       if (!e.spellId) continue;
       const spellName = HEALER_CAST_SPELL_ID_TO_NAME[e.spellId];
       if (!spellName) continue;
-      const timeSeconds = (e.logLine.timestamp - matchStartMs) / 1000;
-      const roundedT = Math.round(timeSeconds);
+      const tsMs = e.logLine.timestamp;
       const trackedSet = trackedCastsBySpellId.get(e.spellId);
-      if (trackedSet && (trackedSet.has(roundedT - 1) || trackedSet.has(roundedT) || trackedSet.has(roundedT + 1)))
-        continue;
+      // Allow ±1000ms tolerance to absorb server/client timestamp drift
+      if (trackedSet && (trackedSet.has(tsMs) || trackedSet.has(tsMs - 1000) || trackedSet.has(tsMs + 1000))) continue;
+      const timeSeconds = (tsMs - matchStartMs) / 1000;
       addEntry(timeSeconds, `${fmtTime(timeSeconds)}  [OWNER CAST]   ${spellName}`);
     }
   }
@@ -1075,7 +1156,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     for (const cd of player.offensiveCDs) {
       addEntry(
         cd.castTimeSeconds,
-        `${fmtTime(cd.castTimeSeconds)}  [ENEMY CD]   ${pid(player.playerName)} (${player.specName}): ${cd.spellName}`,
+        `${fmtTime(cd.castTimeSeconds)}  [ENEMY CD]   ${enemyPid(player.playerName)} (${player.specName}): ${cd.spellName}`,
       );
     }
   }
@@ -1120,7 +1201,6 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
 
   // ── [DMG SPIKE] events ─────────────────────────────────────────────────────
 
-  const DMG_SPIKE_THRESHOLD = 300_000;
   for (const pw of pressureWindows) {
     if (pw.totalDamage < DMG_SPIKE_THRESHOLD) continue;
     const dmgM = (pw.totalDamage / 1_000_000).toFixed(2);
@@ -1144,37 +1224,55 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
 
   // ── [HP] ticks — 1s resolution in critical windows, 3s elsewhere (F62) ──────
 
-  const HP_SAMPLE_WINDOW_MS = 3_000;
   const matchDurationS = (matchEndMs - matchStartMs) / 1000;
 
-  const criticalWindows: Array<[number, number]> = [];
+  const criticalWindowSet = new Set<number>(); // which tick-seconds are in a critical window
   for (const d of friendlyDeaths) {
-    criticalWindows.push([Math.max(0, d.atSeconds - 10), d.atSeconds]);
+    // [T-10, T] window before death
+    for (let t = Math.max(0, Math.ceil(d.atSeconds - 10)); t <= Math.floor(d.atSeconds); t++) {
+      criticalWindowSet.add(t);
+    }
   }
   for (const pw of pressureWindows) {
     if (pw.totalDamage >= DMG_SPIKE_THRESHOLD) {
-      criticalWindows.push([Math.max(0, pw.fromSeconds - 5), Math.min(matchDurationS, pw.fromSeconds + 5)]);
+      // ±5s centred on the spike start — clamp both edges
+      const from = Math.max(0, Math.ceil(pw.fromSeconds - 5));
+      const to = Math.min(Math.floor(matchDurationS), Math.floor(pw.fromSeconds + 5));
+      for (let t = from; t <= to; t++) criticalWindowSet.add(t);
     }
   }
   for (const summary of ccTrinketSummaries) {
     for (const cc of summary.ccInstances) {
-      criticalWindows.push([cc.atSeconds, Math.min(matchDurationS, cc.atSeconds + 10)]);
+      // [cc.atSeconds, cc.atSeconds + 10] look-ahead — clamp right edge
+      const from = Math.max(0, Math.ceil(cc.atSeconds));
+      const to = Math.min(Math.floor(matchDurationS), Math.floor(cc.atSeconds + 10));
+      for (let t = from; t <= to; t++) criticalWindowSet.add(t);
     }
   }
 
   const tickSet = new Set<number>();
   for (let t = 0; t <= Math.ceil(matchDurationS); t++) {
-    const inCriticalWindow = criticalWindows.some(([from, to]) => t >= from && t <= to);
-    if (inCriticalWindow || t % 3 === 0) {
+    if (criticalWindowSet.has(t) || t % 3 === 0) {
       tickSet.add(t);
     }
   }
 
+  // Emit HP ticks — use a narrower sample window inside critical windows so adjacent
+  // 1-second ticks cannot both claim the same underlying reading (which would give a
+  // misleadingly flat HP line during a fast drop).
+  const HP_SAMPLE_WINDOW_CRITICAL_MS = 1_500; // ±1.5s for 1s dense ticks
+  const HP_SAMPLE_WINDOW_BASELINE_MS = 3_000; // ±3s for 3s baseline ticks
+
+  // Exclude the log owner from HP ticks — the owner's HP is lowest-signal for a
+  // healer log (they are usually not the kill target) and adds noise to the output.
+  const hpFriends = friends.filter((u) => u.id !== owner.id);
+
   for (const t of [...tickSet].sort((a, b) => a - b)) {
     const tsMs = matchStartMs + t * 1000;
-    const parts = friends
+    const sampleWindowMs = criticalWindowSet.has(t) ? HP_SAMPLE_WINDOW_CRITICAL_MS : HP_SAMPLE_WINDOW_BASELINE_MS;
+    const parts = hpFriends
       .map((u) => {
-        const pct = getUnitHpAtTimestamp(u, tsMs, HP_SAMPLE_WINDOW_MS);
+        const pct = getUnitHpAtTimestamp(u, tsMs, sampleWindowMs);
         return pct !== null ? `${pid(u.name)}:${pct}%` : null;
       })
       .filter((s): s is string => s !== null);

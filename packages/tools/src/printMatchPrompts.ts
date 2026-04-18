@@ -14,6 +14,7 @@
  *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 3 --ai  (also calls Claude and prints responses)
  *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 3 --ai --test-prompt  (adds ## Prompt Feedback to each response)
  *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 1 --new-prompt  (uses raw timeline prompt path)
+ *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 1 --compare --healer  (A/B: new vs hybrid + judge)
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -124,6 +125,60 @@ After your findings, add a short section titled "## Prompt Feedback" with:
 
 Keep this section under 200 words. Be blunt — this feedback is for internal use to improve the prompting pipeline, not for the player.`;
 
+// Hybrid system prompt — incorporates structured verdict labels and two-pass identification
+// from ChatGPT suggestion, layered onto the existing raw-timeline rules.
+const HYBRID_SYSTEM_PROMPT = `You are an expert World of Warcraft arena PvP analyst reviewing raw match timeline data for a player performing at Gladiator or R1 level.
+
+Core rules:
+- Evaluate only what the data shows. Never invent events, timestamps, or spells not present in the data.
+- Only reference a spell if it appears in PLAYER LOADOUT or the timeline. Never say "you should have used X" if X is not listed — it may not be in the player's build.
+- Express uncertainty explicitly. Avoid "must", "always", "should have" — prefer "likely", "probably", "the log suggests", "without HP data it's unclear whether...".
+- This player already plays correctly most of the time. Focus on timing, trades, and decision quality — not rule-based mistakes.
+- For purge analysis: check PURGE RESPONSIBILITY before attributing missed purges. Do not blame the log owner for purges if they cannot offensive purge.
+- Ability absence: if a spell appears in PLAYER LOADOUT but has no cast in the timeline, that absence is notable only when (a) another ability from the same player appears in the timeline AND (b) the absent ability's function would have been relevant to a specific identified moment. Flag absence as a potential decision gap with stated uncertainty — never treat it as confirmed.
+- Teammate ability absence follows the same rule. If talent-gating is plausible, flag that caveat explicitly.
+
+Your task is two-pass:
+
+PASS 1 — Identify decision windows. Read the full timeline and silently identify up to 5 decision windows that most affected match outcome, ranked by: death risk > major CD overlap > momentum swing. Do not write this list in your output — use it to anchor PASS 2.
+
+PASS 2 — Evaluate each window. For each window from PASS 1, evaluate:
+1. Was this the correct trade given the available information?
+2. What was the most likely alternative decision?
+3. What is the estimated impact difference between the two choices?
+4. What uncertainty prevents a definitive verdict?
+
+Output format — exactly 5 findings maximum (fewer only if fewer meaningful decision points exist), ranked by estimated match impact. Most impactful first:
+
+## Finding 1: [short title]
+**What happened:** [one sentence]
+**Alternative:** [the most likely correct play — one sentence]
+**Impact:** [why the difference matters — specific to timing, CD value, or match outcome]
+**Verdict:** GOOD / SUBOPTIMAL / BAD
+**Severity:** HIGH (likely changes outcome) / MEDIUM / LOW
+**Fix:** [one concrete behavioral adjustment directly applicable in the next game — one line only]
+
+## Finding 2: ...
+## Finding 3: ...
+
+After your findings, add a Data Utility section:
+
+## Data Utility
+
+### Used — directly informed a finding
+- [event type or specific event]: [how it was used]
+
+### Present but unused
+- [event type or specific event]: [why it didn't contribute]
+
+### Missing — would have changed confidence or a finding
+- [what you needed]: [which finding it would affect]
+
+### One change
+[Single most impactful prompt or data improvement you'd make]
+
+Do not add a summary, "what went well" section, or general recommendations beyond the numbered findings and Data Utility section.`;
+
 // New system prompt — identical to packages/web/pages/api/analyze.ts NEW_SYSTEM_PROMPT
 const NEW_SYSTEM_PROMPT = `You are an expert World of Warcraft arena PvP analyst reviewing raw match timeline data for a player performing at Gladiator or R1 level.
 
@@ -233,13 +288,20 @@ async function parseLogText(text: string): Promise<ParsedCombat[]> {
 // AI call
 // ---------------------------------------------------------------------------
 
-async function callClaude(prompt: string, mode: 'standard' | 'test' | 'new' = 'standard'): Promise<string> {
+async function callClaude(prompt: string, mode: 'standard' | 'test' | 'new' | 'hybrid' = 'standard'): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return '[AI SKIPPED — set ANTHROPIC_API_KEY env var to enable]';
   }
   const client = new Anthropic({ apiKey });
-  const systemPrompt = mode === 'new' ? NEW_SYSTEM_PROMPT : mode === 'test' ? TEST_SYSTEM_PROMPT : SYSTEM_PROMPT;
+  const systemPrompt =
+    mode === 'hybrid'
+      ? HYBRID_SYSTEM_PROMPT
+      : mode === 'new'
+        ? NEW_SYSTEM_PROMPT
+        : mode === 'test'
+          ? TEST_SYSTEM_PROMPT
+          : SYSTEM_PROMPT;
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 6144,
@@ -249,6 +311,52 @@ async function callClaude(prompt: string, mode: 'standard' | 'test' | 'new' = 's
   });
   const content = message.content[0];
   if (content.type !== 'text') return '[AI returned non-text response]';
+  return content.text;
+}
+
+async function callClaudeJudge(matchPrompt: string, responseA: string, responseB: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return '[AI SKIPPED — set ANTHROPIC_API_KEY env var to enable]';
+  const client = new Anthropic({ apiKey });
+
+  const judgeSystem = `You are a prompt engineer evaluating two AI-generated WoW arena match analyses produced from identical match data. Your job is to give a blunt, concrete verdict on which prompt design produced better output. You have no stake in either approach — judge purely on output quality.`;
+
+  const userMessage = `Below are two analyses of the same WoW arena match. Both used the same raw timeline data as input.
+
+ANALYSIS A — Current prompt (Findings with Confidence field + Data Utility section):
+---
+${responseA}
+---
+
+ANALYSIS B — Hybrid prompt (two-pass identification, Verdict/Severity/Fix instead of Confidence):
+---
+${responseB}
+---
+
+Rate each analysis on four dimensions (score 1–5 each):
+
+**Actionability** — Does the output give advice the player can act on immediately in their next game?
+**Evidence discipline** — Are claims grounded in specific timeline events, not inference-on-inference?
+**Insight depth** — Does it surface non-obvious decision points the player might not have noticed?
+**Signal/noise** — Is the output free of filler, redundant framing, or padding?
+
+For each dimension, state the score for A and B and one sentence on why.
+
+Then:
+- **Winner overall:** A / B / Tie
+- **Deciding factor:** one sentence
+- **Top improvement for the loser:** one concrete prompt change (not "be more specific" — name what to add or remove)
+- **One element from the loser worth keeping:** what should be transplanted into the winner`;
+
+  const message = await client.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 2048,
+    temperature: 0.2,
+    system: judgeSystem,
+    messages: [{ role: 'user', content: userMessage }],
+  });
+  const content = message.content[0];
+  if (content.type !== 'text') return '[Judge returned non-text response]';
   return content.text;
 }
 
@@ -815,13 +923,11 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
   }
 
   // Player loadout
-  const { text: loadoutText, playerIdMap } = buildPlayerLoadout(
-    owner,
-    ownerSpec,
-    ownerCDs,
-    teammateCDs,
-    enemyCDTimeline,
-  );
+  const {
+    text: loadoutText,
+    playerIdMap,
+    enemyIdMap,
+  } = buildPlayerLoadout(owner, ownerSpec, ownerCDs, teammateCDs, enemyCDTimeline);
   lines.push(loadoutText);
   lines.push('');
 
@@ -842,6 +948,7 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
     matchEndMs: combat.endTime,
     isHealer,
     playerIdMap,
+    enemyIdMap,
   };
   lines.push(buildMatchTimeline(params));
 
@@ -852,20 +959,44 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
 // Print one match (prompt + optional AI response)
 // ---------------------------------------------------------------------------
 
+interface PrintMatchOptions {
+  testPromptMode?: boolean;
+  useNewPrompt?: boolean;
+  compareMode?: boolean;
+}
+
 async function printMatch(
   matchLabel: string,
   prompt: string,
   matchIndex: number,
   aiMode: boolean,
-  testPromptMode = false,
-  useNewPrompt = false,
+  options: PrintMatchOptions = {},
 ): Promise<void> {
+  const { testPromptMode = false, useNewPrompt = false, compareMode = false } = options;
   const sep = '='.repeat(80);
   console.log(`\n${sep}`);
   console.log(`MATCH ${matchIndex} — ${matchLabel}`);
   console.log(sep);
   console.log('\n--- PROMPT ---\n');
   console.log(prompt);
+
+  if (compareMode) {
+    process.stderr.write(`  A/B compare for match ${matchIndex}: calling Claude x2 (new + hybrid)...\n`);
+    try {
+      const [responseA, responseB] = await Promise.all([callClaude(prompt, 'new'), callClaude(prompt, 'hybrid')]);
+      console.log('\n--- ANALYSIS A (current — Confidence field) ---\n');
+      console.log(responseA);
+      console.log('\n--- ANALYSIS B (hybrid — Verdict/Severity/Fix) ---\n');
+      console.log(responseB);
+      process.stderr.write(`  Calling Claude judge...\n`);
+      const judgment = await callClaudeJudge(prompt, responseA, responseB);
+      console.log('\n--- JUDGE VERDICT ---\n');
+      console.log(judgment);
+    } catch (e) {
+      console.log(`[Compare failed: ${e}]`);
+    }
+    return;
+  }
 
   if (aiMode) {
     const modeTag = useNewPrompt ? ' [new-prompt]' : testPromptMode ? ' [test-prompt]' : '';
@@ -890,14 +1021,15 @@ async function printMatch(
 // Cloud runner
 // ---------------------------------------------------------------------------
 
-async function runCloud(
-  count: number,
-  bracket: string,
-  aiMode: boolean,
-  testPromptMode = false,
-  forceHealer = false,
-  useNewPrompt = false,
-) {
+interface RunOptions {
+  testPromptMode?: boolean;
+  forceHealer?: boolean;
+  useNewPrompt?: boolean;
+  compareMode?: boolean;
+}
+
+async function runCloud(count: number, bracket: string, aiMode: boolean, options: RunOptions = {}) {
+  const { testPromptMode = false, forceHealer = false, useNewPrompt = false, compareMode = false } = options;
   console.log(`Fetching ${count} matches (bracket: ${bracket}) from ${API_BASE}...\n`);
 
   const stubs = await fetchStubs(bracket, count);
@@ -934,11 +1066,15 @@ async function runCloud(
       }
 
       for (const combat of combats) {
-        const prompt = useNewPrompt ? buildMatchPromptNew(combat, forceHealer) : buildMatchPrompt(combat, forceHealer);
+        // compare mode always uses the new timeline prompt as input
+        const prompt =
+          compareMode || useNewPrompt
+            ? buildMatchPromptNew(combat, forceHealer)
+            : buildMatchPrompt(combat, forceHealer);
         if (!prompt) continue;
         matchCount++;
         const label = `${stub.id} (${stub.startInfo?.bracket ?? bracket}, ${date})`;
-        await printMatch(label, prompt, matchCount, aiMode, testPromptMode, useNewPrompt);
+        await printMatch(label, prompt, matchCount, aiMode, { testPromptMode, useNewPrompt, compareMode });
       }
     }
   } finally {
@@ -953,13 +1089,8 @@ async function runCloud(
 // Local runner
 // ---------------------------------------------------------------------------
 
-async function runLocal(
-  logDir: string,
-  aiMode: boolean,
-  testPromptMode = false,
-  forceHealer = false,
-  useNewPrompt = false,
-) {
+async function runLocal(logDir: string, aiMode: boolean, options: RunOptions = {}) {
+  const { testPromptMode = false, forceHealer = false, useNewPrompt = false, compareMode = false } = options;
   const files = (await fs.readdir(logDir))
     .filter((f) => f.endsWith('.txt') && f.startsWith('WoWCombatLog'))
     .map((f) => path.join(logDir, f))
@@ -985,10 +1116,11 @@ async function runLocal(
     if (combats.length === 0) continue;
 
     for (const combat of combats) {
-      const prompt = useNewPrompt ? buildMatchPromptNew(combat, forceHealer) : buildMatchPrompt(combat, forceHealer);
+      const prompt =
+        compareMode || useNewPrompt ? buildMatchPromptNew(combat, forceHealer) : buildMatchPrompt(combat, forceHealer);
       if (!prompt) continue;
       matchCount++;
-      await printMatch(fileName, prompt, matchCount, aiMode, testPromptMode, useNewPrompt);
+      await printMatch(fileName, prompt, matchCount, aiMode, { testPromptMode, useNewPrompt, compareMode });
     }
   }
 
@@ -1007,12 +1139,19 @@ async function main() {
   const testPromptMode = args.includes('--test-prompt');
   const forceHealer = args.includes('--healer');
   const useNewPrompt = args.includes('--new-prompt');
+  const compareMode = args.includes('--compare');
   const countIdx = args.indexOf('--count');
   const bracketIdx = args.indexOf('--bracket');
   const bracket = bracketIdx !== -1 ? args[bracketIdx + 1] : 'Rated Solo Shuffle';
   const count = countIdx !== -1 ? parseInt(args[countIdx + 1] ?? '10', 10) : 10;
 
-  if (aiMode) {
+  if (compareMode) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      process.stderr.write('Warning: --compare requires ANTHROPIC_API_KEY. Responses will be skipped.\n');
+    } else {
+      process.stderr.write('Compare mode — will run both new + hybrid prompts and judge side-by-side.\n');
+    }
+  } else if (aiMode) {
     if (!process.env.ANTHROPIC_API_KEY) {
       process.stderr.write(
         'Warning: --ai flag set but ANTHROPIC_API_KEY not found in environment. Responses will be skipped.\n',
@@ -1032,9 +1171,9 @@ async function main() {
       /^~/,
       os.homedir(),
     );
-    await runLocal(logDir, aiMode, testPromptMode, forceHealer, useNewPrompt);
+    await runLocal(logDir, aiMode, { testPromptMode, forceHealer, useNewPrompt, compareMode });
   } else {
-    await runCloud(count, bracket, aiMode, testPromptMode, forceHealer, useNewPrompt);
+    await runCloud(count, bracket, aiMode, { testPromptMode, forceHealer, useNewPrompt, compareMode });
   }
 }
 
