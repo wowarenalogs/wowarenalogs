@@ -158,7 +158,8 @@ describe('POST /api/analyze', () => {
       expect(mockCreate).toHaveBeenCalledWith(
         expect.objectContaining({
           model: 'claude-sonnet-4-6',
-          max_tokens: 4096,
+          max_tokens: 6144,
+          temperature: 0.3,
         }),
       );
     });
@@ -186,7 +187,7 @@ describe('POST /api/analyze', () => {
     it('substitutes a custom systemPrompt from the request body', async () => {
       mockCreate.mockResolvedValue(makeAnthropicSuccess());
       const { res } = makeRes();
-      await handler(makeReq('POST', { ...VALID_BODY, systemPrompt: 'custom instructions' }), res);
+      await handler(makeReq('POST', { ...VALID_BODY, debug: true, systemPrompt: 'custom instructions' }), res);
       expect(mockCreate.mock.calls[0][0]).toMatchObject({ system: 'custom instructions' });
     });
 

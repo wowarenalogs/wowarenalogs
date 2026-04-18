@@ -293,9 +293,6 @@ const DISPEL_TYPE_FALLBACK: Record<string, DispelType> = {
   '5246': 'Magic', // Intimidating Shout — confirmed Magic-dispellable (fear)
   '316593': 'Magic', // Intimidating Shout (rank 2)
   '316595': 'Magic', // Intimidating Shout (rank 3)
-  // Priest
-  '200196': 'Magic', // Holy Word: Chastise — confirmed Magic-dispellable
-  '200200': 'Magic', // Holy Word: Chastise (rank 2)
   // Druid
   '99': 'Magic', // Incapacitating Roar — confirmed Magic-dispellable
 };
