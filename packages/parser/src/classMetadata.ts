@@ -3757,7 +3757,7 @@ const Hunter = {
     { spellId: '53480', name: 'Roar of Sacrifice', tags: [SpellTag.Defensive] },
     {
       spellId: '109304',
-      name: 'Exhilaration (Beast Mastery, Survival)',
+      name: 'Exhilaration',
       tags: [SpellTag.Defensive],
     },
     {

@@ -976,7 +976,7 @@
         "p95": 331.7
       },
       "cdUsage": {
-        "Exhilaration (Beast Mastery, Survival)": {
+        "Exhilaration": {
           "neverUsedRate": 0.333,
           "medianFirstUseSeconds": 24.173,
           "p75FirstUseSeconds": 54.933
