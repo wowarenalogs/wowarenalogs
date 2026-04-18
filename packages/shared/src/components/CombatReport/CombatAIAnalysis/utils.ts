@@ -3,11 +3,13 @@ import { ICombatUnit } from '@wowarenalogs/parser';
 import { IPlayerCCTrinketSummary } from '../../../utils/ccTrinketAnalysis';
 import {
   fmtTime,
+  IDamageBucket,
   IMajorCooldownInfo,
   IOverlappedDefensive,
   IPanicDefensive,
   specToString,
 } from '../../../utils/cooldowns';
+import { IDispelSummary } from '../../../utils/dispelAnalysis';
 import { IEnemyCDTimeline } from '../../../utils/enemyCDs';
 import { IHealingGap } from '../../../utils/healingGaps';
 import { getHpPercentAtTime, getLowestHpPercentInWindow } from '../../../utils/killWindowTargetSelection';
@@ -898,4 +900,113 @@ export function buildPlayerLoadout(
   }
 
   return lines.join('\n');
+}
+
+// ── buildMatchTimeline ─────────────────────────────────────────────────────
+
+export interface BuildMatchTimelineParams {
+  owner: ICombatUnit;
+  ownerSpec: string;
+  ownerCDs: IMajorCooldownInfo[];
+  teammateCDs: Array<{ player: ICombatUnit; spec: string; cds: IMajorCooldownInfo[] }>;
+  enemyCDTimeline: IEnemyCDTimeline;
+  ccTrinketSummaries: IPlayerCCTrinketSummary[];
+  dispelSummary: IDispelSummary;
+  friendlyDeaths: Array<{ spec: string; name: string; atSeconds: number }>;
+  enemyDeaths: Array<{ spec: string; name: string; atSeconds: number }>;
+  pressureWindows: IDamageBucket[];
+  healingGaps: IHealingGap[];
+  friends: ICombatUnit[];
+  matchStartMs: number;
+  isHealer: boolean;
+}
+
+export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
+  const {
+    owner,
+    ownerCDs,
+    teammateCDs,
+    enemyCDTimeline,
+    ccTrinketSummaries,
+    dispelSummary,
+    friendlyDeaths,
+    enemyDeaths,
+    pressureWindows,
+    healingGaps,
+    friends,
+    matchStartMs,
+    isHealer,
+  } = params;
+
+  const entries: Array<{ timeSeconds: number; lines: string[] }> = [];
+
+  function addEntry(timeSeconds: number, ...lines: string[]) {
+    entries.push({ timeSeconds, lines });
+  }
+
+  // ── [DEATH] events ────────────────────────────────────────────────────────
+
+  const unitsByName = new Map(friends.map((u) => [u.name, u]));
+
+  for (const death of friendlyDeaths) {
+    const deathLines: string[] = [`${fmtTime(death.atSeconds)}  [DEATH]  ${death.name} (${death.spec} — friendly)`];
+
+    const dyingUnit = unitsByName.get(death.name);
+    if (dyingUnit) {
+      // HP trajectory
+      const checkpoints = [15, 10, 5, 3];
+      const trajectory: string[] = [];
+      for (const secondsBefore of checkpoints) {
+        const pct = getHpPercentAtTime(dyingUnit, death.atSeconds - secondsBefore, matchStartMs);
+        if (pct !== null) trajectory.push(`${Math.round(pct)}% at T-${secondsBefore}s`);
+      }
+      if (trajectory.length > 0) {
+        deathLines.push(`               HP: ${trajectory.join(' → ')} → dead`);
+      }
+
+      // Top damage sources in final 10s
+      const deathMs = matchStartMs + death.atSeconds * 1000;
+      const buckets = new Map<string, number>();
+      for (const d of dyingUnit.damageIn) {
+        if (d.logLine.timestamp < deathMs - 10_000 || d.logLine.timestamp > deathMs) continue;
+        const dmg = Math.abs(d.effectiveAmount);
+        if (dmg <= 0) continue;
+        const key = `${d.srcUnitName || 'Unknown'} — ${d.spellName ?? 'melee'}`;
+        buckets.set(key, (buckets.get(key) ?? 0) + dmg);
+      }
+      const topDamage = [...buckets.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+      if (topDamage.length > 0) {
+        const parts = topDamage.map(([k, v]) => `${k} ${Math.round(v / 1000)}k`).join(', ');
+        deathLines.push(`               Top damage in final 10s: ${parts}`);
+      }
+    }
+
+    addEntry(death.atSeconds, ...deathLines);
+  }
+
+  for (const death of enemyDeaths) {
+    addEntry(death.atSeconds, `${fmtTime(death.atSeconds)}  [DEATH]  ${death.name} (${death.spec} — enemy)`);
+  }
+
+  // (CD, CC, dispel, pressure events added in Tasks 3 and 4)
+  void owner;
+  void ownerCDs;
+  void teammateCDs;
+  void enemyCDTimeline;
+  void ccTrinketSummaries;
+  void dispelSummary;
+  void pressureWindows;
+  void healingGaps;
+  void isHealer;
+
+  // ── Sort and format ───────────────────────────────────────────────────────
+
+  entries.sort((a, b) => a.timeSeconds - b.timeSeconds);
+
+  const outputLines: string[] = ['MATCH TIMELINE', ''];
+  for (const entry of entries) {
+    outputLines.push(...entry.lines);
+  }
+
+  return outputLines.join('\n');
 }

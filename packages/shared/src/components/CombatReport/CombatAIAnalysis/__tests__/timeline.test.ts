@@ -1,9 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
 
-import { IMajorCooldownInfo } from '../../../../utils/cooldowns';
+import { makeAdvancedAction, makeUnit } from '../../../../utils/__tests__/testHelpers';
+import { IPlayerCCTrinketSummary } from '../../../../utils/ccTrinketAnalysis';
+import { IDamageBucket, IMajorCooldownInfo } from '../../../../utils/cooldowns';
+import { IDispelSummary } from '../../../../utils/dispelAnalysis';
 import { IEnemyCDTimeline } from '../../../../utils/enemyCDs';
-import { buildPlayerLoadout } from '../utils';
+import { IHealingGap } from '../../../../utils/healingGaps';
+import { buildMatchTimeline, BuildMatchTimelineParams, buildPlayerLoadout } from '../utils';
 
 // ── Factories ─────────────────────────────────────────────────────────────────
 
@@ -145,5 +149,145 @@ describe('buildPlayerLoadout', () => {
       makeEnemyTimeline([{ playerName: 'Ghost', specName: 'Arms Warrior', offensiveCDs: [] }]),
     );
     expect(result).not.toContain('Ghost');
+  });
+});
+
+// ── Timeline factory helpers ──────────────────────────────────────────────────
+
+function makeEmptyDispelSummary(): IDispelSummary {
+  return {
+    allyCleanse: [],
+    ourPurges: [],
+    hostilePurges: [],
+    missedCleanseWindows: [],
+    ccEfficiency: [],
+    missedPurgeWindows: [],
+  };
+}
+
+function makeEmptyCCTrinketSummary(playerName: string): IPlayerCCTrinketSummary {
+  return {
+    playerName,
+    playerSpec: 'Mistweaver Monk',
+    trinketType: 'Gladiator',
+    trinketCooldownSeconds: 90,
+    ccInstances: [],
+    trinketUseTimes: [],
+    missedTrinketWindows: [],
+  };
+}
+
+function makeBaseParams(overrides: Partial<BuildMatchTimelineParams> = {}): BuildMatchTimelineParams {
+  return {
+    owner: makeOwner('Feramonk'),
+    ownerSpec: 'Mistweaver Monk',
+    ownerCDs: [],
+    teammateCDs: [],
+    enemyCDTimeline: makeEnemyTimeline(),
+    ccTrinketSummaries: [],
+    dispelSummary: makeEmptyDispelSummary(),
+    friendlyDeaths: [],
+    enemyDeaths: [],
+    pressureWindows: [] as IDamageBucket[],
+    healingGaps: [] as IHealingGap[],
+    friends: [],
+    matchStartMs: 0,
+    isHealer: true,
+    ...overrides,
+  };
+}
+
+// ── buildMatchTimeline — [DEATH] events ────────────────────────────────────────
+
+describe('buildMatchTimeline — [DEATH] events', () => {
+  it('emits a [DEATH] line for a friendly death', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friendlyDeaths: [{ spec: 'Unholy Death Knight', name: 'Simplesauce', atSeconds: 118 }],
+      }),
+    );
+    expect(result).toContain('[DEATH]');
+    expect(result).toContain('Simplesauce (Unholy Death Knight — friendly)');
+  });
+
+  it('emits a [DEATH] line for an enemy death', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemyDeaths: [{ spec: 'Affliction Warlock', name: 'Natjkis', atSeconds: 88 }],
+      }),
+    );
+    expect(result).toContain('[DEATH]');
+    expect(result).toContain('Natjkis (Affliction Warlock — enemy)');
+  });
+
+  it('includes HP trajectory when advanced data is present', () => {
+    const matchStartMs = 1_000_000;
+    const deathAtSeconds = 118;
+    const deathMs = matchStartMs + deathAtSeconds * 1000;
+
+    const unit = makeUnit('player-1', {
+      name: 'Simplesauce',
+      advancedActions: [
+        makeAdvancedAction(deathMs - 15_000, 0, 0, 500_000, 400_000), // 80% at T-15s
+        makeAdvancedAction(deathMs - 5_000, 0, 0, 500_000, 200_000), // 40% at T-5s
+      ],
+    });
+
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        friendlyDeaths: [{ spec: 'Unholy Death Knight', name: 'Simplesauce', atSeconds: deathAtSeconds }],
+        matchStartMs,
+      }),
+    );
+    expect(result).toContain('HP:');
+    expect(result).toContain('80%');
+    expect(result).toContain('40%');
+    expect(result).toContain('→ dead');
+  });
+
+  it('includes top damage sources in final 10s for friendly deaths', () => {
+    const matchStartMs = 1_000_000;
+    const deathAtSeconds = 118;
+    const deathMs = matchStartMs + deathAtSeconds * 1000;
+
+    const unit = makeUnit('player-1', {
+      name: 'Simplesauce',
+      damageIn: [
+        {
+          logLine: { timestamp: deathMs - 5_000 },
+          effectiveAmount: -80_000,
+          srcUnitName: 'Natjkis',
+          spellName: 'Unstable Affliction',
+        } as any,
+        {
+          logLine: { timestamp: deathMs - 3_000 },
+          effectiveAmount: -40_000,
+          srcUnitName: 'Natjkis',
+          spellName: 'Dark Harvest',
+        } as any,
+      ],
+    });
+
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        friendlyDeaths: [{ spec: 'Unholy Death Knight', name: 'Simplesauce', atSeconds: deathAtSeconds }],
+        matchStartMs,
+      }),
+    );
+    expect(result).toContain('Top damage in final 10s');
+    expect(result).toContain('Unstable Affliction');
+    expect(result).toContain('80k');
+  });
+
+  it('outputs MATCH TIMELINE header', () => {
+    const result = buildMatchTimeline(makeBaseParams());
+    expect(result).toContain('MATCH TIMELINE');
+  });
+
+  // suppress unused-import warning for makeEmptyCCTrinketSummary
+  it('makeEmptyCCTrinketSummary is defined', () => {
+    expect(makeEmptyCCTrinketSummary('test').playerName).toBe('test');
   });
 });
