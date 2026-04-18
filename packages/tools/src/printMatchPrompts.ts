@@ -242,7 +242,8 @@ async function callClaude(prompt: string, mode: 'standard' | 'test' | 'new' = 's
   const systemPrompt = mode === 'new' ? NEW_SYSTEM_PROMPT : mode === 'test' ? TEST_SYSTEM_PROMPT : SYSTEM_PROMPT;
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 4096,
+    max_tokens: 6144,
+    temperature: 0.3,
     system: systemPrompt,
     messages: [{ role: 'user', content: prompt }],
   });

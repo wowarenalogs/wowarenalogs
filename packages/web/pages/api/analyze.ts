@@ -129,7 +129,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const message = await client.messages.create({
       model,
-      max_tokens: 4096,
+      max_tokens: 6144,
+      temperature: 0.3,
       system: activeSystemPrompt,
       messages: [{ role: 'user', content: matchContext }],
     });
