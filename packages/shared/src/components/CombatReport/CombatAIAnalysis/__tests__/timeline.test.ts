@@ -757,3 +757,177 @@ describe('buildMatchTimeline — [OWNER CAST] (F61 healer gap-filler)', () => {
     expect(result).not.toContain('[OWNER CAST]');
   });
 });
+
+describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => {
+  function makeUnitWithHp(
+    id: string,
+    name: string,
+    matchStartMs: number,
+    hpReadings: Array<[number, number]>,
+  ): ICombatUnit {
+    return makeUnit(id, {
+      name,
+      advancedActions: hpReadings.map(([offsetMs, currentHp]) =>
+        makeAdvancedAction(offsetMs, 0, 0, 500_000, currentHp),
+      ),
+    }) as ICombatUnit;
+  }
+
+  it('emits 1s HP ticks in [T-10, T] window before a friendly DEATH', () => {
+    // Death at T=30s; match 0–45s. Dense window: [20, 30].
+    const unit = makeUnitWithHp('unit-1', 'Feramonk', 0, [
+      [1_000, 400_000], // t=1s
+      [20_000, 350_000], // t=20s
+      [25_000, 200_000], // t=25s
+      [30_000, 50_000], // t=30s
+    ]);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        friendlyDeaths: [{ spec: 'Mistweaver Monk', name: 'Feramonk', atSeconds: 30 }],
+        matchStartMs: 0,
+        matchEndMs: 45_000,
+      }),
+    );
+    // Should have 1s ticks in [20, 30]
+    expect(result).toContain('0:21');
+    expect(result).toContain('0:22');
+    expect(result).toContain('0:23');
+    // T=19 is NOT in the dense window (window starts at 20) — should NOT appear as an [HP] tick
+    // (T=18 would be a 3s baseline tick, T=19 should not)
+    const lines = result.split('\n');
+    const hp19Line = lines.find((l) => l.startsWith('0:19') && l.includes('[HP]'));
+    expect(hp19Line).toBeUndefined();
+  });
+
+  it('emits 1s HP ticks centered around a DMG SPIKE (±5s)', () => {
+    // Spike at T=20s (fromSeconds=20); dense window: [15, 25].
+    const unit = makeUnitWithHp('unit-1', 'Feramonk', 0, [
+      [12_000, 480_000], // t=12s
+      [18_000, 350_000], // t=18s
+      [22_000, 250_000], // t=22s
+    ]);
+    const spike: IDamageBucket = {
+      fromSeconds: 20,
+      toSeconds: 25,
+      totalDamage: 400_000,
+      targetName: 'Feramonk',
+      targetSpec: 'Mistweaver Monk',
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        pressureWindows: [spike],
+        matchStartMs: 0,
+        matchEndMs: 45_000,
+      }),
+    );
+    // Should have 1s ticks in [15, 25]
+    expect(result).toContain('0:15');
+    expect(result).toContain('0:16');
+    expect(result).toContain('0:17');
+    expect(result).toContain('0:18');
+    // T=14 should NOT be a 1s tick (it's not at a 3s multiple either: 14 % 3 ≠ 0)
+    const lines = result.split('\n');
+    const hp14Line = lines.find((l) => l.startsWith('0:14') && l.includes('[HP]'));
+    expect(hp14Line).toBeUndefined();
+    // T=12 IS a 3s baseline tick
+    const hp12Line = lines.find((l) => l.startsWith('0:12') && l.includes('[HP]'));
+    expect(hp12Line).toBeDefined();
+  });
+
+  it('emits 1s HP ticks in [T, T+10] lookahead window after CC ON TEAM', () => {
+    // CC at T=15s; dense window: [15, 25].
+    const unit = makeUnitWithHp('unit-1', 'Feramonk', 0, [
+      [12_000, 480_000],
+      [18_000, 350_000],
+      [24_000, 250_000],
+    ]);
+    const cc: ICCInstance = {
+      atSeconds: 15,
+      spellName: 'Cyclone',
+      spellId: '33786',
+      durationSeconds: 6,
+      sourceName: 'Dzinked',
+      sourceSpec: 'Balance Druid',
+      damageTakenDuring: 0,
+      trinketState: 'available_unused',
+      drInfo: null,
+      distanceYards: null,
+      losBlocked: null,
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        ccTrinketSummaries: [{ ...makeEmptyCCTrinketSummary('Feramonk'), ccInstances: [cc] }],
+        matchStartMs: 0,
+        matchEndMs: 45_000,
+      }),
+    );
+    // Should have 1s ticks in [15, 25]
+    expect(result).toContain('0:15');
+    expect(result).toContain('0:16');
+    expect(result).toContain('0:17');
+    // T=14 is not in window and not a 3s multiple
+    const lines = result.split('\n');
+    const hp14Line = lines.find((l) => l.startsWith('0:14') && l.includes('[HP]'));
+    expect(hp14Line).toBeUndefined();
+  });
+
+  it('does not emit duplicate HP ticks when windows overlap', () => {
+    // DEATH at T=30, DMG SPIKE at T=26 → windows [20,30] and [21,31] overlap in [21,30].
+    const unit = makeUnitWithHp('unit-1', 'Feramonk', 0, [
+      [20_000, 350_000],
+      [26_000, 200_000],
+      [30_000, 50_000],
+    ]);
+    const spike: IDamageBucket = {
+      fromSeconds: 26,
+      toSeconds: 31,
+      totalDamage: 500_000,
+      targetName: 'Feramonk',
+      targetSpec: 'Mistweaver Monk',
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        friendlyDeaths: [{ spec: 'Mistweaver Monk', name: 'Feramonk', atSeconds: 30 }],
+        pressureWindows: [spike],
+        matchStartMs: 0,
+        matchEndMs: 45_000,
+      }),
+    );
+    // Count occurrences of '0:25' in [HP] lines — should be exactly 1
+    const lines = result.split('\n').filter((l) => l.includes('[HP]') && l.startsWith('0:25'));
+    expect(lines.length).toBe(1);
+  });
+
+  it('outside all critical windows, only emits HP ticks at 3s multiples', () => {
+    // Match 0–45s, no deaths/spikes/CC. Only 3s ticks should appear.
+    const unit = makeUnitWithHp('unit-1', 'Feramonk', 0, [
+      [3_000, 480_000],
+      [6_000, 460_000],
+      [9_000, 440_000],
+      [12_000, 420_000],
+    ]);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        matchStartMs: 0,
+        matchEndMs: 15_000,
+      }),
+    );
+    // T=1,2,4,5,7,8,10,11 should NOT have [HP] lines
+    const lines = result.split('\n');
+    for (const nonMultiple of [1, 2, 4, 5, 7, 8, 10, 11]) {
+      const ts = `0:0${nonMultiple}`;
+      const found = lines.find((l) => l.startsWith(ts) && l.includes('[HP]'));
+      expect(found).toBeUndefined();
+    }
+    // T=3,6,9,12 SHOULD have [HP] lines
+    expect(result).toContain('0:03');
+    expect(result).toContain('0:06');
+    expect(result).toContain('0:09');
+    expect(result).toContain('0:12');
+  });
+});

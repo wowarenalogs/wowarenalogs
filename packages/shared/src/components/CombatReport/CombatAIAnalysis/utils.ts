@@ -1142,15 +1142,39 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     }
   }
 
-  // ── [HP] ticks every 3s ───────────────────────────────────────────────────
+  // ── [HP] ticks — 1s resolution in critical windows, 3s elsewhere (F62) ──────
 
-  const HP_TICK_INTERVAL_S = 3;
+  const HP_SAMPLE_WINDOW_MS = 3_000;
   const matchDurationS = (matchEndMs - matchStartMs) / 1000;
-  for (let t = 0; t <= matchDurationS; t += HP_TICK_INTERVAL_S) {
+
+  const criticalWindows: Array<[number, number]> = [];
+  for (const d of friendlyDeaths) {
+    criticalWindows.push([Math.max(0, d.atSeconds - 10), d.atSeconds]);
+  }
+  for (const pw of pressureWindows) {
+    if (pw.totalDamage >= DMG_SPIKE_THRESHOLD) {
+      criticalWindows.push([Math.max(0, pw.fromSeconds - 5), Math.min(matchDurationS, pw.fromSeconds + 5)]);
+    }
+  }
+  for (const summary of ccTrinketSummaries) {
+    for (const cc of summary.ccInstances) {
+      criticalWindows.push([cc.atSeconds, Math.min(matchDurationS, cc.atSeconds + 10)]);
+    }
+  }
+
+  const tickSet = new Set<number>();
+  for (let t = 0; t <= Math.ceil(matchDurationS); t++) {
+    const inCriticalWindow = criticalWindows.some(([from, to]) => t >= from && t <= to);
+    if (inCriticalWindow || t % 3 === 0) {
+      tickSet.add(t);
+    }
+  }
+
+  for (const t of [...tickSet].sort((a, b) => a - b)) {
     const tsMs = matchStartMs + t * 1000;
     const parts = friends
       .map((u) => {
-        const pct = getUnitHpAtTimestamp(u, tsMs, HP_TICK_INTERVAL_S * 1000);
+        const pct = getUnitHpAtTimestamp(u, tsMs, HP_SAMPLE_WINDOW_MS);
         return pct !== null ? `${pid(u.name)}:${pct}%` : null;
       })
       .filter((s): s is string => s !== null);
