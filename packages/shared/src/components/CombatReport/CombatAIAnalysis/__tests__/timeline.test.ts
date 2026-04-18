@@ -2,7 +2,6 @@
 import { CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
 
 import { makeAdvancedAction, makeUnit } from '../../../../utils/__tests__/testHelpers';
-import { IPlayerCCTrinketSummary } from '../../../../utils/ccTrinketAnalysis';
 import { IDamageBucket, IMajorCooldownInfo } from '../../../../utils/cooldowns';
 import { IDispelSummary } from '../../../../utils/dispelAnalysis';
 import { IEnemyCDTimeline } from '../../../../utils/enemyCDs';
@@ -165,18 +164,6 @@ function makeEmptyDispelSummary(): IDispelSummary {
   };
 }
 
-function makeEmptyCCTrinketSummary(playerName: string): IPlayerCCTrinketSummary {
-  return {
-    playerName,
-    playerSpec: 'Mistweaver Monk',
-    trinketType: 'Gladiator',
-    trinketCooldownSeconds: 90,
-    ccInstances: [],
-    trinketUseTimes: [],
-    missedTrinketWindows: [],
-  };
-}
-
 function makeBaseParams(overrides: Partial<BuildMatchTimelineParams> = {}): BuildMatchTimelineParams {
   return {
     owner: makeOwner('Feramonk'),
@@ -284,10 +271,5 @@ describe('buildMatchTimeline — [DEATH] events', () => {
   it('outputs MATCH TIMELINE header', () => {
     const result = buildMatchTimeline(makeBaseParams());
     expect(result).toContain('MATCH TIMELINE');
-  });
-
-  // suppress unused-import warning for makeEmptyCCTrinketSummary
-  it('makeEmptyCCTrinketSummary is defined', () => {
-    expect(makeEmptyCCTrinketSummary('test').playerName).toBe('test');
   });
 });
