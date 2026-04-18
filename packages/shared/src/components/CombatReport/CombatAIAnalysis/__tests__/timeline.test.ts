@@ -273,3 +273,146 @@ describe('buildMatchTimeline — [DEATH] events', () => {
     expect(result).toContain('MATCH TIMELINE');
   });
 });
+
+describe('buildMatchTimeline — CD events', () => {
+  it('emits [OWNER CD] for each cast', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ownerCDs: [
+          {
+            spellId: '1',
+            spellName: 'Life Cocoon',
+            tag: 'Defensive',
+            cooldownSeconds: 120,
+            casts: [{ timeSeconds: 27 }],
+            availableWindows: [],
+            neverUsed: false,
+          },
+        ],
+      }),
+    );
+    expect(result).toContain('[OWNER CD]');
+    expect(result).toContain('Life Cocoon');
+    expect(result).toContain('0:27');
+  });
+
+  it('includes target name and HP when available on [OWNER CD]', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ownerCDs: [
+          {
+            spellId: '1',
+            spellName: 'Life Cocoon',
+            tag: 'Defensive',
+            cooldownSeconds: 120,
+            casts: [{ timeSeconds: 27, targetName: 'Gardianmini', targetHpPct: 27 }],
+            availableWindows: [],
+            neverUsed: false,
+          },
+        ],
+      }),
+    );
+    expect(result).toContain('→ Gardianmini (27% HP)');
+  });
+
+  it('emits [TEAMMATE CD] for each teammate cast', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        teammateCDs: [
+          {
+            player: makeOwner('Simplesauce'),
+            spec: 'Unholy Death Knight',
+            cds: [
+              {
+                spellId: '48707',
+                spellName: 'Anti-Magic Shell',
+                tag: 'Defensive',
+                cooldownSeconds: 60,
+                casts: [{ timeSeconds: 108 }],
+                availableWindows: [],
+                neverUsed: false,
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    expect(result).toContain('[TEAMMATE CD]');
+    expect(result).toContain('Simplesauce (Unholy Death Knight): Anti-Magic Shell');
+    expect(result).toContain('1:48');
+  });
+
+  it('emits [ENEMY CD] for individual enemy casts (not grouped)', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemyCDTimeline: makeEnemyTimeline([
+          {
+            playerName: 'Dzinked',
+            specName: 'Holy Paladin',
+            offensiveCDs: [
+              {
+                spellId: '31884',
+                spellName: 'Avenging Crusader',
+                castTimeSeconds: 33,
+                cooldownSeconds: 120,
+                availableAgainAtSeconds: 153,
+                buffEndSeconds: 51,
+              },
+              {
+                spellId: '31884',
+                spellName: 'Avenging Crusader',
+                castTimeSeconds: 153,
+                cooldownSeconds: 120,
+                availableAgainAtSeconds: 273,
+                buffEndSeconds: 171,
+              },
+            ],
+          },
+        ]),
+      }),
+    );
+    // Both casts should appear individually
+    const matches = result.match(/\[ENEMY CD\]/g) ?? [];
+    expect(matches.length).toBe(2);
+    expect(result).toContain('Dzinked (Holy Paladin): Avenging Crusader');
+    expect(result).toContain('0:33');
+    expect(result).toContain('2:33');
+  });
+
+  it('sorts all CD events chronologically', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ownerCDs: [
+          {
+            spellId: '1',
+            spellName: 'Life Cocoon',
+            tag: 'Defensive',
+            cooldownSeconds: 120,
+            casts: [{ timeSeconds: 55 }],
+            availableWindows: [],
+            neverUsed: false,
+          },
+        ],
+        enemyCDTimeline: makeEnemyTimeline([
+          {
+            playerName: 'Dzinked',
+            specName: 'Holy Paladin',
+            offensiveCDs: [
+              {
+                spellId: '31884',
+                spellName: 'Avenging Crusader',
+                castTimeSeconds: 33,
+                cooldownSeconds: 120,
+                availableAgainAtSeconds: 153,
+                buffEndSeconds: 51,
+              },
+            ],
+          },
+        ]),
+      }),
+    );
+    const acPos = result.indexOf('Avenging Crusader');
+    const lcPos = result.indexOf('Life Cocoon');
+    expect(acPos).toBeLessThan(lcPos); // 0:33 before 0:55
+  });
+});

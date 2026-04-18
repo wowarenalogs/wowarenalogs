@@ -988,11 +988,44 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     addEntry(death.atSeconds, `${fmtTime(death.atSeconds)}  [DEATH]  ${death.name} (${death.spec} — enemy)`);
   }
 
-  // (CD, CC, dispel, pressure events added in Tasks 3 and 4)
+  // ── [OWNER CD] events ───────────────────────────────────────────────────────
+
+  for (const cd of ownerCDs) {
+    for (const cast of cd.casts) {
+      const targetPart =
+        cast.targetName !== undefined
+          ? ` → ${cast.targetName}${cast.targetHpPct !== undefined ? ` (${cast.targetHpPct}% HP)` : ''}`
+          : '';
+      addEntry(cast.timeSeconds, `${fmtTime(cast.timeSeconds)}  [OWNER CD]   ${cd.spellName}${targetPart}`);
+    }
+  }
+
+  // ── [TEAMMATE CD] events ────────────────────────────────────────────────────
+
+  for (const { player, spec, cds } of teammateCDs) {
+    for (const cd of cds) {
+      for (const cast of cd.casts) {
+        addEntry(
+          cast.timeSeconds,
+          `${fmtTime(cast.timeSeconds)}  [TEAMMATE CD]   ${player.name} (${spec}): ${cd.spellName}`,
+        );
+      }
+    }
+  }
+
+  // ── [ENEMY CD] events ──────────────────────────────────────────────────────
+
+  for (const player of enemyCDTimeline.players) {
+    for (const cd of player.offensiveCDs) {
+      addEntry(
+        cd.castTimeSeconds,
+        `${fmtTime(cd.castTimeSeconds)}  [ENEMY CD]   ${player.playerName} (${player.specName}): ${cd.spellName}`,
+      );
+    }
+  }
+
+  // (CC, dispel, pressure events added in Task 4)
   void owner;
-  void ownerCDs;
-  void teammateCDs;
-  void enemyCDTimeline;
   void ccTrinketSummaries;
   void dispelSummary;
   void pressureWindows;
