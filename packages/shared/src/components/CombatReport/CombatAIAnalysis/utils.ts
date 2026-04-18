@@ -3,6 +3,7 @@ import { ICombatUnit } from '@wowarenalogs/parser';
 import { IPlayerCCTrinketSummary } from '../../../utils/ccTrinketAnalysis';
 import {
   fmtTime,
+  getUnitHpAtTimestamp,
   IDamageBucket,
   IMajorCooldownInfo,
   IOverlappedDefensive,
@@ -917,6 +918,7 @@ export interface BuildMatchTimelineParams {
   healingGaps: IHealingGap[];
   friends: ICombatUnit[];
   matchStartMs: number;
+  matchEndMs: number;
   isHealer: boolean;
 }
 
@@ -934,6 +936,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     healingGaps,
     friends,
     matchStartMs,
+    matchEndMs,
     isHealer,
   } = params;
 
@@ -1082,6 +1085,23 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         gap.fromSeconds,
         `${fmtTime(gap.fromSeconds)}  [HEALING GAP]   ${owner.name} inactive ${gap.durationSeconds.toFixed(1)}s (${gap.freeCastSeconds.toFixed(1)}s free) while ${gap.mostDamagedName} under pressure`,
       );
+    }
+  }
+
+  // ── [HP] ticks every 3s ───────────────────────────────────────────────────
+
+  const HP_TICK_INTERVAL_S = 3;
+  const matchDurationS = (matchEndMs - matchStartMs) / 1000;
+  for (let t = 0; t <= matchDurationS; t += HP_TICK_INTERVAL_S) {
+    const tsMs = matchStartMs + t * 1000;
+    const parts = friends
+      .map((u) => {
+        const pct = getUnitHpAtTimestamp(u, tsMs, HP_TICK_INTERVAL_S * 1000);
+        return pct !== null ? `${u.name} ${pct}%` : null;
+      })
+      .filter((s): s is string => s !== null);
+    if (parts.length > 0) {
+      addEntry(t, `${fmtTime(t)}  [HP]   ${parts.join(' / ')}`);
     }
   }
 

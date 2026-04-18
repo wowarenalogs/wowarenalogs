@@ -219,6 +219,7 @@ export function buildMatchContext(
         healingGaps,
         friends: friends as ICombatUnit[],
         matchStartMs: combat.startTime,
+        matchEndMs: combat.endTime,
         isHealer: healer,
       } as BuildMatchTimelineParams),
     );

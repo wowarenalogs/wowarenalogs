@@ -829,6 +829,7 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
     healingGaps,
     friends,
     matchStartMs: combat.startTime,
+    matchEndMs: combat.endTime,
     isHealer,
   };
   lines.push(buildMatchTimeline(params));

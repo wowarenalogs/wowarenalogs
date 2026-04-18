@@ -191,6 +191,7 @@ function makeBaseParams(overrides: Partial<BuildMatchTimelineParams> = {}): Buil
     healingGaps: [] as IHealingGap[],
     friends: [],
     matchStartMs: 0,
+    matchEndMs: 0,
     isHealer: true,
     ...overrides,
   };
@@ -578,5 +579,62 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     expect(healerResult).toContain('[HEALING GAP]');
     expect(healerResult).toContain('Feramonk inactive 4.2s');
     expect(dpsResult).not.toContain('[HEALING GAP]');
+  });
+
+  it('emits [HP] ticks every 3s when friends have HP data', () => {
+    const unit = makeUnit('unit-1', {
+      name: 'Feramonk',
+      advancedActions: [
+        makeAdvancedAction(3_000, 0, 0, 500_000, 420_000), // t=3s → 84%
+        makeAdvancedAction(6_000, 0, 0, 500_000, 250_000), // t=6s → 50%
+      ],
+    }) as ICombatUnit;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        matchStartMs: 0,
+        matchEndMs: 9_000,
+      }),
+    );
+    expect(result).toContain('[HP]');
+    expect(result).toContain('Feramonk 84%');
+    expect(result).toContain('Feramonk 50%');
+  });
+
+  it('emits [HP] for multiple friends on the same tick', () => {
+    const unit1 = makeUnit('unit-1', {
+      name: 'Healer',
+      advancedActions: [makeAdvancedAction(3_000, 0, 0, 500_000, 400_000)], // 80%
+    }) as ICombatUnit;
+    const unit2 = makeUnit('unit-2', {
+      name: 'DPS',
+      advancedActions: [makeAdvancedAction(3_000, 0, 0, 500_000, 500_000)], // 100%
+    }) as ICombatUnit;
+    // Override advancedActorId so getUnitHpAtTimestamp finds the right unit
+    (unit2 as any).advancedActions[0].advancedActorId = 'unit-2';
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit1, unit2],
+        matchStartMs: 0,
+        matchEndMs: 6_000,
+      }),
+    );
+    expect(result).toContain('Healer 80%');
+    expect(result).toContain('DPS 100%');
+    // Both should be on the same [HP] line
+    const hpLine = result.split('\n').find((l) => l.includes('[HP]') && l.includes('Healer'));
+    expect(hpLine).toContain('DPS');
+  });
+
+  it('omits [HP] ticks when no friends have advanced action data', () => {
+    const unit = makeUnit('unit-1', { name: 'Feramonk', advancedActions: [] }) as ICombatUnit;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        matchStartMs: 0,
+        matchEndMs: 9_000,
+      }),
+    );
+    expect(result).not.toContain('[HP]');
   });
 });
