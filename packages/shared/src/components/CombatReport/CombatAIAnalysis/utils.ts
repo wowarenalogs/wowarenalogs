@@ -12,6 +12,13 @@ import { IEnemyCDTimeline } from '../../../utils/enemyCDs';
 import { IHealingGap } from '../../../utils/healingGaps';
 import { getHpPercentAtTime, getLowestHpPercentInWindow } from '../../../utils/killWindowTargetSelection';
 
+// ── Shared helpers ─────────────────────────────────────────────────────────
+
+/** Returns the last cast at or before `timeSeconds`, or undefined if none. */
+function lastCastBefore(cd: IMajorCooldownInfo, timeSeconds: number) {
+  return cd.casts.filter((c) => c.timeSeconds <= timeSeconds).slice(-1)[0];
+}
+
 // ── Critical moment identification helpers ─────────────────────────────────
 
 export type MomentRole = 'Constraint' | 'Kill' | 'Trade' | 'Setup' | 'Consequence' | 'Standalone';
@@ -236,7 +243,7 @@ export function buildKillMomentFields(
   // Mechanical: list all defensive CDs and their state at death
   for (const cd of cooldowns) {
     if (cd.tag !== 'Defensive') continue;
-    const lastCast = cd.casts.filter((c) => c.timeSeconds <= deathTimeSeconds).slice(-1)[0];
+    const lastCast = lastCastBefore(cd, deathTimeSeconds);
     if (!lastCast) {
       mechAvail.push(
         cd.neverUsed ? `${cd.spellName}: never used — available` : `${cd.spellName}: not yet used — available`,
@@ -273,7 +280,7 @@ export function buildKillMomentFields(
   } else {
     const spentCDs = cooldowns.filter((cd) => {
       if (cd.tag !== 'Defensive') return false;
-      const lastCast = cd.casts.filter((c) => c.timeSeconds <= deathTimeSeconds).slice(-1)[0];
+      const lastCast = lastCastBefore(cd, deathTimeSeconds);
       if (!lastCast) return false;
       return lastCast.timeSeconds + cd.cooldownSeconds > deathTimeSeconds;
     });
@@ -317,7 +324,7 @@ export function buildKillMomentFields(
   const allDefensivesSpent =
     defensiveCDs.length > 0 &&
     defensiveCDs.every((cd) => {
-      const lastCast = cd.casts.filter((c) => c.timeSeconds <= deathTimeSeconds).slice(-1)[0];
+      const lastCast = lastCastBefore(cd, deathTimeSeconds);
       if (!lastCast) return false; // never-used = available, not spent
       return lastCast.timeSeconds + cd.cooldownSeconds > deathTimeSeconds;
     });
@@ -606,6 +613,8 @@ export function identifyCriticalMoments(
  * Builds a brief event-driven Match Flow narrative from burst windows and CD trades.
  * Segments are defined by burst windows (not time slices) so the LLM sees
  * Opening Burst → Post-Trade Window → Final Burst/Phase in causal order.
+ *
+ * @deprecated Replaced by `buildMatchArc` in production. Retained for test coverage only.
  */
 export function buildMatchFlow(
   enemyCDTimeline: IEnemyCDTimeline,
@@ -677,7 +686,7 @@ export function buildMatchFlow(
     lines.push(`  Post-Trade Window (${fmtTime(firstBurst.toSeconds)}–${fmtTime(midEnd)}):`);
     const ownerDefsAvailableInWindow = ownerCooldowns.filter((cd) => {
       if (cd.tag !== 'Defensive') return false;
-      const lastCast = cd.casts.filter((c) => c.timeSeconds <= firstBurst.toSeconds).slice(-1)[0];
+      const lastCast = lastCastBefore(cd, firstBurst.toSeconds);
       if (!lastCast) return true; // never-used or not yet cast — still available
       return lastCast.timeSeconds + cd.cooldownSeconds <= midEnd;
     });
@@ -706,7 +715,7 @@ export function buildMatchFlow(
   const spentAtEnd = ownerCooldowns
     .filter((cd) => cd.tag === 'Defensive')
     .filter((cd) => {
-      const lastCast = cd.casts.filter((c) => c.timeSeconds <= finalEndTime).slice(-1)[0];
+      const lastCast = lastCastBefore(cd, finalEndTime);
       if (!lastCast) return false;
       return lastCast.timeSeconds + cd.cooldownSeconds > finalEndTime;
     })
@@ -768,7 +777,7 @@ export function buildMatchArc(
   }
 
   const burstsSorted = [...enemyCDTimeline.alignedBurstWindows].sort((a, b) => a.fromSeconds - b.fromSeconds);
-  const firstBurst = burstsSorted[0];
+  const firstBurst = burstsSorted[0] ?? null;
   const firstDeath = friendlyDeaths[0];
 
   // Find first defensive cast from either team
@@ -787,7 +796,7 @@ export function buildMatchArc(
 
   // Phase boundaries
   const earlyEnd = firstDefensiveSeconds < Infinity ? firstDefensiveSeconds : durationSeconds / 2;
-  const firstBurstResolved = firstBurst ? firstBurst.toSeconds : Infinity;
+  const firstBurstResolved = firstBurst !== null ? firstBurst.toSeconds : Infinity;
   const firstFriendlyDeathSeconds = firstDeath?.atSeconds ?? Infinity;
   const midEnd = Math.min(firstFriendlyDeathSeconds, firstBurstResolved);
   // Clamp lateStart >= earlyEnd to prevent inverted phase ranges (e.g. "Mid (1:11–0:53)")
@@ -809,19 +818,21 @@ export function buildMatchArc(
   }
   lines.push(`  Early (0:00–${fmtTime(earlyEnd)}): ${earlyProse}`);
 
-  // Mid phase prose
-  let midProse: string;
-  if (firstDefensiveSeconds < Infinity) {
-    const midBursts = burstsSorted.filter((b) => b.fromSeconds >= earlyEnd && b.fromSeconds < lateStart);
-    const burstNote =
-      midBursts.length > 0
-        ? ` in response to ${midBursts[0].dangerLabel} burst at ${fmtTime(midBursts[0].fromSeconds)}`
-        : '';
-    midProse = `${firstDefensiveSpec}'s ${firstDefensiveName} committed${burstNote} — limited major CD coverage remaining.`;
-  } else {
-    midProse = 'No major defensive CDs committed; match progressed through sustained pressure.';
+  // Mid phase prose — skip if zero-duration (earlyEnd === lateStart, e.g. first death/burst before first defensive)
+  if (earlyEnd < lateStart) {
+    let midProse: string;
+    if (firstDefensiveSeconds < Infinity) {
+      const midBursts = burstsSorted.filter((b) => b.fromSeconds >= earlyEnd && b.fromSeconds < lateStart);
+      const burstNote =
+        midBursts.length > 0
+          ? ` in response to ${midBursts[0].dangerLabel} burst at ${fmtTime(midBursts[0].fromSeconds)}`
+          : '';
+      midProse = `${firstDefensiveSpec}'s ${firstDefensiveName} committed${burstNote} — limited major CD coverage remaining.`;
+    } else {
+      midProse = 'No major defensive CDs committed; match progressed through sustained pressure.';
+    }
+    lines.push(`  Mid (${fmtTime(earlyEnd)}–${fmtTime(lateStart)}): ${midProse}`);
   }
-  lines.push(`  Mid (${fmtTime(earlyEnd)}–${fmtTime(lateStart)}): ${midProse}`);
 
   // Late phase prose
   let lateProse: string;
@@ -838,4 +849,53 @@ export function buildMatchArc(
   lines.push(`  Late (${fmtTime(lateStart)}–${fmtTime(durationSeconds)}): ${lateProse}`);
 
   return lines;
+}
+
+// ── Timeline prompt builders ───────────────────────────────────────────────
+
+/**
+ * Formats the PLAYER LOADOUT section for the raw timeline prompt.
+ * Lists all major CDs (≥30s) available to each player — no usage annotations,
+ * no NEVER USED labeling. Absence from the timeline is the signal.
+ */
+export function buildPlayerLoadout(
+  owner: ICombatUnit,
+  ownerSpec: string,
+  ownerCDs: IMajorCooldownInfo[],
+  teammateCDs: Array<{ player: ICombatUnit; spec: string; cds: IMajorCooldownInfo[] }>,
+  enemyCDTimeline: IEnemyCDTimeline,
+): string {
+  const lines: string[] = [];
+  lines.push('PLAYER LOADOUT (major CDs ≥30s available this match)');
+
+  const ownerCDStr =
+    ownerCDs.length > 0 ? ownerCDs.map((cd) => `${cd.spellName} [${cd.cooldownSeconds}s]`).join(', ') : 'none tracked';
+  lines.push(`  ${owner.name} (${ownerSpec} — log owner):`);
+  lines.push(`    ${ownerCDStr}`);
+
+  for (const { player, spec, cds } of teammateCDs) {
+    const cdStr =
+      cds.length > 0 ? cds.map((cd) => `${cd.spellName} [${cd.cooldownSeconds}s]`).join(', ') : 'none tracked';
+    lines.push(`  ${player.name} (${spec}):`);
+    lines.push(`    ${cdStr}`);
+  }
+
+  for (const player of enemyCDTimeline.players) {
+    if (player.offensiveCDs.length === 0) continue;
+    const seen = new Set<string>();
+    const uniqueCDs: string[] = [];
+    for (const cd of player.offensiveCDs) {
+      const key = `${cd.spellName}|${cd.cooldownSeconds}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueCDs.push(`${cd.spellName} [${cd.cooldownSeconds}s]`);
+      }
+    }
+    if (uniqueCDs.length > 0) {
+      lines.push(`  ${player.playerName} (${player.specName} — enemy):`);
+      lines.push(`    ${uniqueCDs.join(', ')}`);
+    }
+  }
+
+  return lines.join('\n');
 }
