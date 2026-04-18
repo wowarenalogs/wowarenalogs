@@ -29,7 +29,13 @@ import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../../
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../../utils/offensiveWindows';
 import { benchmarks, formatSpecBaselines } from '../../../utils/specBaselines';
 import { useCombatReportContext } from '../CombatReportContext';
-import { buildMatchArc, identifyCriticalMoments } from './utils';
+import {
+  buildMatchArc,
+  buildMatchTimeline,
+  BuildMatchTimelineParams,
+  buildPlayerLoadout,
+  identifyCriticalMoments,
+} from './utils';
 
 // re-export pure helpers so existing imports from this file continue to work
 export type { CriticalMoment, MomentRole } from './utils';
@@ -50,6 +56,7 @@ export function buildMatchContext(
   combat: NonNullable<ReturnType<typeof useCombatReportContext>['combat']>,
   friends: ReturnType<typeof useCombatReportContext>['friends'],
   enemies: ReturnType<typeof useCombatReportContext>['enemies'],
+  useTimelinePrompt = false,
 ): string {
   const durationSeconds = (combat.endTime - combat.startTime) / 1000;
 
@@ -157,6 +164,76 @@ export function buildMatchContext(
   const teamPurgers = friends
     .filter((p) => p.id !== owner.id && canOffensivePurge(p as ICombatUnit))
     .map((p) => specToString(p.spec));
+
+  if (useTimelinePrompt) {
+    const allTeamCDsWithSpec = teammateCooldowns.map(({ player, cds }) => ({
+      player: player as ICombatUnit,
+      spec: specToString(player.spec),
+      cds,
+    }));
+
+    const tLines: string[] = [];
+    tLines.push('ARENA MATCH — ANALYSIS REQUEST');
+    tLines.push('');
+    tLines.push('MATCH FACTS');
+    tLines.push(
+      `  Spec: ${ownerSpec}${healer ? ' (Healer)' : ''}  |  Bracket: ${combat.startInfo.bracket}  |  Result: ${resultStr}  |  Duration: ${fmtTime(durationSeconds)}`,
+    );
+    tLines.push(`  My team: ${myTeam}`);
+    tLines.push(`  Enemy team: ${enemyTeam}`);
+    tLines.push('');
+
+    tLines.push('PURGE RESPONSIBILITY:');
+    if (ownerCanPurge) {
+      tLines.push(`  Log owner (${ownerSpec}): CAN offensive purge`);
+    } else {
+      tLines.push(
+        `  Log owner (${ownerSpec}): CANNOT offensive purge — do not attribute missed purges to the log owner`,
+      );
+    }
+    tLines.push(
+      teamPurgers.length > 0 ? `  Team offensive purgers: ${teamPurgers.join(', ')}` : '  Team offensive purgers: None',
+    );
+
+    const baselineLines = formatSpecBaselines(ownerSpec, cooldowns, benchmarks);
+    if (baselineLines.length > 0) {
+      tLines.push('');
+      baselineLines.forEach((l) => tLines.push(l));
+    }
+
+    tLines.push('');
+    formatDampeningForContext(
+      combat.startInfo.bracket,
+      [...friends, ...enemies],
+      combat.startTime,
+      combat.endTime,
+    ).forEach((l) => tLines.push(l));
+
+    tLines.push('');
+    tLines.push(buildPlayerLoadout(owner as ICombatUnit, ownerSpec, cooldowns, allTeamCDsWithSpec, enemyCDTimeline));
+
+    tLines.push('');
+    tLines.push(
+      buildMatchTimeline({
+        owner: owner as ICombatUnit,
+        ownerSpec,
+        ownerCDs: cooldowns,
+        teammateCDs: allTeamCDsWithSpec,
+        enemyCDTimeline,
+        ccTrinketSummaries,
+        dispelSummary,
+        friendlyDeaths,
+        enemyDeaths,
+        pressureWindows,
+        healingGaps,
+        friends: friends as ICombatUnit[],
+        matchStartMs: combat.startTime,
+        isHealer: healer,
+      } as BuildMatchTimelineParams),
+    );
+
+    return tLines.join('\n');
+  }
 
   const lines: string[] = [];
 
@@ -342,6 +419,28 @@ export function buildMatchContext(
     });
   }
 
+  // Trinket timestamps for log owner (sourced from ccTrinketAnalysis — not in major CD list)
+  const ownerTrinket = ccTrinketSummaries.find((s) => s.playerName === owner.name);
+  if (ownerTrinket && ownerTrinket.trinketType !== 'Unknown') {
+    const trinketLabel =
+      ownerTrinket.trinketType === 'Relentless'
+        ? 'Relentless (passive)'
+        : `${ownerTrinket.trinketType} trinket [${ownerTrinket.trinketCooldownSeconds}s CD]`;
+    if (ownerTrinket.trinketUseTimes.length === 0) {
+      lines.push('');
+      lines.push(`  PvP Trinket — ${trinketLabel}: STATUS: NEVER USED`);
+    } else {
+      lines.push('');
+      lines.push(`  PvP Trinket — ${trinketLabel}: cast at ${ownerTrinket.trinketUseTimes.map(fmtTime).join(', ')}`);
+    }
+    if (ownerTrinket.missedTrinketWindows.length > 0) {
+      const totalDmg = ownerTrinket.missedTrinketWindows.reduce((s, w) => s + w.damageTakenDuring, 0);
+      lines.push(
+        `    ⚠ ${ownerTrinket.missedTrinketWindows.length} missed trinket window(s) — ${Math.round(totalDmg / 1000)}k dmg while trinket available`,
+      );
+    }
+  }
+
   // Teammate cooldowns
   if (teammateCooldowns.length > 0) {
     lines.push('');
@@ -385,13 +484,21 @@ export function buildMatchContext(
     formatHealingGapsForContext(healingGaps).forEach((l) => lines.push(l));
   }
 
-  lines.push('');
-  formatOffensiveWindowsForContext(offensiveWindows).forEach((l) => lines.push(l));
-
-  const targetSelectionLines = formatKillWindowTargetSelectionForContext(killWindowTargetEvals);
-  if (targetSelectionLines.length > 0) {
+  // Suppress ENEMY VULNERABILITY WINDOWS for healer log owners when no friendly offensive CDs
+  // are tracked — every window would say "friendly offensive CDs: none tracked" which is noise
+  const hasAnyFriendlyOffensiveCDs = offensiveWindows.some((w) => w.friendlyOffensives.length > 0);
+  if (!healer || hasAnyFriendlyOffensiveCDs) {
     lines.push('');
-    targetSelectionLines.forEach((l) => lines.push(l));
+    formatOffensiveWindowsForContext(offensiveWindows).forEach((l) => lines.push(l));
+  }
+
+  // Skip kill window target selection when log owner is a healer — they observe but cannot enforce target choices
+  if (!healer) {
+    const targetSelectionLines = formatKillWindowTargetSelectionForContext(killWindowTargetEvals);
+    if (targetSelectionLines.length > 0) {
+      lines.push('');
+      targetSelectionLines.forEach((l) => lines.push(l));
+    }
   }
 
   lines.push('');
