@@ -13,6 +13,7 @@
  *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --local   (reads ~/Downloads/wow logs/)
  *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 3 --ai  (also calls Claude and prints responses)
  *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 3 --ai --test-prompt  (adds ## Prompt Feedback to each response)
+ *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 1 --new-prompt  (uses raw timeline prompt path)
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -24,6 +25,9 @@ import path from 'path';
 
 import {
   buildMatchArc,
+  buildMatchTimeline,
+  BuildMatchTimelineParams,
+  buildPlayerLoadout,
   identifyCriticalMoments,
 } from '../../shared/src/components/CombatReport/CombatAIAnalysis/utils';
 import { analyzePlayerCCAndTrinket, formatCCTrinketForContext } from '../../shared/src/utils/ccTrinketAnalysis';
@@ -120,6 +124,58 @@ After your findings, add a short section titled "## Prompt Feedback" with:
 
 Keep this section under 200 words. Be blunt — this feedback is for internal use to improve the prompting pipeline, not for the player.`;
 
+// New system prompt — identical to packages/web/pages/api/analyze.ts NEW_SYSTEM_PROMPT
+const NEW_SYSTEM_PROMPT = `You are an expert World of Warcraft arena PvP analyst reviewing raw match timeline data for a player performing at Gladiator or R1 level.
+
+Core rules:
+- Evaluate only what the data shows. Never invent events, timestamps, or spells not present in the data.
+- Only reference a spell if it appears in PLAYER LOADOUT or the timeline. Never say "you should have used X" if X is not listed — it may not be in the player's build.
+- Express uncertainty explicitly. Avoid "must", "always", "should have" — prefer "likely", "probably", "the log suggests", "without HP data it's unclear whether...".
+- This player already plays correctly most of the time. Focus on timing, trades, and decision quality — not rule-based mistakes.
+- For purge analysis: check PURGE RESPONSIBILITY before attributing missed purges. Do not blame the log owner for purges if they cannot offensive purge.
+- Ability absence: if a spell appears in PLAYER LOADOUT but has no cast in the timeline, that absence is notable only when (a) another ability from the same player appears in the timeline AND (b) the absent ability's function would have been relevant to a specific identified moment. Flag absence as a potential decision gap with stated uncertainty — never treat it as confirmed.
+- Teammate ability absence follows the same rule. If talent-gating is plausible, flag that caveat explicitly.
+
+Your task:
+You are given a PLAYER LOADOUT (all major CDs available this match) and a MATCH TIMELINE (raw chronological events — no pre-selected moments, no pre-drawn conclusions).
+
+Identify the most important decision points yourself. Read the full timeline, build your own causal narrative about what happened and why, then evaluate the decisions that most affected match outcome.
+
+For each decision point you identify, evaluate:
+1. Was this the correct trade given the available information?
+2. What was the most likely alternative decision?
+3. What is the estimated impact difference between the two choices?
+4. What uncertainty prevents a definitive verdict?
+
+Output format — exactly 5 findings maximum (fewer only if fewer meaningful decision points exist), ranked by estimated match impact. Most impactful first:
+
+## Finding 1: [short title]
+**What happened:** [one sentence]
+**Alternative:** [the most likely correct play — one sentence]
+**Impact:** [why the difference matters — specific to timing, CD value, or match outcome]
+**Confidence:** [High/Medium/Low] — [one sentence on key uncertainty]
+
+## Finding 2: ...
+## Finding 3: ...
+
+After your findings, add a Data Utility section:
+
+## Data Utility
+
+### Used — directly informed a finding
+- [event type or specific event]: [how it was used]
+
+### Present but unused
+- [event type or specific event]: [why it didn't contribute]
+
+### Missing — would have changed confidence or a finding
+- [what you needed]: [which finding it would affect]
+
+### One change
+[Single most impactful prompt or data improvement you'd make]
+
+Do not add a summary, "what went well" section, or general recommendations beyond the numbered findings and Data Utility section.`;
+
 type ParsedCombat = IArenaMatch | IShuffleRound;
 
 // ---------------------------------------------------------------------------
@@ -177,16 +233,17 @@ async function parseLogText(text: string): Promise<ParsedCombat[]> {
 // AI call
 // ---------------------------------------------------------------------------
 
-async function callClaude(prompt: string, testPromptMode = false): Promise<string> {
+async function callClaude(prompt: string, mode: 'standard' | 'test' | 'new' = 'standard'): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return '[AI SKIPPED — set ANTHROPIC_API_KEY env var to enable]';
   }
   const client = new Anthropic({ apiKey });
+  const systemPrompt = mode === 'new' ? NEW_SYSTEM_PROMPT : mode === 'test' ? TEST_SYSTEM_PROMPT : SYSTEM_PROMPT;
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 4096,
-    system: testPromptMode ? TEST_SYSTEM_PROMPT : SYSTEM_PROMPT,
+    system: systemPrompt,
     messages: [{ role: 'user', content: prompt }],
   });
   const content = message.content[0];
@@ -656,6 +713,130 @@ function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
 }
 
 // ---------------------------------------------------------------------------
+// Build new raw timeline prompt — uses buildPlayerLoadout + buildMatchTimeline
+// ---------------------------------------------------------------------------
+
+function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string {
+  const allUnits = Object.values(combat.units);
+  const friends = allUnits.filter(
+    (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Friendly,
+  ) as ICombatUnit[];
+  const enemies = allUnits.filter(
+    (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Hostile,
+  ) as ICombatUnit[];
+
+  if (friends.length === 0 || enemies.length === 0) return '';
+  const durationSeconds = (combat.endTime - combat.startTime) / 1000;
+  if (durationSeconds < 10) return '';
+
+  const owner = forceHealer
+    ? (friends.find((p) => isHealerSpec(p.spec)) ?? friends[0])
+    : (friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0]);
+
+  const ownerSpec = specToString(owner.spec);
+  const isHealer = isHealerSpec(owner.spec);
+  const myTeam = friends.map((p) => specToString(p.spec)).join(', ');
+  const enemyTeam = enemies.map((p) => specToString(p.spec)).join(', ');
+
+  const combatAny = combat as unknown as Record<string, unknown>;
+  const playerWon =
+    typeof combatAny['winningTeamId'] === 'string' ? combatAny['winningTeamId'] === combat.playerTeamId : null;
+  const resultStr = playerWon === true ? 'Win' : playerWon === false ? 'Loss' : 'Unknown';
+
+  const ownerCDs = extractMajorCooldowns(owner, combat);
+  const teammateCDs = friends
+    .filter((p) => p.id !== owner.id)
+    .map((p) => ({ player: p, spec: specToString(p.spec), cds: extractMajorCooldowns(p, combat) }));
+  const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat, owner, friends);
+  const pressureWindows = computePressureWindows(friends, combat);
+  const healingGaps = isHealer ? detectHealingGaps(owner, friends, enemies, combat) : [];
+  const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
+  const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
+  const ownerCanPurge = canOffensivePurge(owner);
+  const teamPurgers = friends.filter((p) => p.id !== owner.id && canOffensivePurge(p)).map((p) => specToString(p.spec));
+
+  const friendlyDeaths = friends
+    .flatMap((p) =>
+      p.deathRecords.map((d) => ({
+        spec: specToString(p.spec),
+        name: p.name,
+        atSeconds: (d.timestamp - combat.startTime) / 1000,
+      })),
+    )
+    .sort((a, b) => a.atSeconds - b.atSeconds);
+
+  const enemyDeaths = enemies
+    .flatMap((p) =>
+      p.deathRecords.map((d) => ({
+        spec: specToString(p.spec),
+        name: p.name,
+        atSeconds: (d.timestamp - combat.startTime) / 1000,
+      })),
+    )
+    .sort((a, b) => a.atSeconds - b.atSeconds);
+
+  const lines: string[] = [];
+
+  // Context block
+  lines.push('ARENA MATCH — ANALYSIS REQUEST');
+  lines.push('');
+  lines.push('MATCH FACTS');
+  lines.push(
+    `  Spec: ${ownerSpec}${isHealer ? ' (Healer)' : ''} | Bracket: ${combat.startInfo?.bracket ?? 'Unknown'} | Result: ${resultStr} | Duration: ${fmtTime(durationSeconds)}`,
+  );
+  lines.push(`  My team: ${myTeam}`);
+  lines.push(`  Enemy team: ${enemyTeam}`);
+  lines.push('');
+
+  lines.push('PURGE RESPONSIBILITY');
+  lines.push(`  Log owner (${ownerSpec}): ${ownerCanPurge ? 'CAN offensive purge' : 'CANNOT offensive purge'}`);
+  lines.push(`  Team purgers: ${teamPurgers.length > 0 ? teamPurgers.join(', ') : 'none'}`);
+  lines.push('');
+
+  const specBaselineLines = formatSpecBaselines(ownerSpec, ownerCDs, benchmarks);
+  if (specBaselineLines.length > 0) {
+    lines.push(...specBaselineLines);
+    lines.push('');
+  }
+
+  const dampeningLines = formatDampeningForContext(
+    combat.startInfo?.bracket ?? '3v3',
+    [...friends, ...enemies],
+    combat.startTime,
+    combat.endTime,
+  );
+  if (dampeningLines.length > 0) {
+    lines.push(...dampeningLines);
+    lines.push('');
+  }
+
+  // Player loadout
+  lines.push(buildPlayerLoadout(owner, ownerSpec, ownerCDs, teammateCDs, enemyCDTimeline));
+  lines.push('');
+
+  // Timeline
+  const params: BuildMatchTimelineParams = {
+    owner,
+    ownerSpec,
+    ownerCDs,
+    teammateCDs,
+    enemyCDTimeline,
+    ccTrinketSummaries,
+    dispelSummary,
+    friendlyDeaths,
+    enemyDeaths,
+    pressureWindows,
+    healingGaps,
+    friends,
+    matchStartMs: combat.startTime,
+    isHealer,
+  };
+  lines.push(buildMatchTimeline(params));
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // Print one match (prompt + optional AI response)
 // ---------------------------------------------------------------------------
 
@@ -665,6 +846,7 @@ async function printMatch(
   matchIndex: number,
   aiMode: boolean,
   testPromptMode = false,
+  useNewPrompt = false,
 ): Promise<void> {
   const sep = '='.repeat(80);
   console.log(`\n${sep}`);
@@ -674,11 +856,17 @@ async function printMatch(
   console.log(prompt);
 
   if (aiMode) {
-    const label = testPromptMode ? 'AI RESPONSE (test-prompt mode — includes feedback section)' : 'AI RESPONSE';
+    const modeTag = useNewPrompt ? ' [new-prompt]' : testPromptMode ? ' [test-prompt]' : '';
+    const label = useNewPrompt
+      ? 'AI RESPONSE (new-prompt mode — raw timeline path)'
+      : testPromptMode
+        ? 'AI RESPONSE (test-prompt mode — includes feedback section)'
+        : 'AI RESPONSE';
     console.log(`\n--- ${label} ---\n`);
-    process.stderr.write(`  Calling Claude for match ${matchIndex}${testPromptMode ? ' [test-prompt]' : ''}...\n`);
+    process.stderr.write(`  Calling Claude for match ${matchIndex}${modeTag}...\n`);
+    const mode = useNewPrompt ? 'new' : testPromptMode ? 'test' : 'standard';
     try {
-      const response = await callClaude(prompt, testPromptMode);
+      const response = await callClaude(prompt, mode);
       console.log(response);
     } catch (e) {
       console.log(`[AI call failed: ${e}]`);
@@ -690,7 +878,14 @@ async function printMatch(
 // Cloud runner
 // ---------------------------------------------------------------------------
 
-async function runCloud(count: number, bracket: string, aiMode: boolean, testPromptMode = false, forceHealer = false) {
+async function runCloud(
+  count: number,
+  bracket: string,
+  aiMode: boolean,
+  testPromptMode = false,
+  forceHealer = false,
+  useNewPrompt = false,
+) {
   console.log(`Fetching ${count} matches (bracket: ${bracket}) from ${API_BASE}...\n`);
 
   const stubs = await fetchStubs(bracket, count);
@@ -727,11 +922,11 @@ async function runCloud(count: number, bracket: string, aiMode: boolean, testPro
       }
 
       for (const combat of combats) {
-        const prompt = buildMatchPrompt(combat, forceHealer);
+        const prompt = useNewPrompt ? buildMatchPromptNew(combat, forceHealer) : buildMatchPrompt(combat, forceHealer);
         if (!prompt) continue;
         matchCount++;
         const label = `${stub.id} (${stub.startInfo?.bracket ?? bracket}, ${date})`;
-        await printMatch(label, prompt, matchCount, aiMode, testPromptMode);
+        await printMatch(label, prompt, matchCount, aiMode, testPromptMode, useNewPrompt);
       }
     }
   } finally {
@@ -746,7 +941,13 @@ async function runCloud(count: number, bracket: string, aiMode: boolean, testPro
 // Local runner
 // ---------------------------------------------------------------------------
 
-async function runLocal(logDir: string, aiMode: boolean, testPromptMode = false, forceHealer = false) {
+async function runLocal(
+  logDir: string,
+  aiMode: boolean,
+  testPromptMode = false,
+  forceHealer = false,
+  useNewPrompt = false,
+) {
   const files = (await fs.readdir(logDir))
     .filter((f) => f.endsWith('.txt') && f.startsWith('WoWCombatLog'))
     .map((f) => path.join(logDir, f))
@@ -772,10 +973,10 @@ async function runLocal(logDir: string, aiMode: boolean, testPromptMode = false,
     if (combats.length === 0) continue;
 
     for (const combat of combats) {
-      const prompt = buildMatchPrompt(combat, forceHealer);
+      const prompt = useNewPrompt ? buildMatchPromptNew(combat, forceHealer) : buildMatchPrompt(combat, forceHealer);
       if (!prompt) continue;
       matchCount++;
-      await printMatch(fileName, prompt, matchCount, aiMode, testPromptMode);
+      await printMatch(fileName, prompt, matchCount, aiMode, testPromptMode, useNewPrompt);
     }
   }
 
@@ -793,6 +994,7 @@ async function main() {
   const aiMode = args.includes('--ai');
   const testPromptMode = args.includes('--test-prompt');
   const forceHealer = args.includes('--healer');
+  const useNewPrompt = args.includes('--new-prompt');
   const countIdx = args.indexOf('--count');
   const bracketIdx = args.indexOf('--bracket');
   const bracket = bracketIdx !== -1 ? args[bracketIdx + 1] : 'Rated Solo Shuffle';
@@ -804,7 +1006,11 @@ async function main() {
         'Warning: --ai flag set but ANTHROPIC_API_KEY not found in environment. Responses will be skipped.\n',
       );
     } else {
-      const modeLabel = testPromptMode ? ' (test-prompt mode — responses include ## Prompt Feedback section)' : '';
+      const modeLabel = useNewPrompt
+        ? ' (new-prompt mode — raw timeline path)'
+        : testPromptMode
+          ? ' (test-prompt mode — responses include ## Prompt Feedback section)'
+          : '';
       process.stderr.write(`AI mode enabled — will call Claude after each match prompt${modeLabel}.\n`);
     }
   }
@@ -814,9 +1020,9 @@ async function main() {
       /^~/,
       os.homedir(),
     );
-    await runLocal(logDir, aiMode, testPromptMode, forceHealer);
+    await runLocal(logDir, aiMode, testPromptMode, forceHealer, useNewPrompt);
   } else {
-    await runCloud(count, bracket, aiMode, testPromptMode, forceHealer);
+    await runCloud(count, bracket, aiMode, testPromptMode, forceHealer, useNewPrompt);
   }
 }
 
