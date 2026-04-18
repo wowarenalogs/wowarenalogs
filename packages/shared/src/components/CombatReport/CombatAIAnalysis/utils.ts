@@ -1024,13 +1024,67 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     }
   }
 
-  // (CC, dispel, pressure events added in Task 4)
-  void owner;
-  void ccTrinketSummaries;
-  void dispelSummary;
-  void pressureWindows;
-  void healingGaps;
-  void isHealer;
+  // ── [TRINKET] and [CC ON TEAM] events ──────────────────────────────────────
+
+  for (const summary of ccTrinketSummaries) {
+    for (const t of summary.trinketUseTimes) {
+      addEntry(t, `${fmtTime(t)}  [TRINKET]   ${summary.playerName} used PvP trinket`);
+    }
+
+    for (const cc of summary.ccInstances) {
+      const trinketNote =
+        cc.trinketState === 'available_unused'
+          ? ' | trinket: available, not used'
+          : cc.trinketState === 'used'
+            ? ' | trinket: used'
+            : ' | trinket: on cooldown';
+      addEntry(
+        cc.atSeconds,
+        `${fmtTime(cc.atSeconds)}  [CC ON TEAM]   ${summary.playerName} ← ${cc.spellName} (${cc.sourceName}) | ${cc.durationSeconds.toFixed(0)}s${trinketNote}`,
+      );
+    }
+  }
+
+  // ── [MISSED CLEANSE] and [CLEANSE] events ──────────────────────────────────
+
+  for (const miss of dispelSummary.missedCleanseWindows) {
+    const dmgK = Math.round(miss.postCcDamage / 1000);
+    addEntry(
+      miss.timeSeconds,
+      `${fmtTime(miss.timeSeconds)}  [MISSED CLEANSE]   ${miss.spellName} on ${miss.targetName} | ${miss.durationSeconds.toFixed(0)}s | ${dmgK}k taken during`,
+    );
+  }
+
+  for (const cleanse of dispelSummary.allyCleanse) {
+    addEntry(
+      cleanse.timeSeconds,
+      `${fmtTime(cleanse.timeSeconds)}  [CLEANSE]   ${cleanse.sourceName} dispelled ${cleanse.removedSpellName} off ${cleanse.targetName}`,
+    );
+  }
+
+  // ── [DMG SPIKE] events ─────────────────────────────────────────────────────
+
+  const DMG_SPIKE_THRESHOLD = 300_000;
+  for (const pw of pressureWindows) {
+    if (pw.totalDamage < DMG_SPIKE_THRESHOLD) continue;
+    const dmgM = (pw.totalDamage / 1_000_000).toFixed(2);
+    const windowSec = Math.round(pw.toSeconds - pw.fromSeconds);
+    addEntry(
+      pw.fromSeconds,
+      `${fmtTime(pw.fromSeconds)}  [DMG SPIKE]   ${pw.targetName} (${pw.targetSpec}): ${dmgM}M in ${windowSec}s`,
+    );
+  }
+
+  // ── [HEALING GAP] events (healer only) ────────────────────────────────────
+
+  if (isHealer) {
+    for (const gap of healingGaps) {
+      addEntry(
+        gap.fromSeconds,
+        `${fmtTime(gap.fromSeconds)}  [HEALING GAP]   ${owner.name} inactive ${gap.durationSeconds.toFixed(1)}s (${gap.freeCastSeconds.toFixed(1)}s free) while ${gap.mostDamagedName} under pressure`,
+      );
+    }
+  }
 
   // ── Sort and format ───────────────────────────────────────────────────────
 

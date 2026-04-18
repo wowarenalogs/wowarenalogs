@@ -2,6 +2,7 @@
 import { CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
 
 import { makeAdvancedAction, makeUnit } from '../../../../utils/__tests__/testHelpers';
+import { ICCInstance, IPlayerCCTrinketSummary } from '../../../../utils/ccTrinketAnalysis';
 import { IDamageBucket, IMajorCooldownInfo } from '../../../../utils/cooldowns';
 import { IDispelSummary } from '../../../../utils/dispelAnalysis';
 import { IEnemyCDTimeline } from '../../../../utils/enemyCDs';
@@ -161,6 +162,18 @@ function makeEmptyDispelSummary(): IDispelSummary {
     missedCleanseWindows: [],
     ccEfficiency: [],
     missedPurgeWindows: [],
+  };
+}
+
+function makeEmptyCCTrinketSummary(playerName: string): IPlayerCCTrinketSummary {
+  return {
+    playerName,
+    playerSpec: 'Mistweaver Monk',
+    trinketType: 'Gladiator',
+    trinketCooldownSeconds: 90,
+    ccInstances: [],
+    trinketUseTimes: [],
+    missedTrinketWindows: [],
   };
 }
 
@@ -414,5 +427,157 @@ describe('buildMatchTimeline — CD events', () => {
     const acPos = result.indexOf('Avenging Crusader');
     const lcPos = result.indexOf('Life Cocoon');
     expect(acPos).toBeLessThan(lcPos); // 0:33 before 0:55
+  });
+});
+
+describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () => {
+  it('emits [CC ON TEAM] with trinket: available, not used when trinket was available', () => {
+    const cc: ICCInstance = {
+      atSeconds: 37,
+      durationSeconds: 4,
+      spellId: '853',
+      spellName: 'Hammer of Justice',
+      sourceName: 'Dzinked',
+      sourceSpec: 'Holy Paladin',
+      damageTakenDuring: 50_000,
+      trinketState: 'available_unused',
+      drInfo: null,
+      distanceYards: null,
+      losBlocked: null,
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ccTrinketSummaries: [{ ...makeEmptyCCTrinketSummary('Feramonk'), ccInstances: [cc] }],
+      }),
+    );
+    expect(result).toContain('[CC ON TEAM]');
+    expect(result).toContain('Feramonk ← Hammer of Justice (Dzinked)');
+    expect(result).toContain('trinket: available, not used');
+    expect(result).toContain('0:37');
+  });
+
+  it('emits [CC ON TEAM] with trinket: used when trinket was consumed', () => {
+    const cc: ICCInstance = {
+      atSeconds: 15,
+      durationSeconds: 6,
+      spellId: '853',
+      spellName: 'Hammer of Justice',
+      sourceName: 'Dzinked',
+      sourceSpec: 'Holy Paladin',
+      damageTakenDuring: 30_000,
+      trinketState: 'used',
+      drInfo: null,
+      distanceYards: null,
+      losBlocked: null,
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ccTrinketSummaries: [{ ...makeEmptyCCTrinketSummary('Feramonk'), ccInstances: [cc] }],
+      }),
+    );
+    expect(result).toContain('trinket: used');
+  });
+
+  it('emits [TRINKET] events for trinket uses', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ccTrinketSummaries: [{ ...makeEmptyCCTrinketSummary('Feramonk'), trinketUseTimes: [68] }],
+      }),
+    );
+    expect(result).toContain('[TRINKET]');
+    expect(result).toContain('Feramonk used PvP trinket');
+    expect(result).toContain('1:08');
+  });
+
+  it('emits [MISSED CLEANSE] with damage amount', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        dispelSummary: {
+          ...makeEmptyDispelSummary(),
+          missedCleanseWindows: [
+            {
+              timeSeconds: 134,
+              durationSeconds: 30,
+              targetName: 'Simplesauce',
+              targetSpec: 'Unholy Death Knight',
+              spellName: 'Vampiric Touch',
+              spellId: '34914',
+              priority: 'High',
+              dispelType: 'Magic' as any,
+              postCcDamage: 212_000,
+              cleanseWasOnCD: false,
+            },
+          ],
+        },
+      }),
+    );
+    expect(result).toContain('[MISSED CLEANSE]');
+    expect(result).toContain('Vampiric Touch on Simplesauce');
+    expect(result).toContain('212k');
+  });
+
+  it('emits [CLEANSE] for successful dispels', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        dispelSummary: {
+          ...makeEmptyDispelSummary(),
+          allyCleanse: [
+            {
+              timeSeconds: 44,
+              dispelSpellId: '115450',
+              dispelSpellName: 'Detox',
+              removedSpellId: '34914',
+              removedSpellName: 'Vampiric Touch',
+              sourceName: 'Feramonk',
+              sourceSpec: 'Mistweaver Monk',
+              targetName: 'Simplesauce',
+              targetSpec: 'Unholy Death Knight',
+              priority: 'High',
+              hasDispelPenalty: false,
+              isSpellSteal: false,
+            },
+          ],
+        },
+      }),
+    );
+    expect(result).toContain('[CLEANSE]');
+    expect(result).toContain('Feramonk dispelled Vampiric Touch off Simplesauce');
+  });
+
+  it('emits [DMG SPIKE] only for windows ≥300k', () => {
+    const windows: IDamageBucket[] = [
+      {
+        fromSeconds: 19,
+        toSeconds: 24,
+        totalDamage: 1_240_000,
+        targetName: 'Gardianmini',
+        targetSpec: 'Shadow Priest',
+      },
+      { fromSeconds: 50, toSeconds: 55, totalDamage: 200_000, targetName: 'Feramonk', targetSpec: 'Mistweaver Monk' },
+    ];
+    const result = buildMatchTimeline(makeBaseParams({ pressureWindows: windows }));
+    expect(result).toContain('[DMG SPIKE]');
+    expect(result).toContain('1.24M');
+    // 200k window should NOT appear
+    const spikeCount = (result.match(/\[DMG SPIKE\]/g) ?? []).length;
+    expect(spikeCount).toBe(1);
+  });
+
+  it('emits [HEALING GAP] only when isHealer is true', () => {
+    const gap: IHealingGap = {
+      fromSeconds: 82,
+      toSeconds: 86.2,
+      durationSeconds: 4.2,
+      freeCastSeconds: 2.1,
+      mostDamagedSpec: 'Unholy Death Knight',
+      mostDamagedName: 'Simplesauce',
+      mostDamagedAmount: 400_000,
+    };
+    const healerResult = buildMatchTimeline(makeBaseParams({ healingGaps: [gap], isHealer: true }));
+    const dpsResult = buildMatchTimeline(makeBaseParams({ healingGaps: [gap], isHealer: false }));
+
+    expect(healerResult).toContain('[HEALING GAP]');
+    expect(healerResult).toContain('Feramonk inactive 4.2s');
+    expect(dpsResult).not.toContain('[HEALING GAP]');
   });
 });
