@@ -65,6 +65,7 @@ function makeCooldown(
     availableWindows: [],
     neverUsed: false,
     casts: [],
+    maxChargesDetected: 1,
     ...overrides,
   };
 }

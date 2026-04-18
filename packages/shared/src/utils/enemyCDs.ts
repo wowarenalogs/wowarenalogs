@@ -321,8 +321,7 @@ export function formatEnemyCDTimelineForContext(timeline: IEnemyCDTimeline, matc
   const unusedByCDId = new Set<string>();
   for (const player of timeline.players) {
     for (const cd of player.offensiveCDs) {
-      const usedInBurst = timeline.alignedBurstWindows.some((w) => w.activeCDs.some((a) => a.spellId === cd.spellId));
-      if (!usedInBurst && cd.availableAgainAtSeconds > matchDurationSeconds) {
+      if (cd.availableAgainAtSeconds > matchDurationSeconds) {
         unusedByCDId.add(`${player.specName}: ${cd.spellName} — not used again after ${fmtTime(cd.castTimeSeconds)}`);
       }
     }

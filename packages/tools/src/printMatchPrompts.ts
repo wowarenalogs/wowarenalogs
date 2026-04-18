@@ -571,7 +571,8 @@ function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
   } else {
     cooldowns.forEach((cd) => {
       lines.push('');
-      lines.push(`  ${cd.spellName} [${cd.tag}, ${cd.cooldownSeconds}s CD]:`);
+      const chargesSuffix = cd.maxChargesDetected > 1 ? `, ${cd.maxChargesDetected} Charges` : '';
+      lines.push(`  ${cd.spellName} [${cd.tag}, ${cd.cooldownSeconds}s CD${chargesSuffix}]:`);
       if (cd.neverUsed) {
         lines.push(`    STATUS: NEVER USED`);
       } else {
@@ -635,14 +636,16 @@ function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
       lines.push(`  ${spec} (${player.name}):`);
       for (const cd of cds) {
         if (cd.neverUsed) {
-          lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD]: NEVER USED`);
+          const tmChargesSuffix = cd.maxChargesDetected > 1 ? `, ${cd.maxChargesDetected} Charges` : '';
+          lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD${tmChargesSuffix}]: NEVER USED`);
         } else {
+          const tmChargesSuffix = cd.maxChargesDetected > 1 ? `, ${cd.maxChargesDetected} Charges` : '';
           const castStr = cd.casts.map((c) => fmtTime(c.timeSeconds)).join(', ');
           const idleStr =
             cd.availableWindows.length > 0
               ? ` | idle: ${cd.availableWindows.map((w) => `${fmtTime(w.fromSeconds)}–${fmtTime(w.toSeconds)}`).join(', ')}`
               : '';
-          lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD]: cast at ${castStr}${idleStr}`);
+          lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD${tmChargesSuffix}]: cast at ${castStr}${idleStr}`);
         }
       }
     }
@@ -812,7 +815,14 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
   }
 
   // Player loadout
-  lines.push(buildPlayerLoadout(owner, ownerSpec, ownerCDs, teammateCDs, enemyCDTimeline));
+  const { text: loadoutText, playerIdMap } = buildPlayerLoadout(
+    owner,
+    ownerSpec,
+    ownerCDs,
+    teammateCDs,
+    enemyCDTimeline,
+  );
+  lines.push(loadoutText);
   lines.push('');
 
   // Timeline
@@ -831,6 +841,7 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
     matchStartMs: combat.startTime,
     matchEndMs: combat.endTime,
     isHealer,
+    playerIdMap,
   };
   lines.push(buildMatchTimeline(params));
 

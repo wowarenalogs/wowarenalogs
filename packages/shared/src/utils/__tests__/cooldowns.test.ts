@@ -305,6 +305,7 @@ describe('annotateDefensiveTimings', () => {
       spellName: 'Barkskin',
       tag: 'Defensive',
       cooldownSeconds: 60,
+      maxChargesDetected: 1,
       casts: [{ timeSeconds: castTimeSeconds }],
       availableWindows: [],
       neverUsed: false,
@@ -317,6 +318,7 @@ describe('annotateDefensiveTimings', () => {
       spellName: 'Icy Veins',
       tag: 'Offensive',
       cooldownSeconds: 120,
+      maxChargesDetected: 1,
       casts: [{ timeSeconds: 30 }],
       availableWindows: [],
       neverUsed: false,
@@ -442,6 +444,7 @@ describe('annotateDefensiveTimings', () => {
       spellName: 'Barkskin',
       tag: 'Defensive',
       cooldownSeconds: 60,
+      maxChargesDetected: 1,
       casts: [], // no casts
       availableWindows: [],
       neverUsed: true,

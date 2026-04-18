@@ -180,6 +180,8 @@ export interface IMajorCooldownInfo {
   spellName: string;
   tag: string;
   cooldownSeconds: number;
+  /** Observed maximum charge count. >1 when casts occur faster than a single charge allows (e.g. double Pain Suppression via PvP talent). */
+  maxChargesDetected: number;
   casts: ICooldownCast[];
   /** Periods when the CD was available but the player did not use it */
   availableWindows: IAvailableWindow[];
@@ -262,12 +264,13 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
     );
 
     const isDefOrExternal = spell.tags.includes(SpellTag.Defensive) || (spell.tags as string[]).includes('External');
+    const isControl = spell.tags.includes(SpellTag.Control);
 
     const casts: ICooldownCast[] = castEvents
       .map((e) => {
         const timeSeconds = (e.logLine.timestamp - matchStartMs) / 1000;
         const cast: ICooldownCast = { timeSeconds };
-        if (isDefOrExternal && e.destUnitId && e.destUnitName && e.destUnitName !== 'nil') {
+        if ((isDefOrExternal || isControl) && e.destUnitId && e.destUnitName && e.destUnitName !== 'nil') {
           cast.targetName = e.destUnitName;
           const targetUnit = combat.units[e.destUnitId];
           if (targetUnit) {
@@ -306,12 +309,22 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
       }
     }
 
+    // Detect observed charge count: if any two consecutive casts are closer than the CD,
+    // the player must have had at least 2 charges (e.g. double Pain Suppression via PvP talent).
+    let maxChargesDetected = Math.max(1, effectData.charges?.charges ?? 1);
+    for (let i = 1; i < casts.length; i++) {
+      if (casts[i].timeSeconds - casts[i - 1].timeSeconds < cooldownSeconds) {
+        maxChargesDetected = Math.max(maxChargesDetected, 2);
+      }
+    }
+
     return [
       {
         spellId: spell.spellId,
         spellName: spell.name,
         tag: spell.tags[0] as string,
         cooldownSeconds,
+        maxChargesDetected,
         casts,
         availableWindows,
         neverUsed: casts.length === 0,

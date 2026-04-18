@@ -202,7 +202,14 @@ export function buildMatchContext(
     ).forEach((l) => tLines.push(l));
 
     tLines.push('');
-    tLines.push(buildPlayerLoadout(owner as ICombatUnit, ownerSpec, cooldowns, allTeamCDsWithSpec, enemyCDTimeline));
+    const { text: loadoutText, playerIdMap } = buildPlayerLoadout(
+      owner as ICombatUnit,
+      ownerSpec,
+      cooldowns,
+      allTeamCDsWithSpec,
+      enemyCDTimeline,
+    );
+    tLines.push(loadoutText);
 
     tLines.push('');
     tLines.push(
@@ -221,6 +228,7 @@ export function buildMatchContext(
         matchStartMs: combat.startTime,
         matchEndMs: combat.endTime,
         isHealer: healer,
+        playerIdMap,
       } as BuildMatchTimelineParams),
     );
 
@@ -383,7 +391,8 @@ export function buildMatchContext(
   } else {
     cooldowns.forEach((cd) => {
       lines.push('');
-      lines.push(`  ${cd.spellName} [${cd.tag}, ${cd.cooldownSeconds}s CD]:`);
+      const chargesSuffix = cd.maxChargesDetected > 1 ? `, ${cd.maxChargesDetected} Charges` : '';
+      lines.push(`  ${cd.spellName} [${cd.tag}, ${cd.cooldownSeconds}s CD${chargesSuffix}]:`);
       if (cd.neverUsed) {
         lines.push(`    STATUS: NEVER USED`);
       } else {
@@ -446,14 +455,16 @@ export function buildMatchContext(
       lines.push(`  ${spec} (${player.name}):`);
       for (const cd of cds) {
         if (cd.neverUsed) {
-          lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD]: NEVER USED`);
+          const tmChargesSuffix = cd.maxChargesDetected > 1 ? `, ${cd.maxChargesDetected} Charges` : '';
+          lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD${tmChargesSuffix}]: NEVER USED`);
         } else {
+          const tmChargesSuffix = cd.maxChargesDetected > 1 ? `, ${cd.maxChargesDetected} Charges` : '';
           const castStr = cd.casts.map((c) => fmtTime(c.timeSeconds)).join(', ');
           const idleStr =
             cd.availableWindows.length > 0
               ? ` | idle: ${cd.availableWindows.map((w) => `${fmtTime(w.fromSeconds)}–${fmtTime(w.toSeconds)}`).join(', ')}`
               : '';
-          lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD]: cast at ${castStr}${idleStr}`);
+          lines.push(`    ${cd.spellName} [${cd.cooldownSeconds}s CD${tmChargesSuffix}]: cast at ${castStr}${idleStr}`);
         }
       }
     }

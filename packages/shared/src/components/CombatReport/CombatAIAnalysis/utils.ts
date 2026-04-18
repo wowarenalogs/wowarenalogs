@@ -886,16 +886,16 @@ export function buildPlayerLoadout(
   const playerIdMap = new Map<string, number>();
   let nextId = 1;
 
-  const ownerCDStr =
-    ownerCDs.length > 0 ? ownerCDs.map((cd) => `${cd.spellName} [${cd.cooldownSeconds}s]`).join(', ') : 'none tracked';
+  const fmtCDLabel = (cd: IMajorCooldownInfo) =>
+    `${cd.spellName} [${cd.cooldownSeconds}s${cd.maxChargesDetected > 1 ? `, ${cd.maxChargesDetected} Charges` : ''}]`;
+  const ownerCDStr = ownerCDs.length > 0 ? ownerCDs.map(fmtCDLabel).join(', ') : 'none tracked';
   const ownerId = nextId++;
   playerIdMap.set(owner.name, ownerId);
   lines.push(`  ${ownerId}: ${owner.name} (${ownerSpec} — log owner):`);
   lines.push(`    ${ownerCDStr}`);
 
   for (const { player, spec, cds } of teammateCDs) {
-    const cdStr =
-      cds.length > 0 ? cds.map((cd) => `${cd.spellName} [${cd.cooldownSeconds}s]`).join(', ') : 'none tracked';
+    const cdStr = cds.length > 0 ? cds.map(fmtCDLabel).join(', ') : 'none tracked';
     const pid = nextId++;
     playerIdMap.set(player.name, pid);
     lines.push(`  ${pid}: ${player.name} (${spec}):`);

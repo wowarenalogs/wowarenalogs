@@ -7,6 +7,7 @@ function makeCooldown(spellName: string): IMajorCooldownInfo {
     spellName,
     tag: 'Defensive',
     cooldownSeconds: 90,
+    maxChargesDetected: 1,
     casts: [],
     availableWindows: [],
     neverUsed: false,
