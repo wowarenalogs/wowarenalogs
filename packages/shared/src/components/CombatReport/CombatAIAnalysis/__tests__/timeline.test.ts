@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CombatUnitSpec } from '@wowarenalogs/parser';
+import { CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
 
 import { IMajorCooldownInfo } from '../../../../utils/cooldowns';
 import { IEnemyCDTimeline } from '../../../../utils/enemyCDs';
@@ -7,8 +7,8 @@ import { buildPlayerLoadout } from '../utils';
 
 // ── Factories ─────────────────────────────────────────────────────────────────
 
-function makeOwner(name: string): any {
-  return { name, spec: CombatUnitSpec.None };
+function makeOwner(name: string): ICombatUnit {
+  return { name, spec: CombatUnitSpec.None } as ICombatUnit;
 }
 
 function makeCD(spellName: string, cooldownSeconds: number, neverUsed = false): IMajorCooldownInfo {
