@@ -183,17 +183,9 @@ export function buildMatchContext(
     tLines.push(`  Enemy team: ${enemyTeam}`);
     tLines.push('');
 
-    tLines.push('PURGE RESPONSIBILITY:');
-    if (ownerCanPurge) {
-      tLines.push(`  Log owner (${ownerSpec}): CAN offensive purge`);
-    } else {
-      tLines.push(
-        `  Log owner (${ownerSpec}): CANNOT offensive purge — do not attribute missed purges to the log owner`,
-      );
-    }
-    tLines.push(
-      teamPurgers.length > 0 ? `  Team offensive purgers: ${teamPurgers.join(', ')}` : '  Team offensive purgers: None',
-    );
+    tLines.push('PURGE RESPONSIBILITY');
+    tLines.push(`  Log owner (${ownerSpec}): ${ownerCanPurge ? 'CAN offensive purge' : 'CANNOT offensive purge'}`);
+    tLines.push(`  Team purgers: ${teamPurgers.length > 0 ? teamPurgers.join(', ') : 'none'}`);
 
     const baselineLines = formatSpecBaselines(ownerSpec, cooldowns, benchmarks);
     if (baselineLines.length > 0) {
@@ -216,7 +208,6 @@ export function buildMatchContext(
     tLines.push(
       buildMatchTimeline({
         owner: owner as ICombatUnit,
-        ownerSpec,
         ownerCDs: cooldowns,
         teammateCDs: allTeamCDsWithSpec,
         enemyCDTimeline,

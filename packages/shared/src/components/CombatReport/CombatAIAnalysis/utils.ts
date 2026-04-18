@@ -906,7 +906,6 @@ export function buildPlayerLoadout(
 
 export interface BuildMatchTimelineParams {
   owner: ICombatUnit;
-  ownerSpec: string;
   ownerCDs: IMajorCooldownInfo[];
   teammateCDs: Array<{ player: ICombatUnit; spec: string; cds: IMajorCooldownInfo[] }>;
   enemyCDTimeline: IEnemyCDTimeline;

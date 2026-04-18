@@ -817,7 +817,6 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
   // Timeline
   const params: BuildMatchTimelineParams = {
     owner,
-    ownerSpec,
     ownerCDs,
     teammateCDs,
     enemyCDTimeline,
