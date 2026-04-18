@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
 
-import { makeAdvancedAction, makeUnit } from '../../../../utils/__tests__/testHelpers';
+import { makeAdvancedAction, makeSpellCastEvent, makeUnit } from '../../../../utils/__tests__/testHelpers';
 import { ICCInstance, IPlayerCCTrinketSummary } from '../../../../utils/ccTrinketAnalysis';
 import { IDamageBucket, IMajorCooldownInfo } from '../../../../utils/cooldowns';
 import { IDispelSummary } from '../../../../utils/dispelAnalysis';
@@ -35,19 +35,19 @@ function makeEnemyTimeline(players: IEnemyCDTimeline['players'] = []): IEnemyCDT
 
 describe('buildPlayerLoadout', () => {
   it('labels the log owner with spec and (log owner)', () => {
-    const result = buildPlayerLoadout(
+    const { text } = buildPlayerLoadout(
       makeOwner('Feramonk'),
       'Mistweaver Monk',
       [makeCD('Life Cocoon', 120)],
       [],
       makeEnemyTimeline(),
     );
-    expect(result).toContain('Feramonk (Mistweaver Monk — log owner)');
-    expect(result).toContain('Life Cocoon [120s]');
+    expect(text).toContain('Feramonk (Mistweaver Monk — log owner)');
+    expect(text).toContain('Life Cocoon [120s]');
   });
 
   it('includes teammates without the (log owner) label', () => {
-    const result = buildPlayerLoadout(
+    const { text } = buildPlayerLoadout(
       makeOwner('Feramonk'),
       'Mistweaver Monk',
       [],
@@ -60,13 +60,13 @@ describe('buildPlayerLoadout', () => {
       ],
       makeEnemyTimeline(),
     );
-    expect(result).toContain('Simplesauce (Unholy Death Knight)');
-    expect(result).not.toContain('Simplesauce (Unholy Death Knight — log owner)');
-    expect(result).toContain('Anti-Magic Shell [60s]');
+    expect(text).toContain('Simplesauce (Unholy Death Knight)');
+    expect(text).not.toContain('Simplesauce (Unholy Death Knight — log owner)');
+    expect(text).toContain('Anti-Magic Shell [60s]');
   });
 
   it('includes enemies from CD timeline with (enemy) label', () => {
-    const result = buildPlayerLoadout(
+    const { text } = buildPlayerLoadout(
       makeOwner('Feramonk'),
       'Mistweaver Monk',
       [],
@@ -88,12 +88,12 @@ describe('buildPlayerLoadout', () => {
         },
       ]),
     );
-    expect(result).toContain('Dzinked (Holy Paladin — enemy)');
-    expect(result).toContain('Avenging Crusader [120s]');
+    expect(text).toContain('Dzinked (Holy Paladin — enemy)');
+    expect(text).toContain('Avenging Crusader [120s]');
   });
 
   it('deduplicates enemy CDs that were cast multiple times', () => {
-    const result = buildPlayerLoadout(
+    const { text } = buildPlayerLoadout(
       makeOwner('Feramonk'),
       'Mistweaver Monk',
       [],
@@ -124,31 +124,68 @@ describe('buildPlayerLoadout', () => {
       ]),
     );
     // Should appear once, not twice
-    const count = (result.match(/Bestial Wrath/g) ?? []).length;
+    const count = (text.match(/Bestial Wrath/g) ?? []).length;
     expect(count).toBe(1);
   });
 
   it('does not annotate any CD as NEVER USED', () => {
     const neverUsedCD = makeCD('Paralysis', 45, true);
-    const result = buildPlayerLoadout(makeOwner('Feramonk'), 'Mistweaver Monk', [neverUsedCD], [], makeEnemyTimeline());
-    expect(result).not.toMatch(/NEVER.USED/i);
-    expect(result).toContain('Paralysis [45s]');
+    const { text } = buildPlayerLoadout(
+      makeOwner('Feramonk'),
+      'Mistweaver Monk',
+      [neverUsedCD],
+      [],
+      makeEnemyTimeline(),
+    );
+    expect(text).not.toMatch(/NEVER.USED/i);
+    expect(text).toContain('Paralysis [45s]');
   });
 
   it('shows "none tracked" when owner has no CDs', () => {
-    const result = buildPlayerLoadout(makeOwner('Feramonk'), 'Mistweaver Monk', [], [], makeEnemyTimeline());
-    expect(result).toContain('none tracked');
+    const { text } = buildPlayerLoadout(makeOwner('Feramonk'), 'Mistweaver Monk', [], [], makeEnemyTimeline());
+    expect(text).toContain('none tracked');
   });
 
   it('skips enemies with no tracked CDs', () => {
-    const result = buildPlayerLoadout(
+    const { text } = buildPlayerLoadout(
       makeOwner('Feramonk'),
       'Mistweaver Monk',
       [],
       [],
       makeEnemyTimeline([{ playerName: 'Ghost', specName: 'Arms Warrior', offensiveCDs: [] }]),
     );
-    expect(result).not.toContain('Ghost');
+    expect(text).not.toContain('Ghost');
+  });
+
+  it('assigns sequential numeric IDs starting at 1 for owner, then teammates, then enemies', () => {
+    const { text, playerIdMap } = buildPlayerLoadout(
+      makeOwner('Feramonk'),
+      'Mistweaver Monk',
+      [],
+      [{ player: makeOwner('Simplesauce'), spec: 'Unholy Death Knight', cds: [] }],
+      makeEnemyTimeline([
+        {
+          playerName: 'Dzinked',
+          specName: 'Holy Paladin',
+          offensiveCDs: [
+            {
+              spellId: '31884',
+              spellName: 'Avenging Crusader',
+              castTimeSeconds: 30,
+              cooldownSeconds: 120,
+              availableAgainAtSeconds: 150,
+              buffEndSeconds: 50,
+            },
+          ],
+        },
+      ]),
+    );
+    expect(playerIdMap.get('Feramonk')).toBe(1);
+    expect(playerIdMap.get('Simplesauce')).toBe(2);
+    expect(playerIdMap.get('Dzinked')).toBe(3);
+    expect(text).toContain('1: Feramonk');
+    expect(text).toContain('2: Simplesauce');
+    expect(text).toContain('3: Dzinked');
   });
 });
 
@@ -489,7 +526,7 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     expect(result).toContain('1:08');
   });
 
-  it('emits [MISSED CLEANSE] with damage amount', () => {
+  it('emits [MISSED CLEANSE] with damage amount and dispel type', () => {
     const result = buildMatchTimeline(
       makeBaseParams({
         dispelSummary: {
@@ -514,6 +551,7 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     expect(result).toContain('[MISSED CLEANSE]');
     expect(result).toContain('Vampiric Touch on Simplesauce');
     expect(result).toContain('212k');
+    expect(result).toContain('dispel: Magic');
   });
 
   it('emits [CLEANSE] for successful dispels', () => {
@@ -597,8 +635,8 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
       }),
     );
     expect(result).toContain('[HP]');
-    expect(result).toContain('Feramonk 84%');
-    expect(result).toContain('Feramonk 50%');
+    expect(result).toContain('Feramonk:84%');
+    expect(result).toContain('Feramonk:50%');
   });
 
   it('emits [HP] for multiple friends on the same tick', () => {
@@ -619,8 +657,8 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
         matchEndMs: 6_000,
       }),
     );
-    expect(result).toContain('Healer 80%');
-    expect(result).toContain('DPS 100%');
+    expect(result).toContain('Healer:80%');
+    expect(result).toContain('DPS:100%');
     // Both should be on the same [HP] line
     const hpLine = result.split('\n').find((l) => l.includes('[HP]') && l.includes('Healer'));
     expect(hpLine).toContain('DPS');
@@ -636,5 +674,86 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
       }),
     );
     expect(result).not.toContain('[HP]');
+  });
+});
+
+describe('buildMatchTimeline — [OWNER CAST] (F61 healer gap-filler)', () => {
+  it('emits [OWNER CAST] for healer spell not tracked in ownerCDs when isHealer=true', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('108280', 30_000, 'team-1')], // HTT at T=30s
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+      }),
+    );
+    expect(result).toContain('[OWNER CAST]');
+    expect(result).toContain('Healing Tide Totem');
+    expect(result).toContain('0:30');
+  });
+
+  it('does not emit [OWNER CAST] when spell is already tracked in ownerCDs within ±1s', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('10060', 20_000, 'team-1')], // PI at T=20s
+    });
+    const piCD: IMajorCooldownInfo = {
+      spellId: '10060',
+      spellName: 'Power Infusion',
+      tag: 'External',
+      cooldownSeconds: 120,
+      casts: [{ timeSeconds: 20 }],
+      availableWindows: [],
+      neverUsed: false,
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [piCD],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+      }),
+    );
+    expect(result).not.toContain('[OWNER CAST]');
+  });
+
+  it('does not emit [OWNER CAST] when isHealer is false', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('108280', 30_000, 'team-1')], // HTT at T=30s
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: false,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+      }),
+    );
+    expect(result).not.toContain('[OWNER CAST]');
+  });
+
+  it('does not emit [OWNER CAST] for non-healer spell IDs', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('1', 30_000, 'team-1')],
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+      }),
+    );
+    expect(result).not.toContain('[OWNER CAST]');
   });
 });

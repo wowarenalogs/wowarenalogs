@@ -1,4 +1,4 @@
-import { ICombatUnit } from '@wowarenalogs/parser';
+import { ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { IPlayerCCTrinketSummary } from '../../../utils/ccTrinketAnalysis';
 import {
@@ -23,6 +23,15 @@ function lastCastBefore(cd: IMajorCooldownInfo, timeSeconds: number) {
 }
 
 // ── Critical moment identification helpers ─────────────────────────────────
+
+const HEALER_CAST_SPELL_ID_TO_NAME: Record<string, string> = {
+  '10060': 'Power Infusion',
+  '33206': 'Pain Suppression',
+  '108280': 'Healing Tide Totem',
+  '98008': 'Spirit Link Totem',
+  '200183': 'Apotheosis',
+  '265202': 'Holy Word: Salvation',
+};
 
 export type MomentRole = 'Constraint' | 'Kill' | 'Trade' | 'Setup' | 'Consequence' | 'Standalone';
 
@@ -860,6 +869,9 @@ export function buildMatchArc(
  * Formats the PLAYER LOADOUT section for the raw timeline prompt.
  * Lists all major CDs (≥30s) available to each player — no usage annotations,
  * no NEVER USED labeling. Absence from the timeline is the signal.
+ *
+ * Returns both the formatted text and a playerIdMap (name → numeric ID, 1-based)
+ * for use in buildMatchTimeline to compress player names to short IDs.
  */
 export function buildPlayerLoadout(
   owner: ICombatUnit,
@@ -867,19 +879,26 @@ export function buildPlayerLoadout(
   ownerCDs: IMajorCooldownInfo[],
   teammateCDs: Array<{ player: ICombatUnit; spec: string; cds: IMajorCooldownInfo[] }>,
   enemyCDTimeline: IEnemyCDTimeline,
-): string {
+): { text: string; playerIdMap: Map<string, number> } {
   const lines: string[] = [];
   lines.push('PLAYER LOADOUT (major CDs ≥30s available this match)');
 
+  const playerIdMap = new Map<string, number>();
+  let nextId = 1;
+
   const ownerCDStr =
     ownerCDs.length > 0 ? ownerCDs.map((cd) => `${cd.spellName} [${cd.cooldownSeconds}s]`).join(', ') : 'none tracked';
-  lines.push(`  ${owner.name} (${ownerSpec} — log owner):`);
+  const ownerId = nextId++;
+  playerIdMap.set(owner.name, ownerId);
+  lines.push(`  ${ownerId}: ${owner.name} (${ownerSpec} — log owner):`);
   lines.push(`    ${ownerCDStr}`);
 
   for (const { player, spec, cds } of teammateCDs) {
     const cdStr =
       cds.length > 0 ? cds.map((cd) => `${cd.spellName} [${cd.cooldownSeconds}s]`).join(', ') : 'none tracked';
-    lines.push(`  ${player.name} (${spec}):`);
+    const pid = nextId++;
+    playerIdMap.set(player.name, pid);
+    lines.push(`  ${pid}: ${player.name} (${spec}):`);
     lines.push(`    ${cdStr}`);
   }
 
@@ -895,12 +914,14 @@ export function buildPlayerLoadout(
       }
     }
     if (uniqueCDs.length > 0) {
-      lines.push(`  ${player.playerName} (${player.specName} — enemy):`);
+      const pid = nextId++;
+      playerIdMap.set(player.playerName, pid);
+      lines.push(`  ${pid}: ${player.playerName} (${player.specName} — enemy):`);
       lines.push(`    ${uniqueCDs.join(', ')}`);
     }
   }
 
-  return lines.join('\n');
+  return { text: lines.join('\n'), playerIdMap };
 }
 
 // ── buildMatchTimeline ─────────────────────────────────────────────────────
@@ -920,6 +941,8 @@ export interface BuildMatchTimelineParams {
   matchStartMs: number;
   matchEndMs: number;
   isHealer: boolean;
+  /** Player name → numeric ID mapping from buildPlayerLoadout. When provided, names are compressed to short IDs in the timeline. */
+  playerIdMap?: Map<string, number>;
 }
 
 export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
@@ -938,7 +961,15 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     matchStartMs,
     matchEndMs,
     isHealer,
+    playerIdMap,
   } = params;
+
+  /** Returns the short numeric ID string for a player name, or the name itself if no map/entry. */
+  function pid(name: string): string {
+    if (!playerIdMap) return name;
+    const id = playerIdMap.get(name);
+    return id !== undefined ? String(id) : name;
+  }
 
   const entries: Array<{ timeSeconds: number; lines: string[] }> = [];
 
@@ -951,7 +982,9 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   const unitsByName = new Map(friends.map((u) => [u.name, u]));
 
   for (const death of friendlyDeaths) {
-    const deathLines: string[] = [`${fmtTime(death.atSeconds)}  [DEATH]  ${death.name} (${death.spec} — friendly)`];
+    const deathLines: string[] = [
+      `${fmtTime(death.atSeconds)}  [DEATH]  ${pid(death.name)} (${death.spec} — friendly)`,
+    ];
 
     const dyingUnit = unitsByName.get(death.name);
     if (dyingUnit) {
@@ -987,7 +1020,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   }
 
   for (const death of enemyDeaths) {
-    addEntry(death.atSeconds, `${fmtTime(death.atSeconds)}  [DEATH]  ${death.name} (${death.spec} — enemy)`);
+    addEntry(death.atSeconds, `${fmtTime(death.atSeconds)}  [DEATH]  ${pid(death.name)} (${death.spec} — enemy)`);
   }
 
   // ── [OWNER CD] events ───────────────────────────────────────────────────────
@@ -996,9 +1029,30 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     for (const cast of cd.casts) {
       const targetPart =
         cast.targetName !== undefined
-          ? ` → ${cast.targetName}${cast.targetHpPct !== undefined ? ` (${cast.targetHpPct}% HP)` : ''}`
+          ? ` → ${pid(cast.targetName)}${cast.targetHpPct !== undefined ? ` (${cast.targetHpPct}% HP)` : ''}`
           : '';
       addEntry(cast.timeSeconds, `${fmtTime(cast.timeSeconds)}  [OWNER CD]   ${cd.spellName}${targetPart}`);
+    }
+  }
+
+  // ── [OWNER CAST] healer gap-filler (F61) ────────────────────────────────────
+
+  if (isHealer) {
+    const trackedCastsBySpellId = new Map<string, Set<number>>();
+    for (const cd of ownerCDs) {
+      trackedCastsBySpellId.set(cd.spellId, new Set(cd.casts.map((c) => Math.round(c.timeSeconds))));
+    }
+    for (const e of owner.spellCastEvents ?? []) {
+      if (e.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
+      if (!e.spellId) continue;
+      const spellName = HEALER_CAST_SPELL_ID_TO_NAME[e.spellId];
+      if (!spellName) continue;
+      const timeSeconds = (e.logLine.timestamp - matchStartMs) / 1000;
+      const roundedT = Math.round(timeSeconds);
+      const trackedSet = trackedCastsBySpellId.get(e.spellId);
+      if (trackedSet && (trackedSet.has(roundedT - 1) || trackedSet.has(roundedT) || trackedSet.has(roundedT + 1)))
+        continue;
+      addEntry(timeSeconds, `${fmtTime(timeSeconds)}  [OWNER CAST]   ${spellName}`);
     }
   }
 
@@ -1009,7 +1063,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       for (const cast of cd.casts) {
         addEntry(
           cast.timeSeconds,
-          `${fmtTime(cast.timeSeconds)}  [TEAMMATE CD]   ${player.name} (${spec}): ${cd.spellName}`,
+          `${fmtTime(cast.timeSeconds)}  [TEAMMATE CD]   ${pid(player.name)} (${spec}): ${cd.spellName}`,
         );
       }
     }
@@ -1021,7 +1075,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     for (const cd of player.offensiveCDs) {
       addEntry(
         cd.castTimeSeconds,
-        `${fmtTime(cd.castTimeSeconds)}  [ENEMY CD]   ${player.playerName} (${player.specName}): ${cd.spellName}`,
+        `${fmtTime(cd.castTimeSeconds)}  [ENEMY CD]   ${pid(player.playerName)} (${player.specName}): ${cd.spellName}`,
       );
     }
   }
@@ -1030,7 +1084,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
 
   for (const summary of ccTrinketSummaries) {
     for (const t of summary.trinketUseTimes) {
-      addEntry(t, `${fmtTime(t)}  [TRINKET]   ${summary.playerName} used PvP trinket`);
+      addEntry(t, `${fmtTime(t)}  [TRINKET]   ${pid(summary.playerName)} used PvP trinket`);
     }
 
     for (const cc of summary.ccInstances) {
@@ -1042,7 +1096,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
             : ' | trinket: on cooldown';
       addEntry(
         cc.atSeconds,
-        `${fmtTime(cc.atSeconds)}  [CC ON TEAM]   ${summary.playerName} ← ${cc.spellName} (${cc.sourceName}) | ${cc.durationSeconds.toFixed(0)}s${trinketNote}`,
+        `${fmtTime(cc.atSeconds)}  [CC ON TEAM]   ${pid(summary.playerName)} ← ${cc.spellName} (${pid(cc.sourceName)}) | ${cc.durationSeconds.toFixed(0)}s${trinketNote}`,
       );
     }
   }
@@ -1053,14 +1107,14 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     const dmgK = Math.round(miss.postCcDamage / 1000);
     addEntry(
       miss.timeSeconds,
-      `${fmtTime(miss.timeSeconds)}  [MISSED CLEANSE]   ${miss.spellName} on ${miss.targetName} | ${miss.durationSeconds.toFixed(0)}s | ${dmgK}k taken during`,
+      `${fmtTime(miss.timeSeconds)}  [MISSED CLEANSE]   ${miss.spellName} on ${pid(miss.targetName)} | ${miss.durationSeconds.toFixed(0)}s | ${dmgK}k taken during | dispel: ${miss.dispelType}`,
     );
   }
 
   for (const cleanse of dispelSummary.allyCleanse) {
     addEntry(
       cleanse.timeSeconds,
-      `${fmtTime(cleanse.timeSeconds)}  [CLEANSE]   ${cleanse.sourceName} dispelled ${cleanse.removedSpellName} off ${cleanse.targetName}`,
+      `${fmtTime(cleanse.timeSeconds)}  [CLEANSE]   ${pid(cleanse.sourceName)} dispelled ${cleanse.removedSpellName} off ${pid(cleanse.targetName)}`,
     );
   }
 
@@ -1073,7 +1127,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     const windowSec = Math.round(pw.toSeconds - pw.fromSeconds);
     addEntry(
       pw.fromSeconds,
-      `${fmtTime(pw.fromSeconds)}  [DMG SPIKE]   ${pw.targetName} (${pw.targetSpec}): ${dmgM}M in ${windowSec}s`,
+      `${fmtTime(pw.fromSeconds)}  [DMG SPIKE]   ${pid(pw.targetName)} (${pw.targetSpec}): ${dmgM}M in ${windowSec}s`,
     );
   }
 
@@ -1083,7 +1137,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     for (const gap of healingGaps) {
       addEntry(
         gap.fromSeconds,
-        `${fmtTime(gap.fromSeconds)}  [HEALING GAP]   ${owner.name} inactive ${gap.durationSeconds.toFixed(1)}s (${gap.freeCastSeconds.toFixed(1)}s free) while ${gap.mostDamagedName} under pressure`,
+        `${fmtTime(gap.fromSeconds)}  [HEALING GAP]   ${pid(owner.name)} inactive ${gap.durationSeconds.toFixed(1)}s (${gap.freeCastSeconds.toFixed(1)}s free) while ${pid(gap.mostDamagedName)} under pressure`,
       );
     }
   }
@@ -1097,7 +1151,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     const parts = friends
       .map((u) => {
         const pct = getUnitHpAtTimestamp(u, tsMs, HP_TICK_INTERVAL_S * 1000);
-        return pct !== null ? `${u.name} ${pct}%` : null;
+        return pct !== null ? `${pid(u.name)}:${pct}%` : null;
       })
       .filter((s): s is string => s !== null);
     if (parts.length > 0) {
