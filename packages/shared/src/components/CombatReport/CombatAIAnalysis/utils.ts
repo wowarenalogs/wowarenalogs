@@ -1110,6 +1110,7 @@ export function buildResourceSnapshot({
 
 export interface BuildMatchTimelineParams {
   owner: ICombatUnit;
+  ownerSpec: string;
   ownerCDs: IMajorCooldownInfo[];
   teammateCDs: Array<{ player: ICombatUnit; spec: string; cds: IMajorCooldownInfo[] }>;
   enemyCDTimeline: IEnemyCDTimeline;
@@ -1139,6 +1140,7 @@ export interface BuildMatchTimelineParams {
 export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   const {
     owner,
+    ownerSpec,
     ownerCDs,
     teammateCDs,
     enemyCDTimeline,
@@ -1172,6 +1174,19 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     if (!enemyIdMap) return name;
     const id = enemyIdMap.get(name);
     return id !== undefined ? String(id) : name;
+  }
+
+  function resourceSnapshot(timeSeconds: number): string[] {
+    return buildResourceSnapshot({
+      timeSeconds,
+      ownerCDs,
+      ownerName: owner.name,
+      ownerSpec,
+      teammateCDs,
+      ccTrinketSummaries,
+      enemyCDTimeline,
+      playerIdMap,
+    });
   }
 
   const entries: Array<{ timeSeconds: number; lines: string[] }> = [];
@@ -1225,7 +1240,11 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         cast.targetName !== undefined
           ? ` → ${pid(cast.targetName)}${cast.targetHpPct !== undefined ? ` (${cast.targetHpPct}% HP)` : ''}`
           : '';
-      addEntry(cast.timeSeconds, `${fmtTime(cast.timeSeconds)}  [OWNER CD]   ${cd.spellName}${targetPart}`);
+      addEntry(
+        cast.timeSeconds,
+        `${fmtTime(cast.timeSeconds)}  [OWNER CD]   ${cd.spellName}${targetPart}`,
+        ...resourceSnapshot(cast.timeSeconds),
+      );
     }
   }
 
@@ -1264,6 +1283,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         addEntry(
           cast.timeSeconds,
           `${fmtTime(cast.timeSeconds)}  [TEAMMATE CD]   ${pid(player.name)} (${spec}): ${cd.spellName}`,
+          ...resourceSnapshot(cast.timeSeconds),
         );
       }
     }

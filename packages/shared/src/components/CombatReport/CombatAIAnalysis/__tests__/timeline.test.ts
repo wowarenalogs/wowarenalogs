@@ -218,6 +218,7 @@ function makeEmptyCCTrinketSummary(playerName: string): IPlayerCCTrinketSummary 
 function makeBaseParams(overrides: Partial<BuildMatchTimelineParams> = {}): BuildMatchTimelineParams {
   return {
     owner: makeOwner('Feramonk'),
+    ownerSpec: 'Holy Paladin',
     ownerCDs: [],
     teammateCDs: [],
     enemyCDTimeline: makeEnemyTimeline(),

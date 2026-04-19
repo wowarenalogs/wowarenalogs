@@ -214,6 +214,7 @@ export function buildMatchContext(
     tLines.push(
       buildMatchTimeline({
         owner: owner as ICombatUnit,
+        ownerSpec,
         ownerCDs: cooldowns,
         teammateCDs: allTeamCDsWithSpec,
         enemyCDTimeline,
