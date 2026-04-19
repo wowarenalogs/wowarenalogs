@@ -274,7 +274,7 @@ export function extractMajorCooldowns(unit: ICombatUnit, combat: AtomicArenaComb
           cast.targetName = e.destUnitName;
           const targetUnit = combat.units[e.destUnitId];
           if (targetUnit) {
-            const hp = getUnitHpAtTimestamp(targetUnit, e.logLine.timestamp);
+            const hp = getUnitHpAtTimestamp(targetUnit, e.logLine.timestamp, 2_000);
             if (hp !== null) cast.targetHpPct = hp;
           }
         }

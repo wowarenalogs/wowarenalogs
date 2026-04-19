@@ -1402,9 +1402,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   const HP_SAMPLE_WINDOW_CRITICAL_MS = 1_500; // ±1.5s for 1s dense ticks
   const HP_SAMPLE_WINDOW_BASELINE_MS = 3_000; // ±3s for 3s baseline ticks
 
-  // Exclude the log owner from HP ticks — the owner's HP is lowest-signal for a
-  // healer log (they are usually not the kill target) and adds noise to the output.
-  const hpFriends = friends.filter((u) => u.id !== owner.id);
+  const hpFriends = friends;
 
   for (const t of [...tickSet].sort((a, b) => a - b)) {
     const tsMs = matchStartMs + t * 1000;
