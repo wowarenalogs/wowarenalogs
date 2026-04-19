@@ -93,6 +93,12 @@ For each decision point you identify, evaluate:
 3. What is the estimated impact difference between the two choices?
 4. What uncertainty prevents a definitive verdict?
 
+Output constraints:
+- Generate findings only about decisions the log owner could have made differently. Use teammate actions as context within a log-owner finding — never make a teammate's decision the finding itself.
+- Do not include reasoning, self-corrections, or intermediate analysis in your output. Write only final conclusions.
+- Do not add a pre-finding analysis, summary, or ranking block. Begin directly with Finding 1.
+- Before flagging a class-specific behavior as an error, acknowledge whether it may be meta or talent-gated.
+
 Output format — exactly 5 findings maximum (fewer only if fewer meaningful decision points exist), ranked by estimated match impact. Most impactful first:
 
 ## Finding 1: [short title]
