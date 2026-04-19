@@ -987,6 +987,125 @@ export function buildPlayerLoadout(
   return { text: lines.join('\n'), playerIdMap, friendlyIdMap, enemyIdMap };
 }
 
+// ── buildResourceSnapshot ──────────────────────────────────────────────────
+
+export interface ResourceSnapshotParams {
+  timeSeconds: number;
+  ownerCDs: IMajorCooldownInfo[];
+  ownerName: string;
+  ownerSpec: string;
+  teammateCDs: Array<{ player: ICombatUnit; spec: string; cds: IMajorCooldownInfo[] }>;
+  ccTrinketSummaries: IPlayerCCTrinketSummary[];
+  enemyCDTimeline: IEnemyCDTimeline;
+  playerIdMap?: Map<string, number>;
+}
+
+export function buildResourceSnapshot({
+  timeSeconds,
+  ownerCDs,
+  ownerName,
+  ownerSpec,
+  teammateCDs,
+  ccTrinketSummaries,
+  enemyCDTimeline,
+  playerIdMap,
+}: ResourceSnapshotParams): string[] {
+  function pid(name: string): string {
+    if (!playerIdMap) return name;
+    const id = playerIdMap.get(name);
+    return id !== undefined ? String(id) : name;
+  }
+
+  // ── Line 1: Friendly ready / On CD ────────────────────────────────────────
+  const readyNames: string[] = [];
+  const onCDParts: string[] = [];
+
+  const allFriendlyCDs: Array<{ spellName: string; cd: IMajorCooldownInfo }> = [
+    ...ownerCDs.map((cd) => ({ spellName: cd.spellName, cd })),
+    ...teammateCDs.flatMap(({ cds }) => cds.map((cd) => ({ spellName: cd.spellName, cd }))),
+  ];
+
+  for (const { spellName, cd } of allFriendlyCDs) {
+    // Casts strictly before this timestamp (exclude the current cast being annotated)
+    const priorCasts = cd.casts.filter((c) => c.timeSeconds < timeSeconds - 0.5);
+
+    if (priorCasts.length === 0) {
+      // Never used before T — available unless match just started (5s grace)
+      if (timeSeconds > 5) readyNames.push(spellName);
+      continue;
+    }
+
+    // For multi-charge CDs, check whether all charge slots are consumed.
+    const charges = cd.maxChargesDetected > 1 ? cd.maxChargesDetected : 1;
+    const relevantCasts = priorCasts.slice(-charges); // last N casts, one per slot
+    const earliestSlotReady = relevantCasts[0].timeSeconds + cd.cooldownSeconds;
+
+    if (earliestSlotReady <= timeSeconds + 0.5) {
+      readyNames.push(spellName);
+    } else {
+      const remaining = Math.round(earliestSlotReady - timeSeconds);
+      onCDParts.push(`${spellName} (${remaining}s)`);
+    }
+  }
+
+  const friendlyLine =
+    `      [RESOURCES]  Friendly ready: ${readyNames.length > 0 ? readyNames.join(', ') : '—'}` +
+    ` | On CD: ${onCDParts.length > 0 ? onCDParts.join(', ') : '—'}`;
+
+  // ── Line 2: Enemy active offensive CDs (cast in last 30s) ─────────────────
+  const enemyActiveParts: string[] = [];
+  for (const player of enemyCDTimeline.players) {
+    for (const cd of player.offensiveCDs) {
+      const agoSeconds = timeSeconds - cd.castTimeSeconds;
+      if (agoSeconds >= 0 && agoSeconds <= 30) {
+        enemyActiveParts.push(`${cd.spellName} (${player.specName}, cast ${Math.round(agoSeconds)}s ago)`);
+      }
+    }
+  }
+  const enemyLine =
+    `                   Enemy active: ` +
+    (enemyActiveParts.length > 0 ? enemyActiveParts.join(', ') : '— (no offensive CD in last 30s)');
+
+  // ── Line 3: CC state for every friendly player ────────────────────────────
+  const summaryByName = new Map(ccTrinketSummaries.map((s) => [s.playerName, s]));
+
+  const allFriendlyPlayers: Array<{ name: string; spec: string }> = [
+    { name: ownerName, spec: ownerSpec },
+    ...teammateCDs.map(({ player, spec }) => ({ name: player.name, spec })),
+  ];
+
+  const ccParts: string[] = [];
+  for (const { name, spec } of allFriendlyPlayers) {
+    const summary = summaryByName.get(name);
+    const shortSpec = spec.split(' ').at(-1) ?? spec; // "Discipline Priest" → "Priest"
+    const playerLabel = `${pid(name)} (${shortSpec})`;
+
+    const activeCC = summary?.ccInstances.find(
+      (cc) => cc.atSeconds <= timeSeconds && timeSeconds < cc.atSeconds + cc.durationSeconds,
+    );
+
+    if (!activeCC) {
+      ccParts.push(`${playerLabel} free`);
+      continue;
+    }
+
+    const remaining = Math.round(activeCC.atSeconds + activeCC.durationSeconds - timeSeconds);
+    const isStun = activeCC.drInfo?.category === 'Stun';
+    const castLockTag = isStun ? ' [CAST-LOCKED]' : '';
+
+    // If player is physically stunned but a cast appears at this timestamp,
+    // they must have used their trinket to break the stun.
+    const trinketUsedNow = summary?.trinketUseTimes.some((t) => Math.abs(t - timeSeconds) <= 1) ?? false;
+    const trinketTag = isStun && trinketUsedNow ? ' [used trinket to break]' : '';
+
+    ccParts.push(`${playerLabel} ${activeCC.spellName} ${remaining}s left${castLockTag}${trinketTag}`);
+  }
+
+  const ccLine = `                   CC state: ${ccParts.join(' | ')}`;
+
+  return [friendlyLine, enemyLine, ccLine];
+}
+
 // ── buildMatchTimeline ─────────────────────────────────────────────────────
 
 export interface BuildMatchTimelineParams {
