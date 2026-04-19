@@ -146,6 +146,59 @@ After your findings, add a Data Utility section:
 
 Do not add a summary, "what went well" section, or general recommendations beyond the numbered findings and Data Utility section.`;
 
+// Baseline new-prompt — the raw-timeline prompt BEFORE counterfactual reasoning rules were added.
+// Used for A/B testing to measure the impact of the [RESOURCES] annotation + reasoning checks.
+const BASELINE_NEW_SYSTEM_PROMPT = `You are an expert World of Warcraft arena PvP analyst reviewing raw match timeline data for a player performing at Gladiator or R1 level.
+
+Core rules:
+- Evaluate only what the data shows. Never invent events, timestamps, or spells not present in the data.
+- Only reference a spell if it appears in PLAYER LOADOUT or the timeline. Never say "you should have used X" if X is not listed — it may not be in the player's build.
+- Express uncertainty explicitly. Avoid "must", "always", "should have" — prefer "likely", "probably", "the log suggests", "without HP data it's unclear whether...".
+- This player already plays correctly most of the time. Focus on timing, trades, and decision quality — not rule-based mistakes.
+- For purge analysis: check PURGE RESPONSIBILITY before attributing missed purges. Do not blame the log owner for purges if they cannot offensive purge.
+- Ability absence: if a spell appears in PLAYER LOADOUT but has no cast in the timeline, that absence is notable only when (a) another ability from the same player appears in the timeline AND (b) the absent ability's function would have been relevant to a specific identified moment. Flag absence as a potential decision gap with stated uncertainty — never treat it as confirmed.
+- Teammate ability absence follows the same rule. If talent-gating is plausible, flag that caveat explicitly.
+
+Your task:
+You are given a PLAYER LOADOUT (all major CDs available this match) and a MATCH TIMELINE (raw chronological events — no pre-selected moments, no pre-drawn conclusions).
+
+Identify the most important decision points yourself. Read the full timeline, build your own causal narrative about what happened and why, then evaluate the decisions that most affected match outcome.
+
+For each decision point you identify, evaluate:
+1. Was this the correct trade given the available information?
+2. What was the most likely alternative decision?
+3. What is the estimated impact difference between the two choices?
+4. What uncertainty prevents a definitive verdict?
+
+Output format — exactly 5 findings maximum (fewer only if fewer meaningful decision points exist), ranked by estimated match impact. Most impactful first:
+
+## Finding 1: [short title]
+**What happened:** [one sentence]
+**Alternative:** [the most likely correct play — one sentence]
+**Impact:** [why the difference matters — specific to timing, CD value, or match outcome]
+**Confidence:** [High/Medium/Low] — [one sentence on key uncertainty]
+
+## Finding 2: ...
+## Finding 3: ...
+
+After your findings, add a Data Utility section:
+
+## Data Utility
+
+### Used — directly informed a finding
+- [event type or specific event]: [how it was used]
+
+### Present but unused
+- [event type or specific event]: [why it didn't contribute]
+
+### Missing — would have changed confidence or a finding
+- [what you needed]: [which finding it would affect]
+
+### One change
+[Single most impactful prompt or data improvement you'd make]
+
+Do not add a summary, "what went well" section, or general recommendations beyond the numbered findings and Data Utility section.`;
+
 type ParsedCombat = IArenaMatch | IShuffleRound;
 
 // ---------------------------------------------------------------------------
@@ -203,7 +256,10 @@ async function parseLogText(text: string): Promise<ParsedCombat[]> {
 // AI call
 // ---------------------------------------------------------------------------
 
-async function callClaude(prompt: string, mode: 'standard' | 'test' | 'new' | 'hybrid' = 'standard'): Promise<string> {
+async function callClaude(
+  prompt: string,
+  mode: 'standard' | 'test' | 'new' | 'hybrid' | 'baseline' = 'standard',
+): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return '[AI SKIPPED — set ANTHROPIC_API_KEY env var to enable]';
@@ -212,11 +268,13 @@ async function callClaude(prompt: string, mode: 'standard' | 'test' | 'new' | 'h
   const systemPrompt =
     mode === 'hybrid'
       ? HYBRID_SYSTEM_PROMPT
-      : mode === 'new'
-        ? NEW_SYSTEM_PROMPT
-        : mode === 'test'
-          ? TEST_SYSTEM_PROMPT
-          : SYSTEM_PROMPT;
+      : mode === 'baseline'
+        ? BASELINE_NEW_SYSTEM_PROMPT
+        : mode === 'new'
+          ? NEW_SYSTEM_PROMPT
+          : mode === 'test'
+            ? TEST_SYSTEM_PROMPT
+            : SYSTEM_PROMPT;
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 6144,
@@ -897,12 +955,14 @@ async function printMatch(
   console.log(prompt);
 
   if (compareMode) {
-    process.stderr.write(`  A/B compare for match ${matchIndex}: calling Claude x2 (new + hybrid)...\n`);
+    process.stderr.write(
+      `  A/B compare for match ${matchIndex}: calling Claude x2 (baseline vs new with [RESOURCES] + counterfactual rules)...\n`,
+    );
     try {
-      const [responseA, responseB] = await Promise.all([callClaude(prompt, 'new'), callClaude(prompt, 'hybrid')]);
-      console.log('\n--- ANALYSIS A (current — Confidence field) ---\n');
+      const [responseA, responseB] = await Promise.all([callClaude(prompt, 'baseline'), callClaude(prompt, 'new')]);
+      console.log('\n--- ANALYSIS A (baseline — raw timeline, no counterfactual rules) ---\n');
       console.log(responseA);
-      console.log('\n--- ANALYSIS B (hybrid — Verdict/Severity/Fix) ---\n');
+      console.log('\n--- ANALYSIS B (new — [RESOURCES] blocks + 4 counterfactual reasoning checks) ---\n');
       console.log(responseB);
       process.stderr.write(`  Calling Claude judge...\n`);
       const judgment = await callClaudeJudge(prompt, responseA, responseB);
@@ -982,7 +1042,7 @@ async function runCloud(count: number, bracket: string, aiMode: boolean, options
       }
 
       for (const combat of combats) {
-        // compare mode always uses the new timeline prompt as input
+        // compare mode always uses the new timeline prompt as input (includes [RESOURCES] blocks)
         const prompt =
           compareMode || useNewPrompt
             ? buildMatchPromptNew(combat, forceHealer)
@@ -1065,7 +1125,9 @@ async function main() {
     if (!process.env.ANTHROPIC_API_KEY) {
       process.stderr.write('Warning: --compare requires ANTHROPIC_API_KEY. Responses will be skipped.\n');
     } else {
-      process.stderr.write('Compare mode — will run both new + hybrid prompts and judge side-by-side.\n');
+      process.stderr.write(
+        'Compare mode — baseline vs new ([RESOURCES] + counterfactual rules), judge side-by-side.\n',
+      );
     }
   } else if (aiMode) {
     if (!process.env.ANTHROPIC_API_KEY) {
