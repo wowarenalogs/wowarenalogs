@@ -159,7 +159,7 @@ describe('buildPlayerLoadout', () => {
   });
 
   it('assigns sequential numeric IDs starting at 1 for owner, then teammates, then enemies', () => {
-    const { text, playerIdMap } = buildPlayerLoadout(
+    const { text, playerIdMap, enemyIdMap } = buildPlayerLoadout(
       makeOwner('Feramonk'),
       'Mistweaver Monk',
       [],
@@ -183,7 +183,7 @@ describe('buildPlayerLoadout', () => {
     );
     expect(playerIdMap.get('Feramonk')).toBe(1);
     expect(playerIdMap.get('Simplesauce')).toBe(2);
-    expect(playerIdMap.get('Dzinked')).toBe(3);
+    expect(enemyIdMap.get('Dzinked')).toBe(3);
     expect(text).toContain('1: Feramonk');
     expect(text).toContain('2: Simplesauce');
     expect(text).toContain('3: Dzinked');
@@ -785,9 +785,11 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
     // Death at T=30s; match 0–45s. Dense window: [20, 30].
     const unit = makeUnitWithHp('unit-1', 'Feramonk', 0, [
       [1_000, 400_000], // t=1s
-      [20_000, 350_000], // t=20s
+      [20_000, 350_000], // t=20s → covers t=19–21
+      [22_000, 300_000], // t=22s → covers t=21–23
+      [24_000, 250_000], // t=24s → covers t=23–25
       [25_000, 200_000], // t=25s
-      [30_000, 50_000], // t=30s
+      [30_000, 50_000], // t=30s → covers t=29–31
     ]);
     const result = buildMatchTimeline(
       makeBaseParams({
@@ -812,7 +814,8 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
     // Spike at T=20s (fromSeconds=20); dense window: [15, 25].
     const unit = makeUnitWithHp('unit-1', 'Feramonk', 0, [
       [12_000, 480_000], // t=12s
-      [18_000, 350_000], // t=18s
+      [15_000, 430_000], // t=15s → covers t=14–16
+      [18_000, 350_000], // t=18s → covers t=17–19
       [22_000, 250_000], // t=22s
     ]);
     const spike: IDamageBucket = {
@@ -848,6 +851,7 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
     // CC at T=15s; dense window: [15, 25].
     const unit = makeUnitWithHp('unit-1', 'Feramonk', 0, [
       [12_000, 480_000],
+      [15_000, 430_000], // t=15s → covers t=14–16
       [18_000, 350_000],
       [24_000, 250_000],
     ]);
