@@ -225,6 +225,7 @@ export function buildMatchContext(
         pressureWindows,
         healingGaps,
         friends: friends as ICombatUnit[],
+        enemies: enemies as ICombatUnit[],
         matchStartMs: combat.startTime,
         matchEndMs: combat.endTime,
         isHealer: healer,

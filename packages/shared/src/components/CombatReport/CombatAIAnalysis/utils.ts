@@ -1121,6 +1121,11 @@ export interface BuildMatchTimelineParams {
   pressureWindows: IDamageBucket[];
   healingGaps: IHealingGap[];
   friends: ICombatUnit[];
+  /**
+   * Enemy player units. When provided, their HP is included in [HP] ticks
+   * alongside friendly HP, referenced by enemyPid() numeric ID.
+   */
+  enemies?: ICombatUnit[];
   matchStartMs: number;
   matchEndMs: number;
   isHealer: boolean;
@@ -1151,6 +1156,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     pressureWindows,
     healingGaps,
     friends,
+    enemies: _enemies,
     matchStartMs,
     matchEndMs,
     isHealer,
