@@ -229,6 +229,7 @@ function makeBaseParams(overrides: Partial<BuildMatchTimelineParams> = {}): Buil
     pressureWindows: [] as IDamageBucket[],
     healingGaps: [] as IHealingGap[],
     friends: [],
+    enemies: [],
     matchStartMs: 0,
     matchEndMs: 0,
     isHealer: true,
@@ -936,5 +937,80 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
     expect(result).toContain('0:06');
     expect(result).toContain('0:09');
     expect(result).toContain('0:12');
+  });
+});
+
+describe('buildMatchTimeline — F64 enemy HP in [HP] ticks', () => {
+  it('includes enemy HP on the same [HP] line as friendly HP', () => {
+    const matchStartMs = 0;
+
+    const friend = makeUnit('unit-1', {
+      name: 'Feramonk',
+      advancedActions: [
+        makeAdvancedAction(6_000, 0, 0, 500_000, 450_000), // 90% at t=6s
+      ],
+    }) as ICombatUnit;
+
+    // advancedActorId must match the unit's id for getUnitHpAtTimestamp to pick it up
+    const enemy = makeUnit('enemy-1', {
+      name: 'Natjkis',
+      advancedActions: [
+        { ...makeAdvancedAction(6_000, 0, 0, 500_000, 175_000), advancedActorId: 'enemy-1' }, // 35% at t=6s
+      ],
+    }) as ICombatUnit;
+
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [friend],
+        enemies: [enemy],
+        matchStartMs,
+        matchEndMs: 9_000,
+      }),
+    );
+
+    // Both HP readings should appear on the same [HP] line at t=6s
+    const hpLines = result.split('\n').filter((l) => l.includes('[HP]'));
+    expect(hpLines.length).toBeGreaterThan(0);
+    const sixSecondLine = hpLines.find((l) => l.startsWith('0:06'));
+    expect(sixSecondLine).toBeDefined();
+    expect(sixSecondLine).toContain('Feramonk:90%');
+    expect(sixSecondLine).toContain('Natjkis:35%');
+  });
+
+  it('adds 1s dense ticks in [T-10, T] window before an enemy death', () => {
+    const matchStartMs = 0;
+
+    const enemy = makeUnit('enemy-1', {
+      name: 'Natjkis',
+      advancedActions: [
+        { ...makeAdvancedAction(51_000, 0, 0, 500_000, 100_000), advancedActorId: 'enemy-1' }, // 20% at t=51s
+        { ...makeAdvancedAction(53_000, 0, 0, 500_000, 65_000), advancedActorId: 'enemy-1' }, // 13% at t=53s
+        { ...makeAdvancedAction(55_000, 0, 0, 500_000, 25_000), advancedActorId: 'enemy-1' }, // 5% at t=55s
+      ],
+    }) as ICombatUnit;
+
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemies: [enemy],
+        enemyDeaths: [{ spec: 'Affliction Warlock', name: 'Natjkis', atSeconds: 60 }],
+        matchStartMs,
+        matchEndMs: 65_000,
+      }),
+    );
+
+    // Dense window [50, 60] — expect consecutive 1s ticks (not just 3s multiples like 51, 54, 57, 60)
+    const hpLines = result.split('\n').filter((l) => l.includes('[HP]'));
+    const tickSeconds = hpLines
+      .map((l) => {
+        const m = l.match(/^(\d+):(\d+)/);
+        return m ? parseInt(m[1]) * 60 + parseInt(m[2]) : null;
+      })
+      .filter((t): t is number => t !== null);
+    const inDenseWindow = tickSeconds.filter((t) => t >= 50 && t <= 60);
+    // At minimum 5 of the 11 possible 1s ticks should appear (accounting for sparse advanced data)
+    expect(inDenseWindow.length).toBeGreaterThanOrEqual(5);
+    // Specifically, t=52 and t=53 are NOT 3s multiples — they should appear only because of the dense window
+    expect(inDenseWindow).toContain(52);
+    expect(inDenseWindow).toContain(53);
   });
 });

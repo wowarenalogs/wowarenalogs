@@ -1156,7 +1156,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     pressureWindows,
     healingGaps,
     friends,
-    enemies: _enemies,
+    enemies,
     matchStartMs,
     matchEndMs,
     isHealer,
@@ -1378,6 +1378,11 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       criticalWindowSet.add(t);
     }
   }
+  for (const d of enemyDeaths) {
+    for (let t = Math.max(0, Math.ceil(d.atSeconds - 10)); t <= Math.floor(d.atSeconds); t++) {
+      criticalWindowSet.add(t);
+    }
+  }
   for (const pw of pressureWindows) {
     if (pw.totalDamage >= DMG_SPIKE_THRESHOLD) {
       // ±5s centred on the spike start — clamp both edges
@@ -1408,15 +1413,18 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   const HP_SAMPLE_WINDOW_CRITICAL_MS = 1_500; // ±1.5s for 1s dense ticks
   const HP_SAMPLE_WINDOW_BASELINE_MS = 3_000; // ±3s for 3s baseline ticks
 
-  const hpFriends = friends;
+  const hpUnits: Array<{ unit: ICombatUnit; label: (name: string) => string }> = [
+    ...friends.map((u) => ({ unit: u, label: (name: string) => pid(name) })),
+    ...(enemies ?? []).map((u) => ({ unit: u, label: (name: string) => enemyPid(name) })),
+  ];
 
   for (const t of [...tickSet].sort((a, b) => a - b)) {
     const tsMs = matchStartMs + t * 1000;
     const sampleWindowMs = criticalWindowSet.has(t) ? HP_SAMPLE_WINDOW_CRITICAL_MS : HP_SAMPLE_WINDOW_BASELINE_MS;
-    const parts = hpFriends
-      .map((u) => {
-        const pct = getUnitHpAtTimestamp(u, tsMs, sampleWindowMs);
-        return pct !== null ? `${pid(u.name)}:${pct}%` : null;
+    const parts = hpUnits
+      .map(({ unit, label }) => {
+        const pct = getUnitHpAtTimestamp(unit, tsMs, sampleWindowMs);
+        return pct !== null ? `${label(unit.name)}:${pct}%` : null;
       })
       .filter((s): s is string => s !== null);
     if (parts.length > 0) {
