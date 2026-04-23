@@ -918,6 +918,7 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
     pressureWindows,
     healingGaps,
     friends,
+    enemies,
     matchStartMs: combat.startTime,
     matchEndMs: combat.endTime,
     isHealer,
