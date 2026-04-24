@@ -769,6 +769,149 @@ describe('buildMatchTimeline — [OWNER CAST] (F61 healer gap-filler)', () => {
   });
 });
 
+describe('buildMatchTimeline — F65 [OWNER CAST] target labels', () => {
+  it('appends "self" when the owner targets themselves', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('1', 30_000, 'unit-1', 'Feramonk')],
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+      }),
+    );
+    expect(result).toContain('[OWNER CAST]');
+    expect(result).toContain('→ self');
+  });
+
+  it('appends a numeric ID when the target is a known friendly player', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('1', 30_000, 'unit-2', 'Simplesauce')],
+    });
+    const playerIdMap = new Map<string, number>([
+      ['Feramonk', 1],
+      ['Simplesauce', 2],
+    ]);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+        playerIdMap,
+      }),
+    );
+    expect(result).toContain('→ 2');
+  });
+
+  it('appends a numeric ID when the target is a known enemy player', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('1', 30_000, 'enemy-1', 'Natjkis')],
+    });
+    const enemyIdMap = new Map<string, number>([['Natjkis', 3]]);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+        enemyIdMap,
+      }),
+    );
+    expect(result).toContain('→ 3');
+  });
+
+  it('appends raw target name when the target is not in any ID map', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('1', 30_000, 'npc-99', 'SomeNPC')],
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+      }),
+    );
+    expect(result).toContain('→ SomeNPC');
+  });
+
+  it('omits the target arrow when destUnitName is empty', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('1', 30_000, '', '')],
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+      }),
+    );
+    expect(result).toContain('[OWNER CAST]');
+    expect(result).not.toContain('→');
+  });
+
+  it('uses the canonical spell name from HEALER_CAST_SPELL_ID_TO_NAME when available', () => {
+    // spellId '108280' = Healing Tide Totem — makeSpellCastEvent sets spellName='108280',
+    // but the canonical map overrides display to 'Healing Tide Totem'.
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('108280', 30_000, 'unit-1', 'Feramonk')],
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+      }),
+    );
+    expect(result).toContain('Healing Tide Totem');
+  });
+
+  it('still deduplicates against ownerCDs (does not double-emit spells tracked as [OWNER CD])', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('108280', 30_000, 'unit-1', 'Feramonk')],
+    });
+    const httCD: IMajorCooldownInfo = {
+      spellId: '108280',
+      spellName: 'Healing Tide Totem',
+      tag: 'Defensive',
+      cooldownSeconds: 180,
+      maxChargesDetected: 1,
+      casts: [{ timeSeconds: 30 }],
+      availableWindows: [],
+      neverUsed: false,
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [httCD],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+      }),
+    );
+    expect(result).toContain('[OWNER CD]');
+    expect(result).not.toContain('[OWNER CAST]');
+  });
+});
+
 describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => {
   function makeUnitWithHp(
     id: string,
