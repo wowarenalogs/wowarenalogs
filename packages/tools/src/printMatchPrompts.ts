@@ -837,6 +837,7 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
   const healingGaps = isHealer ? detectHealingGaps(owner, friends, enemies, combat) : [];
   const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
   const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
+  const outgoingCCChains = analyzeOutgoingCCChains(friends, enemies, combat);
   const ownerCanPurge = canOffensivePurge(owner);
   const teamPurgers = friends.filter((p) => p.id !== owner.id && canOffensivePurge(p)).map((p) => specToString(p.spec));
 
@@ -924,6 +925,7 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
     isHealer,
     playerIdMap,
     enemyIdMap,
+    outgoingCCChains,
   };
   lines.push(buildMatchTimeline(params));
 
