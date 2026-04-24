@@ -18,7 +18,7 @@ interface ISpecBaseline {
     latePct: number;
     reactivePct: number;
     unknownPct: number;
-  };
+  } | null;
   cdUsage: Record<string, ISpecCDBaseline>;
 }
 
@@ -36,9 +36,11 @@ export function formatSpecBaselines(ownerSpec: string, ownerCDs: IMajorCooldownI
   lines.push(`SPEC BASELINES — ${ownerSpec} at ≥2100 MMR (n=${spec.sampleCount}):`);
 
   const dt = spec.defensiveTiming;
-  lines.push(
-    `  Defensive timing: Optimal ${Math.round(dt.optimalPct)}% | Early ${Math.round(dt.earlyPct)}% | Late ${Math.round(dt.latePct)}% | Reactive ${Math.round(dt.reactivePct)}% | Unknown ${Math.round(dt.unknownPct)}%`,
-  );
+  if (dt) {
+    lines.push(
+      `  Defensive timing: Optimal ${Math.round(dt.optimalPct)}% | Early ${Math.round(dt.earlyPct)}% | Late ${Math.round(dt.latePct)}% | Reactive ${Math.round(dt.reactivePct)}% | Unknown ${Math.round(dt.unknownPct)}%`,
+    );
+  }
 
   const relevantCDs = ownerCDs.filter((cd) => spec.cdUsage[cd.spellName]);
   if (relevantCDs.length > 0) {

@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-04-11T20:48:28.471Z",
-  "gitCommit": "24929c3ebc01df6457344f32b60c382263cc9845",
+  "generatedAt": "2026-04-24T07:57:51.495Z",
+  "gitCommit": "702773ccb8b096258f2b680314d53b197415cd32",
   "files": {
     "spellEffects.json": {
       "description": "Per-spell cooldown, duration, dispelType from Wago.tools DB2",
       "generatedBy": "npm run start:refreshSpellMetadata (packages/tools)",
       "wowDataDependent": true,
-      "entryCount": 763,
-      "sha256": "449b17b5413a2bf35833df5d9577d221d22d93050ce2b62d56d7bc125146b3ff",
+      "entryCount": 772,
+      "sha256": "a20dcab143e76d467840b048ed3bc8b9c54ed5bb140e1686bca236b9568e3e11",
       "lastCommit": {
-        "hash": "ef94c8a79338b583581142c310f1d0a3a13e908d",
-        "date": "2026-04-02T00:12:33-07:00",
-        "subject": "fix(cd-analysis): add Evoker spells and fix missing tags for DK/Monk/Paladin/Druid/Shaman/Warlock"
+        "hash": "5c81d9c6b7584f8edd0eebedb78f01543bea541d",
+        "date": "2026-04-15T18:28:38-07:00",
+        "subject": "chore(data): update WoW spell data to build 12.0.5.66741"
       }
     },
     "spells.json": {
@@ -31,11 +31,11 @@
       "generatedBy": "npm run start:generateSpellIdLists (packages/tools)",
       "wowDataDependent": true,
       "entryCount": 8,
-      "sha256": "f86fcb4e5512e7cda67168aadd540808f368f6824cb9922cdc3d2fa02200af2a",
+      "sha256": "7eba81e13bd801f780fa144025eae3ec10d5c0ae9ad903638a7081ea29cf86a3",
       "lastCommit": {
-        "hash": "1e5717a1cb8ae8ed361a009ded45cde1870bd9e4",
-        "date": "2026-03-31T00:52:50-07:00",
-        "subject": "feat: add update-wow-data skill + update spell data to build 12.0.1.66709"
+        "hash": "6f1890cc6f8491db948b579c583cf5f14a2f9bee",
+        "date": "2026-04-16T02:28:05-04:00",
+        "subject": "merge: pull upstream/main (65 commits, spell library + mistakes tab + pvp talents)"
       }
     },
     "talentIdMap.json": {

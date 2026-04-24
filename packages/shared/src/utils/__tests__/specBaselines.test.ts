@@ -74,4 +74,18 @@ describe('formatSpecBaselines', () => {
   it('returns empty array for an unknown spec', () => {
     expect(formatSpecBaselines('Unknown Spec', [], mockData)).toEqual([]);
   });
+
+  it('handles null defensiveTiming safely', () => {
+    const dataWithNullDT: IBenchmarkData = {
+      bySpec: {
+        'Test Spec': {
+          sampleCount: 10,
+          defensiveTiming: null,
+          cdUsage: {},
+        },
+      },
+    };
+    const lines = formatSpecBaselines('Test Spec', [], dataWithNullDT);
+    expect(lines.some((l) => l.includes('Defensive timing:'))).toBe(false);
+  });
 });
