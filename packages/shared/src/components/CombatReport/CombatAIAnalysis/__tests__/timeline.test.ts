@@ -748,10 +748,11 @@ describe('buildMatchTimeline — [OWNER CAST] (F61 healer gap-filler)', () => {
     expect(result).not.toContain('[OWNER CAST]');
   });
 
-  it('does not emit [OWNER CAST] for non-healer spell IDs', () => {
+  it('emits [OWNER CAST] for any spell the owner casts, not just the healer whitelist', () => {
+    // Spell ID '9999' is not in HEALER_CAST_SPELL_ID_TO_NAME — after F65 it must still appear.
     const owner = makeUnit('unit-1', {
       name: 'Feramonk',
-      spellCastEvents: [makeSpellCastEvent('1', 30_000, 'team-1')],
+      spellCastEvents: [makeSpellCastEvent('9999', 30_000, 'player-2', 'Simplesauce')],
     });
     const result = buildMatchTimeline(
       makeBaseParams({
@@ -762,7 +763,9 @@ describe('buildMatchTimeline — [OWNER CAST] (F61 healer gap-filler)', () => {
         matchEndMs: 60_000,
       }),
     );
-    expect(result).not.toContain('[OWNER CAST]');
+    expect(result).toContain('[OWNER CAST]');
+    // spellName echoes spellId in the mock (makeSpellCastEvent sets spellName = spellId)
+    expect(result).toContain('9999');
   });
 });
 
