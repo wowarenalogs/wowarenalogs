@@ -1215,14 +1215,14 @@ export function buildResourceSnapshot({
     for (const [enemyName, intervals] of enemyBuffIntervals) {
       const activeBuffs = intervals.filter((i) => i.startSeconds <= timeSeconds && timeSeconds < i.endSeconds);
       for (const buff of activeBuffs) {
-        const remaining = Math.round(buff.endSeconds - timeSeconds);
+        const remaining = Math.max(0, Math.round(buff.endSeconds - timeSeconds));
         const purgeNote = buff.purgeable ? ' [PURGEABLE]' : '';
         enemyBuffParts.push(`${enemyBuffPid(enemyName)}:${buff.spellName} (${remaining}s left${purgeNote})`);
       }
     }
   }
 
-  const buffLine = enemyBuffParts.length > 0 ? `                   Enemy buffs: ${enemyBuffParts.join(' | ')}` : null;
+  const buffLine = enemyBuffParts.length > 0 ? `                   [ENEMY BUFFS]  ${enemyBuffParts.join(' | ')}` : null;
 
   return buffLine !== null ? [friendlyLine, enemyLine, ccLine, buffLine] : [friendlyLine, enemyLine, ccLine];
 }
@@ -1291,6 +1291,8 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     outgoingCCChains,
   } = params;
 
+  const enemyBuffIntervals = extractEnemyMajorBuffIntervals(enemies ?? [], matchStartMs, matchEndMs);
+
   /**
    * Returns the short numeric ID for a friendly player name, or the raw name
    * if no mapping exists.  Enemy names must be resolved via enemyPid() to avoid
@@ -1338,6 +1340,8 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       ccTrinketSummaries,
       enemyCDTimeline,
       playerIdMap,
+      enemyBuffIntervals,
+      enemyIdMap,
     });
   }
 
