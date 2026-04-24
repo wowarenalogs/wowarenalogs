@@ -921,6 +921,7 @@ export function buildPlayerLoadout(
   ownerCDs: IMajorCooldownInfo[],
   teammateCDs: Array<{ player: ICombatUnit; spec: string; cds: IMajorCooldownInfo[] }>,
   enemyCDTimeline: IEnemyCDTimeline,
+  enemies?: ICombatUnit[],
 ): {
   text: string;
   playerIdMap: Map<string, number>;
@@ -954,7 +955,8 @@ export function buildPlayerLoadout(
   }
 
   for (const player of enemyCDTimeline.players) {
-    if (player.offensiveCDs.length === 0) continue;
+    const pid = nextId++;
+    enemyIdMap.set(player.playerName, pid);
     const seen = new Set<string>();
     const uniqueCDs: string[] = [];
     for (const cd of player.offensiveCDs) {
@@ -964,12 +966,18 @@ export function buildPlayerLoadout(
         uniqueCDs.push(`${cd.spellName} [${cd.cooldownSeconds}s]`);
       }
     }
-    if (uniqueCDs.length > 0) {
-      const pid = nextId++;
-      enemyIdMap.set(player.playerName, pid);
-      lines.push(`  ${pid}: ${player.playerName} (${player.specName} — enemy):`);
-      lines.push(`    ${uniqueCDs.join(', ')}`);
-    }
+    lines.push(`  ${pid}: ${player.playerName} (${player.specName} — enemy):`);
+    lines.push(`    ${uniqueCDs.length > 0 ? uniqueCDs.join(', ') : 'none tracked'}`);
+  }
+
+  // Assign IDs to any enemy units not already covered by enemyCDTimeline.players
+  // (enemies who never cast a tracked offensive CD are absent from the timeline).
+  for (const enemy of enemies ?? []) {
+    if (enemyIdMap.has(enemy.name)) continue;
+    const pid = nextId++;
+    enemyIdMap.set(enemy.name, pid);
+    lines.push(`  ${pid}: ${enemy.name} (${specToString(enemy.spec)} — enemy):`);
+    lines.push(`    none tracked`);
   }
 
   // Build a combined playerIdMap that encodes side to avoid key collision.

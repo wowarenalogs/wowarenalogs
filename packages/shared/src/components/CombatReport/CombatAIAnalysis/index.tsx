@@ -207,7 +207,14 @@ export function buildMatchContext(
       text: loadoutText,
       playerIdMap,
       enemyIdMap,
-    } = buildPlayerLoadout(owner as ICombatUnit, ownerSpec, cooldowns, allTeamCDsWithSpec, enemyCDTimeline);
+    } = buildPlayerLoadout(
+      owner as ICombatUnit,
+      ownerSpec,
+      cooldowns,
+      allTeamCDsWithSpec,
+      enemyCDTimeline,
+      enemies as ICombatUnit[],
+    );
     tLines.push(loadoutText);
 
     tLines.push('');

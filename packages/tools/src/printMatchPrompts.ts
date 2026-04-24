@@ -900,7 +900,7 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
     text: loadoutText,
     playerIdMap,
     enemyIdMap,
-  } = buildPlayerLoadout(owner, ownerSpec, ownerCDs, teammateCDs, enemyCDTimeline);
+  } = buildPlayerLoadout(owner, ownerSpec, ownerCDs, teammateCDs, enemyCDTimeline, enemies);
   lines.push(loadoutText);
   lines.push('');
 

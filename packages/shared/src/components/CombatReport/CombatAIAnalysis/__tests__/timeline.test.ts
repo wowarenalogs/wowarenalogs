@@ -147,15 +147,18 @@ describe('buildPlayerLoadout', () => {
     expect(text).toContain('none tracked');
   });
 
-  it('skips enemies with no tracked CDs', () => {
-    const { text } = buildPlayerLoadout(
+  it('includes enemies with no tracked CDs in loadout so their IDs can be resolved in timeline', () => {
+    const { text, enemyIdMap } = buildPlayerLoadout(
       makeOwner('Feramonk'),
       'Mistweaver Monk',
       [],
       [],
       makeEnemyTimeline([{ playerName: 'Ghost', specName: 'Arms Warrior', offensiveCDs: [] }]),
     );
-    expect(text).not.toContain('Ghost');
+    // Player must appear so Claude can resolve their numeric ID from [HP] ticks and [OWNER CAST] targets
+    expect(text).toContain('Ghost');
+    expect(text).toContain('none tracked');
+    expect(enemyIdMap.get('Ghost')).toBeDefined();
   });
 
   it('assigns sequential numeric IDs starting at 1 for owner, then teammates, then enemies', () => {
