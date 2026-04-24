@@ -60,6 +60,92 @@ const HEALER_CAST_SPELL_ID_TO_NAME: Record<string, string> = {
   '370537': 'Stasis', // Preservation — store heals
 };
 
+// ── Enemy major buff tracking (F67) ──────────────────────────────────────────
+
+const ENEMY_MAJOR_BUFF_SPELL_IDS: Record<string, { name: string; purgeable: boolean }> = {
+  '10060': { name: 'Power Infusion', purgeable: true },
+  '2825': { name: 'Bloodlust', purgeable: false },
+  '32182': { name: 'Heroism', purgeable: false },
+  '80353': { name: 'Time Warp', purgeable: false },
+  '90355': { name: 'Ancient Hysteria', purgeable: false },
+  '264667': { name: 'Primal Rage', purgeable: false },
+};
+
+export interface IEnemyBuffInterval {
+  spellId: string;
+  spellName: string;
+  startSeconds: number;
+  endSeconds: number;
+  purgeable: boolean;
+}
+
+/**
+ * Scans each enemy unit's auraEvents and returns intervals during which a major
+ * tracked buff (PI, Bloodlust, etc.) was active.  Unclosed buffs at match end are
+ * clamped to matchEndMs so a buff active at the final snapshot is still visible.
+ */
+export function extractEnemyMajorBuffIntervals(
+  enemies: ICombatUnit[],
+  matchStartMs: number,
+  matchEndMs: number,
+): Map<string, IEnemyBuffInterval[]> {
+  const result = new Map<string, IEnemyBuffInterval[]>();
+
+  for (const enemy of enemies) {
+    const intervals: IEnemyBuffInterval[] = [];
+    // key: "${spellId}:${srcUnitId}" → startMs
+    const openBuffs = new Map<string, number>();
+
+    for (const event of enemy.auraEvents) {
+      const spellId = event.spellId ?? '';
+      const buffDef = ENEMY_MAJOR_BUFF_SPELL_IDS[spellId];
+      if (!buffDef) continue;
+
+      const stateKey = `${spellId}:${event.srcUnitId}`;
+      const ts: number = event.logLine.timestamp;
+
+      if (event.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
+        if (!openBuffs.has(stateKey)) {
+          openBuffs.set(stateKey, ts);
+        }
+      } else if (event.logLine.event === LogEvent.SPELL_AURA_REMOVED) {
+        const startMs = openBuffs.get(stateKey);
+        if (startMs !== undefined) {
+          intervals.push({
+            spellId,
+            spellName: buffDef.name,
+            startSeconds: (startMs - matchStartMs) / 1000,
+            endSeconds: (ts - matchStartMs) / 1000,
+            purgeable: buffDef.purgeable,
+          });
+          openBuffs.delete(stateKey);
+        }
+      }
+    }
+
+    // Clamp any unclosed buffs to match end
+    for (const [stateKey, startMs] of openBuffs) {
+      const spellId = stateKey.split(':')[0];
+      const buffDef = ENEMY_MAJOR_BUFF_SPELL_IDS[spellId];
+      if (buffDef) {
+        intervals.push({
+          spellId,
+          spellName: buffDef.name,
+          startSeconds: (startMs - matchStartMs) / 1000,
+          endSeconds: (matchEndMs - matchStartMs) / 1000,
+          purgeable: buffDef.purgeable,
+        });
+      }
+    }
+
+    if (intervals.length > 0) {
+      result.set(enemy.name, intervals);
+    }
+  }
+
+  return result;
+}
+
 // ── Module-level constants shared across builders ──────────────────────────
 
 /** Minimum total damage for a pressure window to be treated as a [DMG SPIKE] event. */
