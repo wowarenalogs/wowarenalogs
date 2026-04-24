@@ -1182,6 +1182,25 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     return id !== undefined ? String(id) : name;
   }
 
+  /**
+   * Resolves a cast's destUnitName to a display label for [OWNER CAST] entries.
+   * Returns "self" for self-casts, a numeric ID for known players, or the raw name.
+   * Returns "" when destUnitName is empty (AoE spells with no specific log target).
+   */
+  function resolveTarget(destUnitName: string | null | undefined): string {
+    if (!destUnitName) return '';
+    if (destUnitName === owner.name) return 'self';
+    if (playerIdMap) {
+      const id = playerIdMap.get(destUnitName);
+      if (id !== undefined) return String(id);
+    }
+    if (enemyIdMap) {
+      const id = enemyIdMap.get(destUnitName);
+      if (id !== undefined) return String(id);
+    }
+    return destUnitName;
+  }
+
   function resourceSnapshot(timeSeconds: number): string[] {
     return buildResourceSnapshot({
       timeSeconds,
@@ -1270,14 +1289,17 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     for (const e of owner.spellCastEvents ?? []) {
       if (e.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
       if (!e.spellId) continue;
-      const spellName = HEALER_CAST_SPELL_ID_TO_NAME[e.spellId];
-      if (!spellName) continue;
+      // Use canonical name from healer map when known; fall back to raw log spell name.
+      const displayName = HEALER_CAST_SPELL_ID_TO_NAME[e.spellId] ?? e.spellName;
+      if (!displayName) continue;
       const tsMs = e.logLine.timestamp;
       const trackedSet = trackedCastsBySpellId.get(e.spellId);
       // Allow ±1000ms tolerance to absorb server/client timestamp drift
       if (trackedSet && (trackedSet.has(tsMs) || trackedSet.has(tsMs - 1000) || trackedSet.has(tsMs + 1000))) continue;
       const timeSeconds = (tsMs - matchStartMs) / 1000;
-      addEntry(timeSeconds, `${fmtTime(timeSeconds)}  [OWNER CAST]   ${spellName}`);
+      const targetLabel = resolveTarget(e.destUnitName);
+      const targetPart = targetLabel ? ` → ${targetLabel}` : '';
+      addEntry(timeSeconds, `${fmtTime(timeSeconds)}  [OWNER CAST]   ${displayName}${targetPart}`);
     }
   }
 
