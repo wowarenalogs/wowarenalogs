@@ -109,6 +109,33 @@ export const DR_CATEGORY_MAP: Record<string, string> = {
   '2094': 'Blind', // Blind (Rogue)
 };
 
+/**
+ * Spell IDs whose single cast can apply CC to multiple enemy targets simultaneously.
+ * Used to group SPELL_AURA_APPLIED events from analyzeOutgoingCCChains into per-cast AoE events.
+ */
+export const AOE_CC_SPELL_IDS = new Set<string>([
+  '8122', // Psychic Scream (Priest)
+  '5246', // Intimidating Shout (Warrior)
+  '316593', // Intimidating Shout (rank 2)
+  '316595', // Intimidating Shout (rank 3)
+  '5484', // Howl of Terror (Warlock)
+  '77505', // Shockwave (Warrior)
+  '119381', // Leg Sweep (Monk)
+  '20549', // War Stomp (Tauren racial)
+  '99', // Incapacitating Roar (Druid Bear)
+  '30283', // Shadowfury (Warlock) — small AoE on impact
+  '255941', // Bursting Shot (Hunter) — disorients group
+]);
+
+export interface IAoeCCEvent {
+  casterName: string;
+  spellId: string;
+  spellName: string;
+  atSeconds: number;
+  /** Each enemy target affected, in order of atSeconds */
+  targets: Array<{ name: string; durationSeconds: number }>;
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type DRLevel = 'Full' | '50%' | '25%' | 'Immune';
