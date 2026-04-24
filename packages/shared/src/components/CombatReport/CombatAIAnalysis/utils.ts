@@ -62,13 +62,11 @@ const HEALER_CAST_SPELL_ID_TO_NAME: Record<string, string> = {
 
 // ── Enemy major buff tracking (F67) ──────────────────────────────────────────
 
+// Only spells that generate SPELL_AURA_APPLIED events on enemy players in WoW combat logs.
+// Mass-buff effects (Bloodlust, Heroism, Time Warp) do NOT generate individual aura events for
+// enemy team members — they are already visible via [ENEMY CD] / Enemy active in the prompt.
 const ENEMY_MAJOR_BUFF_SPELL_IDS: Record<string, { name: string; purgeable: boolean }> = {
   '10060': { name: 'Power Infusion', purgeable: true },
-  '2825': { name: 'Bloodlust', purgeable: false },
-  '32182': { name: 'Heroism', purgeable: false },
-  '80353': { name: 'Time Warp', purgeable: false },
-  '90355': { name: 'Ancient Hysteria', purgeable: false },
-  '264667': { name: 'Primal Rage', purgeable: false },
 };
 
 export interface IEnemyBuffInterval {

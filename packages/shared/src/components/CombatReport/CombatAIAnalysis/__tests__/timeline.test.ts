@@ -1458,7 +1458,9 @@ describe('buildMatchTimeline — F67 [ENEMY BUFFS]', () => {
     expect(result).not.toContain('[ENEMY BUFFS]');
   });
 
-  it('marks Bloodlust as NOT purgeable', () => {
+  it('does NOT emit [ENEMY BUFFS] for untracked spell IDs (e.g. Bloodlust 2825 is not logged as aura on enemies)', () => {
+    // Bloodlust (2825) and other mass-buff effects do not generate SPELL_AURA_APPLIED on
+    // enemy team members in WoW combat logs — only targeted externals like PI do.
     const enemy = makeEnemyWithAura('enemy-1', 'Natjkis', '2825', 20_000, 40_000);
     const result = buildMatchTimeline(
       makeBaseParams({
@@ -1479,9 +1481,7 @@ describe('buildMatchTimeline — F67 [ENEMY BUFFS]', () => {
         ],
       }),
     );
-    expect(result).toContain('[ENEMY BUFFS]');
-    expect(result).toContain('Bloodlust');
-    expect(result).not.toContain('[PURGEABLE]');
+    expect(result).not.toContain('[ENEMY BUFFS]');
   });
 
   it('shows remaining seconds for active buff', () => {
