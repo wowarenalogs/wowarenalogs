@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CombatUnitSpec, ICombatUnit } from '@wowarenalogs/parser';
+import { CombatUnitReaction, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
-import { makeAdvancedAction, makeSpellCastEvent, makeUnit } from '../../../../utils/__tests__/testHelpers';
+import {
+  makeAdvancedAction,
+  makeAuraEvent,
+  makeSpellCastEvent,
+  makeUnit,
+} from '../../../../utils/__tests__/testHelpers';
 import { ICCInstance, IPlayerCCTrinketSummary } from '../../../../utils/ccTrinketAnalysis';
 import { IDamageBucket, IMajorCooldownInfo } from '../../../../utils/cooldowns';
 import { IDispelSummary } from '../../../../utils/dispelAnalysis';
@@ -1301,5 +1306,238 @@ describe('buildMatchTimeline — [CC CAST] events', () => {
     const result = buildMatchTimeline(makeBaseParams({ outgoingCCChains: chains }));
     const castLines = result.split('\n').filter((l) => l.includes('[CC CAST]'));
     expect(castLines).toHaveLength(2);
+  });
+});
+
+// ── buildMatchTimeline — F67 [ENEMY BUFFS] line ──────────────────────────────
+
+describe('buildMatchTimeline — F67 [ENEMY BUFFS]', () => {
+  function makeEnemyWithAura(
+    id: string,
+    name: string,
+    spellId: string,
+    appliedMs: number,
+    removedMs: number,
+  ): ICombatUnit {
+    return makeUnit(id, {
+      name,
+      reaction: CombatUnitReaction.Hostile,
+      auraEvents: [
+        makeAuraEvent(LogEvent.SPELL_AURA_APPLIED, spellId, appliedMs, 'src-1', id),
+        makeAuraEvent(LogEvent.SPELL_AURA_REMOVED, spellId, removedMs, 'src-1', id),
+      ],
+    });
+  }
+
+  it('emits [ENEMY BUFFS] line on [OWNER CD] when enemy has Power Infusion active', () => {
+    // PI active on Natjkis from 20s to 40s; owner CD cast at 30s
+    const enemy = makeEnemyWithAura('enemy-1', 'Natjkis', '10060', 20_000, 40_000);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemies: [enemy],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+        ownerCDs: [
+          {
+            spellId: '33206',
+            spellName: 'Pain Suppression',
+            tag: 'Defensive',
+            cooldownSeconds: 180,
+            maxChargesDetected: 1,
+            casts: [{ timeSeconds: 30 }],
+            availableWindows: [],
+            neverUsed: false,
+          },
+        ],
+      }),
+    );
+    expect(result).toContain('[ENEMY BUFFS]');
+    expect(result).toContain('Power Infusion');
+  });
+
+  it('marks Power Infusion as [PURGEABLE]', () => {
+    const enemy = makeEnemyWithAura('enemy-1', 'Natjkis', '10060', 20_000, 40_000);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemies: [enemy],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+        ownerCDs: [
+          {
+            spellId: '33206',
+            spellName: 'Pain Suppression',
+            tag: 'Defensive',
+            cooldownSeconds: 180,
+            maxChargesDetected: 1,
+            casts: [{ timeSeconds: 30 }],
+            availableWindows: [],
+            neverUsed: false,
+          },
+        ],
+      }),
+    );
+    expect(result).toContain('[PURGEABLE]');
+  });
+
+  it('emits [ENEMY BUFFS] on [TEAMMATE CD] too', () => {
+    const enemy = makeEnemyWithAura('enemy-1', 'Natjkis', '10060', 20_000, 40_000);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemies: [enemy],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+        teammateCDs: [
+          {
+            player: makeOwner('Simplesauce'),
+            spec: 'Unholy Death Knight',
+            cds: [
+              {
+                spellId: '48707',
+                spellName: 'Anti-Magic Shell',
+                tag: 'Defensive',
+                cooldownSeconds: 60,
+                maxChargesDetected: 1,
+                casts: [{ timeSeconds: 25 }],
+                availableWindows: [],
+                neverUsed: false,
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    expect(result).toContain('[ENEMY BUFFS]');
+    expect(result).toContain('Power Infusion');
+  });
+
+  it('does NOT emit [ENEMY BUFFS] when no tracked buff is active at snapshot time', () => {
+    // PI active 20–40s, owner CD at 50s (after PI expired)
+    const enemy = makeEnemyWithAura('enemy-1', 'Natjkis', '10060', 20_000, 40_000);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemies: [enemy],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+        ownerCDs: [
+          {
+            spellId: '33206',
+            spellName: 'Pain Suppression',
+            tag: 'Defensive',
+            cooldownSeconds: 180,
+            maxChargesDetected: 1,
+            casts: [{ timeSeconds: 50 }],
+            availableWindows: [],
+            neverUsed: false,
+          },
+        ],
+      }),
+    );
+    expect(result).not.toContain('[ENEMY BUFFS]');
+  });
+
+  it('does NOT emit [ENEMY BUFFS] when enemies array is empty', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemies: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+        ownerCDs: [
+          {
+            spellId: '33206',
+            spellName: 'Pain Suppression',
+            tag: 'Defensive',
+            cooldownSeconds: 180,
+            maxChargesDetected: 1,
+            casts: [{ timeSeconds: 30 }],
+            availableWindows: [],
+            neverUsed: false,
+          },
+        ],
+      }),
+    );
+    expect(result).not.toContain('[ENEMY BUFFS]');
+  });
+
+  it('marks Bloodlust as NOT purgeable', () => {
+    const enemy = makeEnemyWithAura('enemy-1', 'Natjkis', '2825', 20_000, 40_000);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemies: [enemy],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+        ownerCDs: [
+          {
+            spellId: '33206',
+            spellName: 'Pain Suppression',
+            tag: 'Defensive',
+            cooldownSeconds: 180,
+            maxChargesDetected: 1,
+            casts: [{ timeSeconds: 30 }],
+            availableWindows: [],
+            neverUsed: false,
+          },
+        ],
+      }),
+    );
+    expect(result).toContain('[ENEMY BUFFS]');
+    expect(result).toContain('Bloodlust');
+    expect(result).not.toContain('[PURGEABLE]');
+  });
+
+  it('shows remaining seconds for active buff', () => {
+    // PI active 20–50s, owner CD at 30s → 20s remaining
+    const enemy = makeEnemyWithAura('enemy-1', 'Natjkis', '10060', 20_000, 50_000);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemies: [enemy],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+        ownerCDs: [
+          {
+            spellId: '33206',
+            spellName: 'Pain Suppression',
+            tag: 'Defensive',
+            cooldownSeconds: 180,
+            maxChargesDetected: 1,
+            casts: [{ timeSeconds: 30 }],
+            availableWindows: [],
+            neverUsed: false,
+          },
+        ],
+      }),
+    );
+    expect(result).toContain('20s left');
+  });
+
+  it('uses numeric enemy ID when enemyIdMap is provided', () => {
+    const enemy = makeEnemyWithAura('enemy-1', 'Natjkis', '10060', 20_000, 40_000);
+    const playerIdMap = new Map([['Feramonk', 1]]);
+    const enemyIdMap = new Map([['Natjkis', 3]]);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemies: [enemy],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+        playerIdMap,
+        enemyIdMap,
+        ownerCDs: [
+          {
+            spellId: '33206',
+            spellName: 'Pain Suppression',
+            tag: 'Defensive',
+            cooldownSeconds: 180,
+            maxChargesDetected: 1,
+            casts: [{ timeSeconds: 30 }],
+            availableWindows: [],
+            neverUsed: false,
+          },
+        ],
+      }),
+    );
+    expect(result).toContain('[ENEMY BUFFS]');
+    // numeric ID '3' should appear in the buff line
+    const buffLine = result.split('\n').find((l) => l.includes('[ENEMY BUFFS]'));
+    expect(buffLine).toBeDefined();
+    expect(buffLine).toContain('3');
   });
 });
