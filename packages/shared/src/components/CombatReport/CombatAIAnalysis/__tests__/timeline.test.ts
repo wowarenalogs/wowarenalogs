@@ -846,6 +846,24 @@ describe('buildMatchTimeline — F65 [OWNER CAST] target labels', () => {
     expect(result).toContain('→ SomeNPC');
   });
 
+  it('omits the target arrow when destUnitName is the literal string "nil" (WoW log convention for untargeted spells)', () => {
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('1', 30_000, 'nil', 'nil')],
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 60_000,
+      }),
+    );
+    expect(result).toContain('[OWNER CAST]');
+    expect(result).not.toContain('→');
+  });
+
   it('omits the target arrow when destUnitName is empty', () => {
     const owner = makeUnit('unit-1', {
       name: 'Feramonk',

@@ -1188,7 +1188,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
    * Returns "" when destUnitName is empty (AoE spells with no specific log target).
    */
   function resolveTarget(destUnitName: string | null | undefined): string {
-    if (!destUnitName) return '';
+    if (!destUnitName || destUnitName === 'nil') return '';
     if (destUnitName === owner.name) return 'self';
     if (playerIdMap) {
       const id = playerIdMap.get(destUnitName);
