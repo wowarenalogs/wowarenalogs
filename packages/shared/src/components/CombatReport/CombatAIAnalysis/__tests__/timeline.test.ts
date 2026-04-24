@@ -901,6 +901,26 @@ describe('buildMatchTimeline — F65 [OWNER CAST] target labels', () => {
     expect(result).toContain('Healing Tide Totem');
   });
 
+  it('suppresses trinket cast from [OWNER CAST] when the same timestamp is already tracked by [TRINKET]', () => {
+    // Trinket use at T=64s — should appear as [TRINKET] only, not also as [OWNER CAST].
+    const owner = makeUnit('unit-1', {
+      name: 'Feramonk',
+      spellCastEvents: [makeSpellCastEvent('42292', 64_000, '', 'nil')], // PvP trinket spell ID
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        isHealer: true,
+        ownerCDs: [],
+        matchStartMs: 0,
+        matchEndMs: 120_000,
+        ccTrinketSummaries: [{ ...makeEmptyCCTrinketSummary('Feramonk'), trinketUseTimes: [64] }],
+      }),
+    );
+    expect(result).toContain('[TRINKET]');
+    expect(result).not.toContain('[OWNER CAST]');
+  });
+
   it('still deduplicates against ownerCDs (does not double-emit spells tracked as [OWNER CD])', () => {
     const owner = makeUnit('unit-1', {
       name: 'Feramonk',

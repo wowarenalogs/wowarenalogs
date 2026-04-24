@@ -1286,6 +1286,12 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         new Set(cd.casts.map((c) => matchStartMs + Math.round(c.timeSeconds * 1000))),
       );
     }
+    // Collect all trinket-use timestamps so we can suppress the matching SPELL_CAST_SUCCESS
+    // event — trinket uses are already tracked by [TRINKET] events and would double-emit.
+    const trinketUseTimesMs = new Set(
+      ccTrinketSummaries.flatMap((s) => s.trinketUseTimes.map((t) => Math.round(matchStartMs + t * 1000))),
+    );
+
     for (const e of owner.spellCastEvents ?? []) {
       if (e.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
       if (!e.spellId) continue;
@@ -1296,6 +1302,9 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       const trackedSet = trackedCastsBySpellId.get(e.spellId);
       // Allow ±1000ms tolerance to absorb server/client timestamp drift
       if (trackedSet && (trackedSet.has(tsMs) || trackedSet.has(tsMs - 1000) || trackedSet.has(tsMs + 1000))) continue;
+      // Suppress trinket casts — already tracked by [TRINKET] events
+      if (trinketUseTimesMs.has(tsMs) || trinketUseTimesMs.has(tsMs - 1000) || trinketUseTimesMs.has(tsMs + 1000))
+        continue;
       const timeSeconds = (tsMs - matchStartMs) / 1000;
       const targetLabel = resolveTarget(e.destUnitName);
       const targetPart = targetLabel ? ` → ${targetLabel}` : '';
