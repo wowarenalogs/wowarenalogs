@@ -11,6 +11,7 @@ import {
   specToString,
 } from '../../../utils/cooldowns';
 import { IDispelSummary } from '../../../utils/dispelAnalysis';
+import { extractAoeCCEvents, IOutgoingCCChain } from '../../../utils/drAnalysis';
 import { IEnemyCDTimeline } from '../../../utils/enemyCDs';
 import { IHealingGap } from '../../../utils/healingGaps';
 import { getHpPercentAtTime, getLowestHpPercentInWindow } from '../../../utils/killWindowTargetSelection';
@@ -1148,6 +1149,11 @@ export interface BuildMatchTimelineParams {
    * share the same display name.
    */
   enemyIdMap?: Map<string, number>;
+  /**
+   * AoE CC chains cast by friendly players on enemies. When provided,
+   * [CC CAST] events are emitted for AoE spells (non-single-target spells).
+   */
+  outgoingCCChains?: IOutgoingCCChain[];
 }
 
 export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
@@ -1170,6 +1176,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     isHealer,
     playerIdMap,
     enemyIdMap,
+    outgoingCCChains,
   } = params;
 
   /**
@@ -1331,6 +1338,20 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
           ...resourceSnapshot(cast.timeSeconds),
         );
       }
+    }
+  }
+
+  // ── [CC CAST] events — AoE CC cast by friendly players on enemies ──────────
+
+  if (outgoingCCChains && outgoingCCChains.length > 0) {
+    for (const event of extractAoeCCEvents(outgoingCCChains)) {
+      const casterLabel = pid(event.casterName);
+      const targetLabels = event.targets.map((t) => enemyPid(t.name)).join(', ');
+      const countNote = event.targets.length > 1 ? ` [${event.targets.length} enemies]` : '';
+      addEntry(
+        event.atSeconds,
+        `${fmtTime(event.atSeconds)}  [CC CAST]   ${event.spellName} (by ${casterLabel}) → ${targetLabels}${countNote}`,
+      );
     }
   }
 

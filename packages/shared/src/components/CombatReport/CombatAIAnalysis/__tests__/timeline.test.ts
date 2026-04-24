@@ -5,6 +5,7 @@ import { makeAdvancedAction, makeSpellCastEvent, makeUnit } from '../../../../ut
 import { ICCInstance, IPlayerCCTrinketSummary } from '../../../../utils/ccTrinketAnalysis';
 import { IDamageBucket, IMajorCooldownInfo } from '../../../../utils/cooldowns';
 import { IDispelSummary } from '../../../../utils/dispelAnalysis';
+import { IOutgoingCCChain } from '../../../../utils/drAnalysis';
 import { IEnemyCDTimeline } from '../../../../utils/enemyCDs';
 import { IHealingGap } from '../../../../utils/healingGaps';
 import { buildMatchTimeline, BuildMatchTimelineParams, buildPlayerLoadout } from '../utils';
@@ -1203,5 +1204,102 @@ describe('buildMatchTimeline — F64 enemy HP in [HP] ticks', () => {
     // Specifically, t=52 and t=53 are NOT 3s multiples — they should appear only because of the dense window
     expect(inDenseWindow).toContain(52);
     expect(inDenseWindow).toContain(53);
+  });
+});
+
+// ── buildMatchTimeline — [CC CAST] events ─────────────────────────────────────
+
+describe('buildMatchTimeline — [CC CAST] events', () => {
+  function makeAoeCCChain(
+    targetName: string,
+    casterName: string,
+    spellId: string,
+    spellName: string,
+    atSeconds: number,
+    durationSeconds: number,
+  ): IOutgoingCCChain {
+    return {
+      targetName,
+      targetSpec: 'Shadow Priest',
+      applications: [
+        {
+          atSeconds,
+          durationSeconds,
+          spellId,
+          spellName,
+          casterName,
+          casterSpec: 'Holy Priest',
+          drInfo: { category: 'Disorient', level: 'Full' as const, sequenceIndex: 0 },
+        },
+      ],
+      hasWastedApplications: false,
+    };
+  }
+
+  it('emits nothing when outgoingCCChains is not provided', () => {
+    const result = buildMatchTimeline(makeBaseParams());
+    expect(result).not.toContain('[CC CAST]');
+  });
+
+  it('emits nothing when outgoingCCChains is empty', () => {
+    const result = buildMatchTimeline(makeBaseParams({ outgoingCCChains: [] }));
+    expect(result).not.toContain('[CC CAST]');
+  });
+
+  it('does not emit [CC CAST] for single-target CC (Cyclone 33786)', () => {
+    const chains: IOutgoingCCChain[] = [makeAoeCCChain('EnemyA', 'Feramonk', '33786', 'Cyclone', 21, 6)];
+    const result = buildMatchTimeline(makeBaseParams({ outgoingCCChains: chains }));
+    expect(result).not.toContain('[CC CAST]');
+  });
+
+  it('emits [CC CAST] for Psychic Scream hitting 1 enemy', () => {
+    const chains: IOutgoingCCChain[] = [makeAoeCCChain('EnemyA', 'Feramonk', '8122', 'Psychic Scream', 21, 8)];
+    const result = buildMatchTimeline(makeBaseParams({ outgoingCCChains: chains }));
+    expect(result).toContain('[CC CAST]');
+    expect(result).toContain('Psychic Scream');
+    expect(result).toContain('0:21');
+  });
+
+  it('emits [CC CAST] for Psychic Scream hitting 2 enemies, listing both targets and count', () => {
+    const chains: IOutgoingCCChain[] = [
+      makeAoeCCChain('EnemyA', 'Feramonk', '8122', 'Psychic Scream', 21, 8),
+      makeAoeCCChain('EnemyB', 'Feramonk', '8122', 'Psychic Scream', 21, 8),
+    ];
+    const result = buildMatchTimeline(makeBaseParams({ outgoingCCChains: chains }));
+    expect(result).toContain('[CC CAST]');
+    expect(result).toContain('EnemyA');
+    expect(result).toContain('EnemyB');
+    expect(result).toContain('[2 enemies]');
+  });
+
+  it('emits one [CC CAST] line per cast event, not per target', () => {
+    const chains: IOutgoingCCChain[] = [
+      makeAoeCCChain('EnemyA', 'Feramonk', '8122', 'Psychic Scream', 21, 8),
+      makeAoeCCChain('EnemyB', 'Feramonk', '8122', 'Psychic Scream', 21, 8),
+      makeAoeCCChain('EnemyC', 'Feramonk', '8122', 'Psychic Scream', 21, 8),
+    ];
+    const result = buildMatchTimeline(makeBaseParams({ outgoingCCChains: chains }));
+    const castLines = result.split('\n').filter((l) => l.includes('[CC CAST]'));
+    expect(castLines).toHaveLength(1);
+    expect(result).toContain('[3 enemies]');
+  });
+
+  it('uses enemyPid to compress enemy target names when idMaps are provided', () => {
+    const chains: IOutgoingCCChain[] = [makeAoeCCChain('EnemyA', 'Feramonk', '8122', 'Psychic Scream', 21, 8)];
+    const playerIdMap = new Map([['Feramonk', 1]]);
+    const enemyIdMap = new Map([['EnemyA', 4]]);
+    const result = buildMatchTimeline(makeBaseParams({ outgoingCCChains: chains, playerIdMap, enemyIdMap }));
+    expect(result).toContain('[CC CAST]');
+    expect(result).toContain('4');
+  });
+
+  it('emits separate [CC CAST] lines for separate casts of same spell (> 0.5s apart)', () => {
+    const chains: IOutgoingCCChain[] = [
+      makeAoeCCChain('EnemyA', 'Feramonk', '8122', 'Psychic Scream', 21, 8),
+      makeAoeCCChain('EnemyA', 'Feramonk', '8122', 'Psychic Scream', 45, 8),
+    ];
+    const result = buildMatchTimeline(makeBaseParams({ outgoingCCChains: chains }));
+    const castLines = result.split('\n').filter((l) => l.includes('[CC CAST]'));
+    expect(castLines).toHaveLength(2);
   });
 });
