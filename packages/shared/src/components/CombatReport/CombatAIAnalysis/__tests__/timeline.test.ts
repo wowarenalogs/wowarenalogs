@@ -1541,3 +1541,124 @@ describe('buildMatchTimeline — F67 [ENEMY BUFFS]', () => {
     expect(buffLine).toContain('3');
   });
 });
+
+describe('buildMatchTimeline — F68 cast/CC disambiguation', () => {
+  const HEALER_SPELL_ID = '33206'; // Pain Suppression — in HEALER_CAST_SPELL_ID_TO_NAME
+  const MATCH_START_MS = 1_000_000;
+
+  function makeOwnerWithCast(castTimestampMs: number): ICombatUnit {
+    return {
+      ...makeOwner('Feramonk'),
+      spellCastEvents: [
+        makeSpellCastEvent(HEALER_SPELL_ID, castTimestampMs, 'player-2', 'Simplesauce', 'player-1', 'Feramonk'),
+      ],
+    } as ICombatUnit;
+  }
+
+  function makeCCSummary(ccAtMs: number): IPlayerCCTrinketSummary {
+    const cc: ICCInstance = {
+      atSeconds: (ccAtMs - MATCH_START_MS) / 1000,
+      durationSeconds: 4,
+      spellId: '107570',
+      spellName: 'Storm Bolt',
+      sourceName: 'EnemyPlayer',
+      sourceSpec: 'Arms Warrior',
+      damageTakenDuring: 50_000,
+      trinketState: 'available_unused',
+      drInfo: null,
+      distanceYards: null,
+      losBlocked: null,
+    };
+    return { ...makeEmptyCCTrinketSummary('Feramonk'), ccInstances: [cc] };
+  }
+
+  it('annotates [OWNER CAST] with [completed before CC landed] when cast ms < CC ms in same second', () => {
+    // cast at 21.100s, CC at 21.700s — both display as 0:21
+    const castMs = MATCH_START_MS + 21_100;
+    const ccMs = MATCH_START_MS + 21_700;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: makeOwnerWithCast(castMs),
+        isHealer: true,
+        matchStartMs: MATCH_START_MS,
+        matchEndMs: MATCH_START_MS + 30_000,
+        ccTrinketSummaries: [makeCCSummary(ccMs)],
+      }),
+    );
+    const castLine = result.split('\n').find((l) => l.includes('[OWNER CAST]') && l.includes('Pain Suppression'));
+    expect(castLine).toBeDefined();
+    expect(castLine).toContain('[completed before CC landed]');
+  });
+
+  it('annotates [OWNER CAST] with [succeeded after CC arrived] when cast ms > CC ms in same second', () => {
+    // CC at 21.100s, cast at 21.800s — both display as 0:21
+    const ccMs = MATCH_START_MS + 21_100;
+    const castMs = MATCH_START_MS + 21_800;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: makeOwnerWithCast(castMs),
+        isHealer: true,
+        matchStartMs: MATCH_START_MS,
+        matchEndMs: MATCH_START_MS + 30_000,
+        ccTrinketSummaries: [makeCCSummary(ccMs)],
+      }),
+    );
+    const castLine = result.split('\n').find((l) => l.includes('[OWNER CAST]') && l.includes('Pain Suppression'));
+    expect(castLine).toBeDefined();
+    expect(castLine).toContain('[succeeded after CC arrived — same second in log]');
+  });
+
+  it('annotates [OWNER CAST] with [same server tick as CC] when cast ms === CC ms', () => {
+    const sharedMs = MATCH_START_MS + 21_500;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: makeOwnerWithCast(sharedMs),
+        isHealer: true,
+        matchStartMs: MATCH_START_MS,
+        matchEndMs: MATCH_START_MS + 30_000,
+        ccTrinketSummaries: [makeCCSummary(sharedMs)],
+      }),
+    );
+    const castLine = result.split('\n').find((l) => l.includes('[OWNER CAST]') && l.includes('Pain Suppression'));
+    expect(castLine).toBeDefined();
+    expect(castLine).toContain('[same server tick as CC — cast succeeded per log]');
+  });
+
+  it('does not annotate [OWNER CAST] when cast and CC are in different displayed seconds', () => {
+    // cast at 21.500s (0:21), CC at 22.500s (0:22) — different display seconds
+    const castMs = MATCH_START_MS + 21_500;
+    const ccMs = MATCH_START_MS + 22_500;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: makeOwnerWithCast(castMs),
+        isHealer: true,
+        matchStartMs: MATCH_START_MS,
+        matchEndMs: MATCH_START_MS + 30_000,
+        ccTrinketSummaries: [makeCCSummary(ccMs)],
+      }),
+    );
+    const castLine = result.split('\n').find((l) => l.includes('[OWNER CAST]') && l.includes('Pain Suppression'));
+    expect(castLine).toBeDefined();
+    expect(castLine).not.toContain('[completed before');
+    expect(castLine).not.toContain('[succeeded after');
+    expect(castLine).not.toContain('[same server tick');
+  });
+
+  it('does not annotate [OWNER CAST] when there are no CC events', () => {
+    const castMs = MATCH_START_MS + 21_500;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: makeOwnerWithCast(castMs),
+        isHealer: true,
+        matchStartMs: MATCH_START_MS,
+        matchEndMs: MATCH_START_MS + 30_000,
+        ccTrinketSummaries: [],
+      }),
+    );
+    const castLine = result.split('\n').find((l) => l.includes('[OWNER CAST]') && l.includes('Pain Suppression'));
+    expect(castLine).toBeDefined();
+    expect(castLine).not.toContain('[completed before');
+    expect(castLine).not.toContain('[succeeded after');
+    expect(castLine).not.toContain('[same server tick');
+  });
+});
