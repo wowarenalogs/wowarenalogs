@@ -238,6 +238,7 @@ export function buildMatchContext(
         isHealer: healer,
         playerIdMap,
         enemyIdMap,
+        outgoingCCChains,
       } as BuildMatchTimelineParams),
     );
 
