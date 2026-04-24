@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { computeIncomingDR, DR_RESET_MS, getDRCategory, getDRLevel, getDRLevelAtTime, IDRInfo } from '../drAnalysis';
+import {
+  computeIncomingDR,
+  DR_RESET_MS,
+  extractAoeCCEvents,
+  getDRCategory,
+  getDRLevel,
+  getDRLevelAtTime,
+  IDRInfo,
+  IOutgoingCCChain,
+} from '../drAnalysis';
 
 // ─── getDRCategory ─────────────────────────────────────────────────────────────
 
@@ -284,5 +293,157 @@ describe('computeIncomingDR', () => {
   it('returns empty array for empty input', () => {
     const result = computeIncomingDR([], MATCH_START);
     expect(result).toEqual([]);
+  });
+});
+
+// ─── extractAoeCCEvents ───────────────────────────────────────────────────────
+
+describe('extractAoeCCEvents', () => {
+  function makeChain(
+    targetName: string,
+    applications: Array<{
+      atSeconds: number;
+      spellId: string;
+      spellName: string;
+      casterName: string;
+      durationSeconds: number;
+    }>,
+  ): IOutgoingCCChain {
+    return {
+      targetName,
+      targetSpec: 'Unknown',
+      applications: applications.map((a) => ({
+        ...a,
+        casterSpec: 'Holy Priest',
+        drInfo: { category: 'Disorient', level: 'Full' as const, sequenceIndex: 0 },
+      })),
+      hasWastedApplications: false,
+    };
+  }
+
+  it('returns empty array when no chains provided', () => {
+    expect(extractAoeCCEvents([])).toEqual([]);
+  });
+
+  it('returns empty array when no applications are AoE spells', () => {
+    const chains = [
+      makeChain('Enemy1', [
+        { atSeconds: 10, spellId: '33786', spellName: 'Cyclone', casterName: 'Caster', durationSeconds: 6 },
+      ]),
+    ];
+    expect(extractAoeCCEvents(chains)).toEqual([]);
+  });
+
+  it('groups two targets hit by Psychic Scream at the same timestamp', () => {
+    const chains = [
+      makeChain('Enemy1', [
+        { atSeconds: 21, spellId: '8122', spellName: 'Psychic Scream', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+      makeChain('Enemy2', [
+        { atSeconds: 21, spellId: '8122', spellName: 'Psychic Scream', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+    ];
+    const result = extractAoeCCEvents(chains);
+    expect(result).toHaveLength(1);
+    expect(result[0].spellId).toBe('8122');
+    expect(result[0].spellName).toBe('Psychic Scream');
+    expect(result[0].atSeconds).toBe(21);
+    expect(result[0].casterName).toBe('Caster');
+    expect(result[0].targets).toHaveLength(2);
+    expect(result[0].targets.map((t) => t.name)).toContain('Enemy1');
+    expect(result[0].targets.map((t) => t.name)).toContain('Enemy2');
+  });
+
+  it('groups targets within 0.5s as the same cast', () => {
+    const chains = [
+      makeChain('Enemy1', [
+        { atSeconds: 21.0, spellId: '8122', spellName: 'Psychic Scream', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+      makeChain('Enemy2', [
+        { atSeconds: 21.4, spellId: '8122', spellName: 'Psychic Scream', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+    ];
+    const result = extractAoeCCEvents(chains);
+    expect(result).toHaveLength(1);
+    expect(result[0].targets).toHaveLength(2);
+  });
+
+  it('does NOT group targets more than 0.5s apart (two separate casts)', () => {
+    const chains = [
+      makeChain('Enemy1', [
+        { atSeconds: 21.0, spellId: '8122', spellName: 'Psychic Scream', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+      makeChain('Enemy1', [
+        { atSeconds: 35.0, spellId: '8122', spellName: 'Psychic Scream', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+    ];
+    const result = extractAoeCCEvents(chains);
+    expect(result).toHaveLength(2);
+  });
+
+  it('does NOT group applications from different casters', () => {
+    const chains = [
+      makeChain('Enemy1', [
+        { atSeconds: 21, spellId: '8122', spellName: 'Psychic Scream', casterName: 'CasterA', durationSeconds: 8 },
+      ]),
+      makeChain('Enemy2', [
+        { atSeconds: 21, spellId: '8122', spellName: 'Psychic Scream', casterName: 'CasterB', durationSeconds: 8 },
+      ]),
+    ];
+    const result = extractAoeCCEvents(chains);
+    expect(result).toHaveLength(2);
+    expect(result.map((e) => e.casterName)).toContain('CasterA');
+    expect(result.map((e) => e.casterName)).toContain('CasterB');
+  });
+
+  it('does NOT group applications from different AoE spells', () => {
+    const chains = [
+      makeChain('Enemy1', [
+        { atSeconds: 21, spellId: '8122', spellName: 'Psychic Scream', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+      makeChain('Enemy2', [
+        { atSeconds: 21, spellId: '5246', spellName: 'Intimidating Shout', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+    ];
+    const result = extractAoeCCEvents(chains);
+    expect(result).toHaveLength(2);
+  });
+
+  it('returns an event with 1 target when only one enemy was hit', () => {
+    const chains = [
+      makeChain('Enemy1', [
+        { atSeconds: 21, spellId: '8122', spellName: 'Psychic Scream', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+    ];
+    const result = extractAoeCCEvents(chains);
+    expect(result).toHaveLength(1);
+    expect(result[0].targets).toHaveLength(1);
+  });
+
+  it('returns events sorted by atSeconds', () => {
+    const chains = [
+      makeChain('Enemy1', [
+        { atSeconds: 45, spellId: '8122', spellName: 'Psychic Scream', casterName: 'Caster', durationSeconds: 8 },
+        { atSeconds: 21, spellId: '8122', spellName: 'Psychic Scream', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+    ];
+    const result = extractAoeCCEvents(chains);
+    expect(result).toHaveLength(2);
+    expect(result[0].atSeconds).toBe(21);
+    expect(result[1].atSeconds).toBe(45);
+  });
+
+  it('records per-target durationSeconds', () => {
+    const chains = [
+      makeChain('Enemy1', [
+        { atSeconds: 21, spellId: '5246', spellName: 'Intimidating Shout', casterName: 'Caster', durationSeconds: 8 },
+      ]),
+      makeChain('Enemy2', [
+        { atSeconds: 21, spellId: '5246', spellName: 'Intimidating Shout', casterName: 'Caster', durationSeconds: 4 },
+      ]),
+    ];
+    const result = extractAoeCCEvents(chains);
+    expect(result[0].targets.find((t) => t.name === 'Enemy1')?.durationSeconds).toBe(8);
+    expect(result[0].targets.find((t) => t.name === 'Enemy2')?.durationSeconds).toBe(4);
   });
 });

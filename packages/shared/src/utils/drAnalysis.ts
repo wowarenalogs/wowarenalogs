@@ -438,3 +438,66 @@ export function formatOutgoingCCChainsForContext(chains: IOutgoingCCChain[]): st
 function immuneAppsNote(count: number): string {
   return count > 0 ? `${count} hit immune — switch CC category or target after 2 applications` : 'DR wasted';
 }
+
+/**
+ * Groups simultaneous AoE CC applications from outgoing CC chains into per-cast events.
+ *
+ * AoE CC (Psychic Scream, Intimidating Shout, etc.) produces one SPELL_AURA_APPLIED per
+ * target hit within a single server tick (~50ms). This function groups applications from
+ * the same caster and spell within a 0.5s window so Claude sees one event per cast with
+ * all targets listed.
+ *
+ * Only spells in AOE_CC_SPELL_IDS are included; single-target CCs are skipped.
+ */
+export function extractAoeCCEvents(chains: IOutgoingCCChain[]): IAoeCCEvent[] {
+  const flat: Array<{
+    casterName: string;
+    spellId: string;
+    spellName: string;
+    atSeconds: number;
+    targetName: string;
+    durationSeconds: number;
+  }> = [];
+
+  for (const chain of chains) {
+    for (const app of chain.applications) {
+      if (!AOE_CC_SPELL_IDS.has(app.spellId)) continue;
+      flat.push({
+        casterName: app.casterName,
+        spellId: app.spellId,
+        spellName: app.spellName,
+        atSeconds: app.atSeconds,
+        targetName: chain.targetName,
+        durationSeconds: app.durationSeconds,
+      });
+    }
+  }
+
+  flat.sort((a, b) => a.atSeconds - b.atSeconds);
+
+  const events: IAoeCCEvent[] = [];
+  const GROUPING_WINDOW_S = 0.5;
+
+  for (const app of flat) {
+    const existing = events.find(
+      (e) =>
+        e.casterName === app.casterName &&
+        e.spellId === app.spellId &&
+        Math.abs(e.atSeconds - app.atSeconds) <= GROUPING_WINDOW_S,
+    );
+
+    if (existing) {
+      existing.targets.push({ name: app.targetName, durationSeconds: app.durationSeconds });
+    } else {
+      events.push({
+        casterName: app.casterName,
+        spellId: app.spellId,
+        spellName: app.spellName,
+        atSeconds: app.atSeconds,
+        targets: [{ name: app.targetName, durationSeconds: app.durationSeconds }],
+      });
+    }
+  }
+
+  return events;
+}
