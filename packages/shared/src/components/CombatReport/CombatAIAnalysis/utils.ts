@@ -1405,9 +1405,6 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   // ── [OWNER CAST] healer gap-filler (F61) ────────────────────────────────────
 
   if (isHealer) {
-    // Build a dedup set of raw timestamps (ms) for each tracked spell so the ±1s float
-    // rounding trick is not needed — this avoids edge cases where matchStartMs reference
-    // points diverge or cast times are at half-second boundaries.
     const trackedCastsBySpellId = new Map<string, Set<number>>();
     for (const cd of ownerCDs) {
       trackedCastsBySpellId.set(
@@ -1415,29 +1412,44 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         new Set(cd.casts.map((c) => matchStartMs + Math.round(c.timeSeconds * 1000))),
       );
     }
-    // Collect all trinket-use timestamps so we can suppress the matching SPELL_CAST_SUCCESS
-    // event — trinket uses are already tracked by [TRINKET] events and would double-emit.
     const trinketUseTimesMs = new Set(
       ccTrinketSummaries.flatMap((s) => s.trinketUseTimes.map((t) => Math.round(matchStartMs + t * 1000))),
+    );
+
+    // F68: flat list of CC event ms timestamps for same-second disambiguation
+    const ccMsTimestamps: number[] = ccTrinketSummaries.flatMap((s) =>
+      s.ccInstances.map((cc) => Math.round(matchStartMs + cc.atSeconds * 1000)),
     );
 
     for (const e of owner.spellCastEvents ?? []) {
       if (e.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
       if (!e.spellId) continue;
-      // Use canonical name from healer map when known; fall back to raw log spell name.
       const displayName = HEALER_CAST_SPELL_ID_TO_NAME[e.spellId] ?? e.spellName;
       if (!displayName) continue;
       const tsMs = e.logLine.timestamp;
       const trackedSet = trackedCastsBySpellId.get(e.spellId);
-      // Allow ±1000ms tolerance to absorb server/client timestamp drift
       if (trackedSet && (trackedSet.has(tsMs) || trackedSet.has(tsMs - 1000) || trackedSet.has(tsMs + 1000))) continue;
-      // Suppress trinket casts — already tracked by [TRINKET] events
       if (trinketUseTimesMs.has(tsMs) || trinketUseTimesMs.has(tsMs - 1000) || trinketUseTimesMs.has(tsMs + 1000))
         continue;
       const timeSeconds = (tsMs - matchStartMs) / 1000;
+
+      // F68: detect CC events in the same displayed second and annotate order
+      const castDisplaySecond = Math.floor(timeSeconds);
+      const sameTick = ccMsTimestamps.find((ccMs) => Math.floor((ccMs - matchStartMs) / 1000) === castDisplaySecond);
+      let orderNote = '';
+      if (sameTick !== undefined) {
+        if (tsMs < sameTick) {
+          orderNote = ' [completed before CC landed]';
+        } else if (tsMs > sameTick) {
+          orderNote = ' [succeeded after CC arrived — same second in log]';
+        } else {
+          orderNote = ' [same server tick as CC — cast succeeded per log]';
+        }
+      }
+
       const targetLabel = resolveTarget(e.destUnitName);
       const targetPart = targetLabel ? ` → ${targetLabel}` : '';
-      addEntry(timeSeconds, `${fmtTime(timeSeconds)}  [OWNER CAST]   ${displayName}${targetPart}`);
+      addEntry(timeSeconds, `${fmtTime(timeSeconds)}  [OWNER CAST]   ${displayName}${targetPart}${orderNote}`);
     }
   }
 
