@@ -39,6 +39,26 @@ export function makeDamageEvent(timestamp: number, amount: number, destUnitId = 
   };
 }
 
+/** Minimal SPELL_HEAL event (CombatHpUpdateAction shape). */
+export function makeHealEvent(timestamp: number, srcUnitId: string, amount: number, overhealAmount = 0): AnyObj {
+  return {
+    logLine: { event: LogEvent.SPELL_HEAL, timestamp, parameters: [] },
+    timestamp,
+    amount,
+    effectiveAmount: amount - overhealAmount,
+    srcUnitId,
+    srcUnitName: 'Healer',
+    destUnitId: 'player-1',
+    destUnitName: 'Target',
+    spellId: '1',
+    spellName: 'TestHeal',
+    advancedActorMaxHp: 500_000,
+    advancedActorCurrentHp: 400_000,
+    advancedActorPositionX: 0,
+    advancedActorPositionY: 0,
+  };
+}
+
 /** Minimal SPELL_CAST_SUCCESS event (CombatAction shape). */
 export function makeSpellCastEvent(
   spellId: string,
@@ -128,6 +148,7 @@ export function makeUnit(
     spellCastEvents?: AnyObj[];
     auraEvents?: AnyObj[];
     damageIn?: AnyObj[];
+    healOut?: AnyObj[];
     advancedActions?: AnyObj[];
     info?: AnyObj | undefined;
   } = {},
@@ -146,7 +167,7 @@ export function makeUnit(
     damageIn: (overrides.damageIn ?? []) as ICombatUnit['damageIn'],
     damageOut: [],
     healIn: [],
-    healOut: [],
+    healOut: (overrides.healOut ?? []) as ICombatUnit['healOut'],
     absorbsIn: [],
     absorbsOut: [],
     absorbsDamaged: [],
