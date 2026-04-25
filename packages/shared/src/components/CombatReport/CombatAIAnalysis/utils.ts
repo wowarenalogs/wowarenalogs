@@ -1483,6 +1483,17 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     }
   }
 
+  // ── [CD EXPIRED] events (F70) ─────────────────────────────────────────────
+
+  const cdExpiryEvents = extractOwnerCDBuffExpiry(ownerCDs, owner.id, friends, matchStartMs);
+  for (const expiry of cdExpiryEvents) {
+    const estimatedNote = expiry.isEstimated ? ' (estimated)' : '';
+    addEntry(
+      expiry.expiresAtSeconds,
+      `${fmtTime(expiry.expiresAtSeconds)}  [CD EXPIRED]   ${expiry.spellName}${estimatedNote}`,
+    );
+  }
+
   // ── [OWNER CAST] healer gap-filler (F61) ────────────────────────────────────
 
   if (isHealer) {

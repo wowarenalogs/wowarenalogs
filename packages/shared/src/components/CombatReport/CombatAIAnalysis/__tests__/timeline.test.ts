@@ -1782,3 +1782,150 @@ describe('extractOwnerCDBuffExpiry', () => {
     expect(result[1].isEstimated).toBe(false);
   });
 });
+
+// ── buildMatchTimeline [CD EXPIRED] events ────────────────────────────────────
+
+describe('buildMatchTimeline [CD EXPIRED] events', () => {
+  const MATCH_START_MS = 1_000_000;
+  const MATCH_END_MS = 1_120_000; // 120s match
+
+  function baseParams(): BuildMatchTimelineParams {
+    return {
+      owner: makeUnit('owner-1', { name: 'Healer' }),
+      ownerSpec: 'Discipline Priest',
+      ownerCDs: [],
+      teammateCDs: [],
+      enemyCDTimeline: makeEnemyTimeline(),
+      ccTrinketSummaries: [],
+      dispelSummary: makeEmptyDispelSummary(),
+      friendlyDeaths: [],
+      enemyDeaths: [],
+      pressureWindows: [],
+      healingGaps: [],
+      friends: [],
+      matchStartMs: MATCH_START_MS,
+      matchEndMs: MATCH_END_MS,
+      isHealer: true,
+    };
+  }
+
+  it('emits [CD EXPIRED] at the SPELL_AURA_REMOVED timestamp when log event is present', () => {
+    const ownerId = 'owner-1';
+    const owner = makeUnit(ownerId, { name: 'Healer' });
+    const teammate = makeUnit('tm-1', {
+      name: 'Teammate',
+      auraEvents: [
+        makeAuraEvent(LogEvent.SPELL_AURA_APPLIED, '33206', MATCH_START_MS + 10_000, ownerId, 'tm-1'),
+        makeAuraEvent(LogEvent.SPELL_AURA_REMOVED, '33206', MATCH_START_MS + 17_500, ownerId, 'tm-1'),
+      ],
+    });
+
+    const cd: IMajorCooldownInfo = {
+      spellId: '33206',
+      spellName: 'Pain Suppression',
+      tag: 'Defensive',
+      cooldownSeconds: 180,
+      maxChargesDetected: 1,
+      casts: [{ timeSeconds: 10 }],
+      availableWindows: [],
+      neverUsed: false,
+    };
+
+    const timeline = buildMatchTimeline({
+      ...baseParams(),
+      owner,
+      ownerCDs: [cd],
+      friends: [owner, teammate],
+    });
+
+    expect(timeline).toContain('[CD EXPIRED]');
+    expect(timeline).toContain('Pain Suppression');
+    const expiryLine = timeline.split('\n').find((l) => l.includes('[CD EXPIRED]'));
+    expect(expiryLine).toBeDefined();
+    expect(expiryLine).not.toContain('(estimated)');
+  });
+
+  it('emits [CD EXPIRED] with (estimated) when no aura event exists', () => {
+    const ownerId = 'owner-1';
+    const owner = makeUnit(ownerId, { name: 'Healer' });
+
+    const cd: IMajorCooldownInfo = {
+      spellId: '33206',
+      spellName: 'Pain Suppression',
+      tag: 'Defensive',
+      cooldownSeconds: 180,
+      maxChargesDetected: 1,
+      casts: [{ timeSeconds: 10 }],
+      availableWindows: [],
+      neverUsed: false,
+    };
+
+    const timeline = buildMatchTimeline({
+      ...baseParams(),
+      owner,
+      ownerCDs: [cd],
+      friends: [owner],
+    });
+
+    expect(timeline).toContain('[CD EXPIRED]');
+    const expiryLine = timeline.split('\n').find((l) => l.includes('[CD EXPIRED]'));
+    expect(expiryLine).toBeDefined();
+    expect(expiryLine).toContain('(estimated)');
+    // Fallback: 10 + 8 = 18s → displays as 0:18
+    expect(expiryLine).toContain('0:18');
+  });
+
+  it('does not emit [CD EXPIRED] for CDs with no durationSeconds in spellEffectData', () => {
+    const ownerId = 'owner-1';
+    const owner = makeUnit(ownerId, { name: 'Healer' });
+
+    const cd: IMajorCooldownInfo = {
+      spellId: '9999999',
+      spellName: 'Unknown Spell',
+      tag: 'Defensive',
+      cooldownSeconds: 180,
+      maxChargesDetected: 1,
+      casts: [{ timeSeconds: 10 }],
+      availableWindows: [],
+      neverUsed: false,
+    };
+
+    const timeline = buildMatchTimeline({
+      ...baseParams(),
+      owner,
+      ownerCDs: [cd],
+      friends: [owner],
+    });
+
+    expect(timeline).not.toContain('[CD EXPIRED]');
+  });
+
+  it('[CD EXPIRED] appears after [OWNER CD] in sorted timeline output', () => {
+    const ownerId = 'owner-1';
+    const owner = makeUnit(ownerId, { name: 'Healer' });
+
+    const cd: IMajorCooldownInfo = {
+      spellId: '33206',
+      spellName: 'Pain Suppression',
+      tag: 'Defensive',
+      cooldownSeconds: 180,
+      maxChargesDetected: 1,
+      casts: [{ timeSeconds: 10 }],
+      availableWindows: [],
+      neverUsed: false,
+    };
+
+    const timeline = buildMatchTimeline({
+      ...baseParams(),
+      owner,
+      ownerCDs: [cd],
+      friends: [owner],
+    });
+
+    const lines = timeline.split('\n');
+    const ownerCDIndex = lines.findIndex((l) => l.includes('[OWNER CD]') && l.includes('Pain Suppression'));
+    const expiredIndex = lines.findIndex((l) => l.includes('[CD EXPIRED]'));
+    expect(ownerCDIndex).toBeGreaterThanOrEqual(0);
+    expect(expiredIndex).toBeGreaterThan(ownerCDIndex);
+  });
+});
