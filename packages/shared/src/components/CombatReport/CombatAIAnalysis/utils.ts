@@ -1537,10 +1537,30 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         cast.targetName !== undefined
           ? ` → ${pid(cast.targetName)}${cast.targetHpPct !== undefined ? ` (${cast.targetHpPct}% HP)` : ''}`
           : '';
+
+      const extraLines: string[] = [...resourceSnapshot(cast.timeSeconds)];
+
+      if (HEALING_AMPLIFIER_SPELL_IDS.has(cd.spellId)) {
+        const duration = spellEffectData[cd.spellId]?.durationSeconds;
+        if (duration) {
+          const fromMs = matchStartMs + cast.timeSeconds * 1000;
+          const toMs = fromMs + duration * 1000;
+          const healStats = computeHealingInWindow(owner.healOut, fromMs, toMs);
+          if (healStats) {
+            const bucketParts = healStats.buckets.map(
+              (b) => `${b.fromSeconds}–${b.toSeconds}s: ${(b.hps / 1000).toFixed(1)}k HPS`,
+            );
+            extraLines.push(`      [HEALING]    ${bucketParts.join(' | ')} | Overheal: ${healStats.overhealPct}%`);
+          } else {
+            extraLines.push(`      [HEALING]    No healing logged during this window`);
+          }
+        }
+      }
+
       addEntry(
         cast.timeSeconds,
         `${fmtTime(cast.timeSeconds)}  [OWNER CD]   ${cd.spellName}${targetPart}`,
-        ...resourceSnapshot(cast.timeSeconds),
+        ...extraLines,
       );
     }
   }

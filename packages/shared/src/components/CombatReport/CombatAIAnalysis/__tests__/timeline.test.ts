@@ -2022,3 +2022,113 @@ describe('computeHealingInWindow', () => {
     expect(HEALING_AMPLIFIER_SPELL_IDS.has('9999')).toBe(false);
   });
 });
+
+// ── buildMatchTimeline — [HEALING] line (F69) ─────────────────────────────────
+
+describe('buildMatchTimeline — [HEALING] line on healing amplifier CDs', () => {
+  const matchStartMs = 1_000_000;
+  const matchEndMs = matchStartMs + 120_000;
+
+  function makeBaseParams(ownerHealOut: any[], ownerCDs: IMajorCooldownInfo[]): BuildMatchTimelineParams {
+    const owner = makeUnit('healer-1', { name: 'Healer', healOut: ownerHealOut });
+    return {
+      owner,
+      ownerSpec: 'Holy Priest',
+      ownerCDs,
+      teammateCDs: [],
+      enemyCDTimeline: makeEnemyTimeline(),
+      ccTrinketSummaries: [],
+      dispelSummary: {
+        missedCleanseWindows: [],
+        allyCleanse: [],
+        ourPurges: [],
+        hostilePurges: [],
+        ccEfficiency: [],
+        missedPurgeWindows: [],
+      },
+      friendlyDeaths: [],
+      enemyDeaths: [],
+      pressureWindows: [],
+      healingGaps: [],
+      friends: [owner],
+      matchStartMs,
+      matchEndMs,
+      isHealer: true,
+    };
+  }
+
+  function makePICD(castAtSeconds: number): IMajorCooldownInfo {
+    return {
+      spellId: '10060',
+      spellName: 'Power Infusion',
+      tag: 'Healing',
+      cooldownSeconds: 120,
+      maxChargesDetected: 1,
+      neverUsed: false,
+      casts: [
+        {
+          timeSeconds: castAtSeconds,
+          timingLabel: 'Unknown',
+          timingContext: undefined,
+          targetName: undefined,
+          targetHpPct: undefined,
+        },
+      ],
+      availableWindows: [],
+    };
+  }
+
+  it('appends a [HEALING] line to [OWNER CD] entries for PI when healing occurred', () => {
+    // PI cast at 10s; window is 10–25s. Healing at 12s (bucket 0–5), 17s (bucket 5–10), 22s (bucket 10–15)
+    const healOut = [
+      makeHealEvent(matchStartMs + 12_000, 'healer-1', 150_000),
+      makeHealEvent(matchStartMs + 17_000, 'healer-1', 100_000),
+      makeHealEvent(matchStartMs + 22_000, 'healer-1', 50_000),
+    ];
+    const timeline = buildMatchTimeline(makeBaseParams(healOut, [makePICD(10)]));
+    expect(timeline).toContain('[OWNER CD]   Power Infusion');
+    expect(timeline).toContain('[HEALING]');
+    expect(timeline).toContain('0–5s: 30.0k HPS');
+    expect(timeline).toContain('5–10s: 20.0k HPS');
+    expect(timeline).toContain('10–15s: 10.0k HPS');
+    expect(timeline).toContain('Overheal: 0%');
+  });
+
+  it('appends [HEALING] with overheal % when some healing was wasted', () => {
+    const healOut = [makeHealEvent(matchStartMs + 12_000, 'healer-1', 100_000, 60_000)];
+    const timeline = buildMatchTimeline(makeBaseParams(healOut, [makePICD(10)]));
+    expect(timeline).toContain('Overheal: 60%');
+  });
+
+  it('appends "No healing logged" when no healing events fall in the PI window', () => {
+    // PI cast at 10s, duration 15s → window 10–25s. Healing event at 30s is outside window.
+    const healOut = [makeHealEvent(matchStartMs + 30_000, 'healer-1', 100_000)];
+    const timeline = buildMatchTimeline(makeBaseParams(healOut, [makePICD(10)]));
+    expect(timeline).toContain('[HEALING]');
+    expect(timeline).toContain('No healing logged during this window');
+  });
+
+  it('does NOT append [HEALING] for non-amplifier CDs like Pain Suppression (33206)', () => {
+    const painSuppCD: IMajorCooldownInfo = {
+      spellId: '33206',
+      spellName: 'Pain Suppression',
+      tag: 'Defensive',
+      cooldownSeconds: 180,
+      maxChargesDetected: 1,
+      neverUsed: false,
+      casts: [
+        {
+          timeSeconds: 10,
+          timingLabel: 'Unknown',
+          timingContext: undefined,
+          targetName: undefined,
+          targetHpPct: undefined,
+        },
+      ],
+      availableWindows: [],
+    };
+    const healOut = [makeHealEvent(matchStartMs + 12_000, 'healer-1', 100_000)];
+    const timeline = buildMatchTimeline(makeBaseParams(healOut, [painSuppCD]));
+    expect(timeline).not.toContain('[HEALING]');
+  });
+});
