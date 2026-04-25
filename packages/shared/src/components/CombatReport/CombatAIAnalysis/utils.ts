@@ -171,6 +171,9 @@ export function extractOwnerCDBuffExpiry(
   const result: ICDExpiryEvent[] = [];
 
   for (const cd of ownerCDs) {
+    // CC spells apply their aura to the enemy, not a friendly — SPELL_AURA_REMOVED never
+    // appears in friends' events. DR also makes the estimated duration wrong. Skip entirely.
+    if (cd.tag === 'Control') continue;
     const duration = spellEffectData[cd.spellId]?.durationSeconds;
     if (!duration || duration <= 0) continue;
 

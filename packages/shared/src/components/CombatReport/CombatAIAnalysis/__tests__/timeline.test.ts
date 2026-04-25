@@ -1728,6 +1728,24 @@ describe('extractOwnerCDBuffExpiry', () => {
     expect(result).toHaveLength(0);
   });
 
+  it('skips Control-tagged CDs (CC spells) — aura is on enemy, not friendly, so always estimated and DR-wrong', () => {
+    const ownerId = 'owner-1';
+    const owner = makeUnit(ownerId, { name: 'Ret' });
+    // Hammer of Justice = spellId 853, Control tag — should be skipped entirely
+    const cd: IMajorCooldownInfo = {
+      spellId: '853',
+      spellName: 'Hammer of Justice',
+      tag: 'Control',
+      cooldownSeconds: 60,
+      maxChargesDetected: 1,
+      casts: [{ timeSeconds: 10 }],
+      availableWindows: [],
+      neverUsed: false,
+    };
+    const result = extractOwnerCDBuffExpiry([cd], ownerId, [owner], MATCH_START_MS);
+    expect(result).toHaveLength(0);
+  });
+
   it('ignores SPELL_AURA_REMOVED events cast by a different unit (not the owner)', () => {
     const ownerId = 'owner-1';
     const owner = makeUnit(ownerId, { name: 'Healer' });
