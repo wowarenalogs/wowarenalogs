@@ -1,5 +1,6 @@
 import { ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
+import { spellEffectData } from '../../../data/spellEffectData';
 import { IPlayerCCTrinketSummary } from '../../../utils/ccTrinketAnalysis';
 import {
   fmtTime,
@@ -138,6 +139,86 @@ export function extractEnemyMajorBuffIntervals(
 
     if (intervals.length > 0) {
       result.set(enemy.name, intervals);
+    }
+  }
+
+  return result;
+}
+
+// ── Owner CD buff expiry tracking (F70) ────────────────────────────────────────
+
+export interface ICDExpiryEvent {
+  spellId: string;
+  spellName: string;
+  castAtSeconds: number;
+  expiresAtSeconds: number;
+  /** true when no SPELL_AURA_REMOVED was found — expiry estimated from cast + known duration */
+  isEstimated: boolean;
+}
+
+/**
+ * For each owner CD cast, finds when the buff actually expired by matching to the
+ * chronologically-next SPELL_AURA_REMOVED event (cast by `ownerId`) across all
+ * friendly units.  Falls back to `cast.timeSeconds + spellEffectData[spellId].durationSeconds`
+ * when no aura event is present.  Skips CDs with no durationSeconds in spellEffectData.
+ */
+export function extractOwnerCDBuffExpiry(
+  ownerCDs: IMajorCooldownInfo[],
+  ownerId: string,
+  friends: ICombatUnit[],
+  matchStartMs: number,
+): ICDExpiryEvent[] {
+  const result: ICDExpiryEvent[] = [];
+
+  for (const cd of ownerCDs) {
+    const duration = spellEffectData[cd.spellId]?.durationSeconds;
+    if (!duration || duration <= 0) continue;
+
+    // Collect all SPELL_AURA_REMOVED timestamps for this spell cast by the owner,
+    // across all friendly units, sorted ascending.
+    const removalTimestampsMs: number[] = [];
+    for (const friend of friends) {
+      for (const event of friend.auraEvents) {
+        if (
+          event.spellId === cd.spellId &&
+          event.srcUnitId === ownerId &&
+          (event.logLine.event as LogEvent) === LogEvent.SPELL_AURA_REMOVED
+        ) {
+          removalTimestampsMs.push(event.logLine.timestamp as number);
+        }
+      }
+    }
+    removalTimestampsMs.sort((a, b) => a - b);
+
+    // Match each cast (ascending) to the chronologically-next removal after the cast.
+    let removalIndex = 0;
+    for (const cast of cd.casts) {
+      const castMs = matchStartMs + cast.timeSeconds * 1000;
+
+      // Skip removals that happened before this cast started (orphans / prior applications).
+      while (removalIndex < removalTimestampsMs.length && removalTimestampsMs[removalIndex] < castMs) {
+        removalIndex++;
+      }
+
+      let expiresAtSeconds: number;
+      let isEstimated: boolean;
+
+      if (removalIndex < removalTimestampsMs.length) {
+        expiresAtSeconds = (removalTimestampsMs[removalIndex] - matchStartMs) / 1000;
+        isEstimated = false;
+        removalIndex++;
+      } else {
+        expiresAtSeconds = cast.timeSeconds + duration;
+        isEstimated = true;
+      }
+
+      result.push({
+        spellId: cd.spellId,
+        spellName: cd.spellName,
+        castAtSeconds: cast.timeSeconds,
+        expiresAtSeconds,
+        isEstimated,
+      });
     }
   }
 

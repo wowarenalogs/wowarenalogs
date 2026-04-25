@@ -13,7 +13,7 @@ import { IDispelSummary } from '../../../../utils/dispelAnalysis';
 import { IOutgoingCCChain } from '../../../../utils/drAnalysis';
 import { IEnemyCDTimeline } from '../../../../utils/enemyCDs';
 import { IHealingGap } from '../../../../utils/healingGaps';
-import { buildMatchTimeline, BuildMatchTimelineParams, buildPlayerLoadout } from '../utils';
+import { buildMatchTimeline, BuildMatchTimelineParams, buildPlayerLoadout, extractOwnerCDBuffExpiry } from '../utils';
 
 // ── Factories ─────────────────────────────────────────────────────────────────
 
@@ -1660,5 +1660,125 @@ describe('buildMatchTimeline — F68 cast/CC disambiguation', () => {
     expect(castLine).not.toContain('[completed before');
     expect(castLine).not.toContain('[succeeded after');
     expect(castLine).not.toContain('[same server tick');
+  });
+});
+
+// ── extractOwnerCDBuffExpiry ──────────────────────────────────────────────────
+
+describe('extractOwnerCDBuffExpiry', () => {
+  const MATCH_START_MS = 1_000_000;
+
+  function makeCDWithCast(
+    spellId: string,
+    spellName: string,
+    castAtSeconds: number,
+    cooldownSeconds = 180,
+  ): IMajorCooldownInfo {
+    return {
+      spellId,
+      spellName,
+      tag: 'Defensive',
+      cooldownSeconds,
+      maxChargesDetected: 1,
+      casts: [{ timeSeconds: castAtSeconds }],
+      availableWindows: [],
+      neverUsed: false,
+    };
+  }
+
+  it('returns expiry from SPELL_AURA_REMOVED when available (Pain Suppression = spellId 33206)', () => {
+    const ownerId = 'owner-1';
+    const owner = makeUnit(ownerId, { name: 'Healer' });
+    const target = makeUnit('target-1', {
+      name: 'Teammate',
+      auraEvents: [
+        makeAuraEvent(LogEvent.SPELL_AURA_APPLIED, '33206', MATCH_START_MS + 10_000, ownerId, 'target-1'),
+        makeAuraEvent(LogEvent.SPELL_AURA_REMOVED, '33206', MATCH_START_MS + 17_500, ownerId, 'target-1'),
+      ],
+    });
+
+    const cd = makeCDWithCast('33206', 'Pain Suppression', 10);
+    const result = extractOwnerCDBuffExpiry([cd], ownerId, [owner, target], MATCH_START_MS);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].spellId).toBe('33206');
+    expect(result[0].spellName).toBe('Pain Suppression');
+    expect(result[0].castAtSeconds).toBe(10);
+    expect(result[0].expiresAtSeconds).toBeCloseTo(17.5, 1);
+    expect(result[0].isEstimated).toBe(false);
+  });
+
+  it('falls back to cast + durationSeconds when no SPELL_AURA_REMOVED event exists', () => {
+    const ownerId = 'owner-1';
+    const owner = makeUnit(ownerId, { name: 'Healer' });
+    const cd = makeCDWithCast('33206', 'Pain Suppression', 10);
+    const result = extractOwnerCDBuffExpiry([cd], ownerId, [owner], MATCH_START_MS);
+
+    expect(result).toHaveLength(1);
+    // spellEffectData['33206'].durationSeconds === 8
+    expect(result[0].expiresAtSeconds).toBeCloseTo(18, 1); // 10 + 8
+    expect(result[0].isEstimated).toBe(true);
+  });
+
+  it('skips CDs with no durationSeconds in spellEffectData', () => {
+    const ownerId = 'owner-1';
+    const owner = makeUnit(ownerId, { name: 'Healer' });
+    const cd = makeCDWithCast('9999999', 'Unknown Spell', 10);
+    const result = extractOwnerCDBuffExpiry([cd], ownerId, [owner], MATCH_START_MS);
+    expect(result).toHaveLength(0);
+  });
+
+  it('ignores SPELL_AURA_REMOVED events cast by a different unit (not the owner)', () => {
+    const ownerId = 'owner-1';
+    const owner = makeUnit(ownerId, { name: 'Healer' });
+    const target = makeUnit('target-1', {
+      name: 'Teammate',
+      auraEvents: [
+        makeAuraEvent(LogEvent.SPELL_AURA_REMOVED, '33206', MATCH_START_MS + 17_500, 'other-healer', 'target-1'),
+      ],
+    });
+
+    const cd = makeCDWithCast('33206', 'Pain Suppression', 10);
+    const result = extractOwnerCDBuffExpiry([cd], ownerId, [owner, target], MATCH_START_MS);
+
+    expect(result[0].isEstimated).toBe(true);
+  });
+
+  it('matches two casts to their respective SPELL_AURA_REMOVED events in order', () => {
+    const ownerId = 'owner-1';
+    const target1 = makeUnit('target-1', {
+      name: 'Teammate1',
+      auraEvents: [
+        makeAuraEvent(LogEvent.SPELL_AURA_APPLIED, '33206', MATCH_START_MS + 10_000, ownerId, 'target-1'),
+        makeAuraEvent(LogEvent.SPELL_AURA_REMOVED, '33206', MATCH_START_MS + 17_500, ownerId, 'target-1'),
+      ],
+    });
+    const target2 = makeUnit('target-2', {
+      name: 'Teammate2',
+      auraEvents: [
+        makeAuraEvent(LogEvent.SPELL_AURA_APPLIED, '33206', MATCH_START_MS + 40_000, ownerId, 'target-2'),
+        makeAuraEvent(LogEvent.SPELL_AURA_REMOVED, '33206', MATCH_START_MS + 47_000, ownerId, 'target-2'),
+      ],
+    });
+    const owner = makeUnit(ownerId, { name: 'Healer' });
+
+    const cd: IMajorCooldownInfo = {
+      spellId: '33206',
+      spellName: 'Pain Suppression',
+      tag: 'Defensive',
+      cooldownSeconds: 180,
+      maxChargesDetected: 2,
+      casts: [{ timeSeconds: 10 }, { timeSeconds: 40 }],
+      availableWindows: [],
+      neverUsed: false,
+    };
+
+    const result = extractOwnerCDBuffExpiry([cd], ownerId, [owner, target1, target2], MATCH_START_MS);
+
+    expect(result).toHaveLength(2);
+    expect(result[0].expiresAtSeconds).toBeCloseTo(17.5, 1);
+    expect(result[0].isEstimated).toBe(false);
+    expect(result[1].expiresAtSeconds).toBeCloseTo(47, 1);
+    expect(result[1].isEstimated).toBe(false);
   });
 });
