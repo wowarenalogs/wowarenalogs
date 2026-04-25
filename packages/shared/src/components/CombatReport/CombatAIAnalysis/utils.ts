@@ -234,6 +234,65 @@ export function extractOwnerCDBuffExpiry(
 export const DMG_SPIKE_THRESHOLD = 300_000;
 
 /**
+ * Spell IDs for healing-amplifier CDs where we measure throughput during the buff window
+ * and append a [HEALING] line (per-5s HPS + overheal %). Restricted to pure healing amps.
+ */
+export const HEALING_AMPLIFIER_SPELL_IDS = new Set([
+  '10060', // Power Infusion (15s)
+  '29166', // Innervate (8s)
+  '114052', // Ascendance (15s)
+]);
+
+/**
+ * Computes healing throughput during a CD's active window.
+ * Returns per-5s HPS buckets and overall overheal % from healOut events.
+ * Returns null if no healing events fall within [fromMs, toMs].
+ *
+ * Bucket upper bounds are exclusive except for the last bucket (inclusive at toMs)
+ * so every event in the window is counted exactly once.
+ */
+export function computeHealingInWindow(
+  healOut: ICombatUnit['healOut'],
+  fromMs: number,
+  toMs: number,
+): { buckets: Array<{ fromSeconds: number; toSeconds: number; hps: number }>; overhealPct: number } | null {
+  const events = healOut.filter((h) => h.logLine.timestamp >= fromMs && h.logLine.timestamp <= toMs);
+  if (events.length === 0) return null;
+
+  let totalAmount = 0;
+  let totalEffective = 0;
+  for (const h of events) {
+    totalAmount += h.amount;
+    totalEffective += h.effectiveAmount;
+  }
+
+  const windowSeconds = (toMs - fromMs) / 1000;
+  const BUCKET_SIZE = 5;
+  const buckets: Array<{ fromSeconds: number; toSeconds: number; hps: number }> = [];
+
+  for (let bucketStart = 0; bucketStart < windowSeconds; bucketStart += BUCKET_SIZE) {
+    const bucketEnd = Math.min(bucketStart + BUCKET_SIZE, windowSeconds);
+    const isLastBucket = bucketEnd >= windowSeconds;
+    const bucketFromMs = fromMs + bucketStart * 1000;
+    const bucketToMs = fromMs + bucketEnd * 1000;
+    const bucketDuration = bucketEnd - bucketStart;
+
+    const bucketEffective = events
+      .filter(
+        (h) =>
+          h.logLine.timestamp >= bucketFromMs &&
+          (isLastBucket ? h.logLine.timestamp <= bucketToMs : h.logLine.timestamp < bucketToMs),
+      )
+      .reduce((sum, h) => sum + h.effectiveAmount, 0);
+
+    buckets.push({ fromSeconds: bucketStart, toSeconds: bucketEnd, hps: bucketEffective / bucketDuration });
+  }
+
+  const overhealPct = totalAmount > 0 ? Math.round(((totalAmount - totalEffective) / totalAmount) * 100) : 0;
+  return { buckets, overhealPct };
+}
+
+/**
  * Extracts the top-N damage sources that hit `unit` within the `windowMs` window
  * ending at `deathMs`. Returns an array of formatted "source — spell (Xk)" strings.
  */

@@ -4,6 +4,7 @@ import { CombatUnitReaction, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowa
 import {
   makeAdvancedAction,
   makeAuraEvent,
+  makeHealEvent,
   makeSpellCastEvent,
   makeUnit,
 } from '../../../../utils/__tests__/testHelpers';
@@ -13,7 +14,14 @@ import { IDispelSummary } from '../../../../utils/dispelAnalysis';
 import { IOutgoingCCChain } from '../../../../utils/drAnalysis';
 import { IEnemyCDTimeline } from '../../../../utils/enemyCDs';
 import { IHealingGap } from '../../../../utils/healingGaps';
-import { buildMatchTimeline, BuildMatchTimelineParams, buildPlayerLoadout, extractOwnerCDBuffExpiry } from '../utils';
+import {
+  buildMatchTimeline,
+  BuildMatchTimelineParams,
+  buildPlayerLoadout,
+  computeHealingInWindow,
+  extractOwnerCDBuffExpiry,
+  HEALING_AMPLIFIER_SPELL_IDS,
+} from '../utils';
 
 // ── Factories ─────────────────────────────────────────────────────────────────
 
@@ -1945,5 +1953,72 @@ describe('buildMatchTimeline [CD EXPIRED] events', () => {
     const expiredIndex = lines.findIndex((l) => l.includes('[CD EXPIRED]'));
     expect(ownerCDIndex).toBeGreaterThanOrEqual(0);
     expect(expiredIndex).toBeGreaterThan(ownerCDIndex);
+  });
+});
+
+// ── computeHealingInWindow (F69) ──────────────────────────────────────────────
+
+describe('computeHealingInWindow', () => {
+  const matchStartMs = 1_000_000;
+
+  it('returns null when no healing events fall in the window', () => {
+    expect(computeHealingInWindow([] as any, matchStartMs, matchStartMs + 15_000)).toBeNull();
+  });
+
+  it('returns null when all healing events are outside the window', () => {
+    const healOut = [makeHealEvent(matchStartMs - 1, 'healer-1', 50_000)];
+    expect(computeHealingInWindow(healOut as any, matchStartMs, matchStartMs + 15_000)).toBeNull();
+  });
+
+  it('calculates HPS per 5s bucket for a 15s PI window', () => {
+    // 150k at t+2s (bucket 0–5), 100k at t+7s (bucket 5–10), 50k at t+12s (bucket 10–15)
+    const healOut = [
+      makeHealEvent(matchStartMs + 2_000, 'healer-1', 150_000),
+      makeHealEvent(matchStartMs + 7_000, 'healer-1', 100_000),
+      makeHealEvent(matchStartMs + 12_000, 'healer-1', 50_000),
+    ];
+    const result = computeHealingInWindow(healOut as any, matchStartMs, matchStartMs + 15_000);
+    if (!result) throw new Error('expected non-null result');
+    expect(result.buckets).toHaveLength(3);
+    expect(result.buckets[0]).toEqual({ fromSeconds: 0, toSeconds: 5, hps: 30_000 }); // 150k / 5s
+    expect(result.buckets[1]).toEqual({ fromSeconds: 5, toSeconds: 10, hps: 20_000 }); // 100k / 5s
+    expect(result.buckets[2]).toEqual({ fromSeconds: 10, toSeconds: 15, hps: 10_000 }); // 50k / 5s
+  });
+
+  it('handles a short 8s Innervate window with two buckets', () => {
+    const healOut = [
+      makeHealEvent(matchStartMs + 3_000, 'healer-1', 100_000),
+      makeHealEvent(matchStartMs + 7_000, 'healer-1', 60_000),
+    ];
+    const result = computeHealingInWindow(healOut as any, matchStartMs, matchStartMs + 8_000);
+    if (!result) throw new Error('expected non-null result');
+    expect(result.buckets).toHaveLength(2);
+    expect(result.buckets[0]).toEqual({ fromSeconds: 0, toSeconds: 5, hps: 20_000 }); // 100k / 5s
+    expect(result.buckets[1]).toEqual({ fromSeconds: 5, toSeconds: 8, hps: 20_000 }); // 60k / 3s
+  });
+
+  it('calculates overheal % correctly', () => {
+    const healOut = [
+      makeHealEvent(matchStartMs + 2_000, 'healer-1', 100_000, 30_000), // 30k overheal
+      makeHealEvent(matchStartMs + 7_000, 'healer-1', 100_000, 70_000), // 70k overheal
+    ];
+    const result = computeHealingInWindow(healOut as any, matchStartMs, matchStartMs + 15_000);
+    if (!result) throw new Error('expected non-null result');
+    // total amount = 200k, total effective = 100k → 50% overheal
+    expect(result.overhealPct).toBe(50);
+  });
+
+  it('reports 0% overheal when no overheal', () => {
+    const healOut = [makeHealEvent(matchStartMs + 2_000, 'healer-1', 100_000, 0)];
+    const result = computeHealingInWindow(healOut as any, matchStartMs, matchStartMs + 15_000);
+    if (!result) throw new Error('expected non-null result');
+    expect(result.overhealPct).toBe(0);
+  });
+
+  it('HEALING_AMPLIFIER_SPELL_IDS contains PI, Innervate, and Ascendance', () => {
+    expect(HEALING_AMPLIFIER_SPELL_IDS.has('10060')).toBe(true); // PI
+    expect(HEALING_AMPLIFIER_SPELL_IDS.has('29166')).toBe(true); // Innervate
+    expect(HEALING_AMPLIFIER_SPELL_IDS.has('114052')).toBe(true); // Ascendance
+    expect(HEALING_AMPLIFIER_SPELL_IDS.has('9999')).toBe(false);
   });
 });
