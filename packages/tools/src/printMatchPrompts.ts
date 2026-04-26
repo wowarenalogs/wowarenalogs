@@ -15,6 +15,7 @@
  *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 3 --ai --test-prompt  (adds ## Prompt Feedback to each response)
  *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 1 --new-prompt  (uses raw timeline prompt path)
  *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 1 --compare --healer  (A/B: new vs hybrid + judge)
+ *   npm run -w @wowarenalogs/tools start:printMatchPrompts -- --count 10 --compare-json --healer  (A/B: [RES] text vs [SIT] JSON + judge)
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -25,13 +26,14 @@ import os from 'os';
 import path from 'path';
 
 import {
+  buildJsonSituationSnapshot,
   buildMatchArc,
   buildMatchTimeline,
   BuildMatchTimelineParams,
   buildPlayerLoadout,
   identifyCriticalMoments,
 } from '../../shared/src/components/CombatReport/CombatAIAnalysis/utils';
-import { NEW_SYSTEM_PROMPT, SYSTEM_PROMPT } from '../../shared/src/prompts/analyzeSystemPrompts';
+import { JSON_SYSTEM_PROMPT, NEW_SYSTEM_PROMPT, SYSTEM_PROMPT } from '../../shared/src/prompts/analyzeSystemPrompts';
 import { analyzePlayerCCAndTrinket, formatCCTrinketForContext } from '../../shared/src/utils/ccTrinketAnalysis';
 import {
   annotateDefensiveTimings,
@@ -258,7 +260,7 @@ async function parseLogText(text: string): Promise<ParsedCombat[]> {
 
 async function callClaude(
   prompt: string,
-  mode: 'standard' | 'test' | 'new' | 'hybrid' | 'baseline' = 'standard',
+  mode: 'standard' | 'test' | 'new' | 'hybrid' | 'baseline' | 'json' = 'standard',
 ): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -266,15 +268,17 @@ async function callClaude(
   }
   const client = new Anthropic({ apiKey });
   const systemPrompt =
-    mode === 'hybrid'
-      ? HYBRID_SYSTEM_PROMPT
-      : mode === 'baseline'
-        ? BASELINE_NEW_SYSTEM_PROMPT
-        : mode === 'new'
-          ? NEW_SYSTEM_PROMPT
-          : mode === 'test'
-            ? TEST_SYSTEM_PROMPT
-            : SYSTEM_PROMPT;
+    mode === 'json'
+      ? JSON_SYSTEM_PROMPT
+      : mode === 'hybrid'
+        ? HYBRID_SYSTEM_PROMPT
+        : mode === 'baseline'
+          ? BASELINE_NEW_SYSTEM_PROMPT
+          : mode === 'new'
+            ? NEW_SYSTEM_PROMPT
+            : mode === 'test'
+              ? TEST_SYSTEM_PROMPT
+              : SYSTEM_PROMPT;
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 6144,
@@ -320,6 +324,52 @@ Then:
 - **Deciding factor:** one sentence
 - **Top improvement for the loser:** one concrete prompt change (not "be more specific" — name what to add or remove)
 - **One element from the loser worth keeping:** what should be transplanted into the winner`;
+
+  const message = await client.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 2048,
+    temperature: 0.2,
+    system: judgeSystem,
+    messages: [{ role: 'user', content: userMessage }],
+  });
+  const content = message.content[0];
+  if (content.type !== 'text') return '[Judge returned non-text response]';
+  return content.text;
+}
+
+async function callClaudeJsonJudge(responseA: string, responseB: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return '[AI SKIPPED — set ANTHROPIC_API_KEY env var to enable]';
+  const client = new Anthropic({ apiKey });
+
+  const judgeSystem = `You are a prompt engineer evaluating two AI-generated WoW arena match analyses produced from identical match data but different snapshot formats. Your job is to give a blunt, concrete verdict on which format produced better counterfactual reasoning. You have no stake in either approach.`;
+
+  const userMessage = `Both analyses used the same match. Analysis A used the current [RES] free-text snapshot format. Analysis B used a new [SIT] JSON format with explicit boolean fields (enemy_burst_active, healer_free).
+
+ANALYSIS A — [RES] text format:
+---
+${responseA}
+---
+
+ANALYSIS B — [SIT] JSON format:
+---
+${responseB}
+---
+
+Rate each analysis on four dimensions (score 1–5 each):
+
+**Reasoning precision** — Does the model correctly apply the four counterfactual checks (Trade Equity, Overlap Attribution, Counterfactual Path, Specific Future Consequence)? Does it cite actual snapshot field values as evidence?
+**Field utilization** — Does the model demonstrate it used the snapshot data correctly? Does it distinguish enemy_burst_active=true vs false, healer_free=true vs false?
+**Actionability** — Does the output give advice the player can act on immediately in their next game?
+**Signal/noise** — Is the output free of filler, vague hedging, or padding?
+
+For each dimension, state the score for A and B and one sentence on why.
+
+Then:
+- **Winner overall:** A / B / Tie
+- **Deciding factor:** one sentence on whether the format change was responsible for any quality difference
+- **Format verdict:** one sentence on whether [SIT] JSON or [RES] text is the better primitive for Claude's counterfactual reasoning
+- **One improvement for the winner:** a concrete prompt or data change`;
 
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
@@ -933,6 +983,142 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
 }
 
 // ---------------------------------------------------------------------------
+// Build JSON snapshot prompt — same as buildMatchPromptNew() but uses [SIT] JSON format
+// ---------------------------------------------------------------------------
+
+function buildMatchPromptJson(combat: ParsedCombat, forceHealer = false): string {
+  const allUnits = Object.values(combat.units);
+  const friends = allUnits.filter(
+    (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Friendly,
+  ) as ICombatUnit[];
+  const enemies = allUnits.filter(
+    (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Hostile,
+  ) as ICombatUnit[];
+
+  if (friends.length === 0 || enemies.length === 0) return '';
+  const durationSeconds = (combat.endTime - combat.startTime) / 1000;
+  if (durationSeconds < 10) return '';
+
+  const owner = forceHealer
+    ? (friends.find((p) => isHealerSpec(p.spec)) ?? friends[0])
+    : (friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0]);
+
+  const ownerSpec = specToString(owner.spec);
+  const isHealer = isHealerSpec(owner.spec);
+  const myTeam = friends.map((p) => specToString(p.spec)).join(', ');
+  const enemyTeam = enemies.map((p) => specToString(p.spec)).join(', ');
+
+  const combatAny = combat as unknown as Record<string, unknown>;
+  const playerWon =
+    typeof combatAny['winningTeamId'] === 'string' ? combatAny['winningTeamId'] === combat.playerTeamId : null;
+  const resultStr = playerWon === true ? 'Win' : playerWon === false ? 'Loss' : 'Unknown';
+
+  const ownerCDs = extractMajorCooldowns(owner, combat);
+  const teammateCDs = friends
+    .filter((p) => p.id !== owner.id)
+    .map((p) => ({ player: p, spec: specToString(p.spec), cds: extractMajorCooldowns(p, combat) }));
+  const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat, owner, friends);
+  const pressureWindows = computePressureWindows(friends, combat);
+  const healingGaps = isHealer ? detectHealingGaps(owner, friends, enemies, combat) : [];
+  const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
+  const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
+  const outgoingCCChains = analyzeOutgoingCCChains(friends, enemies, combat);
+  const ownerCanPurge = canOffensivePurge(owner);
+  const teamPurgers = friends.filter((p) => p.id !== owner.id && canOffensivePurge(p)).map((p) => specToString(p.spec));
+
+  const friendlyDeaths = friends
+    .flatMap((p) =>
+      p.deathRecords.map((d) => ({
+        spec: specToString(p.spec),
+        name: p.name,
+        atSeconds: (d.timestamp - combat.startTime) / 1000,
+      })),
+    )
+    .sort((a, b) => a.atSeconds - b.atSeconds);
+
+  const enemyDeaths = enemies
+    .flatMap((p) =>
+      p.deathRecords.map((d) => ({
+        spec: specToString(p.spec),
+        name: p.name,
+        atSeconds: (d.timestamp - combat.startTime) / 1000,
+      })),
+    )
+    .sort((a, b) => a.atSeconds - b.atSeconds);
+
+  const lines: string[] = [];
+
+  // Context block
+  lines.push('ARENA MATCH — ANALYSIS REQUEST');
+  lines.push('');
+  lines.push('MATCH FACTS');
+  lines.push(
+    `  Spec: ${ownerSpec}${isHealer ? ' (Healer)' : ''} | Bracket: ${combat.startInfo?.bracket ?? 'Unknown'} | Result: ${resultStr} | Duration: ${fmtTime(durationSeconds)}`,
+  );
+  lines.push(`  My team: ${myTeam}`);
+  lines.push(`  Enemy team: ${enemyTeam}`);
+  lines.push('');
+
+  lines.push('PURGE RESPONSIBILITY');
+  lines.push(`  Log owner (${ownerSpec}): ${ownerCanPurge ? 'CAN offensive purge' : 'CANNOT offensive purge'}`);
+  lines.push(`  Team purgers: ${teamPurgers.length > 0 ? teamPurgers.join(', ') : 'none'}`);
+  lines.push('');
+
+  const specBaselineLines = formatSpecBaselines(ownerSpec, ownerCDs, benchmarks);
+  if (specBaselineLines.length > 0) {
+    lines.push(...specBaselineLines);
+    lines.push('');
+  }
+
+  const dampeningLines = formatDampeningForContext(
+    combat.startInfo?.bracket ?? '3v3',
+    [...friends, ...enemies],
+    combat.startTime,
+    combat.endTime,
+  );
+  if (dampeningLines.length > 0) {
+    lines.push(...dampeningLines);
+    lines.push('');
+  }
+
+  // Player loadout
+  const {
+    text: loadoutText,
+    playerIdMap,
+    enemyIdMap,
+  } = buildPlayerLoadout(owner, ownerSpec, ownerCDs, teammateCDs, enemyCDTimeline, enemies);
+  lines.push(loadoutText);
+  lines.push('');
+
+  // Timeline — with JSON situation snapshot function
+  const params: BuildMatchTimelineParams = {
+    owner,
+    ownerSpec,
+    ownerCDs,
+    teammateCDs,
+    enemyCDTimeline,
+    ccTrinketSummaries,
+    dispelSummary,
+    friendlyDeaths,
+    enemyDeaths,
+    pressureWindows,
+    healingGaps,
+    friends,
+    enemies,
+    matchStartMs: combat.startTime,
+    matchEndMs: combat.endTime,
+    isHealer,
+    playerIdMap,
+    enemyIdMap,
+    outgoingCCChains,
+    resourceSnapshotFn: buildJsonSituationSnapshot,
+  };
+  lines.push(buildMatchTimeline(params));
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // Print one match (prompt + optional AI response)
 // ---------------------------------------------------------------------------
 
@@ -940,6 +1126,7 @@ interface PrintMatchOptions {
   testPromptMode?: boolean;
   useNewPrompt?: boolean;
   compareMode?: boolean;
+  compareJsonMode?: boolean;
 }
 
 async function printMatch(
@@ -949,7 +1136,7 @@ async function printMatch(
   aiMode: boolean,
   options: PrintMatchOptions = {},
 ): Promise<void> {
-  const { testPromptMode = false, useNewPrompt = false, compareMode = false } = options;
+  const { testPromptMode = false, useNewPrompt = false, compareMode = false, compareJsonMode = false } = options;
   const sep = '='.repeat(80);
   console.log(`\n${sep}`);
   console.log(`MATCH ${matchIndex} — ${matchLabel}`);
@@ -969,6 +1156,26 @@ async function printMatch(
       console.log(responseB);
       process.stderr.write(`  Calling Claude judge...\n`);
       const judgment = await callClaudeJudge(prompt, responseA, responseB);
+      console.log('\n--- JUDGE VERDICT ---\n');
+      console.log(judgment);
+    } catch (e) {
+      console.log(`[Compare failed: ${e}]`);
+    }
+    return;
+  }
+
+  if (compareJsonMode) {
+    process.stderr.write(
+      `  JSON A/B compare for match ${matchIndex}: calling Claude x2 ([RES] text vs [SIT] JSON)...\n`,
+    );
+    try {
+      const [responseA, responseB] = await Promise.all([callClaude(prompt, 'new'), callClaude(prompt, 'json')]);
+      console.log('\n--- ANALYSIS A ([RES] text format — current) ---\n');
+      console.log(responseA);
+      console.log('\n--- ANALYSIS B ([SIT] JSON format — F73 candidate) ---\n');
+      console.log(responseB);
+      process.stderr.write(`  Calling JSON judge...\n`);
+      const judgment = await callClaudeJsonJudge(responseA, responseB);
       console.log('\n--- JUDGE VERDICT ---\n');
       console.log(judgment);
     } catch (e) {
@@ -1005,10 +1212,17 @@ interface RunOptions {
   forceHealer?: boolean;
   useNewPrompt?: boolean;
   compareMode?: boolean;
+  compareJsonMode?: boolean;
 }
 
 async function runCloud(count: number, bracket: string, aiMode: boolean, options: RunOptions = {}) {
-  const { testPromptMode = false, forceHealer = false, useNewPrompt = false, compareMode = false } = options;
+  const {
+    testPromptMode = false,
+    forceHealer = false,
+    useNewPrompt = false,
+    compareMode = false,
+    compareJsonMode = false,
+  } = options;
   console.log(`Fetching ${count} matches (bracket: ${bracket}) from ${API_BASE}...\n`);
 
   const stubs = await fetchStubs(bracket, count);
@@ -1046,14 +1260,20 @@ async function runCloud(count: number, bracket: string, aiMode: boolean, options
 
       for (const combat of combats) {
         // compare mode always uses the new timeline prompt as input (includes [RESOURCES] blocks)
-        const prompt =
-          compareMode || useNewPrompt
+        const prompt = compareJsonMode
+          ? buildMatchPromptJson(combat, forceHealer)
+          : compareMode || useNewPrompt
             ? buildMatchPromptNew(combat, forceHealer)
             : buildMatchPrompt(combat, forceHealer);
         if (!prompt) continue;
         matchCount++;
         const label = `${stub.id} (${stub.startInfo?.bracket ?? bracket}, ${date})`;
-        await printMatch(label, prompt, matchCount, aiMode, { testPromptMode, useNewPrompt, compareMode });
+        await printMatch(label, prompt, matchCount, aiMode, {
+          testPromptMode,
+          useNewPrompt,
+          compareMode,
+          compareJsonMode,
+        });
       }
     }
   } finally {
@@ -1069,7 +1289,13 @@ async function runCloud(count: number, bracket: string, aiMode: boolean, options
 // ---------------------------------------------------------------------------
 
 async function runLocal(logDir: string, aiMode: boolean, options: RunOptions = {}) {
-  const { testPromptMode = false, forceHealer = false, useNewPrompt = false, compareMode = false } = options;
+  const {
+    testPromptMode = false,
+    forceHealer = false,
+    useNewPrompt = false,
+    compareMode = false,
+    compareJsonMode = false,
+  } = options;
   const files = (await fs.readdir(logDir))
     .filter((f) => f.endsWith('.txt') && f.startsWith('WoWCombatLog'))
     .map((f) => path.join(logDir, f))
@@ -1095,11 +1321,19 @@ async function runLocal(logDir: string, aiMode: boolean, options: RunOptions = {
     if (combats.length === 0) continue;
 
     for (const combat of combats) {
-      const prompt =
-        compareMode || useNewPrompt ? buildMatchPromptNew(combat, forceHealer) : buildMatchPrompt(combat, forceHealer);
+      const prompt = compareJsonMode
+        ? buildMatchPromptJson(combat, forceHealer)
+        : compareMode || useNewPrompt
+          ? buildMatchPromptNew(combat, forceHealer)
+          : buildMatchPrompt(combat, forceHealer);
       if (!prompt) continue;
       matchCount++;
-      await printMatch(fileName, prompt, matchCount, aiMode, { testPromptMode, useNewPrompt, compareMode });
+      await printMatch(fileName, prompt, matchCount, aiMode, {
+        testPromptMode,
+        useNewPrompt,
+        compareMode,
+        compareJsonMode,
+      });
     }
   }
 
@@ -1119,6 +1353,7 @@ async function main() {
   const forceHealer = args.includes('--healer');
   const useNewPrompt = args.includes('--new-prompt');
   const compareMode = args.includes('--compare');
+  const compareJsonMode = args.includes('--compare-json');
   const countIdx = args.indexOf('--count');
   const bracketIdx = args.indexOf('--bracket');
   const bracket = bracketIdx !== -1 ? args[bracketIdx + 1] : 'Rated Solo Shuffle';
@@ -1147,14 +1382,24 @@ async function main() {
     }
   }
 
+  if (compareJsonMode) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      process.stderr.write('Warning: --compare-json requires ANTHROPIC_API_KEY. Responses will be skipped.\n');
+    } else {
+      process.stderr.write(
+        'JSON compare mode — [RES] text vs [SIT] JSON, judge on counterfactual reasoning quality.\n',
+      );
+    }
+  }
+
   if (localMode) {
     const logDir = (process.env.LOG_DIR ?? path.join(process.env.HOME ?? os.homedir(), 'Downloads/wow logs')).replace(
       /^~/,
       os.homedir(),
     );
-    await runLocal(logDir, aiMode, { testPromptMode, forceHealer, useNewPrompt, compareMode });
+    await runLocal(logDir, aiMode, { testPromptMode, forceHealer, useNewPrompt, compareMode, compareJsonMode });
   } else {
-    await runCloud(count, bracket, aiMode, { testPromptMode, forceHealer, useNewPrompt, compareMode });
+    await runCloud(count, bracket, aiMode, { testPromptMode, forceHealer, useNewPrompt, compareMode, compareJsonMode });
   }
 }
 
