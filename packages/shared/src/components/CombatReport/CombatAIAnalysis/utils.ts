@@ -1250,6 +1250,8 @@ export interface ResourceSnapshotParams {
   ownerCDs: IMajorCooldownInfo[];
   ownerName: string;
   ownerSpec: string;
+  /** True when the log owner is a healer spec — used by buildJsonSituationSnapshot to derive healer_free. */
+  isOwnerHealer?: boolean;
   teammateCDs: Array<{ player: ICombatUnit; spec: string; cds: IMajorCooldownInfo[] }>;
   ccTrinketSummaries: IPlayerCCTrinketSummary[];
   enemyCDTimeline: IEnemyCDTimeline;
@@ -1389,6 +1391,11 @@ export interface BuildMatchTimelineParams {
    * [CC CAST] events are emitted for AoE spells (non-single-target spells).
    */
   outgoingCCChains?: IOutgoingCCChain[];
+  /**
+   * Override the resource snapshot function injected after each [OWNER CD] and [TEAMMATE CD] event.
+   * Defaults to buildResourceSnapshot (text format). Pass buildJsonSituationSnapshot for JSON format.
+   */
+  resourceSnapshotFn?: (params: ResourceSnapshotParams) => string;
 }
 
 export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
@@ -1412,6 +1419,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     playerIdMap,
     enemyIdMap,
     outgoingCCChains,
+    resourceSnapshotFn,
   } = params;
 
   const enemyBuffIntervals = extractEnemyMajorBuffIntervals(enemies ?? [], matchStartMs, matchEndMs);
@@ -1453,12 +1461,15 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     return destUnitName;
   }
 
+  const snapshotFn = resourceSnapshotFn ?? buildResourceSnapshot;
+
   function resourceSnapshot(timeSeconds: number): string {
-    return buildResourceSnapshot({
+    return snapshotFn({
       timeSeconds,
       ownerCDs,
       ownerName: owner.name,
       ownerSpec,
+      isOwnerHealer: isHealer,
       teammateCDs,
       ccTrinketSummaries,
       enemyCDTimeline,
