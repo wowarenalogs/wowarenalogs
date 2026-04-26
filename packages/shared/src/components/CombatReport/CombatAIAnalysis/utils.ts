@@ -9,6 +9,7 @@ import {
   IMajorCooldownInfo,
   IOverlappedDefensive,
   IPanicDefensive,
+  isHealerSpec,
   specToString,
 } from '../../../utils/cooldowns';
 import { IDispelSummary } from '../../../utils/dispelAnalysis';
@@ -1350,6 +1351,113 @@ export function buildResourceSnapshot({
   }
 
   return line;
+}
+
+/**
+ * JSON-format alternative to buildResourceSnapshot().
+ * Emits a compact [SIT] JSON object with derived boolean fields:
+ *   enemy_burst_active — true when any enemy offensive CD was cast in the last 30s
+ *   healer_free        — true when the team healer has no active CC
+ *
+ * Used for A/B testing (F73) to evaluate whether structured JSON gives
+ * Claude more reliable counterfactual reasoning than the [RES] text format.
+ */
+export function buildJsonSituationSnapshot({
+  timeSeconds,
+  ownerCDs,
+  ownerName,
+  isOwnerHealer = false,
+  teammateCDs,
+  ccTrinketSummaries,
+  enemyCDTimeline,
+  playerIdMap,
+}: ResourceSnapshotParams): string {
+  function pid(name: string): string {
+    if (!playerIdMap) return name;
+    const id = playerIdMap.get(name);
+    return id !== undefined ? String(id) : name;
+  }
+
+  // ── rdy / cd ────────────────────────────────────────────────────────────
+  const rdy: string[] = [];
+  const cd: Array<{ name: string; remaining: number }> = [];
+
+  const allFriendlyCDs: Array<{ spellName: string; info: IMajorCooldownInfo }> = [
+    ...ownerCDs.map((c) => ({ spellName: c.spellName, info: c })),
+    ...teammateCDs.flatMap(({ cds }) => cds.map((c) => ({ spellName: c.spellName, info: c }))),
+  ];
+
+  for (const { spellName, info } of allFriendlyCDs) {
+    const priorCasts = info.casts.filter((c) => c.timeSeconds < timeSeconds - 0.5);
+    if (priorCasts.length === 0) {
+      if (timeSeconds > 5) rdy.push(spellName);
+      continue;
+    }
+    const charges = info.maxChargesDetected > 1 ? info.maxChargesDetected : 1;
+    const relevantCasts = priorCasts.slice(-charges);
+    const earliestSlotReady = relevantCasts[0].timeSeconds + info.cooldownSeconds;
+    if (earliestSlotReady <= timeSeconds + 0.5) {
+      rdy.push(spellName);
+    } else {
+      cd.push({ name: spellName, remaining: Math.round(earliestSlotReady - timeSeconds) });
+    }
+  }
+
+  // ── enemy CDs ───────────────────────────────────────────────────────────
+  const enemyCDs: Array<{ spell: string; spec: string; ago_s: number }> = [];
+  for (const player of enemyCDTimeline.players) {
+    for (const enemyCd of player.offensiveCDs) {
+      const agoSeconds = timeSeconds - enemyCd.castTimeSeconds;
+      if (agoSeconds >= 0 && agoSeconds <= 30) {
+        enemyCDs.push({ spell: enemyCd.spellName, spec: player.specName, ago_s: Math.round(agoSeconds) });
+      }
+    }
+  }
+
+  // ── healer_free + cc ────────────────────────────────────────────────────
+  const summaryByName = new Map(ccTrinketSummaries.map((s) => [s.playerName, s]));
+  const allFriendlyPlayers = [{ name: ownerName }, ...teammateCDs.map(({ player }) => ({ name: player.name }))];
+
+  const healerName = isOwnerHealer
+    ? ownerName
+    : teammateCDs.find(({ player }) => isHealerSpec(player.spec))?.player.name;
+
+  const ccList: Array<{ player: string; spell: string; remaining_s: number; stun?: true; trinketed?: true }> = [];
+
+  for (const { name } of allFriendlyPlayers) {
+    const summary = summaryByName.get(name);
+    const activeCC = summary?.ccInstances.find(
+      (cc) => cc.atSeconds <= timeSeconds && timeSeconds < cc.atSeconds + cc.durationSeconds,
+    );
+    if (!activeCC) continue;
+
+    const remaining = Math.round(activeCC.atSeconds + activeCC.durationSeconds - timeSeconds);
+    const isStun = activeCC.drInfo?.category === 'Stun';
+    const trinketUsedNow = summary?.trinketUseTimes.some((t) => Math.abs(t - timeSeconds) <= 1) ?? false;
+
+    const entry: (typeof ccList)[number] = { player: pid(name), spell: activeCC.spellName, remaining_s: remaining };
+    if (isStun) entry.stun = true;
+    if (isStun && trinketUsedNow) entry.trinketed = true;
+    ccList.push(entry);
+  }
+
+  const healerSummary = healerName ? summaryByName.get(healerName) : undefined;
+  const healerInCC =
+    healerSummary?.ccInstances.some(
+      (cc) => cc.atSeconds <= timeSeconds && timeSeconds < cc.atSeconds + cc.durationSeconds,
+    ) ?? false;
+
+  // ── assemble ─────────────────────────────────────────────────────────────
+  const sit: Record<string, unknown> = {
+    rdy,
+    cd,
+    enemy_burst_active: enemyCDs.length > 0,
+  };
+  if (enemyCDs.length > 0) sit.enemy_cds = enemyCDs;
+  sit.healer_free = !healerInCC;
+  if (ccList.length > 0) sit.cc = ccList;
+
+  return `      [SIT] ${JSON.stringify(sit)}`;
 }
 
 // ── buildMatchTimeline ─────────────────────────────────────────────────────
