@@ -607,6 +607,13 @@ export function reconstructDispelSummary(
       // Only CC applied by enemies
       if (!enemyIds.has(aura.srcUnitId)) continue;
 
+      // B11 fix: skip BUFF auras. When a friendly Mage spellsteals an enemy buff (e.g.
+      // Blessing of Freedom 1044), the resulting SPELL_AURA_APPLIED on the Mage carries
+      // the original enemy as srcUnit — but the aura is a BUFF on our side, not a debuff
+      // the healer should cleanse. Without this filter the loop fabricates a missed
+      // cleanse window for every spellsteal.
+      if (aura.logLine.parameters[11] === 'BUFF') continue;
+
       const priority = getPriority(spellId);
       if (priority !== 'Critical' && priority !== 'High') continue;
 
