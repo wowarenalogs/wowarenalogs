@@ -401,10 +401,13 @@ export function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): str
   const durationSeconds = (combat.endTime - combat.startTime) / 1000;
   if (durationSeconds < 10) return '';
 
-  // Pick log owner: --healer forces a healer; otherwise prefer non-healer DPS
-  const owner = forceHealer
-    ? (friends.find((p) => isHealerSpec(p.spec)) ?? friends[0])
-    : (friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0]);
+  // Pick log owner: use combat.playerId first (actual recording player), then fall back to heuristic
+  const byPlayerId = friends.find((p) => p.id === combat.playerId);
+  const owner = byPlayerId
+    ? byPlayerId
+    : forceHealer
+      ? (friends.find((p) => isHealerSpec(p.spec)) ?? friends[0])
+      : (friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0]);
 
   const ownerSpec = specToString(owner.spec);
   const healer = isHealerSpec(owner.spec);
@@ -864,9 +867,12 @@ function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string 
   const durationSeconds = (combat.endTime - combat.startTime) / 1000;
   if (durationSeconds < 10) return '';
 
-  const owner = forceHealer
-    ? (friends.find((p) => isHealerSpec(p.spec)) ?? friends[0])
-    : (friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0]);
+  const byPlayerId = friends.find((p) => p.id === combat.playerId);
+  const owner = byPlayerId
+    ? byPlayerId
+    : forceHealer
+      ? (friends.find((p) => isHealerSpec(p.spec)) ?? friends[0])
+      : (friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0]);
 
   const ownerSpec = specToString(owner.spec);
   const isHealer = isHealerSpec(owner.spec);
@@ -999,9 +1005,12 @@ function buildMatchPromptJson(combat: ParsedCombat, forceHealer = false): string
   const durationSeconds = (combat.endTime - combat.startTime) / 1000;
   if (durationSeconds < 10) return '';
 
-  const owner = forceHealer
-    ? (friends.find((p) => isHealerSpec(p.spec)) ?? friends[0])
-    : (friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0]);
+  const byPlayerId = friends.find((p) => p.id === combat.playerId);
+  const owner = byPlayerId
+    ? byPlayerId
+    : forceHealer
+      ? (friends.find((p) => isHealerSpec(p.spec)) ?? friends[0])
+      : (friends.find((p) => !isHealerSpec(p.spec)) ?? friends.find((p) => isHealerSpec(p.spec)) ?? friends[0]);
 
   const ownerSpec = specToString(owner.spec);
   const isHealer = isHealerSpec(owner.spec);

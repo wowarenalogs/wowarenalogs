@@ -78,17 +78,7 @@ function extractMatchMeta(combat: ParsedCombat, logFile: string, matchIndex: num
   const playerWon =
     typeof combatAny['winningTeamId'] === 'string' ? combatAny['winningTeamId'] === combat.playerTeamId : null;
 
-  const isHealer = (spec: string | number) => {
-    const label = specLabel(spec).toLowerCase();
-    return (
-      label.includes('resto') ||
-      label.includes('holy') ||
-      label.includes('disc') ||
-      label.includes('mistweaver') ||
-      label.includes('preservation')
-    );
-  };
-  const owner = friends.find((p) => !isHealer(p.spec)) ?? friends[0];
+  const owner = friends.find((p) => p.id === combat.playerId) ?? friends[0];
   const ownerSpec = owner ? specLabel(owner.spec) : 'Unknown';
 
   return {
