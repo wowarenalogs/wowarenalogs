@@ -143,6 +143,7 @@ async function runPhase1(): Promise<void> {
   let total = 0;
   let skipped = 0;
   let failed = 0;
+  let unparseable = 0;
 
   for (const logPath of files) {
     const fileName = path.basename(logPath);
@@ -165,7 +166,10 @@ async function runPhase1(): Promise<void> {
       const combat = combats[i];
       const meta = extractMatchMeta(combat, logPath, i + 1);
       const prompt = buildMatchPrompt(combat);
-      if (!prompt) continue;
+      if (!prompt) {
+        unparseable++;
+        continue;
+      }
 
       total++;
       console.log(
@@ -197,11 +201,13 @@ async function runPhase1(): Promise<void> {
     outStream.on('error', reject);
     outStream.end(resolve);
   });
-  console.log(`\nPhase 1 complete. Processed: ${total}  Skipped: ${skipped}  Failed: ${failed}`);
+  console.log(
+    `\nPhase 1 complete. Processed: ${total}  Skipped: ${skipped}  Failed: ${failed}  Unparseable: ${unparseable}`,
+  );
   console.log(`Results → ${RESULTS_FILE}`);
 }
 
-// ── Phase 2 placeholder (added in Task 3) ────────────────────────────────────
+// ── Phase 2 ──────────────────────────────────────────────────────────────────
 
 function buildMetaPrompt(records: BatchRecord[]): string {
   const wins = records.filter((r) => r.meta.result === 'Win').length;
