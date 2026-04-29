@@ -19,6 +19,7 @@
  *   LOG_DIR             override log directory (default ~/Downloads/wow logs)
  */
 
+import Anthropic from '@anthropic-ai/sdk';
 import { CombatUnitReaction, CombatUnitType, IArenaMatch, IShuffleRound } from '@wowarenalogs/parser';
 import fs from 'fs-extra';
 import os from 'os';
@@ -31,7 +32,7 @@ import { buildMatchPrompt, callClaude, ParsedCombat, parseLogText } from './prin
 const LOG_DIR = process.env.LOG_DIR ?? path.join(os.homedir(), 'Downloads/wow logs');
 const OUTPUT_DIR = path.join(__dirname, '../local-batch');
 const RESULTS_FILE = path.join(OUTPUT_DIR, 'results.jsonl');
-const _SUMMARY_FILE = path.join(OUTPUT_DIR, 'summary.md');
+const SUMMARY_FILE = path.join(OUTPUT_DIR, 'summary.md');
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -202,12 +203,156 @@ async function runPhase1(): Promise<void> {
 
 // ── Phase 2 placeholder (added in Task 3) ────────────────────────────────────
 
-function _buildMetaPrompt(_records: BatchRecord[]): string {
-  return '';
+function buildMetaPrompt(records: BatchRecord[]): string {
+  const wins = records.filter((r) => r.meta.result === 'Win').length;
+  const losses = records.filter((r) => r.meta.result === 'Loss').length;
+  const unknowns = records.filter((r) => r.meta.result === 'Unknown').length;
+
+  const specCounts: Record<string, { wins: number; losses: number; total: number }> = {};
+  const opponentCompCounts: Record<string, number> = {};
+  const bracketCounts: Record<string, number> = {};
+
+  for (const r of records) {
+    const s = r.meta.spec;
+    if (!specCounts[s]) specCounts[s] = { wins: 0, losses: 0, total: 0 };
+    specCounts[s].total++;
+    if (r.meta.result === 'Win') specCounts[s].wins++;
+    if (r.meta.result === 'Loss') specCounts[s].losses++;
+
+    const comp = [...r.meta.enemyTeam].sort().join(' + ');
+    opponentCompCounts[comp] = (opponentCompCounts[comp] ?? 0) + 1;
+
+    bracketCounts[r.meta.bracket] = (bracketCounts[r.meta.bracket] ?? 0) + 1;
+  }
+
+  const topComps = Object.entries(opponentCompCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([comp, n]) => `  ${n}x  ${comp}`)
+    .join('\n');
+
+  const specRows = Object.entries(specCounts)
+    .sort((a, b) => b[1].total - a[1].total)
+    .map(([spec, c]) => `  ${spec}: ${c.total} games, ${c.wins}W/${c.losses}L`)
+    .join('\n');
+
+  const bracketRows = Object.entries(bracketCounts)
+    .map(([b, n]) => `  ${b}: ${n} games`)
+    .join('\n');
+
+  const allFeedback = records
+    .filter((r) => r.feedbackSection)
+    .map((r, i) => `=== Match ${i + 1} (${r.meta.spec} | ${r.meta.result}) ===\n${r.feedbackSection}`)
+    .join('\n\n');
+
+  const durationStats = (() => {
+    const d = records.map((r) => r.meta.durationSeconds).sort((a, b) => a - b);
+    const median = d[Math.floor(d.length / 2)] ?? 0;
+    const p90 = d[Math.floor(d.length * 0.9)] ?? 0;
+    return `Median: ${median}s  P90: ${p90}s  Min: ${d[0] ?? 0}s  Max: ${d[d.length - 1] ?? 0}s`;
+  })();
+
+  const winRate = records.length > 0 ? Math.round((wins / records.length) * 100) : 0;
+
+  return `You are a WoW arena coaching analyst. Below is aggregate data from ${records.length} arena matches played by a single player. Your job is to identify patterns across these games and evaluate prompt engineering quality.
+
+## MATCH STATISTICS
+
+Total: ${records.length} matches | Wins: ${wins} | Losses: ${losses} | Unknown: ${unknowns}
+Win rate: ${winRate}%
+
+### Spec breakdown (by log owner)
+${specRows}
+
+### Bracket breakdown
+${bracketRows}
+
+### Top opponent comps (sorted by frequency)
+${topComps}
+
+### Match duration distribution
+${durationStats}
+
+---
+
+## PROMPT FEEDBACK (collected per match via Claude's self-evaluation)
+
+${allFeedback || '[No feedback collected — run with ANTHROPIC_API_KEY to enable]'}
+
+---
+
+## YOUR TASK
+
+Produce a structured summary report with exactly these four sections:
+
+### 1. Game Patterns
+Identify 3–5 recurring tactical patterns across this player's matches. For each pattern: what happens, how often it appears to occur, and which result (Win/Loss) it correlates with. Base this on the match metadata above — do not invent details not present in the data.
+
+### 2. Prompt Quality Assessment
+Based on the Prompt Feedback sections collected from Claude's self-evaluations, identify:
+- The top 2–3 data gaps Claude repeatedly flagged as missing (e.g., "HP% at time of trade")
+- The top 1–2 data sections Claude found least useful or redundant
+- Any recurring ambiguity or contradiction Claude noticed in the structured data
+Cite specific feedback quotes where possible.
+
+### 3. Result Category Breakdown
+Summarize win/loss patterns by: spec played, opponent comp, bracket, and match duration. Which situations correlate with wins? Which with losses? Be data-driven, not generic.
+
+### 4. Top 3 Recommendations
+Based on the above analysis, list 3 concrete, prioritized action items — one for improving gameplay decisions, one for improving the AI prompt/data pipeline, and one for improving match strategy against specific opponent patterns. Each recommendation: 2 sentences max.
+
+Keep the full report under 600 words. Be specific and blunt — this is internal analysis, not player-facing coaching.`;
 }
 
 async function runPhase2(): Promise<void> {
-  console.log('Phase 2 not yet implemented — run Task 3 first.');
+  if (!(await fs.pathExists(RESULTS_FILE))) {
+    console.error(`No results file found at ${RESULTS_FILE}. Run Phase 1 first.`);
+    process.exit(1);
+  }
+
+  const lines = (await fs.readFile(RESULTS_FILE, 'utf-8')).split('\n').filter(Boolean);
+  const records: BatchRecord[] = [];
+  for (const line of lines) {
+    try {
+      records.push(JSON.parse(line) as BatchRecord);
+    } catch {
+      /* skip malformed */
+    }
+  }
+
+  if (records.length === 0) {
+    console.error('No valid records found in results.jsonl');
+    process.exit(1);
+  }
+
+  console.log(`Phase 2: meta-analysis across ${records.length} matches\n`);
+
+  const metaPrompt = buildMetaPrompt(records);
+  console.log('--- META-ANALYSIS PROMPT ---\n');
+  console.log(metaPrompt);
+  console.log('\n--- END PROMPT ---\n');
+
+  let summary = '[SKIPPED — no ANTHROPIC_API_KEY]';
+  if (process.env.ANTHROPIC_API_KEY) {
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    process.stderr.write('Calling Claude for meta-analysis...\n');
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4096,
+      temperature: 0.2,
+      system: 'You are a concise, data-driven WoW arena analyst. Respond only with the requested structured report.',
+      messages: [{ role: 'user', content: metaPrompt }],
+    });
+    const content = message.content[0];
+    summary = content.type === 'text' ? content.text : '[Non-text response]';
+  }
+
+  const reportDate = new Date().toISOString().slice(0, 10);
+  const fullSummary = `# Local Match Batch Analysis\n\nGenerated: ${reportDate}  |  Matches: ${records.length}\n\n---\n\n${summary}\n`;
+
+  await fs.writeFile(SUMMARY_FILE, fullSummary, 'utf-8');
+  console.log(summary);
+  console.log(`\nSummary → ${SUMMARY_FILE}`);
 }
 
 // ── Entry point ───────────────────────────────────────────────────────────────
