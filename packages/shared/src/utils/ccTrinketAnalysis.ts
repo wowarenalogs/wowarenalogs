@@ -93,7 +93,7 @@ export interface IPlayerCCTrinketSummary {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function detectTrinketType(unit: ICombatUnit): TrinketType {
+export function detectTrinketType(unit: ICombatUnit): TrinketType {
   const trinketSlots = (unit.info?.equipment ?? []).filter((_, i) => [12, 13].includes(i));
   if (trinketSlots.some((e) => RELENTLESS_ITEM_IDS.has(e.id))) return 'Relentless';
   if (trinketSlots.some((e) => ADAPTATION_ITEM_IDS.has(e.id))) return 'Adaptation';
