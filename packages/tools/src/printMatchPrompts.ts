@@ -201,7 +201,7 @@ After your findings, add a Data Utility section:
 
 Do not add a summary, "what went well" section, or general recommendations beyond the numbered findings and Data Utility section.`;
 
-type ParsedCombat = IArenaMatch | IShuffleRound;
+export type ParsedCombat = IArenaMatch | IShuffleRound;
 
 // ---------------------------------------------------------------------------
 // Cloud download
@@ -242,7 +242,7 @@ async function fetchStubs(bracket: string, count: number): Promise<MatchStub[]> 
 // Parsing
 // ---------------------------------------------------------------------------
 
-async function parseLogText(text: string): Promise<ParsedCombat[]> {
+export async function parseLogText(text: string): Promise<ParsedCombat[]> {
   const { WoWCombatLogParser } = await import('@wowarenalogs/parser');
   const lines = text.split('\n');
   const parser = new WoWCombatLogParser('retail');
@@ -258,7 +258,7 @@ async function parseLogText(text: string): Promise<ParsedCombat[]> {
 // AI call
 // ---------------------------------------------------------------------------
 
-async function callClaude(
+export async function callClaude(
   prompt: string,
   mode: 'standard' | 'test' | 'new' | 'hybrid' | 'baseline' | 'json' = 'standard',
 ): Promise<string> {
@@ -388,7 +388,7 @@ Then:
 // ---------------------------------------------------------------------------
 
 // Cloud matches have no single "owner" — pick friendly[0] as the log owner proxy
-function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
+export function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): string {
   const allUnits = Object.values(combat.units);
   const friends = allUnits.filter(
     (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Friendly,
