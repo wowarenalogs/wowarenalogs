@@ -344,7 +344,7 @@ async function runPhase2(): Promise<void> {
       messages: [{ role: 'user', content: metaPrompt }],
     });
     const content = message.content[0];
-    summary = content.type === 'text' ? content.text : '[Non-text response]';
+    summary = content?.type === 'text' ? content.text : '[Non-text response]';
   }
 
   const reportDate = new Date().toISOString().slice(0, 10);
