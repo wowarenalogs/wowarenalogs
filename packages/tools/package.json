@@ -15,7 +15,8 @@
     "start:generateDataManifest": "ts-node --files ./src/generateDataManifest.ts",
     "start:collectBenchmarks": "ts-node --files ./src/collectBenchmarks.ts",
     "start:printMatchArchetypes": "ts-node --files ./src/printMatchArchetypes.ts",
-    "start:printMatchPrompts": "ts-node --files ./src/printMatchPrompts.ts"
+    "start:printMatchPrompts": "ts-node --files ./src/printMatchPrompts.ts",
+    "start:localBatchAnalysis": "dotenv -- ts-node --files ./src/localBatchAnalysis.ts"
   },
   "devDependencies": {
     "@types/node": "^22",
