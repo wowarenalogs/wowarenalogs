@@ -192,7 +192,10 @@ async function runPhase1(): Promise<void> {
     }
   }
 
-  outStream.end();
+  await new Promise<void>((resolve, reject) => {
+    outStream.on('error', reject);
+    outStream.end(resolve);
+  });
   console.log(`\nPhase 1 complete. Processed: ${total}  Skipped: ${skipped}  Failed: ${failed}`);
   console.log(`Results → ${RESULTS_FILE}`);
 }
