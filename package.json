@@ -100,6 +100,7 @@
     "build:recorder": "npm run build:recorder --workspaces --if-present",
     "start:generateSpellsData": "npm run start:generateSpellsData --workspaces --if-present",
     "start:generateSpellIdLists": "npm run start:generateSpellIdLists --workspaces --if-present",
+    "start:generateTrinketItemIds": "npm run start:generateTrinketItemIds --workspaces --if-present",
     "start:refreshSpellMetadata": "npm run start:refreshSpellMetadata --workspaces --if-present",
     "update:statics": "node scripts/update_statics.js",
     "lint": "npm run lint --workspaces --if-present",
