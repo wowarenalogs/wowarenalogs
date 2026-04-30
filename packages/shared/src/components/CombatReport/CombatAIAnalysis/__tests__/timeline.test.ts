@@ -2633,3 +2633,129 @@ describe('buildResourceSnapshot — F72 compact [RES] format', () => {
     expect(result).not.toContain('Player1');
   });
 });
+
+describe('buildResourceSnapshot — root/disarm/kick in cc: line', () => {
+  function makeSummaryWithRoot(playerName: string, atSeconds: number, durationSeconds: number) {
+    return {
+      playerName,
+      playerSpec: 'Druid_Restoration',
+      trinketType: 'Gladiator' as const,
+      trinketCooldownSeconds: 90,
+      ccInstances: [],
+      trinketUseTimes: [],
+      missedTrinketWindows: [],
+      rootInstances: [
+        {
+          atSeconds,
+          durationSeconds,
+          spellId: '339',
+          spellName: 'Entangling Roots',
+          sourceName: 'EnemyDruid',
+          sourceSpec: 'Druid_Balance',
+        },
+      ],
+      disarmInstances: [],
+      interruptInstances: [],
+    };
+  }
+
+  function makeSummaryWithDisarm(playerName: string, atSeconds: number, durationSeconds: number) {
+    return {
+      playerName,
+      playerSpec: 'Warrior_Arms',
+      trinketType: 'Gladiator' as const,
+      trinketCooldownSeconds: 120,
+      ccInstances: [],
+      trinketUseTimes: [],
+      missedTrinketWindows: [],
+      rootInstances: [],
+      disarmInstances: [
+        {
+          atSeconds,
+          durationSeconds,
+          spellId: '236077',
+          spellName: 'Disarm',
+          sourceName: 'EnemyWarrior',
+          sourceSpec: 'Warrior_Arms',
+        },
+      ],
+      interruptInstances: [],
+    };
+  }
+
+  function makeSummaryWithKick(playerName: string, atSeconds: number, lockoutDurationSeconds: number) {
+    return {
+      playerName,
+      playerSpec: 'Mage_Frost',
+      trinketType: 'Gladiator' as const,
+      trinketCooldownSeconds: 120,
+      ccInstances: [],
+      trinketUseTimes: [],
+      missedTrinketWindows: [],
+      rootInstances: [],
+      disarmInstances: [],
+      interruptInstances: [
+        {
+          atSeconds,
+          lockoutDurationSeconds,
+          kickSpellId: '1766',
+          kickSpellName: 'Kick',
+          interruptedSpellName: 'Frostbolt',
+          sourceName: 'EnemyRogue',
+          sourceSpec: 'Rogue_Subtlety',
+        },
+      ],
+    };
+  }
+
+  function minimalParams(ccTrinketSummaries: unknown[], ownerName: string) {
+    return {
+      timeSeconds: 30,
+      ownerCDs: [],
+      ownerName,
+      ownerSpec: 'Holy Paladin',
+      teammateCDs: [],
+      ccTrinketSummaries: ccTrinketSummaries as IPlayerCCTrinketSummary[],
+      enemyCDTimeline: makeEnemyTimeline(),
+    };
+  }
+
+  it('shows [root] tag when player is rooted at snapshot time', () => {
+    // Root applied at t=25, lasts 8s → still active at t=30
+    const summary = makeSummaryWithRoot('Player1', 25, 8);
+    const result = buildResourceSnapshot(minimalParams([summary], 'Player1'));
+    expect(result).toContain('cc:');
+    expect(result).toContain('[root]');
+    expect(result).toContain('Entangling Roots');
+  });
+
+  it('omits root from cc: when root has expired at snapshot time', () => {
+    // Root at t=20, lasts 3s → expired by t=30
+    const summary = makeSummaryWithRoot('Player1', 20, 3);
+    const result = buildResourceSnapshot(minimalParams([summary], 'Player1'));
+    expect(result).not.toContain('[root]');
+  });
+
+  it('shows [disarm] tag when player is disarmed at snapshot time', () => {
+    // Disarm at t=28, lasts 5s → still active at t=30
+    const summary = makeSummaryWithDisarm('Player1', 28, 5);
+    const result = buildResourceSnapshot(minimalParams([summary], 'Player1'));
+    expect(result).toContain('[disarm]');
+    expect(result).toContain('Disarm');
+  });
+
+  it('shows [kick] tag when player is within kick lockout at snapshot time', () => {
+    // Kick at t=27, lockout 5s → expires at t=32, still active at t=30
+    const summary = makeSummaryWithKick('Player1', 27, 5);
+    const result = buildResourceSnapshot(minimalParams([summary], 'Player1'));
+    expect(result).toContain('[kick]');
+    expect(result).toContain('Kick');
+  });
+
+  it('omits kick from cc: when lockout has expired', () => {
+    // Kick at t=20, lockout 5s → expired at t=25, before snapshot t=30
+    const summary = makeSummaryWithKick('Player1', 20, 5);
+    const result = buildResourceSnapshot(minimalParams([summary], 'Player1'));
+    expect(result).not.toContain('[kick]');
+  });
+});

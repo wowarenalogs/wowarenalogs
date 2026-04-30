@@ -1333,17 +1333,46 @@ export function buildResourceSnapshot({
   const ccParts: string[] = [];
   for (const { name } of allFriendlyPlayers) {
     const summary = summaryByName.get(name);
+
+    // Hard CC (existing)
     const activeCC = summary?.ccInstances.find(
       (cc) => cc.atSeconds <= timeSeconds && timeSeconds < cc.atSeconds + cc.durationSeconds,
     );
-    if (!activeCC) continue;
+    if (activeCC) {
+      const remaining = Math.round(activeCC.atSeconds + activeCC.durationSeconds - timeSeconds);
+      const isStun = activeCC.drInfo?.category === 'Stun';
+      const stunTag = isStun ? '[stun]' : '';
+      const trinketUsedNow = summary?.trinketUseTimes.some((t) => Math.abs(t - timeSeconds) <= 1) ?? false;
+      const trinketTag = isStun && trinketUsedNow ? '[trinketed]' : '';
+      ccParts.push(`${pid(name)}/${activeCC.spellName}-${remaining}s${stunTag}${trinketTag}`);
+    }
 
-    const remaining = Math.round(activeCC.atSeconds + activeCC.durationSeconds - timeSeconds);
-    const isStun = activeCC.drInfo?.category === 'Stun';
-    const stunTag = isStun ? '[stun]' : '';
-    const trinketUsedNow = summary?.trinketUseTimes.some((t) => Math.abs(t - timeSeconds) <= 1) ?? false;
-    const trinketTag = isStun && trinketUsedNow ? '[trinketed]' : '';
-    ccParts.push(`${pid(name)}/${activeCC.spellName}-${remaining}s${stunTag}${trinketTag}`);
+    // Root
+    const activeRoot = summary?.rootInstances?.find(
+      (r) => r.atSeconds <= timeSeconds && timeSeconds < r.atSeconds + r.durationSeconds,
+    );
+    if (activeRoot) {
+      const remaining = Math.round(activeRoot.atSeconds + activeRoot.durationSeconds - timeSeconds);
+      ccParts.push(`${pid(name)}/${activeRoot.spellName}-${remaining}s[root]`);
+    }
+
+    // Disarm
+    const activeDisarm = summary?.disarmInstances?.find(
+      (d) => d.atSeconds <= timeSeconds && timeSeconds < d.atSeconds + d.durationSeconds,
+    );
+    if (activeDisarm) {
+      const remaining = Math.round(activeDisarm.atSeconds + activeDisarm.durationSeconds - timeSeconds);
+      ccParts.push(`${pid(name)}/${activeDisarm.spellName}-${remaining}s[disarm]`);
+    }
+
+    // Kick lockout
+    const activeKick = summary?.interruptInstances?.find(
+      (k) => k.atSeconds <= timeSeconds && timeSeconds < k.atSeconds + k.lockoutDurationSeconds,
+    );
+    if (activeKick) {
+      const remaining = Math.round(activeKick.atSeconds + activeKick.lockoutDurationSeconds - timeSeconds);
+      ccParts.push(`${pid(name)}/${activeKick.kickSpellName}-${remaining}s[kick]`);
+    }
   }
 
   if (ccParts.length > 0) {
@@ -1422,23 +1451,60 @@ export function buildJsonSituationSnapshot({
     ? ownerName
     : teammateCDs.find(({ player }) => isHealerSpec(player.spec))?.player.name;
 
-  const ccList: Array<{ player: string; spell: string; remaining_s: number; stun?: true; trinketed?: true }> = [];
+  const ccList: Array<{
+    player: string;
+    spell: string;
+    remaining_s: number;
+    stun?: true;
+    trinketed?: true;
+    root?: true;
+    disarm?: true;
+    kick?: true;
+  }> = [];
 
   for (const { name } of allFriendlyPlayers) {
     const summary = summaryByName.get(name);
+
+    // Hard CC (existing)
     const activeCC = summary?.ccInstances.find(
       (cc) => cc.atSeconds <= timeSeconds && timeSeconds < cc.atSeconds + cc.durationSeconds,
     );
-    if (!activeCC) continue;
+    if (activeCC) {
+      const remaining = Math.round(activeCC.atSeconds + activeCC.durationSeconds - timeSeconds);
+      const isStun = activeCC.drInfo?.category === 'Stun';
+      const trinketUsedNow = summary?.trinketUseTimes.some((t) => Math.abs(t - timeSeconds) <= 1) ?? false;
+      const entry: (typeof ccList)[number] = { player: pid(name), spell: activeCC.spellName, remaining_s: remaining };
+      if (isStun) entry.stun = true;
+      if (isStun && trinketUsedNow) entry.trinketed = true;
+      ccList.push(entry);
+    }
 
-    const remaining = Math.round(activeCC.atSeconds + activeCC.durationSeconds - timeSeconds);
-    const isStun = activeCC.drInfo?.category === 'Stun';
-    const trinketUsedNow = summary?.trinketUseTimes.some((t) => Math.abs(t - timeSeconds) <= 1) ?? false;
+    // Root
+    const activeRoot = summary?.rootInstances?.find(
+      (r) => r.atSeconds <= timeSeconds && timeSeconds < r.atSeconds + r.durationSeconds,
+    );
+    if (activeRoot) {
+      const remaining = Math.round(activeRoot.atSeconds + activeRoot.durationSeconds - timeSeconds);
+      ccList.push({ player: pid(name), spell: activeRoot.spellName, remaining_s: remaining, root: true });
+    }
 
-    const entry: (typeof ccList)[number] = { player: pid(name), spell: activeCC.spellName, remaining_s: remaining };
-    if (isStun) entry.stun = true;
-    if (isStun && trinketUsedNow) entry.trinketed = true;
-    ccList.push(entry);
+    // Disarm
+    const activeDisarm = summary?.disarmInstances?.find(
+      (d) => d.atSeconds <= timeSeconds && timeSeconds < d.atSeconds + d.durationSeconds,
+    );
+    if (activeDisarm) {
+      const remaining = Math.round(activeDisarm.atSeconds + activeDisarm.durationSeconds - timeSeconds);
+      ccList.push({ player: pid(name), spell: activeDisarm.spellName, remaining_s: remaining, disarm: true });
+    }
+
+    // Kick lockout
+    const activeKick = summary?.interruptInstances?.find(
+      (k) => k.atSeconds <= timeSeconds && timeSeconds < k.atSeconds + k.lockoutDurationSeconds,
+    );
+    if (activeKick) {
+      const remaining = Math.round(activeKick.atSeconds + activeKick.lockoutDurationSeconds - timeSeconds);
+      ccList.push({ player: pid(name), spell: activeKick.kickSpellName, remaining_s: remaining, kick: true });
+    }
   }
 
   const healerSummary = healerName ? summaryByName.get(healerName) : undefined;
