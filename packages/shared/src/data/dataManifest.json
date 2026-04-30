@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-04-24T07:57:51.495Z",
-  "gitCommit": "702773ccb8b096258f2b680314d53b197415cd32",
+  "generatedAt": "2026-04-30T05:39:34.696Z",
+  "gitCommit": "7e0a59b2acbee319916e71bf34ee12deddc6fefb",
   "files": {
     "spellEffects.json": {
       "description": "Per-spell cooldown, duration, dispelType from Wago.tools DB2",
@@ -36,6 +36,18 @@
         "hash": "6f1890cc6f8491db948b579c583cf5f14a2f9bee",
         "date": "2026-04-16T02:28:05-04:00",
         "subject": "merge: pull upstream/main (65 commits, spell library + mistakes tab + pvp talents)"
+      }
+    },
+    "trinketItemIds.json": {
+      "description": "Adaptation and Relentless PvP trinket item IDs from Wago.tools ItemSparse DB2",
+      "generatedBy": "npm run start:generateTrinketItemIds (packages/tools)",
+      "wowDataDependent": true,
+      "entryCount": 6,
+      "sha256": "0051eec2413854c29c6e7d36510166bd13362a8766182a089daa724e34d03c28",
+      "lastCommit": {
+        "hash": "66b9b465ff6a680ca12c40b8920fb0e8d399ffbc",
+        "date": "2026-04-29T22:31:34-07:00",
+        "subject": "chore(data): generate trinketItemIds.json from wago.tools DB2"
       }
     },
     "talentIdMap.json": {
