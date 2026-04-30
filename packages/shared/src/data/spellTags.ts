@@ -11,7 +11,8 @@ interface ISpellMetadata {
     | 'debuffs_offensive'
     | 'debuffs_defensive'
     | 'debuffs_other'
-    | 'interrupts';
+    | 'interrupts'
+    | 'disarms';
   duration?: number;
   priority?: boolean;
   nounitFrames?: boolean;
@@ -25,15 +26,22 @@ const PRIORITY_MAP = {
   debuffs_defensive: 4,
   roots: 5,
   interrupts: 6,
-  buffs_offensive: 7,
-  debuffs_offensive: 8,
-  buffs_other: 9,
-  debuffs_other: 10,
+  disarms: 7,
+  buffs_offensive: 8,
+  debuffs_offensive: 9,
+  buffs_other: 10,
+  debuffs_other: 11,
 };
 
 export const spells = rawSpellsData as Record<string, ISpellMetadata>;
 
 export const ccSpellIds = new Set<string>(Object.keys(spells).filter((spellId) => spells[spellId].type === 'cc'));
+
+export const rootSpellIds = new Set<string>(Object.keys(spells).filter((id) => spells[id].type === 'roots'));
+
+export const interruptSpellIds = new Set<string>(Object.keys(spells).filter((id) => spells[id].type === 'interrupts'));
+
+export const disarmSpellIds = new Set<string>(Object.keys(spells).filter((id) => spells[id].type === 'disarms'));
 
 export const trinketSpellIds = ['336126']; // TODO: Add adaptation spell id here
 

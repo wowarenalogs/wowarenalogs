@@ -1063,7 +1063,7 @@
     "type": "buffs_defensive"
   },
   "209749": {
-    "type": "cc"
+    "type": "disarms"
   },
   "209997": {
     "type": "buffs_defensive"
@@ -1230,10 +1230,10 @@
     "parent": 204080
   },
   "233759": {
-    "type": "cc"
+    "type": "disarms"
   },
   "236077": {
-    "type": "cc"
+    "type": "disarms"
   },
   "236273": {
     "type": "cc"
