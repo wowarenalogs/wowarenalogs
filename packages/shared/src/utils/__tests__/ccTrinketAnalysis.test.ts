@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CombatUnitSpec } from '@wowarenalogs/parser';
+import { CombatUnitReaction, CombatUnitSpec, LogEvent } from '@wowarenalogs/parser';
 
-import { detectTrinketType } from '../ccTrinketAnalysis';
-import { makeUnit } from './testHelpers';
+import { analyzePlayerCCAndTrinket, detectTrinketType } from '../ccTrinketAnalysis';
+import { makeAuraEvent, makeInterruptEvent, makeUnit } from './testHelpers';
 
 // Mock the generated JSON so tests never depend on real item IDs.
 jest.mock('../../data/trinketItemIds.json', () => ({
@@ -62,5 +62,98 @@ describe('detectTrinketType', () => {
   it('Relentless check takes precedence over Adaptation (first match wins)', () => {
     // Relentless check runs first in detectTrinketType
     expect(detectTrinketType(unitWithTrinket('TEST_RELENTLESS_1', 'TEST_ADAPT_1'))).toBe('Relentless');
+  });
+});
+
+describe('analyzePlayerCCAndTrinket — root/disarm/interrupt tracking', () => {
+  const MATCH_START = 1_000_000;
+  const MATCH_END = 1_300_000;
+
+  function makeCombat() {
+    return { startTime: MATCH_START, endTime: MATCH_END, startInfo: { zoneId: '1672' } };
+  }
+
+  function makeEnemy(id: string, name: string) {
+    return makeUnit(id, {
+      name,
+      reaction: CombatUnitReaction.Hostile,
+      spec: CombatUnitSpec.Rogue_Subtlety,
+    });
+  }
+
+  it('tracks a root applied by an enemy', () => {
+    // Entangling Roots = spellId '339'
+    const apply = makeAuraEvent(LogEvent.SPELL_AURA_APPLIED, '339', MATCH_START + 5_000, 'enemy-1', 'player-1');
+    const removed = makeAuraEvent(LogEvent.SPELL_AURA_REMOVED, '339', MATCH_START + 8_000, 'enemy-1', 'player-1');
+    const player = makeUnit('player-1', { auraEvents: [apply, removed] });
+    const enemy = makeEnemy('enemy-1', 'EnemyA');
+
+    const result = analyzePlayerCCAndTrinket(player, [enemy], makeCombat());
+
+    expect(result.rootInstances).toHaveLength(1);
+    expect(result.rootInstances[0].spellId).toBe('339');
+    expect(result.rootInstances[0].durationSeconds).toBeCloseTo(3);
+    expect(result.rootInstances[0].atSeconds).toBeCloseTo(5);
+  });
+
+  it('does not track roots from friendly sources', () => {
+    const apply = makeAuraEvent(LogEvent.SPELL_AURA_APPLIED, '339', MATCH_START + 5_000, 'friend-1', 'player-1');
+    const player = makeUnit('player-1', { auraEvents: [apply] });
+    const enemy = makeEnemy('enemy-1', 'EnemyA');
+
+    const result = analyzePlayerCCAndTrinket(player, [enemy], makeCombat());
+
+    expect(result.rootInstances).toHaveLength(0);
+  });
+
+  it('tracks a disarm applied by an enemy', () => {
+    // Disarm (Warrior) = spellId '236077'
+    const apply = makeAuraEvent(LogEvent.SPELL_AURA_APPLIED, '236077', MATCH_START + 10_000, 'enemy-1', 'player-1');
+    const removed = makeAuraEvent(LogEvent.SPELL_AURA_REMOVED, '236077', MATCH_START + 15_000, 'enemy-1', 'player-1');
+    const player = makeUnit('player-1', { auraEvents: [apply, removed] });
+    const enemy = makeEnemy('enemy-1', 'EnemyA');
+
+    const result = analyzePlayerCCAndTrinket(player, [enemy], makeCombat());
+
+    expect(result.disarmInstances).toHaveLength(1);
+    expect(result.disarmInstances[0].spellId).toBe('236077');
+    expect(result.disarmInstances[0].durationSeconds).toBeCloseTo(5);
+  });
+
+  it('tracks a kick from an enemy (SPELL_INTERRUPT)', () => {
+    // Kick (Rogue) = extraSpellId '1766', lockout 5s; interrupted = Frost Bolt
+    const kick = makeInterruptEvent('1766', 'Kick', '116', 'Frostbolt', MATCH_START + 20_000, 'enemy-1', 'EnemyA');
+    const player = makeUnit('player-1', { actionIn: [kick] });
+    const enemy = makeEnemy('enemy-1', 'EnemyA');
+
+    const result = analyzePlayerCCAndTrinket(player, [enemy], makeCombat());
+
+    expect(result.interruptInstances).toHaveLength(1);
+    expect(result.interruptInstances[0].kickSpellId).toBe('1766');
+    expect(result.interruptInstances[0].kickSpellName).toBe('Kick');
+    expect(result.interruptInstances[0].interruptedSpellName).toBe('Frostbolt');
+    expect(result.interruptInstances[0].lockoutDurationSeconds).toBe(5);
+    expect(result.interruptInstances[0].atSeconds).toBeCloseTo(20);
+  });
+
+  it('uses a 3s default lockout for unknown interrupt spells', () => {
+    // Unknown spell ID '99999999' — not in spells.json
+    const kick = makeInterruptEvent('99999999', 'UnknownKick', '116', 'Frostbolt', MATCH_START + 5_000);
+    const player = makeUnit('player-1', { actionIn: [kick] });
+    const enemy = makeEnemy('enemy-1', 'EnemyA');
+
+    const result = analyzePlayerCCAndTrinket(player, [enemy], makeCombat());
+
+    expect(result.interruptInstances[0].lockoutDurationSeconds).toBe(3);
+  });
+
+  it('does not track kicks from friendly sources', () => {
+    const kick = makeInterruptEvent('1766', 'Kick', '116', 'Frostbolt', MATCH_START + 5_000, 'friend-1', 'Friend');
+    const player = makeUnit('player-1', { actionIn: [kick] });
+    const enemy = makeEnemy('enemy-1', 'EnemyA');
+
+    const result = analyzePlayerCCAndTrinket(player, [enemy], makeCombat());
+
+    expect(result.interruptInstances).toHaveLength(0);
   });
 });

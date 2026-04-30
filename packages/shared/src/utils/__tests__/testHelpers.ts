@@ -150,6 +150,7 @@ export function makeUnit(
     reaction?: CombatUnitReaction;
     spellCastEvents?: AnyObj[];
     auraEvents?: AnyObj[];
+    actionIn?: AnyObj[];
     damageIn?: AnyObj[];
     healOut?: AnyObj[];
     advancedActions?: AnyObj[];
@@ -178,7 +179,7 @@ export function makeUnit(
     supportDamageOut: [],
     supportHealIn: [],
     supportHealOut: [],
-    actionIn: [],
+    actionIn: (overrides.actionIn ?? []) as ICombatUnit['actionIn'],
     actionOut: [],
     auraEvents: (overrides.auraEvents ?? []) as ICombatUnit['auraEvents'],
     spellCastEvents: (overrides.spellCastEvents ?? []) as ICombatUnit['spellCastEvents'],
@@ -191,4 +192,31 @@ export function makeUnit(
 /** Build a minimal AtomicArenaCombat-compatible combat object. */
 export function makeCombat(startTime: number, endTime: number): { startTime: number; endTime: number } {
   return { startTime, endTime };
+}
+
+/** Minimal SPELL_INTERRUPT event (CombatExtraSpellAction shape). */
+export function makeInterruptEvent(
+  kickSpellId: string,
+  kickSpellName: string,
+  interruptedSpellId: string,
+  interruptedSpellName: string,
+  timestamp: number,
+  srcUnitId = 'enemy-1',
+  srcUnitName = 'Enemy',
+): AnyObj {
+  return {
+    logLine: { event: LogEvent.SPELL_INTERRUPT, timestamp, parameters: [] },
+    timestamp,
+    spellId: interruptedSpellId,
+    spellName: interruptedSpellName,
+    extraSpellId: kickSpellId,
+    extraSpellName: kickSpellName,
+    srcUnitId,
+    srcUnitName,
+    destUnitId: 'player-1',
+    destUnitName: 'Target',
+    effectiveAmount: 0,
+    advancedActorMaxHp: 0,
+    advancedActorCurrentHp: 0,
+  };
 }

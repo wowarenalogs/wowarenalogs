@@ -1,6 +1,6 @@
-import { ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+import { CombatExtraSpellAction, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
-import { ccSpellIds } from '../data/spellTags';
+import { ccSpellIds, disarmSpellIds, rootSpellIds, spells } from '../data/spellTags';
 import trinketItemIdsData from '../data/trinketItemIds.json';
 import { fmtTime, isHealerSpec, specToString } from './cooldowns';
 import { computeIncomingDR, IDRInfo } from './drAnalysis';
@@ -64,6 +64,25 @@ export interface ICCInstance {
   losBlocked: boolean | null;
 }
 
+export interface IRootInstance {
+  atSeconds: number;
+  durationSeconds: number;
+  spellId: string;
+  spellName: string;
+  sourceName: string;
+  sourceSpec: string;
+}
+
+export interface IInterruptInstance {
+  atSeconds: number;
+  lockoutDurationSeconds: number;
+  kickSpellId: string;
+  kickSpellName: string;
+  interruptedSpellName: string;
+  sourceName: string;
+  sourceSpec: string;
+}
+
 export interface IPlayerCCTrinketSummary {
   playerName: string;
   playerSpec: string;
@@ -73,6 +92,12 @@ export interface IPlayerCCTrinketSummary {
   trinketUseTimes: number[]; // atSeconds for each trinket cast
   /** CC windows where trinket was available but player didn't use it, with significant damage */
   missedTrinketWindows: ICCInstance[];
+  /** Roots applied by enemies. No DR category. */
+  rootInstances: IRootInstance[];
+  /** Disarms applied by enemies. No DR category. */
+  disarmInstances: IRootInstance[];
+  /** Kicks (interrupts) landed by enemies. */
+  interruptInstances: IInterruptInstance[];
 }
 
 // ---------------------------------------------------------------------------
@@ -145,10 +170,65 @@ export function analyzePlayerCCAndTrinket(
 
   const pendingCC = new Map<string, { applyMs: number; spellName: string; srcName: string; srcUnitId: string }>();
 
+  const pendingRoot = new Map<string, { applyMs: number; spellName: string; srcId: string; srcName: string }>();
+  const rootWindows: Array<{
+    spellId: string;
+    spellName: string;
+    srcId: string;
+    srcName: string;
+    applyMs: number;
+    removeMs: number;
+  }> = [];
+
+  const pendingDisarm = new Map<string, { applyMs: number; spellName: string; srcId: string; srcName: string }>();
+  const disarmWindows: Array<{
+    spellId: string;
+    spellName: string;
+    srcId: string;
+    srcName: string;
+    applyMs: number;
+    removeMs: number;
+  }> = [];
+
   for (const aura of player.auraEvents) {
     const spellId = aura.spellId;
     if (!spellId) continue;
     if (!enemyIds.has(aura.srcUnitId)) continue;
+
+    if (rootSpellIds.has(spellId) || disarmSpellIds.has(spellId)) {
+      const isRoot = rootSpellIds.has(spellId);
+      const pending = isRoot ? pendingRoot : pendingDisarm;
+      const windows = isRoot ? rootWindows : disarmWindows;
+      const key = `${spellId}:${aura.srcUnitId}`;
+      const event = aura.logLine.event;
+
+      if (event === LogEvent.SPELL_AURA_APPLIED) {
+        pending.set(key, {
+          applyMs: aura.timestamp,
+          spellName: aura.spellName ?? spellId,
+          srcId: aura.srcUnitId,
+          srcName: aura.srcUnitName,
+        });
+      } else if (
+        event === LogEvent.SPELL_AURA_REMOVED ||
+        event === LogEvent.SPELL_AURA_BROKEN ||
+        event === LogEvent.SPELL_AURA_BROKEN_SPELL
+      ) {
+        const p = pending.get(key);
+        if (p) {
+          windows.push({
+            spellId,
+            spellName: p.spellName,
+            srcId: p.srcId,
+            srcName: p.srcName,
+            applyMs: p.applyMs,
+            removeMs: aura.timestamp,
+          });
+          pending.delete(key);
+        }
+      }
+    }
+
     if (!ccSpellIds.has(spellId)) continue;
 
     // FIX 2: key by spellId+caster so re-applications from the same caster don't
@@ -194,6 +274,29 @@ export function analyzePlayerCCAndTrinket(
       removeMs: combat.endTime,
     });
   });
+
+  for (const [key, p] of pendingRoot) {
+    const [pendingSpellId] = key.split(':');
+    rootWindows.push({
+      spellId: pendingSpellId,
+      spellName: p.spellName,
+      srcId: p.srcId,
+      srcName: p.srcName,
+      applyMs: p.applyMs,
+      removeMs: combat.endTime,
+    });
+  }
+  for (const [key, p] of pendingDisarm) {
+    const [pendingSpellId] = key.split(':');
+    disarmWindows.push({
+      spellId: pendingSpellId,
+      spellName: p.spellName,
+      srcId: p.srcId,
+      srcName: p.srcName,
+      applyMs: p.applyMs,
+      removeMs: combat.endTime,
+    });
+  }
 
   // Resolve source spec from enemies list
   const enemySpecMap = new Map(enemies.map((u) => [u.id, specToString(u.spec)]));
@@ -258,6 +361,47 @@ export function analyzePlayerCCAndTrinket(
     (c) => c.trinketState === 'available_unused' && c.damageTakenDuring >= SIGNIFICANT_CC_DAMAGE,
   );
 
+  const rootInstances: IRootInstance[] = rootWindows
+    .map((w) => ({
+      atSeconds: (w.applyMs - matchStartMs) / 1000,
+      durationSeconds: (w.removeMs - w.applyMs) / 1000,
+      spellId: w.spellId,
+      spellName: w.spellName,
+      sourceName: w.srcName,
+      sourceSpec: enemySpecMap.get(w.srcId) ?? 'Unknown',
+    }))
+    .sort((a, b) => a.atSeconds - b.atSeconds);
+
+  const disarmInstances: IRootInstance[] = disarmWindows
+    .map((w) => ({
+      atSeconds: (w.applyMs - matchStartMs) / 1000,
+      durationSeconds: (w.removeMs - w.applyMs) / 1000,
+      spellId: w.spellId,
+      spellName: w.spellName,
+      sourceName: w.srcName,
+      sourceSpec: enemySpecMap.get(w.srcId) ?? 'Unknown',
+    }))
+    .sort((a, b) => a.atSeconds - b.atSeconds);
+
+  const interruptInstances: IInterruptInstance[] = [];
+  for (const action of player.actionIn) {
+    if (action.logLine.event !== LogEvent.SPELL_INTERRUPT) continue;
+    if (!enemyIds.has(action.srcUnitId)) continue;
+    const extraAction = action as unknown as CombatExtraSpellAction;
+    const kickSpellId = extraAction.extraSpellId;
+    const lockoutDurationSeconds = spells[kickSpellId]?.duration ?? 3;
+    interruptInstances.push({
+      atSeconds: (action.timestamp - matchStartMs) / 1000,
+      lockoutDurationSeconds,
+      kickSpellId,
+      kickSpellName: extraAction.extraSpellName,
+      interruptedSpellName: action.spellName ?? 'unknown',
+      sourceName: action.srcUnitName,
+      sourceSpec: enemySpecMap.get(action.srcUnitId) ?? 'Unknown',
+    });
+  }
+  interruptInstances.sort((a, b) => a.atSeconds - b.atSeconds);
+
   return {
     playerName: player.name,
     playerSpec: specToString(player.spec),
@@ -266,6 +410,9 @@ export function analyzePlayerCCAndTrinket(
     ccInstances,
     trinketUseTimes: trinketCastTimestamps.map((ts) => (ts - matchStartMs) / 1000),
     missedTrinketWindows,
+    rootInstances,
+    disarmInstances,
+    interruptInstances,
   };
 }
 
