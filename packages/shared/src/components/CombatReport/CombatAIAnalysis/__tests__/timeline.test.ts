@@ -15,6 +15,7 @@ import { IOutgoingCCChain } from '../../../../utils/drAnalysis';
 import { IEnemyCDTimeline } from '../../../../utils/enemyCDs';
 import { IHealingGap } from '../../../../utils/healingGaps';
 import {
+  buildJsonSituationSnapshot,
   buildMatchTimeline,
   BuildMatchTimelineParams,
   buildPlayerLoadout,
@@ -2757,5 +2758,123 @@ describe('buildResourceSnapshot — root/disarm/kick in cc: line', () => {
     const summary = makeSummaryWithKick('Player1', 20, 5);
     const result = buildResourceSnapshot(minimalParams([summary], 'Player1'));
     expect(result).not.toContain('[kick]');
+  });
+});
+
+describe('buildJsonSituationSnapshot — root/disarm/kick in cc array', () => {
+  // Reuse factory helpers from above describe block
+  function makeSummaryWithRoot(playerName: string, atSeconds: number, durationSeconds: number) {
+    return {
+      playerName,
+      playerSpec: 'Druid_Restoration',
+      trinketType: 'Gladiator' as const,
+      trinketCooldownSeconds: 90,
+      ccInstances: [],
+      trinketUseTimes: [],
+      missedTrinketWindows: [],
+      rootInstances: [
+        {
+          atSeconds,
+          durationSeconds,
+          spellId: '339',
+          spellName: 'Entangling Roots',
+          sourceName: 'EnemyDruid',
+          sourceSpec: 'Druid_Balance',
+        },
+      ],
+      disarmInstances: [],
+      interruptInstances: [],
+    };
+  }
+
+  function makeSummaryWithDisarm(playerName: string, atSeconds: number, durationSeconds: number) {
+    return {
+      playerName,
+      playerSpec: 'Warrior_Arms',
+      trinketType: 'Gladiator' as const,
+      trinketCooldownSeconds: 120,
+      ccInstances: [],
+      trinketUseTimes: [],
+      missedTrinketWindows: [],
+      rootInstances: [],
+      disarmInstances: [
+        {
+          atSeconds,
+          durationSeconds,
+          spellId: '236077',
+          spellName: 'Disarm',
+          sourceName: 'EnemyWarrior',
+          sourceSpec: 'Warrior_Arms',
+        },
+      ],
+      interruptInstances: [],
+    };
+  }
+
+  function makeSummaryWithKick(playerName: string, atSeconds: number, lockoutDurationSeconds: number) {
+    return {
+      playerName,
+      playerSpec: 'Mage_Frost',
+      trinketType: 'Gladiator' as const,
+      trinketCooldownSeconds: 120,
+      ccInstances: [],
+      trinketUseTimes: [],
+      missedTrinketWindows: [],
+      rootInstances: [],
+      disarmInstances: [],
+      interruptInstances: [
+        {
+          atSeconds,
+          lockoutDurationSeconds,
+          kickSpellId: '1766',
+          kickSpellName: 'Kick',
+          interruptedSpellName: 'Frostbolt',
+          sourceName: 'EnemyRogue',
+          sourceSpec: 'Rogue_Subtlety',
+        },
+      ],
+    };
+  }
+
+  function minimalParams(ccTrinketSummaries: unknown[], ownerName: string) {
+    return {
+      timeSeconds: 30,
+      ownerCDs: [],
+      ownerName,
+      ownerSpec: 'Holy Paladin',
+      teammateCDs: [],
+      ccTrinketSummaries: ccTrinketSummaries as IPlayerCCTrinketSummary[],
+      enemyCDTimeline: makeEnemyTimeline(),
+    };
+  }
+
+  it('includes root:true in cc entry when player is rooted at snapshot time', () => {
+    const summary = makeSummaryWithRoot('Player1', 25, 8);
+    const result = buildJsonSituationSnapshot(minimalParams([summary], 'Player1'));
+    const parsed = JSON.parse(result.replace(/^\s+\[SIT\]\s+/, ''));
+    expect(parsed.cc).toBeDefined();
+    expect(parsed.cc[0].root).toBe(true);
+    expect(parsed.cc[0].spell).toBe('Entangling Roots');
+  });
+
+  it('includes disarm:true in cc entry when player is disarmed', () => {
+    const summary = makeSummaryWithDisarm('Player1', 28, 5);
+    const result = buildJsonSituationSnapshot(minimalParams([summary], 'Player1'));
+    const parsed = JSON.parse(result.replace(/^\s+\[SIT\]\s+/, ''));
+    expect(parsed.cc[0].disarm).toBe(true);
+  });
+
+  it('includes kick:true in cc entry when player is within lockout', () => {
+    const summary = makeSummaryWithKick('Player1', 27, 5);
+    const result = buildJsonSituationSnapshot(minimalParams([summary], 'Player1'));
+    const parsed = JSON.parse(result.replace(/^\s+\[SIT\]\s+/, ''));
+    expect(parsed.cc[0].kick).toBe(true);
+  });
+
+  it('omits cc entry for expired kick lockout', () => {
+    const summary = makeSummaryWithKick('Player1', 20, 5);
+    const result = buildJsonSituationSnapshot(minimalParams([summary], 'Player1'));
+    const parsed = JSON.parse(result.replace(/^\s+\[SIT\]\s+/, ''));
+    expect(parsed.cc).toBeUndefined();
   });
 });
