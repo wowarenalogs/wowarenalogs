@@ -6,10 +6,9 @@ Active work items. Completed/N/A items archived in `TRACKER_ARCHIVE.md`.
 
 ## Bugs
 
-| #   | Status  | Description                                                                                                                                                                                                                                                                        | File(s)                               |
-| --- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| B10 | ❌ Open | Trinket item ID lists stale — `ADAPTATION_ITEM_IDS` and `RELENTLESS_ITEM_IDS` are hardcoded and not updated each season. New season gear silently unrecognized → trinket type classified Unknown → trinket analysis disabled for that player                                       | `ccTrinketAnalysis.ts`                |
-| B11 | ❌ Open | Dispel analysis false positive — stolen buffs (e.g. Mage Spellsteal of enemy Freedom) land on a friendly unit. Analysis incorrectly flags these as "forgot to dispel Freedom" when the buff is on a teammate and neither dispellable by the owner nor worth surfacing as a mistake | `ccTrinketAnalysis.ts` (dispel logic) |
+| #   | Status  | Description                                                                                                                                                                                                                                  | File(s)                |
+| --- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| B10 | ❌ Open | Trinket item ID lists stale — `ADAPTATION_ITEM_IDS` and `RELENTLESS_ITEM_IDS` are hardcoded and not updated each season. New season gear silently unrecognized → trinket type classified Unknown → trinket analysis disabled for that player | `ccTrinketAnalysis.ts` |
 
 ---
 
