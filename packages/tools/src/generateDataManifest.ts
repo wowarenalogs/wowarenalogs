@@ -34,6 +34,12 @@ const TRACKED_FILES: Array<{
     wowDataDependent: true,
   },
   {
+    file: 'trinketItemIds.json',
+    description: 'Adaptation and Relentless PvP trinket item IDs from Wago.tools ItemSparse DB2',
+    generatedBy: 'npm run start:generateTrinketItemIds (packages/tools)',
+    wowDataDependent: true,
+  },
+  {
     file: 'talentIdMap.json',
     description: 'Full talent tree structure per spec from Wago.tools Talent API',
     generatedBy: 'npm run start:refreshSpellMetadata (packages/tools)',
