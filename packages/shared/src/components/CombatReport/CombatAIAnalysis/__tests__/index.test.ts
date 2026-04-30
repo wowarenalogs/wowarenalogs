@@ -82,6 +82,9 @@ function makeCCTrinketSummary(
     ccInstances,
     trinketUseTimes: [],
     missedTrinketWindows: [],
+    rootInstances: [],
+    disarmInstances: [],
+    interruptInstances: [],
   };
 }
 

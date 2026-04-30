@@ -296,6 +296,9 @@ function makeEmptyCCTrinketSummary(playerName: string): IPlayerCCTrinketSummary 
     ccInstances: [],
     trinketUseTimes: [],
     missedTrinketWindows: [],
+    rootInstances: [],
+    disarmInstances: [],
+    interruptInstances: [],
   };
 }
 
@@ -2451,6 +2454,9 @@ describe('buildResourceSnapshot — F72 compact [RES] format', () => {
       ccInstances,
       trinketUseTimes,
       missedTrinketWindows: [],
+      rootInstances: [],
+      disarmInstances: [],
+      interruptInstances: [],
     };
   }
 
