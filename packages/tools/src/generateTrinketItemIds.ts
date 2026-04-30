@@ -5,15 +5,25 @@ import path from 'path';
 
 import { WAGO_BUILD, withBuild } from './wagoConfig';
 
-/** Spell ID for the Adaptation auto-break proc — verified from ccTrinketAnalysis.ts */
-const ADAPTATION_PROC_SPELL_ID = '195756';
+/**
+ * Name substring used to identify Adaptation trinkets in ItemSparse.
+ * SL–TWW passive auto-break trinkets are named "… Sigil of Adaptation".
+ * (Older pre-SL items named "… Badge/Medallion of Adaptation" have a different
+ * mechanic and are intentionally excluded by requiring the "Sigil" prefix.)
+ */
+const ADAPTATION_NAME_FRAGMENT = 'Sigil of Adaptation';
 
 /**
- * Column name in ItemEffect CSV for the owning item ID.
- * wago.tools builds 10.x–12.x use "ParentItemID". Change to "ItemID" if the CSV
- * header shows something different (print Object.keys(rows[0]) to verify).
+ * Name substring used to identify Relentless trinkets in ItemSparse.
+ * SL–TWW passive DR trinkets are named "… Relentless Brooch".
  */
-const ITEM_EFFECT_ITEM_ID_COL = 'ParentItemID';
+const RELENTLESS_NAME_FRAGMENT = 'Relentless';
+
+/**
+ * InventoryType value for trinket slots in ItemSparse.
+ * 12 = INVTYPE_TRINKET
+ */
+const TRINKET_INVENTORY_TYPE = '12';
 
 type CsvRow = Record<string, string>;
 
@@ -48,38 +58,38 @@ function uniqueSortedIds(ids: string[]): string[] {
 }
 
 async function main() {
-  console.log(`Fetching ItemEffect + ItemSparse CSVs from wago.tools (build=${WAGO_BUILD})`);
+  console.log(`Fetching ItemSparse CSV from wago.tools (build=${WAGO_BUILD})`);
 
-  const [itemEffectRows, itemSparseRows] = await Promise.all([
-    loadCsv(withBuild('ItemEffect')),
-    loadCsv(withBuild('ItemSparse')),
-  ]);
+  const itemSparseRows = await loadCsv(withBuild('ItemSparse'));
 
-  if (itemEffectRows.length > 0 && itemEffectRows[0][ITEM_EFFECT_ITEM_ID_COL] === undefined) {
-    throw new Error(
-      `ItemEffect CSV missing expected column "${ITEM_EFFECT_ITEM_ID_COL}". ` +
-        `Available columns: ${Object.keys(itemEffectRows[0]).join(', ')}`,
-    );
-  }
   if (itemSparseRows.length > 0 && itemSparseRows[0]['InventoryType'] === undefined) {
     throw new Error(
       `ItemSparse CSV missing expected column "InventoryType". ` +
         `Available columns: ${Object.keys(itemSparseRows[0]).join(', ')}`,
     );
   }
+  if (itemSparseRows.length > 0 && itemSparseRows[0]['Display_lang'] === undefined) {
+    throw new Error(
+      `ItemSparse CSV missing expected column "Display_lang". ` +
+        `Available columns: ${Object.keys(itemSparseRows[0]).join(', ')}`,
+    );
+  }
 
-  // Adaptation: items whose on-equip or proc spell is the Adaptation break (195756)
+  const trinketRows = itemSparseRows.filter((r) => r['InventoryType'] === TRINKET_INVENTORY_TYPE);
+
+  // Adaptation: trinket-slot items whose English name contains "Sigil of Adaptation"
+  // (excludes older pre-SL "Badge/Medallion of Adaptation" which had a different mechanic)
   const adaptationItemIds = uniqueSortedIds(
-    itemEffectRows
-      .filter((r) => r['SpellID'] === ADAPTATION_PROC_SPELL_ID)
-      .map((r) => r[ITEM_EFFECT_ITEM_ID_COL])
+    trinketRows
+      .filter((r) => (r['Display_lang'] ?? '').includes(ADAPTATION_NAME_FRAGMENT))
+      .map((r) => r['ID'])
       .filter(Boolean),
   );
 
   // Relentless: trinket-slot items whose English name contains "Relentless"
   const relentlessItemIds = uniqueSortedIds(
-    itemSparseRows
-      .filter((r) => r['InventoryType'] === '12' && (r['Display_lang'] ?? '').includes('Relentless'))
+    trinketRows
+      .filter((r) => (r['Display_lang'] ?? '').includes(RELENTLESS_NAME_FRAGMENT))
       .map((r) => r['ID'])
       .filter(Boolean),
   );
@@ -87,10 +97,10 @@ async function main() {
   const output = {
     generatedAt: new Date().toISOString(),
     sources: {
-      itemEffectCsv: withBuild('ItemEffect'),
       itemSparseCsv: withBuild('ItemSparse'),
     },
-    adaptationSpellId: ADAPTATION_PROC_SPELL_ID,
+    adaptationNameFragment: ADAPTATION_NAME_FRAGMENT,
+    relentlessNameFragment: RELENTLESS_NAME_FRAGMENT,
     adaptationItemIds,
     relentlessItemIds,
   };
