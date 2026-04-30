@@ -186,6 +186,18 @@ function unitCastSpellIds(unit: ICombatUnit): Set<string> {
 }
 
 /**
+ * Extracts the BUFF/DEBUFF marker from an aura event's raw log line.
+ * Combat-log parameter index 11 holds this for SPELL_AURA_APPLIED, SPELL_AURA_REMOVED,
+ * and SPELL_AURA_BROKEN(_SPELL). Returns null when the marker is absent (older fixtures
+ * or edge log lines) so callers can decide how to treat unknowns.
+ */
+function getAuraType(aura: { logLine: { parameters: (string | number)[] } }): 'BUFF' | 'DEBUFF' | null {
+  const raw = aura.logLine.parameters[11];
+  if (raw === 'BUFF' || raw === 'DEBUFF') return raw;
+  return null;
+}
+
+/**
  * Returns true if a talent-gated spell is confirmed available for the unit.
  * - Has talent data and took the talent → true
  * - Has talent data and didn't take it → false
@@ -607,6 +619,14 @@ export function reconstructDispelSummary(
       // Only CC applied by enemies
       if (!enemyIds.has(aura.srcUnitId)) continue;
 
+      // B11 fix: skip BUFF auras. When a friendly Mage spellsteals an enemy buff (e.g.
+      // Blessing of Freedom 1044), the resulting SPELL_AURA_APPLIED on the Mage carries
+      // the original enemy as srcUnit — but the aura is a BUFF on our side, not a debuff
+      // the healer should cleanse. Without this filter the loop fabricates a missed
+      // cleanse window for every spellsteal.
+      const auraType = getAuraType(aura);
+      if (auraType !== null && auraType !== 'DEBUFF') continue;
+
       const priority = getPriority(spellId);
       if (priority !== 'Critical' && priority !== 'High') continue;
 
@@ -771,6 +791,11 @@ export function reconstructDispelSummary(
         if (!spellId) continue;
         // Only consider buffs applied by the enemy's own side — skip debuffs our team placed on them
         if (!enemyIds.has(aura.srcUnitId)) continue;
+        // Symmetric to the cleanse fix: only treat actual buffs on enemies as purge targets.
+        // A debuff briefly hitting an enemy with an enemy as srcUnit (reflects, cross-team
+        // weirdness) is not something our offensive purge should handle.
+        const auraType = getAuraType(aura);
+        if (auraType !== null && auraType !== 'BUFF') continue;
         if (getDispelType(spellId) !== 'Magic') continue;
         if (PURGE_BLOCKLIST.has(spellId)) continue;
         const priority = getPriority(spellId);

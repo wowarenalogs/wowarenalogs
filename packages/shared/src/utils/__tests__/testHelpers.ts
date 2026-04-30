@@ -92,9 +92,12 @@ export function makeAuraEvent(
   timestamp: number,
   srcUnitId = 'enemy-1',
   destUnitId = 'player-1',
+  auraType: 'BUFF' | 'DEBUFF' = 'DEBUFF',
 ): AnyObj {
+  const parameters: (string | number)[] = [];
+  parameters[11] = auraType;
   return {
-    logLine: { event, timestamp, parameters: [] },
+    logLine: { event, timestamp, parameters },
     timestamp,
     spellId,
     spellName: spellId,
