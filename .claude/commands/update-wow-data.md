@@ -33,6 +33,9 @@ cd <repo-root> && WAGO_BUILD=<LATEST_BUILD> npx ts-node --files --project packag
 
 # 2. Regenerate spell effects data (spellEffects.json)
 cd <repo-root> && WAGO_BUILD=<LATEST_BUILD> npx ts-node --files --project packages/tools/tsconfig.json packages/tools/src/generateSpellsData.ts
+
+# 3. Regenerate PvP trinket item IDs (trinketItemIds.json)
+cd <repo-root> && WAGO_BUILD=<LATEST_BUILD> npx ts-node --files --project packages/tools/tsconfig.json packages/tools/src/generateTrinketItemIds.ts
 ```
 
 > Note: Use `npx ts-node` directly (not `npm run -w`) — the workspace npm script fails because hoisted `node_modules` aren't found by ts-node in that context.
@@ -60,5 +63,6 @@ Report a summary:
 - Scripts live in `packages/tools/src/` and are run via npm workspace scripts
 - The `WAGO_BUILD` env var overrides the hardcoded default build in each script
 - `spellIdLists.json` and `spellEffects.json` are the primary outputs; `spellIdListsReview/` contains human-readable review files
+- `trinketItemIds.json` lists Adaptation ("Sigil of Adaptation") and Relentless PvP trinket item IDs — must be refreshed each season so new gear is recognized by `ccTrinketAnalysis.ts`
 - `spells.json` (BigDebuffs-sourced spell tags) has its own script `start:refreshSpellMetadata` — only run it if the user explicitly asks to update spell tags too
 - After updating, you may want to rebuild: `npm run build:web`

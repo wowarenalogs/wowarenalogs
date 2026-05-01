@@ -839,7 +839,7 @@
     "spellId": "51533",
     "name": "Feral Spirit",
     "cooldownSeconds": 90,
-    "durationSeconds": 0,
+    "durationSeconds": 15,
     "dispelType": null
   },
   "51690": {
@@ -1995,7 +1995,7 @@
     "spellId": "191427",
     "name": "Metamorphosis",
     "cooldownSeconds": 120,
-    "durationSeconds": 0,
+    "durationSeconds": 15,
     "dispelType": null
   },
   "191634": {

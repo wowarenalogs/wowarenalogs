@@ -350,6 +350,9 @@
   "51514": {
     "type": "cc"
   },
+  "51533": {
+    "type": "buffs_offensive"
+  },
   "51690": {
     "type": "buffs_offensive"
   },
@@ -755,9 +758,6 @@
     "type": "cc",
     "parent": 118
   },
-  "162264": {
-    "type": "buffs_offensive"
-  },
   "162480": {
     "type": "roots"
   },
@@ -821,6 +821,9 @@
   },
   "190925": {
     "type": "roots"
+  },
+  "191427": {
+    "type": "buffs_offensive"
   },
   "191634": {
     "type": "buffs_offensive"
@@ -1491,9 +1494,6 @@
   },
   "333889": {
     "type": "buffs_defensive"
-  },
-  "333957": {
-    "type": "buffs_offensive"
   },
   "335467": {
     "type": "debuffs_offensive",
