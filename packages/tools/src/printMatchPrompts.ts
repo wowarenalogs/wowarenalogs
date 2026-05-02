@@ -218,7 +218,7 @@ const STUBS_QUERY = `
   }
 `;
 
-interface MatchStub {
+export interface MatchStub {
   id: string;
   wowVersion: string;
   logObjectUrl: string;
@@ -226,11 +226,11 @@ interface MatchStub {
   startInfo?: { bracket: string };
 }
 
-async function fetchStubs(bracket: string, count: number): Promise<MatchStub[]> {
+export async function fetchStubs(bracket: string, count: number, offset = 0): Promise<MatchStub[]> {
   const res = await fetch(`${API_BASE}/api/graphql`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: STUBS_QUERY, variables: { wowVersion: 'retail', bracket, offset: 0, count } }),
+    body: JSON.stringify({ query: STUBS_QUERY, variables: { wowVersion: 'retail', bracket, offset, count } }),
   });
   if (!res.ok) throw new Error(`GraphQL ${res.status}: ${res.statusText}`);
   const json = (await res.json()) as { data?: { latestMatches?: { combats?: MatchStub[] } }; errors?: unknown[] };
@@ -854,7 +854,7 @@ export function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): str
 // Build new raw timeline prompt — uses buildPlayerLoadout + buildMatchTimeline
 // ---------------------------------------------------------------------------
 
-function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string {
+export function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): string {
   const allUnits = Object.values(combat.units);
   const friends = allUnits.filter(
     (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Friendly,
