@@ -17,7 +17,8 @@
     "start:collectBenchmarks": "ts-node --files ./src/collectBenchmarks.ts",
     "start:printMatchArchetypes": "ts-node --files ./src/printMatchArchetypes.ts",
     "start:printMatchPrompts": "ts-node --files ./src/printMatchPrompts.ts",
-    "start:localBatchAnalysis": "dotenv -- ts-node --files ./src/localBatchAnalysis.ts"
+    "start:localBatchAnalysis": "dotenv -- ts-node --files ./src/localBatchAnalysis.ts",
+    "start:buildHealerPromptCorpus": "ts-node --files ./src/buildHealerPromptCorpus.ts"
   },
   "devDependencies": {
     "@types/node": "^22",

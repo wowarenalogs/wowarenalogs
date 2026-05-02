@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * buildHealerPromptCorpus.ts
  *
@@ -20,7 +19,7 @@
  *   TARGET_COUNT=10 npm run -w @wowarenalogs/tools start:buildHealerPromptCorpus
  */
 
-import { CombatUnitReaction, CombatUnitType, IArenaMatch, ICombatUnit, IShuffleRound } from '@wowarenalogs/parser';
+import { CombatUnitReaction, CombatUnitType, ICombatUnit } from '@wowarenalogs/parser';
 import fs from 'fs-extra';
 import fetch from 'node-fetch';
 import path from 'path';
@@ -95,8 +94,73 @@ async function main() {
   }
 }
 
-// Stubbed in Task 3 — placeholder so the file compiles.
-async function tryProcessStub(_stub: MatchStub, _ordinal: number): Promise<IndexEntry | null> {
+async function tryProcessStub(stub: MatchStub, ordinal: number): Promise<IndexEntry | null> {
+  const date = new Date(stub.startTime).toISOString().slice(0, 10);
+  process.stderr.write(`  [${ordinal}] ${stub.id} (${stub.startInfo?.bracket ?? BRACKET}, ${date})... `);
+
+  let text: string;
+  try {
+    const res = await fetch(stub.logObjectUrl);
+    if (!res.ok) {
+      process.stderr.write(`download failed (${res.status})\n`);
+      return null;
+    }
+    text = await res.text();
+  } catch (e) {
+    process.stderr.write(`download error: ${e}\n`);
+    return null;
+  }
+
+  let combats: ParsedCombat[];
+  try {
+    combats = await parseLogText(text);
+  } catch (e) {
+    process.stderr.write(`parse error: ${e}\n`);
+    return null;
+  }
+
+  for (const combat of combats) {
+    const friends = (Object.values(combat.units) as ICombatUnit[]).filter(
+      (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Friendly,
+    );
+    const owner = friends.find((p) => p.id === combat.playerId);
+    if (!owner) continue;
+    if (!isHealerSpec(owner.spec)) continue;
+
+    const spec = specToString(owner.spec);
+    const durationSec = Math.round((combat.endTime - combat.startTime) / 1000);
+    if (durationSec < 10) continue;
+
+    const combatAny = combat as unknown as Record<string, unknown>;
+    const playerWon =
+      typeof combatAny['winningTeamId'] === 'string' ? combatAny['winningTeamId'] === combat.playerTeamId : null;
+    const result: IndexEntry['result'] = playerWon === true ? 'Win' : playerWon === false ? 'Loss' : 'Unknown';
+    const resultLetter = result === 'Win' ? 'W' : result === 'Loss' ? 'L' : 'U';
+
+    const prompt = buildMatchPromptNew(combat, true);
+    if (!prompt) {
+      process.stderr.write(`empty prompt\n`);
+      return null;
+    }
+
+    const ordinalStr = String(ordinal).padStart(3, '0');
+    const filename = `${ordinalStr}-${sanitizeForFilename(spec)}-${resultLetter}-${sanitizeForFilename(stub.id)}.txt`;
+    const filePath = path.join(PROMPTS_DIR, filename);
+    await fs.writeFile(filePath, prompt, 'utf8');
+
+    process.stderr.write(`wrote ${filename}\n`);
+    return {
+      ordinal,
+      file: path.join('prompts', filename),
+      matchId: stub.id,
+      spec,
+      bracket: combat.startInfo?.bracket ?? BRACKET,
+      result,
+      durationSec,
+    };
+  }
+
+  process.stderr.write(`no healer perspective\n`);
   return null;
 }
 
