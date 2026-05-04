@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-15T06:27:38.227Z",
+  "generatedAt": "2026-04-17T01:16:24.095Z",
   "wagoBuild": "12.0.1.66838",
   "sources": {
     "chrSpecializationCsv": "https://wago.tools/db2/ChrSpecialization/csv?build=12.0.1.66838",
@@ -9,6 +9,9 @@
     "spellNameCsv": "https://wago.tools/db2/SpellName/csv?build=12.0.1.66838",
     "spellCategoriesCsv": "https://wago.tools/db2/SpellCategories/csv?build=12.0.1.66838",
     "spellEffectCsv": "https://wago.tools/db2/SpellEffect/csv?build=12.0.1.66838",
+    "spellLabelCsv": "https://wago.tools/db2/SpellLabel/csv?build=12.0.1.66838",
+    "spellCsv": "https://wago.tools/db2/Spell/csv?build=12.0.1.66838",
+    "skillLineCsv": "https://wago.tools/db2/SkillLine/csv?build=12.0.1.66838",
     "spellIdListsJson": "packages/shared/src/data/spellIdLists.json",
     "talentIdMapJson": "packages/shared/src/data/talentIdMap.json"
   },
@@ -46,9 +49,10 @@
       "specIds": [
         "65",
         "66",
-        "70"
+        "70",
+        "1451"
       ],
-      "source": "TalentTree"
+      "source": "SkillLineAbility"
     },
     {
       "spellId": "19236",
@@ -78,9 +82,10 @@
       "specIds": [
         "259",
         "260",
-        "261"
+        "261",
+        "1453"
       ],
-      "source": "TalentTree"
+      "source": "SkillLineAbility"
     },
     {
       "spellId": "31850",
@@ -148,8 +153,11 @@
     {
       "spellId": "50322",
       "name": "Survival Instincts",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "103",
+        "104"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "53480",
@@ -241,8 +249,12 @@
     {
       "spellId": "120954",
       "name": "Fortifying Brew",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "268",
+        "269",
+        "270"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "184364",
@@ -266,20 +278,27 @@
     {
       "spellId": "199448",
       "name": "Blessing of Sacrifice",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "65"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "207771",
       "name": "Fiery Brand",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "581"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "212800",
       "name": "Blur",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "577",
+        "1480"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "243435",
@@ -339,9 +358,10 @@
       "specIds": [
         "65",
         "66",
-        "70"
+        "70",
+        "1451"
       ],
-      "source": "TalentTree"
+      "source": "SkillLineAbility"
     },
     {
       "spellId": "6940",
@@ -349,9 +369,10 @@
       "specIds": [
         "65",
         "66",
-        "70"
+        "70",
+        "1451"
       ],
-      "source": "TalentTree"
+      "source": "SkillLineAbility"
     },
     {
       "spellId": "33206",
@@ -459,9 +480,10 @@
       "specIds": [
         "65",
         "66",
-        "70"
+        "70",
+        "1451"
       ],
-      "source": "TalentTree"
+      "source": "SkillLineAbility"
     },
     {
       "spellId": "5277",
@@ -469,15 +491,20 @@
       "specIds": [
         "259",
         "260",
-        "261"
+        "261",
+        "1453"
       ],
-      "source": "TalentTree"
+      "source": "SkillLineAbility"
     },
     {
       "spellId": "8178",
       "name": "Grounding Totem",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "262",
+        "263",
+        "264"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "12472",
@@ -529,9 +556,10 @@
       "specIds": [
         "65",
         "66",
-        "70"
+        "70",
+        "1451"
       ],
-      "source": "TalentTree"
+      "source": "SkillLineAbility"
     },
     {
       "spellId": "45438",
@@ -719,14 +747,19 @@
     {
       "spellId": "110909",
       "name": "Alter Time",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "62",
+        "63",
+        "64"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "114051",
       "name": "Ascendance",
       "specIds": [
-        "263"
+        "263",
+        "264"
       ],
       "source": "TalentTree"
     },
@@ -927,8 +960,10 @@
     {
       "spellId": "194249",
       "name": "Voidform",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "258"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "198067",
@@ -954,8 +989,10 @@
     {
       "spellId": "199448",
       "name": "Blessing of Sacrifice",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "65"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "204018",
@@ -996,8 +1033,11 @@
     {
       "spellId": "212800",
       "name": "Blur",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "577",
+        "1480"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "216331",
@@ -1238,8 +1278,10 @@
     {
       "spellId": "365362",
       "name": "Arcane Surge",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "62"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "367679",
@@ -1280,8 +1322,12 @@
     {
       "spellId": "378464",
       "name": "Nullifying Shroud",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "1467",
+        "1468",
+        "1473"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "383410",
@@ -1374,8 +1420,12 @@
     {
       "spellId": "408558",
       "name": "Phase Shift",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "256",
+        "257",
+        "258"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "410358",
@@ -1492,14 +1542,18 @@
     {
       "spellId": "454351",
       "name": "Avenging Wrath",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "70"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "454373",
       "name": "Avenging Wrath",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "70"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "461796",
@@ -1516,8 +1570,10 @@
     {
       "spellId": "466772",
       "name": "Doom Winds",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "263"
+      ],
+      "source": "TalentTree"
     },
     {
       "spellId": "468966",
@@ -1704,8 +1760,12 @@
     {
       "spellId": "1246965",
       "name": "Psychic Shroud",
-      "specIds": [],
-      "source": "unresolved"
+      "specIds": [
+        "256",
+        "257",
+        "258"
+      ],
+      "source": "DescriptionRef"
     },
     {
       "spellId": "1249017",
@@ -2292,6 +2352,22 @@
         ]
       },
       {
+        "spellId": "33395",
+        "name": "Freeze",
+        "specIds": [
+          "64"
+        ]
+      },
+      {
+        "spellId": "64695",
+        "name": "Earthgrab",
+        "specIds": [
+          "262",
+          "263",
+          "264"
+        ]
+      },
+      {
         "spellId": "102359",
         "name": "Mass Entanglement",
         "specIds": [
@@ -2299,6 +2375,50 @@
           "103",
           "104",
           "105"
+        ]
+      },
+      {
+        "spellId": "114404",
+        "name": "Void Tendrils",
+        "specIds": [
+          "256",
+          "257",
+          "258"
+        ]
+      },
+      {
+        "spellId": "116706",
+        "name": "Disable",
+        "specIds": [
+          "268",
+          "269",
+          "270"
+        ]
+      },
+      {
+        "spellId": "136634",
+        "name": "Narrow Escape",
+        "specIds": [
+          "253",
+          "254",
+          "255",
+          "1448"
+        ]
+      },
+      {
+        "spellId": "170855",
+        "name": "Entangling Roots",
+        "specIds": [
+          "105"
+        ]
+      },
+      {
+        "spellId": "199042",
+        "name": "Thunderstruck",
+        "specIds": [
+          "71",
+          "72",
+          "73"
         ]
       },
       {
@@ -2315,6 +2435,50 @@
           "71",
           "72",
           "73"
+        ]
+      },
+      {
+        "spellId": "355689",
+        "name": "Landslide",
+        "specIds": [
+          "1467",
+          "1468",
+          "1473"
+        ]
+      },
+      {
+        "spellId": "370970",
+        "name": "The Hunt",
+        "specIds": [
+          "577",
+          "1480"
+        ]
+      },
+      {
+        "spellId": "386770",
+        "name": "Freezing Cold",
+        "specIds": [
+          "62",
+          "63",
+          "64"
+        ]
+      },
+      {
+        "spellId": "454787",
+        "name": "Ice Prison",
+        "specIds": [
+          "250",
+          "251",
+          "252"
+        ]
+      },
+      {
+        "spellId": "1258862",
+        "name": "Encasing Cold",
+        "specIds": [
+          "262",
+          "263",
+          "264"
         ]
       }
     ],
@@ -2375,6 +2539,16 @@
           "103",
           "104",
           "105"
+        ]
+      },
+      {
+        "spellId": "116189",
+        "name": "Provoke",
+        "specIds": [
+          "268",
+          "269",
+          "270",
+          "1450"
         ]
       },
       {
@@ -2447,12 +2621,42 @@
         ]
       },
       {
+        "spellId": "24394",
+        "name": "Intimidation",
+        "specIds": [
+          "253",
+          "254",
+          "255"
+        ]
+      },
+      {
         "spellId": "30283",
         "name": "Shadowfury",
         "specIds": [
           "265",
           "266",
           "267"
+        ]
+      },
+      {
+        "spellId": "89766",
+        "name": "Axe Toss",
+        "specIds": [
+          "266"
+        ]
+      },
+      {
+        "spellId": "91797",
+        "name": "Monstrous Blow",
+        "specIds": [
+          "252"
+        ]
+      },
+      {
+        "spellId": "91800",
+        "name": "Gnaw",
+        "specIds": [
+          "252"
         ]
       },
       {
@@ -2465,23 +2669,30 @@
         ]
       },
       {
-        "spellId": "117418",
-        "name": "Fists of Fury",
-        "specIds": [
-          "268",
-          "269",
-          "270",
-          "1450"
-        ]
-      },
-      {
         "spellId": "117526",
         "name": "Binding Shot",
         "specIds": [
           "253",
           "254",
-          "255",
-          "1448"
+          "255"
+        ]
+      },
+      {
+        "spellId": "118345",
+        "name": "Pulverize",
+        "specIds": [
+          "262",
+          "263",
+          "264"
+        ]
+      },
+      {
+        "spellId": "118905",
+        "name": "Capacitor Totem",
+        "specIds": [
+          "262",
+          "263",
+          "264"
         ]
       },
       {
@@ -2495,11 +2706,87 @@
         ]
       },
       {
+        "spellId": "132168",
+        "name": "Shockwave",
+        "specIds": [
+          "71",
+          "72",
+          "73"
+        ]
+      },
+      {
+        "spellId": "132169",
+        "name": "Storm Bolt",
+        "specIds": [
+          "71",
+          "72",
+          "73"
+        ]
+      },
+      {
+        "spellId": "163505",
+        "name": "Rake",
+        "specIds": [
+          "102",
+          "103",
+          "104",
+          "105"
+        ]
+      },
+      {
+        "spellId": "171017",
+        "name": "Meteor Strike",
+        "specIds": [
+          "267"
+        ]
+      },
+      {
         "spellId": "179057",
         "name": "Chaos Nova",
         "specIds": [
           "577",
           "581"
+        ]
+      },
+      {
+        "spellId": "200166",
+        "name": "Metamorphosis",
+        "specIds": [
+          "577",
+          "581",
+          "1456",
+          "1480"
+        ]
+      },
+      {
+        "spellId": "200200",
+        "name": "Holy Word: Chastise",
+        "specIds": [
+          "257"
+        ]
+      },
+      {
+        "spellId": "202244",
+        "name": "Overrun",
+        "specIds": [
+          "104"
+        ]
+      },
+      {
+        "spellId": "202346",
+        "name": "Double Barrel",
+        "specIds": [
+          "268"
+        ]
+      },
+      {
+        "spellId": "205290",
+        "name": "Wake of Ashes",
+        "specIds": [
+          "65",
+          "66",
+          "70",
+          "1451"
         ]
       },
       {
@@ -2511,12 +2798,86 @@
         ]
       },
       {
+        "spellId": "210141",
+        "name": "Reanimation",
+        "specIds": [
+          "252"
+        ]
+      },
+      {
+        "spellId": "212332",
+        "name": "Smash",
+        "specIds": [
+          "252"
+        ]
+      },
+      {
+        "spellId": "212337",
+        "name": "Powerful Smash",
+        "specIds": [
+          "252"
+        ]
+      },
+      {
         "spellId": "221562",
         "name": "Asphyxiate",
         "specIds": [
           "250",
           "251",
           "252"
+        ]
+      },
+      {
+        "spellId": "255941",
+        "name": "Wake of Ashes",
+        "specIds": [
+          "70"
+        ]
+      },
+      {
+        "spellId": "305485",
+        "name": "Lightning Lasso",
+        "specIds": [
+          "262",
+          "263",
+          "264"
+        ]
+      },
+      {
+        "spellId": "357021",
+        "name": "Consecutive Concussion",
+        "specIds": [
+          "254"
+        ]
+      },
+      {
+        "spellId": "372245",
+        "name": "Terror of the Skies",
+        "specIds": [
+          "1467",
+          "1468",
+          "1473"
+        ]
+      },
+      {
+        "spellId": "377048",
+        "name": "Absolute Zero",
+        "specIds": [
+          "251"
+        ]
+      },
+      {
+        "spellId": "385954",
+        "name": "Shield Charge",
+        "specIds": [
+          "73"
+        ]
+      },
+      {
+        "spellId": "389831",
+        "name": "Snowdrift",
+        "specIds": [
+          "64"
         ]
       },
       {
@@ -2542,8 +2903,7 @@
           "102",
           "103",
           "104",
-          "105",
-          "1447"
+          "105"
         ]
       },
       {
@@ -2614,6 +2974,16 @@
         ]
       },
       {
+        "spellId": "3355",
+        "name": "Freezing Trap",
+        "specIds": [
+          "253",
+          "254",
+          "255",
+          "1448"
+        ]
+      },
+      {
         "spellId": "6770",
         "name": "Sap",
         "specIds": [
@@ -2647,27 +3017,8 @@
         "specIds": [
           "65",
           "66",
-          "70"
-        ]
-      },
-      {
-        "spellId": "28271",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
-        ]
-      },
-      {
-        "spellId": "28272",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
+          "70",
+          "1451"
         ]
       },
       {
@@ -2680,43 +3031,12 @@
         ]
       },
       {
-        "spellId": "61025",
-        "name": "Polymorph",
+        "spellId": "82691",
+        "name": "Ring of Frost",
         "specIds": [
           "62",
           "63",
-          "64",
-          "1449"
-        ]
-      },
-      {
-        "spellId": "61305",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
-        ]
-      },
-      {
-        "spellId": "61721",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
-        ]
-      },
-      {
-        "spellId": "61780",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
+          "64"
         ]
       },
       {
@@ -2736,53 +3056,26 @@
         ]
       },
       {
-        "spellId": "126819",
-        "name": "Polymorph",
+        "spellId": "200196",
+        "name": "Holy Word: Chastise",
         "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
+          "257"
         ]
       },
       {
-        "spellId": "161353",
-        "name": "Polymorph",
+        "spellId": "202274",
+        "name": "Hot Trub",
         "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
+          "268"
         ]
       },
       {
-        "spellId": "161354",
-        "name": "Polymorph",
+        "spellId": "203337",
+        "name": "Freezing Trap",
         "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
-        ]
-      },
-      {
-        "spellId": "161355",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
-        ]
-      },
-      {
-        "spellId": "161372",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
+          "253",
+          "254",
+          "255"
         ]
       },
       {
@@ -2795,46 +3088,6 @@
         ]
       },
       {
-        "spellId": "210873",
-        "name": "Hex",
-        "specIds": [
-          "262",
-          "263",
-          "264",
-          "1444"
-        ]
-      },
-      {
-        "spellId": "211004",
-        "name": "Hex",
-        "specIds": [
-          "262",
-          "263",
-          "264",
-          "1444"
-        ]
-      },
-      {
-        "spellId": "211010",
-        "name": "Hex",
-        "specIds": [
-          "262",
-          "263",
-          "264",
-          "1444"
-        ]
-      },
-      {
-        "spellId": "211015",
-        "name": "Hex",
-        "specIds": [
-          "262",
-          "263",
-          "264",
-          "1444"
-        ]
-      },
-      {
         "spellId": "217832",
         "name": "Imprison",
         "specIds": [
@@ -2844,73 +3097,12 @@
         ]
       },
       {
-        "spellId": "269352",
-        "name": "Hex",
-        "specIds": [
-          "262",
-          "263",
-          "264",
-          "1444"
-        ]
-      },
-      {
-        "spellId": "277778",
-        "name": "Hex",
-        "specIds": [
-          "262",
-          "263",
-          "264",
-          "1444"
-        ]
-      },
-      {
-        "spellId": "277784",
-        "name": "Hex",
-        "specIds": [
-          "262",
-          "263",
-          "264",
-          "1444"
-        ]
-      },
-      {
-        "spellId": "277787",
-        "name": "Polymorph",
+        "spellId": "353084",
+        "name": "Ring of Fire",
         "specIds": [
           "62",
           "63",
-          "64",
-          "1449"
-        ]
-      },
-      {
-        "spellId": "277792",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
-        ]
-      },
-      {
-        "spellId": "309328",
-        "name": "Hex",
-        "specIds": [
-          "262",
-          "263",
-          "264",
-          "1444"
-        ]
-      },
-      {
-        "spellId": "321395",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
+          "64"
         ]
       },
       {
@@ -2920,26 +3112,6 @@
           "62",
           "63",
           "64"
-        ]
-      },
-      {
-        "spellId": "391622",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
-        ]
-      },
-      {
-        "spellId": "460392",
-        "name": "Polymorph",
-        "specIds": [
-          "62",
-          "63",
-          "64",
-          "1449"
         ]
       }
     ],
@@ -2968,7 +3140,8 @@
         "specIds": [
           "259",
           "260",
-          "261"
+          "261",
+          "1453"
         ]
       },
       {
@@ -3004,7 +3177,8 @@
         "specIds": [
           "65",
           "66",
-          "70"
+          "70",
+          "1451"
         ]
       },
       {
@@ -3027,12 +3201,47 @@
         ]
       },
       {
+        "spellId": "105421",
+        "name": "Blinding Light",
+        "specIds": [
+          "65",
+          "66",
+          "70"
+        ]
+      },
+      {
+        "spellId": "118699",
+        "name": "Fear",
+        "specIds": [
+          "265",
+          "266",
+          "267",
+          "1454"
+        ]
+      },
+      {
         "spellId": "130616",
         "name": "Fear",
         "specIds": [
           "265",
           "266",
           "267"
+        ]
+      },
+      {
+        "spellId": "198909",
+        "name": "Song of Chi-Ji",
+        "specIds": [
+          "268",
+          "269",
+          "270"
+        ]
+      },
+      {
+        "spellId": "202274",
+        "name": "Hot Trub",
+        "specIds": [
+          "268"
         ]
       },
       {
@@ -3054,6 +3263,15 @@
         ]
       },
       {
+        "spellId": "207685",
+        "name": "Sigil of Misery",
+        "specIds": [
+          "577",
+          "581",
+          "1480"
+        ]
+      },
+      {
         "spellId": "360806",
         "name": "Sleep Walk",
         "specIds": [
@@ -3064,6 +3282,13 @@
       }
     ],
     "silence": [
+      {
+        "spellId": "1330",
+        "name": "Garrote - Silence",
+        "specIds": [
+          "259"
+        ]
+      },
       {
         "spellId": "15487",
         "name": "Silence",
@@ -3079,13 +3304,26 @@
         ]
       },
       {
-        "spellId": "355596",
-        "name": "Wailing Arrow",
+        "spellId": "204490",
+        "name": "Sigil of Silence",
         "specIds": [
-          "253",
-          "254",
-          "255",
-          "1448"
+          "581"
+        ]
+      },
+      {
+        "spellId": "374776",
+        "name": "Tightening Grasp",
+        "specIds": [
+          "250"
+        ]
+      },
+      {
+        "spellId": "1277104",
+        "name": "Javelineer",
+        "specIds": [
+          "71",
+          "72",
+          "73"
         ]
       }
     ],
@@ -3120,6 +3358,13 @@
           "71",
           "72",
           "73"
+        ]
+      },
+      {
+        "spellId": "407032",
+        "name": "Sticky Tar Bomb",
+        "specIds": [
+          "255"
         ]
       }
     ]
@@ -3156,6 +3401,16 @@
       ]
     },
     {
+      "spellId": "19647",
+      "name": "Spell Lock",
+      "specIds": [
+        "265",
+        "266",
+        "267",
+        "1454"
+      ]
+    },
+    {
       "spellId": "47528",
       "name": "Mind Freeze",
       "specIds": [
@@ -3171,6 +3426,21 @@
         "262",
         "263",
         "264"
+      ]
+    },
+    {
+      "spellId": "91807",
+      "name": "Shambling Rush",
+      "specIds": [
+        "252"
+      ]
+    },
+    {
+      "spellId": "93985",
+      "name": "Skull Bash",
+      "specIds": [
+        "103",
+        "104"
       ]
     },
     {
@@ -3198,6 +3468,13 @@
       ]
     },
     {
+      "spellId": "171138",
+      "name": "Shadow Lock",
+      "specIds": [
+        "266"
+      ]
+    },
+    {
       "spellId": "183752",
       "name": "Disrupt",
       "specIds": [
@@ -3212,6 +3489,13 @@
       "name": "Muzzle",
       "specIds": [
         "255"
+      ]
+    },
+    {
+      "spellId": "263715",
+      "name": "Silence",
+      "specIds": [
+        "258"
       ]
     },
     {
@@ -3232,18 +3516,6 @@
   ],
   "unresolvedSpells": [
     {
-      "spellId": "50322",
-      "name": "Survival Instincts",
-      "category": "bigDefensive",
-      "talentSpellIds": [
-        "61336"
-      ],
-      "talentSpecIds": [
-        "103",
-        "104"
-      ]
-    },
-    {
       "spellId": "81549",
       "name": "Cloak of Shadows",
       "category": "bigDefensive",
@@ -3254,43 +3526,6 @@
         "259",
         "260",
         "261"
-      ]
-    },
-    {
-      "spellId": "120954",
-      "name": "Fortifying Brew",
-      "category": "bigDefensive",
-      "talentSpellIds": [
-        "388917"
-      ],
-      "talentSpecIds": [
-        "268",
-        "269",
-        "270"
-      ]
-    },
-    {
-      "spellId": "199448",
-      "name": "Blessing of Sacrifice",
-      "category": "bigDefensive",
-      "talentSpellIds": [
-        "6940"
-      ],
-      "talentSpecIds": [
-        "65",
-        "66",
-        "70"
-      ]
-    },
-    {
-      "spellId": "207771",
-      "name": "Fiery Brand",
-      "category": "bigDefensive",
-      "talentSpellIds": [
-        "204021"
-      ],
-      "talentSpecIds": [
-        "581"
       ]
     },
     {
@@ -3331,48 +3566,11 @@
       ]
     },
     {
-      "spellId": "110909",
-      "name": "Alter Time",
-      "category": "important",
-      "talentSpellIds": [
-        "342245"
-      ],
-      "talentSpecIds": [
-        "62",
-        "63",
-        "64"
-      ]
-    },
-    {
       "spellId": "152953",
       "name": "Blinding Light",
       "category": "important",
       "talentSpellIds": [
         "115750"
-      ],
-      "talentSpecIds": [
-        "65",
-        "66",
-        "70"
-      ]
-    },
-    {
-      "spellId": "194249",
-      "name": "Voidform",
-      "category": "important",
-      "talentSpellIds": [
-        "228260"
-      ],
-      "talentSpecIds": [
-        "258"
-      ]
-    },
-    {
-      "spellId": "199448",
-      "name": "Blessing of Sacrifice",
-      "category": "important",
-      "talentSpellIds": [
-        "6940"
       ],
       "talentSpecIds": [
         "65",
@@ -3429,17 +3627,6 @@
       ]
     },
     {
-      "spellId": "365362",
-      "name": "Arcane Surge",
-      "category": "important",
-      "talentSpellIds": [
-        "365350"
-      ],
-      "talentSpecIds": [
-        "62"
-      ]
-    },
-    {
       "spellId": "387278",
       "name": "Summon Darkglare",
       "category": "important",
@@ -3481,39 +3668,6 @@
       ],
       "talentSpecIds": [
         "268"
-      ]
-    },
-    {
-      "spellId": "454351",
-      "name": "Avenging Wrath",
-      "category": "important",
-      "talentSpellIds": [
-        "31884"
-      ],
-      "talentSpecIds": [
-        "70"
-      ]
-    },
-    {
-      "spellId": "454373",
-      "name": "Avenging Wrath",
-      "category": "important",
-      "talentSpellIds": [
-        "31884"
-      ],
-      "talentSpecIds": [
-        "70"
-      ]
-    },
-    {
-      "spellId": "466772",
-      "name": "Doom Winds",
-      "category": "important",
-      "talentSpellIds": [
-        "384352"
-      ],
-      "talentSpecIds": [
-        "263"
       ]
     },
     {

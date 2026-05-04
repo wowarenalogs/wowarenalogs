@@ -15,6 +15,9 @@ const SOURCE_TABLES = {
   spellName: withBuild('SpellName'),
   spellCategories: withBuild('SpellCategories'),
   spellEffect: withBuild('SpellEffect'),
+  spellLabel: withBuild('SpellLabel'),
+  spell: withBuild('Spell'),
+  skillLine: withBuild('SkillLine'),
 };
 
 // Class skill line IDs from the WoW DB2 SkillLine table.
@@ -134,7 +137,14 @@ interface SpellClassEntry {
   spellId: string;
   name: string;
   specIds: string[];
-  source: 'SpecializationSpells' | 'PvpTalent' | 'SkillLineAbility' | 'TalentTree' | 'unresolved';
+  source:
+    | 'SpecializationSpells'
+    | 'PvpTalent'
+    | 'SkillLineAbility'
+    | 'TalentTree'
+    | 'PetSkillLine'
+    | 'DescriptionRef'
+    | 'unresolved';
 }
 
 /** Spells flagged by DB2 attributes that share a name with a talent but couldn't be ID-resolved. */
@@ -170,6 +180,9 @@ interface IGeneratedSpellClassMap {
     spellNameCsv: string;
     spellCategoriesCsv: string;
     spellEffectCsv: string;
+    spellLabelCsv: string;
+    spellCsv: string;
+    skillLineCsv: string;
     spellIdListsJson: string;
     talentIdMapJson: string;
   };
@@ -191,16 +204,29 @@ interface IGeneratedSpellClassMap {
 async function main() {
   console.log(`Downloading DB2 CSVs from wago.tools (build=${WAGO_BUILD})\n`);
 
-  const [chrSpecRows, specSpellRows, skillLineRows, pvpTalentRows, spellNameRows, spellCategoryRows, spellEffectRows] =
-    await Promise.all([
-      loadCsv(SOURCE_TABLES.chrSpecialization),
-      loadCsv(SOURCE_TABLES.specializationSpells),
-      loadCsv(SOURCE_TABLES.skillLineAbility),
-      loadCsv(SOURCE_TABLES.pvpTalent),
-      loadCsv(SOURCE_TABLES.spellName),
-      loadCsv(SOURCE_TABLES.spellCategories),
-      loadCsv(SOURCE_TABLES.spellEffect),
-    ]);
+  const [
+    chrSpecRows,
+    specSpellRows,
+    skillLineRows,
+    pvpTalentRows,
+    spellNameRows,
+    spellCategoryRows,
+    spellEffectRows,
+    spellLabelRows,
+    spellRows,
+    skillLineDefRows,
+  ] = await Promise.all([
+    loadCsv(SOURCE_TABLES.chrSpecialization),
+    loadCsv(SOURCE_TABLES.specializationSpells),
+    loadCsv(SOURCE_TABLES.skillLineAbility),
+    loadCsv(SOURCE_TABLES.pvpTalent),
+    loadCsv(SOURCE_TABLES.spellName),
+    loadCsv(SOURCE_TABLES.spellCategories),
+    loadCsv(SOURCE_TABLES.spellEffect),
+    loadCsv(SOURCE_TABLES.spellLabel),
+    loadCsv(SOURCE_TABLES.spell),
+    loadCsv(SOURCE_TABLES.skillLine),
+  ]);
 
   // ── 1. Build spec info lookup: specId → { classId, specName } ───
   // ChrSpecialization columns: Name_lang, ID, ClassID, ...
@@ -273,7 +299,12 @@ async function main() {
   // ── 3. Build spell → classId from SkillLineAbility ──────────────
   // Columns: ..., SkillLine, Spell, ..., AcquireMethod, ...
   // Only keep rows where SkillLine is a known class skill ID.
-  // Following simc's filter: exclude AcquireMethod 3.
+  // AcquireMethod filtering: only include entries with AcquireMethod >= 2.
+  // AcquireMethod=0 entries are legacy/deprecated spells that were never
+  // cleaned up (e.g. Fists of Fury 117418 still listed as class-wide Monk
+  // even though it's Windwalker-only and no longer stuns).
+  // AcquireMethod=2 = auto-learned baseline, 3 = learned via other means,
+  // 4 = base variant of cosmetic set (e.g. Polymorph sheep).
   const classSpellMap = new Map<string, Set<number>>();
 
   for (const row of skillLineRows) {
@@ -285,7 +316,7 @@ async function main() {
     if (!spellId || spellId === '0') continue;
 
     const acquireMethod = toInt(row.AcquireMethod);
-    if (acquireMethod === 3) continue;
+    if (acquireMethod < 2) continue;
 
     const existingClasses = classSpellMap.get(spellId) ?? new Set<number>();
     existingClasses.add(classId);
@@ -391,6 +422,63 @@ async function main() {
   );
   console.log(`Built override map: ${overrideMap.size} talent spells with Override Action Spell effects`);
 
+  // ── 4d. Build totem spell linkage from SpellLabel ──────────────
+  // SpellLabel 1660 groups totem placement spells with their effect spells.
+  // e.g. Capacitor Totem placement (192058) shares label 1660 with the
+  // stun effect (118905). This lets us attribute totem CC effects to the
+  // specs that have the placement talent.
+  const TOTEM_LABEL_ID = '1660';
+  const totemLabelSpellIds = new Set<string>();
+  for (const row of spellLabelRows) {
+    if (row.LabelID === TOTEM_LABEL_ID) {
+      totemLabelSpellIds.add(row.SpellID);
+    }
+  }
+  console.log(`Built totem label index (label ${TOTEM_LABEL_ID}): ${totemLabelSpellIds.size} spells`);
+
+  // ── 4e. Build description-referenced spell map from Spell table ──
+  // Spell descriptions reference other spell IDs for duration display via
+  // $SPELLIDd syntax (e.g. "stunning them for $117526d"). This links talent
+  // placement spells to their CC effect spells (e.g. Binding Shot 109248
+  // references stun 117526). We only match duration references ($IDd) to
+  // avoid false positives from damage coefficient references ($IDs1).
+  const descriptionRefMap = new Map<string, Set<string>>();
+  const DURATION_REF_REGEX = /\$(\d{4,})d/g;
+
+  for (const row of spellRows) {
+    const spellId = row.ID;
+    if (!spellId || spellId === '0') continue;
+    const desc = row.Description_lang || '';
+    if (!desc) continue;
+
+    let match;
+    DURATION_REF_REGEX.lastIndex = 0;
+    while ((match = DURATION_REF_REGEX.exec(desc)) !== null) {
+      const refId = match[1];
+      if (refId === spellId) continue;
+      const existing = descriptionRefMap.get(spellId) ?? new Set<string>();
+      existing.add(refId);
+      descriptionRefMap.set(spellId, existing);
+    }
+  }
+
+  console.log(`Built description reference map: ${descriptionRefMap.size} spells with duration references`);
+
+  // ── 4f. Build reverse description-reference index ──────────────
+  // For each child spell C, list parents P where P's description contains
+  // $Cd (duration reference). Used at the lowest resolution priority to
+  // attribute orphan aura-spell IDs (e.g. Lightning Lasso stun 305485,
+  // referenced by PvP talent cast 305483) to the specs that own the parent.
+  const reverseDescriptionRefMap = new Map<string, Set<string>>();
+  descriptionRefMap.forEach((refs, parentId) => {
+    refs.forEach((refId) => {
+      const existing = reverseDescriptionRefMap.get(refId) ?? new Set<string>();
+      existing.add(parentId);
+      reverseDescriptionRefMap.set(refId, existing);
+    });
+  });
+  console.log(`Built reverse description reference map: ${reverseDescriptionRefMap.size} referenced spells`);
+
   // ── 5. Load existing spellIdLists.json and talentIdMap.json ─────
   const spellIdListsPath = path.resolve(__dirname, '../../shared/src/data/spellIdLists.json');
   const spellIdLists = await fs.readJson(spellIdListsPath);
@@ -436,6 +524,27 @@ async function main() {
             }
           });
         }
+        // If this talent spell shares SpellLabel 1660 (totem label) with other
+        // spells, index those too. This links totem placements to their effects
+        // (e.g. Capacitor Totem 192058 → stun 118905).
+        if (totemLabelSpellIds.has(spellId)) {
+          totemLabelSpellIds.forEach((labeledId) => {
+            if (labeledId !== spellId && !idsToIndex.includes(labeledId)) {
+              idsToIndex.push(labeledId);
+            }
+          });
+        }
+        // If this talent spell's description references other spell IDs via
+        // $SPELLIDd (duration), index those too. This links talent casters to
+        // their CC effects (e.g. Binding Shot 109248 → stun 117526).
+        const descRefs = descriptionRefMap.get(spellId);
+        if (descRefs) {
+          descRefs.forEach((refId) => {
+            if (!idsToIndex.includes(refId)) {
+              idsToIndex.push(refId);
+            }
+          });
+        }
 
         for (const id of idsToIndex) {
           const existingSpell = talentSpellMap.get(id) ?? new Set<number>();
@@ -456,6 +565,105 @@ async function main() {
 
   console.log(
     `Built talent tree index: ${talentSpellMap.size} unique spell IDs, ${talentNameMap.size} unique spell names`,
+  );
+
+  // ── 6b. Build pet ability → specIds via SkillLine "Pet - ..." rows ─
+  // Pet abilities (e.g. Water Elemental's Freeze, Felguard's Axe Toss) live
+  // in DB2 SkillLine rows whose DisplayName_lang starts with "Pet - ".
+  // They aren't in SpecializationSpells, class SkillLineAbility, or talent
+  // trees — so priorities 1–3 cannot attribute them. We resolve them by
+  // deriving candidate summoning-spell names from each pet SkillLine's
+  // display name, looking those names up in SpellName, then routing the
+  // resulting spell IDs through the already-built class sources.
+  //
+  // Known shortfall: Blizzard sometimes renames the summon spell away from
+  // the pet's SkillLine name (e.g. Succubus → "Summon Sayaad", Ghoul →
+  // "Raise Dead"). See packages/tools/docs/PET_ABILITY_RESOLUTION.md.
+
+  // Step 1: Build name → spellIds reverse index.
+  const spellIdsByName = new Map<string, Set<string>>();
+  spellNamesById.forEach((name, spellId) => {
+    if (!name) return;
+    const key = name.toLowerCase();
+    const existing = spellIdsByName.get(key) ?? new Set<string>();
+    existing.add(spellId);
+    spellIdsByName.set(key, existing);
+  });
+
+  // Step 2: Resolve a summon-spell candidate name to specIds using only the
+  // already-built class sources (no PvP, no pet recursion).
+  function resolveOwningSpecsByName(candidateName: string): Set<string> {
+    const specs = new Set<string>();
+    const ids = spellIdsByName.get(candidateName.toLowerCase());
+    if (!ids) return specs;
+    Array.from(ids).forEach((sid) => {
+      specSpellMap.get(sid)?.forEach((s) => specs.add(s));
+      classSpellMap.get(sid)?.forEach((classId) => {
+        (specIdsByClassId.get(classId) ?? []).forEach((s) => specs.add(String(s)));
+      });
+      talentSpellMap.get(sid)?.forEach((specId) => specs.add(String(specId)));
+    });
+    return specs;
+  }
+
+  // Step 3: Derive candidate summon names from a pet DisplayName.
+  function petNameCandidates(displayName: string): string[] {
+    let petName = displayName.slice('Pet - '.length).trim();
+    const minorSuffix = ' Minor Talent Version';
+    if (petName.endsWith(minorSuffix)) {
+      petName = petName.slice(0, -minorSuffix.length).trim();
+    }
+    const cands = new Set<string>();
+    cands.add(`Summon ${petName}`);
+    cands.add(`Summon ${petName}s`);
+    cands.add(petName);
+    cands.add(`Raise ${petName}`);
+    if (petName.startsWith('Primal ')) {
+      const stripped = petName.slice('Primal '.length).trim();
+      cands.add(stripped);
+      cands.add(`Summon ${stripped}`);
+      cands.add(`Summon ${stripped}s`);
+    }
+    return Array.from(cands);
+  }
+
+  // Step 4: For each "Pet - ..." SkillLine, compute owning specs.
+  const petSkillLineSpecs = new Map<number, Set<string>>();
+  let petSkillLineCount = 0;
+  for (const row of skillLineDefRows) {
+    const displayName = row.DisplayName_lang || '';
+    if (!displayName.startsWith('Pet - ')) continue;
+    petSkillLineCount++;
+    const skillLineId = toInt(row.ID);
+    if (!skillLineId) continue;
+
+    const owning = new Set<string>();
+    for (const cand of petNameCandidates(displayName)) {
+      resolveOwningSpecsByName(cand).forEach((s) => owning.add(s));
+    }
+    if (owning.size > 0) {
+      petSkillLineSpecs.set(skillLineId, owning);
+    }
+  }
+
+  // Step 5: Build petAbilitySpellId → Set<specId> by walking SkillLineAbility
+  // rows whose SkillLine matches a resolved pet skill line (AcquireMethod>=2).
+  const petAbilityMap = new Map<string, Set<string>>();
+  for (const row of skillLineRows) {
+    const skillLine = toInt(row.SkillLine);
+    const owning = petSkillLineSpecs.get(skillLine);
+    if (!owning) continue;
+    const spellId = row.Spell;
+    if (!spellId || spellId === '0') continue;
+    if (toInt(row.AcquireMethod) < 2) continue;
+
+    const existing = petAbilityMap.get(spellId) ?? new Set<string>();
+    owning.forEach((s) => existing.add(s));
+    petAbilityMap.set(spellId, existing);
+  }
+
+  console.log(
+    `Built pet SkillLine index: ${petSkillLineSpecs.size}/${petSkillLineCount} pet skill lines resolved → ${petAbilityMap.size} pet abilities`,
   );
 
   // ── 7. Resolve each spell to its spec IDs ───────────────────────
@@ -509,7 +717,18 @@ async function main() {
       };
     }
 
-    // Priority 4: PvpTalent (spec-specific PvP talents)
+    // Priority 4: Pet SkillLine (pet abilities owned by classes that summon them)
+    const fromPetSkillLine = petAbilityMap.get(spellId);
+    if (fromPetSkillLine && fromPetSkillLine.size > 0) {
+      return {
+        spellId,
+        name,
+        specIds: Array.from(fromPetSkillLine).sort((a, b) => Number(a) - Number(b)),
+        source: 'PetSkillLine',
+      };
+    }
+
+    // Priority 5: PvpTalent (spec-specific PvP talents)
     const fromPvpTalent = pvpTalentMap.get(spellId);
     if (fromPvpTalent && fromPvpTalent.size > 0) {
       return {
@@ -518,6 +737,34 @@ async function main() {
         specIds: Array.from(fromPvpTalent).sort((a, b) => Number(a) - Number(b)),
         source: 'PvpTalent',
       };
+    }
+
+    // Priority 6: Description reference — a parent spell's tooltip mentions
+    // this spell's ID for its duration ($<spellId>d). The parent is usually
+    // the caster-side cast; this spell is the applied aura whose DR flags
+    // we want to attribute. Inherit specs from all parents that themselves
+    // resolve via priorities 1–5.
+    const parents = reverseDescriptionRefMap.get(spellId);
+    if (parents && parents.size > 0) {
+      const inheritedSpecs = new Set<string>();
+      Array.from(parents).forEach((parentId) => {
+        if (parentId === spellId) return;
+        specSpellMap.get(parentId)?.forEach((s) => inheritedSpecs.add(s));
+        classSpellMap.get(parentId)?.forEach((classId) => {
+          (specIdsByClassId.get(classId) ?? []).forEach((s) => inheritedSpecs.add(String(s)));
+        });
+        talentSpellMap.get(parentId)?.forEach((s) => inheritedSpecs.add(String(s)));
+        petAbilityMap.get(parentId)?.forEach((s) => inheritedSpecs.add(s));
+        pvpTalentMap.get(parentId)?.forEach((s) => inheritedSpecs.add(s));
+      });
+      if (inheritedSpecs.size > 0) {
+        return {
+          spellId,
+          name,
+          specIds: Array.from(inheritedSpecs).sort((a, b) => Number(a) - Number(b)),
+          source: 'DescriptionRef',
+        };
+      }
     }
 
     // Not found in any source
@@ -667,6 +914,9 @@ async function main() {
       spellNameCsv: SOURCE_TABLES.spellName,
       spellCategoriesCsv: SOURCE_TABLES.spellCategories,
       spellEffectCsv: SOURCE_TABLES.spellEffect,
+      spellLabelCsv: SOURCE_TABLES.spellLabel,
+      spellCsv: SOURCE_TABLES.spell,
+      skillLineCsv: SOURCE_TABLES.skillLine,
       spellIdListsJson: 'packages/shared/src/data/spellIdLists.json',
       talentIdMapJson: 'packages/shared/src/data/talentIdMap.json',
     },

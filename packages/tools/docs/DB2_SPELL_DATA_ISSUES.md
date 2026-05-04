@@ -19,11 +19,14 @@ This is likely a data entry error by Blizzard — the analyst who marked spell a
 
 ## Why We Do NOT Use Name-Based Fallback
 
-`resolveSpell()` in `generateSpellClassMap.ts` resolves spell IDs to player specs via 3 priority levels (exact ID matching only):
+`resolveSpell()` in `generateSpellClassMap.ts` resolves spell IDs to player specs via 6 priority levels (exact ID matching only):
 
 1. **SpecializationSpells** — spec-specific baseline abilities
 2. **SkillLineAbility** — class-wide baseline abilities (expanded to all specs of that class)
 3. **TalentTree (exact ID)** — talent node references the exact spell ID
+4. **PetSkillLine** — pet abilities attributed via the owning class (see `PET_ABILITY_RESOLUTION.md`)
+5. **PvpTalent** — PvP talent cast/action-bar spell IDs
+6. **DescriptionRef** — fallback for orphan aura-spell IDs that aren't in any player table but are referenced by a resolved parent spell's description via the `$<spellId>d` duration template (e.g. Lightning Lasso stun 305485, referenced by PvP talent cast 305483). Kept at lowest priority so it only fills in spells otherwise unresolved, never overriding broader class-wide attribution.
 
 A name-based fallback (matching by spell name to talent tree node names) was considered but rejected because:
 
@@ -40,42 +43,24 @@ When a spell is flagged by DB2 attributes but can't be ID-resolved to a player s
 
 | DB2 Spell ID | Name | Likely Correct Talent ID |
 |---|---|---|
-| 50322 | Survival Instincts | 61336 |
 | 81549 | Cloak of Shadows | 31224 |
-| 115203 | Fortifying Brew | 388917 |
-| 120954 | Fortifying Brew | 388917 |
-| 199448 | Blessing of Sacrifice | 6940 |
-| 207771 | Fiery Brand | 204021 |
 | 243435 | Fortifying Brew | 388917 |
 | 342246 | Alter Time | 342245 |
-| 414658 | Ice Cold | 414659 |
 
 ### Unresolved spells from important (build 12.0.1.66838)
 
 | DB2 Spell ID | Name | Likely Correct Talent ID(s) |
 |---|---|---|
 | 51533 | Feral Spirit | 469314 |
-| 106951 | Berserk | 50334, 343223 |
-| 110909 | Alter Time | 342245 |
-| 115203 | Fortifying Brew | 388917 |
 | 152953 | Blinding Light | 115750 |
-| 194223 | Celestial Alignment | 395022 |
-| 194249 | Voidform | 228260 |
-| 199448 | Blessing of Sacrifice | 6940 |
 | 231895 | Avenging Wrath | 31884 |
 | 243435 | Fortifying Brew | 388917 |
 | 335235 | Summon Infernal | 1122 |
 | 342246 | Alter Time | 342245 |
-| 365362 | Arcane Surge | 365350 |
-| 383410 | Celestial Alignment | 395022 |
 | 387278 | Summon Darkglare | 205180 |
 | 389654 | Master Handler | 424558 |
 | 389722 | Recklessness | 1719 |
 | 395267 | Invoke Niuzao, the Black Ox | 132578 |
-| 414658 | Ice Cold | 414659 |
-| 454351 | Avenging Wrath | 31884 |
-| 454373 | Avenging Wrath | 31884 |
-| 466772 | Doom Winds | 384352 |
 | 1219480 | Ascendance | 114050 |
 | 1236574 | Tranquility | 740 |
 | 1251703 | Takedown | 1250646 |
