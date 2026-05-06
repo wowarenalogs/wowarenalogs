@@ -144,6 +144,27 @@ describe('buildDeathOutcomeSummary — external defensive checks', () => {
     expect(result.events[0].missedExternals[0].casterWasInCC).toBe(true);
   });
 
+  it('flags missed external when teammate cast the spell this match (not spec baseline)', () => {
+    // A Paladin Holy casts Ironbark (which is not their baseline) — proves cross-spec cast-history path
+    const warrior = makeDeadUnit('w1', MATCH_START + 90_000, {
+      spec: CombatUnitSpec.Warrior_Arms,
+      name: 'Warrior',
+    });
+    const paladin = makeUnit('d1', {
+      spec: CombatUnitSpec.Paladin_Holy,
+      name: 'Paladin',
+      // Paladin cast Ironbark (102342) once this match via some talent/trinket scenario
+      spellCastEvents: [makeSpellCastEvent('102342', MATCH_START + 10_000, 'w1', 'Warrior', 'd1', 'Paladin')],
+    });
+    const result = buildDeathOutcomeSummary(
+      makeCombat() as any,
+      [warrior, paladin],
+      [makeCCSummary('Warrior'), makeCCSummary('Paladin')],
+    );
+    // Ironbark was cast at t=10s (CD=45s), ready again at t=55s, warrior dies at t=90s → flagged
+    expect(result.events[0].missedExternals.find((e: any) => e.spellName === 'Ironbark')).toBeDefined();
+  });
+
   it('does NOT flag Ironbark when it was recently used (still on CD)', () => {
     const warrior = makeDeadUnit('w1', MATCH_START + 90_000, {
       spec: CombatUnitSpec.Warrior_Arms,

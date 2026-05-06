@@ -172,7 +172,10 @@ export function buildDeathOutcomeSummary(
         if (teammate.id === unit.id) continue;
         const teammateCCSummary = ccSummaries.find((s) => s.playerName === teammate.name);
         for (const [spellId, spell] of Object.entries(EXTERNAL_DEFENSIVE_SPELLS)) {
-          if (!spell.specs.includes(teammate.spec)) continue;
+          const everCast = teammate.spellCastEvents.some(
+            (e) => e.spellId === spellId && e.logLine.event === LogEvent.SPELL_CAST_SUCCESS,
+          );
+          if (!everCast && !spell.specs.includes(teammate.spec)) continue;
           if (!isAvailableAt(teammate, spellId, spell.cooldownSeconds, atSeconds, matchStartMs)) continue;
           missedExternals.push({
             casterName: teammate.name,
