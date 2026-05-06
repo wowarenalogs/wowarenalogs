@@ -120,12 +120,22 @@ function isAvailableAt(
 }
 
 function isLockedOut(unit: ICombatUnit, lockoutSpellId: string, atSeconds: number, matchStartMs: number): boolean {
+  const relevant = unit.auraEvents
+    .filter((e) => e.spellId === lockoutSpellId)
+    .sort((a, b) => {
+      if (a.logLine.timestamp !== b.logLine.timestamp) return a.logLine.timestamp - b.logLine.timestamp;
+      // APPLIED before REMOVED at same timestamp (aura refresh)
+      if (a.logLine.event === LogEvent.SPELL_AURA_APPLIED) return -1;
+      if (b.logLine.event === LogEvent.SPELL_AURA_APPLIED) return 1;
+      return 0;
+    });
+
   let active = false;
-  for (const e of unit.auraEvents) {
-    if (e.spellId !== lockoutSpellId) continue;
+  for (const e of relevant) {
     const t = (e.logLine.timestamp - matchStartMs) / 1000;
-    if (e.logLine.event === LogEvent.SPELL_AURA_APPLIED) active = t <= atSeconds;
-    if (e.logLine.event === LogEvent.SPELL_AURA_REMOVED && t <= atSeconds) active = false;
+    if (t > atSeconds) break;
+    if (e.logLine.event === LogEvent.SPELL_AURA_APPLIED) active = true;
+    if (e.logLine.event === LogEvent.SPELL_AURA_REMOVED) active = false;
   }
   return active;
 }
@@ -135,10 +145,7 @@ function wasInHardCC(
   atSeconds: number,
 ): boolean {
   return ccSummary.ccInstances.some(
-    (cc) =>
-      cc.atSeconds <= atSeconds &&
-      cc.atSeconds + cc.durationSeconds > atSeconds &&
-      (cc.trinketState === 'on_cooldown' || cc.trinketState === 'passive_trinket'),
+    (cc) => cc.atSeconds <= atSeconds && cc.atSeconds + cc.durationSeconds > atSeconds && cc.trinketState !== 'used', // 'used' = they did trinket out; any other state = they were CC'd
   );
 }
 

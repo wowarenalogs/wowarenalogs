@@ -88,6 +88,27 @@ describe('buildDeathOutcomeSummary — immunity checks', () => {
     expect(immunities.find((i: any) => i.spellName === 'Divine Shield')).toBeUndefined();
   });
 
+  it('flags wasInCC=true when CC active and trinket was available_unused (chose not to trinket)', () => {
+    const dead = makeDeadUnit('p1', MATCH_START + 60_000, { spec: CombatUnitSpec.Paladin_Holy });
+    const ccSummary = makeCCSummary('p1', [
+      {
+        atSeconds: 55,
+        durationSeconds: 10,
+        spellId: '408',
+        spellName: 'Kidney Shot',
+        sourceName: 'Rogue',
+        sourceSpec: 'Rogue Subtlety',
+        trinketState: 'available_unused',
+        drInfo: null,
+        damageTakenDuring: 0,
+        distanceYards: null,
+        losBlocked: null,
+      },
+    ]);
+    const result = buildDeathOutcomeSummary(makeCombat() as any, [dead], [ccSummary]);
+    expect(result.events[0].availableImmunities[0].wasInCC).toBe(true);
+  });
+
   it('skips a death event with no available immunities and no missed externals', () => {
     const dead = makeDeadUnit('p1', MATCH_START + 60_000, {
       spec: CombatUnitSpec.Mage_Frost,
