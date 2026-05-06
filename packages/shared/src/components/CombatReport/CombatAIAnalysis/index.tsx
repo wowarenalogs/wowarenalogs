@@ -16,16 +16,24 @@ import {
   specToString,
 } from '../../../utils/cooldowns';
 import { formatDampeningForContext } from '../../../utils/dampening';
+import { buildDeathOutcomeSummary, formatDeathOutcomeForContext } from '../../../utils/deathOutcomeAnalysis';
 import { canOffensivePurge, formatDispelContextForAI, reconstructDispelSummary } from '../../../utils/dispelAnalysis';
 import { analyzeOutgoingCCChains, formatOutgoingCCChainsForContext } from '../../../utils/drAnalysis';
 import { formatEnemyCDTimelineForContext, reconstructEnemyCDTimeline } from '../../../utils/enemyCDs';
-import { analyzeHealerExposureAtBurst, formatHealerExposureForContext } from '../../../utils/healerExposureAnalysis';
+import {
+  analyzeHealerExposureAtBurst,
+  buildHealerCCReceivedEvents,
+  formatHealerCCReceivedForContext,
+  formatHealerExposureForContext,
+  IHealerCCReceived,
+} from '../../../utils/healerExposureAnalysis';
 import { detectHealingGaps, formatHealingGapsForContext } from '../../../utils/healingGaps';
 import {
   analyzeKillWindowTargetSelection,
   formatKillWindowTargetSelectionForContext,
 } from '../../../utils/killWindowTargetSelection';
 import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../../utils/matchArchetype';
+import { buildOffensiveWasteSummary, formatOffensiveWasteForContext } from '../../../utils/offensiveWasteAnalysis';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../../utils/offensiveWindows';
 import { benchmarks, formatSpecBaselines } from '../../../utils/specBaselines';
 import { useCombatReportContext } from '../CombatReportContext';
@@ -133,6 +141,13 @@ export function buildMatchContext(
           combat.startInfo.zoneId,
           combat.startTime,
         )
+      : [];
+
+  const deathOutcome = buildDeathOutcomeSummary(combat, friends as ICombatUnit[], ccTrinketSummaries);
+  const offensiveWaste = buildOffensiveWasteSummary(combat, friends as ICombatUnit[], enemies as ICombatUnit[]);
+  const healerCCReceived: IHealerCCReceived[] =
+    healerUnit && healerCCSummary
+      ? buildHealerCCReceivedEvents(combat, healerUnit, friends as ICombatUnit[], healerCCSummary)
       : [];
 
   const matchArchetype = computeMatchArchetype(
@@ -541,6 +556,24 @@ export function buildMatchContext(
     combat.startTime,
     combat.endTime,
   ).forEach((l) => lines.push(l));
+
+  const deathOutcomeBlock = formatDeathOutcomeForContext(deathOutcome);
+  if (deathOutcomeBlock) {
+    lines.push('');
+    lines.push(deathOutcomeBlock);
+  }
+
+  const offensiveWasteBlock = formatOffensiveWasteForContext(offensiveWaste);
+  if (offensiveWasteBlock) {
+    lines.push('');
+    lines.push(offensiveWasteBlock);
+  }
+
+  const healerCCBlock = formatHealerCCReceivedForContext(healerCCReceived);
+  if (healerCCBlock) {
+    lines.push('');
+    lines.push(healerCCBlock);
+  }
 
   return lines.join('\n');
 }
