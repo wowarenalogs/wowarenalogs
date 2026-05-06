@@ -13,7 +13,7 @@
  *   Safe      — all threats pillar-blocked or healer Immune in all relevant categories
  */
 
-import { ICombatUnit } from '@wowarenalogs/parser';
+import { AtomicArenaCombat, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { IPlayerCCTrinketSummary } from './ccTrinketAnalysis';
 import { fmtTime, specToString } from './cooldowns';
@@ -262,4 +262,123 @@ export function formatHealerExposureForContext(exposures: IHealerBurstExposure[]
   }
 
   return lines;
+}
+
+// ─── Healer CC avoidance (#7) ──────────────────────────────────────────────
+
+interface IAvoidanceSpell {
+  spellId: string;
+  name: string;
+  cooldownSeconds: number;
+}
+
+const HEALER_AVOIDANCE_SPELLS: Partial<Record<CombatUnitSpec, IAvoidanceSpell[]>> = {
+  [CombatUnitSpec.Shaman_Restoration]: [{ spellId: '8177', name: 'Grounding Totem', cooldownSeconds: 25 }],
+  [CombatUnitSpec.Priest_Holy]: [{ spellId: '586', name: 'Fade', cooldownSeconds: 30 }],
+  [CombatUnitSpec.Priest_Discipline]: [{ spellId: '586', name: 'Fade', cooldownSeconds: 30 }],
+  [CombatUnitSpec.Paladin_Holy]: [{ spellId: '642', name: 'Divine Shield', cooldownSeconds: 300 }],
+  [CombatUnitSpec.Monk_Mistweaver]: [{ spellId: '122783', name: 'Diffuse Magic', cooldownSeconds: 90 }],
+  [CombatUnitSpec.Evoker_Preservation]: [{ spellId: '363916', name: 'Obsidian Scales', cooldownSeconds: 60 }],
+};
+
+export interface IHealerAvoidanceTool {
+  spellId: string;
+  spellName: string;
+  availableSinceSeconds: number;
+}
+
+export interface IHealerCCReceived {
+  atSeconds: number;
+  ccSpellName: string;
+  ccCategory: string;
+  durationSeconds: number;
+  teammateLowHp: boolean;
+  avoidanceToolsAvailable: IHealerAvoidanceTool[];
+}
+
+function lastAvoidanceCastSeconds(unit: ICombatUnit, spellId: string, matchStartMs: number): number | null {
+  const casts = unit.spellCastEvents.filter(
+    (e) => e.spellId === spellId && e.logLine.event === LogEvent.SPELL_CAST_SUCCESS,
+  );
+  if (casts.length === 0) return null;
+  return (Math.max(...casts.map((e) => e.logLine.timestamp)) - matchStartMs) / 1000;
+}
+
+function anyTeammateLowHp(friends: ICombatUnit[], atSeconds: number, matchStartMs: number): boolean {
+  const windowMs = 2_000;
+  for (const unit of friends) {
+    for (const action of unit.advancedActions) {
+      const t = action.logLine.timestamp - matchStartMs;
+      if (Math.abs(t - atSeconds * 1000) > windowMs) continue;
+      if (action.advancedActorMaxHp > 0) {
+        const hpPct = action.advancedActorCurrentHp / action.advancedActorMaxHp;
+        if (hpPct < 0.75) return true;
+      }
+    }
+  }
+  return false;
+}
+
+export function buildHealerCCReceivedEvents(
+  combat: Pick<AtomicArenaCombat, 'startTime'>,
+  healer: ICombatUnit,
+  friends: ICombatUnit[],
+  ccSummary: Pick<IPlayerCCTrinketSummary, 'ccInstances'>,
+): IHealerCCReceived[] {
+  const matchStartMs = combat.startTime;
+  const avoidanceSpells = HEALER_AVOIDANCE_SPELLS[healer.spec] ?? [];
+  const result: IHealerCCReceived[] = [];
+
+  for (const cc of ccSummary.ccInstances) {
+    const teammateLowHp = anyTeammateLowHp(friends, cc.atSeconds, matchStartMs);
+    if (!teammateLowHp) continue;
+
+    const avoidanceToolsAvailable: IHealerAvoidanceTool[] = [];
+    for (const spell of avoidanceSpells) {
+      const lastCast = lastAvoidanceCastSeconds(healer, spell.spellId, matchStartMs);
+      let availableSince: number;
+      if (lastCast === null) {
+        availableSince = 0;
+      } else {
+        const cdReadyAt = lastCast + spell.cooldownSeconds;
+        if (cdReadyAt > cc.atSeconds) continue;
+        availableSince = cdReadyAt;
+      }
+      const idleDuration = cc.atSeconds - availableSince;
+      if (idleDuration < 1.5) continue;
+      avoidanceToolsAvailable.push({
+        spellId: spell.spellId,
+        spellName: spell.name,
+        availableSinceSeconds: idleDuration,
+      });
+    }
+
+    result.push({
+      atSeconds: cc.atSeconds,
+      ccSpellName: cc.spellName,
+      ccCategory: cc.drInfo?.category ?? 'Unknown',
+      durationSeconds: cc.durationSeconds,
+      teammateLowHp,
+      avoidanceToolsAvailable,
+    });
+  }
+
+  return result;
+}
+
+export function formatHealerCCReceivedForContext(events: IHealerCCReceived[]): string {
+  if (events.length === 0) return '';
+  const lines: string[] = ['HEALER CC RECEIVED'];
+  for (const ev of events) {
+    const t = `${Math.floor(ev.atSeconds / 60)}:${String(Math.floor(ev.atSeconds % 60)).padStart(2, '0')}`;
+    if (ev.avoidanceToolsAvailable.length > 0) {
+      const tools = ev.avoidanceToolsAvailable
+        .map((a) => `${a.spellName} available ${Math.round(a.availableSinceSeconds)}s prior`)
+        .join(', ');
+      lines.push(`  [${t}] ${ev.ccSpellName} (${ev.durationSeconds}s) — ${tools}`);
+    } else {
+      lines.push(`  [${t}] ${ev.ccSpellName} (${ev.durationSeconds}s) — no avoidance tools available`);
+    }
+  }
+  return lines.join('\n');
 }
