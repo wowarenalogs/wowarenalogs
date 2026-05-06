@@ -22,6 +22,7 @@ import {
   LogEvent,
 } from '@wowarenalogs/parser';
 
+import spellClassMap from '../data/spellClassMap.json';
 import { ccSpellIds } from '../data/spellTags';
 import { specToString } from './cooldowns';
 
@@ -29,85 +30,68 @@ import { specToString } from './cooldowns';
 
 export const DR_RESET_MS = 16_000;
 
+// spellClassMap DR categories to import, mapped to display names.
+// 'taunt' and 'root' are excluded — not relevant for PvP CC analysis.
+const SCM_CATEGORY_LABELS: Record<string, string> = {
+  stun: 'Stun',
+  knockback: 'Knockback',
+  incapacitate: 'Incapacitate',
+  disorient: 'Disorient',
+  silence: 'Silence',
+  disarm: 'Disarm',
+};
+
 /**
  * Maps spell ID → DR category name.
- * Spells sharing a category diminish each other.
- * Spells not listed are treated as their own category (self-DR only).
+ * Generated from spellClassMap.json (DB2 DiminishType data) plus a manual supplement
+ * for spells absent from DB2: racials/pets not resolvable to player specs, silences
+ * missing the DB2 flag, and DR categories that don't exist in DB2 (Cyclone, Horror).
  *
- * ⚠️ PATCH-VOLATILE: Blizzard occasionally moves spells between DR categories.
- * Verify against https://wowhead.com/pvp-diminishing-returns after major patches.
+ * DB2 overrides are applied last to correct known Blizzard data errors:
+ *   - Cyclone (33786): DB2 groups with Disorient; WoW gives it its own DR category
+ *   - Incapacitating Roar (99): DB2 groups with Incapacitate; WoW treats as Disorient
+ *
+ * To update after a patch: re-run `generateSpellClassMap` (packages/tools), then verify
+ * the supplement below is still accurate.
  */
-export const DR_CATEGORY_MAP: Record<string, string> = {
-  // ── Stun ─────────────────────────────────────────────────────────────────
-  '408': 'Stun', // Kidney Shot (Rogue)
-  '853': 'Stun', // Hammer of Justice (Paladin)
-  '1833': 'Stun', // Cheap Shot (Rogue)
-  '5211': 'Stun', // Bash (Druid)
-  '20549': 'Stun', // War Stomp (Tauren racial)
-  '24394': 'Stun', // Intimidation (Hunter pet)
-  '30283': 'Stun', // Shadowfury (Warlock)
-  '77505': 'Stun', // Shockwave (Warrior)
-  '107079': 'Stun', // Quaking Palm (Pandaren racial) — actually Incapacitate in some sources; treating as Stun
-  '119381': 'Stun', // Leg Sweep (Monk)
-  '22570': 'Stun', // Maim (Feral Druid)
-  '203337': 'Stun', // Freezing Trap (if it stuns)
+export const DR_CATEGORY_MAP: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
 
-  // ── Incapacitate ─────────────────────────────────────────────────────────
-  // Polymorph family (Mage) — all share Incapacitate DR with each other
-  '118': 'Incapacitate',
-  '28271': 'Incapacitate', // Polymorph (Pig)
-  '28272': 'Incapacitate', // Polymorph (Cat)
-  '61025': 'Incapacitate', // Polymorph (Turtle)
-  '61721': 'Incapacitate', // Polymorph (Rabbit)
-  '61780': 'Incapacitate', // Polymorph (Turkey)
-  '126819': 'Incapacitate', // Polymorph (Porcupine)
-  '161353': 'Incapacitate', // Polymorph (Polar Bear Cub)
-  '161354': 'Incapacitate', // Polymorph (Monkey)
-  '161355': 'Incapacitate', // Polymorph (Penguin)
-  '161372': 'Incapacitate', // Polymorph (Peacock)
-  // Hex family (Shaman)
-  '51514': 'Incapacitate', // Hex
-  '61305': 'Incapacitate', // Hex (Frog)
-  '277778': 'Incapacitate', // Hex (Cockroach)
-  '277784': 'Incapacitate', // Hex (Spider)
-  '277787': 'Incapacitate', // Hex (Snake)
-  '277792': 'Incapacitate', // Hex (Turtle)
-  // Other incapacitates
-  '1776': 'Incapacitate', // Gouge (Rogue)
-  '3355': 'Incapacitate', // Freezing Trap (Hunter)
-  '6770': 'Incapacitate', // Sap (Rogue)
-  '20066': 'Incapacitate', // Repentance (Paladin)
-  '82691': 'Incapacitate', // Ring of Frost (Mage)
-  '115078': 'Incapacitate', // Paralysis (Monk)
-  '207777': 'Incapacitate', // Imprison (Demon Hunter)
-  '217832': 'Incapacitate', // Imprison variant (DH)
+  const dr = spellClassMap.diminishingReturns as Record<string, { spellId: string }[]>;
+  for (const [cat, entries] of Object.entries(dr)) {
+    const label = SCM_CATEGORY_LABELS[cat];
+    if (!label) continue;
+    for (const entry of entries) {
+      map[entry.spellId] = label;
+    }
+  }
 
-  // ── Disorient ─────────────────────────────────────────────────────────────
-  // Fear / disorient effects all share this category
-  '5484': 'Disorient', // Howl of Terror (Warlock)
-  '5246': 'Disorient', // Intimidating Shout (Warrior)
-  '6358': 'Disorient', // Seduction (Warlock Succubus/Incubus)
-  '8122': 'Disorient', // Psychic Scream (Priest)
-  '31661': 'Disorient', // Dragon's Breath (Mage)
-  '99': 'Disorient', // Incapacitating Roar (Druid Bear) — classified as Disorient despite name
-  '255941': 'Disorient', // Bursting Shot (Hunter) — disorient, not stun
+  // Supplement: racials and pet abilities not resolvable to player specs in DB2
+  map['20549'] = 'Stun'; // War Stomp (Tauren racial)
+  map['24394'] = 'Stun'; // Intimidation (Hunter pet)
+  map['107079'] = 'Stun'; // Quaking Palm (Pandaren racial)
 
-  // ── Cyclone (own category — shares only with itself) ───────────────────────
-  '33786': 'Cyclone', // Cyclone (Druid) — does not share DR with Disorient
+  // Supplement: AoE CC rank variants sharing DR with their base spell
+  map['316593'] = 'Disorient'; // Intimidating Shout rank 2 (base 5246 = Disorient)
+  map['316595'] = 'Disorient'; // Intimidating Shout rank 3
+  map['6358'] = 'Disorient'; // Seduction (Warlock pet)
 
-  // ── Horror ────────────────────────────────────────────────────────────────
-  '6789': 'Horror', // Death Coil (Warlock)
-  '64044': 'Horror', // Psychic Horror (Shadow Priest)
+  // Supplement: silences missing DB2 DiminishType flag
+  map['47476'] = 'Silence'; // Strangulate (Death Knight)
+  map['81261'] = 'Silence'; // Solar Beam (Druid) — zone silence
+  map['204490'] = 'Silence'; // Sigil of Silence (Demon Hunter)
 
-  // ── Silence ───────────────────────────────────────────────────────────────
-  '15487': 'Silence', // Silence (Priest)
-  '47476': 'Silence', // Strangulate (Death Knight)
-  '81261': 'Silence', // Solar Beam (Druid) — zone silence
-  '207685': 'Silence', // Sigil of Silence (Demon Hunter)
+  // Supplement: DR categories absent from DB2 DiminishType system
+  map['64044'] = 'Horror'; // Psychic Horror (Shadow Priest)
 
-  // ── Blind (own category) ──────────────────────────────────────────────────
-  '2094': 'Blind', // Blind (Rogue)
-};
+  // DB2 override: Cyclone has its own DR category in WoW, not shared with Disorient
+  map['33786'] = 'Cyclone';
+
+  // DB2 override: Incapacitating Roar is Disorient in WoW, not Incapacitate
+  map['99'] = 'Disorient';
+
+  return map;
+})();
 
 /**
  * Spell IDs whose single cast can apply CC to multiple enemy targets simultaneously.
