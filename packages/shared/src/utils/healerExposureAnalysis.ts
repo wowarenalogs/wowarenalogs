@@ -284,7 +284,7 @@ const HEALER_AVOIDANCE_SPELLS: Partial<Record<CombatUnitSpec, IAvoidanceSpell[]>
 export interface IHealerAvoidanceTool {
   spellId: string;
   spellName: string;
-  availableSinceSeconds: number;
+  idleForSeconds: number;
 }
 
 export interface IHealerCCReceived {
@@ -349,7 +349,7 @@ export function buildHealerCCReceivedEvents(
       avoidanceToolsAvailable.push({
         spellId: spell.spellId,
         spellName: spell.name,
-        availableSinceSeconds: idleDuration,
+        idleForSeconds: idleDuration,
       });
     }
 
@@ -373,7 +373,7 @@ export function formatHealerCCReceivedForContext(events: IHealerCCReceived[]): s
     const t = `${Math.floor(ev.atSeconds / 60)}:${String(Math.floor(ev.atSeconds % 60)).padStart(2, '0')}`;
     if (ev.avoidanceToolsAvailable.length > 0) {
       const tools = ev.avoidanceToolsAvailable
-        .map((a) => `${a.spellName} available ${Math.round(a.availableSinceSeconds)}s prior`)
+        .map((a) => `${a.spellName} available ${Math.round(a.idleForSeconds)}s prior`)
         .join(', ');
       lines.push(`  [${t}] ${ev.ccSpellName} (${ev.durationSeconds}s) — ${tools}`);
     } else {

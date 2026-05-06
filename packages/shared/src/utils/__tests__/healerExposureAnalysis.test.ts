@@ -78,7 +78,7 @@ describe('buildHealerCCReceivedEvents', () => {
     const result = buildHealerCCReceivedEvents(makeCombat() as any, healer, [healer, teammate], ccSummary as any);
     expect(result[0].avoidanceToolsAvailable).toHaveLength(1);
     expect(result[0].avoidanceToolsAvailable[0].spellName).toBe('Fade');
-    expect(result[0].avoidanceToolsAvailable[0].availableSinceSeconds).toBeGreaterThan(1.5);
+    expect(result[0].avoidanceToolsAvailable[0].idleForSeconds).toBeGreaterThan(1.5);
   });
 
   it('does NOT flag Fade when used within the last 30s', () => {
