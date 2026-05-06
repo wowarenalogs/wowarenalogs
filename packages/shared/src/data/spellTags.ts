@@ -39,8 +39,6 @@ export const ccSpellIds = new Set<string>(Object.keys(spells).filter((spellId) =
 
 export const rootSpellIds = new Set<string>(Object.keys(spells).filter((id) => spells[id].type === 'roots'));
 
-export const interruptSpellIds = new Set<string>(Object.keys(spells).filter((id) => spells[id].type === 'interrupts'));
-
 export const disarmSpellIds = new Set<string>(Object.keys(spells).filter((id) => spells[id].type === 'disarms'));
 
 export const trinketSpellIds = ['336126']; // TODO: Add adaptation spell id here

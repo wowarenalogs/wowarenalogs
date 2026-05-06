@@ -1,4 +1,5 @@
-import { disarmSpellIds, interruptSpellIds, rootSpellIds } from '../../data/spellTags';
+import { INTERRUPT_SPELL_IDS } from '../../components/CombatReport/CombatMistakes/mistakeKnowledgeBase';
+import { disarmSpellIds, rootSpellIds } from '../../data/spellTags';
 
 describe('rootSpellIds', () => {
   it('contains Frost Nova (122)', () => expect(rootSpellIds.has('122')).toBe(true));
@@ -7,11 +8,11 @@ describe('rootSpellIds', () => {
   it('does not contain a CC spell (Kidney Shot 408)', () => expect(rootSpellIds.has('408')).toBe(false));
 });
 
-describe('interruptSpellIds', () => {
-  it('contains Kick/Rogue (1766)', () => expect(interruptSpellIds.has('1766')).toBe(true));
-  it('contains Counterspell/Mage (2139)', () => expect(interruptSpellIds.has('2139')).toBe(true));
-  it('contains Pummel/Warrior (6552)', () => expect(interruptSpellIds.has('6552')).toBe(true));
-  it('does not contain a CC spell (Polymorph 118)', () => expect(interruptSpellIds.has('118')).toBe(false));
+describe('INTERRUPT_SPELL_IDS', () => {
+  it('contains Kick/Rogue (1766)', () => expect(INTERRUPT_SPELL_IDS.has('1766')).toBe(true));
+  it('contains Counterspell/Mage (2139)', () => expect(INTERRUPT_SPELL_IDS.has('2139')).toBe(true));
+  it('contains Pummel/Warrior (6552)', () => expect(INTERRUPT_SPELL_IDS.has('6552')).toBe(true));
+  it('does not contain a CC spell (Polymorph 118)', () => expect(INTERRUPT_SPELL_IDS.has('118')).toBe(false));
 });
 
 describe('disarmSpellIds', () => {

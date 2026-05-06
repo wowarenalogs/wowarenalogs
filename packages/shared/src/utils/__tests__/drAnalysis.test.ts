@@ -49,16 +49,18 @@ describe('getDRCategory', () => {
     expect(getDRCategory('33786')).toBe('Cyclone');
   });
 
-  it('returns "Horror" for Death Coil (6789)', () => {
-    expect(getDRCategory('6789')).toBe('Horror');
+  it('returns "Incapacitate" for Mortal Coil (6789)', () => {
+    // Modern WoW: Mortal Coil replaced Death Coil; shares Incapacitate DR per DB2
+    expect(getDRCategory('6789')).toBe('Incapacitate');
   });
 
   it('returns "Silence" for Silence (15487)', () => {
     expect(getDRCategory('15487')).toBe('Silence');
   });
 
-  it('returns "Blind" for Blind (2094)', () => {
-    expect(getDRCategory('2094')).toBe('Blind');
+  it('returns "Disorient" for Blind (2094)', () => {
+    // Modern WoW: Blind shares Disorient DR per DB2 (separate Blind category removed)
+    expect(getDRCategory('2094')).toBe('Disorient');
   });
 
   it('falls back to "spell:<id>" for unknown spell IDs', () => {
