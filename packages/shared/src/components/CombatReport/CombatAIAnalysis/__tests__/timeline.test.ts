@@ -12,7 +12,7 @@ import { ICCInstance, IPlayerCCTrinketSummary } from '../../../../utils/ccTrinke
 import { IDamageBucket, IMajorCooldownInfo } from '../../../../utils/cooldowns';
 import { IDispelSummary } from '../../../../utils/dispelAnalysis';
 import { IOutgoingCCChain } from '../../../../utils/drAnalysis';
-import { IEnemyCDTimeline } from '../../../../utils/enemyCDs';
+import { IAlignedBurstWindow, IEnemyCDTimeline } from '../../../../utils/enemyCDs';
 import { IHealingGap } from '../../../../utils/healingGaps';
 import {
   buildJsonSituationSnapshot,
@@ -784,6 +784,89 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     // 200k window should NOT appear
     const spikeCount = (result.match(/\[DMG SPIKE\]/g) ?? []).length;
     expect(spikeCount).toBe(1);
+  });
+
+  describe('[OFFENSIVE WINDOW] synthesized headers', () => {
+    const makeBurst = (
+      fromSeconds: number,
+      toSeconds: number,
+      dangerLabel: 'Low' | 'Moderate' | 'High' | 'Critical' = 'Critical',
+    ): IAlignedBurstWindow => ({
+      fromSeconds,
+      toSeconds,
+      activeCDs: [
+        { playerName: 'EnemyRogue', spellName: 'Shadow Blades', spellId: '121471' },
+        { playerName: 'EnemyWarrior', spellName: 'Bladestorm', spellId: '227847' },
+      ],
+      dangerScore: 7.2,
+      dangerLabel,
+      dampeningPct: 0,
+      damageInWindow: 840_000,
+      damageRatio: 1.2,
+      healerCCed: false,
+    });
+
+    const makeSpike = (fromSeconds: number, totalDamage = 840_000): IDamageBucket => ({
+      fromSeconds,
+      toSeconds: fromSeconds + 10,
+      totalDamage,
+      targetName: 'Feramonk',
+      targetSpec: 'Holy Paladin',
+    });
+
+    it('emits [OFFENSIVE WINDOW] when burst window overlaps a qualifying spike', () => {
+      const enemyCDTimeline: IEnemyCDTimeline = {
+        players: [],
+        alignedBurstWindows: [makeBurst(14, 24)],
+      };
+      const pressureWindows = [makeSpike(15)];
+      const result = buildMatchTimeline(makeBaseParams({ enemyCDTimeline, pressureWindows }));
+      expect(result).toContain('[OFFENSIVE WINDOW]');
+      expect(result).toContain('0:14–0:24');
+      expect(result).toContain('Critical');
+      expect(result).toContain('0.84M');
+      expect(result).toContain('Shadow Blades + Bladestorm');
+    });
+
+    it('does NOT emit [OFFENSIVE WINDOW] when spike is below DMG_SPIKE_THRESHOLD', () => {
+      const enemyCDTimeline: IEnemyCDTimeline = {
+        players: [],
+        alignedBurstWindows: [makeBurst(14, 24)],
+      };
+      const pressureWindows = [makeSpike(15, 200_000)]; // below 300k threshold
+      const result = buildMatchTimeline(makeBaseParams({ enemyCDTimeline, pressureWindows }));
+      expect(result).not.toContain('[OFFENSIVE WINDOW]');
+    });
+
+    it('does NOT emit [OFFENSIVE WINDOW] when spike is outside burst window ±5s', () => {
+      const enemyCDTimeline: IEnemyCDTimeline = {
+        players: [],
+        alignedBurstWindows: [makeBurst(14, 24)],
+      };
+      const pressureWindows = [makeSpike(31)]; // 31 > 24 + 5 = 29 → no overlap
+      const result = buildMatchTimeline(makeBaseParams({ enemyCDTimeline, pressureWindows }));
+      expect(result).not.toContain('[OFFENSIVE WINDOW]');
+    });
+
+    it('does NOT emit [OFFENSIVE WINDOW] when no aligned burst windows exist', () => {
+      const pressureWindows = [makeSpike(15)];
+      const result = buildMatchTimeline(makeBaseParams({ pressureWindows }));
+      expect(result).not.toContain('[OFFENSIVE WINDOW]');
+    });
+
+    it('[OFFENSIVE WINDOW] sorts before [DMG SPIKE] at the same timestamp', () => {
+      const enemyCDTimeline: IEnemyCDTimeline = {
+        players: [],
+        alignedBurstWindows: [makeBurst(15, 25)],
+      };
+      const pressureWindows = [makeSpike(15)];
+      const result = buildMatchTimeline(makeBaseParams({ enemyCDTimeline, pressureWindows }));
+      const offIdx = result.indexOf('[OFFENSIVE WINDOW]');
+      const spikeIdx = result.indexOf('[DMG SPIKE]');
+      expect(offIdx).toBeGreaterThanOrEqual(0);
+      expect(spikeIdx).toBeGreaterThanOrEqual(0);
+      expect(offIdx).toBeLessThan(spikeIdx);
+    });
   });
 
   it('damage unit legend string is self-consistent', () => {
