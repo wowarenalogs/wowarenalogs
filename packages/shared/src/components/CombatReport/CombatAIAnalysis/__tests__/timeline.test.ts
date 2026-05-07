@@ -786,6 +786,14 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     expect(spikeCount).toBe(1);
   });
 
+  it('damage unit legend string is self-consistent', () => {
+    const legend = '  Damage units: M = 1,000,000  |  k = 1,000  (e.g. "0.84M" = 840,000 dmg)';
+    expect(legend).toContain('M = 1,000,000');
+    expect(legend).toContain('k = 1,000');
+    expect(legend).toContain('0.84M');
+    expect(legend).toContain('840,000 dmg');
+  });
+
   it('emits [HEALING GAP] only when isHealer is true', () => {
     const gap: IHealingGap = {
       fromSeconds: 82,
