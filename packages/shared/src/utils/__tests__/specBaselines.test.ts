@@ -1,5 +1,5 @@
 import { IMajorCooldownInfo } from '../cooldowns';
-import { formatSpecBaselines, IBenchmarkData } from '../specBaselines';
+import { formatDTPSBaselines, formatSpecBaselines, IBenchmarkData } from '../specBaselines';
 
 function makeCooldown(spellName: string): IMajorCooldownInfo {
   return {
@@ -23,6 +23,13 @@ const mockData: IBenchmarkData = {
         'Cloak of Shadows': { neverUsedRate: 0.393, medianFirstUseSeconds: 94.314, p75FirstUseSeconds: 121.941 },
         'Shadow Blades': { neverUsedRate: 0.036, medianFirstUseSeconds: 20.664, p75FirstUseSeconds: 34.649 },
       },
+      pressureWindows: { p50: 63_692, p75: 174_111, p90: 334_343, p95: 447_203 },
+    },
+    'Paladin Holy': {
+      sampleCount: 45,
+      defensiveTiming: null,
+      cdUsage: {},
+      pressureWindows: { p50: 6_200, p75: 120_000, p90: 241_100, p95: 350_000 },
     },
   },
 };
@@ -87,5 +94,49 @@ describe('formatSpecBaselines', () => {
     };
     const lines = formatSpecBaselines('Test Spec', [], dataWithNullDT);
     expect(lines.some((l) => l.includes('Defensive timing:'))).toBe(false);
+  });
+});
+
+describe('formatDTPSBaselines', () => {
+  it('returns empty array when no friendly specs match benchmark data', () => {
+    expect(formatDTPSBaselines(['Unknown Spec'], mockData)).toEqual([]);
+  });
+
+  it('returns empty array for empty friendlySpecs', () => {
+    expect(formatDTPSBaselines([], mockData)).toEqual([]);
+  });
+
+  it('emits header and one row per matched spec', () => {
+    const lines = formatDTPSBaselines(['Rogue Subtlety', 'Paladin Holy'], mockData);
+    expect(lines[0]).toBe('INCOMING DAMAGE BASELINES (per 10s window, ≥2100 MMR):');
+    expect(lines.length).toBe(3); // header + 2 rows
+  });
+
+  it('rounds p50 and p90 to nearest k', () => {
+    const lines = formatDTPSBaselines(['Rogue Subtlety'], mockData);
+    // p50=63692 → 64k, p90=334343 → 334k
+    expect(lines.some((l) => l.includes('p50 64k') && l.includes('p90 334k'))).toBe(true);
+  });
+
+  it('includes sample count in each row', () => {
+    const lines = formatDTPSBaselines(['Rogue Subtlety'], mockData);
+    expect(lines.some((l) => l.includes('n=56'))).toBe(true);
+  });
+
+  it('skips specs missing pressureWindows silently', () => {
+    const dataWithoutPW: IBenchmarkData = {
+      bySpec: {
+        'No PW Spec': { sampleCount: 10, defensiveTiming: null, cdUsage: {} },
+      },
+    };
+    expect(formatDTPSBaselines(['No PW Spec'], dataWithoutPW)).toEqual([]);
+  });
+
+  it('only includes specs present in both friendlySpecs and benchmark data', () => {
+    const lines = formatDTPSBaselines(['Rogue Subtlety', 'Druid Balance'], mockData);
+    // Druid Balance not in mockData → only Rogue row
+    expect(lines.length).toBe(2); // header + 1 row
+    expect(lines.some((l) => l.includes('Rogue Subtlety'))).toBe(true);
+    expect(lines.some((l) => l.includes('Druid Balance'))).toBe(false);
   });
 });
