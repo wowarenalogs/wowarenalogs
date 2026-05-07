@@ -1935,6 +1935,44 @@ describe('buildMatchTimeline — F68 cast/CC disambiguation', () => {
     expect(castLine).not.toContain('[succeeded after');
     expect(castLine).not.toContain('[same server tick');
   });
+
+  it('annotates [OWNER CAST] with [completed before CC landed] when cast is in second N and CC is at start of second N+1 (boundary case)', () => {
+    // cast at 21.950s (displayed 0:21), CC at 22.050s (displayed 0:22)
+    // 100ms apart — should annotate even though displayed seconds differ
+    const castMs = MATCH_START_MS + 21_950;
+    const ccMs = MATCH_START_MS + 22_050;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: makeOwnerWithCast(castMs),
+        isHealer: true,
+        matchStartMs: MATCH_START_MS,
+        matchEndMs: MATCH_START_MS + 30_000,
+        ccTrinketSummaries: [makeCCSummary(ccMs)],
+      }),
+    );
+    const castLine = result.split('\n').find((l) => l.includes('[OWNER CAST]') && l.includes('Pain Suppression'));
+    expect(castLine).toBeDefined();
+    expect(castLine).toContain('[completed before CC landed]');
+  });
+
+  it('annotates [OWNER CAST] with [succeeded after CC arrived] when CC is in second N and cast is at start of second N+1 (boundary case)', () => {
+    // CC at 21.950s (displayed 0:21), cast at 22.050s (displayed 0:22)
+    // 100ms apart — should annotate even though displayed seconds differ
+    const ccMs = MATCH_START_MS + 21_950;
+    const castMs = MATCH_START_MS + 22_050;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: makeOwnerWithCast(castMs),
+        isHealer: true,
+        matchStartMs: MATCH_START_MS,
+        matchEndMs: MATCH_START_MS + 30_000,
+        ccTrinketSummaries: [makeCCSummary(ccMs)],
+      }),
+    );
+    const castLine = result.split('\n').find((l) => l.includes('[OWNER CAST]') && l.includes('Pain Suppression'));
+    expect(castLine).toBeDefined();
+    expect(castLine).toContain('[succeeded after CC arrived — same second in log]');
+  });
 });
 
 // ── extractOwnerCDBuffExpiry ──────────────────────────────────────────────────
