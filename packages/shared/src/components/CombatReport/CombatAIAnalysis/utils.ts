@@ -1379,6 +1379,11 @@ export function buildResourceSnapshot({
     line += `  cc:${ccParts.join(',')}`;
   }
 
+  // Suppress empty lines that contribute no information
+  if (readyNames.length === 0 && onCDParts.length === 0 && enemyActiveParts.length === 0 && ccParts.length === 0) {
+    return '';
+  }
+
   return line;
 }
 
@@ -1654,7 +1659,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   const entries: Array<{ timeSeconds: number; lines: string[] }> = [];
 
   function addEntry(timeSeconds: number, ...lines: string[]) {
-    entries.push({ timeSeconds, lines });
+    entries.push({ timeSeconds, lines: lines.filter(Boolean) });
   }
 
   // ── [DEATH] events ────────────────────────────────────────────────────────

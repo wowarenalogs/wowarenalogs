@@ -2537,8 +2537,8 @@ describe('buildResourceSnapshot — F72 compact [RES] format', () => {
         },
       ]),
     });
-    expect(result).toMatch(/^\s*\[RES\] rdy:/);
-    expect(result).not.toContain('enemy:');
+    // Empty because no player CDs and enemy CD is too old
+    expect(result).toBe('');
   });
 
   it('CC present: includes cc field, omits free players', () => {
@@ -2613,8 +2613,8 @@ describe('buildResourceSnapshot — F72 compact [RES] format', () => {
       ccTrinketSummaries: [makeSummary('Player1', [])],
       enemyCDTimeline: BASE_ENEMY_TIMELINE,
     });
-    expect(result).toMatch(/^\s*\[RES\] rdy:/);
-    expect(result).not.toContain('cc:');
+    // Empty because no player CDs and all players are CC-free
+    expect(result).toBe('');
   });
 
   it('playerIdMap compresses names to numeric IDs in cc field', () => {
@@ -2632,6 +2632,48 @@ describe('buildResourceSnapshot — F72 compact [RES] format', () => {
     });
     expect(result).toContain('cc:1/Kidney Shot-5s[stun]');
     expect(result).not.toContain('Player1');
+  });
+
+  it('returns empty string when timeSeconds ≤ 5 and all CDs never-used (early-match empty line)', () => {
+    const avWr = makeCD('Avenging Wrath', 120);
+    const result = buildResourceSnapshot({
+      timeSeconds: 3,
+      ownerCDs: [avWr],
+      ownerName: 'Player1',
+      ownerSpec: 'Holy Paladin',
+      teammateCDs: [],
+      ccTrinketSummaries: [],
+      enemyCDTimeline: BASE_ENEMY_TIMELINE,
+    });
+    expect(result).toBe('');
+  });
+
+  it('does NOT suppress when a CD is on cooldown (rdy empty but cd has content)', () => {
+    const cd = { ...makeCD('Holy Light', 30), casts: [{ timeSeconds: 18 }] };
+    const result = buildResourceSnapshot({
+      timeSeconds: 20,
+      ownerCDs: [cd],
+      ownerName: 'Player1',
+      ownerSpec: 'Holy Paladin',
+      teammateCDs: [],
+      ccTrinketSummaries: [],
+      enemyCDTimeline: BASE_ENEMY_TIMELINE,
+    });
+    expect(result).not.toBe('');
+    expect(result).toContain('cd:Holy Light(');
+  });
+
+  it('returns empty string when truly all data is absent', () => {
+    const result = buildResourceSnapshot({
+      timeSeconds: 60,
+      ownerCDs: [],
+      ownerName: 'Player1',
+      ownerSpec: 'Holy Paladin',
+      teammateCDs: [],
+      ccTrinketSummaries: [],
+      enemyCDTimeline: BASE_ENEMY_TIMELINE,
+    });
+    expect(result).toBe('');
   });
 });
 
