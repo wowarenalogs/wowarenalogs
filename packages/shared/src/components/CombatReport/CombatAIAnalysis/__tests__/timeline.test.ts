@@ -21,6 +21,7 @@ import {
   buildPlayerLoadout,
   buildResourceSnapshot,
   computeHealingInWindow,
+  computeReadyNames,
   extractEnemyMajorBuffIntervals,
   extractOwnerCDBuffExpiry,
   HEALING_AMPLIFIER_SPELL_IDS,
@@ -2957,6 +2958,90 @@ describe('buildResourceSnapshot — F72 compact [RES] format', () => {
       enemyCDTimeline: BASE_ENEMY_TIMELINE,
     });
     expect(result).toBe('');
+  });
+});
+
+describe('buildResourceSnapshot — delta form (F83)', () => {
+  const BASE_ENEMY_TIMELINE = makeEnemyTimeline();
+
+  function makeParams(timeSeconds: number, ownerCDs: IMajorCooldownInfo[], prevReadyNames?: string[]) {
+    return {
+      timeSeconds,
+      ownerCDs,
+      ownerName: 'Player1',
+      ownerSpec: 'Holy Paladin',
+      teammateCDs: [],
+      ccTrinketSummaries: [],
+      enemyCDTimeline: BASE_ENEMY_TIMELINE,
+      prevReadyNames,
+    };
+  }
+
+  it('emits full rdy: list when prevReadyNames is undefined (first call)', () => {
+    const avWr = { ...makeCD('Avenging Wrath', 120), casts: [] };
+    const result = buildResourceSnapshot(makeParams(30, [avWr]));
+    expect(result).toContain('rdy:Avenging Wrath');
+    expect(result).not.toContain('Δ');
+  });
+
+  it('emits rdy:Δ when ready list is unchanged from prev', () => {
+    const avWr = { ...makeCD('Avenging Wrath', 120), casts: [] };
+    const result = buildResourceSnapshot(makeParams(30, [avWr], ['Avenging Wrath']));
+    expect(result).toContain('rdy:Δ');
+    expect(result).not.toContain('rdy:Avenging Wrath');
+  });
+
+  it('emits rdy:Δ-SpellName when a CD was just used (no longer ready)', () => {
+    // avWr cast at t=10; at t=30, priorCasts=[{t=10}] (10 < 29.5), 10+120=130 > 30.5 → on CD
+    const avWr = { ...makeCD('Avenging Wrath', 120), casts: [{ timeSeconds: 10 }] };
+    const result = buildResourceSnapshot(makeParams(30, [avWr], ['Avenging Wrath']));
+    expect(result).toContain('rdy:Δ-Avenging Wrath');
+  });
+
+  it('emits rdy:Δ+SpellName when a CD just came off cooldown', () => {
+    // avWr cast at t=10, CD=30s; at t=45, 10+30=40 ≤ 45.5 → ready; prev=[]
+    const avWr = { ...makeCD('Avenging Wrath', 30), casts: [{ timeSeconds: 10 }] };
+    const result = buildResourceSnapshot(makeParams(45, [avWr], []));
+    expect(result).toContain('rdy:Δ+Avenging Wrath');
+  });
+
+  it('emits rdy:Δ+Added-Removed when one CD became ready and another went on CD', () => {
+    // ps cast at t=10, CD=120s: at t=50, 10+120=130 > 50.5 → on CD (was in prev)
+    const ps = { ...makeCD('Pain Suppression', 120), casts: [{ timeSeconds: 10 }] };
+    // avWr cast at t=10, CD=30s: at t=50, 10+30=40 ≤ 50.5 → ready (was NOT in prev)
+    const avWr = { ...makeCD('Avenging Wrath', 30), casts: [{ timeSeconds: 10 }] };
+    const result = buildResourceSnapshot(makeParams(50, [ps, avWr], ['Pain Suppression']));
+    expect(result).toContain('+Avenging Wrath');
+    expect(result).toContain('-Pain Suppression');
+    expect(result).toContain('Δ');
+  });
+
+  describe('computeReadyNames', () => {
+    it('returns empty array when no ownerCDs and no teammateCDs', () => {
+      expect(computeReadyNames(30, [], [])).toEqual([]);
+    });
+
+    it('returns spell name when CD has no prior casts and timeSeconds > 5', () => {
+      const avWr = { ...makeCD('Avenging Wrath', 120), casts: [] };
+      expect(computeReadyNames(30, [avWr], [])).toEqual(['Avenging Wrath']);
+    });
+
+    it('does NOT return spell when not yet 5s into match', () => {
+      const avWr = { ...makeCD('Avenging Wrath', 120), casts: [] };
+      expect(computeReadyNames(3, [avWr], [])).toEqual([]);
+    });
+
+    it('returns spell name when cooldown has expired', () => {
+      // cast at t=5, CD=30s → ready at t=35; query at t=40
+      const avWr = { ...makeCD('Avenging Wrath', 30), casts: [{ timeSeconds: 5 }] };
+      expect(computeReadyNames(40, [avWr], [])).toContain('Avenging Wrath');
+    });
+
+    it('does NOT return spell while still on cooldown', () => {
+      // cast at t=5, CD=120s → ready at t=125; query at t=40
+      const avWr = { ...makeCD('Avenging Wrath', 120), casts: [{ timeSeconds: 5 }] };
+      expect(computeReadyNames(40, [avWr], [])).not.toContain('Avenging Wrath');
+    });
   });
 });
 
