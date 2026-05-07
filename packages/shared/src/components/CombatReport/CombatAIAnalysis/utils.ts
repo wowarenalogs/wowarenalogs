@@ -1662,6 +1662,24 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     entries.push({ timeSeconds, lines: lines.filter(Boolean) });
   }
 
+  // ── [OFFENSIVE WINDOW] synthesized headers ─────────────────────────────────
+
+  for (const burst of enemyCDTimeline.alignedBurstWindows) {
+    const overlappingSpike = pressureWindows.find(
+      (pw) =>
+        pw.totalDamage >= DMG_SPIKE_THRESHOLD &&
+        pw.fromSeconds >= burst.fromSeconds - 5 &&
+        pw.fromSeconds <= burst.toSeconds + 5,
+    );
+    if (!overlappingSpike) continue;
+    const dmgM = (overlappingSpike.totalDamage / 1_000_000).toFixed(2);
+    const cdNames = burst.activeCDs.map((c) => c.spellName).join(' + ');
+    addEntry(
+      burst.fromSeconds,
+      `${fmtTime(burst.fromSeconds)}  [OFFENSIVE WINDOW]   ${fmtTime(burst.fromSeconds)}–${fmtTime(burst.toSeconds)} | ${burst.dangerLabel} | ${dmgM}M on ${pid(overlappingSpike.targetName)} (${overlappingSpike.targetSpec}) | CDs: ${cdNames}`,
+    );
+  }
+
   // ── [DEATH] events ────────────────────────────────────────────────────────
 
   const unitsByName = new Map(friends.map((u) => [u.name, u]));
