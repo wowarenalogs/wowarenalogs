@@ -157,3 +157,101 @@ describe('analyzePlayerCCAndTrinket — root/disarm/interrupt tracking', () => {
     expect(result.interruptInstances).toHaveLength(0);
   });
 });
+
+describe('analyzePlayerCCAndTrinket — trinketCDSecondsLeft', () => {
+  const MATCH_START = 1_000_000;
+  const MATCH_END = 1_300_000;
+
+  // CC spell that is tracked: Hammer of Justice (853) is in ccSpellIds
+  const HOJ_SPELL_ID = '853';
+
+  function makeCombat() {
+    return { startTime: MATCH_START, endTime: MATCH_END, startInfo: { zoneId: '1672' } };
+  }
+
+  function makeEnemy(id: string) {
+    return makeUnit(id, {
+      name: 'Enemy',
+      reaction: CombatUnitReaction.Hostile,
+      spec: CombatUnitSpec.Paladin_Retribution,
+    });
+  }
+
+  it('sets trinketCDSecondsLeft when trinket is on cooldown', () => {
+    // Gladiator Medallion (spell 336126) cast at T+10s. CD is 90s (healer).
+    // CC lands at T+40s → trinket has been on CD for 30s → 60s left.
+    const trinketCast = {
+      logLine: { event: LogEvent.SPELL_CAST_SUCCESS, timestamp: MATCH_START + 10_000, parameters: [] },
+      spellId: '336126',
+      spellName: "Gladiator's Medallion",
+      srcUnitId: 'player-1',
+      srcUnitName: 'Player',
+      destUnitId: 'player-1',
+      destUnitName: 'Player',
+      effectiveAmount: 0,
+      advancedActorMaxHp: 0,
+      advancedActorCurrentHp: 0,
+      advancedActorPositionX: 0,
+      advancedActorPositionY: 0,
+    };
+    const ccApply = makeAuraEvent(
+      LogEvent.SPELL_AURA_APPLIED,
+      HOJ_SPELL_ID,
+      MATCH_START + 40_000,
+      'enemy-1',
+      'player-1',
+    );
+    const ccRemove = makeAuraEvent(
+      LogEvent.SPELL_AURA_REMOVED,
+      HOJ_SPELL_ID,
+      MATCH_START + 44_000,
+      'enemy-1',
+      'player-1',
+    );
+
+    const player = makeUnit('player-1', {
+      spec: CombatUnitSpec.Paladin_Holy, // healer → 90s CD
+      info: { equipment: [{ id: '99999', ilvl: 450, enchants: [], bonuses: [], gems: [] }] } as any,
+      spellCastEvents: [trinketCast] as any,
+      auraEvents: [ccApply, ccRemove],
+    });
+    const enemy = makeEnemy('enemy-1');
+
+    const result = analyzePlayerCCAndTrinket(player, [enemy], makeCombat());
+
+    expect(result.ccInstances).toHaveLength(1);
+    expect(result.ccInstances[0].trinketState).toBe('on_cooldown');
+    expect(result.ccInstances[0].trinketCDSecondsLeft).toBe(60);
+  });
+
+  it('does not set trinketCDSecondsLeft when trinket is available_unused', () => {
+    // No prior trinket cast → available
+    const ccApply = makeAuraEvent(
+      LogEvent.SPELL_AURA_APPLIED,
+      HOJ_SPELL_ID,
+      MATCH_START + 40_000,
+      'enemy-1',
+      'player-1',
+    );
+    const ccRemove = makeAuraEvent(
+      LogEvent.SPELL_AURA_REMOVED,
+      HOJ_SPELL_ID,
+      MATCH_START + 44_000,
+      'enemy-1',
+      'player-1',
+    );
+
+    const player = makeUnit('player-1', {
+      spec: CombatUnitSpec.Paladin_Holy,
+      info: { equipment: [{ id: '99999', ilvl: 450, enchants: [], bonuses: [], gems: [] }] } as any,
+      spellCastEvents: [],
+      auraEvents: [ccApply, ccRemove],
+    });
+    const enemy = makeEnemy('enemy-1');
+
+    const result = analyzePlayerCCAndTrinket(player, [enemy], makeCombat());
+
+    expect(result.ccInstances[0].trinketState).toBe('available_unused');
+    expect(result.ccInstances[0].trinketCDSecondsLeft).toBeUndefined();
+  });
+});

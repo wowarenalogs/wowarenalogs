@@ -563,7 +563,7 @@ describe('buildMatchTimeline — CD events', () => {
 });
 
 describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () => {
-  it('emits [CC ON TEAM] with trinket: available, not used when trinket was available', () => {
+  it('emits [CC ON TEAM] with no trinket annotation when trinket was available (implicit default)', () => {
     const cc: ICCInstance = {
       atSeconds: 37,
       durationSeconds: 4,
@@ -584,7 +584,7 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     );
     expect(result).toContain('[CC ON TEAM]');
     expect(result).toContain('Feramonk ← Hammer of Justice (Dzinked)');
-    expect(result).toContain('trinket: available, not used');
+    expect(result).not.toContain('trinket:');
     expect(result).toContain('0:37');
   });
 
@@ -608,6 +608,74 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
       }),
     );
     expect(result).toContain('trinket: used');
+  });
+
+  it('emits [CC ON TEAM] with trinket: ON CD (Xs left) when trinket is on cooldown', () => {
+    const cc: ICCInstance = {
+      atSeconds: 52,
+      durationSeconds: 6,
+      spellId: '853',
+      spellName: 'Hammer of Justice',
+      sourceName: 'Dzinked',
+      sourceSpec: 'Holy Paladin',
+      damageTakenDuring: 80_000,
+      trinketState: 'on_cooldown',
+      trinketCDSecondsLeft: 38,
+      drInfo: null,
+      distanceYards: null,
+      losBlocked: null,
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ccTrinketSummaries: [{ ...makeEmptyCCTrinketSummary('Feramonk'), ccInstances: [cc] }],
+      }),
+    );
+    expect(result).toContain('trinket: ON CD (38s left)');
+  });
+
+  it('emits [CC ON TEAM] with trinket: ON CD (on CD) when trinketCDSecondsLeft is absent', () => {
+    const cc: ICCInstance = {
+      atSeconds: 52,
+      durationSeconds: 6,
+      spellId: '853',
+      spellName: 'Hammer of Justice',
+      sourceName: 'Dzinked',
+      sourceSpec: 'Holy Paladin',
+      damageTakenDuring: 80_000,
+      trinketState: 'on_cooldown',
+      drInfo: null,
+      distanceYards: null,
+      losBlocked: null,
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ccTrinketSummaries: [{ ...makeEmptyCCTrinketSummary('Feramonk'), ccInstances: [cc] }],
+      }),
+    );
+    expect(result).toContain('trinket: ON CD (on CD)');
+  });
+
+  it('emits [CC ON TEAM] with no trinket annotation for passive_trinket (Relentless)', () => {
+    const cc: ICCInstance = {
+      atSeconds: 30,
+      durationSeconds: 5,
+      spellId: '853',
+      spellName: 'Hammer of Justice',
+      sourceName: 'Dzinked',
+      sourceSpec: 'Holy Paladin',
+      damageTakenDuring: 0,
+      trinketState: 'passive_trinket',
+      drInfo: null,
+      distanceYards: null,
+      losBlocked: null,
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ccTrinketSummaries: [{ ...makeEmptyCCTrinketSummary('Feramonk'), ccInstances: [cc] }],
+      }),
+    );
+    expect(result).toContain('[CC ON TEAM]');
+    expect(result).not.toContain('trinket:');
   });
 
   it('suppresses [CC ON TEAM] when durationSeconds is 0 (instant-break artifact)', () => {

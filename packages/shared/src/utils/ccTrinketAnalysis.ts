@@ -50,6 +50,8 @@ export interface ICCInstance {
   sourceSpec: string;
   damageTakenDuring: number;
   trinketState: 'used' | 'available_unused' | 'on_cooldown' | 'passive_trinket';
+  /** Seconds until trinket is ready again. Only populated when trinketState === 'on_cooldown'. */
+  trinketCDSecondsLeft?: number;
   /** DR state at the time this CC was applied. null if spell not in DR category map. */
   drInfo: IDRInfo | null;
   /**
@@ -314,6 +316,7 @@ export function analyzePlayerCCAndTrinket(
     );
 
     let trinketState: ICCInstance['trinketState'];
+    let trinketCDSecondsLeft: number | undefined;
     if (trinketType === 'Relentless') {
       trinketState = 'passive_trinket';
     } else if (trinketUsedInWindow) {
@@ -322,6 +325,15 @@ export function analyzePlayerCCAndTrinket(
       trinketState = 'available_unused';
     } else {
       trinketState = 'on_cooldown';
+      let lastCast = -Infinity;
+      for (const ts of trinketCastTimestamps) {
+        if (ts <= w.applyMs) lastCast = ts;
+        else break;
+      }
+      if (lastCast !== -Infinity) {
+        const remainingMs = trinketCooldownMs - (w.applyMs - lastCast);
+        trinketCDSecondsLeft = Math.ceil(remainingMs / 1000);
+      }
     }
 
     // LoS + distance at CC application time
@@ -348,6 +360,7 @@ export function analyzePlayerCCAndTrinket(
       sourceSpec: enemySpecMap.get(w.srcUnitId) ?? 'Unknown',
       damageTakenDuring,
       trinketState,
+      trinketCDSecondsLeft,
       distanceYards,
       losBlocked,
     };

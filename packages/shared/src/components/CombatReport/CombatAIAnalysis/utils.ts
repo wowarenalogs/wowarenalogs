@@ -1869,12 +1869,15 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
 
     for (const cc of summary.ccInstances) {
       if (cc.durationSeconds === 0) continue;
-      const trinketNote =
-        cc.trinketState === 'available_unused'
-          ? ' | trinket: available, not used'
-          : cc.trinketState === 'used'
-            ? ' | trinket: used'
-            : ' | trinket: on cooldown';
+      let trinketNote = '';
+      if (cc.trinketState === 'used') {
+        trinketNote = ' | trinket: used';
+      } else if (cc.trinketState === 'on_cooldown') {
+        const cdLeft = cc.trinketCDSecondsLeft !== undefined ? `${cc.trinketCDSecondsLeft}s left` : 'on CD';
+        trinketNote = ` | trinket: ON CD (${cdLeft})`;
+      }
+      // available_unused → implicit default, no annotation
+      // passive_trinket → player has no active trinket, no annotation
       addEntry(
         cc.atSeconds,
         `${fmtTime(cc.atSeconds)}  [CC ON TEAM]   ${pid(summary.playerName)} ← ${cc.spellName} (${pid(cc.sourceName)}) | ${cc.durationSeconds.toFixed(0)}s${trinketNote}`,
