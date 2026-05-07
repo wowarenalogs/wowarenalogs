@@ -26,6 +26,7 @@ function makeCCSummary(atSeconds: number, durationSeconds: number) {
         sourceName: 'Mage',
         sourceSpec: 'Mage Frost',
         trinketState: 'on_cooldown',
+        trinketCooldownSecondsRemaining: null,
         drInfo: { category: 'Incapacitate' },
         damageTakenDuring: 0,
         distanceYards: null,

@@ -563,6 +563,31 @@ describe('buildMatchTimeline — CD events', () => {
 });
 
 describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () => {
+  it('emits [CC ON TEAM] with trinket: ON CD annotation when trinket is on cooldown', () => {
+    const cc: ICCInstance = {
+      atSeconds: 37,
+      durationSeconds: 4,
+      spellId: '853',
+      spellName: 'Hammer of Justice',
+      sourceName: 'Dzinked',
+      sourceSpec: 'Holy Paladin',
+      damageTakenDuring: 50_000,
+      trinketState: 'on_cooldown',
+      trinketCooldownSecondsRemaining: 45,
+      drInfo: null,
+      distanceYards: null,
+      losBlocked: null,
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ccTrinketSummaries: [{ ...makeEmptyCCTrinketSummary('Feramonk'), ccInstances: [cc] }],
+      }),
+    );
+    expect(result).toContain('[CC ON TEAM]');
+    expect(result).toContain('trinket: ON CD (45s left)');
+    expect(result).not.toContain('trinket: on cooldown');
+  });
+
   it('emits [CC ON TEAM] with trinket: available, not used when trinket was available', () => {
     const cc: ICCInstance = {
       atSeconds: 37,
@@ -573,6 +598,7 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
       sourceSpec: 'Holy Paladin',
       damageTakenDuring: 50_000,
       trinketState: 'available_unused',
+      trinketCooldownSecondsRemaining: null,
       drInfo: null,
       distanceYards: null,
       losBlocked: null,
@@ -598,6 +624,7 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
       sourceSpec: 'Holy Paladin',
       damageTakenDuring: 30_000,
       trinketState: 'used',
+      trinketCooldownSecondsRemaining: null,
       drInfo: null,
       distanceYards: null,
       losBlocked: null,
@@ -1136,6 +1163,7 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
       sourceSpec: 'Balance Druid',
       damageTakenDuring: 0,
       trinketState: 'available_unused',
+      trinketCooldownSecondsRemaining: null,
       drInfo: null,
       distanceYards: null,
       losBlocked: null,
@@ -1755,6 +1783,7 @@ describe('buildMatchTimeline — F68 cast/CC disambiguation', () => {
       sourceSpec: 'Arms Warrior',
       damageTakenDuring: 50_000,
       trinketState: 'available_unused',
+      trinketCooldownSecondsRemaining: null,
       drInfo: null,
       distanceYards: null,
       losBlocked: null,
@@ -2436,6 +2465,7 @@ describe('buildResourceSnapshot — F72 compact [RES] format', () => {
       sourceSpec: 'Unknown',
       damageTakenDuring: 0,
       trinketState: 'available_unused',
+      trinketCooldownSecondsRemaining: null,
       drInfo: { category, level: 'Full' as const, sequenceIndex: 0 },
       distanceYards: null,
       losBlocked: null,

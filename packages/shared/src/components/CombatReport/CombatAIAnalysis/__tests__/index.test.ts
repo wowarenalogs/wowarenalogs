@@ -103,6 +103,7 @@ function makeCCInstance(
     sourceSpec: 'Ret Paladin',
     damageTakenDuring: 50_000,
     trinketState,
+    trinketCooldownSecondsRemaining: null,
     drInfo: null,
     distanceYards: null,
     losBlocked: null,
