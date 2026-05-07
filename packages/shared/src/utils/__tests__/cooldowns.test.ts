@@ -831,6 +831,19 @@ describe('extractMajorCooldowns', () => {
     expect(cds.find((c) => c.spellId === '216331')).toBeUndefined();
   });
 
+  it('does not include Avenging Crusader for Retribution Paladin without COMBATANT_INFO', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Paladin,
+      spec: CombatUnitSpec.Paladin_Retribution,
+      spellCastEvents: [],
+      // info omitted → hasCombatantInfo = false; SPEC_EXCLUSIVE_SPELLS is the only guard
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+
+    const cds = extractMajorCooldowns(owner, combat);
+    expect(cds.find((c) => c.spellId === '216331')).toBeUndefined();
+  });
+
   it('includes Aura Mastery (31821) for Holy Paladin who cast it', () => {
     const owner = makeUnit('player-1', {
       class: CombatUnitClass.Paladin,

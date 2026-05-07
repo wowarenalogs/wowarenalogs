@@ -56,6 +56,7 @@ const SPEC_EXCLUSIVE_SPELLS: Record<string, CombatUnitSpec[]> = {
   '199448': [CombatUnitSpec.Paladin_Holy], // Blessing of Sacrifice
   '210294': [CombatUnitSpec.Paladin_Holy], // Divine Favor
   '31821': [CombatUnitSpec.Paladin_Holy], // Aura Mastery
+  '216331': [CombatUnitSpec.Paladin_Holy], // Avenging Crusader
   '86659': [CombatUnitSpec.Paladin_Protection], // Guardian of Ancient Kings
   '337851': [CombatUnitSpec.Paladin_Protection], // Guardian of Ancient Kings
   '337852': [CombatUnitSpec.Paladin_Protection], // Reign of Ancient Kings
