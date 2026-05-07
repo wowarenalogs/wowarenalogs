@@ -1879,7 +1879,7 @@ describe('buildMatchTimeline — F68 cast/CC disambiguation', () => {
     );
     const castLine = result.split('\n').find((l) => l.includes('[OWNER CAST]') && l.includes('Pain Suppression'));
     expect(castLine).toBeDefined();
-    expect(castLine).toContain('[succeeded after CC arrived — same second in log]');
+    expect(castLine).toContain('[succeeded after CC arrived — within 1s in log]');
   });
 
   it('annotates [OWNER CAST] with [same server tick as CC] when cast ms === CC ms', () => {
@@ -1971,7 +1971,7 @@ describe('buildMatchTimeline — F68 cast/CC disambiguation', () => {
     );
     const castLine = result.split('\n').find((l) => l.includes('[OWNER CAST]') && l.includes('Pain Suppression'));
     expect(castLine).toBeDefined();
-    expect(castLine).toContain('[succeeded after CC arrived — same second in log]');
+    expect(castLine).toContain('[succeeded after CC arrived — within 1s in log]');
   });
 });
 

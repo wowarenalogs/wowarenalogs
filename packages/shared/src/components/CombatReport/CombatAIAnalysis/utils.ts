@@ -1788,7 +1788,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         if (tsMs < nearestCC) {
           orderNote = ' [completed before CC landed]';
         } else if (tsMs > nearestCC) {
-          orderNote = ' [succeeded after CC arrived — same second in log]';
+          orderNote = ' [succeeded after CC arrived — within 1s in log]';
         } else {
           orderNote = ' [same server tick as CC — cast succeeded per log]';
         }
