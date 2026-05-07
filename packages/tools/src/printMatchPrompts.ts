@@ -68,7 +68,7 @@ import {
 } from '../../shared/src/utils/killWindowTargetSelection';
 import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../shared/src/utils/matchArchetype';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../shared/src/utils/offensiveWindows';
-import { benchmarks, formatSpecBaselines } from '../../shared/src/utils/specBaselines';
+import { benchmarks, formatDTPSBaselines, formatSpecBaselines } from '../../shared/src/utils/specBaselines';
 
 const API_BASE = 'https://wowarenalogs.com';
 
@@ -942,6 +942,15 @@ export function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): 
     lines.push('');
   }
 
+  const dtpsBaselineLines = formatDTPSBaselines(
+    friends.map((p) => specToString(p.spec)),
+    benchmarks,
+  );
+  if (dtpsBaselineLines.length > 0) {
+    lines.push(...dtpsBaselineLines);
+    lines.push('');
+  }
+
   const dampeningLines = formatDampeningForContext(
     combat.startInfo?.bracket ?? '3v3',
     [...friends, ...enemies],
@@ -1078,6 +1087,15 @@ function buildMatchPromptJson(combat: ParsedCombat, forceHealer = false): string
   const specBaselineLines = formatSpecBaselines(ownerSpec, ownerCDs, benchmarks);
   if (specBaselineLines.length > 0) {
     lines.push(...specBaselineLines);
+    lines.push('');
+  }
+
+  const dtpsBaselineLines = formatDTPSBaselines(
+    friends.map((p) => specToString(p.spec)),
+    benchmarks,
+  );
+  if (dtpsBaselineLines.length > 0) {
+    lines.push(...dtpsBaselineLines);
     lines.push('');
   }
 
