@@ -197,6 +197,7 @@ export function buildMatchContext(
     );
     tLines.push(`  My team: ${myTeam}`);
     tLines.push(`  Enemy team: ${enemyTeam}`);
+    tLines.push('  Damage units: M = 1,000,000  |  k = 1,000  (e.g. "0.84M" = 840,000 dmg)');
     tLines.push('');
 
     tLines.push('PURGE RESPONSIBILITY');
