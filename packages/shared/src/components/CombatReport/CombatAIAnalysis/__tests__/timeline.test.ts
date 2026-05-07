@@ -781,6 +781,37 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     expect(hpLine).toContain('DPS');
   });
 
+  it('puts log owner first in [STATE] friends section regardless of input order', () => {
+    // Owner is 'Feramonk' (default makeBaseParams owner name)
+    const ownerUnit = makeUnit('unit-1', {
+      name: 'Feramonk',
+      advancedActions: [makeAdvancedAction(3_000, 0, 0, 500_000, 400_000)], // 80%
+    }) as ICombatUnit;
+    const dpsUnit = makeUnit('unit-2', {
+      name: 'DPS',
+      advancedActions: [makeAdvancedAction(3_000, 0, 0, 500_000, 500_000)], // 100%
+    }) as ICombatUnit;
+    (dpsUnit as any).advancedActions[0].advancedActorId = 'unit-2';
+
+    // DPS is listed first in the friends array — owner should still appear first in output
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [dpsUnit, ownerUnit],
+        matchStartMs: 0,
+        matchEndMs: 6_000,
+      }),
+    );
+
+    const stateLine = result.split('\n').find((l) => l.includes('[STATE]') && l.includes('Feramonk'));
+    expect(stateLine).toBeDefined();
+    // Owner must appear before DPS in the friends section
+    if (stateLine) {
+      const ownerPos = stateLine.indexOf('Feramonk');
+      const dpsPos = stateLine.indexOf('DPS');
+      expect(ownerPos).toBeLessThan(dpsPos);
+    }
+  });
+
   it('omits [HP] ticks when no friends have advanced action data', () => {
     const unit = makeUnit('unit-1', { name: 'Feramonk', advancedActions: [] }) as ICombatUnit;
     const result = buildMatchTimeline(
