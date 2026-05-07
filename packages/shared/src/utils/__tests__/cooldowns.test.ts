@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-import { CombatUnitReaction, CombatUnitSpec, LogEvent } from '@wowarenalogs/parser';
+import { CombatUnitClass, CombatUnitReaction, CombatUnitSpec, LogEvent } from '@wowarenalogs/parser';
 
 import {
   annotateDefensiveTimings,
   computePressureWindows,
   detectOverlappedDefensives,
   detectPanicDefensives,
+  extractMajorCooldowns,
   fmtTime,
   getPressureThreshold,
   IEnemyCDTimelineForTiming,
@@ -785,5 +786,84 @@ describe('detectPanicDefensives', () => {
 
     // 50k > 35k healer threshold → not a panic
     expect(detectPanicDefensives([caster, target], [enemy], combat)).toHaveLength(0);
+  });
+});
+
+// ─── extractMajorCooldowns ────────────────────────────────────────────────────
+
+describe('extractMajorCooldowns', () => {
+  const T0 = 1_000_000; // match start ms
+  const T_END = 1_180_000; // match end ms (3 min)
+
+  function makeCombatFull(units: Record<string, ReturnType<typeof makeUnit>>) {
+    return {
+      startTime: T0,
+      endTime: T_END,
+      units,
+    } as unknown as import('@wowarenalogs/parser').AtomicArenaCombat;
+  }
+
+  it('includes Avenging Crusader (216331) for Holy Paladin who cast it', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Paladin,
+      spec: CombatUnitSpec.Paladin_Holy,
+      spellCastEvents: [makeSpellCastEvent('216331', T0 + 30_000, 'enemy-1')],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+
+    const cds = extractMajorCooldowns(owner, combat);
+    const ac = cds.find((c) => c.spellId === '216331');
+    expect(ac).toBeDefined();
+    expect(ac?.casts).toHaveLength(1);
+    expect(ac?.casts[0].timeSeconds).toBeCloseTo(30, 1);
+  });
+
+  it('does not include Avenging Crusader for Retribution Paladin', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Paladin,
+      spec: CombatUnitSpec.Paladin_Retribution,
+      spellCastEvents: [],
+      info: { talents: [], pvpTalents: [] } as unknown as ReturnType<typeof makeUnit>['info'],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+
+    const cds = extractMajorCooldowns(owner, combat);
+    expect(cds.find((c) => c.spellId === '216331')).toBeUndefined();
+  });
+
+  it('includes Aura Mastery (31821) for Holy Paladin who cast it', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Paladin,
+      spec: CombatUnitSpec.Paladin_Holy,
+      spellCastEvents: [makeSpellCastEvent('31821', T0 + 60_000, 'player-1')],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+
+    const cds = extractMajorCooldowns(owner, combat);
+    expect(cds.find((c) => c.spellId === '31821')).toBeDefined();
+  });
+
+  it('does not include Aura Mastery for Retribution Paladin (SPEC_EXCLUSIVE_SPELLS guard)', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Paladin,
+      spec: CombatUnitSpec.Paladin_Retribution,
+      spellCastEvents: [makeSpellCastEvent('31821', T0 + 60_000, 'player-1')],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+
+    const cds = extractMajorCooldowns(owner, combat);
+    expect(cds.find((c) => c.spellId === '31821')).toBeUndefined();
+  });
+
+  it('includes Ardent Defender (31850) for Protection Paladin who cast it', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Paladin,
+      spec: CombatUnitSpec.Paladin_Protection,
+      spellCastEvents: [makeSpellCastEvent('31850', T0 + 45_000, 'player-1')],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+
+    const cds = extractMajorCooldowns(owner, combat);
+    expect(cds.find((c) => c.spellId === '31850')).toBeDefined();
   });
 });
