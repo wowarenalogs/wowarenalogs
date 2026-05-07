@@ -1777,14 +1777,17 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         continue;
       const timeSeconds = (tsMs - matchStartMs) / 1000;
 
-      // F68: detect CC events in the same displayed second and annotate order
-      const castDisplaySecond = Math.floor(timeSeconds);
-      const sameTick = ccMsTimestamps.find((ccMs) => Math.floor((ccMs - matchStartMs) / 1000) === castDisplaySecond);
+      // F68/F89: find nearest CC within 1s — annotate ordering so Claude knows cast completed
+      // before or after incoming CC regardless of displayed-second boundary
+      const CC_PROXIMITY_MS = 1000;
+      const nearestCC = ccMsTimestamps
+        .filter((ccMs) => Math.abs(ccMs - tsMs) <= CC_PROXIMITY_MS)
+        .sort((a, b) => Math.abs(a - tsMs) - Math.abs(b - tsMs))[0];
       let orderNote = '';
-      if (sameTick !== undefined) {
-        if (tsMs < sameTick) {
+      if (nearestCC !== undefined) {
+        if (tsMs < nearestCC) {
           orderNote = ' [completed before CC landed]';
-        } else if (tsMs > sameTick) {
+        } else if (tsMs > nearestCC) {
           orderNote = ' [succeeded after CC arrived — same second in log]';
         } else {
           orderNote = ' [same server tick as CC — cast succeeded per log]';

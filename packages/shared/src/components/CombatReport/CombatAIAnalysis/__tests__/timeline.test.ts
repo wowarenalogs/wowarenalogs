@@ -1898,10 +1898,10 @@ describe('buildMatchTimeline — F68 cast/CC disambiguation', () => {
     expect(castLine).toContain('[same server tick as CC — cast succeeded per log]');
   });
 
-  it('does not annotate [OWNER CAST] when cast and CC are in different displayed seconds', () => {
-    // cast at 21.500s (0:21), CC at 22.500s (0:22) — different display seconds
-    const castMs = MATCH_START_MS + 21_500;
-    const ccMs = MATCH_START_MS + 22_500;
+  it('does not annotate [OWNER CAST] when cast and CC are more than 1s apart', () => {
+    // cast at 21.000s (0:21), CC at 23.000s (0:23) — 2s apart, outside ±1000ms proximity window
+    const castMs = MATCH_START_MS + 21_000;
+    const ccMs = MATCH_START_MS + 23_000;
     const result = buildMatchTimeline(
       makeBaseParams({
         owner: makeOwnerWithCast(castMs),
