@@ -20,6 +20,7 @@ interface ISpecBaseline {
     unknownPct: number;
   } | null;
   cdUsage: Record<string, ISpecCDBaseline>;
+  pressureWindows?: { p50: number; p75: number; p90: number; p95: number };
 }
 
 export interface IBenchmarkData {
@@ -55,4 +56,22 @@ export function formatSpecBaselines(ownerSpec: string, ownerCDs: IMajorCooldownI
   }
 
   return lines;
+}
+
+/**
+ * Emits a per-spec incoming-damage baseline block for all friendly specs that have
+ * benchmark data. Helps the model interpret [DMG SPIKE] magnitudes.
+ * Each value is the total damage received in a 10-second window at ≥2100 MMR.
+ */
+export function formatDTPSBaselines(friendlySpecs: string[], data: IBenchmarkData): string[] {
+  const rows: string[] = [];
+  for (const spec of friendlySpecs) {
+    const entry = data.bySpec[spec];
+    if (!entry?.pressureWindows) continue;
+    const p50k = Math.round(entry.pressureWindows.p50 / 1000);
+    const p90k = Math.round(entry.pressureWindows.p90 / 1000);
+    rows.push(`  ${spec} (n=${entry.sampleCount}): p50 ${p50k}k | p90 ${p90k}k`);
+  }
+  if (rows.length === 0) return [];
+  return ['INCOMING DAMAGE BASELINES (per 10s window, ≥2100 MMR):', ...rows];
 }
