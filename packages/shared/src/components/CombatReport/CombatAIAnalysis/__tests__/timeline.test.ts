@@ -610,6 +610,28 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     expect(result).toContain('trinket: used');
   });
 
+  it('suppresses [CC ON TEAM] when durationSeconds is 0 (instant-break artifact)', () => {
+    const cc: ICCInstance = {
+      atSeconds: 15,
+      durationSeconds: 0,
+      spellId: '853',
+      spellName: 'Hammer of Justice',
+      sourceName: 'Dzinked',
+      sourceSpec: 'Holy Paladin',
+      damageTakenDuring: 0,
+      trinketState: 'used',
+      drInfo: null,
+      distanceYards: null,
+      losBlocked: null,
+    };
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        ccTrinketSummaries: [{ ...makeEmptyCCTrinketSummary('Feramonk'), ccInstances: [cc] }],
+      }),
+    );
+    expect(result).not.toContain('[CC ON TEAM]');
+  });
+
   it('emits [TRINKET] events for trinket uses', () => {
     const result = buildMatchTimeline(
       makeBaseParams({
