@@ -879,4 +879,79 @@ describe('extractMajorCooldowns', () => {
     const cds = extractMajorCooldowns(owner, combat);
     expect(cds.find((c) => c.spellId === '31850')).toBeDefined();
   });
+
+  it('includes Guardian Spirit (47788) for Priest Holy who cast it', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Priest,
+      spec: CombatUnitSpec.Priest_Holy,
+      spellCastEvents: [makeSpellCastEvent('47788', T0 + 30_000, 'friendly-1')],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+    const cds = extractMajorCooldowns(owner, combat);
+    const gs = cds.find((c) => c.spellId === '47788');
+    expect(gs).toBeDefined();
+    expect(gs?.spellName).toBe('Guardian Spirit');
+    expect(gs?.cooldownSeconds).toBe(180);
+  });
+
+  it('does NOT include Guardian Spirit for Priest Discipline (SPEC_EXCLUSIVE guard)', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Priest,
+      spec: CombatUnitSpec.Priest_Discipline,
+      spellCastEvents: [makeSpellCastEvent('47788', T0 + 30_000, 'friendly-1')],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+    const cds = extractMajorCooldowns(owner, combat);
+    expect(cds.find((c) => c.spellId === '47788')).toBeUndefined();
+  });
+
+  it('includes Divine Hymn (64843) for Priest Holy who cast it', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Priest,
+      spec: CombatUnitSpec.Priest_Holy,
+      spellCastEvents: [makeSpellCastEvent('64843', T0 + 45_000, 'player-1')],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+    const cds = extractMajorCooldowns(owner, combat);
+    const dh = cds.find((c) => c.spellId === '64843');
+    expect(dh).toBeDefined();
+    expect(dh?.spellName).toBe('Divine Hymn');
+    expect(dh?.cooldownSeconds).toBe(180);
+  });
+
+  it('does NOT include Divine Hymn for Priest Discipline (SPEC_EXCLUSIVE guard)', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Priest,
+      spec: CombatUnitSpec.Priest_Discipline,
+      spellCastEvents: [makeSpellCastEvent('64843', T0 + 45_000, 'player-1')],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+    const cds = extractMajorCooldowns(owner, combat);
+    expect(cds.find((c) => c.spellId === '64843')).toBeUndefined();
+  });
+
+  it('includes Tranquility (740) for Druid Restoration who cast it', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Druid,
+      spec: CombatUnitSpec.Druid_Restoration,
+      spellCastEvents: [makeSpellCastEvent('740', T0 + 60_000, 'player-1')],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+    const cds = extractMajorCooldowns(owner, combat);
+    const tranq = cds.find((c) => c.spellId === '740');
+    expect(tranq).toBeDefined();
+    expect(tranq?.spellName).toBe('Tranquility');
+    expect(tranq?.cooldownSeconds).toBe(180);
+  });
+
+  it('does NOT include Tranquility for Druid Balance (SPEC_EXCLUSIVE guard)', () => {
+    const owner = makeUnit('player-1', {
+      class: CombatUnitClass.Druid,
+      spec: CombatUnitSpec.Druid_Balance,
+      spellCastEvents: [makeSpellCastEvent('740', T0 + 60_000, 'player-1')],
+    });
+    const combat = makeCombatFull({ 'player-1': owner });
+    const cds = extractMajorCooldowns(owner, combat);
+    expect(cds.find((c) => c.spellId === '740')).toBeUndefined();
+  });
 });
