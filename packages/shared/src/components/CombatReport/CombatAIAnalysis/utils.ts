@@ -1246,6 +1246,35 @@ export function buildPlayerLoadout(
 
 // ── buildResourceSnapshot ──────────────────────────────────────────────────
 
+/**
+ * Returns the names of all friendly major CDs that are ready (available to cast)
+ * at the given timeSeconds. Shared between buildResourceSnapshot and the delta
+ * state tracker in buildMatchTimeline.
+ */
+export function computeReadyNames(
+  timeSeconds: number,
+  ownerCDs: IMajorCooldownInfo[],
+  teammateCDs: Array<{ cds: IMajorCooldownInfo[] }>,
+): string[] {
+  const readyNames: string[] = [];
+  const allFriendlyCDs = [
+    ...ownerCDs.map((cd) => ({ spellName: cd.spellName, cd })),
+    ...teammateCDs.flatMap(({ cds }) => cds.map((cd) => ({ spellName: cd.spellName, cd }))),
+  ];
+  for (const { spellName, cd } of allFriendlyCDs) {
+    const priorCasts = cd.casts.filter((c) => c.timeSeconds < timeSeconds - 0.5);
+    if (priorCasts.length === 0) {
+      if (timeSeconds > 5) readyNames.push(spellName);
+      continue;
+    }
+    const charges = cd.maxChargesDetected > 1 ? cd.maxChargesDetected : 1;
+    const relevantCasts = priorCasts.slice(-charges);
+    const earliestSlotReady = relevantCasts[0].timeSeconds + cd.cooldownSeconds;
+    if (earliestSlotReady <= timeSeconds + 0.5) readyNames.push(spellName);
+  }
+  return readyNames;
+}
+
 export interface ResourceSnapshotParams {
   timeSeconds: number;
   ownerCDs: IMajorCooldownInfo[];
@@ -1257,6 +1286,11 @@ export interface ResourceSnapshotParams {
   ccTrinketSummaries: IPlayerCCTrinketSummary[];
   enemyCDTimeline: IEnemyCDTimeline;
   playerIdMap?: Map<string, number>;
+  /**
+   * Ready CD names from the previous snapshot. When provided, the [RES] line
+   * emits a delta form (rdy:Δ+Added,-Removed) instead of the full list.
+   */
+  prevReadyNames?: string[];
 }
 
 export function buildResourceSnapshot({
@@ -1268,6 +1302,7 @@ export function buildResourceSnapshot({
   ccTrinketSummaries,
   enemyCDTimeline,
   playerIdMap,
+  prevReadyNames,
 }: ResourceSnapshotParams): string {
   function pid(name: string): string {
     if (!playerIdMap) return name;
@@ -1276,7 +1311,7 @@ export function buildResourceSnapshot({
   }
 
   // ── rdy / cd ───────────────────────────────────────────────────────────────
-  const readyNames: string[] = [];
+  const readyNames = computeReadyNames(timeSeconds, ownerCDs, teammateCDs);
   const onCDParts: string[] = [];
 
   const allFriendlyCDs: Array<{ spellName: string; cd: IMajorCooldownInfo }> = [
@@ -1286,27 +1321,32 @@ export function buildResourceSnapshot({
 
   for (const { spellName, cd } of allFriendlyCDs) {
     const priorCasts = cd.casts.filter((c) => c.timeSeconds < timeSeconds - 0.5);
-
-    if (priorCasts.length === 0) {
-      if (timeSeconds > 5) readyNames.push(spellName);
-      continue;
-    }
-
+    if (priorCasts.length === 0) continue; // readyNames already captured above
     const charges = cd.maxChargesDetected > 1 ? cd.maxChargesDetected : 1;
     const relevantCasts = priorCasts.slice(-charges);
     const earliestSlotReady = relevantCasts[0].timeSeconds + cd.cooldownSeconds;
-
-    if (earliestSlotReady <= timeSeconds + 0.5) {
-      readyNames.push(spellName);
-    } else {
+    if (earliestSlotReady > timeSeconds + 0.5) {
       const remaining = Math.round(earliestSlotReady - timeSeconds);
       onCDParts.push(`${spellName}(${remaining}s)`);
     }
   }
 
-  let line =
-    `      [RES] rdy:${readyNames.length > 0 ? readyNames.join(',') : '—'}` +
-    `  cd:${onCDParts.length > 0 ? onCDParts.join(',') : '—'}`;
+  // ── rdy: — full form first time, delta form on subsequent calls ─────────────
+  let rdyPart: string;
+  if (prevReadyNames !== undefined) {
+    const prevSet = new Set(prevReadyNames);
+    const currentSet = new Set(readyNames);
+    const added = readyNames.filter((n) => !prevSet.has(n));
+    const removed = prevReadyNames.filter((n) => !currentSet.has(n));
+    const parts: string[] = [];
+    if (added.length > 0) parts.push(`+${added.join(',')}`);
+    if (removed.length > 0) parts.push(`-${removed.join(',')}`);
+    rdyPart = parts.length > 0 ? `rdy:Δ${parts.join('')}` : 'rdy:Δ';
+  } else {
+    rdyPart = `rdy:${readyNames.length > 0 ? readyNames.join(',') : '—'}`;
+  }
+
+  let line = `      [RES] ${rdyPart}  cd:${onCDParts.length > 0 ? onCDParts.join(',') : '—'}`;
 
   // ── enemy: (omit when empty) ───────────────────────────────────────────────
   const enemyActiveParts: string[] = [];
