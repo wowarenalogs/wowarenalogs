@@ -1982,27 +1982,32 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     const friendlyParts = friendlyHpUnits
       .map(({ unit, label }) => {
         const pct = getUnitHpAtTimestamp(unit, tsMs, sampleWindowMs);
-        return pct !== null ? `${label(unit.name)}:${pct}%` : null;
+        return pct !== null ? `${label(unit.name)}:${pct}` : null;
       })
       .filter((s): s is string => s !== null);
 
-    if (friendlyParts.length > 0) {
-      addEntry(t, `${fmtTime(t)}  [HP]   ${friendlyParts.join(' / ')}`);
+    const enemyParts: string[] =
+      criticalWindowSet.has(t) && enemyHpUnits.length > 0
+        ? enemyHpUnits
+            .map(({ unit, label }) => {
+              const pct = getUnitHpAtTimestamp(unit, tsMs, sampleWindowMs);
+              return pct !== null ? `${label(unit.name)}:${pct}` : null;
+            })
+            .filter((s): s is string => s !== null)
+        : [];
+
+    if (friendlyParts.length === 0 && enemyParts.length === 0) continue;
+
+    let stateParts: string;
+    if (friendlyParts.length > 0 && enemyParts.length > 0) {
+      stateParts = `friends ${friendlyParts.join(' ')} / enemies ${enemyParts.join(' ')}`;
+    } else if (friendlyParts.length > 0) {
+      stateParts = `friends ${friendlyParts.join(' ')}`;
+    } else {
+      stateParts = `enemies ${enemyParts.join(' ')}`;
     }
 
-    // Enemy HP only in critical windows — suppressed on quiet baseline ticks
-    if (criticalWindowSet.has(t) && enemyHpUnits.length > 0) {
-      const enemyParts = enemyHpUnits
-        .map(({ unit, label }) => {
-          const pct = getUnitHpAtTimestamp(unit, tsMs, sampleWindowMs);
-          return pct !== null ? `${label(unit.name)}:${pct}%` : null;
-        })
-        .filter((s): s is string => s !== null);
-
-      if (enemyParts.length > 0) {
-        addEntry(t, `${fmtTime(t)}  [ENEMY HP]   ${enemyParts.join(' / ')}`);
-      }
-    }
+    addEntry(t, `${fmtTime(t)}  [STATE]   ${stateParts}`);
   }
 
   // ── Sort and format ───────────────────────────────────────────────────────

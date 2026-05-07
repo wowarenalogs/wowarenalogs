@@ -2436,7 +2436,7 @@ describe('buildMatchTimeline — [HP] / [ENEMY HP] split', () => {
       }),
     );
 
-    expect(result).toContain('/ enemies');
+    expect(result).toContain('[STATE]   enemies Dzinked');
   });
 
   it('does NOT include enemy HP in the friends section of [STATE]', () => {
