@@ -1547,7 +1547,7 @@ export interface BuildMatchTimelineParams {
   healingGaps: IHealingGap[];
   friends: ICombatUnit[];
   /**
-   * Enemy player units. When provided, their HP is included in [HP] ticks
+   * Enemy player units. When provided, their HP is included in [STATE] ticks
    * alongside friendly HP, referenced by enemyPid() numeric ID.
    */
   enemies?: ICombatUnit[];
@@ -1919,7 +1919,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     }
   }
 
-  // ── [HP] ticks — 1s resolution in critical windows, 3s elsewhere (F62) ──────
+  // ── [STATE] ticks — 1s resolution in critical windows, 3s elsewhere (F62) ──────
 
   const matchDurationS = (matchEndMs - matchStartMs) / 1000;
 
