@@ -326,15 +326,14 @@ export function analyzePlayerCCAndTrinket(
       trinketState = 'available_unused';
     } else {
       trinketState = 'on_cooldown';
-      // Find last cast before w.applyMs to compute remaining CD
+      // lastCast is guaranteed non-Infinity: isTrinketAvailable returns true when
+      // no prior cast exists, so on_cooldown is only reached after at least one cast.
       let lastCast = -Infinity;
       for (const ts of trinketCastTimestamps) {
         if (ts <= w.applyMs) lastCast = ts;
         else break;
       }
-      if (lastCast !== -Infinity) {
-        trinketCooldownSecondsRemaining = Math.round((lastCast + trinketCooldownMs - w.applyMs) / 1000);
-      }
+      trinketCooldownSecondsRemaining = Math.round((lastCast + trinketCooldownMs - w.applyMs) / 1000);
     }
 
     // LoS + distance at CC application time
