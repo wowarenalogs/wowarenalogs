@@ -1,4 +1,4 @@
-import { ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+import { CombatUnitType, getUnitType, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { spellEffectData } from '../../../data/spellEffectData';
 import { IPlayerCCTrinketSummary } from '../../../utils/ccTrinketAnalysis';
@@ -1793,7 +1793,12 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
 
       const targetLabel = resolveTarget(e.destUnitName);
       const targetPart = targetLabel ? ` → ${targetLabel}` : '';
-      addEntry(timeSeconds, `${fmtTime(timeSeconds)}  [OWNER CAST]   ${displayName}${targetPart}${orderNote}`);
+      const destType = getUnitType(e.destUnitFlags ?? 0);
+      const totemNote = destType === CombatUnitType.Guardian || destType === CombatUnitType.Pet ? ' [totem/pet]' : '';
+      addEntry(
+        timeSeconds,
+        `${fmtTime(timeSeconds)}  [OWNER CAST]   ${displayName}${targetPart}${totemNote}${orderNote}`,
+      );
     }
   }
 
