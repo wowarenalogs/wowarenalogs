@@ -7389,8 +7389,8 @@ const Priest = {
     { spellId: '305498', name: 'Premonition', tags: [] },
     // -- Holy
     { spellId: '19236', name: 'Desperate Prayer', tags: [SpellTag.Defensive] },
-    { spellId: '47788', name: 'Guardian Spirit', tags: [] },
-    { spellId: '64843', name: 'Divine Hymn', tags: [] },
+    { spellId: '47788', name: 'Guardian Spirit', tags: [SpellTag.Defensive] },
+    { spellId: '64843', name: 'Divine Hymn', tags: [SpellTag.Defensive] },
     { spellId: '64901', name: 'Symbol of Hope', tags: [] },
     { spellId: '196762', name: 'Inner Focus', tags: [SpellTag.Defensive] },
     { spellId: '197268', name: 'Ray of Hope', tags: [] },
@@ -15867,7 +15867,7 @@ const Druid = {
     { spellId: '202246', name: 'Overrun', tags: [] },
     { spellId: '204066', name: 'Lunar Beam', tags: [] },
     // -- Restoration
-    { spellId: '740', name: 'Tranquility', tags: [] },
+    { spellId: '740', name: 'Tranquility', tags: [SpellTag.Defensive] },
     { spellId: '18562', name: 'Swiftmend', tags: [SpellTag.Defensive] },
     {
       spellId: '33891',
