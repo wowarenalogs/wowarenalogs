@@ -751,9 +751,9 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
         matchEndMs: 9_000,
       }),
     );
-    expect(result).toContain('[HP]');
-    expect(result).toContain('Feramonk:84%');
-    expect(result).toContain('Feramonk:50%');
+    expect(result).toContain('[STATE]');
+    expect(result).toContain('Feramonk:84');
+    expect(result).toContain('Feramonk:50');
   });
 
   it('emits [HP] for multiple friends on the same tick', () => {
@@ -774,10 +774,10 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
         matchEndMs: 6_000,
       }),
     );
-    expect(result).toContain('Healer:80%');
-    expect(result).toContain('DPS:100%');
-    // Both should be on the same [HP] line
-    const hpLine = result.split('\n').find((l) => l.includes('[HP]') && l.includes('Healer'));
+    expect(result).toContain('Healer:80');
+    expect(result).toContain('DPS:100');
+    // Both should be on the same [STATE] line
+    const hpLine = result.split('\n').find((l) => l.includes('[STATE]') && l.includes('Healer'));
     expect(hpLine).toContain('DPS');
   });
 
@@ -790,7 +790,7 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
         matchEndMs: 9_000,
       }),
     );
-    expect(result).not.toContain('[HP]');
+    expect(result).not.toContain('[STATE]');
   });
 });
 
@@ -1131,7 +1131,7 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
     // T=19 is NOT in the dense window (window starts at 20) — should NOT appear as an [HP] tick
     // (T=18 would be a 3s baseline tick, T=19 should not)
     const lines = result.split('\n');
-    const hp19Line = lines.find((l) => l.startsWith('0:19') && l.includes('[HP]'));
+    const hp19Line = lines.find((l) => l.startsWith('0:19') && l.includes('[STATE]'));
     expect(hp19Line).toBeUndefined();
   });
 
@@ -1165,10 +1165,10 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
     expect(result).toContain('0:18');
     // T=14 should NOT be a 1s tick (it's not at a 3s multiple either: 14 % 3 ≠ 0)
     const lines = result.split('\n');
-    const hp14Line = lines.find((l) => l.startsWith('0:14') && l.includes('[HP]'));
+    const hp14Line = lines.find((l) => l.startsWith('0:14') && l.includes('[STATE]'));
     expect(hp14Line).toBeUndefined();
     // T=12 IS a 3s baseline tick
-    const hp12Line = lines.find((l) => l.startsWith('0:12') && l.includes('[HP]'));
+    const hp12Line = lines.find((l) => l.startsWith('0:12') && l.includes('[STATE]'));
     expect(hp12Line).toBeDefined();
   });
 
@@ -1207,7 +1207,7 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
     expect(result).toContain('0:17');
     // T=14 is not in window and not a 3s multiple
     const lines = result.split('\n');
-    const hp14Line = lines.find((l) => l.startsWith('0:14') && l.includes('[HP]'));
+    const hp14Line = lines.find((l) => l.startsWith('0:14') && l.includes('[STATE]'));
     expect(hp14Line).toBeUndefined();
   });
 
@@ -1234,8 +1234,8 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
         matchEndMs: 45_000,
       }),
     );
-    // Count occurrences of '0:25' in [HP] lines — should be exactly 1
-    const lines = result.split('\n').filter((l) => l.includes('[HP]') && l.startsWith('0:25'));
+    // Count occurrences of '0:25' in [STATE] lines — should be exactly 1
+    const lines = result.split('\n').filter((l) => l.includes('[STATE]') && l.startsWith('0:25'));
     expect(lines.length).toBe(1);
   });
 
@@ -1258,7 +1258,7 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
     const lines = result.split('\n');
     for (const nonMultiple of [1, 2, 4, 5, 7, 8, 10, 11]) {
       const ts = `0:0${nonMultiple}`;
-      const found = lines.find((l) => l.startsWith(ts) && l.includes('[HP]'));
+      const found = lines.find((l) => l.startsWith(ts) && l.includes('[STATE]'));
       expect(found).toBeUndefined();
     }
     // T=3,6,9,12 SHOULD have [HP] lines
@@ -1270,7 +1270,7 @@ describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => 
 });
 
 describe('buildMatchTimeline — F64 enemy HP in [HP] ticks', () => {
-  it('includes friendly HP on [HP] line and enemy HP on [ENEMY HP] line during a critical window', () => {
+  it('includes friendly and enemy HP in a single [STATE] line during a critical window', () => {
     const matchStartMs = 0;
 
     const friend = makeUnit('unit-1', {
@@ -1300,14 +1300,14 @@ describe('buildMatchTimeline — F64 enemy HP in [HP] ticks', () => {
       }),
     );
 
-    // Friendly HP on [HP] lines, enemy HP on [ENEMY HP] lines
-    const hpLines = result.split('\n').filter((l) => /\[HP\]/.test(l) && !/\[ENEMY HP\]/.test(l));
-    const enemyHpLines = result.split('\n').filter((l) => l.includes('[ENEMY HP]'));
-    expect(hpLines.some((l) => l.includes('Feramonk:90%'))).toBeTruthy();
-    expect(enemyHpLines.some((l) => l.includes('Natjkis:35%'))).toBeTruthy();
-    // Enemy name must NOT appear on plain [HP] lines
-    for (const line of hpLines) {
-      expect(line).not.toContain('Natjkis');
+    // Both friend and enemy appear in [STATE] lines during critical window
+    const stateLines = result.split('\n').filter((l) => l.includes('[STATE]'));
+    expect(stateLines.some((l) => l.includes('Feramonk:90'))).toBeTruthy();
+    expect(stateLines.some((l) => l.includes('Natjkis:35'))).toBeTruthy();
+    // Enemy appears after '/ enemies', not in the friends section
+    for (const line of stateLines.filter((l) => l.includes('Natjkis'))) {
+      const friendsPart = line.split('/ enemies')[0];
+      expect(friendsPart).not.toContain('Natjkis');
     }
   });
 
@@ -1333,8 +1333,8 @@ describe('buildMatchTimeline — F64 enemy HP in [HP] ticks', () => {
       }),
     );
 
-    // Dense window [50, 60] — expect consecutive 1s ticks on [ENEMY HP] lines
-    const enemyHpLines = result.split('\n').filter((l) => l.includes('[ENEMY HP]'));
+    // Dense window [50, 60] — expect consecutive 1s ticks on [STATE] lines with enemies
+    const enemyHpLines = result.split('\n').filter((l) => l.includes('[STATE]') && l.includes('enemies'));
     const tickSeconds = enemyHpLines
       .map((l) => {
         const m = l.match(/^(\d+):(\d+)/);
@@ -2389,10 +2389,10 @@ describe('buildMatchTimeline — [HP] / [ENEMY HP] split', () => {
       }),
     );
 
-    expect(result).toContain('[HP]');
+    expect(result).toContain('[STATE]');
   });
 
-  it('does NOT emit [ENEMY HP] on baseline ticks (no critical window)', () => {
+  it('does NOT emit enemies section on baseline ticks (no critical window)', () => {
     const matchStartMs = 0;
     const matchEndMs = 12_000;
 
@@ -2410,10 +2410,11 @@ describe('buildMatchTimeline — [HP] / [ENEMY HP] split', () => {
       }),
     );
 
-    expect(result).not.toContain('[ENEMY HP]');
+    // On baseline ticks [STATE] may appear for friends, but no enemies section
+    expect(result).not.toContain('/ enemies');
   });
 
-  it('emits [ENEMY HP] on critical-window ticks (death window)', () => {
+  it('emits enemies section in [STATE] on critical-window ticks (death window)', () => {
     const matchStartMs = 0;
     const deathAtSeconds = 30;
     const matchEndMs = 60_000;
@@ -2435,10 +2436,10 @@ describe('buildMatchTimeline — [HP] / [ENEMY HP] split', () => {
       }),
     );
 
-    expect(result).toContain('[ENEMY HP]');
+    expect(result).toContain('/ enemies');
   });
 
-  it('does NOT include enemy HP on [HP] lines', () => {
+  it('does NOT include enemy HP in the friends section of [STATE]', () => {
     const matchStartMs = 0;
     const deathAtSeconds = 30;
     const matchEndMs = 60_000;
@@ -2466,10 +2467,11 @@ describe('buildMatchTimeline — [HP] / [ENEMY HP] split', () => {
       }),
     );
 
-    // [HP] lines must not contain enemy names; enemy HP goes on [ENEMY HP] lines
-    const hpLines = result.split('\n').filter((l) => /\[HP\]/.test(l) && !/\[ENEMY HP\]/.test(l));
-    for (const line of hpLines) {
-      expect(line).not.toContain('Dzinked');
+    // Enemy HP goes in the enemies section, not the friends section
+    const stateLines = result.split('\n').filter((l) => l.includes('[STATE]') && l.includes('Dzinked'));
+    for (const line of stateLines) {
+      const friendsPart = line.split('/ enemies')[0];
+      expect(friendsPart).not.toContain('Dzinked');
     }
   });
 });
