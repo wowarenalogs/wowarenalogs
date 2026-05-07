@@ -1861,11 +1861,11 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
 
     for (const cc of summary.ccInstances) {
       const trinketNote =
-        cc.trinketState === 'available_unused'
-          ? ' | trinket: available, not used'
-          : cc.trinketState === 'used'
-            ? ' | trinket: used'
-            : ' | trinket: on cooldown';
+        cc.trinketState === 'used'
+          ? ' | trinket: used'
+          : cc.trinketState === 'on_cooldown'
+            ? ` | trinket: ON CD (${cc.trinketCooldownSecondsRemaining!}s left)` // eslint-disable-line @typescript-eslint/no-non-null-assertion -- invariant: non-null when on_cooldown
+            : ''; // available_unused and passive_trinket are intentionally silent
       addEntry(
         cc.atSeconds,
         `${fmtTime(cc.atSeconds)}  [CC ON TEAM]   ${pid(summary.playerName)} ← ${cc.spellName} (${pid(cc.sourceName)}) | ${cc.durationSeconds.toFixed(0)}s${trinketNote}`,

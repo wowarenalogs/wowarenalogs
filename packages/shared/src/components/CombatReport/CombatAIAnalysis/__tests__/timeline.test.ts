@@ -588,7 +588,7 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     expect(result).not.toContain('trinket: on cooldown');
   });
 
-  it('emits [CC ON TEAM] with trinket: available, not used when trinket was available', () => {
+  it('emits [CC ON TEAM] without trinket annotation when trinket was available (available is implicit default)', () => {
     const cc: ICCInstance = {
       atSeconds: 37,
       durationSeconds: 4,
@@ -610,8 +610,8 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     );
     expect(result).toContain('[CC ON TEAM]');
     expect(result).toContain('Feramonk ← Hammer of Justice (Dzinked)');
-    expect(result).toContain('trinket: available, not used');
     expect(result).toContain('0:37');
+    expect(result).not.toContain('trinket:');
   });
 
   it('emits [CC ON TEAM] with trinket: used when trinket was consumed', () => {
