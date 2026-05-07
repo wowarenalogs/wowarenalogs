@@ -108,6 +108,13 @@
     "durationSeconds": 30,
     "dispelType": "Magic"
   },
+  "740": {
+    "spellId": "740",
+    "name": "Tranquility",
+    "cooldownSeconds": 180,
+    "durationSeconds": 5,
+    "dispelType": null
+  },
   "853": {
     "spellId": "853",
     "name": "Hammer of Justice",

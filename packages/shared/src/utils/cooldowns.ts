@@ -43,6 +43,7 @@ const SPEC_EXCLUSIVE_SPELLS: Record<string, CombatUnitSpec[]> = {
   '33891': [CombatUnitSpec.Druid_Restoration], // Incarnation: Tree of Life
   '102342': [CombatUnitSpec.Druid_Restoration], // Ironbark
   '236696': [CombatUnitSpec.Druid_Restoration], // Thorns
+  '740': [CombatUnitSpec.Druid_Restoration], // Tranquility
   // Monk
   '115203': [CombatUnitSpec.Monk_BrewMaster], // Fortifying Brew
   '122470': [CombatUnitSpec.Monk_Windwalker], // Touch of Karma
@@ -71,6 +72,8 @@ const SPEC_EXCLUSIVE_SPELLS: Record<string, CombatUnitSpec[]> = {
   '19236': [CombatUnitSpec.Priest_Holy], // Desperate Prayer
   '196762': [CombatUnitSpec.Priest_Holy], // Inner Focus
   '200183': [CombatUnitSpec.Priest_Holy], // Apotheosis
+  '47788': [CombatUnitSpec.Priest_Holy], // Guardian Spirit
+  '64843': [CombatUnitSpec.Priest_Holy], // Divine Hymn
   '47585': [CombatUnitSpec.Priest_Shadow], // Dispersion
   '64044': [CombatUnitSpec.Priest_Shadow], // Psychic Horror
   // Warlock
