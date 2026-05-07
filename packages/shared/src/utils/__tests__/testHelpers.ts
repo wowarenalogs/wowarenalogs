@@ -67,6 +67,7 @@ export function makeSpellCastEvent(
   destUnitName = 'Target',
   srcUnitId = 'player-1',
   srcUnitName = 'Player',
+  destUnitFlags = 0,
 ): AnyObj {
   return {
     logLine: { event: LogEvent.SPELL_CAST_SUCCESS, timestamp, parameters: [] },
@@ -77,6 +78,7 @@ export function makeSpellCastEvent(
     srcUnitName,
     destUnitId,
     destUnitName,
+    destUnitFlags,
     effectiveAmount: 0,
     advancedActorMaxHp: 0,
     advancedActorCurrentHp: 0,

@@ -1058,6 +1058,37 @@ describe('buildMatchTimeline — F65 [OWNER CAST] target labels', () => {
     expect(result).toContain('[OWNER CD]');
     expect(result).not.toContain('[OWNER CAST]');
   });
+
+  it('appends [totem/pet] when [OWNER CAST] target is a Guardian (totem, destUnitFlags 0x2000)', () => {
+    const GUARDIAN_FLAGS = 0x00002000;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: {
+          ...makeOwner('Feramonk'),
+          spellCastEvents: [
+            makeSpellCastEvent('88625', 30_000, 'totem-1', 'Tremor Totem', 'player-1', 'Feramonk', GUARDIAN_FLAGS),
+          ],
+        } as any,
+      }),
+    );
+    expect(result).toContain('[OWNER CAST]');
+    expect(result).toContain('[totem/pet]');
+    expect(result).toContain('Tremor Totem');
+  });
+
+  it('appends [totem/pet] when [OWNER CAST] target is a Pet (destUnitFlags 0x1000)', () => {
+    const PET_FLAGS = 0x00001000;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: {
+          ...makeOwner('Feramonk'),
+          spellCastEvents: [makeSpellCastEvent('33206', 30_000, 'pet-1', 'Fluffy', 'player-1', 'Feramonk', PET_FLAGS)],
+        } as any,
+      }),
+    );
+    expect(result).toContain('[OWNER CAST]');
+    expect(result).toContain('[totem/pet]');
+  });
 });
 
 describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => {
