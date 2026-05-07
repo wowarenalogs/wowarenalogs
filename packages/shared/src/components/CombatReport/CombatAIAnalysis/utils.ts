@@ -1860,6 +1860,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     }
 
     for (const cc of summary.ccInstances) {
+      if (cc.durationSeconds === 0) continue;
       const trinketNote =
         cc.trinketState === 'available_unused'
           ? ' | trinket: available, not used'
