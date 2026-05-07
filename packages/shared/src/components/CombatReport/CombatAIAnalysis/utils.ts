@@ -1965,10 +1965,10 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   const HP_SAMPLE_WINDOW_CRITICAL_MS = 1_500; // ±1.5s for 1s dense ticks
   const HP_SAMPLE_WINDOW_BASELINE_MS = 3_000; // ±3s for 3s baseline ticks
 
-  const friendlyHpUnits: Array<{ unit: ICombatUnit; label: (name: string) => string }> = friends.map((u) => ({
-    unit: u,
-    label: (name: string) => pid(name),
-  }));
+  const friendlyHpUnits: Array<{ unit: ICombatUnit; label: (name: string) => string }> = [
+    ...friends.filter((u) => u.name === owner.name),
+    ...friends.filter((u) => u.name !== owner.name),
+  ].map((u) => ({ unit: u, label: (name: string) => pid(name) }));
 
   const enemyHpUnits: Array<{ unit: ICombatUnit; label: (name: string) => string }> = (enemies ?? []).map((u) => ({
     unit: u,
