@@ -928,6 +928,7 @@ export function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): 
   );
   lines.push(`  My team: ${myTeam}`);
   lines.push(`  Enemy team: ${enemyTeam}`);
+  lines.push('  Damage units: M = 1,000,000  |  k = 1,000  (e.g. "0.84M" = 840,000 dmg)');
   lines.push('');
 
   lines.push('PURGE RESPONSIBILITY');
