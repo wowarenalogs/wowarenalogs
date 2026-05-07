@@ -1682,7 +1682,12 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
 
   const snapshotFn = resourceSnapshotFn ?? buildResourceSnapshot;
 
+  let prevReadyNamesState: string[] | null = null;
+
   function resourceSnapshot(timeSeconds: number): string {
+    const currentReadyNames = computeReadyNames(timeSeconds, ownerCDs, teammateCDs);
+    const prevReadyNames = prevReadyNamesState ?? undefined;
+    prevReadyNamesState = currentReadyNames;
     return snapshotFn({
       timeSeconds,
       ownerCDs,
@@ -1693,6 +1698,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       ccTrinketSummaries,
       enemyCDTimeline,
       playerIdMap,
+      prevReadyNames,
     });
   }
 
