@@ -35,7 +35,7 @@ import {
 import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../../utils/matchArchetype';
 import { buildOffensiveWasteSummary, formatOffensiveWasteForContext } from '../../../utils/offensiveWasteAnalysis';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../../utils/offensiveWindows';
-import { benchmarks, formatSpecBaselines } from '../../../utils/specBaselines';
+import { benchmarks, formatDTPSBaselines, formatSpecBaselines } from '../../../utils/specBaselines';
 import { useCombatReportContext } from '../CombatReportContext';
 import {
   buildMatchArc,
@@ -208,6 +208,15 @@ export function buildMatchContext(
     if (baselineLines.length > 0) {
       tLines.push('');
       baselineLines.forEach((l) => tLines.push(l));
+    }
+
+    const dtpsLines = formatDTPSBaselines(
+      friends.map((p) => specToString(p.spec)),
+      benchmarks,
+    );
+    if (dtpsLines.length > 0) {
+      tLines.push('');
+      dtpsLines.forEach((l) => tLines.push(l));
     }
 
     tLines.push('');
