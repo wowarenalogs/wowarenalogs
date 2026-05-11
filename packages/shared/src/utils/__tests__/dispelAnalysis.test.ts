@@ -1,4 +1,5 @@
-import { CombatUnitSpec, LogEvent } from '@wowarenalogs/parser';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { CombatExtraSpellAction, CombatUnitSpec, LogEvent } from '@wowarenalogs/parser';
 
 import { reconstructDispelSummary } from '../dispelAnalysis';
 import { makeAuraEvent, makeUnit } from './testHelpers';
@@ -56,5 +57,84 @@ describe('reconstructDispelSummary — B11 stolen-buff false positive', () => {
 
     expect(summary.missedCleanseWindows).toHaveLength(1);
     expect(summary.missedCleanseWindows[0].spellId).toBe('118');
+  });
+});
+
+describe('reconstructDispelSummary — F94 pet dispel tagging', () => {
+  function makeRealDispelAction(
+    timestamp: number,
+    srcUnitId: string,
+    destUnitId: string,
+    dispelSpellId: string,
+    removedSpellId: string,
+    removedSpellName: string,
+  ): CombatExtraSpellAction {
+    const logLine = {
+      id: '0',
+      timestamp,
+      timezone: 'UTC',
+      event: LogEvent.SPELL_DISPEL,
+      parameters: [
+        srcUnitId, // 0: srcUnitId
+        '"Source"', // 1: srcUnitName
+        0x511, // 2: srcUnitFlags (player friendly)
+        0, // 3: srcRaidFlags
+        destUnitId, // 4: destUnitId
+        '"Target"', // 5: destUnitName
+        0x511, // 6: destUnitFlags
+        0, // 7: destRaidFlags
+        dispelSpellId, // 8: spellId
+        `"${dispelSpellId}"`, // 9: spellName
+        'MAGIC', // 10: spellSchool
+        removedSpellId, // 11: extraSpellId
+        `"${removedSpellName}"`, // 12: extraSpellName
+        'MAGIC', // 13: extraSpellSchool
+        'DEBUFF', // 14: auraType
+      ],
+      raw: '',
+    };
+    return new CombatExtraSpellAction(logLine as any);
+  }
+
+  it('sets isPetDispel=false when player directly dispels an ally', () => {
+    const healer = makeUnit('healer-1', {
+      name: 'Healer',
+      spec: CombatUnitSpec.Priest_Holy,
+      actionOut: [makeRealDispelAction(5_000, 'healer-1', 'ally-1', '527', '118', 'Polymorph')] as any[],
+    });
+    const ally = makeUnit('ally-1', { name: 'Ally', spec: CombatUnitSpec.Rogue_Assassination });
+    const enemy = makeUnit('enemy-1', {
+      name: 'Enemy',
+      spec: CombatUnitSpec.Mage_Frost,
+      reaction: 0 as any, // CombatUnitReaction.Hostile
+    });
+
+    const summary = reconstructDispelSummary([healer, ally], [enemy], { startTime: 0, endTime: 60_000 });
+
+    expect(summary.allyCleanse).toHaveLength(1);
+    expect(summary.allyCleanse[0].isPetDispel).toBe(false);
+    expect(summary.allyCleanse[0].sourceName).toBe('Healer');
+  });
+
+  it('sets isPetDispel=true when a pet dispel action is merged into a player unit (srcUnitId !== unit.id)', () => {
+    // The Warlock player unit has a pet's dispel action merged into their actionOut.
+    // The pet's ID ('felhunter-1') differs from the player's ID ('warlock-1').
+    const warlock = makeUnit('warlock-1', {
+      name: 'Warlock',
+      spec: CombatUnitSpec.Warlock_Affliction,
+      actionOut: [makeRealDispelAction(8_000, 'felhunter-1', 'ally-1', '19505', '118', 'Polymorph')] as any[],
+    });
+    const ally = makeUnit('ally-1', { name: 'Ally', spec: CombatUnitSpec.Rogue_Assassination });
+    const enemy = makeUnit('enemy-1', {
+      name: 'Enemy',
+      spec: CombatUnitSpec.Mage_Frost,
+      reaction: 0 as any,
+    });
+
+    const summary = reconstructDispelSummary([warlock, ally], [enemy], { startTime: 0, endTime: 60_000 });
+
+    expect(summary.allyCleanse).toHaveLength(1);
+    expect(summary.allyCleanse[0].isPetDispel).toBe(true);
+    expect(summary.allyCleanse[0].sourceName).toBe('Warlock');
   });
 });
