@@ -414,6 +414,41 @@ describe('buildMatchTimeline — [DEATH] events', () => {
     const result = buildMatchTimeline(makeBaseParams());
     expect(result).toContain('MATCH TIMELINE');
   });
+
+  it('emits a [ROSTER] removed line after each enemy death', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemyDeaths: [{ spec: 'Affliction Warlock', name: 'Natjkis', atSeconds: 88 }],
+      }),
+    );
+    expect(result).toContain('[ROSTER]');
+    expect(result).toContain('enemy Natjkis removed (dead)');
+  });
+
+  it('[ROSTER] line appears immediately after the corresponding [DEATH] line', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemyDeaths: [{ spec: 'Affliction Warlock', name: 'Natjkis', atSeconds: 88 }],
+      }),
+    );
+    const lines = result.split('\n');
+    const deathIdx = lines.findIndex((l) => l.includes('[DEATH]') && l.includes('Natjkis'));
+    const rosterIdx = lines.findIndex((l) => l.includes('[ROSTER]') && l.includes('Natjkis removed (dead)'));
+    expect(deathIdx).toBeGreaterThanOrEqual(0);
+    expect(rosterIdx).toBe(deathIdx + 1);
+  });
+
+  it('[ROSTER] uses numeric enemy ID when enemyIdMap is provided', () => {
+    const enemyIdMap = new Map<string, number>([['Natjkis', 5]]);
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemyDeaths: [{ spec: 'Affliction Warlock', name: 'Natjkis', atSeconds: 88 }],
+        enemyIdMap,
+      }),
+    );
+    expect(result).toContain('enemy 5 removed (dead)');
+    expect(result).not.toContain('enemy Natjkis removed (dead)');
+  });
 });
 
 describe('buildMatchTimeline — CD events', () => {
