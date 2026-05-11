@@ -306,10 +306,34 @@ function lastAvoidanceCastSeconds(unit: ICombatUnit, spellId: string, matchStart
 
 function anyTeammateLowHp(friends: ICombatUnit[], atSeconds: number, matchStartMs: number): boolean {
   const windowMs = 2_000;
+  const targetMs = atSeconds * 1000;
+  const startMs = targetMs - windowMs;
+  const endMs = targetMs + windowMs;
+
   for (const unit of friends) {
-    for (const action of unit.advancedActions) {
+    const actions = unit.advancedActions;
+    if (actions.length === 0) continue;
+
+    let low = 0;
+    let high = actions.length - 1;
+    let firstIdx = actions.length;
+
+    while (low <= high) {
+      const mid = (low + high) >>> 1;
+      const t = actions[mid].logLine.timestamp - matchStartMs;
+      if (t >= startMs) {
+        firstIdx = mid;
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    }
+
+    for (let i = firstIdx; i < actions.length; i++) {
+      const action = actions[i];
       const t = action.logLine.timestamp - matchStartMs;
-      if (Math.abs(t - atSeconds * 1000) > windowMs) continue;
+      if (t > endMs) break;
+
       if (action.advancedActorMaxHp > 0) {
         const hpPct = action.advancedActorCurrentHp / action.advancedActorMaxHp;
         if (hpPct < 0.75) return true;
