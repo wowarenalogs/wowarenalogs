@@ -23,6 +23,7 @@ import {
 } from '@wowarenalogs/parser';
 
 import spellClassMap from '../data/spellClassMap.json';
+import { getEnglishSpellName } from '../data/spellEffectData';
 import { ccSpellIds } from '../data/spellTags';
 import { specToString } from './cooldowns';
 
@@ -337,7 +338,7 @@ export function analyzeOutgoingCCChains(
         if (event === LogEvent.SPELL_AURA_APPLIED) {
           pending.set(key, {
             applyMs: aura.timestamp,
-            spellName: aura.spellName ?? spellId,
+            spellName: getEnglishSpellName(spellId, aura.spellName),
             srcId: aura.srcUnitId,
             srcName: aura.srcUnitName,
           });
@@ -348,7 +349,7 @@ export function analyzeOutgoingCCChains(
           closePending(key, aura.timestamp);
           pending.set(key, {
             applyMs: aura.timestamp,
-            spellName: aura.spellName ?? spellId,
+            spellName: getEnglishSpellName(spellId, aura.spellName),
             srcId: aura.srcUnitId,
             srcName: aura.srcUnitName,
           });

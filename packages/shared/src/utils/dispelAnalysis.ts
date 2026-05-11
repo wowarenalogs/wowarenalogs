@@ -1,6 +1,6 @@
 import { CombatExtraSpellAction, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
-import { spellEffectData } from '../data/spellEffectData';
+import { getEnglishSpellName, spellEffectData } from '../data/spellEffectData';
 import spellIdListsData from '../data/spellIdLists.json';
 import spellsData from '../data/spells.json';
 import { fmtTime, getPressureThreshold, specToString } from './cooldowns';
@@ -548,7 +548,7 @@ export function reconstructDispelSummary(
       const event: IDispelEvent = {
         timeSeconds: (action.timestamp - combat.startTime) / 1000,
         dispelSpellId: action.spellId ?? '',
-        dispelSpellName: action.spellName ?? '',
+        dispelSpellName: getEnglishSpellName(action.spellId ?? '', action.spellName),
         removedSpellId,
         removedSpellName: action.extraSpellName,
         sourceName: unit.name,
@@ -642,7 +642,10 @@ export function reconstructDispelSummary(
 
       if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
         const bucket = appliedTimes.get(spellId) ?? [];
-        appliedTimes.set(spellId, [...bucket, { ts: aura.timestamp, spellName: aura.spellName ?? spellId }]);
+        appliedTimes.set(spellId, [
+          ...bucket,
+          { ts: aura.timestamp, spellName: getEnglishSpellName(spellId, aura.spellName) },
+        ]);
       } else if (
         aura.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
         aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
@@ -806,7 +809,10 @@ export function reconstructDispelSummary(
 
         if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
           const bucket = appliedTimes.get(spellId) ?? [];
-          appliedTimes.set(spellId, [...bucket, { ts: aura.timestamp, spellName: aura.spellName ?? spellId }]);
+          appliedTimes.set(spellId, [
+            ...bucket,
+            { ts: aura.timestamp, spellName: getEnglishSpellName(spellId, aura.spellName) },
+          ]);
         } else if (
           aura.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
           aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||

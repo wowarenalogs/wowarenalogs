@@ -21,6 +21,10 @@ export interface IMinedSpell {
 
 export const spellEffectData = rawMinedData as unknown as Record<string, IMinedSpell>;
 
+export function getEnglishSpellName(spellId: string, fallback?: string | null): string {
+  return spellEffectData[spellId]?.name ?? fallback ?? spellId;
+}
+
 // DEV - Validate mined data
 if (process.env.NODE_ENV === 'development') {
   _.keys(rawMinedData).forEach((k) => {

@@ -1,5 +1,6 @@
 import { CombatExtraSpellAction, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
+import { getEnglishSpellName } from '../data/spellEffectData';
 import { ccSpellIds, disarmSpellIds, rootSpellIds, spells } from '../data/spellTags';
 import trinketItemIdsData from '../data/trinketItemIds.json';
 import { fmtTime, isHealerSpec, specToString } from './cooldowns';
@@ -80,6 +81,7 @@ export interface IInterruptInstance {
   lockoutDurationSeconds: number;
   kickSpellId: string;
   kickSpellName: string;
+  interruptedSpellId: string;
   interruptedSpellName: string;
   sourceName: string;
   sourceSpec: string;
@@ -207,7 +209,7 @@ export function analyzePlayerCCAndTrinket(
       if (event === LogEvent.SPELL_AURA_APPLIED) {
         pending.set(key, {
           applyMs: aura.timestamp,
-          spellName: aura.spellName ?? spellId,
+          spellName: getEnglishSpellName(spellId, aura.spellName),
           srcId: aura.srcUnitId,
           srcName: aura.srcUnitName,
         });
@@ -240,7 +242,7 @@ export function analyzePlayerCCAndTrinket(
     if (event === LogEvent.SPELL_AURA_APPLIED) {
       pendingCC.set(ccKey, {
         applyMs: aura.timestamp,
-        spellName: aura.spellName ?? spellId,
+        spellName: getEnglishSpellName(spellId, aura.spellName),
         srcName: aura.srcUnitName,
         srcUnitId: aura.srcUnitId,
       });
@@ -408,7 +410,8 @@ export function analyzePlayerCCAndTrinket(
       lockoutDurationSeconds,
       kickSpellId,
       kickSpellName: extraAction.extraSpellName,
-      interruptedSpellName: action.spellName ?? 'unknown',
+      interruptedSpellId: action.spellId ?? '',
+      interruptedSpellName: getEnglishSpellName(action.spellId ?? '', action.spellName),
       sourceName: action.srcUnitName,
       sourceSpec: enemySpecMap.get(action.srcUnitId) ?? 'Unknown',
     });

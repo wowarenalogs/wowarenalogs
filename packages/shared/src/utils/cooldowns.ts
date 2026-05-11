@@ -7,7 +7,7 @@ import {
   SpellTag,
 } from '@wowarenalogs/parser';
 
-import { spellEffectData } from '../data/spellEffectData';
+import { getEnglishSpellName, spellEffectData } from '../data/spellEffectData';
 import spellIdListsData from '../data/spellIdLists.json';
 import { getPlayerTalentedSpellIds, getSpecTalentTreeSpellIds } from './talents';
 
@@ -818,7 +818,7 @@ export function detectOverlappedDefensives(
         casterName: unit.name,
         casterSpec: specToString(unit.spec),
         spellId,
-        spellName: action.spellName ?? spellId,
+        spellName: getEnglishSpellName(spellId, action.spellName),
         targetUnitId: action.destUnitId,
         targetName: action.destUnitName,
       });
@@ -1091,7 +1091,7 @@ export function detectPanicDefensives(
         timeSeconds: castTimeSeconds,
         casterSpec: specToString(unit.spec),
         casterName: unit.name,
-        spellName: action.spellName ?? spellId,
+        spellName: getEnglishSpellName(spellId, action.spellName),
         spellId,
         targetName: action.destUnitName,
         targetSpec: targetUnit ? specToString(targetUnit.spec) : 'Unknown',
