@@ -1760,7 +1760,11 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   }
 
   for (const death of enemyDeaths) {
-    addEntry(death.atSeconds, `${fmtTime(death.atSeconds)}  [DEATH]  ${enemyPid(death.name)} (${death.spec} — enemy)`);
+    addEntry(
+      death.atSeconds,
+      `${fmtTime(death.atSeconds)}  [DEATH]  ${enemyPid(death.name)} (${death.spec} — enemy)`,
+      `${fmtTime(death.atSeconds)}  [ROSTER]  enemy ${enemyPid(death.name)} removed (dead)`,
+    );
   }
 
   // ── [OWNER CD] events ───────────────────────────────────────────────────────
