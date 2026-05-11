@@ -992,6 +992,7 @@ export function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): 
     playerIdMap,
     enemyIdMap,
     outgoingCCChains,
+    bracket: combat.startInfo?.bracket ?? '3v3',
   };
   lines.push(buildMatchTimeline(params));
 
@@ -1140,6 +1141,7 @@ function buildMatchPromptJson(combat: ParsedCombat, forceHealer = false): string
     playerIdMap,
     enemyIdMap,
     outgoingCCChains,
+    bracket: combat.startInfo?.bracket ?? '3v3',
     resourceSnapshotFn: buildJsonSituationSnapshot,
   };
   lines.push(buildMatchTimeline(params));

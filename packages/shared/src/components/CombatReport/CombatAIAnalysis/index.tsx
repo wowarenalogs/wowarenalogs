@@ -264,6 +264,7 @@ export function buildMatchContext(
         playerIdMap,
         enemyIdMap,
         outgoingCCChains,
+        bracket: combat.startInfo.bracket,
       } as BuildMatchTimelineParams),
     );
 
