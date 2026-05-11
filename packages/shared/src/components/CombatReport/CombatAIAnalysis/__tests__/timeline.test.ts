@@ -794,6 +794,7 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
               priority: 'High',
               hasDispelPenalty: false,
               isSpellSteal: false,
+              isPetDispel: false,
             },
           ],
         },

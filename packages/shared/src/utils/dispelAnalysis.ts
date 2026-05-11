@@ -361,6 +361,8 @@ export interface IDispelEvent {
   /** Damage taken by the dispeller in the 4s before the dispel — baseline context */
   penaltyDamageBaseline?: number;
   isSpellSteal: boolean;
+  /** True when the dispel was performed by a pet/NPC merged into the player's actionOut (e.g. Warlock Felhunter Devour Magic, Imp Singe Magic). */
+  isPetDispel: boolean;
 }
 
 export interface IMissedCleanseWindow {
@@ -557,6 +559,7 @@ export function reconstructDispelSummary(
         hasDispelPenalty: penaltyDesc !== undefined,
         penaltyDescription: penaltyDesc,
         isSpellSteal: isSteal,
+        isPetDispel: action.srcUnitId !== unit.id,
       };
 
       const srcFriendly = friendlyIds.has(unit.id);
