@@ -3384,3 +3384,153 @@ describe('buildJsonSituationSnapshot — root/disarm/kick in cc array', () => {
     expect(parsed.cc).toBeUndefined();
   });
 });
+
+describe('buildMatchTimeline — [MATCH END] block', () => {
+  it('emits [MATCH END] header at match end time', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        matchStartMs: 0,
+        matchEndMs: 300_000,
+      }),
+    );
+    expect(result).toContain('[MATCH END]');
+    expect(result).toContain('5:00');
+  });
+
+  it('shows final dampening when bracket is provided', () => {
+    // bracket=undefined → no damp line; bracket provided → damp shown
+    const withBracket = buildMatchTimeline(
+      makeBaseParams({
+        matchStartMs: 0,
+        matchEndMs: 300_000,
+        bracket: '3v3',
+      } as any),
+    );
+    expect(withBracket).toContain('damp:');
+
+    const withoutBracket = buildMatchTimeline(
+      makeBaseParams({
+        matchStartMs: 0,
+        matchEndMs: 300_000,
+      }),
+    );
+    // No damp info when bracket is absent
+    expect(withoutBracket).not.toContain('damp:');
+  });
+
+  it('shows surviving friend HP at match end using playerIdMap', () => {
+    const friend = makeUnit('p1', {
+      name: 'Feramonk',
+      spec: CombatUnitSpec.Monk_Mistweaver,
+      advancedActions: [
+        makeAdvancedAction(295_000, 0, 0, 500_000, 225_000), // 45% HP at t=295s (5s before end)
+      ],
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        matchStartMs: 0,
+        matchEndMs: 300_000,
+        friends: [friend],
+        playerIdMap: new Map([['Feramonk', 1]]),
+      }),
+    );
+    expect(result).toContain('[MATCH END]');
+    // Friend shown as pid:pct%
+    expect(result).toContain('1:45%');
+  });
+
+  it('shows dead friend as dead(M:SS) rather than HP', () => {
+    const friend = makeUnit('p1', {
+      name: 'Feramonk',
+      spec: CombatUnitSpec.Monk_Mistweaver,
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        matchStartMs: 0,
+        matchEndMs: 300_000,
+        friends: [friend],
+        playerIdMap: new Map([['Feramonk', 1]]),
+        friendlyDeaths: [{ spec: 'Mistweaver Monk', name: 'Feramonk', atSeconds: 83 }],
+      }),
+    );
+    expect(result).toContain('[MATCH END]');
+    expect(result).toContain('1:dead(1:23)');
+  });
+
+  it('shows enemy HP and dead enemies using enemyIdMap', () => {
+    const enemy = makeUnit('e1', {
+      name: 'EnemyMage',
+      spec: CombatUnitSpec.Mage_Frost,
+      advancedActions: [
+        makeAdvancedAction(290_000, 0, 0, 600_000, 132_000), // 22% HP
+      ],
+    });
+    const deadEnemy = makeUnit('e2', {
+      name: 'EnemyWarrior',
+      spec: CombatUnitSpec.None,
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        matchStartMs: 0,
+        matchEndMs: 300_000,
+        enemies: [enemy, deadEnemy],
+        enemyIdMap: new Map([
+          ['EnemyMage', 4],
+          ['EnemyWarrior', 5],
+        ]),
+        enemyDeaths: [{ spec: 'Arms Warrior', name: 'EnemyWarrior', atSeconds: 165 }],
+      }),
+    );
+    expect(result).toContain('[MATCH END]');
+    // alive enemy shown as pct%
+    expect(result).toContain('4:22%');
+    // dead enemy shown as dead(M:SS)
+    expect(result).toContain('5:dead(2:45)');
+  });
+
+  it('combines friends and enemies in one state line', () => {
+    const friend = makeUnit('p1', {
+      name: 'Feramonk',
+      spec: CombatUnitSpec.Monk_Mistweaver,
+      advancedActions: [makeAdvancedAction(295_000, 0, 0, 500_000, 250_000)], // 50%
+    });
+    const enemy = makeUnit('e1', {
+      name: 'EnemyMage',
+      spec: CombatUnitSpec.Mage_Frost,
+      advancedActions: [makeAdvancedAction(295_000, 0, 0, 600_000, 120_000)], // 20%
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        matchStartMs: 0,
+        matchEndMs: 300_000,
+        friends: [friend],
+        enemies: [enemy],
+        playerIdMap: new Map([['Feramonk', 1]]),
+        enemyIdMap: new Map([['EnemyMage', 4]]),
+      }),
+    );
+    expect(result).toContain('friends');
+    expect(result).toContain('/ enemies');
+    expect(result).toContain('1:50%');
+    expect(result).toContain('4:20%');
+  });
+
+  it('shows ? when HP data is unavailable for an alive player', () => {
+    // Unit with no advancedActions — getUnitHpAtTimestamp returns null
+    const friend = makeUnit('p1', {
+      name: 'Feramonk',
+      spec: CombatUnitSpec.Monk_Mistweaver,
+      // No advancedActions set — HP data unavailable
+    });
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        matchStartMs: 0,
+        matchEndMs: 300_000,
+        friends: [friend],
+        playerIdMap: new Map([['Feramonk', 1]]),
+      }),
+    );
+    expect(result).toContain('[MATCH END]');
+    expect(result).toContain('1:?');
+  });
+});
