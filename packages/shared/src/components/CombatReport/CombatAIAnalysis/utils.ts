@@ -12,6 +12,7 @@ import {
   isHealerSpec,
   specToString,
 } from '../../../utils/cooldowns';
+import { getDampeningPercentage } from '../../../utils/dampening';
 import { IDispelSummary } from '../../../utils/dispelAnalysis';
 import { extractAoeCCEvents, IOutgoingCCChain } from '../../../utils/drAnalysis';
 import { IEnemyCDTimeline } from '../../../utils/enemyCDs';
@@ -1595,6 +1596,11 @@ export interface BuildMatchTimelineParams {
   matchEndMs: number;
   isHealer: boolean;
   /**
+   * Arena bracket string (e.g. '3v3', '2v2'). When provided, final dampening %
+   * is included in the [MATCH END] block.
+   */
+  bracket?: string;
+  /**
    * Friendly player name → numeric ID mapping from buildPlayerLoadout.
    * When provided, friendly names are compressed to short IDs in the timeline.
    */
@@ -1639,6 +1645,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     enemyIdMap,
     outgoingCCChains,
     resourceSnapshotFn,
+    bracket,
   } = params;
 
   const enemyBuffIntervals = extractEnemyMajorBuffIntervals(enemies ?? [], matchStartMs, matchEndMs);
@@ -2092,6 +2099,51 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   const outputLines: string[] = ['MATCH TIMELINE', ''];
   for (const entry of entries) {
     outputLines.push(...entry.lines);
+  }
+
+  // ── [MATCH END] block ─────────────────────────────────────────────────────
+
+  const matchEndSeconds = (matchEndMs - matchStartMs) / 1000;
+
+  // Final dampening — only when bracket is available
+  const finalDampPct = bracket ? getDampeningPercentage(bracket, [...friends, ...(enemies ?? [])], matchEndMs) : null;
+  const dampStr = finalDampPct !== null ? `   damp: ${Math.round(finalDampPct)}%` : '';
+
+  outputLines.push('');
+  outputLines.push(`${fmtTime(matchEndSeconds)}  [MATCH END]${dampStr}`);
+
+  // Build sets of dead players for quick lookup
+  const deadFriendlyNames = new Set(friendlyDeaths.map((d) => d.name));
+  const deadEnemyNames = new Set(enemyDeaths.map((d) => d.name));
+  // For players who died multiple times, use the last death timestamp
+  const friendDeathTimeByName = new Map<string, number>();
+  for (const d of friendlyDeaths) friendDeathTimeByName.set(d.name, d.atSeconds);
+  const enemyDeathTimeByName = new Map<string, number>();
+  for (const d of enemyDeaths) enemyDeathTimeByName.set(d.name, d.atSeconds);
+
+  const friendParts = friends.map((u) => {
+    if (deadFriendlyNames.has(u.name)) {
+      const deathAt = friendDeathTimeByName.get(u.name) ?? 0;
+      return `${pid(u.name)}:dead(${fmtTime(deathAt)})`;
+    }
+    const pct = getHpPercentAtTime(u, matchEndSeconds, matchStartMs);
+    return `${pid(u.name)}:${pct !== null ? `${Math.round(pct)}%` : '?'}`;
+  });
+
+  const enemyParts = (enemies ?? []).map((u) => {
+    if (deadEnemyNames.has(u.name)) {
+      const deathAt = enemyDeathTimeByName.get(u.name) ?? 0;
+      return `${enemyPid(u.name)}:dead(${fmtTime(deathAt)})`;
+    }
+    const pct = getHpPercentAtTime(u, matchEndSeconds, matchStartMs);
+    return `${enemyPid(u.name)}:${pct !== null ? `${Math.round(pct)}%` : '?'}`;
+  });
+
+  const stateParts: string[] = [];
+  if (friendParts.length > 0) stateParts.push(`friends ${friendParts.join(' ')}`);
+  if (enemyParts.length > 0) stateParts.push(`enemies ${enemyParts.join(' ')}`);
+  if (stateParts.length > 0) {
+    outputLines.push(`  ${stateParts.join(' / ')}`);
   }
 
   return outputLines.join('\n');
