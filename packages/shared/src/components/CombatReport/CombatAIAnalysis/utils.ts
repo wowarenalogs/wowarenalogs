@@ -1,6 +1,6 @@
 import { CombatUnitType, getUnitType, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
-import { spellEffectData } from '../../../data/spellEffectData';
+import { getEnglishSpellName, spellEffectData } from '../../../data/spellEffectData';
 import { IPlayerCCTrinketSummary } from '../../../utils/ccTrinketAnalysis';
 import {
   fmtTime,
@@ -62,6 +62,23 @@ const HEALER_CAST_SPELL_ID_TO_NAME: Record<string, string> = {
   '363534': 'Rewind', // Preservation — rewind time
   '370537': 'Stasis', // Preservation — store heals
 };
+
+/**
+ * Passive proc spells that emit SPELL_CAST_SUCCESS but are not intentional player casts.
+ * Filtering these removes noise from the [OWNER CAST] timeline.
+ */
+const PASSIVE_SPELL_BLOCKLIST = new Set([
+  'Reclamation',
+  'Infusion of Light',
+  "Ysera's Gift",
+  "Nature's Vigor",
+  'Resounding Voice',
+  'Eminence',
+  'Awakening',
+  'Divine Purpose',
+]);
+
+// ── Context formatting helpers ─────────────────────────────────────────────
 
 // ── Enemy major buff tracking (F67) ──────────────────────────────────────────
 
@@ -1843,7 +1860,10 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     for (const e of owner.spellCastEvents ?? []) {
       if (e.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
       if (!e.spellId) continue;
-      const displayName = HEALER_CAST_SPELL_ID_TO_NAME[e.spellId] ?? e.spellName;
+      const englishName = getEnglishSpellName(e.spellId) ?? e.spellName;
+      if (englishName && PASSIVE_SPELL_BLOCKLIST.has(englishName)) continue;
+
+      const displayName = HEALER_CAST_SPELL_ID_TO_NAME[e.spellId] ?? englishName;
       if (!displayName) continue;
       const tsMs = e.logLine.timestamp;
       const trackedSet = trackedCastsBySpellId.get(e.spellId);
