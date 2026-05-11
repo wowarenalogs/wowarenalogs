@@ -1964,9 +1964,10 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   }
 
   for (const cleanse of dispelSummary.allyCleanse) {
+    const petTag = cleanse.isPetDispel ? ' (pet)' : '';
     addEntry(
       cleanse.timeSeconds,
-      `${fmtTime(cleanse.timeSeconds)}  [CLEANSE]   ${pid(cleanse.sourceName)} dispelled ${cleanse.removedSpellName} off ${pid(cleanse.targetName)}`,
+      `${fmtTime(cleanse.timeSeconds)}  [CLEANSE]   ${pid(cleanse.sourceName)} dispelled ${cleanse.removedSpellName} off ${pid(cleanse.targetName)}${petTag}`,
     );
   }
 

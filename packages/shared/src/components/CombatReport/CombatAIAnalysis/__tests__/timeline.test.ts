@@ -804,6 +804,66 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     expect(result).toContain('Feramonk dispelled Vampiric Touch off Simplesauce');
   });
 
+  it('annotates [CLEANSE] with (pet) when isPetDispel is true', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        dispelSummary: {
+          ...makeEmptyDispelSummary(),
+          allyCleanse: [
+            {
+              timeSeconds: 44,
+              dispelSpellId: '19505',
+              dispelSpellName: 'Devour Magic',
+              removedSpellId: '118',
+              removedSpellName: 'Polymorph',
+              sourceName: 'WarlockPlayer',
+              sourceSpec: 'Affliction Warlock',
+              targetName: 'Simplesauce',
+              targetSpec: 'Unholy Death Knight',
+              priority: 'High',
+              hasDispelPenalty: false,
+              isSpellSteal: false,
+              isPetDispel: true,
+            },
+          ],
+        },
+      }),
+    );
+    expect(result).toContain('[CLEANSE]');
+    expect(result).toContain('WarlockPlayer dispelled Polymorph off Simplesauce');
+    expect(result).toContain('(pet)');
+  });
+
+  it('does NOT annotate [CLEANSE] with (pet) when isPetDispel is false', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        dispelSummary: {
+          ...makeEmptyDispelSummary(),
+          allyCleanse: [
+            {
+              timeSeconds: 44,
+              dispelSpellId: '115450',
+              dispelSpellName: 'Detox',
+              removedSpellId: '118',
+              removedSpellName: 'Polymorph',
+              sourceName: 'Feramonk',
+              sourceSpec: 'Mistweaver Monk',
+              targetName: 'Simplesauce',
+              targetSpec: 'Unholy Death Knight',
+              priority: 'High',
+              hasDispelPenalty: false,
+              isSpellSteal: false,
+              isPetDispel: false,
+            },
+          ],
+        },
+      }),
+    );
+    expect(result).toContain('[CLEANSE]');
+    expect(result).toContain('Feramonk dispelled Polymorph off Simplesauce');
+    expect(result).not.toContain('(pet)');
+  });
+
   it('emits [DMG SPIKE] only for windows ≥300k', () => {
     const windows: IDamageBucket[] = [
       {
