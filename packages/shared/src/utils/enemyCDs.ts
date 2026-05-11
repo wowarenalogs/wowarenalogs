@@ -92,6 +92,14 @@ export function reconstructEnemyCDTimeline(
 
       const castTimeSeconds = (cast.logLine.timestamp - matchStartMs) / 1000;
       const buffDuration = effectData.durationSeconds ?? 0;
+
+      // Deduplicate: same player + same spellName within 1s = one cast (guards against double-parsed events and multi-target buffs)
+      const isDuplicate = offensiveCDs.some(
+        (existing) =>
+          existing.spellName === effectData.name && Math.abs(castTimeSeconds - existing.castTimeSeconds) < 1,
+      );
+      if (isDuplicate) continue;
+
       offensiveCDs.push({
         spellId,
         spellName: effectData.name,
@@ -127,11 +135,7 @@ export function reconstructEnemyCDTimeline(
     )
     .sort((a, b) => a.time - b.time);
 
-  // Deduplicate: same player + same spellId within 1s = one cast (guards against double-parsed events)
-  const allCasts = allCastsRaw.filter((c, idx) => {
-    const prev = allCastsRaw[idx - 1];
-    return !(prev && prev.playerName === c.playerName && prev.spellId === c.spellId && c.time - prev.time < 1);
-  });
+  const allCasts = allCastsRaw;
 
   // Compute total friendly damage for ratio calculation
   const allFriendlyDamage = (friendlies ?? []).flatMap((u) => u.damageIn);
