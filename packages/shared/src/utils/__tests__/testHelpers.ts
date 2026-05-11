@@ -153,6 +153,7 @@ export function makeUnit(
     spellCastEvents?: AnyObj[];
     auraEvents?: AnyObj[];
     actionIn?: AnyObj[];
+    actionOut?: AnyObj[];
     damageIn?: AnyObj[];
     healOut?: AnyObj[];
     advancedActions?: AnyObj[];
@@ -182,7 +183,7 @@ export function makeUnit(
     supportHealIn: [],
     supportHealOut: [],
     actionIn: (overrides.actionIn ?? []) as ICombatUnit['actionIn'],
-    actionOut: [],
+    actionOut: (overrides.actionOut ?? []) as ICombatUnit['actionOut'],
     auraEvents: (overrides.auraEvents ?? []) as ICombatUnit['auraEvents'],
     spellCastEvents: (overrides.spellCastEvents ?? []) as ICombatUnit['spellCastEvents'],
     deathRecords: [],
@@ -220,5 +221,42 @@ export function makeInterruptEvent(
     effectiveAmount: 0,
     advancedActorMaxHp: 0,
     advancedActorCurrentHp: 0,
+  };
+}
+
+/**
+ * Minimal SPELL_DISPEL event stub (CombatExtraSpellAction shape).
+ * srcUnitId: the unit that performed the dispel (may be a pet ID)
+ * destUnitId: the target that was dispelled
+ * dispelSpellId: the ability used to dispel (e.g. Detox '115450')
+ * removedSpellId: the effect that was removed (e.g. Polymorph '118')
+ * removedSpellName: display name of the removed effect
+ */
+export function makeDispelAction(
+  timestamp: number,
+  srcUnitId: string,
+  destUnitId: string,
+  dispelSpellId: string,
+  removedSpellId: string,
+  removedSpellName: string,
+  destUnitName = 'Target',
+  srcUnitName = 'Source',
+): AnyObj {
+  return {
+    logLine: { event: LogEvent.SPELL_DISPEL, timestamp, parameters: [] },
+    timestamp,
+    spellId: dispelSpellId,
+    spellName: dispelSpellId,
+    extraSpellId: removedSpellId,
+    extraSpellName: removedSpellName,
+    srcUnitId,
+    srcUnitName,
+    destUnitId,
+    destUnitName,
+    effectiveAmount: 0,
+    advancedActorMaxHp: 0,
+    advancedActorCurrentHp: 0,
+    advancedActorPositionX: 0,
+    advancedActorPositionY: 0,
   };
 }
