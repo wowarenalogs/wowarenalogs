@@ -13,7 +13,7 @@ import {
   specToString,
 } from '../../../utils/cooldowns';
 import { getDampeningPercentage } from '../../../utils/dampening';
-import { IDispelSummary } from '../../../utils/dispelAnalysis';
+import { IDispelEvent, IDispelSummary } from '../../../utils/dispelAnalysis';
 import { extractAoeCCEvents, IOutgoingCCChain } from '../../../utils/drAnalysis';
 import { IEnemyCDTimeline } from '../../../utils/enemyCDs';
 import { IHealingGap } from '../../../utils/healingGaps';
@@ -1990,12 +1990,31 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     );
   }
 
-  for (const cleanse of dispelSummary.allyCleanse) {
-    const petTag = cleanse.isPetDispel ? ' (pet)' : '';
-    addEntry(
-      cleanse.timeSeconds,
-      `${fmtTime(cleanse.timeSeconds)}  [CLEANSE]   ${pid(cleanse.sourceName)} dispelled ${cleanse.removedSpellName} off ${pid(cleanse.targetName)}${petTag}`,
-    );
+  // B14: Consolidate same-second same-source cleanses (e.g. Mass Dispel) into one line.
+  {
+    const cleanseGroups = new Map<string, IDispelEvent[]>();
+    for (const cleanse of dispelSummary.allyCleanse) {
+      const key = `${Math.round(cleanse.timeSeconds)}|${cleanse.sourceName}`;
+      const group = cleanseGroups.get(key) ?? [];
+      group.push(cleanse);
+      cleanseGroups.set(key, group);
+    }
+    for (const group of cleanseGroups.values()) {
+      const first = group[0];
+      const petTag = group.some((c) => c.isPetDispel) ? ' (pet)' : '';
+      if (group.length === 1) {
+        addEntry(
+          first.timeSeconds,
+          `${fmtTime(first.timeSeconds)}  [CLEANSE]   ${pid(first.sourceName)} dispelled ${first.removedSpellName} off ${pid(first.targetName)}${petTag}`,
+        );
+      } else {
+        const effects = group.map((c) => `${c.removedSpellName} off ${pid(c.targetName)}`).join(', ');
+        addEntry(
+          first.timeSeconds,
+          `${fmtTime(first.timeSeconds)}  [CLEANSE]   ${pid(first.sourceName)} dispelled ${group.length} effects: ${effects}${petTag}`,
+        );
+      }
+    }
   }
 
   // ── [DMG SPIKE] events ─────────────────────────────────────────────────────
