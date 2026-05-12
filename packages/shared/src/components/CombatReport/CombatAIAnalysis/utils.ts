@@ -1987,6 +1987,21 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       const targetPart = targetLabel ? ` → ${targetLabel}` : '';
       const destType = getUnitType(e.destUnitFlags ?? 0);
       const totemNote = destType === CombatUnitType.Guardian || destType === CombatUnitType.Pet ? ' [totem/pet]' : '';
+
+      // B38: promote major-CD spells (CD ≥ 30s) to [OWNER CD] format when extractMajorCooldowns
+      // missed them (e.g. missing talent data). This keeps Avenging Crusader etc. from appearing
+      // as filler casts when they are significant cooldown activations.
+      const effectData = spellEffectData[e.spellId];
+      const cdSeconds = effectData?.cooldownSeconds ?? effectData?.charges?.chargeCooldownSeconds ?? 0;
+      if (cdSeconds >= 30) {
+        addEntry(
+          timeSeconds,
+          `${fmtTime(timeSeconds)}  [OWNER CD]   ${displayName}${targetPart}`,
+          resourceSnapshot(timeSeconds),
+        );
+        continue;
+      }
+
       addEntry(
         timeSeconds,
         `${fmtTime(timeSeconds)}  [OWNER CAST]   ${displayName}${targetPart}${totemNote}${orderNote}`,
