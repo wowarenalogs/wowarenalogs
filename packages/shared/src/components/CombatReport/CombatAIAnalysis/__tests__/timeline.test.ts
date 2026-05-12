@@ -404,12 +404,14 @@ describe('buildMatchTimeline — [DEATH] events', () => {
           logLine: { timestamp: deathMs - 5_000 },
           effectiveAmount: -80_000,
           srcUnitName: 'Natjkis',
+          srcUnitFlags: 0x00000040, // hostile player
           spellName: 'Unstable Affliction',
         } as any,
         {
           logLine: { timestamp: deathMs - 3_000 },
           effectiveAmount: -40_000,
           srcUnitName: 'Natjkis',
+          srcUnitFlags: 0x00000040, // hostile player
           spellName: 'Dark Harvest',
         } as any,
       ],
@@ -425,6 +427,42 @@ describe('buildMatchTimeline — [DEATH] events', () => {
     expect(result).toContain('Top damage in final 10s');
     expect(result).toContain('Unstable Affliction');
     expect(result).toContain('80k');
+  });
+
+  it('B20: excludes friendly-sourced damage from top damage sources (e.g. Time Dilation)', () => {
+    const matchStartMs = 1_000_000;
+    const deathAtSeconds = 60;
+    const deathMs = matchStartMs + deathAtSeconds * 1000;
+
+    const unit = makeUnit('player-1', {
+      name: 'Simplesauce',
+      damageIn: [
+        {
+          logLine: { timestamp: deathMs - 2_000 },
+          effectiveAmount: -119_000,
+          srcUnitName: 'Healer',
+          srcUnitFlags: 0x00000010, // friendly player
+          spellName: 'Time Dilation',
+        } as any,
+        {
+          logLine: { timestamp: deathMs - 1_000 },
+          effectiveAmount: -50_000,
+          srcUnitName: 'Natjkis',
+          srcUnitFlags: 0x00000040, // hostile player
+          spellName: 'Shadow Bolt',
+        } as any,
+      ],
+    });
+
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        friendlyDeaths: [{ spec: 'Unholy Death Knight', name: 'Simplesauce', atSeconds: deathAtSeconds }],
+        matchStartMs,
+      }),
+    );
+    expect(result).not.toContain('Time Dilation');
+    expect(result).toContain('Shadow Bolt');
   });
 
   it('outputs MATCH TIMELINE header', () => {

@@ -1,4 +1,11 @@
-import { CombatUnitType, getUnitType, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+import {
+  CombatUnitReaction,
+  CombatUnitType,
+  getUnitReaction,
+  getUnitType,
+  ICombatUnit,
+  LogEvent,
+} from '@wowarenalogs/parser';
 
 import { getEnglishSpellName, spellEffectData } from '../../../data/spellEffectData';
 import { IPlayerCCTrinketSummary } from '../../../utils/ccTrinketAnalysis';
@@ -340,6 +347,8 @@ export function getTopDamageSourcesInWindow(unit: ICombatUnit, endMs: number, wi
     if (d.logLine.timestamp < startMs || d.logLine.timestamp > endMs) continue;
     const dmg = Math.abs(d.effectiveAmount);
     if (dmg <= 0) continue;
+    // B20: exclude friendly sources (e.g. Time Dilation from Preservation Evoker buff)
+    if (getUnitReaction(d.srcUnitFlags) !== CombatUnitReaction.Hostile) continue;
     const key = `${d.srcUnitName || 'Unknown'} — ${d.spellName ?? 'melee'}`;
     buckets.set(key, (buckets.get(key) ?? 0) + dmg);
   }
