@@ -30,7 +30,7 @@ import {
 // ── Factories ─────────────────────────────────────────────────────────────────
 
 function makeOwner(name: string, spec: CombatUnitSpec = CombatUnitSpec.None): ICombatUnit {
-  return { name, spec } as ICombatUnit;
+  return { name, spec, advancedActions: [] } as unknown as ICombatUnit;
 }
 
 function makeCD(spellName: string, cooldownSeconds: number, neverUsed = false): IMajorCooldownInfo {
@@ -2848,8 +2848,9 @@ describe('buildMatchTimeline — [HP] / [ENEMY HP] split', () => {
       }),
     );
 
-    // On baseline ticks [STATE] may appear for friends, but no enemies section
-    expect(result).not.toContain('/ enemies');
+    // On baseline [STATE] ticks, no enemies section — [MATCH END] shows enemies separately
+    const hasEnemiesInState = result.split('\n').some((l) => l.includes('[STATE]') && l.includes('enemies'));
+    expect(hasEnemiesInState).toBe(false);
   });
 
   it('emits enemies section in [STATE] on critical-window ticks (death window)', () => {

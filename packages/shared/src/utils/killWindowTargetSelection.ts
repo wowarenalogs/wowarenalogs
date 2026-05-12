@@ -76,7 +76,7 @@ export interface IKillWindowTargetEval {
  */
 export function getHpPercentAtTime(enemy: ICombatUnit, atSeconds: number, matchStartMs: number): number | null {
   const actions = enemy.advancedActions;
-  if (actions.length === 0) return null;
+  if (!actions || actions.length === 0) return null;
 
   const targetMs = matchStartMs + atSeconds * 1000;
 
