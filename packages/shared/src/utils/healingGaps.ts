@@ -12,6 +12,8 @@ const HEALING_GAP_THRESHOLD_MS = 3500;
 const MIN_FREE_CAST_MS = 1500;
 /** Grace period: ignore tail gaps within this many ms of match end (match may end mid-cast) */
 const TAIL_GRACE_MS = 5000;
+/** B19: Suppress gaps that start in the first N ms of the match (pre-combat initialization) */
+const MATCH_START_GRACE_MS = 5000;
 
 // Spell types that prevent the healer from casting
 const CAST_PREVENTING_TYPES = new Set(['cc', 'immunities_spells']);
@@ -158,6 +160,9 @@ export function detectHealingGaps(
   const results: IHealingGap[] = [];
 
   for (const { fromMs, toMs } of rawGaps) {
+    // B19: skip gaps at match start — pre-combat initialization artifact
+    if (fromMs - matchStartMs < MATCH_START_GRACE_MS) continue;
+
     // CC check: how much of the gap was the healer unable to cast?
     const ccMs = getCCCoveredMs(healer, fromMs, toMs, enemyIds);
     const freeCastMs = toMs - fromMs - ccMs;

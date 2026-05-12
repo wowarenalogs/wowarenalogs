@@ -1359,6 +1359,8 @@ export function buildResourceSnapshot({
     const parts: string[] = [];
     if (added.length > 0) parts.push(`+${added.join(',')}`);
     if (removed.length > 0) parts.push(`-${removed.join(',')}`);
+    // B39: suppress no-op delta lines entirely — nothing changed
+    if (parts.length === 0 && onCDParts.length === 0) return '';
     rdyPart = parts.length > 0 ? `rdy:Δ${parts.join('')}` : 'rdy:Δ';
   } else {
     rdyPart = `rdy:${readyNames.length > 0 ? readyNames.join(',') : '—'}`;
@@ -1827,14 +1829,14 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     }
   }
 
-  // ── [CD EXPIRED] events (F70) ─────────────────────────────────────────────
+  // ── [BUFF FADED] events (F70, B31: renamed from [CD EXPIRED]) ──────────────
 
   const cdExpiryEvents = extractOwnerCDBuffExpiry(ownerCDs, owner.id, friends, matchStartMs);
   for (const expiry of cdExpiryEvents) {
     const estimatedNote = expiry.isEstimated ? ' (estimated)' : '';
     addEntry(
       expiry.expiresAtSeconds,
-      `${fmtTime(expiry.expiresAtSeconds)}  [CD EXPIRED]   ${expiry.spellName}${estimatedNote}`,
+      `${fmtTime(expiry.expiresAtSeconds)}  [BUFF FADED]   ${expiry.spellName}${estimatedNote}`,
     );
   }
 
@@ -1852,10 +1854,12 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       ccTrinketSummaries.flatMap((s) => s.trinketUseTimes.map((t) => Math.round(matchStartMs + t * 1000))),
     );
 
-    // F68: flat list of CC event ms timestamps for same-second disambiguation
-    const ccMsTimestamps: number[] = ccTrinketSummaries.flatMap((s) =>
-      s.ccInstances.map((cc) => Math.round(matchStartMs + cc.atSeconds * 1000)),
-    );
+    // F68/B32: flat list of CC events targeting the owner only (not teammates).
+    // B32 fix: restrict disambiguation annotations to CCs that hit the caster,
+    // not CCs that hit teammates at a similar timestamp.
+    const ownerCCMsTimestamps: number[] = ccTrinketSummaries
+      .filter((s) => s.playerName === owner.name)
+      .flatMap((s) => s.ccInstances.map((cc) => Math.round(matchStartMs + cc.atSeconds * 1000)));
 
     for (const e of owner.spellCastEvents ?? []) {
       if (e.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
@@ -1872,10 +1876,11 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         continue;
       const timeSeconds = (tsMs - matchStartMs) / 1000;
 
-      // F68/F89: find nearest CC within 1s — annotate ordering so Claude knows cast completed
-      // before or after incoming CC regardless of displayed-second boundary
+      // F68/F89/B32: find nearest CC *on the owner* within 1s — annotate ordering
+      // so Claude knows the cast completed before or after incoming CC.
+      // B32: only match CCs targeting the log owner, not teammates.
       const CC_PROXIMITY_MS = 1000;
-      const nearestCC = ccMsTimestamps
+      const nearestCC = ownerCCMsTimestamps
         .filter((ccMs) => Math.abs(ccMs - tsMs) <= CC_PROXIMITY_MS)
         .sort((a, b) => Math.abs(a - tsMs) - Math.abs(b - tsMs))[0];
       let orderNote = '';
@@ -2096,6 +2101,10 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     label: (name: string) => enemyPid(name),
   }));
 
+  // B15: Track previous HP readings to suppress unchanged [STATE] ticks.
+  // Only emit when at least one unit's HP% changed, OR on 5s anchor ticks.
+  let prevHpKey = '';
+
   for (const t of [...tickSet].sort((a, b) => a - b)) {
     const tsMs = matchStartMs + t * 1000;
     const sampleWindowMs = criticalWindowSet.has(t) ? HP_SAMPLE_WINDOW_CRITICAL_MS : HP_SAMPLE_WINDOW_BASELINE_MS;
@@ -2103,7 +2112,9 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     const friendlyParts = friendlyHpUnits
       .map(({ unit, label }) => {
         const pct = getUnitHpAtTimestamp(unit, tsMs, sampleWindowMs);
-        return pct !== null ? `${label(unit.name)}:${pct}` : null;
+        // B18/B23: clamp to 100% — absorb shields can push HP readings over max
+        const clamped = pct !== null ? Math.min(pct, 100) : null;
+        return clamped !== null ? `${label(unit.name)}:${clamped}` : null;
       })
       .filter((s): s is string => s !== null);
 
@@ -2112,12 +2123,21 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         ? enemyHpUnits
             .map(({ unit, label }) => {
               const pct = getUnitHpAtTimestamp(unit, tsMs, sampleWindowMs);
-              return pct !== null ? `${label(unit.name)}:${pct}` : null;
+              // B18: clamp enemy HP to 100% too
+              const clamped = pct !== null ? Math.min(pct, 100) : null;
+              return clamped !== null ? `${label(unit.name)}:${clamped}` : null;
             })
             .filter((s): s is string => s !== null)
         : [];
 
     if (friendlyParts.length === 0 && enemyParts.length === 0) continue;
+
+    // B15: deduplicate — suppress tick if HP readings are identical to previous AND
+    // this is not a 5-second anchor tick (anchors always emit for timeline sanity).
+    const currentHpKey = `${friendlyParts.join('|')}||${enemyParts.join('|')}`;
+    const isAnchorTick = t % 5 === 0;
+    if (currentHpKey === prevHpKey && !isAnchorTick) continue;
+    prevHpKey = currentHpKey;
 
     let stateParts: string;
     if (friendlyParts.length > 0 && enemyParts.length > 0) {
@@ -2166,7 +2186,9 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       return `${pid(u.name)}:dead(${fmtTime(deathAt)})`;
     }
     const pct = getHpPercentAtTime(u, matchEndSeconds, matchStartMs);
-    return `${pid(u.name)}:${pct !== null ? `${Math.round(pct)}%` : '?'}`;
+    // B18/B23: clamp to 100%
+    const clamped = pct !== null ? Math.min(Math.round(pct), 100) : null;
+    return `${pid(u.name)}:${clamped !== null ? `${clamped}%` : '?'}`;
   });
 
   const enemyParts = (enemies ?? []).map((u) => {
@@ -2175,7 +2197,9 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       return `${enemyPid(u.name)}:dead(${fmtTime(deathAt)})`;
     }
     const pct = getHpPercentAtTime(u, matchEndSeconds, matchStartMs);
-    return `${enemyPid(u.name)}:${pct !== null ? `${Math.round(pct)}%` : '?'}`;
+    // B18: clamp to 100%
+    const clamped = pct !== null ? Math.min(Math.round(pct), 100) : null;
+    return `${enemyPid(u.name)}:${clamped !== null ? `${clamped}%` : '?'}`;
   });
 
   const stateParts: string[] = [];
