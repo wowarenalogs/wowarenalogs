@@ -29,8 +29,8 @@ import {
 
 // ── Factories ─────────────────────────────────────────────────────────────────
 
-function makeOwner(name: string): ICombatUnit {
-  return { name, spec: CombatUnitSpec.None } as ICombatUnit;
+function makeOwner(name: string, spec: CombatUnitSpec = CombatUnitSpec.None): ICombatUnit {
+  return { name, spec } as ICombatUnit;
 }
 
 function makeCD(spellName: string, cooldownSeconds: number, neverUsed = false): IMajorCooldownInfo {
@@ -750,6 +750,7 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
   it('emits [MISSED CLEANSE] with damage amount and dispel type', () => {
     const result = buildMatchTimeline(
       makeBaseParams({
+        owner: makeOwner('Feramonk', CombatUnitSpec.Paladin_Holy), // B16: owner must be able to Magic-dispel
         dispelSummary: {
           ...makeEmptyDispelSummary(),
           missedCleanseWindows: [
@@ -773,6 +774,33 @@ describe('buildMatchTimeline — CC, dispel, pressure, healing gap events', () =
     expect(result).toContain('Vampiric Touch on Simplesauce');
     expect(result).toContain('212k');
     expect(result).toContain('dispel: Magic');
+  });
+
+  it('B16: suppresses [MISSED CLEANSE] when owner spec cannot dispel the debuff type', () => {
+    // Mistweaver cannot remove Curse — should NOT emit [MISSED CLEANSE] for a Curse debuff
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: makeOwner('Feramonk', CombatUnitSpec.Monk_Mistweaver),
+        dispelSummary: {
+          ...makeEmptyDispelSummary(),
+          missedCleanseWindows: [
+            {
+              timeSeconds: 10,
+              durationSeconds: 8,
+              targetName: 'Simplesauce',
+              targetSpec: 'Unholy Death Knight',
+              spellName: 'Mortal Coil',
+              spellId: '6789',
+              priority: 'High',
+              dispelType: 'Curse' as any,
+              postCcDamage: 50_000,
+              cleanseWasOnCD: false,
+            },
+          ],
+        },
+      }),
+    );
+    expect(result).not.toContain('[MISSED CLEANSE]');
   });
 
   it('emits [CLEANSE] for successful dispels', () => {

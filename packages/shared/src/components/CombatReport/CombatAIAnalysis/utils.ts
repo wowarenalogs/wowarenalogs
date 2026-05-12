@@ -13,7 +13,7 @@ import {
   specToString,
 } from '../../../utils/cooldowns';
 import { getDampeningPercentage } from '../../../utils/dampening';
-import { IDispelEvent, IDispelSummary } from '../../../utils/dispelAnalysis';
+import { canDefensiveCleanse, IDispelEvent, IDispelSummary } from '../../../utils/dispelAnalysis';
 import { extractAoeCCEvents, IOutgoingCCChain } from '../../../utils/drAnalysis';
 import { IEnemyCDTimeline } from '../../../utils/enemyCDs';
 import { IHealingGap } from '../../../utils/healingGaps';
@@ -1984,6 +1984,8 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   // ── [MISSED CLEANSE] and [CLEANSE] events ──────────────────────────────────
 
   for (const miss of dispelSummary.missedCleanseWindows) {
+    // B16: only emit if the log owner's spec can actually remove this debuff type
+    if (!canDefensiveCleanse(owner, miss.dispelType)) continue;
     const dmgK = Math.round(miss.postCcDamage / 1000);
     addEntry(
       miss.timeSeconds,
