@@ -19,7 +19,14 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import { CombatUnitReaction, CombatUnitType, IArenaMatch, ICombatUnit, IShuffleRound } from '@wowarenalogs/parser';
+import {
+  CombatUnitReaction,
+  CombatUnitSpec,
+  CombatUnitType,
+  IArenaMatch,
+  ICombatUnit,
+  IShuffleRound,
+} from '@wowarenalogs/parser';
 import fs from 'fs-extra';
 import fetch from 'node-fetch';
 import os from 'os';
@@ -898,13 +905,23 @@ export function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): 
   const teamPurgers = friends.filter((p) => p.id !== owner.id && canOffensivePurge(p)).map((p) => specToString(p.spec));
 
   const friendlyDeaths = friends
-    .flatMap((p) =>
-      p.deathRecords.map((d) => ({
+    .flatMap((p) => [
+      ...p.deathRecords.map((d) => ({
         spec: specToString(p.spec),
         name: p.name,
         atSeconds: (d.timestamp - combat.startTime) / 1000,
       })),
-    )
+      // B17: include Spirit of Redemption deaths (UNIT_DIED with unconsciousKill=1).
+      // Holy Priests who die with SoR have no normal deathRecord — only a consciousDeathRecord.
+      ...(p.spec === CombatUnitSpec.Priest_Holy
+        ? p.consciousDeathRecords.map((d) => ({
+            spec: specToString(p.spec),
+            name: p.name,
+            atSeconds: (d.timestamp - combat.startTime) / 1000,
+            note: 'Spirit of Redemption — healer casting as ghost',
+          }))
+        : []),
+    ])
     .sort((a, b) => a.atSeconds - b.atSeconds);
 
   const enemyDeaths = enemies
@@ -1047,13 +1064,23 @@ function buildMatchPromptJson(combat: ParsedCombat, forceHealer = false): string
   const teamPurgers = friends.filter((p) => p.id !== owner.id && canOffensivePurge(p)).map((p) => specToString(p.spec));
 
   const friendlyDeaths = friends
-    .flatMap((p) =>
-      p.deathRecords.map((d) => ({
+    .flatMap((p) => [
+      ...p.deathRecords.map((d) => ({
         spec: specToString(p.spec),
         name: p.name,
         atSeconds: (d.timestamp - combat.startTime) / 1000,
       })),
-    )
+      // B17: include Spirit of Redemption deaths (UNIT_DIED with unconsciousKill=1).
+      // Holy Priests who die with SoR have no normal deathRecord — only a consciousDeathRecord.
+      ...(p.spec === CombatUnitSpec.Priest_Holy
+        ? p.consciousDeathRecords.map((d) => ({
+            spec: specToString(p.spec),
+            name: p.name,
+            atSeconds: (d.timestamp - combat.startTime) / 1000,
+            note: 'Spirit of Redemption — healer casting as ghost',
+          }))
+        : []),
+    ])
     .sort((a, b) => a.atSeconds - b.atSeconds);
 
   const enemyDeaths = enemies

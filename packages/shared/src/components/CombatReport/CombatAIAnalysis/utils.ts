@@ -1597,7 +1597,7 @@ export interface BuildMatchTimelineParams {
   enemyCDTimeline: IEnemyCDTimeline;
   ccTrinketSummaries: IPlayerCCTrinketSummary[];
   dispelSummary: IDispelSummary;
-  friendlyDeaths: Array<{ spec: string; name: string; atSeconds: number }>;
+  friendlyDeaths: Array<{ spec: string; name: string; atSeconds: number; note?: string }>;
   enemyDeaths: Array<{ spec: string; name: string; atSeconds: number }>;
   pressureWindows: IDamageBucket[];
   healingGaps: IHealingGap[];
@@ -1753,8 +1753,9 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   const unitsByName = new Map(friends.map((u) => [u.name, u]));
 
   for (const death of friendlyDeaths) {
+    const notePart = death.note ? ` [${death.note}]` : '';
     const deathLines: string[] = [
-      `${fmtTime(death.atSeconds)}  [DEATH]  ${pid(death.name)} (${death.spec} — friendly)`,
+      `${fmtTime(death.atSeconds)}  [DEATH]  ${pid(death.name)} (${death.spec} — friendly)${notePart}`,
     ];
 
     const dyingUnit = unitsByName.get(death.name);

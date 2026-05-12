@@ -339,6 +339,23 @@ describe('buildMatchTimeline — [DEATH] events', () => {
     expect(result).toContain('Simplesauce (Unholy Death Knight — friendly)');
   });
 
+  it('B17: includes note in [DEATH] line when note is provided (Spirit of Redemption)', () => {
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friendlyDeaths: [
+          {
+            spec: 'Holy Priest',
+            name: 'Healer',
+            atSeconds: 45,
+            note: 'Spirit of Redemption — healer casting as ghost',
+          },
+        ],
+      }),
+    );
+    expect(result).toContain('[DEATH]');
+    expect(result).toContain('[Spirit of Redemption — healer casting as ghost]');
+  });
+
   it('emits a [DEATH] line for an enemy death', () => {
     const result = buildMatchTimeline(
       makeBaseParams({
