@@ -349,7 +349,12 @@ export function getTopDamageSourcesInWindow(unit: ICombatUnit, endMs: number, wi
     if (dmg <= 0) continue;
     // B20: exclude friendly sources (e.g. Time Dilation from Preservation Evoker buff)
     if (getUnitReaction(d.srcUnitFlags) !== CombatUnitReaction.Hostile) continue;
-    const key = `${d.srcUnitName || 'Unknown'} — ${d.spellName ?? 'melee'}`;
+    // B24: pet/guardian units may have localized (non-ASCII) names from non-en-US clients;
+    // replace with "[pet]" to keep attribution readable without localization noise.
+    const srcType = getUnitType(d.srcUnitFlags);
+    const isPet = srcType === CombatUnitType.Pet || srcType === CombatUnitType.Guardian;
+    const srcName = isPet ? '[pet]' : d.srcUnitName || 'Unknown';
+    const key = `${srcName} — ${d.spellName ?? 'melee'}`;
     buckets.set(key, (buckets.get(key) ?? 0) + dmg);
   }
   return [...buckets.entries()]

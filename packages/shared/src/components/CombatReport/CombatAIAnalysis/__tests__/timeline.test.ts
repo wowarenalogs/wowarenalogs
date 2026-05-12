@@ -465,6 +465,36 @@ describe('buildMatchTimeline — [DEATH] events', () => {
     expect(result).toContain('Shadow Bolt');
   });
 
+  it('B24: replaces pet/guardian srcUnitName with [pet] in death attribution', () => {
+    const matchStartMs = 1_000_000;
+    const deathAtSeconds = 60;
+    const deathMs = matchStartMs + deathAtSeconds * 1000;
+
+    const unit = makeUnit('player-1', {
+      name: 'Simplesauce',
+      damageIn: [
+        {
+          logLine: { timestamp: deathMs - 2_000 },
+          effectiveAmount: -87_000,
+          srcUnitName: 'Ребан', // Cyrillic pet name (Bloodshed ghoul)
+          srcUnitFlags: 0x00001040, // pet + hostile flags
+          spellName: 'Bloodshed',
+        } as any,
+      ],
+    });
+
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        friends: [unit],
+        friendlyDeaths: [{ spec: 'Unholy Death Knight', name: 'Simplesauce', atSeconds: deathAtSeconds }],
+        matchStartMs,
+      }),
+    );
+    expect(result).not.toContain('Ребан');
+    expect(result).toContain('[pet]');
+    expect(result).toContain('Bloodshed');
+  });
+
   it('outputs MATCH TIMELINE header', () => {
     const result = buildMatchTimeline(makeBaseParams());
     expect(result).toContain('MATCH TIMELINE');
