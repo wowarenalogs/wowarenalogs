@@ -1281,28 +1281,69 @@ export function buildPlayerLoadout(
  * at the given timeSeconds. Shared between buildResourceSnapshot and the delta
  * state tracker in buildMatchTimeline.
  */
+/**
+ * Returns attributed ready CD names: owner CDs as "SpellName", teammate CDs as "pid:SpellName".
+ * The `playerLabel` field on each teammateCDs entry supplies the display prefix (numeric pid).
+ * B34: attributed names disambiguate same-spec teammates who share spell names.
+ */
 export function computeReadyNames(
   timeSeconds: number,
   ownerCDs: IMajorCooldownInfo[],
-  teammateCDs: Array<{ cds: IMajorCooldownInfo[] }>,
+  teammateCDs: Array<{ cds: IMajorCooldownInfo[]; playerLabel?: string }>,
 ): string[] {
   const readyNames: string[] = [];
-  const allFriendlyCDs = [
-    ...ownerCDs.map((cd) => ({ spellName: cd.spellName, cd })),
-    ...teammateCDs.flatMap(({ cds }) => cds.map((cd) => ({ spellName: cd.spellName, cd }))),
+  const allFriendlyCDs: Array<{ displayName: string; cd: IMajorCooldownInfo }> = [
+    ...ownerCDs.map((cd) => ({ displayName: cd.spellName, cd })),
+    ...teammateCDs.flatMap(({ cds, playerLabel }) =>
+      cds.map((cd) => ({
+        displayName: playerLabel ? `${playerLabel}:${cd.spellName}` : cd.spellName,
+        cd,
+      })),
+    ),
   ];
-  for (const { spellName, cd } of allFriendlyCDs) {
+  for (const { displayName, cd } of allFriendlyCDs) {
     const priorCasts = cd.casts.filter((c) => c.timeSeconds < timeSeconds - 0.5);
     if (priorCasts.length === 0) {
-      if (timeSeconds > 5) readyNames.push(spellName);
+      if (timeSeconds > 5) readyNames.push(displayName);
       continue;
     }
     const charges = cd.maxChargesDetected > 1 ? cd.maxChargesDetected : 1;
     const relevantCasts = priorCasts.slice(-charges);
     const earliestSlotReady = relevantCasts[0].timeSeconds + cd.cooldownSeconds;
-    if (earliestSlotReady <= timeSeconds + 0.5) readyNames.push(spellName);
+    if (earliestSlotReady <= timeSeconds + 0.5) readyNames.push(displayName);
   }
   return readyNames;
+}
+
+/**
+ * Returns attributed display names for all CDs currently on cooldown.
+ * Mirrors computeReadyNames but returns on-CD entries. Used by the resourceSnapshot
+ * closure in buildMatchTimeline to track prevOnCDNamesState for B35 delta suppression.
+ */
+export function computeOnCDDisplayNames(
+  timeSeconds: number,
+  ownerCDs: IMajorCooldownInfo[],
+  teammateCDs: Array<{ cds: IMajorCooldownInfo[]; playerLabel?: string }>,
+): string[] {
+  const onCDNames: string[] = [];
+  const allFriendlyCDs: Array<{ displayName: string; cd: IMajorCooldownInfo }> = [
+    ...ownerCDs.map((cd) => ({ displayName: cd.spellName, cd })),
+    ...teammateCDs.flatMap(({ cds, playerLabel }) =>
+      cds.map((cd) => ({
+        displayName: playerLabel ? `${playerLabel}:${cd.spellName}` : cd.spellName,
+        cd,
+      })),
+    ),
+  ];
+  for (const { displayName, cd } of allFriendlyCDs) {
+    const priorCasts = cd.casts.filter((c) => c.timeSeconds < timeSeconds - 0.5);
+    if (priorCasts.length === 0) continue;
+    const charges = cd.maxChargesDetected > 1 ? cd.maxChargesDetected : 1;
+    const relevantCasts = priorCasts.slice(-charges);
+    const earliestSlotReady = relevantCasts[0].timeSeconds + cd.cooldownSeconds;
+    if (earliestSlotReady > timeSeconds + 0.5) onCDNames.push(displayName);
+  }
+  return onCDNames;
 }
 
 export interface ResourceSnapshotParams {
@@ -1317,10 +1358,15 @@ export interface ResourceSnapshotParams {
   enemyCDTimeline: IEnemyCDTimeline;
   playerIdMap?: Map<string, number>;
   /**
-   * Ready CD names from the previous snapshot. When provided, the [RES] line
-   * emits a delta form (rdy:Δ+Added,-Removed) instead of the full list.
+   * Ready CD names from the previous snapshot (attributed: "SpellName" for owner, "pid:SpellName" for
+   * teammates). When provided, the [RES] line emits a delta form (rdy:Δ+Added,-Removed).
    */
   prevReadyNames?: string[];
+  /**
+   * On-CD spell display names from the previous snapshot. When provided, [RES] only shows cd: entries
+   * for CDs that are NEWLY on cooldown (not present in prevOnCDNames). B35: reduces token bloat.
+   */
+  prevOnCDNames?: string[];
 }
 
 export function buildResourceSnapshot({
@@ -1333,6 +1379,7 @@ export function buildResourceSnapshot({
   enemyCDTimeline,
   playerIdMap,
   prevReadyNames,
+  prevOnCDNames,
 }: ResourceSnapshotParams): string {
   function pid(name: string): string {
     if (!playerIdMap) return name;
@@ -1340,24 +1387,39 @@ export function buildResourceSnapshot({
     return id !== undefined ? String(id) : name;
   }
 
-  // ── rdy / cd ───────────────────────────────────────────────────────────────
-  const readyNames = computeReadyNames(timeSeconds, ownerCDs, teammateCDs);
-  const onCDParts: string[] = [];
+  // ── rdy / cd — B34: attribute teammate CDs with player pid prefix ──────────
+  // Owner CDs: plain "SpellName"; teammate CDs: "pid:SpellName"
+  const readyNames = computeReadyNames(
+    timeSeconds,
+    ownerCDs,
+    teammateCDs.map(({ player, cds }) => ({ cds, playerLabel: pid(player.name) })),
+  );
 
-  const allFriendlyCDs: Array<{ spellName: string; cd: IMajorCooldownInfo }> = [
-    ...ownerCDs.map((cd) => ({ spellName: cd.spellName, cd })),
-    ...teammateCDs.flatMap(({ cds }) => cds.map((cd) => ({ spellName: cd.spellName, cd }))),
+  // Build on-CD display list with player attribution (B34) and delta filtering (B35).
+  const onCDParts: string[] = [];
+  const prevOnCDSet = prevOnCDNames !== undefined ? new Set(prevOnCDNames) : null;
+
+  const allFriendlyCDs: Array<{ displayName: string; cd: IMajorCooldownInfo }> = [
+    ...ownerCDs.map((cd) => ({ displayName: cd.spellName, cd })),
+    ...teammateCDs.flatMap(({ player, cds }) =>
+      cds.map((cd) => ({ displayName: `${pid(player.name)}:${cd.spellName}`, cd })),
+    ),
   ];
 
-  for (const { spellName, cd } of allFriendlyCDs) {
+  const currentOnCDNames: string[] = [];
+  for (const { displayName, cd } of allFriendlyCDs) {
     const priorCasts = cd.casts.filter((c) => c.timeSeconds < timeSeconds - 0.5);
-    if (priorCasts.length === 0) continue; // readyNames already captured above
+    if (priorCasts.length === 0) continue;
     const charges = cd.maxChargesDetected > 1 ? cd.maxChargesDetected : 1;
     const relevantCasts = priorCasts.slice(-charges);
     const earliestSlotReady = relevantCasts[0].timeSeconds + cd.cooldownSeconds;
     if (earliestSlotReady > timeSeconds + 0.5) {
       const remaining = Math.round(earliestSlotReady - timeSeconds);
-      onCDParts.push(`${spellName}(${remaining}s)`);
+      currentOnCDNames.push(displayName);
+      // B35: in delta mode only show CDs that newly went on cooldown (not in previous snapshot).
+      if (prevOnCDSet === null || !prevOnCDSet.has(displayName)) {
+        onCDParts.push(`${displayName}(${remaining}s)`);
+      }
     }
   }
 
@@ -1719,11 +1781,22 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   const snapshotFn = resourceSnapshotFn ?? buildResourceSnapshot;
 
   let prevReadyNamesState: string[] | null = null;
+  let prevOnCDNamesState: string[] | null = null;
 
   function resourceSnapshot(timeSeconds: number): string {
-    const currentReadyNames = computeReadyNames(timeSeconds, ownerCDs, teammateCDs);
+    // B34: compute attributed names (pid:SpellName for teammates)
+    const teammateCDsWithLabel = teammateCDs.map(({ player, cds, spec }) => ({
+      cds,
+      spec,
+      player,
+      playerLabel: playerIdMap ? String(playerIdMap.get(player.name) ?? player.name) : player.name,
+    }));
+    const currentReadyNames = computeReadyNames(timeSeconds, ownerCDs, teammateCDsWithLabel);
+    const currentOnCDNames = computeOnCDDisplayNames(timeSeconds, ownerCDs, teammateCDsWithLabel);
     const prevReadyNames = prevReadyNamesState ?? undefined;
+    const prevOnCDNames = prevOnCDNamesState ?? undefined;
     prevReadyNamesState = currentReadyNames;
+    prevOnCDNamesState = currentOnCDNames;
     return snapshotFn({
       timeSeconds,
       ownerCDs,
@@ -1735,6 +1808,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       enemyCDTimeline,
       playerIdMap,
       prevReadyNames,
+      prevOnCDNames,
     });
   }
 
@@ -1842,8 +1916,12 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
 
   // ── [BUFF FADED] events (F70, B31: renamed from [CD EXPIRED]) ──────────────
 
+  const matchDurationSEarly = (matchEndMs - matchStartMs) / 1000;
   const cdExpiryEvents = extractOwnerCDBuffExpiry(ownerCDs, owner.id, friends, matchStartMs);
   for (const expiry of cdExpiryEvents) {
+    // B33: skip estimated expiry events that fall past match end — they're irrelevant post-game
+    // and would appear chronologically after [MATCH END] confusing the timeline ordering.
+    if (expiry.expiresAtSeconds > matchDurationSEarly) continue;
     const estimatedNote = expiry.isEstimated ? ' (estimated)' : '';
     addEntry(
       expiry.expiresAtSeconds,
@@ -2092,7 +2170,8 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   }
 
   const tickSet = new Set<number>();
-  for (let t = 0; t <= Math.ceil(matchDurationS); t++) {
+  // B33: use Math.floor so ticks never exceed matchEnd (Math.ceil could emit a tick 1s past end).
+  for (let t = 0; t <= Math.floor(matchDurationS); t++) {
     if (criticalWindowSet.has(t) || t % 3 === 0) {
       tickSet.add(t);
     }
@@ -2195,7 +2274,9 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   const enemyDeathTimeByName = new Map<string, number>();
   for (const d of enemyDeaths) enemyDeathTimeByName.set(d.name, d.atSeconds);
 
-  const friendParts = friends.map((u) => {
+  // B36: stable ordering — log owner always first, then other friendlies in their original order.
+  const orderedFriendsForEnd = [owner, ...friends.filter((u) => u.id !== owner.id)];
+  const friendParts = orderedFriendsForEnd.map((u) => {
     if (deadFriendlyNames.has(u.name)) {
       const deathAt = friendDeathTimeByName.get(u.name) ?? 0;
       return `${pid(u.name)}:dead(${fmtTime(deathAt)})`;
