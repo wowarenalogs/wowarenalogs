@@ -945,6 +945,13 @@ export function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): 
   );
   lines.push(`  My team: ${myTeam}`);
   lines.push(`  Enemy team: ${enemyTeam}`);
+  // B21: warn when team roster is incomplete (e.g. 2 players logged in a 3v3 match)
+  const bracketSize = combat.startInfo?.bracket === '2v2' ? 2 : combat.startInfo?.bracket === '3v3' ? 3 : null;
+  if (bracketSize !== null && friends.length < bracketSize) {
+    lines.push(
+      `  WARNING: only ${friends.length}/${bracketSize} friendly players recorded (likely disconnect or late-join). Do not evaluate team composition or teammate coordination — roster data is incomplete.`,
+    );
+  }
   lines.push('  Damage units: M = 1,000,000  |  k = 1,000  (e.g. "0.84M" = 840,000 dmg)');
   lines.push('');
 
@@ -1104,6 +1111,13 @@ function buildMatchPromptJson(combat: ParsedCombat, forceHealer = false): string
   );
   lines.push(`  My team: ${myTeam}`);
   lines.push(`  Enemy team: ${enemyTeam}`);
+  // B21: warn when team roster is incomplete (e.g. 2 players logged in a 3v3 match)
+  const bracketSize = combat.startInfo?.bracket === '2v2' ? 2 : combat.startInfo?.bracket === '3v3' ? 3 : null;
+  if (bracketSize !== null && friends.length < bracketSize) {
+    lines.push(
+      `  WARNING: only ${friends.length}/${bracketSize} friendly players recorded (likely disconnect or late-join). Do not evaluate team composition or teammate coordination — roster data is incomplete.`,
+    );
+  }
   lines.push('  Damage units: M = 1,000,000  |  k = 1,000  (e.g. "0.84M" = 840,000 dmg)');
   lines.push('');
 
