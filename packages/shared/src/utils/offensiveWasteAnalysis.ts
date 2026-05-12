@@ -1,5 +1,6 @@
 import { AtomicArenaCombat, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
+import { ccSpellIds } from '../data/spellTags';
 import { specToString } from './cooldowns';
 
 const IMMUNITY_AURAS: Record<string, string> = {
@@ -127,7 +128,11 @@ export function buildOffensiveWasteSummary(
           if (e.destUnitId !== window.unitId) return false;
           const t = (e.logLine.timestamp - matchStartMs) / 1000;
           if (t < window.fromSeconds || t > window.toSeconds) return false;
-          return e.spellId !== null && (highValueIds.size === 0 || highValueIds.has(e.spellId));
+          if (e.spellId === null) return false;
+          // B28: for immunity windows, also count high-value CC/utility spells that do no damage
+          // (e.g. Mindgames, HoJ, Silence) which would otherwise be filtered by the damage threshold.
+          const isHighValueCC = window.defenseType === 'immunity' && ccSpellIds.has(e.spellId);
+          return isHighValueCC || highValueIds.size === 0 || highValueIds.has(e.spellId);
         })
         .map((e) => ({
           spellId: e.spellId ?? '',

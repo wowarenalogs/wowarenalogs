@@ -15,11 +15,28 @@
 
 import { AtomicArenaCombat, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
+import { ccSpellIds } from '../data/spellTags';
 import { IPlayerCCTrinketSummary } from './ccTrinketAnalysis';
 import { fmtTime, specToString } from './cooldowns';
 import { DR_CATEGORY_MAP, DRLevel, getDRLevelAtTime } from './drAnalysis';
 import { IAlignedBurstWindow } from './enemyCDs';
-import { getUnitPositionAtTime, hasLineOfSight } from './losAnalysis';
+import { distanceBetween, getUnitPositionAtTime, hasLineOfSight } from './losAnalysis';
+
+// Max cast range for player CC spells in yards. Enemies beyond this distance
+// cannot land CC on the healer regardless of LoS.
+const MAX_CC_RANGE_YARDS = 40;
+
+/** Returns true if the enemy has an active CC aura at the given timestamp (ms). */
+function isEnemyInCC(enemy: ICombatUnit, atMs: number): boolean {
+  const active = new Map<string, boolean>();
+  for (const e of enemy.auraEvents) {
+    if (!e.spellId || !ccSpellIds.has(e.spellId)) continue;
+    if (e.logLine.timestamp > atMs) break;
+    if (e.logLine.event === LogEvent.SPELL_AURA_APPLIED) active.set(e.spellId, true);
+    else if (e.logLine.event === LogEvent.SPELL_AURA_REMOVED) active.set(e.spellId, false);
+  }
+  return [...active.values()].some(Boolean);
+}
 
 // ---------------------------------------------------------------------------
 // Spec → primary CC fallback (for enemies not yet observed casting CC)
@@ -176,6 +193,11 @@ export function analyzeHealerExposureAtBurst(
       const losResult = hasLineOfSight(zoneId, healerPos, enemyPos);
       // null = arena geometry not mapped; treat as unblocked (conservative — assume worst case)
       const losBlocked = losResult === null ? false : !losResult;
+
+      // B26: enemies beyond CC range or in CC cannot threaten the healer
+      const distance = distanceBetween(healerPos, enemyPos);
+      if (distance > MAX_CC_RANGE_YARDS) continue;
+      if (isEnemyInCC(enemy, windowMs)) continue;
 
       const enemySpec = specToString(enemy.spec);
 

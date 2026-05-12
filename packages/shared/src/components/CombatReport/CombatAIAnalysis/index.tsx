@@ -143,7 +143,11 @@ export function buildMatchContext(
         )
       : [];
 
-  const deathOutcome = buildDeathOutcomeSummary(combat, friends as ICombatUnit[], ccTrinketSummaries);
+  const deathOutcome = buildDeathOutcomeSummary(
+    { startTime: combat.startTime, zoneId: combat.startInfo?.zoneId },
+    friends as ICombatUnit[],
+    ccTrinketSummaries,
+  );
   const offensiveWaste = buildOffensiveWasteSummary(combat, friends as ICombatUnit[], enemies as ICombatUnit[]);
   const healerCCReceived: IHealerCCReceived[] =
     healerUnit && healerCCSummary

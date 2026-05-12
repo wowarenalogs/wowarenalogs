@@ -2,12 +2,15 @@ import { AtomicArenaCombat, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowar
 
 import { IPlayerCCTrinketSummary } from './ccTrinketAnalysis';
 import { specToString } from './cooldowns';
+import { distanceBetween, getUnitPositionAtTime, hasLineOfSight } from './losAnalysis';
 
 interface IImmunitySpell {
   name: string;
   cooldownSeconds: number;
   lockoutSpellId?: string;
   specs: CombatUnitSpec[];
+  /** Spell IDs that reset this immunity's cooldown when cast (CDR/reset mechanics). */
+  resetSpellIds?: string[];
 }
 
 const IMMUNITY_SPELLS: Record<string, IImmunitySpell> = {
@@ -22,6 +25,8 @@ const IMMUNITY_SPELLS: Record<string, IImmunitySpell> = {
     cooldownSeconds: 240,
     lockoutSpellId: '41425',
     specs: [CombatUnitSpec.Mage_Arcane, CombatUnitSpec.Mage_Fire, CombatUnitSpec.Mage_Frost],
+    // B30: Cold Snap (235219) resets Ice Block's cooldown
+    resetSpellIds: ['235219'],
   },
   '47585': {
     name: 'Dispersion',
@@ -113,31 +118,69 @@ function isAvailableAt(
   cooldownSeconds: number,
   atSeconds: number,
   matchStartMs: number,
+  resetSpellIds?: string[],
 ): boolean {
   const lastCast = lastCastSeconds(unit, spellId, matchStartMs);
   if (lastCast === null) return true;
-  return atSeconds >= lastCast + cooldownSeconds;
+  if (atSeconds >= lastCast + cooldownSeconds) return true;
+
+  // B30: if a reset spell was cast between the last use and atSeconds, the cooldown was reset.
+  // Treat the reset cast as the new "last cast" and check availability from there.
+  if (resetSpellIds && resetSpellIds.length > 0) {
+    for (const resetId of resetSpellIds) {
+      const resetCast = lastCastSeconds(unit, resetId, matchStartMs);
+      if (resetCast !== null && resetCast > lastCast && resetCast <= atSeconds) {
+        // Reset happened after the last use — cooldown starts over from the reset
+        return atSeconds >= resetCast + cooldownSeconds;
+      }
+    }
+  }
+  return false;
 }
 
-function isLockedOut(unit: ICombatUnit, lockoutSpellId: string, atSeconds: number, matchStartMs: number): boolean {
+/** Pre-computed lockout intervals: [fromSeconds, toSeconds] pairs sorted by fromSeconds. */
+type LockoutIntervals = [number, number][];
+
+/** Build lockout intervals for one (unit, spellId) pair once per match. */
+function buildLockoutIntervals(unit: ICombatUnit, lockoutSpellId: string, matchStartMs: number): LockoutIntervals {
   const relevant = unit.auraEvents
     .filter((e) => e.spellId === lockoutSpellId)
     .sort((a, b) => {
       if (a.logLine.timestamp !== b.logLine.timestamp) return a.logLine.timestamp - b.logLine.timestamp;
-      // APPLIED before REMOVED at same timestamp (aura refresh)
       if (a.logLine.event === LogEvent.SPELL_AURA_APPLIED) return -1;
       if (b.logLine.event === LogEvent.SPELL_AURA_APPLIED) return 1;
       return 0;
     });
 
-  let active = false;
+  const intervals: LockoutIntervals = [];
+  let openAt: number | null = null;
   for (const e of relevant) {
     const t = (e.logLine.timestamp - matchStartMs) / 1000;
-    if (t > atSeconds) break;
-    if (e.logLine.event === LogEvent.SPELL_AURA_APPLIED) active = true;
-    if (e.logLine.event === LogEvent.SPELL_AURA_REMOVED) active = false;
+    if (e.logLine.event === LogEvent.SPELL_AURA_APPLIED) openAt = t;
+    else if (e.logLine.event === LogEvent.SPELL_AURA_REMOVED && openAt !== null) {
+      intervals.push([openAt, t]);
+      openAt = null;
+    }
   }
-  return active;
+  return intervals;
+}
+
+/** B29: O(log N) lockout check using pre-built intervals. */
+function isLockedOutAt(intervals: LockoutIntervals, atSeconds: number): boolean {
+  let lo = 0;
+  let hi = intervals.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >>> 1;
+    const [from, to] = intervals[mid];
+    if (atSeconds < from) {
+      hi = mid - 1;
+    } else if (atSeconds > to) {
+      lo = mid + 1;
+    } else {
+      return true; // atSeconds is within [from, to]
+    }
+  }
+  return false;
 }
 
 function wasInHardCC(
@@ -149,13 +192,24 @@ function wasInHardCC(
   );
 }
 
+// Max range for external defensive spells (all are 40-yard targeted spells in WoW).
+const EXTERNAL_SPELL_RANGE_YARDS = 40;
+
 export function buildDeathOutcomeSummary(
-  combat: Pick<AtomicArenaCombat, 'startTime'>,
+  combat: Pick<AtomicArenaCombat, 'startTime'> & { zoneId?: string },
   friends: ICombatUnit[],
   ccSummaries: Pick<IPlayerCCTrinketSummary, 'playerName' | 'ccInstances'>[],
 ): IDeathOutcomeSummary {
   const matchStartMs = combat.startTime;
   const events: IDeathOutcomeEvent[] = [];
+
+  // B29: pre-build lockout intervals once per (unit, spell) pair to avoid O(N) filter+sort per death
+  const lockoutCache = new Map<string, LockoutIntervals>();
+  const getLockoutIntervals = (unit: ICombatUnit, spellId: string): LockoutIntervals => {
+    const key = `${unit.id}:${spellId}`;
+    if (!lockoutCache.has(key)) lockoutCache.set(key, buildLockoutIntervals(unit, spellId, matchStartMs));
+    return lockoutCache.get(key) ?? [];
+  };
 
   for (const unit of friends) {
     for (const deathRecord of unit.deathRecords) {
@@ -165,8 +219,9 @@ export function buildDeathOutcomeSummary(
       const availableImmunities: IDeathImmuneAvailable[] = [];
       for (const [spellId, spell] of Object.entries(IMMUNITY_SPELLS)) {
         if (!spell.specs.includes(unit.spec)) continue;
-        if (!isAvailableAt(unit, spellId, spell.cooldownSeconds, atSeconds, matchStartMs)) continue;
-        if (spell.lockoutSpellId && isLockedOut(unit, spell.lockoutSpellId, atSeconds, matchStartMs)) continue;
+        if (!isAvailableAt(unit, spellId, spell.cooldownSeconds, atSeconds, matchStartMs, spell.resetSpellIds))
+          continue;
+        if (spell.lockoutSpellId && isLockedOutAt(getLockoutIntervals(unit, spell.lockoutSpellId), atSeconds)) continue;
         availableImmunities.push({
           spellId,
           spellName: spell.name,
@@ -174,10 +229,24 @@ export function buildDeathOutcomeSummary(
         });
       }
 
+      const deathMs = deathRecord.timestamp;
+      const dyingPos = getUnitPositionAtTime(unit, deathMs);
+
       const missedExternals: IMissedExternal[] = [];
       for (const teammate of friends) {
         if (teammate.id === unit.id) continue;
         const teammateCCSummary = ccSummaries.find((s) => s.playerName === teammate.name);
+
+        // B27: skip if teammate was out of spell range or LoS-blocked at death time
+        const casterPos = getUnitPositionAtTime(teammate, deathMs);
+        if (dyingPos && casterPos) {
+          if (distanceBetween(dyingPos, casterPos) > EXTERNAL_SPELL_RANGE_YARDS) continue;
+          if (combat.zoneId) {
+            const los = hasLineOfSight(combat.zoneId, casterPos, dyingPos);
+            if (los === false) continue; // confirmed LoS blocked (null = unmapped, pass through)
+          }
+        }
+
         for (const [spellId, spell] of Object.entries(EXTERNAL_DEFENSIVE_SPELLS)) {
           const everCast = teammate.spellCastEvents.some(
             (e) => e.spellId === spellId && e.logLine.event === LogEvent.SPELL_CAST_SUCCESS,
