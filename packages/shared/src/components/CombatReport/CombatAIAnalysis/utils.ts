@@ -2212,12 +2212,20 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
   // Only emit when at least one unit's HP% changed, OR on 5s anchor ticks.
   let prevHpKey = '';
 
+  // B42: Build death-time lookup so [STATE] ticks show :dead instead of silently omitting dead players.
+  const friendlyDeathAtByName = new Map<string, number>(friendlyDeaths.map((d) => [d.name, d.atSeconds]));
+  const enemyDeathAtByName = new Map<string, number>(enemyDeaths.map((d) => [d.name, d.atSeconds]));
+
   for (const t of [...tickSet].sort((a, b) => a - b)) {
     const tsMs = matchStartMs + t * 1000;
     const sampleWindowMs = criticalWindowSet.has(t) ? HP_SAMPLE_WINDOW_CRITICAL_MS : HP_SAMPLE_WINDOW_BASELINE_MS;
 
     const friendlyParts = friendlyHpUnits
       .map(({ unit, label }) => {
+        const deathAt = friendlyDeathAtByName.get(unit.name);
+        if (deathAt !== undefined && t >= Math.floor(deathAt)) {
+          return `${label(unit.name)}:dead`;
+        }
         const pct = getUnitHpAtTimestamp(unit, tsMs, sampleWindowMs);
         // B18/B23: clamp to 100% — absorb shields can push HP readings over max
         const clamped = pct !== null ? Math.min(pct, 100) : null;
@@ -2229,6 +2237,10 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       criticalWindowSet.has(t) && enemyHpUnits.length > 0
         ? enemyHpUnits
             .map(({ unit, label }) => {
+              const deathAt = enemyDeathAtByName.get(unit.name);
+              if (deathAt !== undefined && t >= Math.floor(deathAt)) {
+                return `${label(unit.name)}:dead`;
+              }
               const pct = getUnitHpAtTimestamp(unit, tsMs, sampleWindowMs);
               // B18: clamp enemy HP to 100% too
               const clamped = pct !== null ? Math.min(pct, 100) : null;

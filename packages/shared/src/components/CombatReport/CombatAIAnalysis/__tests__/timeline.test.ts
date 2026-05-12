@@ -1708,8 +1708,10 @@ describe('buildMatchTimeline — F64 enemy HP in [HP] ticks', () => {
     const stateLines = result.split('\n').filter((l) => l.includes('[STATE]'));
     expect(stateLines.some((l) => l.includes('Feramonk:90'))).toBeTruthy();
     expect(stateLines.some((l) => l.includes('Natjkis:35'))).toBeTruthy();
-    // Enemy appears after '/ enemies', not in the friends section
-    for (const line of stateLines.filter((l) => l.includes('Natjkis'))) {
+    // Enemy appears after '/ enemies', not in the friends section.
+    // Lines that contain only an enemies section (no '/ enemies' separator) are enemies-only
+    // and don't have a friends section to check — skip them.
+    for (const line of stateLines.filter((l) => l.includes('Natjkis') && l.includes('/ enemies'))) {
       const friendsPart = line.split('/ enemies')[0];
       expect(friendsPart).not.toContain('Natjkis');
     }
@@ -2968,8 +2970,11 @@ describe('buildMatchTimeline — [HP] / [ENEMY HP] split', () => {
       }),
     );
 
-    // Enemy HP goes in the enemies section, not the friends section
-    const stateLines = result.split('\n').filter((l) => l.includes('[STATE]') && l.includes('Dzinked'));
+    // Enemy HP goes in the enemies section, not the friends section.
+    // Lines with only an enemies section (no '/ enemies' separator) are enemies-only — skip them.
+    const stateLines = result
+      .split('\n')
+      .filter((l) => l.includes('[STATE]') && l.includes('Dzinked') && l.includes('/ enemies'));
     for (const line of stateLines) {
       const friendsPart = line.split('/ enemies')[0];
       expect(friendsPart).not.toContain('Dzinked');
@@ -3708,5 +3713,78 @@ describe('buildMatchTimeline — [MATCH END] block', () => {
     );
     expect(result).toContain('[MATCH END]');
     expect(result).toContain('1:?');
+  });
+});
+
+// ── buildMatchTimeline — B42: dead players in [STATE] ticks ──────────────────
+
+describe('buildMatchTimeline — B42: dead players shown as :dead in [STATE] ticks', () => {
+  it('shows :dead for a friendly player in [STATE] ticks at and after their death second', () => {
+    const matchStartMs = 0;
+    const matchEndMs = 60_000;
+    const deathAtSeconds = 20;
+
+    const friend = makeUnit('unit-1', {
+      name: 'Simplesauce',
+      advancedActions: [makeAdvancedAction(15_000, 0, 0, 500_000, 100_000)], // low HP before death
+    });
+    const owner = makeUnit('unit-2', {
+      name: 'Feramonk',
+      advancedActions: [makeAdvancedAction(15_000, 0, 0, 500_000, 400_000)],
+    });
+
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner,
+        friends: [owner, friend],
+        friendlyDeaths: [{ spec: 'Unholy Death Knight', name: 'Simplesauce', atSeconds: deathAtSeconds }],
+        matchStartMs,
+        matchEndMs,
+      }),
+    );
+
+    // At t >= 20, Simplesauce should appear as :dead in [STATE] lines
+    const stateLines = result.split('\n').filter((l) => l.includes('[STATE]'));
+    const linesAtOrAfterDeath = stateLines.filter((l) => {
+      const m = l.match(/^(\d+):(\d+)/);
+      if (!m) return false;
+      const sec = parseInt(m[1]) * 60 + parseInt(m[2]);
+      return sec >= deathAtSeconds;
+    });
+    expect(linesAtOrAfterDeath.length).toBeGreaterThan(0);
+    expect(linesAtOrAfterDeath.every((l) => l.includes('Simplesauce:dead'))).toBe(true);
+  });
+
+  it('shows :dead for an enemy in critical-window [STATE] ticks after their death', () => {
+    const matchStartMs = 0;
+    const matchEndMs = 60_000;
+    const deathAtSeconds = 15;
+
+    const enemy = makeUnit('enemy-1', {
+      name: 'Dzinked',
+      reaction: CombatUnitReaction.Hostile,
+      advancedActions: [{ ...makeAdvancedAction(10_000, 0, 0, 500_000, 50_000), advancedActorId: 'enemy-1' }],
+    });
+
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        enemies: [enemy],
+        enemyDeaths: [{ spec: 'Holy Paladin', name: 'Dzinked', atSeconds: deathAtSeconds }],
+        // trigger critical window so enemy HP is shown
+        friendlyDeaths: [{ spec: 'Mistweaver Monk', name: 'Feramonk', atSeconds: 25 }],
+        matchStartMs,
+        matchEndMs,
+      }),
+    );
+
+    const stateLines = result.split('\n').filter((l) => l.includes('[STATE]'));
+    const linesAfterDeath = stateLines.filter((l) => {
+      const m = l.match(/^(\d+):(\d+)/);
+      if (!m) return false;
+      const sec = parseInt(m[1]) * 60 + parseInt(m[2]);
+      return sec >= deathAtSeconds && l.includes('enemies');
+    });
+    expect(linesAfterDeath.length).toBeGreaterThan(0);
+    expect(linesAfterDeath.every((l) => l.includes('Dzinked:dead'))).toBe(true);
   });
 });
