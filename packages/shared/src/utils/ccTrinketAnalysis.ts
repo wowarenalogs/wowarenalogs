@@ -409,7 +409,7 @@ export function analyzePlayerCCAndTrinket(
       atSeconds: (action.timestamp - matchStartMs) / 1000,
       lockoutDurationSeconds,
       kickSpellId,
-      kickSpellName: extraAction.extraSpellName,
+      kickSpellName: getEnglishSpellName(kickSpellId, extraAction.extraSpellName),
       interruptedSpellId: action.spellId ?? '',
       interruptedSpellName: getEnglishSpellName(action.spellId ?? '', action.spellName),
       sourceName: action.srcUnitName,

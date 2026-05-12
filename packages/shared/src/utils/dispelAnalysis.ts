@@ -550,7 +550,7 @@ export function reconstructDispelSummary(
         dispelSpellId: action.spellId ?? '',
         dispelSpellName: getEnglishSpellName(action.spellId ?? '', action.spellName),
         removedSpellId,
-        removedSpellName: action.extraSpellName,
+        removedSpellName: getEnglishSpellName(removedSpellId, action.extraSpellName),
         sourceName: unit.name,
         sourceSpec: specToString(unit.spec),
         targetName: action.destUnitName,

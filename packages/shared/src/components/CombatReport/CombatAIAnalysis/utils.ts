@@ -78,8 +78,6 @@ const PASSIVE_SPELL_BLOCKLIST = new Set([
   'Divine Purpose',
 ]);
 
-// ── Context formatting helpers ─────────────────────────────────────────────
-
 // ── Enemy major buff tracking (F67) ──────────────────────────────────────────
 
 // Only spells that generate SPELL_AURA_APPLIED events on enemy players in WoW combat logs.
@@ -1359,8 +1357,6 @@ export function buildResourceSnapshot({
     const parts: string[] = [];
     if (added.length > 0) parts.push(`+${added.join(',')}`);
     if (removed.length > 0) parts.push(`-${removed.join(',')}`);
-    // B39: suppress no-op delta lines entirely — nothing changed
-    if (parts.length === 0 && onCDParts.length === 0) return '';
     rdyPart = parts.length > 0 ? `rdy:Δ${parts.join('')}` : 'rdy:Δ';
   } else {
     rdyPart = `rdy:${readyNames.length > 0 ? readyNames.join(',') : '—'}`;
@@ -1865,7 +1861,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       if (e.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
       if (!e.spellId) continue;
       const englishName = getEnglishSpellName(e.spellId) ?? e.spellName;
-      if (englishName && PASSIVE_SPELL_BLOCKLIST.has(englishName)) continue;
+      if (e.spellName && PASSIVE_SPELL_BLOCKLIST.has(e.spellName)) continue;
 
       const displayName = HEALER_CAST_SPELL_ID_TO_NAME[e.spellId] ?? englishName;
       if (!displayName) continue;
@@ -2133,9 +2129,11 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
     if (friendlyParts.length === 0 && enemyParts.length === 0) continue;
 
     // B15: deduplicate — suppress tick if HP readings are identical to previous AND
-    // this is not a 5-second anchor tick (anchors always emit for timeline sanity).
+    // this is not an anchor. In critical windows always emit (1s dense ticks are the point);
+    // outside critical windows use the 3s baseline interval as the anchor.
     const currentHpKey = `${friendlyParts.join('|')}||${enemyParts.join('|')}`;
-    const isAnchorTick = t % 5 === 0;
+    const isInCritical = criticalWindowSet.has(t);
+    const isAnchorTick = isInCritical || t % 3 === 0;
     if (currentHpKey === prevHpKey && !isAnchorTick) continue;
     prevHpKey = currentHpKey;
 

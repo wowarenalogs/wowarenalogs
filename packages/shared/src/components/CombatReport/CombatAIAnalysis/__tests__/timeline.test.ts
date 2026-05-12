@@ -2369,9 +2369,9 @@ describe('extractOwnerCDBuffExpiry', () => {
   });
 });
 
-// ── buildMatchTimeline [CD EXPIRED] events ────────────────────────────────────
+// ── buildMatchTimeline [BUFF FADED] events ────────────────────────────────────
 
-describe('buildMatchTimeline [CD EXPIRED] events', () => {
+describe('buildMatchTimeline [BUFF FADED] events', () => {
   const MATCH_START_MS = 1_000_000;
   const MATCH_END_MS = 1_120_000; // 120s match
 
@@ -2395,7 +2395,7 @@ describe('buildMatchTimeline [CD EXPIRED] events', () => {
     };
   }
 
-  it('emits [CD EXPIRED] at the SPELL_AURA_REMOVED timestamp when log event is present', () => {
+  it('emits [BUFF FADED] at the SPELL_AURA_REMOVED timestamp when log event is present', () => {
     const ownerId = 'owner-1';
     const owner = makeUnit(ownerId, { name: 'Healer' });
     const teammate = makeUnit('tm-1', {
@@ -2424,14 +2424,14 @@ describe('buildMatchTimeline [CD EXPIRED] events', () => {
       friends: [owner, teammate],
     });
 
-    expect(timeline).toContain('[CD EXPIRED]');
+    expect(timeline).toContain('[BUFF FADED]');
     expect(timeline).toContain('Pain Suppression');
-    const expiryLine = timeline.split('\n').find((l) => l.includes('[CD EXPIRED]'));
+    const expiryLine = timeline.split('\n').find((l) => l.includes('[BUFF FADED]'));
     expect(expiryLine).toBeDefined();
     expect(expiryLine).not.toContain('(estimated)');
   });
 
-  it('emits [CD EXPIRED] with (estimated) when no aura event exists', () => {
+  it('emits [BUFF FADED] with (estimated) when no aura event exists', () => {
     const ownerId = 'owner-1';
     const owner = makeUnit(ownerId, { name: 'Healer' });
 
@@ -2453,15 +2453,15 @@ describe('buildMatchTimeline [CD EXPIRED] events', () => {
       friends: [owner],
     });
 
-    expect(timeline).toContain('[CD EXPIRED]');
-    const expiryLine = timeline.split('\n').find((l) => l.includes('[CD EXPIRED]'));
+    expect(timeline).toContain('[BUFF FADED]');
+    const expiryLine = timeline.split('\n').find((l) => l.includes('[BUFF FADED]'));
     expect(expiryLine).toBeDefined();
     expect(expiryLine).toContain('(estimated)');
     // Fallback: 10 + 8 = 18s → displays as 0:18
     expect(expiryLine).toContain('0:18');
   });
 
-  it('does not emit [CD EXPIRED] for CDs with no durationSeconds in spellEffectData', () => {
+  it('does not emit [BUFF FADED] for CDs with no durationSeconds in spellEffectData', () => {
     const ownerId = 'owner-1';
     const owner = makeUnit(ownerId, { name: 'Healer' });
 
@@ -2483,10 +2483,10 @@ describe('buildMatchTimeline [CD EXPIRED] events', () => {
       friends: [owner],
     });
 
-    expect(timeline).not.toContain('[CD EXPIRED]');
+    expect(timeline).not.toContain('[BUFF FADED]');
   });
 
-  it('[CD EXPIRED] appears after [OWNER CD] in sorted timeline output', () => {
+  it('[BUFF FADED] appears after [OWNER CD] in sorted timeline output', () => {
     const ownerId = 'owner-1';
     const owner = makeUnit(ownerId, { name: 'Healer' });
 
@@ -2510,7 +2510,7 @@ describe('buildMatchTimeline [CD EXPIRED] events', () => {
 
     const lines = timeline.split('\n');
     const ownerCDIndex = lines.findIndex((l) => l.includes('[OWNER CD]') && l.includes('Pain Suppression'));
-    const expiredIndex = lines.findIndex((l) => l.includes('[CD EXPIRED]'));
+    const expiredIndex = lines.findIndex((l) => l.includes('[BUFF FADED]'));
     expect(ownerCDIndex).toBeGreaterThanOrEqual(0);
     expect(expiredIndex).toBeGreaterThan(ownerCDIndex);
   });
