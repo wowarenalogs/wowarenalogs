@@ -25,6 +25,8 @@ import {
   extractEnemyMajorBuffIntervals,
   extractOwnerCDBuffExpiry,
   HEALING_AMPLIFIER_SPELL_IDS,
+  HEALING_WINDOW_EARLY_CD_SECONDS,
+  HEALING_WINDOW_MIN_HPS,
 } from '../utils';
 
 // ── Factories ─────────────────────────────────────────────────────────────────
@@ -2846,6 +2848,18 @@ describe('computeHealingInWindow', () => {
     expect(HEALING_AMPLIFIER_SPELL_IDS.has('29166')).toBe(true); // Innervate
     expect(HEALING_AMPLIFIER_SPELL_IDS.has('114052')).toBe(true); // Ascendance
     expect(HEALING_AMPLIFIER_SPELL_IDS.has('9999')).toBe(false);
+  });
+});
+
+// ── HEALING_WINDOW_EARLY_CD_SECONDS / HEALING_WINDOW_MIN_HPS constants (F93) ──
+
+describe('HEALING_WINDOW constants (F93)', () => {
+  it('HEALING_WINDOW_EARLY_CD_SECONDS is 10', () => {
+    expect(HEALING_WINDOW_EARLY_CD_SECONDS).toBe(10);
+  });
+
+  it('HEALING_WINDOW_MIN_HPS is 1000', () => {
+    expect(HEALING_WINDOW_MIN_HPS).toBe(1_000);
   });
 });
 

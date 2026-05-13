@@ -271,6 +271,12 @@ export const HEALING_AMPLIFIER_SPELL_IDS = new Set([
   '114052', // Ascendance (15s)
 ]);
 
+/** CD cast within this many seconds of match start is considered "early" for healing-window suppression. */
+export const HEALING_WINDOW_EARLY_CD_SECONDS = 10;
+
+/** Max per-bucket HPS below this value is treated as no meaningful healing activity. */
+export const HEALING_WINDOW_MIN_HPS = 1_000;
+
 /**
  * Computes healing throughput during a CD's active window.
  * Returns per-5s HPS buckets and overall overheal % from healOut events.
