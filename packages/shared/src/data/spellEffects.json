@@ -87,6 +87,13 @@
     "durationSeconds": 30,
     "dispelType": "Magic"
   },
+  "633": {
+    "spellId": "633",
+    "name": "Lay on Hands",
+    "cooldownSeconds": 600,
+    "durationSeconds": 0,
+    "dispelType": null
+  },
   "642": {
     "spellId": "642",
     "name": "Divine Shield",
@@ -957,6 +964,13 @@
     "cooldownSeconds": 0,
     "durationSeconds": 60,
     "dispelType": "Magic"
+  },
+  "62618": {
+    "spellId": "62618",
+    "name": "Power Word: Barrier",
+    "cooldownSeconds": 180,
+    "durationSeconds": 10,
+    "dispelType": null
   },
   "63560": {
     "spellId": "63560",
@@ -3315,6 +3329,13 @@
     "name": "Soulshape",
     "cooldownSeconds": 90,
     "durationSeconds": 12,
+    "dispelType": null
+  },
+  "311054": {
+    "spellId": "311054",
+    "name": "Weapons of Order",
+    "cooldownSeconds": 120,
+    "durationSeconds": 30,
     "dispelType": null
   },
   "314646": {

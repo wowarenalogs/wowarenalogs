@@ -246,6 +246,10 @@ const MANUAL_SPELL_IDS: string[] = [
   '403631', // Breath of Eons
   '404977', // Time Skip
   '360828', // Blistering Scales
+  // Healer utility CDs — tagged in classMetadata but absent from spells.json
+  '633', // Lay on Hands (Holy Paladin)
+  '62618', // Power Word: Barrier (Disc Priest)
+  '311054', // Weapons of Order (Mistweaver Monk)
 ];
 
 function collectSpellIds(): string[] {
