@@ -712,6 +712,15 @@ export function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): str
     baselineLines.forEach((l) => lines.push(l));
   }
 
+  const dtpsBaselineLines = formatDTPSBaselines(
+    friends.map((p) => specToString(p.spec)),
+    benchmarks,
+  );
+  if (dtpsBaselineLines.length > 0) {
+    lines.push('');
+    dtpsBaselineLines.forEach((l) => lines.push(l));
+  }
+
   lines.push('');
   lines.push(`COOLDOWN USAGE — LOG OWNER (${ownerSpec}) — major CDs ≥30s:`);
   if (cooldowns.length === 0) {
