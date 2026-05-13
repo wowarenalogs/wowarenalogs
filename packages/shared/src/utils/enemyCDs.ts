@@ -358,6 +358,7 @@ export function formatKillAttemptWindowsForContext(
   let unconfirmedCount = 0;
 
   for (const burst of alignedBurstWindows) {
+    // Spike's start time must fall within [burstStart-5s, burstEnd+5s] — covers lead-in and trailing damage
     const spike = pressureWindows.find(
       (pw) =>
         pw.totalDamage >= KILL_ATTEMPT_SPIKE_THRESHOLD &&

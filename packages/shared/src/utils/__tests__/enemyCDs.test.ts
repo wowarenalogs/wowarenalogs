@@ -205,4 +205,21 @@ describe('formatKillAttemptWindowsForContext', () => {
     const result = formatKillAttemptWindowsForContext([burst], []);
     expect(result.some((l) => l.includes('No burst windows had a confirmed damage spike'))).toBe(true);
   });
+
+  it('matches a spike exactly at the left tolerance edge (burst.fromSeconds - 5)', () => {
+    const burst = makeBurst(14, 24, 'Combustion', 'High');
+    // Spike starts at 9 = 14 - 5 — exactly at the left edge, should match
+    const spike = makeSpike(9, 500_000);
+    const result = formatKillAttemptWindowsForContext([burst], [spike]);
+    expect(result.some((l) => l.includes('0:14'))).toBe(true);
+  });
+
+  it('does not match a spike just outside the left tolerance edge (burst.fromSeconds - 6)', () => {
+    const burst = makeBurst(14, 24, 'Combustion', 'High');
+    // Spike starts at 8 = 14 - 6 — just outside, should NOT match
+    const spike = makeSpike(8, 500_000);
+    const result = formatKillAttemptWindowsForContext([burst], [spike]);
+    expect(result.some((l) => l.includes('0:14'))).toBe(false);
+    expect(result.some((l) => l.includes('1 burst window(s) had no confirmed spike'))).toBe(true);
+  });
 });
