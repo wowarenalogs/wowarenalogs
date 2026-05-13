@@ -2,7 +2,7 @@ import { AtomicArenaCombat, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import { spellEffectData } from '../data/spellEffectData';
 import spellsData from '../data/spells.json';
-import { fmtTime, getUnitHpAtTimestamp, isHealerSpec, specToString } from './cooldowns';
+import { fmtTime, getUnitHpAtTimestamp, IDamageBucket, isHealerSpec, specToString } from './cooldowns';
 
 type SpellEntry = { type: string };
 const SPELLS = spellsData as Record<string, SpellEntry>;
@@ -332,6 +332,56 @@ export function formatEnemyCDTimelineForContext(timeline: IEnemyCDTimeline, matc
   }
   if (unusedByCDId.size > 0) {
     lines.push('  CDs not recovered before match ended: ' + [...unusedByCDId].join('; '));
+  }
+
+  return lines;
+}
+
+/** Minimum total damage in a 10-second window to treat a burst window as a confirmed kill attempt */
+const KILL_ATTEMPT_SPIKE_THRESHOLD = 300_000;
+
+/**
+ * Synthesizes aligned enemy burst windows with actual damage spikes to label
+ * explicit kill attempt windows. A "confirmed" kill attempt = burst window that
+ * overlaps with a pressure spike above threshold. Unconfirmed burst windows
+ * (likely baits or log gaps) are counted and noted separately.
+ */
+export function formatKillAttemptWindowsForContext(
+  alignedBurstWindows: IAlignedBurstWindow[],
+  pressureWindows: IDamageBucket[],
+): string[] {
+  if (alignedBurstWindows.length === 0) {
+    return ['KILL ATTEMPT WINDOWS: None detected (no aligned enemy burst windows).'];
+  }
+
+  const lines: string[] = ['KILL ATTEMPT WINDOWS (enemy burst CDs + confirmed damage spike):'];
+  let unconfirmedCount = 0;
+
+  for (const burst of alignedBurstWindows) {
+    const spike = pressureWindows.find(
+      (pw) =>
+        pw.totalDamage >= KILL_ATTEMPT_SPIKE_THRESHOLD &&
+        pw.fromSeconds >= burst.fromSeconds - 5 &&
+        pw.fromSeconds <= burst.toSeconds + 5,
+    );
+    if (!spike) {
+      unconfirmedCount++;
+      continue;
+    }
+    const dmgM = (spike.totalDamage / 1_000_000).toFixed(2);
+    const cdNames = burst.activeCDs.map((c) => c.spellName).join(' + ');
+    lines.push(
+      `  ${fmtTime(burst.fromSeconds)}–${fmtTime(burst.toSeconds)}  [${burst.dangerLabel.toUpperCase()}]  ${dmgM}M on ${spike.targetSpec} | CDs: ${cdNames}`,
+    );
+  }
+
+  if (lines.length === 1) {
+    lines.push('  No burst windows had a confirmed damage spike above threshold.');
+  }
+  if (unconfirmedCount > 0) {
+    lines.push(
+      `  Note: ${unconfirmedCount} burst window(s) had no confirmed spike — possible bait, spiked below threshold, or log gap.`,
+    );
   }
 
   return lines;

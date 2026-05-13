@@ -1,7 +1,8 @@
 import { CombatUnitReaction, CombatUnitSpec } from '@wowarenalogs/parser';
 
 import { spellEffectData } from '../../data/spellEffectData';
-import { reconstructEnemyCDTimeline } from '../enemyCDs';
+import { IDamageBucket } from '../cooldowns';
+import { formatKillAttemptWindowsForContext, reconstructEnemyCDTimeline } from '../enemyCDs';
 import { isOffensiveSpell } from '../spellDanger';
 import { makeCombat, makeSpellCastEvent, makeUnit } from './testHelpers';
 
@@ -135,5 +136,73 @@ describe('reconstructEnemyCDTimeline', () => {
     const combat = makeCombat(START, END);
     const timeline = reconstructEnemyCDTimeline([healer], combat as never);
     expect(timeline.players).toHaveLength(0);
+  });
+});
+
+describe('formatKillAttemptWindowsForContext', () => {
+  function makeBurst(
+    fromSeconds: number,
+    toSeconds: number,
+    spellName: string,
+    dangerLabel: 'Low' | 'Moderate' | 'High' | 'Critical',
+  ): import('../enemyCDs').IAlignedBurstWindow {
+    return {
+      fromSeconds,
+      toSeconds,
+      activeCDs: [{ playerName: 'Enemy', spellName, spellId: '12345' }],
+      dangerScore: 2.0,
+      dangerLabel,
+      dampeningPct: 0,
+      damageInWindow: 500_000,
+      damageRatio: 1.0,
+      healerCCed: false,
+    };
+  }
+
+  function makeSpike(fromSeconds: number, totalDamage: number): IDamageBucket {
+    return { fromSeconds, toSeconds: fromSeconds + 10, totalDamage, targetName: 'Healer', targetSpec: 'Resto Druid' };
+  }
+
+  it('returns no-windows message when burst windows array is empty', () => {
+    const result = formatKillAttemptWindowsForContext([], []);
+    expect(result).toEqual(['KILL ATTEMPT WINDOWS: None detected (no aligned enemy burst windows).']);
+  });
+
+  it('emits a kill attempt line for a burst window that has an overlapping spike', () => {
+    const burst = makeBurst(14, 24, 'Combustion', 'High');
+    const spike = makeSpike(14, 840_000); // 0.84M — above 300k threshold
+    const result = formatKillAttemptWindowsForContext([burst], [spike]);
+    expect(result[0]).toBe('KILL ATTEMPT WINDOWS (enemy burst CDs + confirmed damage spike):');
+    const killLine = result.find((l) => l.includes('0:14'));
+    expect(killLine).toBeDefined();
+    expect(killLine).toContain('0:14–0:24');
+    expect(killLine).toContain('[HIGH]');
+    expect(killLine).toContain('0.84M');
+    expect(killLine).toContain('Combustion');
+    expect(killLine).toContain('Resto Druid');
+  });
+
+  it('does not emit a kill attempt line when spike is below threshold (300k)', () => {
+    const burst = makeBurst(30, 40, 'Avenging Wrath', 'Moderate');
+    const spike = makeSpike(30, 200_000); // 0.2M — below 300k threshold
+    const result = formatKillAttemptWindowsForContext([burst], [spike]);
+    expect(result.some((l) => l.includes('0:30'))).toBe(false);
+    expect(result.some((l) => l.includes('1 burst window(s) had no confirmed spike'))).toBe(true);
+  });
+
+  it('notes unconfirmed burst windows separately from confirmed ones', () => {
+    const confirmed = makeBurst(10, 20, 'Combustion', 'High');
+    const unconfirmed = makeBurst(60, 70, 'Avenging Wrath', 'Moderate');
+    const spike = makeSpike(10, 900_000); // only matches first burst
+    const result = formatKillAttemptWindowsForContext([confirmed, unconfirmed], [spike]);
+    expect(result.some((l) => l.includes('0:10'))).toBe(true);
+    expect(result.some((l) => l.includes('0:60') || l.includes('1:00'))).toBe(false);
+    expect(result.some((l) => l.includes('1 burst window(s) had no confirmed spike'))).toBe(true);
+  });
+
+  it('shows "no confirmed spike" message when all burst windows are unconfirmed', () => {
+    const burst = makeBurst(30, 40, 'Avenging Wrath', 'Moderate');
+    const result = formatKillAttemptWindowsForContext([burst], []);
+    expect(result.some((l) => l.includes('No burst windows had a confirmed damage spike'))).toBe(true);
   });
 });
