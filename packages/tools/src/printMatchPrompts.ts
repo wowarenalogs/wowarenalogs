@@ -63,7 +63,11 @@ import {
   reconstructDispelSummary,
 } from '../../shared/src/utils/dispelAnalysis';
 import { analyzeOutgoingCCChains, formatOutgoingCCChainsForContext } from '../../shared/src/utils/drAnalysis';
-import { formatEnemyCDTimelineForContext, reconstructEnemyCDTimeline } from '../../shared/src/utils/enemyCDs';
+import {
+  formatEnemyCDTimelineForContext,
+  formatKillAttemptWindowsForContext,
+  reconstructEnemyCDTimeline,
+} from '../../shared/src/utils/enemyCDs';
 import {
   analyzeHealerExposureAtBurst,
   formatHealerExposureForContext,
@@ -810,6 +814,11 @@ export function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): str
 
   lines.push('');
   formatEnemyCDTimelineForContext(enemyCDTimeline, durationSeconds).forEach((l) => lines.push(l));
+
+  lines.push('');
+  formatKillAttemptWindowsForContext(enemyCDTimeline.alignedBurstWindows, pressureWindows).forEach((l) =>
+    lines.push(l),
+  );
 
   lines.push('');
   formatOverlappedDefensivesForContext(overlappedDefensives).forEach((l) => lines.push(l));
