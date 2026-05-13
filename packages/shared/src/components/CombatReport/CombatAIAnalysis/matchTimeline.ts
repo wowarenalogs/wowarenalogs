@@ -24,6 +24,8 @@ import {
   getTopDamageSourcesInWindow,
   HEALER_CAST_SPELL_ID_TO_NAME,
   HEALING_AMPLIFIER_SPELL_IDS,
+  HEALING_WINDOW_EARLY_CD_SECONDS,
+  HEALING_WINDOW_MIN_HPS,
   PASSIVE_SPELL_BLOCKLIST,
 } from './timelineHelpers';
 
@@ -259,13 +261,18 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
           const fromMs = matchStartMs + cast.timeSeconds * 1000;
           const toMs = fromMs + duration * 1000;
           const healStats = computeHealingInWindow(owner.healOut, fromMs, toMs);
-          if (healStats) {
-            const bucketParts = healStats.buckets.map(
-              (b) => `${b.fromSeconds}–${b.toSeconds}s: ${(b.hps / 1000).toFixed(1)}k HPS`,
-            );
-            extraLines.push(`      [HEALING]    ${bucketParts.join(' | ')} | Overheal: ${healStats.overhealPct}%`);
-          } else {
-            extraLines.push(`      [HEALING]    No healing logged during this window`);
+          const maxBucketHps = healStats ? Math.max(...healStats.buckets.map((b) => b.hps)) : 0;
+          const isEarlyLowActivity =
+            cast.timeSeconds < HEALING_WINDOW_EARLY_CD_SECONDS && maxBucketHps < HEALING_WINDOW_MIN_HPS;
+          if (!isEarlyLowActivity) {
+            if (healStats) {
+              const bucketParts = healStats.buckets.map(
+                (b) => `${b.fromSeconds}–${b.toSeconds}s: ${(b.hps / 1000).toFixed(1)}k HPS`,
+              );
+              extraLines.push(`      [HEALING]    ${bucketParts.join(' | ')} | Overheal: ${healStats.overhealPct}%`);
+            } else {
+              extraLines.push(`      [HEALING]    No healing logged during this window`);
+            }
           }
         }
       }
