@@ -2971,6 +2971,46 @@ describe('buildMatchTimeline — [HEALING] line on healing amplifier CDs', () =>
     const timeline = buildMatchTimeline(makeBaseParams(healOut, [painSuppCD]));
     expect(timeline).not.toContain('[HEALING]');
   });
+
+  it('suppresses [HEALING] when PI is cast before 10s and healing events are outside the window (0 HPS)', () => {
+    // PI cast at 5s (early), duration 15s → window [5s, 20s]. Heal at 25s is outside → maxBucketHps = 0.
+    const healOut = [makeHealEvent(matchStartMs + 25_000, 'healer-1', 100_000)];
+    const timeline = buildMatchTimeline(makeBaseParams(healOut, [makePICD(5)]));
+    expect(timeline).toContain('[OWNER CD]   Power Infusion');
+    expect(timeline).not.toContain('[HEALING]');
+  });
+
+  it('suppresses [HEALING] when PI is cast before 10s and max bucket HPS is below 1k', () => {
+    // PI cast at 3s (early), 500 effective heal in window → ~33 HPS across 15s window — below 1k threshold.
+    const healOut = [makeHealEvent(matchStartMs + 5_000, 'healer-1', 500)];
+    const timeline = buildMatchTimeline(makeBaseParams(healOut, [makePICD(3)]));
+    expect(timeline).toContain('[OWNER CD]   Power Infusion');
+    expect(timeline).not.toContain('[HEALING]');
+  });
+
+  it('does NOT suppress [HEALING] when PI is cast before 10s but max bucket HPS is above 1k', () => {
+    // PI cast at 5s (early), but real healing → max bucket HPS well above 1k.
+    const healOut = [
+      makeHealEvent(matchStartMs + 6_000, 'healer-1', 50_000),
+      makeHealEvent(matchStartMs + 10_000, 'healer-1', 80_000),
+    ];
+    const timeline = buildMatchTimeline(makeBaseParams(healOut, [makePICD(5)]));
+    expect(timeline).toContain('[HEALING]');
+  });
+
+  it('does NOT suppress [HEALING] when PI is cast at exactly 10s (boundary is exclusive)', () => {
+    // cast.timeSeconds < 10 is false at exactly 10s → guard does not apply.
+    const healOut = [makeHealEvent(matchStartMs + 12_000, 'healer-1', 150_000)];
+    const timeline = buildMatchTimeline(makeBaseParams(healOut, [makePICD(10)]));
+    expect(timeline).toContain('[HEALING]');
+  });
+
+  it('does NOT suppress [HEALING] when PI is cast after 10s even with low HPS', () => {
+    // Cast at 15s (not early) — low HPS alone is not a suppression condition.
+    const healOut = [makeHealEvent(matchStartMs + 16_000, 'healer-1', 500)];
+    const timeline = buildMatchTimeline(makeBaseParams(healOut, [makePICD(15)]));
+    expect(timeline).toContain('[HEALING]');
+  });
 });
 
 // ── buildMatchTimeline — [HP] / [ENEMY HP] split ─────────────────────────────
