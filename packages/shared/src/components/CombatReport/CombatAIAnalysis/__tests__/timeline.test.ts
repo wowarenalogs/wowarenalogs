@@ -2981,7 +2981,7 @@ describe('buildMatchTimeline — [HEALING] line on healing amplifier CDs', () =>
   });
 
   it('suppresses [HEALING] when PI is cast before 10s and max bucket HPS is below 1k', () => {
-    // PI cast at 3s (early), 500 effective heal in window → ~33 HPS across 15s window — below 1k threshold.
+    // PI cast at 3s (early), 500 effective heal in window → falls in bucket [0–5s] → 100 HPS max bucket — below 1k threshold.
     const healOut = [makeHealEvent(matchStartMs + 5_000, 'healer-1', 500)];
     const timeline = buildMatchTimeline(makeBaseParams(healOut, [makePICD(3)]));
     expect(timeline).toContain('[OWNER CD]   Power Infusion');
