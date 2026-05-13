@@ -72,6 +72,7 @@ import { detectHealingGaps, formatHealingGapsForContext } from '../../shared/src
 import {
   analyzeKillWindowTargetSelection,
   formatKillWindowTargetSelectionForContext,
+  getHpPercentAtTime,
 } from '../../shared/src/utils/killWindowTargetSelection';
 import { computeMatchArchetype, formatMatchArchetypeForContext } from '../../shared/src/utils/matchArchetype';
 import { computeOffensiveWindows, formatOffensiveWindowsForContext } from '../../shared/src/utils/offensiveWindows';
@@ -859,6 +860,29 @@ export function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): str
     combat.startTime,
     combat.endTime,
   ).forEach((l) => lines.push(l));
+
+  // ── MATCH END STATE (F96) ─────────────────────────────────────────────────
+  lines.push('');
+  lines.push('MATCH END STATE');
+
+  const friendlyEndParts = friends.map((u) => {
+    const death = friendlyDeaths.find((d) => d.name === u.name);
+    if (death) return `${specToString(u.spec)} (${u.name}): dead at ${fmtTime(death.atSeconds)}`;
+    const pct = getHpPercentAtTime(u, durationSeconds, combat.startTime);
+    const clamped = pct !== null ? Math.min(Math.round(pct), 100) : null;
+    return `${specToString(u.spec)} (${u.name}): ${clamped !== null ? `${clamped}% HP` : '? HP'}`;
+  });
+
+  const enemyEndParts = enemies.map((u) => {
+    const death = enemyDeaths.find((d) => d.name === u.name);
+    if (death) return `${specToString(u.spec)} (${u.name}): dead at ${fmtTime(death.atSeconds)}`;
+    const pct = getHpPercentAtTime(u, durationSeconds, combat.startTime);
+    const clamped = pct !== null ? Math.min(Math.round(pct), 100) : null;
+    return `${specToString(u.spec)} (${u.name}): ${clamped !== null ? `${clamped}% HP` : '? HP'}`;
+  });
+
+  if (friendlyEndParts.length > 0) lines.push(`  Friendly: ${friendlyEndParts.join(' | ')}`);
+  if (enemyEndParts.length > 0) lines.push(`  Enemy: ${enemyEndParts.join(' | ')}`);
 
   return lines.join('\n');
 }
