@@ -1,7 +1,7 @@
 import { ICombatUnit, LogEvent } from '@wowarenalogs/parser';
 
 import spellsData from '../data/spells.json';
-import { fmtTime, getPressureThreshold, specToString } from './cooldowns';
+import { fmtTime, isHealerSpec, specToString } from './cooldowns';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -14,6 +14,15 @@ const MIN_FREE_CAST_MS = 1500;
 const TAIL_GRACE_MS = 5000;
 /** B19: Suppress gaps that start in the first N ms of the match (pre-combat initialization) */
 const MATCH_START_GRACE_MS = 5000;
+/**
+ * B47: Gap-specific pressure factor — 10% of max HP taken in the gap window.
+ * Lower than the panic-defensive 15% because gaps are measured over the full gap
+ * duration (≥3.5s) rather than a short burst window, so moderate sustained
+ * pressure (≈10-15k DPS) is enough to flag a meaningful missed heal.
+ */
+const GAP_PRESSURE_PCT = 0.1;
+const GAP_PRESSURE_FALLBACK_DPS = 40_000;
+const GAP_PRESSURE_FALLBACK_HEALER = 25_000;
 
 // Spell types that prevent the healer from casting
 const CAST_PREVENTING_TYPES = new Set(['cc', 'immunities_spells']);
@@ -36,6 +45,18 @@ export interface IHealingGap {
   mostDamagedSpec: string;
   /** Raw damage taken by the most-pressured teammate */
   mostDamagedAmount: number;
+}
+
+// ---------------------------------------------------------------------------
+// Pressure threshold (gap-specific)
+// ---------------------------------------------------------------------------
+
+function getGapPressureThreshold(unit: ICombatUnit): number {
+  if (unit.advancedActions.length > 0) {
+    const maxHp = Math.max(...unit.advancedActions.map((a) => a.advancedActorMaxHp));
+    if (maxHp > 0) return maxHp * GAP_PRESSURE_PCT;
+  }
+  return isHealerSpec(unit.spec) ? GAP_PRESSURE_FALLBACK_HEALER : GAP_PRESSURE_FALLBACK_DPS;
 }
 
 // ---------------------------------------------------------------------------
@@ -179,7 +200,7 @@ export function detectHealingGaps(
         .filter((d) => d.logLine.timestamp >= fromMs && d.logLine.timestamp <= toMs)
         .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
 
-      if (dmg >= getPressureThreshold(teammate)) anyUnderPressure = true;
+      if (dmg >= getGapPressureThreshold(teammate)) anyUnderPressure = true;
       if (dmg > mostDamagedAmount) {
         mostDamagedAmount = dmg;
         mostDamagedName = teammate.name;

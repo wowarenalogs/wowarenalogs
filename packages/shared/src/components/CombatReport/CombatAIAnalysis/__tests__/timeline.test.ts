@@ -1493,6 +1493,41 @@ describe('buildMatchTimeline — F65 [OWNER CAST] target labels', () => {
     expect(result).toContain('[OWNER CAST]');
     expect(result).toContain('[totem/pet]');
   });
+
+  // B44: Grounding Totem absorption
+  it('B44: emits [absorbed: Grounding Totem] instead of [totem/pet] when destUnitName is Grounding Totem', () => {
+    const GUARDIAN_FLAGS = 0x00002000;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: {
+          ...makeOwner('Feramonk'),
+          spellCastEvents: [
+            makeSpellCastEvent('88625', 30_000, 'totem-2', 'Grounding Totem', 'player-1', 'Feramonk', GUARDIAN_FLAGS),
+          ],
+        } as any,
+      }),
+    );
+    expect(result).toContain('[absorbed: Grounding Totem]');
+    expect(result).not.toContain('[totem/pet]');
+  });
+
+  it('B44: [OWNER CD] also carries totemNote when dest is a Guardian', () => {
+    // Spell ID '108280' = Healing Tide Totem — has CD ≥ 30s → promoted to [OWNER CD] via B38
+    const GUARDIAN_FLAGS = 0x00002000;
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: {
+          ...makeOwner('Feramonk'),
+          spellCastEvents: [
+            makeSpellCastEvent('108280', 30_000, 'totem-3', 'Tremor Totem', 'player-1', 'Feramonk', GUARDIAN_FLAGS),
+          ],
+        } as any,
+        ownerCDs: [],
+      }),
+    );
+    expect(result).toContain('[OWNER CD]');
+    expect(result).toContain('[totem/pet]');
+  });
 });
 
 describe('buildMatchTimeline — F62 dense HP ticks in critical windows', () => {
@@ -1850,6 +1885,60 @@ describe('buildMatchTimeline — [CC CAST] events', () => {
     const result = buildMatchTimeline(makeBaseParams({ outgoingCCChains: chains }));
     const castLines = result.split('\n').filter((l) => l.includes('[CC CAST]'));
     expect(castLines).toHaveLength(2);
+  });
+
+  // B46: CC targeting non-player units
+  it('B46: emits [CC CAST] with [non-player target] when a friendly player CCs a Guardian unit', () => {
+    const GUARDIAN_FLAGS = 0x00002000;
+    // Spell 118 = Polymorph — a CC spell in ccSpellIds
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: {
+          ...makeOwner('Feramonk'),
+          spellCastEvents: [
+            makeSpellCastEvent('118', 30_000, 'totem-99', 'Tremor Totem', 'player-1', 'Feramonk', GUARDIAN_FLAGS),
+          ],
+        } as any,
+      }),
+    );
+    expect(result).toContain('[CC CAST]');
+    expect(result).toContain('[non-player target]');
+    expect(result).toContain('Tremor Totem');
+  });
+
+  it('B46: does NOT emit [non-player target] for CC cast on an enemy player', () => {
+    // Spell 118 = Polymorph, targeting a player (no guardian flags)
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: {
+          ...makeOwner('Feramonk'),
+          spellCastEvents: [
+            makeSpellCastEvent('118', 30_000, 'enemy-1', 'EnemyPlayer', 'player-1', 'Feramonk', 0x0511),
+          ],
+        } as any,
+        outgoingCCChains: [],
+      }),
+    );
+    // Should not appear in [CC CAST] at all (that path belongs to outgoingCCChains for player targets)
+    const nonPlayerLines = result.split('\n').filter((l) => l.includes('[non-player target]'));
+    expect(nonPlayerLines).toHaveLength(0);
+  });
+
+  it('B46: does NOT emit [CC CAST] for non-CC spells cast at a Guardian', () => {
+    const GUARDIAN_FLAGS = 0x00002000;
+    // Spell ID '1' is not a CC spell
+    const result = buildMatchTimeline(
+      makeBaseParams({
+        owner: {
+          ...makeOwner('Feramonk'),
+          spellCastEvents: [
+            makeSpellCastEvent('1', 30_000, 'totem-99', 'Tremor Totem', 'player-1', 'Feramonk', GUARDIAN_FLAGS),
+          ],
+        } as any,
+      }),
+    );
+    const nonPlayerLines = result.split('\n').filter((l) => l.includes('[non-player target]'));
+    expect(nonPlayerLines).toHaveLength(0);
   });
 });
 

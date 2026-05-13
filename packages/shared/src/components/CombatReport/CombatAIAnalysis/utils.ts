@@ -8,6 +8,7 @@ import {
 } from '@wowarenalogs/parser';
 
 import { getEnglishSpellName, spellEffectData } from '../../../data/spellEffectData';
+import { ccSpellIds } from '../../../data/spellTags';
 import { IPlayerCCTrinketSummary } from '../../../utils/ccTrinketAnalysis';
 import {
   fmtTime,
@@ -1986,7 +1987,14 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       const targetLabel = resolveTarget(e.destUnitName);
       const targetPart = targetLabel ? ` → ${targetLabel}` : '';
       const destType = getUnitType(e.destUnitFlags ?? 0);
-      const totemNote = destType === CombatUnitType.Guardian || destType === CombatUnitType.Pet ? ' [totem/pet]' : '';
+      let totemNote = '';
+      if (destType === CombatUnitType.Guardian || destType === CombatUnitType.Pet) {
+        // B44: distinguish Grounding Totem absorption (wasted cast) from other totem/pet targets
+        totemNote =
+          (e.destUnitName?.toLowerCase().includes('grounding totem') ?? false)
+            ? ' [absorbed: Grounding Totem]'
+            : ' [totem/pet]';
+      }
 
       // B38: promote major-CD spells (CD ≥ 30s) to [OWNER CD] format when extractMajorCooldowns
       // missed them (e.g. missing talent data). This keeps Avenging Crusader etc. from appearing
@@ -1996,7 +2004,7 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
       if (cdSeconds >= 30) {
         addEntry(
           timeSeconds,
-          `${fmtTime(timeSeconds)}  [OWNER CD]   ${displayName}${targetPart}`,
+          `${fmtTime(timeSeconds)}  [OWNER CD]   ${displayName}${targetPart}${totemNote}`,
           resourceSnapshot(timeSeconds),
         );
         continue;
@@ -2034,6 +2042,29 @@ export function buildMatchTimeline(params: BuildMatchTimelineParams): string {
         event.atSeconds,
         `${fmtTime(event.atSeconds)}  [CC CAST]   ${event.spellName} (by ${casterLabel}) → ${targetLabels}${countNote}`,
       );
+    }
+  }
+
+  // ── B46: [CC CAST] on non-player units (e.g. Tremor Totem) ─────────────────
+  // Friendly players may CC a totem/pet/NPC instead of an enemy player — these
+  // casts are invisible to outgoingCCChains (which only tracks enemy players).
+  {
+    const friendlyIds = new Set([owner.id, ...friends.map((f) => f.id)]);
+    for (const player of [owner, ...friends.filter((f) => f.id !== owner.id)]) {
+      for (const cast of player.spellCastEvents ?? []) {
+        if (cast.logLine.event !== LogEvent.SPELL_CAST_SUCCESS) continue;
+        if (!cast.spellId || !ccSpellIds.has(cast.spellId)) continue;
+        const castType = getUnitType(cast.destUnitFlags ?? 0);
+        if (castType === CombatUnitType.Player) continue; // handled by outgoingCCChains
+        if (friendlyIds.has(cast.destUnitId ?? '')) continue; // CC on own team — ignore
+        const timeSeconds = (cast.logLine.timestamp - matchStartMs) / 1000;
+        const spellLabel = getEnglishSpellName(cast.spellId, cast.spellName ?? '');
+        const targetLabel = cast.destUnitName || 'Unknown';
+        addEntry(
+          timeSeconds,
+          `${fmtTime(timeSeconds)}  [CC CAST]   ${spellLabel} (by ${pid(player.name)}) → ${targetLabel} [non-player target]`,
+        );
+      }
     }
   }
 

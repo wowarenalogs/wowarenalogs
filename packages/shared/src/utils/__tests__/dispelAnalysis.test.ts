@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CombatExtraSpellAction, CombatUnitSpec, LogEvent } from '@wowarenalogs/parser';
+import {
+  CombatExtraSpellAction,
+  CombatUnitReaction,
+  CombatUnitSpec,
+  CombatUnitType,
+  LogEvent,
+} from '@wowarenalogs/parser';
 
 import { reconstructDispelSummary } from '../dispelAnalysis';
 import { makeAuraEvent, makeUnit } from './testHelpers';
@@ -136,5 +142,63 @@ describe('reconstructDispelSummary — F94 pet dispel tagging', () => {
     expect(summary.allyCleanse).toHaveLength(1);
     expect(summary.allyCleanse[0].isPetDispel).toBe(true);
     expect(summary.allyCleanse[0].sourceName).toBe('Warlock');
+  });
+
+  // B45: Pet unit's dispel in the pet's own actionOut (not merged into player's actionOut)
+  it('B45: captures pet dispel when the pet is passed via friendlyPets (action in pet own actionOut)', () => {
+    const warlock = makeUnit('warlock-1', {
+      name: 'Warlock',
+      spec: CombatUnitSpec.Warlock_Affliction,
+    });
+    const ally = makeUnit('ally-1', { name: 'Ally', spec: CombatUnitSpec.Rogue_Assassination });
+    const enemy = makeUnit('enemy-1', {
+      name: 'Enemy',
+      spec: CombatUnitSpec.Mage_Frost,
+      reaction: 0 as any,
+    });
+
+    // Imp unit (Pet type) with its own SPELL_DISPEL in its actionOut (Singe Magic)
+    const imp = {
+      ...makeUnit('imp-1', {
+        name: 'Imp',
+        spec: CombatUnitSpec.None,
+        actionOut: [makeRealDispelAction(9_000, 'imp-1', 'ally-1', '89808', '118', 'Polymorph')] as any[],
+      }),
+      type: CombatUnitType.Pet,
+      reaction: CombatUnitReaction.Friendly,
+      ownerId: 'warlock-1',
+    };
+
+    const summary = reconstructDispelSummary([warlock, ally], [enemy], { startTime: 0, endTime: 60_000 }, [imp as any]);
+
+    expect(summary.allyCleanse).toHaveLength(1);
+    expect(summary.allyCleanse[0].isPetDispel).toBe(true);
+    expect(summary.allyCleanse[0].sourceName).toBe('Warlock');
+  });
+
+  it('B45: pet dispel without known owner falls back to pet name', () => {
+    const ally = makeUnit('ally-1', { name: 'Ally', spec: CombatUnitSpec.Rogue_Assassination });
+    const enemy = makeUnit('enemy-1', {
+      name: 'Enemy',
+      spec: CombatUnitSpec.Mage_Frost,
+      reaction: 0 as any,
+    });
+
+    const imp = {
+      ...makeUnit('imp-1', {
+        name: 'Imp',
+        spec: CombatUnitSpec.None,
+        actionOut: [makeRealDispelAction(9_000, 'imp-1', 'ally-1', '89808', '118', 'Polymorph')] as any[],
+      }),
+      type: CombatUnitType.Pet,
+      reaction: CombatUnitReaction.Friendly,
+      ownerId: 'unknown-owner',
+    };
+
+    const summary = reconstructDispelSummary([ally], [enemy], { startTime: 0, endTime: 60_000 }, [imp as any]);
+
+    expect(summary.allyCleanse).toHaveLength(1);
+    expect(summary.allyCleanse[0].isPetDispel).toBe(true);
+    expect(summary.allyCleanse[0].sourceName).toBe('Imp');
   });
 });

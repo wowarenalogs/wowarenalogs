@@ -403,6 +403,12 @@ export function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): str
   const enemies = allUnits.filter(
     (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Hostile,
   ) as ICombatUnit[];
+  // B45: include friendly pet/guardian units so pet dispels (Singe Magic, Devour Magic) are attributed
+  const friendlyPets = allUnits.filter(
+    (u) =>
+      (u.type === CombatUnitType.Pet || u.type === CombatUnitType.Guardian) &&
+      u.reaction === CombatUnitReaction.Friendly,
+  ) as ICombatUnit[];
 
   if (friends.length === 0 || enemies.length === 0) return '';
   const durationSeconds = (combat.endTime - combat.startTime) / 1000;
@@ -463,7 +469,7 @@ export function buildMatchPrompt(combat: ParsedCombat, forceHealer = false): str
   const healingGaps = healer ? detectHealingGaps(owner, friends, enemies, combat) : [];
   const offensiveWindows = computeOffensiveWindows(enemies, friends, combat);
   const killWindowTargetEvals = analyzeKillWindowTargetSelection(offensiveWindows, enemies, combat);
-  const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
+  const dispelSummary = reconstructDispelSummary(friends, enemies, combat, friendlyPets);
   const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
   const outgoingCCChains = analyzeOutgoingCCChains(friends, enemies, combat);
   const healerUnit = friends.find((p) => isHealerSpec(p.spec)) ?? undefined;
@@ -869,6 +875,11 @@ export function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): 
   const enemies = allUnits.filter(
     (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Hostile,
   ) as ICombatUnit[];
+  const friendlyPets = allUnits.filter(
+    (u) =>
+      (u.type === CombatUnitType.Pet || u.type === CombatUnitType.Guardian) &&
+      u.reaction === CombatUnitReaction.Friendly,
+  ) as ICombatUnit[];
 
   if (friends.length === 0 || enemies.length === 0) return '';
   const durationSeconds = (combat.endTime - combat.startTime) / 1000;
@@ -898,7 +909,7 @@ export function buildMatchPromptNew(combat: ParsedCombat, forceHealer = false): 
   const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat, owner, friends);
   const pressureWindows = computePressureWindows(friends, combat);
   const healingGaps = isHealer ? detectHealingGaps(owner, friends, enemies, combat) : [];
-  const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
+  const dispelSummary = reconstructDispelSummary(friends, enemies, combat, friendlyPets);
   const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
   const outgoingCCChains = analyzeOutgoingCCChains(friends, enemies, combat);
   const ownerCanPurge = canOffensivePurge(owner);
@@ -1035,6 +1046,11 @@ function buildMatchPromptJson(combat: ParsedCombat, forceHealer = false): string
   const enemies = allUnits.filter(
     (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Hostile,
   ) as ICombatUnit[];
+  const friendlyPets = allUnits.filter(
+    (u) =>
+      (u.type === CombatUnitType.Pet || u.type === CombatUnitType.Guardian) &&
+      u.reaction === CombatUnitReaction.Friendly,
+  ) as ICombatUnit[];
 
   if (friends.length === 0 || enemies.length === 0) return '';
   const durationSeconds = (combat.endTime - combat.startTime) / 1000;
@@ -1064,7 +1080,7 @@ function buildMatchPromptJson(combat: ParsedCombat, forceHealer = false): string
   const enemyCDTimeline = reconstructEnemyCDTimeline(enemies, combat, owner, friends);
   const pressureWindows = computePressureWindows(friends, combat);
   const healingGaps = isHealer ? detectHealingGaps(owner, friends, enemies, combat) : [];
-  const dispelSummary = reconstructDispelSummary(friends, enemies, combat);
+  const dispelSummary = reconstructDispelSummary(friends, enemies, combat, friendlyPets);
   const ccTrinketSummaries = friends.map((p) => analyzePlayerCCAndTrinket(p, enemies, combat));
   const outgoingCCChains = analyzeOutgoingCCChains(friends, enemies, combat);
   const ownerCanPurge = canOffensivePurge(owner);

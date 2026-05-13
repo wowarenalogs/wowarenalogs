@@ -520,18 +520,27 @@ export function reconstructDispelSummary(
   friends: ICombatUnit[],
   enemies: ICombatUnit[],
   combat: { startTime: number; endTime: number },
+  // B45: friendly pet/guardian units whose dispels should be attributed to their owner player
+  friendlyPets: ICombatUnit[] = [],
 ): IDispelSummary {
   const friendlyIds = new Set(friends.map((u) => u.id));
   const enemyIds = new Set(enemies.map((u) => u.id));
+  // B45: pets are also considered friendly sources; owner lookup is via ownerId
+  const friendlyPetIds = new Set(friendlyPets.map((u) => u.id));
+  const friendlyPlayerById = new Map(friends.map((u) => [u.id, u]));
   const teamDispelTypes = buildTeamDispelTypes(friends);
   const teamDispelCapability = buildTeamDispelCapability(friends);
-  const unitMap = new Map<string, ICombatUnit>([...friends, ...enemies].map((u) => [u.id, u]));
+  const unitMap = new Map<string, ICombatUnit>([...friends, ...enemies, ...friendlyPets].map((u) => [u.id, u]));
 
   const allyCleanse: IDispelEvent[] = [];
   const ourPurges: IDispelEvent[] = [];
   const hostilePurges: IDispelEvent[] = [];
 
-  for (const unit of [...friends, ...enemies]) {
+  for (const unit of [...friends, ...friendlyPets, ...enemies]) {
+    const isPetUnit = friendlyPetIds.has(unit.id);
+    // For pet units, attribute the dispel to the owner player (if known)
+    const ownerPlayer = isPetUnit ? friendlyPlayerById.get(unit.ownerId) : undefined;
+
     for (const action of unit.actionOut) {
       const isDispel = action.logLine.event === LogEvent.SPELL_DISPEL;
       const isSteal = action.logLine.event === LogEvent.SPELL_STOLEN;
@@ -545,24 +554,32 @@ export function reconstructDispelSummary(
       const destUnit = unitMap.get(action.destUnitId);
       const penaltyDesc = DISPEL_PENALTY_SPELLS.get(removedSpellId);
 
+      // B45: pet dispels are attributed to the owner player; source name shows the player
+      // so Claude sees "[CLEANSE] Warlock dispelled X (pet)" rather than "[CLEANSE] Imp dispelled X"
+      const sourceName = ownerPlayer ? ownerPlayer.name : unit.name;
+      const sourceSpec = ownerPlayer ? specToString(ownerPlayer.spec) : specToString(unit.spec);
+
       const event: IDispelEvent = {
         timeSeconds: (action.timestamp - combat.startTime) / 1000,
         dispelSpellId: action.spellId ?? '',
         dispelSpellName: getEnglishSpellName(action.spellId ?? '', action.spellName),
         removedSpellId,
         removedSpellName: getEnglishSpellName(removedSpellId, action.extraSpellName),
-        sourceName: unit.name,
-        sourceSpec: specToString(unit.spec),
+        sourceName,
+        sourceSpec,
         targetName: action.destUnitName,
         targetSpec: destUnit ? specToString(destUnit.spec) : 'Unknown',
         priority,
         hasDispelPenalty: penaltyDesc !== undefined,
         penaltyDescription: penaltyDesc,
         isSpellSteal: isSteal,
-        isPetDispel: action.srcUnitId !== unit.id,
+        // B45: pet unit actions are always pet dispels; player actions only when srcUnit ≠ player
+        isPetDispel: isPetUnit || action.srcUnitId !== unit.id,
       };
 
-      const srcFriendly = friendlyIds.has(unit.id);
+      // Treat a pet owned by a friendly player as a friendly source
+      // Pets passed via friendlyPets are always friendly — we already filtered them by reaction
+      const srcFriendly = friendlyIds.has(unit.id) || isPetUnit;
       const srcEnemy = enemyIds.has(unit.id);
       const destFriendly = friendlyIds.has(action.destUnitId);
       const destEnemy = enemyIds.has(action.destUnitId);
