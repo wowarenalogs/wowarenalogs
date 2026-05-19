@@ -42,6 +42,7 @@ async function main() {
     playerId: 'player-1',
     playerTeamId: '0',
     result: 3,
+    resultName: 'win',
     combatants: [],
   };
 

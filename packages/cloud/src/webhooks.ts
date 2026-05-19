@@ -26,6 +26,7 @@ export type WebhookStub = {
   playerId: string;
   playerTeamId: string;
   result: CombatResult; // 0=Unknown 1=DrawGame 2=Lose 3=Win; See: parser type CombatResult
+  resultName: string; // lowercased CombatResult name, e.g. "win"
   combatants: {
     id: string;
     realmId: number | undefined;
@@ -39,7 +40,10 @@ export type WebhookStub = {
   roundResults?: number[] | undefined;
 };
 
-type WebhookStubBase = Pick<WebhookStub, 'version' | 'dataType' | 'id' | 'result' | 'startInfo' | 'endInfo'>;
+type WebhookStubBase = Pick<
+  WebhookStub,
+  'version' | 'dataType' | 'id' | 'result' | 'resultName' | 'startInfo' | 'endInfo'
+>;
 
 // 'failed_transient' should be retried; 'failed_permanent' (4xx) should not.
 export type WebhookOutcome = 'delivered' | 'skipped' | 'failed_permanent' | 'failed_transient';
@@ -81,6 +85,7 @@ const buildStubBase = (match: IArenaMatch | IShuffleMatch): WebhookStubBase => (
   dataType: match.dataType,
   id: match.id,
   result: match.result,
+  resultName: (CombatResult[match.result] ?? 'unknown').toLowerCase(),
   startInfo: {
     timestamp: match.startInfo.timestamp,
     zoneId: match.startInfo.zoneId,
