@@ -19,7 +19,8 @@ One webhook per match, **after** the match stub is written to Firestore, for:
   - `2xx` → success.
   - `5xx`, `429`, `408`, timeout or network error → transient; retried.
   - other `4xx` → permanent; **not** retried (acked, logged as an error).
-  - after ~50 failed attempts the message is dead-lettered to `partner-webhook-dlq`.
+  - a message that never succeeds is retried until Pub/Sub's retention window
+    elapses, then dropped.
 - **Duplicates are expected** — retries (and at-least-once delivery) mean the same
   match may arrive more than once. **Deduplicate on `x-idempotency-key`** (equals
   the payload `id`); it is stable across attempts, while `x-webhook-timestamp` and
@@ -112,7 +113,7 @@ function verify(rawBody, headers, secret) {
 ## Configuration (deployer)
 
 One-time per GCP project, run `deploy/setup_webhook_pubsub.sh <project-id>` to
-create the `partner-webhook-event` / `partner-webhook-dlq` topics and IAM bindings.
+create the `partner-webhook-event` topic and its publisher IAM binding.
 
 Set these in the deploying shell environment; the deploy scripts pass them to the
 Cloud Functions.

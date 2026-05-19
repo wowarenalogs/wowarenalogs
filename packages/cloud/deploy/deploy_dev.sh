@@ -40,7 +40,6 @@ echo -e "${GREEN}Function ${FUNCTION_NAME} deployed successfully!${NC}"
 
 # Deploy deliverWebhook function (Pub/Sub trigger)
 deploy_pubsub_function "deliverWebhook" "deliverWebhookHandler" "${WEBHOOK_TOPIC}" "60s" "${WEBHOOK_ENV_VARS}" "20"
-configure_webhook_dead_letter "${PROJECT_ID}" || echo -e "${RED}WARNING: dead-letter config failed — run configure_webhook_dead_letter manually.${NC}"
 echo -e "${GREEN}deliverWebhook function deployed successfully!${NC}"
 
 # Display function information

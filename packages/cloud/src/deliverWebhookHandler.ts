@@ -6,7 +6,7 @@ export async function handler(message: { data?: string }, _context: unknown, cal
   try {
     const stub = JSON.parse(Buffer.from(message.data ?? '', 'base64').toString('utf8')) as WebhookStub;
     if (!stub || !stub.id || !stub.dataType) {
-      // Drop malformed payloads — retrying them would only loop to the dead-letter topic.
+      // Drop malformed payloads — they will never become valid on retry.
       console.error('deliverWebhook: dropping invalid stub', stub);
       callback();
       return;

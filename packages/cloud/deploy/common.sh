@@ -30,7 +30,6 @@ RUNTIME="nodejs22"
 MEMORY="1024MB"
 SERVICE_NAME="gcp-wowarenalogs"
 WEBHOOK_TOPIC="partner-webhook-event"
-WEBHOOK_DLQ_TOPIC="partner-webhook-dlq"
 
 # Function to check if gcloud is installed
 check_gcloud() {
@@ -146,41 +145,6 @@ deploy_pubsub_function() {
         "${env_flag[@]}" \
         --retry \
         --max-instances=${max_instances}
-}
-
-# Re-applies the dead-letter + retry policy to the deliverWebhook trigger's
-# subscription. Idempotent; must run after every deliverWebhook deploy because a
-# recreated trigger gets a fresh subscription without this config.
-configure_webhook_dead_letter() {
-    local project_id=$1
-    local project_number
-    project_number="$(gcloud projects describe ${project_id} --format='value(projectNumber)')"
-    local pubsub_sa="service-${project_number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-
-    echo -e "${YELLOW}Configuring dead-letter policy for deliverWebhook...${NC}"
-
-    # The gen2 trigger owns the subscription — discover it from the Eventarc trigger.
-    local subscription
-    subscription="$(gcloud eventarc triggers list --location=${REGION} \
-        --filter="transport.pubsub.topic ~ ${WEBHOOK_TOPIC}\$" \
-        --format='value(transport.pubsub.subscription)' | head -n1)"
-
-    if [ -z "${subscription}" ]; then
-        echo -e "${RED}Could not find the deliverWebhook trigger subscription.${NC}"
-        return 1
-    fi
-    local subscription_id="${subscription##*/}"
-
-    gcloud pubsub subscriptions update "${subscription_id}" \
-        --dead-letter-topic="${WEBHOOK_DLQ_TOPIC}" \
-        --max-delivery-attempts=50 \
-        --min-retry-delay=30s \
-        --max-retry-delay=600s
-
-    # The Pub/Sub service agent forwards exhausted messages to the dead-letter topic.
-    gcloud pubsub subscriptions add-iam-policy-binding "${subscription_id}" \
-        --member="serviceAccount:${pubsub_sa}" \
-        --role="roles/pubsub.subscriber"
 }
 
 # Function to display function information
