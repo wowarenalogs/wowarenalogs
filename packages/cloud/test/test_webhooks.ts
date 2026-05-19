@@ -45,10 +45,13 @@ async function main() {
     combatants: [],
   };
 
-  await sendWebhookAsync(sampleStub);
+  const outcome = await sendWebhookAsync(sampleStub);
   server.close();
 
   const failures: string[] = [];
+  if (outcome !== 'delivered') {
+    failures.push(`sendWebhookAsync returned '${outcome}', expected 'delivered'`);
+  }
   if (!received) {
     failures.push('webhook receiver got no request');
   } else {

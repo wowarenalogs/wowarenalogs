@@ -1,24 +1,31 @@
 # Partner Webhooks
 
-When a match finishes processing, the `writeMatchStub` Cloud Function POSTs a
-trimmed match summary to a configured partner endpoint.
+After a match finishes processing, WoW Arena Logs POSTs a trimmed match summary to
+a configured partner endpoint. Delivery is decoupled: `writeMatchStub` publishes
+the summary to a Pub/Sub topic and the `deliverWebhook` function does the POST, so
+partner latency never blocks match processing.
 
 ## When it fires
 
-One POST per match, **after** the match stub is written to Firestore, for:
+One webhook per match, **after** the match stub is written to Firestore, for:
 
 - **Ranked arena** matches (`startInfo.isRanked === true`)
 - **Rated Solo Shuffle** matches (`startInfo.bracket === 'Rated Solo Shuffle'`)
 
 ## Delivery semantics
 
-- **Best-effort, single attempt** — no retries, no queue. A slow or failing
-  receiver means the event is dropped (and logged on our side).
-- **Timeout** — the request is aborted after ~10s (`ENV_WEBHOOK_TIMEOUT_MS`,
+- **Asynchronous** — published to Pub/Sub, delivered by a separate function.
+- **At-least-once with retry** — Pub/Sub redelivers failed attempts with backoff:
+  - `2xx` → success.
+  - `5xx`, `429`, `408`, timeout or network error → transient; retried.
+  - other `4xx` → permanent; **not** retried (acked, logged as an error).
+  - after ~50 failed attempts the message is dead-lettered to `partner-webhook-dlq`.
+- **Duplicates are expected** — retries (and at-least-once delivery) mean the same
+  match may arrive more than once. **Deduplicate on `x-idempotency-key`** (equals
+  the payload `id`); it is stable across attempts, while `x-webhook-timestamp` and
+  `x-webhook-signature` are recomputed per attempt.
+- **Timeout** — each POST is aborted after ~10s (`ENV_WEBHOOK_TIMEOUT_MS`,
   default `10000`).
-- **At-least-once** — the underlying Cloud Function event delivery can re-invoke
-  the handler, so the same match may be delivered more than once. **Deduplicate
-  on the `x-idempotency-key` header** (it equals the payload `id`).
 
 ## Request
 
@@ -103,12 +110,23 @@ function verify(rawBody, headers, secret) {
 
 ## Configuration (deployer)
 
-Set these in the deploying shell environment; the deploy scripts pass them to the
-Cloud Function:
+One-time per GCP project, run `deploy/setup_webhook_pubsub.sh <project-id>` to
+create the `partner-webhook-event` / `partner-webhook-dlq` topics and IAM bindings.
 
-| Env var                 | Used by              | Notes                                              |
-| ------------------------ | -------------------- | -------------------------------------------------- |
-| `ENV_WEBHOOK_URL`        | `deploy_prod.sh`     | Partner endpoint. Unset or `disabled` → no sends.  |
-| `ENV_WEBHOOK_URL_DEV`    | `deploy_dev.sh`      | Dev endpoint — kept separate so test matches don't reach a partner's prod. |
-| `ENV_WEBHOOK_SECRET`     | both                 | HMAC signing secret. Unset → unsigned delivery.    |
-| `ENV_WEBHOOK_TIMEOUT_MS` | both (optional)      | Per-request timeout in ms; default `10000`.        |
+Set these in the deploying shell environment; the deploy scripts pass them to the
+Cloud Functions.
+
+`writeMatchStub` (publisher):
+
+| Env var             | Notes                                                    |
+| ------------------- | -------------------------------------------------------- |
+| `ENV_WEBHOOK_TOPIC` | Pub/Sub topic to publish to. Unset → webhooks disabled.  |
+
+`deliverWebhook` (delivery):
+
+| Env var                  | Notes                                                  |
+| ------------------------ | ------------------------------------------------------ |
+| `ENV_WEBHOOK_URL`        | Partner endpoint. Unset or `disabled` → no POST.       |
+| `ENV_WEBHOOK_URL_DEV`    | Dev endpoint — `deploy_dev.sh` maps it to `ENV_WEBHOOK_URL` so test matches don't reach a partner's prod. |
+| `ENV_WEBHOOK_SECRET`     | HMAC signing secret. Unset → unsigned delivery.        |
+| `ENV_WEBHOOK_TIMEOUT_MS` | Per-request timeout in ms; optional, default `10000`.  |

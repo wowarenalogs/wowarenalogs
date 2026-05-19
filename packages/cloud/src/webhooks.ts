@@ -40,6 +40,9 @@ export type WebhookStub = {
 
 type WebhookStubBase = Pick<WebhookStub, 'version' | 'dataType' | 'id' | 'result' | 'startInfo' | 'endInfo'>;
 
+// 'failed_transient' should be retried; 'failed_permanent' (4xx) should not.
+export type WebhookOutcome = 'delivered' | 'skipped' | 'failed_permanent' | 'failed_transient';
+
 // Webhook target URL, or undefined when delivery is disabled (env unset or 'disabled').
 const getWebhookUrl = (): string | undefined => {
   const url = process.env.ENV_WEBHOOK_URL;
@@ -47,7 +50,7 @@ const getWebhookUrl = (): string | undefined => {
 };
 
 // Structured log line — Cloud Logging parses JSON stdout into structured entries.
-const logWebhookEvent = (fields: Record<string, unknown>) => {
+export const logWebhookEvent = (fields: Record<string, unknown>) => {
   console.log(JSON.stringify(fields));
 };
 
@@ -82,12 +85,32 @@ const buildStubBase = (match: IArenaMatch | IShuffleMatch): WebhookStubBase => (
   },
 });
 
-// Best-effort, single-attempt delivery of a match summary to the partner webhook.
-// Never throws: failures are logged and swallowed so match processing is unaffected.
-export const sendWebhookAsync = async (stub: WebhookStub): Promise<void> => {
+export const createWebhookStubFromArenaMatch = (match: IArenaMatch): WebhookStub => ({
+  ...buildStubBase(match),
+  playerId: match.playerId,
+  playerTeamId: match.playerTeamId,
+  link: `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook`,
+  combatants: mapCombatants(match.units),
+});
+
+export const createWebhookStubFromShuffleMatch = (match: IShuffleMatch): WebhookStub => ({
+  ...buildStubBase(match),
+  playerId: match.rounds[0].playerId,
+  playerTeamId: match.rounds[0].playerTeamId,
+  link: match.rounds.map(
+    (_r, idx) => `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
+  ),
+  roundResults: match.rounds.map((r) => r.result),
+  // combatants (and their teamId) are taken from round 1; see WEBHOOKS.md.
+  combatants: mapCombatants(match.rounds[0].units),
+});
+
+// Delivers a match summary to the partner webhook. Never throws — returns an
+// outcome the caller maps to ack/retry. Retry itself happens at the Pub/Sub layer.
+export const sendWebhookAsync = async (stub: WebhookStub): Promise<WebhookOutcome> => {
   const webhookUrl = getWebhookUrl();
   if (!webhookUrl) {
-    return;
+    return 'skipped';
   }
 
   const secret = process.env.ENV_WEBHOOK_SECRET;
@@ -135,60 +158,32 @@ export const sendWebhookAsync = async (stub: WebhookStub): Promise<void> => {
         status: response.status,
         durationMs: Date.now() - startedAt,
       });
-    } else {
-      logWebhookEvent({
-        event: 'webhook_failed',
-        dataType: stub.dataType,
-        matchId: stub.id,
-        status: response.status,
-        durationMs: Date.now() - startedAt,
-        error: `HTTP ${response.status}`,
-      });
+      return 'delivered';
     }
+    // 5xx/429/408 are worth retrying; other 4xx will fail identically forever.
+    const transient = response.status >= 500 || response.status === 429 || response.status === 408;
+    logWebhookEvent({
+      event: 'webhook_failed',
+      level: 'error',
+      dataType: stub.dataType,
+      matchId: stub.id,
+      status: response.status,
+      durationMs: Date.now() - startedAt,
+      error: `HTTP ${response.status}`,
+      permanent: !transient,
+    });
+    return transient ? 'failed_transient' : 'failed_permanent';
   } catch (e) {
     logWebhookEvent({
       event: 'webhook_failed',
+      level: 'error',
       dataType: stub.dataType,
       matchId: stub.id,
       durationMs: Date.now() - startedAt,
       error: e instanceof Error ? e.message : String(e),
     });
+    return 'failed_transient';
   } finally {
     clearTimeout(timer);
   }
-};
-
-export const stubsWebhookArenaMatchAsync = async (match: IArenaMatch): Promise<void> => {
-  if (!getWebhookUrl()) {
-    return;
-  }
-  const stub: WebhookStub = {
-    ...buildStubBase(match),
-    playerId: match.playerId,
-    playerTeamId: match.playerTeamId,
-    link: `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook`,
-    combatants: mapCombatants(match.units),
-  };
-
-  await sendWebhookAsync(stub);
-};
-
-export const stubsWebhookShuffleMatchAsync = async (match: IShuffleMatch): Promise<void> => {
-  if (!getWebhookUrl()) {
-    return;
-  }
-  const stub: WebhookStub = {
-    ...buildStubBase(match),
-    playerId: match.rounds[0].playerId,
-    playerTeamId: match.rounds[0].playerTeamId,
-    link: match.rounds.map(
-      (_r, idx) =>
-        `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
-    ),
-    roundResults: match.rounds.map((r) => r.result),
-    // combatants (and their teamId) are taken from round 1; see WEBHOOKS.md.
-    combatants: mapCombatants(match.rounds[0].units),
-  };
-
-  await sendWebhookAsync(stub);
 };

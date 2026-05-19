@@ -16,8 +16,10 @@ BUCKET_NAME="${PROJECT_ID}-log-files-prod"
 CREDENTIALS_FILE="wowarenalogs-public-dev.json"
 
 # Environment variables for the function (ENV_SQL_URL excluded for dev)
-# Dev uses ENV_WEBHOOK_URL_DEV so test matches don't get fed to a partner's prod endpoint
-ENV_VARS="ENV_MATCH_STUBS_FIRESTORE=match-stubs-prod,ENV_LOG_FILES_BUCKET=${BUCKET_NAME},ENV_GCP_PROJECT=${PROJECT_ID},ENV_SERVICE_NAME=${SERVICE_NAME},ENV_WEBHOOK_URL=${ENV_WEBHOOK_URL_DEV},ENV_WEBHOOK_SECRET=${ENV_WEBHOOK_SECRET}"
+ENV_VARS="ENV_MATCH_STUBS_FIRESTORE=match-stubs-prod,ENV_LOG_FILES_BUCKET=${BUCKET_NAME},ENV_GCP_PROJECT=${PROJECT_ID},ENV_SERVICE_NAME=${SERVICE_NAME},ENV_WEBHOOK_TOPIC=${WEBHOOK_TOPIC}"
+
+# Dev uses ENV_WEBHOOK_URL_DEV so test matches aren't fed to a partner's prod endpoint
+WEBHOOK_ENV_VARS="ENV_WEBHOOK_URL=${ENV_WEBHOOK_URL_DEV},ENV_WEBHOOK_SECRET=${ENV_WEBHOOK_SECRET}"
 
 echo -e "${GREEN}Starting deployment of ${FUNCTION_NAME} to ${PROJECT_ID} (Development)...${NC}"
 
@@ -36,7 +38,13 @@ deploy_storage_function ${FUNCTION_NAME} ${HANDLER} ${PROJECT_ID} ${BUCKET_NAME}
 
 echo -e "${GREEN}Function ${FUNCTION_NAME} deployed successfully!${NC}"
 
+# Deploy deliverWebhook function (Pub/Sub trigger)
+deploy_pubsub_function "deliverWebhook" "deliverWebhookHandler" "${WEBHOOK_TOPIC}" "60s" "${WEBHOOK_ENV_VARS}" "20"
+configure_webhook_dead_letter "${PROJECT_ID}" || echo -e "${RED}WARNING: dead-letter config failed — run configure_webhook_dead_letter manually.${NC}"
+echo -e "${GREEN}deliverWebhook function deployed successfully!${NC}"
+
 # Display function information
 show_function_info ${FUNCTION_NAME}
+show_function_info "deliverWebhook"
 
 echo -e "${GREEN}Development deployment completed successfully!${NC}"

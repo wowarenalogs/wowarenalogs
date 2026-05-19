@@ -7,7 +7,8 @@ import path from 'path';
 import { WowVersion } from '../../parser/dist/index';
 import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from './createMatchStub';
 import { logCombatStatsAsync, parseFromStringArrayAsync } from './utils';
-import { stubsWebhookArenaMatchAsync, stubsWebhookShuffleMatchAsync } from './webhooks';
+import { publishWebhookStubAsync } from './webhookPublisher';
+import { createWebhookStubFromArenaMatch, createWebhookStubFromShuffleMatch } from './webhooks';
 
 const matchStubsFirestore = process.env.ENV_MATCH_STUBS_FIRESTORE;
 
@@ -74,7 +75,7 @@ export async function handler(file: any, _context: any) {
     }
     if (arenaMatch.startInfo.isRanked) {
       try {
-        await stubsWebhookArenaMatchAsync(arenaMatch);
+        await publishWebhookStubAsync(createWebhookStubFromArenaMatch(arenaMatch));
       } catch (e) {
         console.error(e);
       }
@@ -108,7 +109,7 @@ export async function handler(file: any, _context: any) {
     console.timeEnd('writing shuffle match data');
     if (shuffleMatch.startInfo.bracket === 'Rated Solo Shuffle') {
       try {
-        await stubsWebhookShuffleMatchAsync(shuffleMatch);
+        await publishWebhookStubAsync(createWebhookStubFromShuffleMatch(shuffleMatch));
       } catch (e) {
         console.error(e);
       }
