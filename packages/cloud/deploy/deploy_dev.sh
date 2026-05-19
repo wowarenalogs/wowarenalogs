@@ -16,7 +16,8 @@ BUCKET_NAME="${PROJECT_ID}-log-files-prod"
 CREDENTIALS_FILE="wowarenalogs-public-dev.json"
 
 # Environment variables for the function (ENV_SQL_URL excluded for dev)
-ENV_VARS="ENV_MATCH_STUBS_FIRESTORE=match-stubs-prod,ENV_LOG_FILES_BUCKET=${BUCKET_NAME},ENV_GCP_PROJECT=${PROJECT_ID},ENV_SERVICE_NAME=${SERVICE_NAME}"
+# Dev uses ENV_WEBHOOK_URL_DEV so test matches don't get fed to a partner's prod endpoint
+ENV_VARS="ENV_MATCH_STUBS_FIRESTORE=match-stubs-prod,ENV_LOG_FILES_BUCKET=${BUCKET_NAME},ENV_GCP_PROJECT=${PROJECT_ID},ENV_SERVICE_NAME=${SERVICE_NAME},ENV_WEBHOOK_URL=${ENV_WEBHOOK_URL_DEV},ENV_WEBHOOK_SECRET=${ENV_WEBHOOK_SECRET}"
 
 echo -e "${GREEN}Starting deployment of ${FUNCTION_NAME} to ${PROJECT_ID} (Development)...${NC}"
 
