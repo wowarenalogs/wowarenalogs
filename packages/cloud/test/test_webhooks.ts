@@ -41,6 +41,7 @@ async function main() {
     endInfo: { winningTeamId: '0', timestamp: 2, matchDurationInSeconds: 120, team0MMR: 1500, team1MMR: 1510 },
     playerId: 'player-1',
     playerTeamId: '0',
+    region: 'def',
     result: 3,
     resultName: 'win',
     combatants: [],

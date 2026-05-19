@@ -66,6 +66,7 @@ on our side.
   },
   "playerId": "string",               // the uploading player
   "playerTeamId": "string",
+  "region": "us",                     // 'us' | 'eu' | 'tw' | 'kr' | 'def' — uploading player's region
   "result": 3,                        // 0=Unknown 1=DrawGame 2=Lose 3=Win
   "resultName": "win",                // lowercased CombatResult name
   "combatants": [

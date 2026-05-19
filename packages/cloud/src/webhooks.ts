@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 
 import { CombatResult, CombatUnitType, IArenaMatch, ICombatUnit, IShuffleMatch } from '../../parser/dist/index';
+import { realmIdToRegion } from '../../shared/src/utils/realms';
 
 const WEBHOOK_PAYLOAD_VERSION = 1;
 const WEBHOOK_DEFAULT_TIMEOUT_MS = 10000;
@@ -25,6 +26,8 @@ export type WebhookStub = {
   };
   playerId: string;
   playerTeamId: string;
+  region: string; // 'us' | 'eu' | 'tw' | 'kr' | 'def' — uploading player's region
+
   result: CombatResult; // 0=Unknown 1=DrawGame 2=Lose 3=Win; See: parser type CombatResult
   resultName: string; // lowercased CombatResult name, e.g. "win"
   combatants: {
@@ -68,6 +71,11 @@ const parseRealmId = (guid: string): number | undefined => {
   return Number.isInteger(realmId) ? realmId : undefined;
 };
 
+const playerRegion = (playerId: string): string => {
+  const realmId = parseRealmId(playerId);
+  return realmId === undefined ? 'def' : realmIdToRegion(realmId);
+};
+
 const mapCombatants = (units: Record<string, ICombatUnit>) =>
   Object.values(units)
     .filter((u) => u.type === CombatUnitType.Player)
@@ -105,6 +113,7 @@ export const createWebhookStubFromArenaMatch = (match: IArenaMatch): WebhookStub
   ...buildStubBase(match),
   playerId: match.playerId,
   playerTeamId: match.playerTeamId,
+  region: playerRegion(match.playerId),
   link: `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook`,
   combatants: mapCombatants(match.units),
 });
@@ -113,6 +122,7 @@ export const createWebhookStubFromShuffleMatch = (match: IShuffleMatch): Webhook
   ...buildStubBase(match),
   playerId: match.rounds[0].playerId,
   playerTeamId: match.rounds[0].playerTeamId,
+  region: playerRegion(match.rounds[0].playerId),
   link: match.rounds.map(
     (_r, idx) => `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
   ),
