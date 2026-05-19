@@ -1,8 +1,7 @@
 import { sendWebhookAsync, WebhookStub } from './webhooks';
 
-// Pub/Sub-triggered: delivers one webhook per published match stub. The whole
-// body is wrapped so `callback` fires exactly once — an async rejection that
-// escaped here would never reach the Functions Framework.
+// The whole body is wrapped so `callback` fires exactly once — an async rejection
+// that escaped here would never reach the Functions Framework.
 export async function handler(message: { data?: string }, _context: unknown, callback: (err?: Error) => void) {
   try {
     const stub = JSON.parse(Buffer.from(message.data ?? '', 'base64').toString('utf8')) as WebhookStub;

@@ -11,9 +11,8 @@ const gcpCredentials =
 
 const pubsub = new PubSub({ credentials: gcpCredentials });
 
-// Publishes a match summary to the partner-webhook topic for async delivery.
-// Never throws: a publish failure is logged and swallowed so that match
-// processing is unaffected.
+// Never throws — a publish failure is logged and swallowed so match processing
+// is unaffected.
 export const publishWebhookStubAsync = async (stub: WebhookStub): Promise<void> => {
   const topic = process.env.ENV_WEBHOOK_TOPIC;
   if (!topic) {

@@ -68,7 +68,8 @@ on our side.
   "result": 3,                        // 0=Unknown 1=DrawGame 2=Lose 3=Win
   "combatants": [
     {
-      "id": "string",
+      "id": "string",                 // WoW player GUID, "Player-<realmId>-<hex>"
+      "realmId": 0,                    // parsed from id; null if the GUID is malformed
       "name": "string",
       "specId": "string",
       "classId": 0,

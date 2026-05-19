@@ -28,6 +28,7 @@ export type WebhookStub = {
   result: CombatResult; // 0=Unknown 1=DrawGame 2=Lose 3=Win; See: parser type CombatResult
   combatants: {
     id: string;
+    realmId: number | undefined;
     name: string;
     specId: string | undefined;
     classId: number | undefined;
@@ -43,7 +44,6 @@ type WebhookStubBase = Pick<WebhookStub, 'version' | 'dataType' | 'id' | 'result
 // 'failed_transient' should be retried; 'failed_permanent' (4xx) should not.
 export type WebhookOutcome = 'delivered' | 'skipped' | 'failed_permanent' | 'failed_transient';
 
-// Webhook target URL, or undefined when delivery is disabled (env unset or 'disabled').
 const getWebhookUrl = (): string | undefined => {
   const url = process.env.ENV_WEBHOOK_URL;
   return !url || url === 'disabled' ? undefined : url;
@@ -54,11 +54,22 @@ export const logWebhookEvent = (fields: Record<string, unknown>) => {
   console.log(JSON.stringify(fields));
 };
 
+// Player GUIDs are `Player-<realmId>-<hex>`; undefined for any malformed id.
+const parseRealmId = (guid: string): number | undefined => {
+  const parts = guid.split('-');
+  if (parts[0] !== 'Player' || parts.length < 3) {
+    return undefined;
+  }
+  const realmId = Number(parts[1]);
+  return Number.isInteger(realmId) ? realmId : undefined;
+};
+
 const mapCombatants = (units: Record<string, ICombatUnit>) =>
   Object.values(units)
     .filter((u) => u.type === CombatUnitType.Player)
     .map((c) => ({
       id: c.id,
+      realmId: parseRealmId(c.id),
       name: c.name,
       specId: c.info?.specId,
       classId: c.class,
@@ -105,8 +116,8 @@ export const createWebhookStubFromShuffleMatch = (match: IShuffleMatch): Webhook
   combatants: mapCombatants(match.rounds[0].units),
 });
 
-// Delivers a match summary to the partner webhook. Never throws — returns an
-// outcome the caller maps to ack/retry. Retry itself happens at the Pub/Sub layer.
+// Never throws — returns an outcome the caller maps to ack/retry; retry itself
+// happens at the Pub/Sub layer.
 export const sendWebhookAsync = async (stub: WebhookStub): Promise<WebhookOutcome> => {
   const webhookUrl = getWebhookUrl();
   if (!webhookUrl) {
