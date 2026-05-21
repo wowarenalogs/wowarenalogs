@@ -50,6 +50,7 @@ on our side.
   "version": 1,                       // payload schema version; branch on this
   "dataType": "ArenaMatch",           // "ArenaMatch" | "ShuffleMatch"
   "id": "string",                     // match id (also the idempotency key)
+  "wowVersion": "retail",             // "retail" | "classic"
   "link": "https://wowarenalogs.com/match?id=...",  // string; string[] for shuffle (one per round)
   "startInfo": {
     "timestamp": 0,                   // epoch ms
@@ -67,25 +68,51 @@ on our side.
   "playerId": "string",               // the uploading player
   "playerTeamId": "string",
   "region": "us",                     // 'us' | 'eu' | 'tw' | 'kr' | 'def' — uploading player's region
+  "playerTeamRating": 1850,           // ARENA_MATCH_END team rating; null if not reported
+  "hasAdvancedLogging": true,         // false → CombatantInfo-derived fields below may be missing
   "result": 3,                        // 0=Unknown 1=DrawGame 2=Lose 3=Win
   "resultName": "win",                // lowercased CombatResult name
   "combatants": [
     {
       "id": "string",                 // WoW player GUID, "Player-<realmId>-<hex>"
-      "realmId": 0,                    // parsed from id; null if the GUID is malformed
+      "realmId": 0,                   // parsed from id; null if the GUID is malformed
       "name": "string",
       "specId": "string",
       "classId": 0,
-      "teamId": "string"
+      "teamId": "string",
+
+      // Derived from the player's events in this match (round 1 for shuffle).
+      "dps": 0,                       // effective damage / effective duration, rounded
+      "hps": 0,                       // effective healing+absorbs / effective duration, rounded
+      "deaths": 0,
+
+      // From COMBATANT_INFO — these keys are OMITTED FROM THE JSON (not null)
+      // when hasAdvancedLogging=false or COMBATANT_INFO is missing for this unit.
+      "itemLevel": 0,                 // average equipped ilvl
+      "personalRating": 0,
+      "highestPvpTier": 0,
+      "stats": {
+        "strength": 0, "agility": 0, "stamina": 0, "intellect": 0, "armor": 0,
+        "dodge": 0, "parry": 0, "block": 0,
+        "critMelee": 0, "critRanged": 0, "critSpell": 0,
+        "mastery": 0,
+        "hasteMelee": 0, "hasteRanged": 0, "hasteSpell": 0,
+        "versatilityDamageDone": 0, "versatilityHealingDone": 0, "versatilityDamageTaken": 0,
+        "leech": 0, "avoidance": 0, "speed": 0
+      },
+      "talents": [{ "id1": 0, "id2": 0, "count": 0 }],   // raw talent loadout; may contain nulls
+      "pvpTalents": ["string"],
+      "equipment": [{ "id": "string", "ilvl": 0 }]
     }
   ],
   "roundResults": [3, 2, 3, 2, 3, 2]  // shuffle only — per-round result codes
 }
 ```
 
-Note: for **shuffle**, `combatants` (and each `combatants[].teamId`) is taken from
-**round 1** only — teams are re-drawn each round, so `teamId` is not stable across
-the match.
+Note: for **shuffle**, `combatants` (and each `combatants[].teamId`, `dps`, `hps`,
+`deaths`, `hasAdvancedLogging`, `playerTeamRating`) is taken from **round 1** only —
+teams are re-drawn each round, so `teamId` is not stable across the match. For
+per-round detail across the whole shuffle, query the GraphQL API by match `id`.
 
 ## Verifying the signature
 
