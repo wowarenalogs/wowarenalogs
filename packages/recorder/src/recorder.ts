@@ -949,7 +949,7 @@ export class Recorder {
     this.wroteQueue.empty();
     const wroteRace = await Promise.race([
       this.wroteQueue.shift().then((a) => Recorder.logger.info(`[Recorder] got wrote signal: ${a.id}`)),
-      getPromiseBomb(5000, '[Recorder] OBS timeout waiting for wrote'),
+      getPromiseBomb(60000, '[Recorder] OBS timeout waiting for wrote'),
     ]);
 
     try {
