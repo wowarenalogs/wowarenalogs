@@ -3,8 +3,7 @@ import * as luainjs from 'lua-in-js';
 import fetch from 'node-fetch';
 import path from 'path';
 
-const WAGO_DB2_BASE = 'https://wago.tools/db2';
-const WAGO_BUILD = process.env.WAGO_BUILD || '12.0.1.66044';
+import { WAGO_BUILD, WAGO_DB2_BASE } from './wagoConfig';
 
 function extractSpellIdsFromSpellCsv(csv: string): Set<string> {
   const ids = new Set<string>();

@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-03-18T19:58:33.284Z",
+  "generatedAt": "2026-04-13T21:09:17.101Z",
   "sources": {
-    "spellCsv": "https://wago.tools/db2/Spell/csv?build=12.0.1.66431",
-    "spellMiscCsv": "https://wago.tools/db2/SpellMisc/csv?build=12.0.1.66431",
-    "spellNameCsv": "https://wago.tools/db2/SpellName/csv?build=12.0.1.66431"
+    "spellCsv": "https://wago.tools/db2/Spell/csv?build=12.0.1.66838",
+    "spellMiscCsv": "https://wago.tools/db2/SpellMisc/csv?build=12.0.1.66838",
+    "spellNameCsv": "https://wago.tools/db2/SpellName/csv?build=12.0.1.66838"
   },
   "bitDefinitions": {
     "important": {

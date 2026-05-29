@@ -5,6 +5,8 @@ export const features = {
   skipUploads: 'skip-log-uploads',
   /** Allows user to see AWC bracket on search pages */
   awcSearch: 'awc-search',
+  /** Allows user to see the Mistakes analysis tab on combat replays */
+  mistakesTab: 'mistakes-tab',
 };
 
 export const canUseFeature = (flag: string, user?: GetProfileQuery | undefined | null, localFlags?: string[]) => {
