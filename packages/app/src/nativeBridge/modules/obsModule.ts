@@ -53,7 +53,20 @@ export class ObsModule extends NativeBridgeModule {
       }
 
       if (process.platform === 'win32') {
-        this.manager = new Manager(mainWindow);
+        try {
+          this.manager = new Manager(mainWindow);
+        } catch (error) {
+          // Manager construction initializes OBS synchronously and can throw
+          // (e.g. OBS/noobs fails to init on the user's machine). Surface it to
+          // the UI as a FatalError instead of letting it get swallowed by the
+          // lifecycle task's catch, which would leave the user with a spinner
+          // and no explanation for why recording won't enable.
+          this.engineEnabled = false;
+          const message = error instanceof Error ? error.message : String(error);
+          logger.error(`[ObsModule] Failed to start recording engine: ${message}`);
+          this.recorderStatusUpdated(mainWindow, 'FatalError', message);
+          return;
+        }
         this.manager.subscribeToConfigurationUpdates((newValue, _oldValue) => {
           this.configUpdated(mainWindow, newValue);
         });
