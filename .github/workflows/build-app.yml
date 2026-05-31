@@ -38,45 +38,33 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      # ---- DIAGNOSTIC BRANCH (#496): understand why npm ci drops optional noobs ----
-      - name: env + npm config
+      # ---- DIAGNOSTIC BRANCH (#496): why does noobs's node-gyp rebuild fail? ----
+      - name: install node-gyp (restore April config)
         shell: bash
-        run: |
-          echo "## node/npm"; node -v; npm -v
-          echo "## NODE_ENV=[$NODE_ENV]"
-          echo "## npm_config_* env vars:"; env | grep -i npm_config || echo "  (none)"
-          echo "## effective npm config (omit/optional/production/strategy):"
-          npm config ls -l 2>&1 | grep -iE "omit|optional|production|legacy|install-strategy|workspace|prefer" || echo "  (none matched)"
+        run: npm i -g node-gyp@latest
       - name: clean npm cache
         shell: bash
         run: npm cache clean -f
-      - name: npm ci (capture verbose, do not fail job)
+      - name: npm ci (does node-gyp restore fix it?)
         shell: bash
         run: |
           set +e
-          npm ci --loglevel=verbose > ci.out 2> ci.err
-          echo "## npm ci exit=$?"
-          echo "## summary:"; tail -3 ci.out
-          echo "## lines mentioning noobs/optional/prune/reify/omit/skip:"
-          grep -iE "noobs|optional|prune|reify|omit|skip" ci.err | grep -ivE "deprecated" | tail -80
-          echo "## (end)"
-      - name: what is actually missing?
-        if: always()
-        shell: bash
-        run: |
-          echo "## noobs present?"; ls node_modules/noobs/dist/noobs.node 2>&1 || echo "  MISSING"
-          echo "## node-addon-api (top level)?"; ls -d node_modules/node-addon-api 2>&1 || echo "  not hoisted"
-          echo "## npm ls noobs:"; npm ls noobs 2>&1 | head -5
-          echo "## ALL unmet/missing/invalid across the tree (user concern: other pkgs):"
-          npm ls --all 2>&1 | grep -iE "UNMET|missing|invalid|extraneous" | head -60 || echo "  none reported"
-      - name: experiment — does --include=optional fix it?
+          npm ci > ci.out 2>&1
+          echo "## npm ci exit=$?"; tail -2 ci.out
+          ls node_modules/noobs/dist/noobs.node >/dev/null 2>&1 \
+            && echo "## RESULT: noobs PRESENT — restoring node-gyp FIXED npm ci" \
+            || echo "## RESULT: noobs ABSENT — node-gyp restore did NOT fix it"
+      - name: capture the actual node-gyp build error
         if: always()
         shell: bash
         run: |
           set +e
-          npm ci --include=optional > ci2.out 2>&1
-          echo "## exit=$?"
-          ls node_modules/noobs/dist/noobs.node 2>&1 && echo "  FIXED by --include=optional" || echo "  STILL MISSING"
+          npm install noobs@0.0.184 --no-save --foreground-scripts > noobs.log 2>&1
+          echo "## explicit noobs install exit=$?"
+          echo "## toolchain/gyp error lines:"
+          grep -iE "gyp ERR|gyp info (find|spawn)|MSB[0-9]|visual studio|python|could not find|not found|error C[0-9]|cannot open|node-api|napi" noobs.log | tail -50
+          echo "## --- tail of build log ---"; tail -30 noobs.log
+          echo "## prebuilt present despite build?"; ls node_modules/noobs/dist/noobs.node 2>&1 || echo "  no"
   build_on_mac:
     if: >-
       github.event_name == 'pull_request'
