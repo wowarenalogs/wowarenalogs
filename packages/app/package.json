@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
-    "build:app": "shx rm -rf dist && tsc -p . && webpack --config webpack.config.js && webpack --config webpack.preload.config.js && shx cp -r public dist/public && (shx cp -r ../../node_modules/noobs/dist dist/dist || true) && shx mkdir -p dist/node_modules && (shx cp -r ../../node_modules/noobs dist/node_modules/noobs || true)",
+    "build:app": "shx rm -rf dist && tsc -p . && webpack --config webpack.config.js && webpack --config webpack.preload.config.js && shx cp -r public dist/public && cross-env ts-node script/copyNoobs.ts",
     "gen:app:preload": "cross-env ts-node script/generatePreload.ts && npm run lint:fix",
     "release:app": "git checkout release/wowarenalogs/app && git pull && git merge --no-edit --no-ff main && git push && git checkout main"
   },
