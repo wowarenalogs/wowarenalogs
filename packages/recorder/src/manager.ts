@@ -86,7 +86,15 @@ export class Manager {
 
   private readonly onBeforeQuitBound = () => {
     Manager.logger.info('[Manager] Running before-quit actions');
-    this.recorder.shutdownOBS();
+    if (!this.recorder) {
+      Manager.logger.warn('[Manager] before-quit fired with no recorder; nothing to shut down');
+      return;
+    }
+    try {
+      this.recorder.shutdownOBS();
+    } catch (error) {
+      Manager.logger.warn(`[Manager] Exception shutting down OBS on before-quit: ${String(error)}`);
+    }
     // uIOhook.stop(); // TODO: fix uiohook
   };
 
@@ -165,10 +173,19 @@ export class Manager {
   constructor(mainWindow: BrowserWindow) {
     Manager.logger.info('[Manager] Creating manager');
     this.messageBus = new ManagerMessageBus();
-    this.setupListeners();
 
     this.mainWindow = mainWindow;
+
+    // Construct the Recorder before registering any listeners. The Recorder
+    // constructor initializes OBS synchronously and can throw (e.g. if OBS
+    // fails to init on the user's machine). If we registered listeners first,
+    // a throw here would leak a global 'before-quit' listener bound to a
+    // half-constructed Manager whose `this.recorder` is undefined, causing an
+    // uncaught "Cannot read properties of undefined (reading 'shutdownOBS')"
+    // when the app later quits. See manager constructor ordering.
     this.recorder = new Recorder(mainWindow, this.messageBus);
+
+    this.setupListeners();
 
     this.poller.on('wowProcessStart', this.onWowStartedBound);
     this.poller.on('wowProcessStop', this.onWowStoppedBound);
