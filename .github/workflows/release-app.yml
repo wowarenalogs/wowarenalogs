@@ -37,10 +37,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22
-      - name: install node-gyp
-        run: npm i -g node-gyp@latest
-      - name: update path variables
-        run: set 'path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin'
+      - name: pin npm
+        # npm 10.9.8 (bundled with node 22.22.3) regressed optional-dependency
+        # reification: `npm ci` silently drops the hoisted optional `noobs` (and
+        # node-addon-api), shipping a Windows client that can't record. npm
+        # 10.9.7 installs it correctly. Pinned until a fixed npm is verified.
+        run: npm i -g npm@10.9.7
       - name: clean npm cache
         run: npm cache clean -f
       - name: install dependencies
