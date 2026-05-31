@@ -46,6 +46,14 @@ jobs:
         run: npm cache clean -f
       - name: install dependencies
         run: npm ci
+      - name: ensure noobs recording binaries
+        # npm ci's optional-dependency reification is unreliable on the Windows
+        # runner and silently omits the hoisted optional `noobs` (the recorder's
+        # OBS bindings), shipping a client that can't record. noobs ships a
+        # prebuilt binary in its tarball, so install it explicitly (no compiler
+        # needed). copyNoobs.ts then fails the build loudly if it is still
+        # absent. Tracking the npm ci root cause separately.
+        run: npm install noobs@0.0.184 --no-save --ignore-scripts
       - name: build for windows
         run: npm run build:app:windows
   build_on_mac:
