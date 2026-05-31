@@ -20,9 +20,9 @@ jobs:
       CSC_KEY_PASSWORD: ''
     steps:
       - name: setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: 3.14
       - name: gcloud auth
         uses: google-github-actions/auth@v1
         with:
@@ -37,10 +37,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22
-      - name: install node-gyp
-        run: npm i -g node-gyp@latest
-      - name: update path variables
-        run: set 'path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin'
+      - name: restore distutils for node-gyp (Python 3.12+ dropped it)
+        # Python 3.12 removed the stdlib `distutils` module, but the node-gyp
+        # (9.x) that builds noobs's native addon imports it, so the build fails
+        # at "gyp configure" and npm silently rolls back the *optional* noobs
+        # subtree — shipping a recorder with no OBS binaries. setuptools
+        # re-provides distutils so node-gyp rebuild succeeds and npm ci installs
+        # noobs natively.
+        run: python -m pip install --upgrade setuptools
       - name: clean npm cache
         run: npm cache clean -f
       - name: install dependencies
@@ -76,9 +80,9 @@ jobs:
       APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
     steps:
       - name: setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: 3.14
       - name: gcloud auth
         uses: google-github-actions/auth@v1
         with:
@@ -140,9 +144,9 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.14
       - name: gcloud auth
         uses: google-github-actions/auth@v1
         with:
