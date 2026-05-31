@@ -38,33 +38,40 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      # ---- DIAGNOSTIC BRANCH (#496): why does noobs's node-gyp rebuild fail? ----
-      - name: install node-gyp (restore April config)
-        shell: bash
-        run: npm i -g node-gyp@latest
-      - name: clean npm cache
-        shell: bash
-        run: npm cache clean -f
-      - name: npm ci (does node-gyp restore fix it?)
+      # ---- DIAGNOSTIC BRANCH (#496): prove distutils root cause + validate core fix ----
+      - name: baseline — verbose gyp configure error (expect distutils)
         shell: bash
         run: |
           set +e
-          npm ci > ci.out 2>&1
-          echo "## npm ci exit=$?"; tail -2 ci.out
-          ls node_modules/noobs/dist/noobs.node >/dev/null 2>&1 \
-            && echo "## RESULT: noobs PRESENT — restoring node-gyp FIXED npm ci" \
-            || echo "## RESULT: noobs ABSENT — node-gyp restore did NOT fix it"
-      - name: capture the actual node-gyp build error
+          python --version; python -c "import distutils" 2>&1 | head -2 || echo "distutils import FAILS"
+          npm install noobs@0.0.184 --no-save --foreground-scripts --verbose > base.log 2>&1
+          echo "## baseline noobs build exit=$?"
+          grep -iE "distutils|ModuleNotFound|No module|ImportError|Traceback|configure error" base.log | tail -20
+      - name: core-fix candidate — restore distutils via setuptools
+        shell: bash
+        run: |
+          python -m pip install --upgrade setuptools
+          python -c "import distutils; print('distutils now OK:', distutils.__file__)"
+      - name: retry noobs build with distutils restored
         if: always()
         shell: bash
         run: |
           set +e
-          npm install noobs@0.0.184 --no-save --foreground-scripts > noobs.log 2>&1
-          echo "## explicit noobs install exit=$?"
-          echo "## toolchain/gyp error lines:"
-          grep -iE "gyp ERR|gyp info (find|spawn)|MSB[0-9]|visual studio|python|could not find|not found|error C[0-9]|cannot open|node-api|napi" noobs.log | tail -50
-          echo "## --- tail of build log ---"; tail -30 noobs.log
-          echo "## prebuilt present despite build?"; ls node_modules/noobs/dist/noobs.node 2>&1 || echo "  no"
+          npm install noobs@0.0.184 --no-save --foreground-scripts > fixed.log 2>&1
+          echo "## after-setuptools build exit=$?"
+          ls node_modules/noobs/dist/noobs.node >/dev/null 2>&1 && echo "## noobs build OK" || echo "## noobs still failing"
+          grep -iE "gyp info ok|gyp ERR|configure error|distutils" fixed.log | tail -10
+      - name: does a full npm ci now install noobs?
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          npm cache clean -f
+          npm ci > ci.log 2>&1
+          echo "## npm ci exit=$?"
+          ls node_modules/noobs/dist/noobs.node >/dev/null 2>&1 \
+            && echo "## RESULT: npm ci INSTALLED noobs — setuptools is a valid core fix" \
+            || echo "## RESULT: noobs still ABSENT after npm ci"
   build_on_mac:
     if: >-
       github.event_name == 'pull_request'
