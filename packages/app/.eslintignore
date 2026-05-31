@@ -4,3 +4,4 @@ build
 .eslintrc.js
 *.config.js
 script/generatePreload.ts
+script/copyNoobs.ts
