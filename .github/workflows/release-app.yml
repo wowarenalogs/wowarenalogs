@@ -37,16 +37,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22
-      - name: pin npm
-        # npm 10.9.8 (bundled with node 22.22.3) regressed optional-dependency
-        # reification: `npm ci` silently drops the hoisted optional `noobs` (and
-        # node-addon-api), shipping a Windows client that can't record. npm
-        # 10.9.7 installs it correctly. Pinned until a fixed npm is verified.
-        run: npm i -g npm@10.9.7
       - name: clean npm cache
         run: npm cache clean -f
       - name: install dependencies
-        run: npm ci
+        # npm 10.9.8 (bundled with node 22.22.3) regressed optional-dependency
+        # reification: `npm ci` silently drops the hoisted optional `noobs` (and
+        # node-addon-api), shipping a Windows client that can't record. npm
+        # 10.9.7 installs it correctly. `npm i -g npm@X` does NOT replace the
+        # active npm on Windows runners (the bundled npm.cmd shim shadows it),
+        # so run the known-good npm directly via npx for the install only.
+        # Revisit once a fixed npm is verified.
+        run: npx -y npm@10.9.7 ci
       - name: build for windows
         run: npm run publish:app:windows
       - name: upload to google cloud storage
