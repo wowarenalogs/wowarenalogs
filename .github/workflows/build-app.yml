@@ -81,14 +81,6 @@ jobs:
         run: npm i -g node-gyp@latest
       - name: clean npm cache
         run: npm cache clean -f
-      - name: restore distutils for node-gyp (Python 3.12+ dropped it)
-        # The macos-latest runner ships Python 3.14, which removed distutils.
-        # node-gyp building noobs's native addon imports it, so the build fails at
-        # "gyp configure" and npm silently rolls back the *optional* noobs subtree,
-        # leaving webpack unable to resolve 'noobs/package.json'. setuptools
-        # re-provides distutils so noobs builds and installs natively (matches the
-        # build_on_win fix).
-        run: python -m pip install --upgrade setuptools
       - name: install dependencies
         run: npm ci
       - name: install dmg-license
