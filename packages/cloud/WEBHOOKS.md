@@ -141,8 +141,9 @@ function verify(rawBody, headers, secret) {
 
 ## Configuration (deployer)
 
-One-time per GCP project, run `deploy/setup_webhook_pubsub.sh <project-id>` to
-create the `partner-webhook-event` topic and its publisher IAM binding.
+One-time per GCP project, run `deploy/setup_webhook_pubsub.sh <project-id>` (bash)
+or `deploy/setup_webhook_pubsub.ps1 <project-id>` (Windows PowerShell) to create
+the `partner-webhook-event` topic and its publisher IAM binding.
 
 Set these in the deploying shell environment; the deploy scripts pass them to the
 Cloud Functions.
