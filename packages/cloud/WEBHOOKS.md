@@ -23,8 +23,7 @@ One webhook per match, **after** the match stub is written to Firestore, for:
     elapses, then dropped.
 - **Duplicates are expected** — retries (and at-least-once delivery) mean the same
   match may arrive more than once. **Deduplicate on `x-idempotency-key`** (equals
-  the payload `id`); it is stable across attempts, while `x-webhook-timestamp` and
-  `x-webhook-signature` are recomputed per attempt.
+  the payload `id`); it is stable across attempts.
 - **Timeout** — each POST is aborted after ~10s (`ENV_WEBHOOK_TIMEOUT_MS`,
   default `10000`).
 
@@ -32,16 +31,14 @@ One webhook per match, **after** the match stub is written to Firestore, for:
 
 `POST` to the configured URL with these headers:
 
-| Header                | Value                                                      |
-| --------------------- | ---------------------------------------------------------- |
-| `content-type`        | `application/json`                                         |
-| `x-idempotency-key`   | The match `id` — use this to dedupe re-deliveries.         |
-| `x-webhook-timestamp` | Unix epoch seconds when the request was signed.            |
-| `x-webhook-signature` | `sha256=<hex>` HMAC of the request (see below).            |
+| Header              | Value                                                      |
+| ------------------- | ---------------------------------------------------------- |
+| `content-type`      | `application/json`                                         |
+| `x-idempotency-key` | The match `id` — use this to dedupe re-deliveries.         |
+| `x-signature`       | `sha256=<hex>` HMAC-SHA256 of the raw body (see below).    |
 
-`x-webhook-timestamp` and `x-webhook-signature` are present only when
-`ENV_WEBHOOK_SECRET` is configured; an unsigned delivery is logged as a warning
-on our side.
+`x-signature` is present only when `ENV_WEBHOOK_SECRET` is configured; an unsigned
+delivery is logged as a warning on our side.
 
 ## Payload
 
@@ -116,28 +113,29 @@ per-round detail across the whole shuffle, query the GraphQL API by match `id`.
 
 ## Verifying the signature
 
-The signature is an HMAC-SHA256 over `` `${timestamp}.${rawBody}` `` keyed with the
-shared secret. Recompute it over the **raw request body** (before any JSON
-re-serialization) and compare in constant time. Reject requests whose
-`x-webhook-timestamp` is too old to limit replay.
+The signature is an HMAC-SHA256 over the **raw request body** keyed with the shared
+secret. Recompute it over the raw body bytes (before any JSON re-serialization) and
+compare in constant time.
 
 ```js
 const crypto = require('crypto');
 
 function verify(rawBody, headers, secret) {
-  const timestamp = headers['x-webhook-timestamp'];
-  const signature = headers['x-webhook-signature']; // "sha256=<hex>"
+  const signature = headers['x-signature']; // "sha256=<hex>"
   const expected = 'sha256=' + crypto
     .createHmac('sha256', secret)
-    .update(`${timestamp}.${rawBody}`)
+    .update(rawBody)
     .digest('hex');
   const a = Buffer.from(signature || '');
   const b = Buffer.from(expected);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
-  // reject stale requests (e.g. older than 5 minutes)
-  return Math.abs(Date.now() / 1000 - Number(timestamp)) < 300;
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 ```
+
+The signature covers the body alone, so it is stable across retries of the same
+match. There is no timestamp binding, so the signature on its own does not protect
+against replay — rely on `x-idempotency-key` (the match `id`) to collapse duplicate
+and replayed deliveries.
 
 ## Configuration (deployer)
 

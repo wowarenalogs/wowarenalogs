@@ -59,6 +59,40 @@ check_env_vars() {
     fi
 }
 
+# Load KEY=VALUE pairs from packages/cloud/.env into the environment so deploys pick
+# up secrets (webhook URL/secret, SQL URL, ...) without the caller exporting them in
+# the shell first. Does NOT override variables already set in the environment, so an
+# explicit `export FOO=bar` still wins. Tolerates comments, blank lines, surrounding
+# quotes, an optional `export ` prefix, and Windows CRLF line endings.
+load_dotenv() {
+    local common_dir env_file line key val
+    common_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # packages/cloud/deploy
+    env_file="${common_dir}/../.env"                            # packages/cloud/.env
+    if [ ! -f "${env_file}" ]; then
+        echo -e "${YELLOW}No .env at ${env_file}; using shell environment only.${NC}"
+        return 0
+    fi
+    echo -e "${YELLOW}Loading environment from ${env_file}${NC}"
+    while IFS= read -r line || [ -n "${line}" ]; do
+        line="${line%$'\r'}"                          # strip trailing CR (Windows)
+        line="${line#"${line%%[![:space:]]*}"}"       # strip leading whitespace
+        [ -z "${line}" ] && continue                  # skip blank lines
+        case "${line}" in '#'*) continue ;; esac      # skip comments
+        line="${line#export }"                        # tolerate "export KEY=VALUE"
+        case "${line}" in *=*) ;; *) continue ;; esac # require KEY=VALUE
+        key="${line%%=*}"
+        key="${key%"${key##*[![:space:]]}"}"          # trim trailing space on key
+        val="${line#*=}"
+        case "${val}" in                              # strip one layer of quotes
+            \"*\") val="${val#\"}"; val="${val%\"}" ;;
+            \'*\') val="${val#\'}"; val="${val%\'}" ;;
+        esac
+        if [ -z "${!key:-}" ]; then                   # don't override an explicit export
+            export "${key}=${val}"
+        fi
+    done < "${env_file}"
+}
+
 # Function to set up authentication
 setup_auth() {
     local project_id=$1

@@ -8,8 +8,14 @@ set -e  # Exit on any error
 # Source common configuration and functions
 source "$(dirname "$0")/common.sh"
 
+# Load packages/cloud/.env so webhook URL/secret don't have to be exported manually.
+load_dotenv
+
 # Development-specific configuration
 PROJECT_ID="wowarenalogs-public-dev"
+# The dev bucket is single-region us-central1, so its storage trigger must match
+# (prod uses the multi-region "us" default from common.sh).
+STORAGE_TRIGGER_LOCATION="us-central1"
 FUNCTION_NAME="writeMatchStub"
 HANDLER="writeMatchStubHandler"
 BUCKET_NAME="${PROJECT_ID}-log-files-prod"
@@ -26,6 +32,36 @@ echo -e "${GREEN}Starting deployment of ${FUNCTION_NAME} to ${PROJECT_ID} (Devel
 # Check prerequisites
 check_gcloud
 check_env_vars "dev"
+
+# Loudly warn if webhook delivery isn't fully configured. deliverWebhook will still
+# deploy, but without both vars it does nothing useful — and --set-env-vars REPLACES
+# env vars, so deploying without them overwrites (disables) a previously-set webhook.
+if [ -z "${ENV_WEBHOOK_URL_DEV:-}" ] || [ -z "${ENV_WEBHOOK_SECRET:-}" ]; then
+    echo -e "${RED}"
+    echo "################################################################################"
+    echo "##                                                                            ##"
+    echo "##      WARNING: WEBHOOK DELIVERY IS NOT FULLY CONFIGURED                      ##"
+    echo "##                                                                            ##"
+    echo "################################################################################"
+    [ -z "${ENV_WEBHOOK_URL_DEV:-}" ] && echo "  - ENV_WEBHOOK_URL_DEV is NOT set"
+    [ -z "${ENV_WEBHOOK_SECRET:-}" ]  && echo "  - ENV_WEBHOOK_SECRET is NOT set"
+    echo ""
+    echo "  deliverWebhook WILL still deploy, but:"
+    echo "    * empty URL        -> every webhook is silently SKIPPED (no POST sent)"
+    echo "    * URL but no secret -> webhooks are sent UNSIGNED and rejected (HTTP 401)"
+    echo ""
+    echo "  --set-env-vars REPLACES the function's env vars, so this deploy will"
+    echo "  OVERWRITE any URL/secret a previous deploy set, disabling a working webhook."
+    echo ""
+    echo "  To enable delivery, export BOTH before re-running:"
+    echo "    export ENV_WEBHOOK_URL_DEV=\"https://...\""
+    echo "    export ENV_WEBHOOK_SECRET=\"<hmac-secret>\""
+    echo "################################################################################"
+    echo -e "${NC}"
+    # Pause so the warning isn't lost in scrollback before the long build starts.
+    echo -e "${YELLOW}Continuing in 5s (Ctrl-C to abort)...${NC}"
+    sleep 5
+fi
 
 # Set up authentication
 setup_auth ${PROJECT_ID} ${CREDENTIALS_FILE}

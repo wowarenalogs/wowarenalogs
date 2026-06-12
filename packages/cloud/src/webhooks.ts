@@ -263,7 +263,6 @@ export const sendWebhookAsync = async (stub: WebhookStub): Promise<WebhookOutcom
   const timeoutMs = Number(process.env.ENV_WEBHOOK_TIMEOUT_MS) || WEBHOOK_DEFAULT_TIMEOUT_MS;
 
   const body = JSON.stringify(stub);
-  const timestamp = Math.floor(Date.now() / 1000).toString();
 
   const headers: Record<string, string> = {
     'content-type': 'application/json',
@@ -271,10 +270,10 @@ export const sendWebhookAsync = async (stub: WebhookStub): Promise<WebhookOutcom
   };
 
   if (secret) {
-    // HMAC-SHA256 over `${timestamp}.${body}` — partner recomputes over the raw body.
-    const signature = crypto.createHmac('sha256', secret).update(`${timestamp}.${body}`).digest('hex');
-    headers['x-webhook-timestamp'] = timestamp;
-    headers['x-webhook-signature'] = `sha256=${signature}`;
+    // HMAC-SHA256 over the raw request body; the partner recomputes over the bytes
+    // it receives and compares in constant time. See WEBHOOKS.md.
+    const signature = crypto.createHmac('sha256', secret).update(body).digest('hex');
+    headers['x-signature'] = `sha256=${signature}`;
   } else {
     logWebhookEvent({
       event: 'webhook_unsigned',

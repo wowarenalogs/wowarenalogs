@@ -8,6 +8,9 @@ set -e  # Exit on any error
 # Source common configuration and functions
 source "$(dirname "$0")/common.sh"
 
+# Load packages/cloud/.env so webhook URL/secret don't have to be exported manually.
+load_dotenv
+
 # Production-specific configuration
 PROJECT_ID="wowarenalogs"
 BUCKET_NAME="${PROJECT_ID}-log-files-prod"

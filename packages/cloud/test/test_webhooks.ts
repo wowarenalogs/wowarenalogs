@@ -66,16 +66,12 @@ async function main() {
     if (received.headers['x-idempotency-key'] !== sampleStub.id) {
       failures.push(`x-idempotency-key was '${received.headers['x-idempotency-key']}', expected '${sampleStub.id}'`);
     }
-    const timestamp = received.headers['x-webhook-timestamp'];
-    const signature = received.headers['x-webhook-signature'];
-    if (typeof timestamp !== 'string' || !timestamp) {
-      failures.push('x-webhook-timestamp header missing');
-    }
+    const signature = received.headers['x-signature'];
     if (typeof signature !== 'string' || !signature.startsWith('sha256=')) {
-      failures.push(`x-webhook-signature was '${signature}', expected 'sha256=<hmac>'`);
+      failures.push(`x-signature was '${signature}', expected 'sha256=<hmac>'`);
     }
-    if (typeof timestamp === 'string' && typeof signature === 'string') {
-      const expected = crypto.createHmac('sha256', TEST_SECRET).update(`${timestamp}.${received.body}`).digest('hex');
+    if (typeof signature === 'string') {
+      const expected = crypto.createHmac('sha256', TEST_SECRET).update(received.body).digest('hex');
       if (signature !== `sha256=${expected}`) {
         failures.push('HMAC signature did not match');
       }
