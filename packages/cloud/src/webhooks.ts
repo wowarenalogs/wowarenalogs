@@ -11,11 +11,12 @@ import {
   IArenaMatch,
   ICombatUnit,
   IShuffleMatch,
+  IShuffleRound,
   WowVersion,
 } from '../../parser/dist/index';
 import { realmIdToRegion } from '../../shared/src/utils/realms';
 
-const WEBHOOK_PAYLOAD_VERSION = 1;
+const WEBHOOK_PAYLOAD_VERSION = 2;
 const WEBHOOK_DEFAULT_TIMEOUT_MS = 10000;
 
 export type WebhookCombatantStats = {
@@ -61,6 +62,32 @@ export type WebhookCombatant = {
   equipment: { id: string; ilvl: number }[] | undefined;
 };
 
+export type WebhookScoreboardEntry = { unitId: string; wins: number };
+
+// Light per-round combatant — intentionally a strict subset of WebhookCombatant (no
+// realmId/classId/stats/talents/equipment). Keeps the per-round payload ~+6 KB, not ~+160 KB.
+export type WebhookRoundCombatant = {
+  id: string;
+  name: string;
+  specId: string | undefined;
+  teamId: string | undefined; // per-round team (re-drawn each round)
+  dps: number;
+  hps: number;
+  deaths: number;
+};
+
+export type WebhookRound = {
+  id: string;
+  sequenceNumber: number;
+  startTimestamp: number; // round.startTime (ms) — renamed on the way out
+  endTimestamp: number; // round.endTime (ms) — renamed on the way out
+  durationInSeconds: number;
+  winningTeamId: string;
+  killedUnitId: string | null;
+  result: CombatResult;
+  combatants: WebhookRoundCombatant[];
+};
+
 export type WebhookStub = {
   version: number;
   dataType: 'ArenaMatch' | 'ShuffleMatch';
@@ -92,6 +119,8 @@ export type WebhookStub = {
 
   // Shuffle only
   roundResults?: number[] | undefined;
+  rounds?: WebhookRound[] | undefined;
+  scoreboard?: WebhookScoreboardEntry[] | undefined;
 };
 
 type WebhookStubBase = Pick<
@@ -194,6 +223,23 @@ const mapCombatants = (units: Record<string, ICombatUnit>, effectiveDuration: nu
     }));
 };
 
+// Light sibling of mapCombatants for shuffle per-round detail. Duration is computed once for
+// the round and reused for every player (mirrors mapCombatants, which is handed a duration).
+const mapRoundCombatants = (round: IShuffleRound): WebhookRoundCombatant[] => {
+  const safeDuration = Math.max(getEffectiveCombatDuration(round), 1);
+  return Object.values(round.units)
+    .filter((u) => u.type === CombatUnitType.Player)
+    .map((c) => ({
+      id: c.id,
+      name: c.name,
+      specId: c.info?.specId,
+      teamId: c.info?.teamId,
+      dps: Math.round(getEffectiveDps([c], safeDuration)),
+      hps: Math.round(getEffectiveHps([c], safeDuration)),
+      deaths: c.deathRecords.length,
+    }));
+};
+
 // `atomic` is the IArenaCombat to source per-round flags from: the match itself for
 // arena, rounds[0] for shuffle.
 const buildStubBase = (match: IArenaMatch | IShuffleMatch, atomic: AtomicArenaCombat): WebhookStubBase => ({
@@ -247,6 +293,18 @@ export const createWebhookStubFromShuffleMatch = (match: IShuffleMatch): Webhook
         `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
     ),
     roundResults: match.rounds.map((r) => r.result),
+    rounds: match.rounds.map((round) => ({
+      id: round.id,
+      sequenceNumber: round.sequenceNumber,
+      startTimestamp: round.startTime,
+      endTimestamp: round.endTime,
+      durationInSeconds: round.durationInSeconds,
+      winningTeamId: round.winningTeamId,
+      killedUnitId: round.killedUnitId || null, // parser types it string; "" → null
+      result: round.result,
+      combatants: mapRoundCombatants(round),
+    })),
+    scoreboard: match.rounds[match.rounds.length - 1].scoreboard, // last round = lobby totals
     combatants: mapCombatants(round0.units, effectiveDuration),
   };
 };
