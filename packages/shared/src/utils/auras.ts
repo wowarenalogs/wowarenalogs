@@ -22,10 +22,13 @@ export const computeAuraDurations = (combat: AtomicArenaCombat, unit: ICombatUni
   for (let i = 0; i < unit.auraEvents.length; ++i) {
     const event = unit.auraEvents[i];
     const spellId = event.spellId || '';
+    // Key by spellId+srcUnitId so two different casters of the same spell are tracked
+    // independently and each gets the correct auraOwnerId.
+    const stateKey = `${spellId}:${event.srcUnitId}`;
     switch (event.logLine.event) {
       case LogEvent.SPELL_AURA_APPLIED:
         {
-          const currentState = auraStates.get(spellId) || {
+          const currentState = auraStates.get(stateKey) || {
             spellName: event.spellName || '',
             count: 0,
             startTimeOffset: event.logLine.timestamp - combat.startTime,
@@ -35,12 +38,12 @@ export const computeAuraDurations = (combat: AtomicArenaCombat, unit: ICombatUni
             currentState.spellName = event.spellName;
           }
           currentState.count += 1;
-          auraStates.set(spellId, currentState);
+          auraStates.set(stateKey, currentState);
         }
         break;
       case LogEvent.SPELL_AURA_REMOVED:
         {
-          const currentAuraState = auraStates.get(spellId) || {
+          const currentAuraState = auraStates.get(stateKey) || {
             spellName: event.spellName || '',
             count: 0,
             startTimeOffset: 0,
@@ -61,9 +64,9 @@ export const computeAuraDurations = (combat: AtomicArenaCombat, unit: ICombatUni
                 endTimeOffset: event.timestamp - combat.startTime,
                 auraOwnerId: currentAuraState.auraOwnerId,
               });
-              auraStates.delete(spellId);
+              auraStates.delete(stateKey);
             } else {
-              auraStates.set(spellId, newAuraState);
+              auraStates.set(stateKey, newAuraState);
             }
           }
         }

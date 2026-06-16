@@ -28,7 +28,7 @@ export const CurveChart = (props: IProps) => {
       >
         <ResponsiveContainer debounce={25}>
           <LineChart data={props.data}>
-            <XAxis dataKey="timeMark" tickFormatter={(v) => moment.utc(v * 1000).format('mm:ss')} />
+            <XAxis dataKey="timeMark" tickFormatter={(v: number) => moment.utc(v * 1000).format('mm:ss')} />
             <YAxis />
             <Tooltip
               contentStyle={{

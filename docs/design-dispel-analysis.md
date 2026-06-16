@@ -1,0 +1,184 @@
+# Design: Dispel Analysis
+
+## Goal
+
+Give players and AI a structured view of dispel discipline — both the reactive side (cleansing CC off allies) and the offensive side (stripping buffs from enemies) — and surface actionable mistakes like missed cleanses and dangerous dispels.
+
+---
+
+## Features Implemented
+
+### 1. Dispels Tab (Visual)
+
+A new **Dispels** tab in `CombatReport` with four sections:
+
+**Summary stats row**
+- Cleanses (debuffs removed from allies)
+- Our Purges (buffs removed from enemies, including Spellsteals)
+- Enemy Purges (our buffs stripped by enemies)
+- Missed Cleanses (Critical CC lasting >3s without dispel)
+- Penalty Dispels (dispels into UA-style punishing effects)
+
+**CC Cleanse Efficiency table** — per friendly player:
+| Player | CC Windows | Cleansed | Missed | Broke | Rate |
+|--------|-----------|----------|--------|-------|------|
+| Playerx | 4 | 2 | 1 | 1 | 67% |
+
+- `CC Windows` = Critical/High CC applied by enemies that the team could have dispelled
+- `Cleansed` = ended quickly (<3s) or explicitly dispelled
+- `Missed` = lasted >3s without a friendly dispel
+- `Broke` = ended by incoming spell damage (`SPELL_AURA_BROKEN_SPELL`), not a missed cleanse
+- `Rate` = `Cleansed / (Cleansed + Missed)` — broken windows excluded from the denominator
+
+**Missed Cleanse Opportunities** — chronological list of Critical CC windows that lasted >3s uncleansed:
+- Timestamp, target name, spell name, duration
+- Post-CC damage: damage the target took in the first 5 seconds after CC was applied (shows urgency)
+- Dispel type badge (Magic/Curse/Poison/Disease)
+
+**Event timelines** — three separate sections:
+- Cleanses: who cleansed what off whom (with dispel penalty warning where applicable)
+- Our Purges: what we stripped from enemies (Spellsteals labeled separately)
+- Enemy Purges: what enemies stripped from us
+
+---
+
+### 2. AI Context (`formatDispelContextForAI`)
+
+Injected into every AI Analysis prompt via `buildMatchContext()` in `CombatAIAnalysis`:
+
+```
+DISPEL ANALYSIS:
+  Friendly cleanses (debuffs removed from our allies):
+    0:45 — [Restoration Druid] cleansed Polymorph from Playername [Critical]
+  Our purges (buffs removed from enemies):
+    1:12 — [Restoration Shaman] purged Avenging Wrath from enemy [High]
+  Enemy purges (our buffs stripped by enemies):
+    1:30 — enemy [Restoration Shaman] stripped Power Word: Shield from Playername [High]
+  Missed cleanse opportunities (Critical CC on ally lasting >3s, not broken by damage):
+    0:52 — Playername was in Hex [Curse] for 5s, 340k dmg in 5s
+  CC cleanse efficiency:
+    Playername (Arms Warrior): 4 CC windows — 2 cleansed, 1 missed, 1 broke from damage (67%)
+```
+
+---
+
+## Architecture
+
+### Core utility: `packages/shared/src/utils/dispelAnalysis.ts`
+
+**`reconstructDispelSummary(friends, enemies, combat)`** — the main entry point.
+
+Returns `IDispelSummary`:
+```typescript
+{
+  allyCleanse: IDispelEvent[];     // friendly dispelled debuff off ally
+  ourPurges: IDispelEvent[];       // friendly dispelled/stole buff off enemy
+  hostilePurges: IDispelEvent[];   // enemy dispelled buff off friendly
+  missedCleanseWindows: IMissedCleanseWindow[];
+  ccEfficiency: ICCEfficiencyStat[];
+}
+```
+
+**Event classification** (from `unit.actionOut` SPELL_DISPEL + SPELL_STOLEN):
+```
+srcFriendly + destFriendly → allyCleanse
+srcFriendly + destEnemy   → ourPurges
+srcEnemy    + destFriendly → hostilePurges
+```
+
+**Missed cleanse detection** (from `unit.auraEvents`):
+1. For each friendly, scan aura events where `srcUnitId` is an enemy
+2. Filter: `getPriority(spellId)` must be Critical or High
+3. Filter: `getDispelType(spellId)` must be non-null (spell is actually dispellable)
+4. Filter: team must have a spec capable of removing that dispel type
+5. For each apply → find the matching removal
+6. If removal was `SPELL_AURA_BROKEN_SPELL` → count as `brokenCount`, skip
+7. If duration < 3s → count as cleansed
+8. If a matching `allyCleanse` event exists within 0.5s of the removal → count as cleansed
+9. Otherwise → `missedCleanseWindows` entry with `postCcDamage` measured over 5s window
+
+### UI: `packages/shared/src/components/CombatReport/CombatDispels/index.tsx`
+
+Standard React component reading from `useCombatReportContext()`, computing summary via `useMemo`. No server round-trips.
+
+### Route: added `Dispels` tab in `CombatReport/index.tsx` between Timeline and AI Analysis.
+
+---
+
+## Data Sources
+
+### `spells.json` (BigDebuffs classification)
+Source: BigDebuffs addon data via Wago.io, manually maintained in repo.
+Used for: spell type classification (`cc`, `roots`, `buffs_defensive`, etc.) → maps to `DispelPriority`.
+
+| Type | Priority |
+|------|----------|
+| `cc`, `immunities` | Critical |
+| `roots`, `immunities_spells`, `buffs_offensive`, `debuffs_offensive`, `buffs_defensive` | High |
+| `buffs_other` | Medium |
+| (anything else) | Low |
+
+### `spellIdLists.json` (WoW spell attribute flags)
+Source: Generated by `generateSpellIdLists.ts` from `SpellMisc.db2` via Wago.tools.
+Used for: `bigDefensiveSpellIds` (attribute 512) and `externalDefensiveSpellIds` (attribute 499) → both map to Critical priority regardless of BigDebuffs type.
+
+### `spellEffects.json` + `dispelType` field
+Source: Generated by `generateSpellsData.ts` from `SpellCategories.db2` via Wago.tools.
+
+The `SpellCategories` table was already fetched for charge cooldown data. The `DispelType` column was simply not being read. Added extraction: `0=None, 1=Magic, 2=Curse, 3=Disease, 4=Poison`.
+
+**Why this matters:** BigDebuffs classifies 134 CC spells, but 61 of them (`DispelType=0`) cannot be dispelled. The old approach filtered by spell school (`skip Physical=0x1`), which missed non-physical undispellable CCs:
+
+| Spell | School | Old filter | Correct |
+|-------|--------|------------|---------|
+| Blind (2094) | — | flagged as Poison CC | undispellable |
+| Scatter Shot (213691) | Physical | correctly skipped | undispellable |
+| Intimidating Shout (5246) | — | flagged as Magic CC | undispellable |
+| Hex (51514 and variants) | — | classified as Magic | Curse |
+| Paralysis (115078) | — | flagged as Magic CC | undispellable |
+
+Replacing the school-based heuristic with `dispelType` from game data eliminates all these false positives.
+
+### Dispel type → spec capability mapping (hardcoded)
+Which specs can remove which debuff types:
+
+| Type | Specs |
+|------|-------|
+| Magic | Holy Paladin, Disc Priest, Holy Priest, Resto Druid (Nature's Cure), Resto Shaman (Purify Spirit), MW Monk (Detox) |
+| Poison | All Paladins, all Druids, all Monks |
+| Curse | All Druids, all Mages, Resto Shaman |
+| Disease | All Paladins, Disc/Holy Priest, all Monks |
+
+This gates missed cleanse detection: if no friendly can remove the debuff type, the window is not flagged as a missed opportunity.
+
+### Dispel penalty spells (hardcoded)
+Spells that deal damage or CC the dispeller when removed. Only Unstable Affliction has a confirmed dispel penalty in TWW:
+
+| Spell ID | Name | Effect |
+|----------|------|--------|
+| 316099 | Unstable Affliction | Silences + damages dispeller |
+| 342938 | Unstable Affliction (variant) | Silences + damages dispeller |
+
+VT and Flame Shock were considered but their dispel-penalty mechanics were removed in earlier expansions.
+
+---
+
+## Key Design Decisions
+
+**`SPELL_AURA_BROKEN_SPELL` excluded from missed cleanses**
+When a root or CC ends because spell damage hit the target, the log event is `SPELL_AURA_BROKEN_SPELL`. This is distinct from natural expiry (`SPELL_AURA_REMOVED`). A 6-second root that broke from AoE is not a missed cleanse — the CC ended by other means. These are tracked separately as `brokenCount` in the efficiency table.
+
+**`allyCleanse` vs `hostilePurges` vs `ourPurges` split**
+The original `friendlyDispels` conflated three very different events (ally cleansing a debuff, ally purging an enemy buff, enemy purging our buff) into one list. Split into three directional lists using source/destination unit affiliation.
+
+**`SPELL_STOLEN` tracked as `ourPurges` with `isSpellSteal: true`**
+Mage Spellsteal uses a separate `LogEvent.SPELL_STOLEN` event but the same `CombatExtraSpellAction` class. Now tracked and labeled distinctly in the UI.
+
+**Efficiency rate excludes broken-by-damage windows**
+`cleanseRate = cleanseCount / (cleanseCount + missedCount)`. Windows that ended from incoming damage are in `brokenCount` — neither a healer success nor a healer failure.
+
+**Post-CC damage weighting**
+Each missed cleanse window carries `postCcDamage`: the total damage the target took in the 5 seconds after the CC was applied (from `unit.damageIn`). This surfaces which missed cleanses were actually dangerous vs. low-stakes.
+
+**DispelType from game data, not heuristics**
+`dispelType` is read from `SpellCategories.db2` (DispelType column, integer 0-4), mapped to a string enum. This is authoritative — no inference from spell school or manual maintenance needed.

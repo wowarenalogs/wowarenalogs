@@ -29,6 +29,7 @@ let spellCategories: {
   spellId: number;
   difficultyId: number;
   chargeCategoryId: number;
+  dispelType: number;
 }[] = [];
 let spellNames: { id: number; name: string }[] = [];
 let spellCDs: {
@@ -47,6 +48,14 @@ let spellMiscInfo: {
   durationId: number;
 }[] = [];
 
+// DispelType values from SpellCategories.db2: 0=None, 1=Magic, 2=Curse, 3=Disease, 4=Poison
+const DISPEL_TYPE_MAP: Record<number, 'Magic' | 'Curse' | 'Disease' | 'Poison'> = {
+  1: 'Magic',
+  2: 'Curse',
+  3: 'Disease',
+  4: 'Poison',
+};
+
 interface ISpellDbEntry {
   spellId: string;
   name: string;
@@ -56,6 +65,8 @@ interface ISpellDbEntry {
   };
   durationSeconds: number;
   cooldownSeconds: number;
+  /** Dispel type from SpellCategories.db2. null means the aura cannot be dispelled by normal means. */
+  dispelType: 'Magic' | 'Curse' | 'Disease' | 'Poison' | null;
 }
 
 type CsvRow = Record<string, string>;
@@ -182,6 +193,7 @@ async function loadFiles() {
     spellId: toInt(r.SpellID),
     difficultyId: toInt(r.DifficultyID),
     chargeCategoryId: toInt(r.ChargeCategory),
+    dispelType: toInt(r.DispelType),
   }));
 
   spellNames = spellNameRows.map((r) => ({
@@ -213,8 +225,31 @@ async function loadFiles() {
 
 const newEffectsLibrary: Record<string, ISpellDbEntry> = {};
 
+// Spell IDs from classMetadata that are not in spells.json or awcSpells (e.g. newly added class entries)
+const MANUAL_SPELL_IDS: string[] = [
+  // Evoker — not in spells.json (class added in Dragonflight)
+  '351338', // Quell
+  '357210', // Deep Breath
+  '368970', // Tail Swipe
+  '357214', // Wing Buffet
+  '374227', // Zephyr
+  '374251', // Cauterizing Flame
+  '378441', // Time Stop
+  '375087', // Dragonrage
+  '363916', // Obsidian Scales
+  '370553', // Tip the Scales
+  '359816', // Dream Flight
+  '363534', // Rewind
+  '370960', // Emerald Communion
+  '370537', // Stasis
+  '370665', // Rescue
+  '403631', // Breath of Eons
+  '404977', // Time Skip
+  '360828', // Blistering Scales
+];
+
 function collectSpellIds(): string[] {
-  const rawIds = [...taggedSpellIds, ...awcSpellIds];
+  const rawIds = [...taggedSpellIds, ...awcSpellIds, ...MANUAL_SPELL_IDS];
   const validIds = rawIds.filter((id) => /^\d+$/.test(id));
   const invalidIds = rawIds.length - validIds.length;
   if (invalidIds > 0) {
@@ -228,7 +263,10 @@ const spellIds = collectSpellIds();
 const spellNameById = new Map<number, string>();
 const spellCooldownBySpellId = new Map<number, { difficultyId: number; cooldown: number; categoryCooldown: number }>();
 const spellMiscBySpellId = new Map<number, { difficultyId: number; castingTimeId: number; durationId: number }>();
-const spellCategoriesBySpellId = new Map<number, { difficultyId: number; chargeCategoryId: number }>();
+const spellCategoriesBySpellId = new Map<
+  number,
+  { difficultyId: number; chargeCategoryId: number; dispelType: number }
+>();
 const spellCategoryById = new Map<number, { maxCharges: number; chargeRecoveryTime: number }>();
 const spellDurationById = new Map<number, number>();
 const spellCastTimeById = new Map<number, { baseMs: number; minimumMs: number }>();
@@ -264,6 +302,12 @@ function findDuration(id: number): number {
   return (maybeMatch ?? 0) / 1000; // if spell has no duration (is instant) this field will just not be in the array
 }
 
+function findDispelType(id: number): 'Magic' | 'Curse' | 'Disease' | 'Poison' | null {
+  const info = spellCategoriesBySpellId.get(id);
+  if (!info) return null;
+  return DISPEL_TYPE_MAP[info.dispelType] ?? null;
+}
+
 function findCharges(id: number) {
   const spellCategoryInfo = spellCategoriesBySpellId.get(id);
   if (!spellCategoryInfo) return;
@@ -292,7 +336,14 @@ function buildIndexes() {
 
   spellCategories.forEach((row) => {
     const current = spellCategoriesBySpellId.get(row.spellId);
-    spellCategoriesBySpellId.set(row.spellId, choosePreferredByDifficulty(current, row));
+    // Keep dispelType from the base (difficulty=0) entry when available
+    const chosen = choosePreferredByDifficulty(current, row);
+    // If we already have a non-zero dispelType from any row, preserve it
+    if (current && current.dispelType !== 0 && chosen.dispelType === 0) {
+      spellCategoriesBySpellId.set(row.spellId, { ...chosen, dispelType: current.dispelType });
+    } else {
+      spellCategoriesBySpellId.set(row.spellId, chosen);
+    }
   });
 
   spellCategory.forEach((row) => {
@@ -336,6 +387,7 @@ async function main() {
       cooldownSeconds: findCooldown(spellIdInt),
       charges: findCharges(spellIdInt),
       durationSeconds: findDuration(spellIdInt),
+      dispelType: findDispelType(spellIdInt),
     };
 
     // For spells that have charges the baseline cooldown is effectively junk data

@@ -1,0 +1,78 @@
+{
+  "generatedAt": "2026-04-30T05:39:34.696Z",
+  "gitCommit": "7e0a59b2acbee319916e71bf34ee12deddc6fefb",
+  "files": {
+    "spellEffects.json": {
+      "description": "Per-spell cooldown, duration, dispelType from Wago.tools DB2",
+      "generatedBy": "npm run start:refreshSpellMetadata (packages/tools)",
+      "wowDataDependent": true,
+      "entryCount": 772,
+      "sha256": "a20dcab143e76d467840b048ed3bc8b9c54ed5bb140e1686bca236b9568e3e11",
+      "lastCommit": {
+        "hash": "5c81d9c6b7584f8edd0eebedb78f01543bea541d",
+        "date": "2026-04-15T18:28:38-07:00",
+        "subject": "chore(data): update WoW spell data to build 12.0.5.66741"
+      }
+    },
+    "spells.json": {
+      "description": "Spell type/priority classifications from BigDebuffs addon",
+      "generatedBy": "npm run start:generateSpellsData (packages/tools)",
+      "wowDataDependent": true,
+      "entryCount": 543,
+      "sha256": "67fbf7a1b3d34b2ddbb7468c36b2753573ca9efa0af55814b9a80e5297ea9db6",
+      "lastCommit": {
+        "hash": "69a9756ad900078977b294599956aa16f20e5dee",
+        "date": "2026-04-02T12:12:43-07:00",
+        "subject": "fix(ai): correct data quality issues from Antigravity refactor"
+      }
+    },
+    "spellIdLists.json": {
+      "description": "bigDefensive / externalDefensive / important spell ID lists from Wago.tools + SimC flags",
+      "generatedBy": "npm run start:generateSpellIdLists (packages/tools)",
+      "wowDataDependent": true,
+      "entryCount": 8,
+      "sha256": "7eba81e13bd801f780fa144025eae3ec10d5c0ae9ad903638a7081ea29cf86a3",
+      "lastCommit": {
+        "hash": "6f1890cc6f8491db948b579c583cf5f14a2f9bee",
+        "date": "2026-04-16T02:28:05-04:00",
+        "subject": "merge: pull upstream/main (65 commits, spell library + mistakes tab + pvp talents)"
+      }
+    },
+    "trinketItemIds.json": {
+      "description": "Adaptation and Relentless PvP trinket item IDs from Wago.tools ItemSparse DB2",
+      "generatedBy": "npm run start:generateTrinketItemIds (packages/tools)",
+      "wowDataDependent": true,
+      "entryCount": 6,
+      "sha256": "0051eec2413854c29c6e7d36510166bd13362a8766182a089daa724e34d03c28",
+      "lastCommit": {
+        "hash": "66b9b465ff6a680ca12c40b8920fb0e8d399ffbc",
+        "date": "2026-04-29T22:31:34-07:00",
+        "subject": "chore(data): generate trinketItemIds.json from wago.tools DB2"
+      }
+    },
+    "talentIdMap.json": {
+      "description": "Full talent tree structure per spec from Wago.tools Talent API",
+      "generatedBy": "npm run start:refreshSpellMetadata (packages/tools)",
+      "wowDataDependent": true,
+      "entryCount": 40,
+      "sha256": "f005ed28c3ad546e35b2942e452bbcfefd1ed139ec4dc6a319adcd7537925b7d",
+      "lastCommit": {
+        "hash": "40070809658c8aa80e7d95d324856fb4e0380715",
+        "date": "2026-01-20T23:02:31-05:00",
+        "subject": "Prompt is too long"
+      }
+    },
+    "raidbotsEnchantments.json": {
+      "description": "Enchantment metadata from Raidbots live API",
+      "generatedBy": "Manual: download https://www.raidbots.com/static/data/live/enchantments.json",
+      "wowDataDependent": true,
+      "entryCount": 557,
+      "sha256": "98bfc62be140e387521c7dd8b7a42b77fa11c8fa0e648dcd78160679ba05cf2a",
+      "lastCommit": {
+        "hash": "2c44b49253ae8a71da06281b93345e9361113cf8",
+        "date": "2025-08-26T10:47:57-04:00",
+        "subject": "Update static data"
+      }
+    }
+  }
+}
