@@ -39,23 +39,28 @@ jobs:
         with:
           node-version: 22
       - name: setup python 3.11 for node-gyp
-        # noobs's native addon is built from source by node-gyp during `npm ci`.
-        # node-gyp needs Python's `distutils`, which the stdlib dropped in 3.12.
-        # We previously re-provided it via `pip install --upgrade setuptools`,
-        # but setuptools >= 80 removed its distutils shim, so that stopped
-        # working once the windows-latest image bumped setuptools/Python — node-gyp
-        # then fails and npm silently rolls back the *optional* noobs subtree,
-        # shipping a recorder with no OBS binaries (copyNoobs then fails the build).
-        # Pinning Python 3.11 guarantees stdlib distutils is present, with no
-        # dependency on setuptools internals.
+        # noobs's native addon is built from source by `node-gyp rebuild` during
+        # `npm ci`. The node-gyp that runs it is the 9.x hoisted into the repo's
+        # node_modules (resolved from node_modules/.bin), and node-gyp 9.x imports
+        # Python's `distutils` — which the stdlib removed in 3.12. On the
+        # windows-latest runner node-gyp otherwise auto-discovers a 3.12+ Python,
+        # the configure step throws `No module named 'distutils'`, and npm
+        # silently rolls back the *optional* noobs subtree — shipping a recorder
+        # with no OBS binaries (copyNoobs then fails the build).
+        #
+        # Python 3.11 still ships stdlib distutils, so we install it and force
+        # node-gyp onto this exact interpreter via PYTHON / npm_config_python
+        # below (PATH alone isn't enough — node-gyp picks its own interpreter).
+        id: setup-python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: install node-gyp
-        run: npm i -g node-gyp@latest
       - name: clean npm cache
         run: npm cache clean -f
       - name: install dependencies
+        env:
+          PYTHON: ${{ steps.setup-python.outputs.python-path }}
+          npm_config_python: ${{ steps.setup-python.outputs.python-path }}
         run: npm ci
       - name: build for windows
         run: npm run build:app:windows
