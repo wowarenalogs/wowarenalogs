@@ -61,7 +61,9 @@ jobs:
         env:
           PYTHON: ${{ steps.setup-python.outputs.python-path }}
           npm_config_python: ${{ steps.setup-python.outputs.python-path }}
-        run: npm ci
+        # --foreground-scripts surfaces noobs's node-gyp output inline; without it
+        # npm hides the build error and silently rolls back the optional subtree.
+        run: npm ci --foreground-scripts
       - name: build for windows
         run: npm run build:app:windows
   build_on_mac:
