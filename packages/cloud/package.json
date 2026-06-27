@@ -14,7 +14,8 @@
     "start:generate-map-image": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/generateMapImage.js",
     "start:delete-oldest": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/deleteOldMatches.js",
     "test:refresh-competitive-stats": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_competitive_stats.js",
-    "test:refresh-spell-icons": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js"
+    "test:refresh-spell-icons": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/test/test_refresh_spell_icons.js",
+    "test:webhooks": "cross-env NODE_ENV=development ts-node --project ./tsconfig.json --transpile-only ./test/test_webhooks.ts"
   },
   "devDependencies": {
     "@types/node": "^22",
@@ -30,6 +31,7 @@
   "dependencies": {
     "@google-analytics/data": "^3.1.2",
     "@google-cloud/firestore": "^7.11",
+    "@google-cloud/pubsub": "^5.3",
     "@google-cloud/storage": "^7.17",
     "@prisma/client": "^4.9.0",
     "aws-sdk": "^2.834.0",

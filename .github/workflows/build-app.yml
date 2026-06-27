@@ -25,7 +25,13 @@ jobs:
     if: >-
       github.event_name != 'workflow_dispatch'
       || inputs.build_on_win
-    runs-on: windows-latest
+    # Pinned to windows-2022 (Visual Studio 2022 / v17). `windows-latest` rolled
+    # to the windows-2025-vs2026 image (Visual Studio 18), which the old
+    # node-gyp 9.x that builds noobs's native addon can't detect ("unknown
+    # version" -> "could not find a version of Visual Studio 2017 or newer"),
+    # so npm silently drops the optional noobs subtree and copyNoobs fails the
+    # build. VS2022 is the toolchain this build last succeeded on.
+    runs-on: windows-2022
     env:
       CI: false
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,18 +44,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: restore distutils for node-gyp (Python 3.12+ dropped it)
-        # The runner's Python 3.12 removed the stdlib `distutils` module, but the
-        # node-gyp (9.x) that builds noobs's native addon imports it, so the
-        # build fails at "gyp configure" and npm silently rolls back the
-        # *optional* noobs subtree — shipping a recorder with no OBS binaries.
-        # setuptools re-provides distutils, so node-gyp rebuild succeeds and
-        # npm ci installs noobs natively (verified in CI).
-        run: python -m pip install --upgrade setuptools
+      - name: setup python 3.11 for node-gyp
+        # noobs's native addon is built from source by `node-gyp rebuild` during
+        # `npm ci`. The node-gyp that runs it is the 9.x hoisted into the repo's
+        # node_modules (resolved from node_modules/.bin), and node-gyp 9.x imports
+        # Python's `distutils` — which the stdlib removed in 3.12. The runner
+        # otherwise auto-discovers a 3.12+ Python, the configure step throws
+        # `No module named 'distutils'`, and npm silently rolls back the
+        # *optional* noobs subtree — shipping a recorder with no OBS binaries
+        # (copyNoobs then fails the build).
+        #
+        # Python 3.11 still ships stdlib distutils, so we install it and force
+        # node-gyp onto this exact interpreter via PYTHON / npm_config_python
+        # below (PATH alone isn't enough — node-gyp picks its own interpreter).
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - name: clean npm cache
         run: npm cache clean -f
       - name: install dependencies
-        run: npm ci
+        env:
+          PYTHON: ${{ steps.setup-python.outputs.python-path }}
+          npm_config_python: ${{ steps.setup-python.outputs.python-path }}
+        # --foreground-scripts surfaces noobs's node-gyp output inline; without it
+        # npm hides the build error and silently rolls back the optional subtree.
+        run: npm ci --foreground-scripts
       - name: build for windows
         run: npm run build:app:windows
   build_on_mac:

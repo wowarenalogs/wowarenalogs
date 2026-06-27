@@ -29,6 +29,7 @@ STORAGE_TRIGGER_LOCATION="us"
 RUNTIME="nodejs22"
 MEMORY="1024MB"
 SERVICE_NAME="gcp-wowarenalogs"
+WEBHOOK_TOPIC="partner-webhook-event"
 
 # Function to check if gcloud is installed
 check_gcloud() {
@@ -56,6 +57,40 @@ check_env_vars() {
         echo -e "${YELLOW}Please set these environment variables before running the deployment script.${NC}"
         exit 1
     fi
+}
+
+# Load KEY=VALUE pairs from packages/cloud/.env into the environment so deploys pick
+# up secrets (webhook URL/secret, SQL URL, ...) without the caller exporting them in
+# the shell first. Does NOT override variables already set in the environment, so an
+# explicit `export FOO=bar` still wins. Tolerates comments, blank lines, surrounding
+# quotes, an optional `export ` prefix, and Windows CRLF line endings.
+load_dotenv() {
+    local common_dir env_file line key val
+    common_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # packages/cloud/deploy
+    env_file="${common_dir}/../.env"                            # packages/cloud/.env
+    if [ ! -f "${env_file}" ]; then
+        echo -e "${YELLOW}No .env at ${env_file}; using shell environment only.${NC}"
+        return 0
+    fi
+    echo -e "${YELLOW}Loading environment from ${env_file}${NC}"
+    while IFS= read -r line || [ -n "${line}" ]; do
+        line="${line%$'\r'}"                          # strip trailing CR (Windows)
+        line="${line#"${line%%[![:space:]]*}"}"       # strip leading whitespace
+        [ -z "${line}" ] && continue                  # skip blank lines
+        case "${line}" in '#'*) continue ;; esac      # skip comments
+        line="${line#export }"                        # tolerate "export KEY=VALUE"
+        case "${line}" in *=*) ;; *) continue ;; esac # require KEY=VALUE
+        key="${line%%=*}"
+        key="${key%"${key##*[![:space:]]}"}"          # trim trailing space on key
+        val="${line#*=}"
+        case "${val}" in                              # strip one layer of quotes
+            \"*\") val="${val#\"}"; val="${val%\"}" ;;
+            \'*\') val="${val#\'}"; val="${val%\'}" ;;
+        esac
+        if [ -z "${!key:-}" ]; then                   # don't override an explicit export
+            export "${key}=${val}"
+        fi
+    done < "${env_file}"
 }
 
 # Function to set up authentication
@@ -122,7 +157,15 @@ deploy_pubsub_function() {
     local handler=$2
     local topic=$3
     local timeout=${4:-540s}
-    
+    local env_vars=$5
+    local max_instances=${6:-100}
+
+    # Only pass --set-env-vars when env vars are provided (gcloud rejects an empty value).
+    local env_flag=()
+    if [ -n "${env_vars}" ]; then
+        env_flag=(--set-env-vars="${env_vars}")
+    fi
+
     echo -e "${YELLOW}Deploying ${function_name} function...${NC}"
     gcloud functions deploy ${function_name} \
         --gen2 \
@@ -133,8 +176,9 @@ deploy_pubsub_function() {
         --memory=${MEMORY} \
         --timeout=${timeout} \
         --trigger-topic=${topic} \
+        "${env_flag[@]}" \
         --retry \
-        --max-instances=100
+        --max-instances=${max_instances}
 }
 
 # Function to display function information

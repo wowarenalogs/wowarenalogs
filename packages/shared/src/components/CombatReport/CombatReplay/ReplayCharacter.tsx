@@ -13,6 +13,7 @@ interface IProps {
   combat: AtomicArenaCombat;
   unit: ICombatUnit;
   currentTimeOffset: number;
+  showFloatingCombatText: boolean;
   gamePositionToRenderPosition: (gameX: number, gameY: number) => { x: number; y: number };
 }
 
@@ -210,7 +211,9 @@ export function ReplayCharacter(props: IProps) {
           y={-3.0}
         />
       ) : null}
-      <ReplayHpNumbers unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
+      {props.showFloatingCombatText ? (
+        <ReplayHpNumbers unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
+      ) : null}
       <ReplayHealthBar current={hp.current} max={hp.max} reaction={props.unit.reaction} />
       <ReplayCastBar unit={props.unit} currentTimeOffset={props.currentTimeOffset} />
     </pixiContainer>
