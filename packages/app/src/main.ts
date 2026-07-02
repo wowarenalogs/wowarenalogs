@@ -9,11 +9,48 @@ import { Readable } from 'stream';
 import { BASE_REMOTE_URL } from './constants';
 import { logger } from './logger';
 import { globalStates } from './nativeBridge/modules/common/globalStates';
+import { flushAllLogParsers } from './nativeBridge/modules/logsModule';
 import { nativeBridgeRegistry } from './nativeBridge/registry';
 
 // Print versions because it's not always obvious what version of Node Electron is using
 // eslint-disable-next-line no-console
 console.log(process.versions);
+
+process.on('uncaughtException', (error) => {
+  logger.error(`Uncaught exception in main process: ${error.message}`);
+  if (error.stack) {
+    logger.error(error.stack);
+  }
+});
+
+process.on('unhandledRejection', (reason) => {
+  logger.error(`Unhandled rejection in main process: ${String(reason)}`);
+});
+
+const MAX_RELOAD_DELAY_MS = 30000;
+const FLUSH_QUIT_GRACE_MS = 1500;
+let reloadAttempt = 0;
+let reloadTimer: NodeJS.Timeout | undefined;
+
+function loadRemoteApp(win: BrowserWindow) {
+  if (reloadTimer) {
+    clearTimeout(reloadTimer);
+    reloadTimer = undefined;
+  }
+  win.loadURL(`${BASE_REMOTE_URL}/?time=${moment.now()}`, {
+    extraHeaders: 'pragma: no-cache\n',
+  });
+}
+
+function scheduleReload(win: BrowserWindow) {
+  if (reloadTimer) {
+    return;
+  }
+  reloadAttempt += 1;
+  const delay = Math.min(1000 * 2 ** reloadAttempt, MAX_RELOAD_DELAY_MS);
+  logger.info(`Scheduling app reload attempt ${reloadAttempt} in ${delay}ms`);
+  reloadTimer = setTimeout(() => loadRemoteApp(win), delay);
+}
 
 function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
@@ -37,12 +74,34 @@ function createWindow() {
   win.setMinimumSize(1120, 600);
   win.setMenuBarVisibility(false);
 
-  win.loadURL(`${BASE_REMOTE_URL}/?time=${moment.now()}`, {
-    extraHeaders: 'pragma: no-cache\n',
-  });
+  loadRemoteApp(win);
 
   win.webContents.setWindowOpenHandler(() => {
     return { action: 'deny' };
+  });
+
+  win.webContents.on('did-finish-load', () => {
+    if (win.webContents.getURL().startsWith(BASE_REMOTE_URL)) {
+      reloadAttempt = 0;
+    }
+  });
+
+  win.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+    // -3 is ERR_ABORTED, which fires for routine navigations (e.g. a load getting
+    // superseded by another) and is not a real failure.
+    if (!isMainFrame || errorCode === -3) {
+      return;
+    }
+    logger.error(`Renderer failed to load ${validatedURL}: ${errorDescription} (${errorCode})`);
+    win.loadFile(path.join(__dirname, 'public', 'connection-error.html')).catch((e) => {
+      logger.error(`Failed to load fallback error page: ${String(e)}`);
+    });
+    scheduleReload(win);
+  });
+
+  win.webContents.on('render-process-gone', (_event, details) => {
+    logger.error(`Renderer process gone: reason=${details.reason} exitCode=${details.exitCode}`);
+    scheduleReload(win);
   });
 
   win.webContents.on('did-frame-finish-load', () => {
@@ -193,6 +252,23 @@ if (!isFirstInstance) {
     if (startMinimized) {
       win.minimize();
     }
+  });
+
+  let isQuittingAfterFlush = false;
+  app.on('before-quit', (event) => {
+    if (isQuittingAfterFlush) {
+      return;
+    }
+
+    // The idle-timeout flush (READ_TIMEOUT_MS in logsModule) can't help here: it needs several
+    // minutes to fire, and the app is about to exit right now. Flush synchronously so a match
+    // that just ended isn't lost because its closing log line hadn't arrived yet, then hold the
+    // quit briefly - flushing emits IPC events the renderer needs a moment to receive and act on
+    // (e.g. kicking off the upload) before the window is torn down.
+    event.preventDefault();
+    isQuittingAfterFlush = true;
+    flushAllLogParsers();
+    setTimeout(() => app.quit(), FLUSH_QUIT_GRACE_MS);
   });
 
   app.on('window-all-closed', () => {
