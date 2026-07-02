@@ -5,13 +5,13 @@ import path from 'path';
 
 import { FirestoreNextAuthAdapter } from '../utils/FirestoreNextAuthAdapter';
 
+const devCredentialsPath = path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json');
+const devCredentialsExist = process.env.NODE_ENV === 'development' && fs.existsSync(devCredentialsPath);
+
 const firestore = new Firestore({
   projectId: process.env.NODE_ENV === 'development' ? 'wowarenalogs-public-dev' : 'wowarenalogs',
   ignoreUndefinedProperties: true,
-  credentials:
-    process.env.NODE_ENV === 'development'
-      ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
-      : undefined,
+  credentials: devCredentialsExist ? JSON.parse(fs.readFileSync(devCredentialsPath, 'utf8')) : undefined,
 });
 
 export default NextAuth({
