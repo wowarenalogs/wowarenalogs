@@ -72,7 +72,21 @@ export const stringToLogLine = (timezone: string) => {
 
     const event = LogEvent[eventName as keyof typeof LogEvent];
     const jsonPayload = rest.slice(commaIndex + 1).trimEnd();
-    const jsonParameters = parseWowToJSON(jsonPayload);
+
+    // parseWowToJSON's escaping heuristic doesn't cover every field format WoW can emit (see
+    // today's live "Expected ',' or ']'..." failure). A throw here used to propagate out of
+    // this map() and kill the entire rxjs subscription - silently ending match detection for
+    // the rest of the session on a single unusual line. Treat it as an unparsed raw line
+    // instead, same as the other fallback cases above.
+    let jsonParameters;
+    try {
+      jsonParameters = parseWowToJSON(jsonPayload);
+    } catch (e) {
+      logInfo(`FAILED TO PARSE JSON for line: ${line.slice(0, 200)}`);
+      logInfo(e);
+      return line;
+    }
+
     const timestamp = parseCombatLogTimestamp(tsString, timezone);
 
     if (timestamp === null || isNaN(timestamp)) {

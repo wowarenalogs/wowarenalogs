@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 
 import { CombatAction } from '../../actions/CombatAction';
 import { ZoneChange } from '../../actions/ZoneChange';
-import { logTrace } from '../../logger';
+import { logInfo, logTrace } from '../../logger';
 import { CombatEvent, CombatUnitType, ICombatEventSegment, LogEvent } from '../../types';
 import { getUnitReaction, getUnitType, PIPELINE_FLUSH_SIGNAL } from '../../utils';
 
@@ -13,6 +13,15 @@ const ARENA_ZONE_IDS = [
   617, // Dalaran Arena
   618, // The Ring of Valor
 ];
+
+// 572 	Ruins of Lordaeron
+// 617 	Dalaran Arena
+// 618 	The Ring of Valor
+// 980 	Tol'Viron Arena
+// 1134 	Tiger's Peak
+// 1505 	Nagrand Arena
+// 1672 	Blade's Edge Arena
+// 2167 	The Robodrome
 
 type State = 'MATCH_NOT_STARTED' | 'MATCH_STARTED';
 
@@ -92,6 +101,7 @@ export const inferCombatEventSegments = () => {
               // match start. when that happens we change state to reflect
               // that we are now in a match.
               if (isMatchStartEvent(event)) {
+                logInfo('[inferCombatEventSegments] Arena match starting (classic)');
                 logTrace(`MATCH STARTED by ${event.logLine.event}`);
                 state = 'MATCH_STARTED';
                 currentSegmentCombatantIds.add((event as CombatAction).destUnitId);
@@ -107,6 +117,7 @@ export const inferCombatEventSegments = () => {
                 }
                 currentSegmentCombatantIds.add((event as CombatAction).destUnitId);
               } else if (isMatchEndEvent(event)) {
+                logInfo('[inferCombatEventSegments] Arena match ended (classic)');
                 logTrace('MATCH ENDED by ZONE_CHANGE');
                 emitCurrentBuffer();
                 state = 'MATCH_NOT_STARTED';

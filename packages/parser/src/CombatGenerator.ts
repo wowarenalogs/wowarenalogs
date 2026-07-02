@@ -9,8 +9,9 @@ import { CombatSupportAction } from './actions/CombatSupportAction';
 import { PartyKill } from './actions/PartyKill';
 import { classMetadata } from './classMetadata';
 import { CombatUnit } from './CombatUnit';
-import { logTrace } from './logger';
-import { CombatUnitClass, ICombatantMetadata, LogEvent, WowVersion } from './types';
+import { logInfo, logTrace } from './logger';
+import { CombatUnitClass, CombatUnitReaction, CombatUnitType, ICombatantMetadata, LogEvent, WowVersion } from './types';
+import { getUnitReaction, getUnitType } from './utils';
 
 const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
   classMetadata.flatMap((cls) => {
@@ -166,6 +167,20 @@ export class CombatGenerator {
         ) {
           destUnit.consciousDeathRecords.push(event.logLine);
         } else {
+          {
+            const action = event as CombatAction;
+            const reaction = getUnitReaction(action.destUnitFlags);
+            const unitType = getUnitType(action.destUnitFlags);
+            const reactionLabel =
+              reaction === CombatUnitReaction.Friendly
+                ? 'friendly'
+                : reaction === CombatUnitReaction.Hostile
+                  ? 'hostile'
+                  : 'neutral';
+            const typeLabel =
+              unitType === CombatUnitType.Player ? 'player' : unitType === CombatUnitType.Pet ? 'pet' : 'unit';
+            logInfo(`[CombatGenerator] UNIT_DIED: ${reactionLabel} ${typeLabel} "${action.destUnitName}"`);
+          }
           logTrace('UNIT_DIED', event.logLine.raw);
           destUnit.deathRecords.push(event.logLine);
         }
