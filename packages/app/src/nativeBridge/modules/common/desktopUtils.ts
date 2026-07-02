@@ -52,6 +52,13 @@ export class DesktopUtils {
     return true;
   }
 
+  // Discard any buffered partial line for this path. Used when a log file is replaced or
+  // truncated (new-file-reset): a fragment held over from the old file's contents must not
+  // be glued onto the first chunk of the new one.
+  public static resetChunkPartials(path: string) {
+    delete chunkParitialsBuffer[path];
+  }
+
   public static parseLogFileChunk(parser: WoWCombatLogParser, path: string, start: number, size: number) {
     if (size <= 0) {
       return true;
@@ -63,8 +70,14 @@ export class DesktopUtils {
       closeSync(fd);
       let bufferString = buffer.toString('utf-8');
       // Was there a partial line left over from a previous call?
+      // Clearing it here matters: it's only re-stored below if THIS chunk also ends
+      // mid-line. Without the clear, a chunk ending exactly on a newline leaves the
+      // already-consumed fragment behind, and it gets glued onto the front of every
+      // later chunk - corrupting one real line per read (and, before parse errors were
+      // made non-fatal, killing the whole parser pipeline mid-session).
       if (chunkParitialsBuffer[path]) {
         bufferString = chunkParitialsBuffer[path] + bufferString;
+        delete chunkParitialsBuffer[path];
       }
       const lines = bufferString.split('\n');
       lines.forEach((line, idx) => {
