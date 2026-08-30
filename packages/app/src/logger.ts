@@ -44,5 +44,4 @@ if (app && app.isPackaged) {
     console.log(e);
   }
 }
-
 export const logger = winstonLogger;
