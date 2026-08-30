@@ -350,6 +350,9 @@
   "51514": {
     "type": "cc"
   },
+  "51533": {
+    "type": "buffs_offensive"
+  },
   "51690": {
     "type": "buffs_offensive"
   },
@@ -755,9 +758,6 @@
     "type": "cc",
     "parent": 118
   },
-  "162264": {
-    "type": "buffs_offensive"
-  },
   "162480": {
     "type": "roots"
   },
@@ -821,6 +821,9 @@
   },
   "190925": {
     "type": "roots"
+  },
+  "191427": {
+    "type": "buffs_offensive"
   },
   "191634": {
     "type": "buffs_offensive"
@@ -1063,7 +1066,7 @@
     "type": "buffs_defensive"
   },
   "209749": {
-    "type": "cc"
+    "type": "disarms"
   },
   "209997": {
     "type": "buffs_defensive"
@@ -1230,10 +1233,10 @@
     "parent": 204080
   },
   "233759": {
-    "type": "cc"
+    "type": "disarms"
   },
   "236077": {
-    "type": "cc"
+    "type": "disarms"
   },
   "236273": {
     "type": "cc"
@@ -1492,9 +1495,6 @@
   "333889": {
     "type": "buffs_defensive"
   },
-  "333957": {
-    "type": "buffs_offensive"
-  },
   "335467": {
     "type": "debuffs_offensive",
     "nounitFrames": true,
@@ -1587,8 +1587,7 @@
     "type": "buffs_defensive"
   },
   "357210": {
-    "type": "immunities",
-    "nonameplates": true
+    "type": "buffs_offensive"
   },
   "358259": {
     "type": "cc"

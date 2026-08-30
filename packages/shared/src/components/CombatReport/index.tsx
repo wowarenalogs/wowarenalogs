@@ -11,9 +11,11 @@ import { useClientContext } from '../../hooks/ClientContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
 import { canUseFeature, features } from '../../utils/featureFlags';
 import { DownloadPromotion } from '../common/DownloadPromotion';
+import { CombatAIAnalysis } from './CombatAIAnalysis';
 import { CombatCC } from './CombatCC';
 import { CombatCurves } from './CombatCurves';
 import { CombatDeathReports } from './CombatDeathReports';
+import { CombatDispels } from './CombatDispels';
 import { CombatLogView } from './CombatLogView';
 import { CombatMistakes } from './CombatMistakes';
 import { CombatPerformance } from './CombatPerformance';
@@ -190,6 +192,22 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
         >
           Timeline
         </a>
+        <a
+          className={`tab ${activeTab === 'dispels' ? 'tab-active' : ''}`}
+          onClick={() => {
+            setActiveTab('dispels');
+          }}
+        >
+          Dispels
+        </a>
+        <a
+          className={`tab ${activeTab === 'ai' ? 'tab-active' : ''}`}
+          onClick={() => {
+            setActiveTab('ai');
+          }}
+        >
+          AI Analysis
+        </a>
         {isShuffle && (
           <a
             className={`tab ${activeTab === 'scoreboard' ? 'tab-active' : ''}`}
@@ -234,6 +252,8 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
           {activeTab === 'curves' && <CombatCurves />}
           {activeTab === 'replay' && <CombatReplay />}
           {activeTab === 'timeline' && <CombatTimeline />}
+          {activeTab === 'dispels' && <CombatDispels />}
+          {activeTab === 'ai' && <CombatAIAnalysis />}
           {activeTab === 'scoreboard' && <CombatScoreboard />}
           {activeTab === 'video' && <CombatVideo />}
           {activeTab === 'logview' && <CombatLogView />}

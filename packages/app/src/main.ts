@@ -1,12 +1,13 @@
-import { app, BrowserWindow, dialog, protocol } from 'electron';
+import { app, BrowserWindow, dialog, protocol, utilityProcess } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { autoUpdater } from 'electron-updater';
-import { createReadStream, existsSync, statSync } from 'fs-extra';
+import { createReadStream, existsSync, readFileSync, statSync } from 'fs-extra';
 import moment from 'moment';
+import * as net from 'net';
 import path from 'path';
 import { Readable } from 'stream';
 
-import { BASE_REMOTE_URL } from './constants';
+import { BASE_REMOTE_URL, NEXT_SERVER_PORT } from './constants';
 import { logger } from './logger';
 import { globalStates } from './nativeBridge/modules/common/globalStates';
 import { nativeBridgeRegistry } from './nativeBridge/registry';
@@ -14,6 +15,83 @@ import { nativeBridgeRegistry } from './nativeBridge/registry';
 // Print versions because it's not always obvious what version of Node Electron is using
 // eslint-disable-next-line no-console
 console.log(process.versions);
+
+function waitForPort(port: number, timeoutMs = 30000): Promise<boolean> {
+  return new Promise((resolve) => {
+    const deadline = Date.now() + timeoutMs;
+    const check = () => {
+      if (Date.now() > deadline) {
+        resolve(false);
+        return;
+      }
+      const socket = net.createConnection(port, '127.0.0.1');
+      socket.on('connect', () => {
+        socket.destroy();
+        resolve(true);
+      });
+      socket.on('error', () => {
+        setTimeout(check, 200);
+      });
+    };
+    check();
+  });
+}
+
+function readSavedSettings(): { blizzardClientId?: string; blizzardClientSecret?: string } {
+  try {
+    const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+    if (existsSync(settingsPath)) {
+      return JSON.parse(readFileSync(settingsPath, 'utf-8')) as {
+        blizzardClientId?: string;
+        blizzardClientSecret?: string;
+      };
+    }
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
+function startNextServer(): void {
+  if (!app.isPackaged) return;
+
+  const serverPath = path.join(process.resourcesPath, 'server', 'packages', 'web', 'server.js');
+  logger.info(`Starting Next.js server from ${serverPath}`);
+
+  if (!existsSync(serverPath)) {
+    logger.error(`Next.js server not found at ${serverPath}`);
+    return;
+  }
+
+  const saved = readSavedSettings();
+
+  const child = utilityProcess.fork(serverPath, [], {
+    env: {
+      ...process.env,
+      PORT: String(NEXT_SERVER_PORT),
+      HOSTNAME: '127.0.0.1',
+      NODE_ENV: 'production',
+      NEXTAUTH_URL: `http://127.0.0.1:${NEXT_SERVER_PORT}`,
+      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ?? 'local-personal-build-secret',
+      ...(saved.blizzardClientId ? { BLIZZARD_CLIENT_ID: saved.blizzardClientId } : {}),
+      ...(saved.blizzardClientSecret ? { BLIZZARD_CLIENT_SECRET: saved.blizzardClientSecret } : {}),
+    },
+    cwd: path.join(process.resourcesPath, 'server'),
+    stdio: 'pipe',
+  });
+
+  child.stdout?.on('data', (data: Buffer) => {
+    logger.info(`[next-server] ${data.toString().trim()}`);
+  });
+
+  child.stderr?.on('data', (data: Buffer) => {
+    logger.error(`[next-server] ${data.toString().trim()}`);
+  });
+
+  child.on('exit', (code) => {
+    logger.error(`Next.js server exited with code ${code}`);
+  });
+}
 
 function createWindow() {
   const preloadScriptPath = path.join(__dirname, 'preload.bundle.js');
@@ -37,9 +115,14 @@ function createWindow() {
   win.setMinimumSize(1120, 600);
   win.setMenuBarVisibility(false);
 
-  win.loadURL(`${BASE_REMOTE_URL}/?time=${moment.now()}`, {
-    extraHeaders: 'pragma: no-cache\n',
-  });
+  if (!app.isPackaged) {
+    win.loadURL(`${BASE_REMOTE_URL}/?time=${moment.now()}`, {
+      extraHeaders: 'pragma: no-cache\n',
+    });
+  } else {
+    // Show a blank loading screen while waiting for the local Next.js server
+    win.loadURL(`data:text/html,<html style="background:#000"></html>`);
+  }
 
   win.webContents.setWindowOpenHandler(() => {
     return { action: 'deny' };
@@ -132,8 +215,23 @@ const isFirstInstance = app.requestSingleInstanceLock();
 if (!isFirstInstance) {
   app.quit();
 } else {
-  app.on('ready', () => {
+  app.on('ready', async () => {
+    startNextServer();
     const win = createWindow();
+
+    if (app.isPackaged) {
+      logger.info(`Waiting for Next.js server on port ${NEXT_SERVER_PORT}...`);
+      const ready = await waitForPort(NEXT_SERVER_PORT);
+      if (ready) {
+        logger.info('Next.js server ready, loading app');
+        win.loadURL(`${BASE_REMOTE_URL}/?time=${moment.now()}`, { extraHeaders: 'pragma: no-cache\n' });
+      } else {
+        logger.error('Next.js server did not start within 30s');
+        win.loadURL(
+          `data:text/html,<h2 style="font-family:sans-serif;padding:2rem">Failed to start local server. Check logs at %APPDATA%\\WoW Arena Logs\\log.txt</h2>`,
+        );
+      }
+    }
 
     if (app.isPackaged) {
       autoUpdater.on('error', (error) => {

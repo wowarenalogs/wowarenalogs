@@ -6,6 +6,7 @@ import { FilesModule } from './nativeBridge/modules/filesModule';
 import { LogsModule } from './nativeBridge/modules/logsModule';
 import { MainWindowModule } from './nativeBridge/modules/mainWindowModule';
 import { ObsModule } from './nativeBridge/modules/obsModule';
+import { SettingsModule } from './nativeBridge/modules/settingsModule';
 
 type ElectronOpaqueEvent = {
   senderId: number;
@@ -98,5 +99,11 @@ export type NativeApi = {
     removeAll_diskSpaceBecameCritical_listeners?: () => void;
     audioVolumeChanged?: (callback: AsEventFunction<ObsModule['audioVolumeChanged']>) => void;
     removeAll_audioVolumeChanged_listeners?: () => void;
+  };
+  settings?: {
+    getSettings?: OmitFirstArg<SettingsModule['getSettings']>;
+    saveSettings?: OmitFirstArg<SettingsModule['saveSettings']>;
+    getAnthropicApiKey?: OmitFirstArg<SettingsModule['getAnthropicApiKey']>;
+    setAnthropicApiKey?: OmitFirstArg<SettingsModule['setAnthropicApiKey']>;
   };
 };

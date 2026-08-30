@@ -15,9 +15,11 @@ export interface IMinedSpell {
     chargeCooldownSeconds?: number;
   };
   durationSeconds?: number;
+  /** Dispel type from SpellCategories.db2. null or undefined means the aura cannot be dispelled. */
+  dispelType?: 'Magic' | 'Curse' | 'Disease' | 'Poison' | 'Bleed' | null;
 }
 
-export const spellEffectData: Record<string, IMinedSpell> = rawMinedData;
+export const spellEffectData = rawMinedData as unknown as Record<string, IMinedSpell>;
 
 // DEV - Validate mined data
 if (process.env.NODE_ENV === 'development') {

@@ -1,0 +1,983 @@
+import { CombatExtraSpellAction, CombatUnitSpec, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+
+import { spellEffectData } from '../data/spellEffectData';
+import spellIdListsData from '../data/spellIdLists.json';
+import spellsData from '../data/spells.json';
+import { fmtTime, getPressureThreshold, specToString } from './cooldowns';
+import { getPlayerTalentedSpellIds, getSpecTalentTreeSpellIds } from './talents';
+
+export type DispelPriority = 'Critical' | 'High' | 'Medium' | 'Low';
+
+type SpellEntry = { type: string; priority?: boolean };
+const SPELLS = spellsData as Record<string, SpellEntry>;
+const BIG_DEFENSIVE_IDS = new Set<string>(spellIdListsData.bigDefensiveSpellIds as string[]);
+const EXTERNAL_DEFENSIVE_IDS = new Set<string>(spellIdListsData.externalDefensiveSpellIds as string[]);
+
+const MISSED_CLEANSE_THRESHOLD_S = 3;
+const MISSED_PURGE_THRESHOLD_S = 3;
+const PENALTY_WINDOW_MS = 4000;
+
+// Seconds after CC application to measure incoming damage for post-CC pressure weighting
+const POST_CC_PRESSURE_WINDOW_S = 5;
+
+// Spells that silence + damage the dispeller when removed.
+// Only Unstable Affliction reliably has this mechanic in current WoW (TWW).
+// VT dispel-damage was removed in Legion; Flame Shock has no dispel penalty.
+// IDs 316099 and 342938 are confirmed present in BigDebuffs data for TWW.
+const DISPEL_PENALTY_SPELLS = new Map<string, string>([
+  ['316099', 'Silences & damages the dispeller (Unstable Affliction)'],
+  ['342938', 'Silences & damages the dispeller (Unstable Affliction)'],
+]);
+
+// Static spec → dispel-type maps. These represent specs whose cleanse ability is treated as
+// baseline (virtually always present in arena). A few cleanses are technically talent-gated
+// in the class/spec tree but are skipped so universally that treating them as static avoids
+// noise without meaningful accuracy loss:
+//   - Paladin Cleanse Toxins (Poison/Disease): class tree node, skipped only by very niche builds
+//   - Druid Remove Corruption (Poison/Curse): class tree node, universal in arena
+//   - Resto Druid Nature's Cure / Resto Shaman Purify Spirit: spec tree, always taken in arena
+// Shadow Priest Purify Disease is the only talent-gated cleanse handled dynamically
+// (via canDefensiveCleanse) because it is a meaningful variance in typical Shadow builds.
+const MAGIC_REMOVERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Paladin_Holy,
+  CombatUnitSpec.Priest_Discipline,
+  CombatUnitSpec.Priest_Holy,
+  CombatUnitSpec.Druid_Restoration, // Nature's Cure — spec tree, always talented in arena
+  CombatUnitSpec.Shaman_Restoration, // Purify Spirit — spec tree, always talented in arena
+  CombatUnitSpec.Monk_Mistweaver, // Detox (also removes Poison/Disease)
+  CombatUnitSpec.Evoker_Preservation, // Naturalize
+]);
+
+// Poison: all Paladins (Cleanse Toxins), all Druids (Remove Corruption), all Monks (Detox)
+const POISON_REMOVERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Paladin_Holy,
+  CombatUnitSpec.Paladin_Protection,
+  CombatUnitSpec.Paladin_Retribution,
+  CombatUnitSpec.Druid_Balance,
+  CombatUnitSpec.Druid_Feral,
+  CombatUnitSpec.Druid_Guardian,
+  CombatUnitSpec.Druid_Restoration,
+  CombatUnitSpec.Monk_Mistweaver,
+  CombatUnitSpec.Monk_Windwalker,
+  CombatUnitSpec.Monk_BrewMaster,
+  CombatUnitSpec.Evoker_Preservation, // Naturalize / Expunge / Cauterizing Flame
+  CombatUnitSpec.Evoker_Devastation, // Expunge / Cauterizing Flame
+  CombatUnitSpec.Evoker_Augmentation, // Expunge / Cauterizing Flame
+]);
+
+// Curse: all Druids (Remove Corruption), all Mages (Remove Curse), Resto Shaman (Purify Spirit)
+const CURSE_REMOVERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Druid_Balance,
+  CombatUnitSpec.Druid_Feral,
+  CombatUnitSpec.Druid_Guardian,
+  CombatUnitSpec.Druid_Restoration,
+  CombatUnitSpec.Mage_Arcane,
+  CombatUnitSpec.Mage_Fire,
+  CombatUnitSpec.Mage_Frost,
+  CombatUnitSpec.Shaman_Restoration,
+  CombatUnitSpec.Evoker_Preservation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Devastation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Augmentation, // Cauterizing Flame
+]);
+
+// Disease: all Paladins (Cleanse Toxins), Holy/Disc Priest (Purify), all Monks (Detox)
+// Shadow Priest (Purify Disease) is talent-gated and handled in canDefensiveCleanse, not here.
+const DISEASE_REMOVERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Paladin_Holy,
+  CombatUnitSpec.Paladin_Protection,
+  CombatUnitSpec.Paladin_Retribution,
+  CombatUnitSpec.Priest_Discipline,
+  CombatUnitSpec.Priest_Holy,
+  CombatUnitSpec.Monk_Mistweaver,
+  CombatUnitSpec.Monk_Windwalker,
+  CombatUnitSpec.Monk_BrewMaster,
+  CombatUnitSpec.Evoker_Preservation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Devastation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Augmentation, // Cauterizing Flame
+]);
+
+// Bleed: Evokers
+const BLEED_REMOVERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Evoker_Preservation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Devastation, // Cauterizing Flame
+  CombatUnitSpec.Evoker_Augmentation, // Cauterizing Flame
+]);
+
+// Specs capable of removing Magic buffs from enemies (offensive dispel / spellsteal / devour)
+const OFFENSIVE_PURGERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Priest_Discipline, // Dispel Magic (offensive target)
+  CombatUnitSpec.Priest_Holy, // Dispel Magic (offensive target)
+  CombatUnitSpec.Priest_Shadow, // Dispel Magic (offensive target)
+  CombatUnitSpec.Shaman_Restoration, // Purge
+  CombatUnitSpec.Shaman_Elemental, // Purge
+  CombatUnitSpec.Shaman_Enhancement, // Purge
+  CombatUnitSpec.Mage_Arcane, // Spellsteal
+  CombatUnitSpec.Mage_Fire, // Spellsteal
+  CombatUnitSpec.Mage_Frost, // Spellsteal
+  CombatUnitSpec.DemonHunter_Havoc, // Consume Magic
+  CombatUnitSpec.DemonHunter_Vengeance, // Consume Magic
+  CombatUnitSpec.Warlock_Affliction, // Devour Magic (Felhunter)
+  CombatUnitSpec.Warlock_Demonology, // Devour Magic (Felhunter)
+  CombatUnitSpec.Warlock_Destruction, // Devour Magic (Felhunter)
+]);
+
+// Purge specs whose purge ability has a meaningful cooldown (>= 8s).
+// For these, only flag Critical priority missed purges — they can't freely spam purge
+// every GCD so holding the ability for a better target is often correct.
+const CD_GATED_PURGERS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Evoker_Preservation, // Naturalize: 10s CD
+  CombatUnitSpec.Evoker_Devastation, // Naturalize: 10s CD
+  CombatUnitSpec.Evoker_Augmentation, // Naturalize: 10s CD
+  CombatUnitSpec.Warlock_Affliction, // Devour Magic: ~8s CD
+  CombatUnitSpec.Warlock_Demonology,
+  CombatUnitSpec.Warlock_Destruction,
+  CombatUnitSpec.DemonHunter_Havoc, // Consume Magic: 8s CD
+  CombatUnitSpec.DemonHunter_Vengeance,
+]);
+
+// Spell IDs that have Magic dispelType in the game DB but cannot actually be targeted
+// by player offensive purge abilities in practice. Covers three categories:
+//   1. Immunity shells — target is spell-immune while active, so purge cannot land
+//   2. Passive/visual auras — registered as Magic but not dispel-targetable
+//   3. Cross-team targeting issues — buff is on your ally, not an enemy
+const PURGE_BLOCKLIST = new Set<string>([
+  // ── Immunity shells (target is spell-immune; purge cannot land) ──────────────────
+  '642', // Divine Shield (Paladin) — full spell immunity while active
+  '45438', // Ice Block (Mage) — full spell immunity while active
+  '186265', // Aspect of the Turtle (Hunter) — full spell + attack immunity
+  // ── Passive / visual auras — registered as Magic but not dispel-targetable ───────
+  '188501', // Spectral Sight (DH) — passive/visual, not purgeable
+  '132158', // Nature's Swiftness — instant-cast buff, expires before purge lands
+  // ── Cross-team targeting issues ──────────────────────────────────────────────────
+  '29166', // Innervate — targeted at an ally, not an enemy; removed by defensive cleanse
+  '605', // Mind Control — debuff on your ally, removed via defensive cleanse not offensive purge
+]);
+
+// Single source of truth — DispelType is derived from this array so adding a new type here
+// automatically widens the union without needing a second edit.
+const ALL_DISPEL_TYPES = ['Magic', 'Poison', 'Curse', 'Disease', 'Bleed'] as const;
+type DispelType = (typeof ALL_DISPEL_TYPES)[number];
+
+// DH Consume Magic is in the TWW talent tree — only available if the player took the node.
+const CONSUME_MAGIC_SPELL_ID = '278326';
+// Warlock Felhunter: Summon Felhunter is in the talent tree; Devour Magic is a pet ability (not player talent).
+// We use the Summon Felhunter talent as a proxy, falling back to cast evidence.
+const SUMMON_FELHUNTER_SPELL_ID = '30146';
+// Shadow Priest: Purify Disease is in the talent tree (not baseline like Holy/Disc).
+// 213634 is confirmed in talentIdMap.json as both the talent node spellId and the cast spell ID,
+// so it works for both talentedIds.has() checks and cast-evidence fallback.
+const PURIFY_DISEASE_SPELL_ID = '213634';
+
+const WARLOCK_SPECS = new Set<CombatUnitSpec>([
+  CombatUnitSpec.Warlock_Affliction,
+  CombatUnitSpec.Warlock_Demonology,
+  CombatUnitSpec.Warlock_Destruction,
+]);
+const DH_SPECS = new Set<CombatUnitSpec>([CombatUnitSpec.DemonHunter_Havoc, CombatUnitSpec.DemonHunter_Vengeance]);
+
+/** Returns the set of spell IDs the unit successfully cast during the match. */
+function unitCastSpellIds(unit: ICombatUnit): Set<string> {
+  return new Set<string>(
+    unit.spellCastEvents
+      .filter((e) => e.logLine.event === LogEvent.SPELL_CAST_SUCCESS)
+      .map((e) => e.spellId)
+      .filter((id): id is string => id !== null),
+  );
+}
+
+/**
+ * Extracts the BUFF/DEBUFF marker from an aura event's raw log line.
+ * Combat-log parameter index 11 holds this for SPELL_AURA_APPLIED, SPELL_AURA_REMOVED,
+ * and SPELL_AURA_BROKEN(_SPELL). Returns null when the marker is absent (older fixtures
+ * or edge log lines) so callers can decide how to treat unknowns.
+ */
+function getAuraType(aura: { logLine: { parameters: (string | number)[] } }): 'BUFF' | 'DEBUFF' | null {
+  const raw = aura.logLine.parameters[11];
+  if (raw === 'BUFF' || raw === 'DEBUFF') return raw;
+  return null;
+}
+
+/**
+ * Returns true if a talent-gated spell is confirmed available for the unit.
+ * - Has talent data and took the talent → true
+ * - Has talent data and didn't take it → false
+ * - No talent data + has COMBATANT_INFO → fall back to cast evidence
+ * - No COMBATANT_INFO at all → false (can't verify; avoid false positives)
+ */
+function hasTalentedAbility(unit: ICombatUnit, spellId: string): boolean {
+  const specIdNum = parseInt(unit.spec, 10);
+  const talentTreeIds = getSpecTalentTreeSpellIds(specIdNum);
+  if (!talentTreeIds.has(spellId)) return false; // not a talent for this spec
+
+  const talentedIds = unit.info?.talents ? getPlayerTalentedSpellIds(specIdNum, unit.info.talents) : null;
+  if (talentedIds !== null) return talentedIds.has(spellId);
+
+  // No parsed talent data — use cast evidence if COMBATANT_INFO was present
+  if (unit.info !== undefined) return unitCastSpellIds(unit).has(spellId);
+
+  return false; // no COMBATANT_INFO — can't verify
+}
+
+/**
+ * Returns true if the unit can defensively cleanse the given debuff type from an ally,
+ * accounting for talent-gated abilities (e.g. Shadow Priest Purify Disease).
+ *
+ * Note: Warlock Imp Singe Magic (party magic cleanse) is not tracked — it is a pet
+ * ability with no reliable signal in player cast events.
+ */
+export function canDefensiveCleanse(unit: ICombatUnit, dispelType: DispelType): boolean {
+  switch (dispelType) {
+    case 'Magic':
+      return MAGIC_REMOVERS.has(unit.spec);
+    case 'Poison':
+      return POISON_REMOVERS.has(unit.spec);
+    case 'Curse':
+      return CURSE_REMOVERS.has(unit.spec);
+    case 'Disease':
+      if (DISEASE_REMOVERS.has(unit.spec)) return true;
+      // Shadow Priest can talent into Purify Disease — not in DISEASE_REMOVERS by default
+      if (unit.spec === CombatUnitSpec.Priest_Shadow) return hasTalentedAbility(unit, PURIFY_DISEASE_SPELL_ID);
+      return false;
+    case 'Bleed':
+      return BLEED_REMOVERS.has(unit.spec);
+  }
+}
+
+/**
+ * Returns true if the unit can actually perform an offensive purge, accounting for
+ * talent gating (DH Consume Magic) and pet requirements (Warlock Felhunter).
+ */
+export function canOffensivePurge(unit: ICombatUnit): boolean {
+  if (!OFFENSIVE_PURGERS.has(unit.spec)) return false;
+
+  const specIdNum = parseInt(unit.spec, 10);
+  const talentTreeIds = getSpecTalentTreeSpellIds(specIdNum);
+  const talentedIds = unit.info?.talents ? getPlayerTalentedSpellIds(specIdNum, unit.info.talents) : null;
+  const hasCombatantInfo = unit.info !== undefined;
+  // castSpellIds is computed lazily (only when talentedIds is null) to avoid iterating
+  // potentially thousands of cast events on the hot path where COMBATANT_INFO is present.
+  let castSpellIds: Set<string> | null = null;
+  const getCastSpellIds = () => {
+    if (castSpellIds === null) castSpellIds = unitCastSpellIds(unit);
+    return castSpellIds;
+  };
+
+  // DH: Consume Magic is talent-gated.
+  if (DH_SPECS.has(unit.spec) && talentTreeIds.has(CONSUME_MAGIC_SPELL_ID)) {
+    if (talentedIds !== null && !talentedIds.has(CONSUME_MAGIC_SPELL_ID)) return false;
+    if (talentedIds === null && hasCombatantInfo && !getCastSpellIds().has(CONSUME_MAGIC_SPELL_ID)) return false;
+  }
+
+  // Warlock: Devour Magic requires an active Felhunter pet.
+  // Summon Felhunter (30146) is in the talent tree; if the player has talent data and didn't
+  // take it, they likely have a different pet. Fall back to cast evidence for the summon.
+  if (WARLOCK_SPECS.has(unit.spec)) {
+    if (talentTreeIds.has(SUMMON_FELHUNTER_SPELL_ID)) {
+      if (talentedIds !== null && !talentedIds.has(SUMMON_FELHUNTER_SPELL_ID)) {
+        // Didn't take Summon Felhunter talent — check cast evidence as final fallback
+        // (they may have summoned it before the match started, so cast may not appear)
+        if (!getCastSpellIds().has(SUMMON_FELHUNTER_SPELL_ID)) return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Fallback dispel types for CC spells whose game DB dispelType is null but are confirmed
+ * Magic-dispellable in practice. Keep this list SMALL and conservative — only add entries
+ * you have personally verified as dispellable in the current patch. When in doubt, leave it
+ * out: a false negative (missed report) is better than a false positive (wrong report).
+ *
+ * Do NOT add: physical stuns (Kidney Shot, Cheap Shot, Leg Sweep, Storm Bolt, Consecutive
+ * Concussion), silences (Solar Beam, Sigil of Silence), or talent modifier spells.
+ */
+const DISPEL_TYPE_FALLBACK: Record<string, DispelType> = {
+  // Rogue
+  '2094': 'Magic', // Blind — confirmed Magic-dispellable
+  // Monk
+  '115078': 'Magic', // Paralysis — confirmed Magic-dispellable
+  '107079': 'Magic', // Quaking Palm — confirmed Magic-dispellable
+  // Hunter
+  '203337': 'Magic', // Freezing Trap — confirmed Magic-dispellable
+  // Warrior
+  '5246': 'Magic', // Intimidating Shout — confirmed Magic-dispellable (fear)
+  '316593': 'Magic', // Intimidating Shout (rank 2)
+  '316595': 'Magic', // Intimidating Shout (rank 3)
+  // Druid
+  '99': 'Magic', // Incapacitating Roar — confirmed Magic-dispellable
+};
+
+/** Returns the dispel type for a spell ID from game data, or null if the spell cannot be dispelled. */
+function getDispelType(spellId: string): DispelType | null {
+  const type = spellEffectData[spellId]?.dispelType;
+  if (type === 'Magic' || type === 'Poison' || type === 'Curse' || type === 'Disease' || type === 'Bleed') return type;
+  // Fall back to our curated map for CC spells missing from spellEffects.json.
+  return DISPEL_TYPE_FALLBACK[spellId] ?? null;
+}
+
+function buildTeamDispelTypes(friends: ICombatUnit[]): Set<DispelType> {
+  const types = new Set<DispelType>();
+  for (const unit of friends) {
+    for (const type of ALL_DISPEL_TYPES) {
+      if (canDefensiveCleanse(unit, type)) types.add(type);
+    }
+  }
+  return types;
+}
+
+/** Returns which friendly units can remove each dispel type. */
+function buildTeamDispelCapability(friends: ICombatUnit[]): Map<DispelType, ICombatUnit[]> {
+  const map = new Map<DispelType, ICombatUnit[]>();
+  const add = (type: DispelType, unit: ICombatUnit) => {
+    const list = map.get(type) ?? [];
+    list.push(unit);
+    map.set(type, list);
+  };
+  for (const unit of friends) {
+    for (const type of ALL_DISPEL_TYPES) {
+      if (canDefensiveCleanse(unit, type)) add(type, unit);
+    }
+  }
+  return map;
+}
+
+export interface IDispelEvent {
+  timeSeconds: number;
+  dispelSpellId: string;
+  dispelSpellName: string;
+  removedSpellId: string;
+  removedSpellName: string;
+  sourceName: string;
+  sourceSpec: string;
+  targetName: string;
+  targetSpec: string;
+  priority: DispelPriority;
+  hasDispelPenalty: boolean;
+  penaltyDescription?: string;
+  /** Damage taken by the dispeller in the 4s after the dispel (only set when hasDispelPenalty) */
+  penaltyDamageTaken?: number;
+  /** Damage taken by the dispeller in the 4s before the dispel — baseline context */
+  penaltyDamageBaseline?: number;
+  isSpellSteal: boolean;
+}
+
+export interface IMissedCleanseWindow {
+  timeSeconds: number;
+  durationSeconds: number;
+  targetName: string;
+  targetSpec: string;
+  spellName: string;
+  spellId: string;
+  priority: DispelPriority;
+  dispelType: DispelType; // always set; null case is filtered before pushing
+  /** Damage the target took in the first POST_CC_PRESSURE_WINDOW_S seconds after CC was applied */
+  postCcDamage: number;
+  /** True if the healer who could remove this dispelType had their cleanse on CD */
+  cleanseWasOnCD: boolean;
+  cdBurnedOn?: { spellName: string; priority: DispelPriority; secondsBefore: number };
+}
+
+export interface ICCEfficiencyStat {
+  targetName: string;
+  targetSpec: string;
+  /** Critical + High CC windows applied by enemies (that the team could have cleansed) */
+  totalCCWindows: number;
+  /** CC windows dispelled quickly (< threshold) or explicitly dispelled by a teammate */
+  cleanseCount: number;
+  /** CC windows that lasted > threshold without a friendly dispel */
+  missedCount: number;
+  /** CC windows that ended because of incoming damage (SPELL_AURA_BROKEN_SPELL), not dispelled */
+  brokenCount: number;
+  /** cleanseCount / (cleanseCount + missedCount), ignoring broken-by-damage windows */
+  cleanseRate: number;
+}
+
+export interface IMissedPurgeWindow {
+  timeSeconds: number;
+  /** How long the buff sat uncontested; capped at match duration if never removed */
+  durationSeconds: number;
+  /** How long the buff was expected to last per spellEffectData; undefined if no duration data */
+  expectedBuffDurationSeconds?: number;
+  enemyName: string;
+  enemySpec: string;
+  spellName: string;
+  spellId: string;
+  priority: DispelPriority;
+  /** True if all eligible purgers had their purge ability on CD at the start of the miss window */
+  purgeWasOnCD: boolean;
+  /** What the purger last used their ability on before the miss (only set when purgeWasOnCD) */
+  cdBurnedOn?: { spellName: string; priority: DispelPriority; secondsBefore: number };
+  /**
+   * True if friendly team was under meaningful pressure during the miss window.
+   * Uses role-aware getPressureThreshold (post B8 fix).
+   */
+  teamUnderPressure: boolean;
+}
+
+export interface IDispelSummary {
+  /** Our team removed debuffs from our allies */
+  allyCleanse: IDispelEvent[];
+  /** Our team purged / spell-stole buffs from enemies */
+  ourPurges: IDispelEvent[];
+  /** Enemies stripped buffs from our team */
+  hostilePurges: IDispelEvent[];
+  missedCleanseWindows: IMissedCleanseWindow[];
+  ccEfficiency: ICCEfficiencyStat[];
+  /** Critical/High magic buffs on enemies that sat >3s while we had an offensive purger */
+  missedPurgeWindows: IMissedPurgeWindow[];
+}
+
+function getPriority(spellId: string): DispelPriority {
+  // WoW-flagged major defensives take precedence
+  if (BIG_DEFENSIVE_IDS.has(spellId) || EXTERNAL_DEFENSIVE_IDS.has(spellId)) return 'Critical';
+
+  const spell = SPELLS[spellId];
+  if (!spell) return 'Low';
+
+  switch (spell.type) {
+    case 'cc':
+    case 'immunities':
+      return 'Critical';
+    case 'roots':
+    case 'immunities_spells':
+    case 'buffs_offensive':
+    case 'debuffs_offensive':
+    case 'buffs_defensive':
+      return 'High';
+    case 'buffs_other':
+      return 'Medium';
+    default:
+      return 'Low';
+  }
+}
+
+/**
+ * Returns true if the given CC windows (sorted by start) cover every millisecond of [start, end].
+ */
+function isWindowFullyCovered(ccWindows: Array<{ from: number; to: number }>, start: number, end: number): boolean {
+  const relevant = ccWindows.filter((w) => w.from <= end && w.to >= start);
+  if (relevant.length === 0) return false;
+  relevant.sort((a, b) => a.from - b.from);
+  let covered = start;
+  for (const w of relevant) {
+    if (w.from > covered) return false; // gap — purger was free
+    covered = Math.max(covered, w.to);
+    if (covered >= end) return true;
+  }
+  return covered >= end;
+}
+
+/**
+ * Returns true if the unit was in hard CC (spell type 'cc') applied by enemies
+ * for the ENTIRETY of [windowStartMs, windowEndMs].
+ */
+function isPurgerFullyBlockedDuringWindow(
+  purger: ICombatUnit,
+  windowStartMs: number,
+  windowEndMs: number,
+  enemyIds: Set<string>,
+): boolean {
+  const appliedTimes = new Map<string, number[]>();
+  const removedTimes = new Map<string, number[]>();
+
+  for (const aura of purger.auraEvents) {
+    const spellId = aura.spellId;
+    if (!spellId) continue;
+    if (!enemyIds.has(aura.srcUnitId)) continue;
+    const spell = SPELLS[spellId];
+    if (!spell || spell.type !== 'cc') continue;
+
+    if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
+      const bucket = appliedTimes.get(spellId) ?? [];
+      appliedTimes.set(spellId, [...bucket, aura.timestamp]);
+    } else if (
+      aura.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
+      aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
+      aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL
+    ) {
+      const bucket = removedTimes.get(spellId) ?? [];
+      removedTimes.set(spellId, [...bucket, aura.timestamp]);
+    }
+  }
+
+  const ccWindows: Array<{ from: number; to: number }> = [];
+  for (const [spellId, applications] of appliedTimes) {
+    const removals = removedTimes.get(spellId) ?? [];
+    for (const applyTs of applications) {
+      const removalTs = removals.find((r) => r >= applyTs);
+      ccWindows.push({ from: applyTs, to: removalTs ?? Infinity });
+    }
+  }
+
+  return isWindowFullyCovered(ccWindows, windowStartMs, windowEndMs);
+}
+
+export function reconstructDispelSummary(
+  friends: ICombatUnit[],
+  enemies: ICombatUnit[],
+  combat: { startTime: number; endTime: number },
+): IDispelSummary {
+  const friendlyIds = new Set(friends.map((u) => u.id));
+  const enemyIds = new Set(enemies.map((u) => u.id));
+  const teamDispelTypes = buildTeamDispelTypes(friends);
+  const teamDispelCapability = buildTeamDispelCapability(friends);
+  const unitMap = new Map<string, ICombatUnit>([...friends, ...enemies].map((u) => [u.id, u]));
+
+  const allyCleanse: IDispelEvent[] = [];
+  const ourPurges: IDispelEvent[] = [];
+  const hostilePurges: IDispelEvent[] = [];
+
+  for (const unit of [...friends, ...enemies]) {
+    for (const action of unit.actionOut) {
+      const isDispel = action.logLine.event === LogEvent.SPELL_DISPEL;
+      const isSteal = action.logLine.event === LogEvent.SPELL_STOLEN;
+      if (!isDispel && !isSteal) continue;
+      if (!(action instanceof CombatExtraSpellAction)) continue;
+
+      const removedSpellId = action.extraSpellId;
+      if (!removedSpellId) continue;
+
+      const priority = getPriority(removedSpellId);
+      const destUnit = unitMap.get(action.destUnitId);
+      const penaltyDesc = DISPEL_PENALTY_SPELLS.get(removedSpellId);
+
+      const event: IDispelEvent = {
+        timeSeconds: (action.timestamp - combat.startTime) / 1000,
+        dispelSpellId: action.spellId ?? '',
+        dispelSpellName: action.spellName ?? '',
+        removedSpellId,
+        removedSpellName: action.extraSpellName,
+        sourceName: unit.name,
+        sourceSpec: specToString(unit.spec),
+        targetName: action.destUnitName,
+        targetSpec: destUnit ? specToString(destUnit.spec) : 'Unknown',
+        priority,
+        hasDispelPenalty: penaltyDesc !== undefined,
+        penaltyDescription: penaltyDesc,
+        isSpellSteal: isSteal,
+      };
+
+      const srcFriendly = friendlyIds.has(unit.id);
+      const srcEnemy = enemyIds.has(unit.id);
+      const destFriendly = friendlyIds.has(action.destUnitId);
+      const destEnemy = enemyIds.has(action.destUnitId);
+
+      if (srcFriendly && destFriendly) {
+        // We cleansed a debuff off our ally
+        if (penaltyDesc !== undefined) {
+          // Measure backlash: damage to the dispeller in the window before and after
+          const ts = action.timestamp;
+          event.penaltyDamageTaken = unit.damageIn
+            .filter((d) => d.logLine.timestamp >= ts && d.logLine.timestamp <= ts + PENALTY_WINDOW_MS)
+            .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+          event.penaltyDamageBaseline = unit.damageIn
+            .filter((d) => d.logLine.timestamp >= ts - PENALTY_WINDOW_MS && d.logLine.timestamp < ts)
+            .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+        }
+        allyCleanse.push(event);
+      } else if (srcFriendly && destEnemy) {
+        // We purged / spell-stole a buff off an enemy
+        ourPurges.push(event);
+      } else if (srcEnemy && destFriendly) {
+        // Enemy stripped a buff off us
+        hostilePurges.push(event);
+      }
+    }
+  }
+
+  allyCleanse.sort((a, b) => a.timeSeconds - b.timeSeconds);
+  ourPurges.sort((a, b) => a.timeSeconds - b.timeSeconds);
+  hostilePurges.sort((a, b) => a.timeSeconds - b.timeSeconds);
+
+  // Missed cleanse detection: Critical/High CC on friendly by enemy lasting > threshold without dispel.
+  // SPELL_AURA_BROKEN_SPELL = broke from incoming damage (not a missed cleanse, the CC ended by other means).
+  const missedCleanseWindows: IMissedCleanseWindow[] = [];
+
+  // Efficiency tracking: per friendly unit, count CC windows and cleansed/missed
+  const efficiencyMap = new Map<
+    string,
+    {
+      targetName: string;
+      targetSpec: string;
+      totalCCWindows: number;
+      cleanseCount: number;
+      missedCount: number;
+      brokenCount: number;
+    }
+  >();
+
+  for (const unit of friends) {
+    const appliedTimes = new Map<string, { ts: number; spellName: string }[]>();
+    const removedTimes = new Map<string, { ts: number; brokenByDamage: boolean }[]>();
+
+    for (const aura of unit.auraEvents) {
+      const spellId = aura.spellId;
+      if (!spellId) continue;
+
+      // Only CC applied by enemies
+      if (!enemyIds.has(aura.srcUnitId)) continue;
+
+      // B11 fix: skip BUFF auras. When a friendly Mage spellsteals an enemy buff (e.g.
+      // Blessing of Freedom 1044), the resulting SPELL_AURA_APPLIED on the Mage carries
+      // the original enemy as srcUnit — but the aura is a BUFF on our side, not a debuff
+      // the healer should cleanse. Without this filter the loop fabricates a missed
+      // cleanse window for every spellsteal.
+      const auraType = getAuraType(aura);
+      if (auraType !== null && auraType !== 'DEBUFF') continue;
+
+      const priority = getPriority(spellId);
+      if (priority !== 'Critical' && priority !== 'High') continue;
+
+      // Skip spells that cannot be dispelled (DispelType=None in game data)
+      const dispelType = getDispelType(spellId);
+      if (!dispelType) continue;
+
+      // Only flag if the team has someone capable of removing this debuff type
+      if (!teamDispelTypes.has(dispelType)) continue;
+
+      if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
+        const bucket = appliedTimes.get(spellId) ?? [];
+        appliedTimes.set(spellId, [...bucket, { ts: aura.timestamp, spellName: aura.spellName ?? spellId }]);
+      } else if (
+        aura.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
+        aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
+        aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL
+      ) {
+        const brokenByDamage = aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL;
+        const bucket = removedTimes.get(spellId) ?? [];
+        removedTimes.set(spellId, [...bucket, { ts: aura.timestamp, brokenByDamage }]);
+      }
+    }
+
+    // Ensure efficiency entry exists for this unit
+    const effKey = unit.id;
+    if (!efficiencyMap.has(effKey)) {
+      efficiencyMap.set(effKey, {
+        targetName: unit.name,
+        targetSpec: specToString(unit.spec),
+        totalCCWindows: 0,
+        cleanseCount: 0,
+        missedCount: 0,
+        brokenCount: 0,
+      });
+    }
+    const eff = efficiencyMap.get(effKey);
+    if (!eff) continue;
+
+    for (const [spellId, applications] of appliedTimes) {
+      const priority = getPriority(spellId);
+      const removals = removedTimes.get(spellId) ?? [];
+
+      for (const { ts: applyTs, spellName } of applications) {
+        const removal = removals.find((r) => r.ts >= applyTs);
+        if (!removal) continue;
+
+        eff.totalCCWindows++;
+
+        const durationSeconds = (removal.ts - applyTs) / 1000;
+
+        // CC broke from incoming damage — not a missed cleanse, but not a healer cleanse either
+        if (removal.brokenByDamage) {
+          eff.brokenCount++;
+          continue;
+        }
+
+        if (durationSeconds < MISSED_CLEANSE_THRESHOLD_S) {
+          eff.cleanseCount++;
+          continue;
+        }
+
+        // Was removed by a friendly dispel near that removal time?
+        const removedByDispel = allyCleanse.some(
+          (d) =>
+            d.removedSpellId === spellId &&
+            d.targetName === unit.name &&
+            Math.abs(d.timeSeconds - (removal.ts - combat.startTime) / 1000) < 0.5,
+        );
+
+        if (removedByDispel) {
+          eff.cleanseCount++;
+        } else {
+          // dispelType is non-null here (null case is filtered above)
+          const windowDispelType = getDispelType(spellId) as DispelType;
+
+          // Skip if every capable dispeller was themselves CC'd for the entire window —
+          // you can't dispel while hard-CC'd.
+          const capableDispellers = teamDispelCapability.get(windowDispelType) ?? [];
+          const allDispellersBlocked =
+            capableDispellers.length > 0 &&
+            capableDispellers.every((dispeller) =>
+              isPurgerFullyBlockedDuringWindow(dispeller, applyTs, removal.ts, enemyIds),
+            );
+          if (allDispellersBlocked) {
+            // Not a missed opportunity — no one could act
+            continue;
+          }
+
+          eff.missedCount++;
+
+          // Measure post-CC pressure: damage taken in first POST_CC_PRESSURE_WINDOW_S seconds
+          const windowEndMs = applyTs + POST_CC_PRESSURE_WINDOW_S * 1000;
+          const postCcDamage = unit.damageIn
+            .filter((d) => d.logLine.timestamp >= applyTs && d.logLine.timestamp <= windowEndMs)
+            .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+
+          let cleanseWasOnCD = false;
+          let cdBurnedOn: { spellName: string; priority: DispelPriority; secondsBefore: number } | undefined;
+
+          if (capableDispellers.length > 0) {
+            const activeDispellers = capableDispellers.filter(
+              (d) => !isPurgerFullyBlockedDuringWindow(d, applyTs, removal.ts, enemyIds),
+            );
+
+            const activeDispellerNames = new Set(activeDispellers.map((u) => u.name));
+            const applyRelative = (applyTs - combat.startTime) / 1000;
+            // Standard defensive dispel cooldown is 8 seconds. Look at the preceding 8s window.
+            const recentCleanses = allyCleanse.filter(
+              (c) =>
+                activeDispellerNames.has(c.sourceName) &&
+                c.timeSeconds < applyRelative &&
+                c.timeSeconds >= applyRelative - 8,
+            );
+
+            const dispellersWhoUsedCD = new Set(recentCleanses.map((c) => c.sourceName));
+
+            // If every active dispeller who wasn't CC'd had used their cleanse recently...
+            if (activeDispellers.length > 0 && activeDispellers.every((d) => dispellersWhoUsedCD.has(d.name))) {
+              cleanseWasOnCD = true;
+              const lastCleanse = recentCleanses[recentCleanses.length - 1]; // allyCleanse is sorted by timeSeconds
+              cdBurnedOn = {
+                spellName: lastCleanse.removedSpellName,
+                priority: lastCleanse.priority,
+                secondsBefore: applyRelative - lastCleanse.timeSeconds,
+              };
+            }
+          }
+
+          missedCleanseWindows.push({
+            timeSeconds: (applyTs - combat.startTime) / 1000,
+            durationSeconds,
+            targetName: unit.name,
+            targetSpec: specToString(unit.spec),
+            spellName,
+            spellId,
+            priority,
+            dispelType: windowDispelType,
+            postCcDamage,
+            cleanseWasOnCD,
+            cdBurnedOn,
+          });
+        }
+      }
+    }
+  }
+
+  missedCleanseWindows.sort((a, b) => a.timeSeconds - b.timeSeconds);
+
+  // Missed offensive purge detection: Critical/High magic buffs on enemies that sat >threshold
+  // without being purged, when our team had the capability to purge.
+  const missedPurgeWindows: IMissedPurgeWindow[] = [];
+  const friendlyPurgers = friends.filter((f) => canOffensivePurge(f));
+
+  if (friendlyPurgers.length > 0) {
+    for (const enemy of enemies) {
+      const appliedTimes = new Map<string, { ts: number; spellName: string }[]>();
+      const removedTimes = new Map<string, number[]>();
+
+      for (const aura of enemy.auraEvents) {
+        const spellId = aura.spellId;
+        if (!spellId) continue;
+        // Only consider buffs applied by the enemy's own side — skip debuffs our team placed on them
+        if (!enemyIds.has(aura.srcUnitId)) continue;
+        // Symmetric to the cleanse fix: only treat actual buffs on enemies as purge targets.
+        // A debuff briefly hitting an enemy with an enemy as srcUnit (reflects, cross-team
+        // weirdness) is not something our offensive purge should handle.
+        const auraType = getAuraType(aura);
+        if (auraType !== null && auraType !== 'BUFF') continue;
+        if (getDispelType(spellId) !== 'Magic') continue;
+        if (PURGE_BLOCKLIST.has(spellId)) continue;
+        const priority = getPriority(spellId);
+        if (priority !== 'Critical' && priority !== 'High') continue;
+
+        if (aura.logLine.event === LogEvent.SPELL_AURA_APPLIED) {
+          const bucket = appliedTimes.get(spellId) ?? [];
+          appliedTimes.set(spellId, [...bucket, { ts: aura.timestamp, spellName: aura.spellName ?? spellId }]);
+        } else if (
+          aura.logLine.event === LogEvent.SPELL_AURA_REMOVED ||
+          aura.logLine.event === LogEvent.SPELL_AURA_BROKEN ||
+          aura.logLine.event === LogEvent.SPELL_AURA_BROKEN_SPELL
+        ) {
+          const bucket = removedTimes.get(spellId) ?? [];
+          removedTimes.set(spellId, [...bucket, aura.timestamp]);
+        }
+      }
+
+      for (const [spellId, applications] of appliedTimes) {
+        const priority = getPriority(spellId);
+        const removals = removedTimes.get(spellId) ?? [];
+
+        for (const { ts: applyTs, spellName } of applications) {
+          const removalTs = removals.find((r) => r >= applyTs);
+          const durationSeconds = ((removalTs ?? combat.endTime) - applyTs) / 1000;
+
+          if (durationSeconds < MISSED_PURGE_THRESHOLD_S) continue;
+
+          // Was it actually purged by our team within this window?
+          const applyRelative = (applyTs - combat.startTime) / 1000;
+          const purgedByUs = ourPurges.some(
+            (p) =>
+              p.removedSpellId === spellId &&
+              p.targetName === enemy.name &&
+              p.timeSeconds >= applyRelative &&
+              p.timeSeconds <= applyRelative + durationSeconds,
+          );
+
+          if (!purgedByUs) {
+            // Only flag if at least one purger was free during the window AND
+            // the priority meets the bar for that purger's spec (CD-gated purgers
+            // only get flagged for Critical misses — they can't spam purge every GCD).
+            const windowEndMs = removalTs ?? combat.endTime;
+            const eligiblePurgers = friendlyPurgers.filter(
+              (p) => priority === 'Critical' || !CD_GATED_PURGERS.has(p.spec),
+            );
+            const allPurgersBlocked =
+              eligiblePurgers.length === 0 ||
+              eligiblePurgers.every((purger) =>
+                isPurgerFullyBlockedDuringWindow(purger, applyTs, windowEndMs, enemyIds),
+              );
+            if (!allPurgersBlocked) {
+              // Expected buff duration from spell data
+              const expectedBuffDurationSeconds = spellEffectData[spellId]?.durationSeconds;
+
+              // Purge CD state: look back at ourPurges for each eligible purger.
+              // Only meaningful for CD-gated purgers (Evoker 10s, DH/Warlock/Priest 8s).
+              // Free-purge specs (Shaman, Mage) never have their CD "burned" — skip them.
+              const cdGatedEligible = eligiblePurgers.filter((p) => CD_GATED_PURGERS.has(p.spec));
+              let purgeWasOnCD = false;
+              let cdBurnedOn: { spellName: string; priority: DispelPriority; secondsBefore: number } | undefined;
+              if (cdGatedEligible.length > 0 && eligiblePurgers.every((p) => CD_GATED_PURGERS.has(p.spec))) {
+                // Only meaningful when ALL eligible purgers are CD-gated
+                const purgeCD = 8; // seconds — conservative; Evoker is 10s
+                const recentPurges = ourPurges.filter(
+                  (p) =>
+                    cdGatedEligible.some((pu) => pu.name === p.sourceName) &&
+                    p.timeSeconds < applyRelative &&
+                    p.timeSeconds >= applyRelative - purgeCD,
+                );
+                const purgersWhoUsedCD = new Set(recentPurges.map((p) => p.sourceName));
+                if (cdGatedEligible.every((p) => purgersWhoUsedCD.has(p.name))) {
+                  purgeWasOnCD = true;
+                  const lastPurge = recentPurges[recentPurges.length - 1];
+                  cdBurnedOn = {
+                    spellName: lastPurge.removedSpellName,
+                    priority: lastPurge.priority,
+                    secondsBefore: applyRelative - lastPurge.timeSeconds,
+                  };
+                }
+              }
+
+              // Healing pressure: was the friendly team taking significant damage at the moment of application?
+              // We check a strict burst window (3s) instead of the entire unpurged duration so we don't falsely
+              // excuse missed purges during long, unpressured periods.
+              const pressureWindowEndMs = Math.min(
+                applyTs + POST_CC_PRESSURE_WINDOW_S * 1000,
+                removalTs ?? combat.endTime,
+              );
+              const teamUnderPressure = friends.some((f) => {
+                const threshold = getPressureThreshold(f);
+                const dmg = f.damageIn
+                  .filter((d) => d.logLine.timestamp >= applyTs && d.logLine.timestamp <= pressureWindowEndMs)
+                  .reduce((sum, d) => sum + Math.abs(d.effectiveAmount), 0);
+                return dmg >= threshold;
+              });
+
+              missedPurgeWindows.push({
+                timeSeconds: applyRelative,
+                durationSeconds,
+                expectedBuffDurationSeconds,
+                enemyName: enemy.name,
+                enemySpec: specToString(enemy.spec),
+                spellName,
+                spellId,
+                priority,
+                purgeWasOnCD,
+                cdBurnedOn,
+                teamUnderPressure,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    missedPurgeWindows.sort((a, b) => a.timeSeconds - b.timeSeconds);
+  }
+
+  const ccEfficiency: ICCEfficiencyStat[] = [...efficiencyMap.values()]
+    .filter((e) => e.totalCCWindows > 0)
+    .map((e) => {
+      const dispelableWindows = e.cleanseCount + e.missedCount;
+      return {
+        ...e,
+        // Rate only counts windows where dispel was possible (excludes broken-by-damage)
+        cleanseRate: dispelableWindows > 0 ? e.cleanseCount / dispelableWindows : 1,
+      };
+    })
+    .sort((a, b) => b.totalCCWindows - a.totalCCWindows);
+
+  return { allyCleanse, ourPurges, hostilePurges, missedCleanseWindows, ccEfficiency, missedPurgeWindows };
+}
+
+export function formatDispelContextForAI(summary: IDispelSummary): string[] {
+  const lines: string[] = [];
+  const { missedCleanseWindows, ccEfficiency, missedPurgeWindows } = summary;
+
+  lines.push('DISPEL SUMMARY:');
+
+  // Cleanse summary
+  const totalCCWindows = ccEfficiency.reduce((s, e) => s + e.totalCCWindows, 0);
+  const totalMissed = ccEfficiency.reduce((s, e) => s + e.missedCount, 0);
+  const totalCleansed = ccEfficiency.reduce((s, e) => s + e.cleanseCount, 0);
+  const totalBroken = ccEfficiency.reduce((s, e) => s + e.brokenCount, 0);
+
+  if (totalCCWindows === 0) {
+    lines.push('  No significant CC applied to your team.');
+  } else {
+    const brokenStr = totalBroken > 0 ? `, ${totalBroken} broken by damage` : '';
+    lines.push(
+      `  CC windows on your team: ${totalCCWindows} total — ${totalMissed} missed, ${totalCleansed} cleansed${brokenStr}`,
+    );
+
+    // Worst missed cleanse
+    const significantMissed = missedCleanseWindows.filter(
+      (w) => w.priority === 'Critical' || (w.priority === 'High' && (w.durationSeconds > 5 || w.postCcDamage > 50_000)),
+    );
+    if (significantMissed.length > 0) {
+      const worst = [...significantMissed].sort((a, b) => b.durationSeconds - a.durationSeconds)[0];
+      const dmgStr = worst.postCcDamage > 0 ? `, ${Math.round(worst.postCcDamage / 1000)}k dmg taken` : '';
+      lines.push(
+        `  Worst missed cleanse: ${worst.spellName} [${worst.priority}] on ${worst.targetSpec} at ${fmtTime(worst.timeSeconds)} (${Math.round(worst.durationSeconds)}s${dmgStr})`,
+      );
+      const highDamageMisses = significantMissed.filter((w) => w.postCcDamage > 100_000);
+      if (highDamageMisses.length > 0) {
+        lines.push(`  High-damage missed cleanses: ${highDamageMisses.length} with >100k dmg taken during CC`);
+      }
+    }
+  }
+
+  // Purge summary
+  const significantMissedPurges = missedPurgeWindows.filter((w) => w.priority === 'Critical' || w.priority === 'High');
+  if (significantMissedPurges.length === 0) {
+    lines.push('  Missed purge windows: None (Critical/High)');
+  } else {
+    const worst = [...significantMissedPurges].sort((a, b) => b.durationSeconds - a.durationSeconds)[0];
+    const pressureStr = worst.teamUnderPressure ? ' during pressure' : '';
+    lines.push(
+      `  Missed purge windows: ${significantMissedPurges.length} — worst: ${worst.spellName} on ${worst.enemySpec} (${Math.round(worst.durationSeconds)}s unpurged${pressureStr})`,
+    );
+  }
+
+  return lines;
+}

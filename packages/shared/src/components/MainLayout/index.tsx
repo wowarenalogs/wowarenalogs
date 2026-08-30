@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   TbAlertTriangle,
   TbBook,
+  TbBrandOpenai,
   TbBug,
   TbChartBar,
   TbHistory,
@@ -23,36 +24,18 @@ interface IProps {
   children?: React.ReactNode[] | React.ReactNode;
 }
 
-function isVersionLessThan(version: string, target: string): boolean {
-  const vParts = version.split('.').map(Number);
-  const tParts = target.split('.').map(Number);
-  for (let i = 0; i < Math.max(vParts.length, tParts.length); i++) {
-    const v = vParts[i] || 0;
-    const t = tParts[i] || 0;
-    if (v < t) return true;
-    if (v > t) return false;
-  }
-  return false;
-}
-
 export function MainLayout(props: IProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const auth = useAuth();
   const clientContext = useClientContext();
   const prevPathRef = useRef(pathname);
-  const [showUpgradeBanner, setShowUpgradeBanner] = useState(false);
+  const [showUpgradeBanner, _setShowUpgradeBanner] = useState(false);
   const [vodDiskWarning, setVodDiskWarning] = useState<{ bytesRemaining: number; driveLabel?: string } | null>(null);
   const [logDiskWarning, setLogDiskWarning] = useState<{ bytesRemaining: number; driveLabel?: string } | null>(null);
 
   useEffect(() => {
-    if (clientContext.isDesktop && window.wowarenalogs?.app?.getVersion) {
-      window.wowarenalogs.app.getVersion().then((version: string) => {
-        if (isVersionLessThan(version, '12.1')) {
-          setShowUpgradeBanner(true);
-        }
-      });
-    }
+    // Version check intentionally disabled for personal builds.
   }, [clientContext.isDesktop]);
 
   useEffect(() => {
@@ -146,14 +129,23 @@ export function MainLayout(props: IProps) {
           </Link>
         </div>
         <div className="flex-1" />
-        {process.env.NODE_ENV === 'development' && clientContext.isDesktop && (
-          <div
-            className={`p-2 hover:text-primary ${selectedNavMenuKey === '/debug' ? 'bg-base-100 text-primary' : ''}`}
-          >
-            <Link href="/debug">
-              <TbBug size="32" />
-            </Link>
-          </div>
+        {process.env.NODE_ENV === 'development' && (
+          <>
+            <div
+              className={`p-2 hover:text-primary ${selectedNavMenuKey === '/local' ? 'bg-base-100 text-primary' : ''}`}
+            >
+              <Link href="/local" aria-label="Local log viewer" title="Local log viewer (dev)">
+                <TbBug size="32" />
+              </Link>
+            </div>
+            <div
+              className={`p-2 hover:text-primary ${selectedNavMenuKey === '/local/ai' ? 'bg-base-100 text-primary' : ''}`}
+            >
+              <Link href="/local/ai" aria-label="AI test" title="AI test (dev)">
+                <TbBrandOpenai size="32" />
+              </Link>
+            </div>
+          </>
         )}
         <div
           className={`p-2 ${

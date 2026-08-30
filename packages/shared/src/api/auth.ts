@@ -5,13 +5,21 @@ import path from 'path';
 
 import { FirestoreNextAuthAdapter } from '../utils/FirestoreNextAuthAdapter';
 
+let devCredentials: object | undefined;
+if (process.env.NODE_ENV === 'development') {
+  try {
+    devCredentials = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'),
+    );
+  } catch {
+    // Credentials file not present — Firestore will use ADC or fail gracefully at runtime.
+  }
+}
+
 const firestore = new Firestore({
   projectId: process.env.NODE_ENV === 'development' ? 'wowarenalogs-public-dev' : 'wowarenalogs',
   ignoreUndefinedProperties: true,
-  credentials:
-    process.env.NODE_ENV === 'development'
-      ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
-      : undefined,
+  credentials: devCredentials,
 });
 
 export default NextAuth({

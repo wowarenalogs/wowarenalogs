@@ -36,6 +36,26 @@
     "directories": {
       "buildResources": "packages/app/assets"
     },
+    "publish": {
+      "provider": "github",
+      "owner": "mingjianliu",
+      "repo": "wowarenalogs",
+      "releaseType": "prerelease"
+    },
+    "extraResources": [
+      {
+        "from": "packages/web/.next/standalone",
+        "to": "server"
+      },
+      {
+        "from": "packages/web/.next/static",
+        "to": "server/packages/web/.next/static"
+      },
+      {
+        "from": "packages/web/public",
+        "to": "server/packages/web/public"
+      }
+    ],
     "linux": {
       "category": "Utility",
       "target": "AppImage",
@@ -62,7 +82,7 @@
     "build:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=never",
     "build:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=never",
     "build:app:linux": "shx rm -rf dist && npm run build:app && electron-builder --linux --publish=never",
-    "publish:app:windows": "shx rm -rf dist && npm run build:app && electron-builder --win --publish=always",
+    "publish:app:windows": "shx rm -rf dist && npm run build:web && npm run build:app && electron-builder --win --publish=always",
     "publish:app:mac": "shx rm -rf dist && npm run build:app && electron-builder --mac --publish=always",
     "publish:app:linux": "shx rm -rf dist && npm run build:app && electron-builder --linux --publish=always",
     "release:app": "npm run release:app --workspaces --if-present",
@@ -71,6 +91,7 @@
     "start:desktop": "npm run start:desktop --workspaces --if-present",
     "release:desktop": "npm run release:desktop --workspaces --if-present",
     "dev:web": "npm run dev:web --workspaces --if-present",
+    "prebuild:web": "npm run start:generateDataManifest --workspaces --if-present",
     "build:web": "npm run build:web --workspaces --if-present",
     "start:web": "npm run start:web --workspaces --if-present",
     "release:web": "npm run release:web --workspaces --if-present",
@@ -79,15 +100,17 @@
     "build:recorder": "npm run build:recorder --workspaces --if-present",
     "start:generateSpellsData": "npm run start:generateSpellsData --workspaces --if-present",
     "start:generateSpellIdLists": "npm run start:generateSpellIdLists --workspaces --if-present",
+    "start:generateTrinketItemIds": "npm run start:generateTrinketItemIds --workspaces --if-present",
     "start:refreshSpellMetadata": "npm run start:refreshSpellMetadata --workspaces --if-present",
     "update:statics": "node scripts/update_statics.js",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "build": "npm run build:sql && npm run build:parser && npm run build:recorder && npm run build:web && npm run build:desktop && npm run build:app",
     "test": "npm run test --workspaces --if-present",
     "start:simlog": "npm run start:simlog --workspaces --if-present",
     "postinstall": "patch-package",
-    "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || electron-builder install-app-deps"
+    "prepare": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || (husky install && electron-builder install-app-deps)"
   },
   "devDependencies": {
     "@electron/notarize": "^3.0.0",
