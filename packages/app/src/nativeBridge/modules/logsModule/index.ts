@@ -168,7 +168,8 @@ export class LogsModule extends NativeBridgeModule {
           });
 
           data.filePaths.forEach((logFile) => {
-            DesktopUtils.parseLogFile(logParser, logFile);
+            const parseOK = DesktopUtils.parseLogFile(logParser, logFile);
+            logger.info(`importLogFiles ${logFile} parseOK=${parseOK}`);
           });
 
           // The file may end mid-match (e.g. the game crashed, or logging stopped before
@@ -213,7 +214,11 @@ export class LogsModule extends NativeBridgeModule {
       this.handleNewCombat(mainWindow, combat);
     });
     bridge.logParser.on('solo_shuffle_round_ended', (combat) => {
-      logger.info(`[${wowVersion}] solo_shuffle_round_ended id=${combat.id} sequenceNumber=${combat.sequenceNumber}`);
+      // Live, combat.endTime (the round-ending kill) and Date.now() come off the same clock,
+      // so the gap is how long after the kill the round actually surfaced.
+      logger.info(
+        `[${wowVersion}] solo_shuffle_round_ended id=${combat.id} sequenceNumber=${combat.sequenceNumber} receiveLatencyMs=${Date.now() - combat.endTime}`,
+      );
       this.handleSoloShuffleRoundEnded(mainWindow, combat);
     });
     bridge.logParser.on('solo_shuffle_ended', (combat) => {
