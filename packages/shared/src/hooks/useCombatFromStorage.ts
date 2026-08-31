@@ -1,4 +1,5 @@
-import { WowVersion } from '@wowarenalogs/parser';
+import { IShuffleRound, WowVersion } from '@wowarenalogs/parser';
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 
 import { Utils } from '../utils/utils';
@@ -12,8 +13,10 @@ const combatRootURL =
     : 'https://storage.googleapis.com/wowarenalogs-log-files-prod/';
 
 export function useCombatFromStorage(matchId: string, roundId?: string) {
+  // The log file holds every round of a shuffle, so it is fetched and parsed once per
+  // match - picking the round happens below, which keeps round switching instant.
   const queryParsedLog = useQuery(
-    ['log-file', matchId, roundId],
+    ['log-file', matchId],
     async () => {
       const logObjectUrl = `${combatRootURL}${matchId}`;
       const result = await fetch(logObjectUrl);
@@ -26,9 +29,8 @@ export function useCombatFromStorage(matchId: string, roundId?: string) {
 
       return {
         matchId,
-        combat:
-          results.arenaMatches.at(0) ||
-          (roundId ? results.shuffleMatches[0]?.rounds[parseInt(roundId) - 1] : undefined),
+        arenaMatch: results.arenaMatches.at(0),
+        shuffleRounds: results.shuffleMatches.at(0)?.rounds ?? [],
       };
     },
     {
@@ -38,11 +40,35 @@ export function useCombatFromStorage(matchId: string, roundId?: string) {
     },
   );
 
+  const arenaMatch = queryParsedLog.data?.arenaMatch;
+  const shuffleRounds = useMemo(() => queryParsedLog.data?.shuffleRounds ?? [], [queryParsedLog.data]);
+
+  const combat = useMemo(() => {
+    if (arenaMatch) {
+      return arenaMatch;
+    }
+    // Links to a shuffle always carry a roundId, but fall back to the first round so a
+    // bare match link still opens something the viewer can navigate from.
+    return (roundId ? findRoundBySequence(shuffleRounds, roundId) : undefined) ?? shuffleRounds.at(0);
+  }, [arenaMatch, shuffleRounds, roundId]);
+
   return {
     matchId,
-    roundId,
-    combat: queryParsedLog.data?.combat,
+    roundId: combat?.dataType === 'ShuffleRound' ? (combat.sequenceNumber + 1).toString() : undefined,
+    combat,
+    shuffleRounds,
     loading: queryParsedLog.isLoading,
     error: queryParsedLog.error,
   };
+}
+
+/**
+ * roundId in urls is 1-based (round.sequenceNumber + 1)
+ */
+function findRoundBySequence(rounds: IShuffleRound[], roundId: string): IShuffleRound | undefined {
+  const sequence = parseInt(roundId) - 1;
+  if (isNaN(sequence)) {
+    return undefined;
+  }
+  return rounds.find((r) => r.sequenceNumber === sequence) ?? rounds[sequence];
 }

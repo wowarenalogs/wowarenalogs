@@ -1,4 +1,11 @@
-import { AtomicArenaCombat, CombatUnitReaction, CombatUnitType, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+import {
+  AtomicArenaCombat,
+  CombatUnitReaction,
+  CombatUnitType,
+  ICombatUnit,
+  IShuffleRound,
+  LogEvent,
+} from '@wowarenalogs/parser';
 import _ from 'lodash';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 
@@ -7,6 +14,20 @@ import { ccSpellIds } from '../../data/spellTags';
 interface ICombatReportContextData {
   viewerIsOwner: boolean;
   combat: AtomicArenaCombat | null;
+  /**
+   * All rounds of the solo shuffle the currently viewed combat belongs to.
+   * Empty when the viewer only has a single combat available (or it isn't a shuffle).
+   */
+  shuffleRounds: IShuffleRound[];
+  /**
+   * Switches the report to another round of the same shuffle.
+   * Null when the host of the report cannot navigate between rounds.
+   */
+  navigateToRound: ((round: IShuffleRound) => void) | null;
+  /**
+   * True when the report is showing a shuffle round the viewer can navigate away from.
+   */
+  canSelectRound: boolean;
   activePlayerId: string | null;
   navigateToPlayerView: (playerId: string) => void;
   activeTab: string;
@@ -26,6 +47,9 @@ interface ICombatReportContextData {
 
 export const CombatReportContext = React.createContext<ICombatReportContextData>({
   combat: null,
+  shuffleRounds: [],
+  navigateToRound: null,
+  canSelectRound: false,
   viewerIsOwner: true,
   activePlayerId: null,
   navigateToPlayerView: (_playerId: string) => {
@@ -50,6 +74,8 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
 
 interface IProps {
   combat: AtomicArenaCombat;
+  shuffleRounds?: IShuffleRound[];
+  onRoundSelected?: (round: IShuffleRound) => void;
   viewerIsOwner: boolean;
   children: React.ReactNode | React.ReactNode[];
 }
@@ -57,6 +83,10 @@ interface IProps {
 export const CombatReportContextProvider = (props: IProps) => {
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('summary');
+  const shuffleRounds = useMemo(
+    () => _.sortBy(props.shuffleRounds ?? [], (r) => r.sequenceNumber),
+    [props.shuffleRounds],
+  );
 
   const [
     players,
@@ -207,15 +237,21 @@ export const CombatReportContextProvider = (props: IProps) => {
 
   useEffect(() => {
     if (players && players.length > 0) {
-      setActivePlayerId(players[0].id);
+      // The same 6 players appear in every round of a shuffle, so keep the viewer on the
+      // player they were looking at when they switch rounds.
+      setActivePlayerId((prev) => (prev && players.some((p) => p.id === prev) ? prev : players[0].id));
     } else {
       setActivePlayerId(null);
     }
   }, [players]);
 
+  // Switching between rounds of the same shuffle keeps the current tab - only moving to a
+  // different match resets the report back to the summary.
+  const combatGroupId =
+    props.combat.dataType === 'ShuffleRound' && shuffleRounds.length > 0 ? shuffleRounds[0].id : props.combat.id;
   useEffect(() => {
     setActiveTab('summary');
-  }, [props.combat]);
+  }, [combatGroupId]);
 
   return (
     <CombatReportContext.Provider
@@ -239,6 +275,9 @@ export const CombatReportContextProvider = (props: IProps) => {
         playerInterruptsTaken,
         playerTotalSupportIn,
         combat: props.combat,
+        shuffleRounds,
+        navigateToRound: props.onRoundSelected ?? null,
+        canSelectRound: props.combat.dataType === 'ShuffleRound' && !!props.onRoundSelected && shuffleRounds.length > 1,
         viewerIsOwner: props.viewerIsOwner,
       }}
     >

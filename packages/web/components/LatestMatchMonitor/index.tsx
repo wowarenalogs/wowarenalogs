@@ -1,19 +1,71 @@
+import { AtomicArenaCombat, IShuffleRound } from '@wowarenalogs/parser';
 import { canUseFeature, CombatReport, features } from '@wowarenalogs/shared';
 import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useAppConfig } from '../../hooks/AppConfigContext';
 import { useLocalCombats } from '../../hooks/LocalCombatsContext';
 
+/**
+ * Rounds of a solo shuffle arrive one at a time and are appended in play order, so the
+ * rounds of the match that just finished are the trailing run of shuffle rounds with
+ * consecutive sequence numbers in the same arena. A new match restarts at sequence 0,
+ * which breaks the run.
+ */
+function trailingShuffleRounds(combats: AtomicArenaCombat[]): IShuffleRound[] {
+  const rounds: IShuffleRound[] = [];
+  for (let i = combats.length - 1; i >= 0; i--) {
+    const combat = combats[i];
+    if (combat.dataType !== 'ShuffleRound') {
+      break;
+    }
+    const next = rounds[0];
+    if (
+      next &&
+      (combat.sequenceNumber !== next.sequenceNumber - 1 ||
+        combat.startInfo.zoneId !== next.startInfo.zoneId ||
+        combat.startInfo.bracket !== next.startInfo.bracket)
+    ) {
+      break;
+    }
+    rounds.unshift(combat);
+  }
+  return rounds;
+}
+
 export const LatestMatchMonitor = () => {
   const localCombats = useLocalCombats();
   const { appConfig } = useAppConfig();
+  const [selectedRoundId, setSelectedRoundId] = useState<string | null>(null);
 
   const latestLocalCombat = localCombats.localCombats.length
     ? localCombats.localCombats[localCombats.localCombats.length - 1]
     : null;
 
+  const shuffleRounds = useMemo(
+    () => (latestLocalCombat?.dataType === 'ShuffleRound' ? trailingShuffleRounds(localCombats.localCombats) : []),
+    [localCombats.localCombats, latestLocalCombat],
+  );
+
+  // Whenever a new combat lands, jump to it - the point of this screen is the latest match.
+  useEffect(() => {
+    setSelectedRoundId(null);
+  }, [latestLocalCombat?.id]);
+
   if (latestLocalCombat) {
-    return <CombatReport combat={latestLocalCombat} matchId={latestLocalCombat.id} viewerIsOwner={true} />;
+    const selectedRound = shuffleRounds.find((r) => r.id === selectedRoundId);
+    const combat = selectedRound ?? latestLocalCombat;
+    return (
+      <CombatReport
+        combat={combat}
+        matchId={combat.id}
+        viewerIsOwner={true}
+        shuffleRounds={shuffleRounds}
+        onRoundSelected={(round) => {
+          setSelectedRoundId(round.id);
+        }}
+      />
+    );
   }
 
   const needs470Upgrade = !window.wowarenalogs.obs?.getEncoders;
