@@ -47,6 +47,18 @@ export interface ICombatUnit {
   absorbsDamaged: CombatAbsorbAction[];
 
   /**
+   * Heal-absorb events where ICombatUnit applied the heal-absorb effect, eating an incoming
+   * heal on another unit (the healing they denied). When cast on an enemy this is offensive
+   * pressure - effectively pseudo-damage.
+   */
+  healAbsorbsOut: CombatAbsorbAction[];
+  /**
+   * Heal-absorb events where a heal on ICombatUnit was absorbed by a heal-absorb effect
+   * (healing that was denied to this unit).
+   */
+  healAbsorbsIn: CombatAbsorbAction[];
+
+  /**
    * Support damage events that describe damage added to a spell ICombatUnit cast
    */
   supportDamageIn: CombatSupportAction[];
@@ -93,6 +105,8 @@ export class CombatUnit implements ICombatUnit {
   public absorbsIn: CombatAbsorbAction[] = [];
   public absorbsOut: CombatAbsorbAction[] = [];
   public absorbsDamaged: CombatAbsorbAction[] = [];
+  public healAbsorbsOut: CombatAbsorbAction[] = [];
+  public healAbsorbsIn: CombatAbsorbAction[] = [];
 
   public supportDamageIn: CombatSupportAction[] = [];
   public supportDamageOut: CombatSupportAction[] = [];

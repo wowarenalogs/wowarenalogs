@@ -101,6 +101,19 @@ export class CombatGenerator {
           srcUnit.damageOut.push(absorbAction);
         }
         break;
+      case LogEvent.SPELL_HEAL_ABSORBED:
+        {
+          // Field layout mirrors SPELL_ABSORBED, so CombatAbsorbAction parses it, but the roles
+          // differ. Here the source (prefix spell) is the unit that applied the heal-absorb
+          // effect - e.g. a DK's Necrotic Wound - and the dest is the unit whose incoming heal
+          // was eaten. (parameters[11], what CombatAbsorbAction calls shieldOwner, is actually
+          // the healer.) Credit the applier's healAbsorbsOut: denying a heal on an enemy is
+          // offensive pressure, effectively pseudo-damage.
+          const absorbAction = event as CombatAbsorbAction;
+          srcUnit.healAbsorbsOut.push(absorbAction);
+          destUnit.healAbsorbsIn.push(absorbAction);
+        }
+        break;
       case LogEvent.SWING_DAMAGE:
       case LogEvent.RANGE_DAMAGE:
       case LogEvent.SPELL_DAMAGE:
