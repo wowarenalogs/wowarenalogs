@@ -2,11 +2,13 @@ import { Observable } from 'rxjs';
 
 import { ArenaMatchEnd } from '../../actions/ArenaMatchEnd';
 import { ArenaMatchStart } from '../../actions/ArenaMatchStart';
+import { CombatAction } from '../../actions/CombatAction';
 import { ZoneChange } from '../../actions/ZoneChange';
 import { IActivityStarted } from '../../CombatData';
 import { logDebug, logInfo, logTrace } from '../../logger';
-import { CombatEvent, ICombatEventSegment } from '../../types';
+import { CombatEvent, ICombatEventSegment, LogEvent } from '../../types';
 import { PIPELINE_FLUSH_SIGNAL } from '../../utils';
+import { ARENA_PREPARATION_SPELL_ID } from './constants';
 
 const COMBAT_AUTO_TIMEOUT_SECS = 60;
 const VALID_BG_ZONE_IDS = [
@@ -37,6 +39,13 @@ export const combatEventsToSegment = () => {
       // ARENA_MATCH_START). Used to tell a reconnect/reload back into the same arena
       // (not a boundary) apart from zoning out of the arena (leaver/abort - a boundary).
       let currentArenaZoneId: string | null = null;
+      // Whether the current buffer's arena is a solo shuffle round. Only shuffle rounds are
+      // cut early on the prep-aura burst - a regular 2v2/3v3 closes on its ARENA_MATCH_END.
+      let currentArenaIsShuffle = false;
+      // Whether a UNIT_DIED has landed since this arena started. A shuffle round always ends
+      // in a kill, so we only treat the next prep-aura burst as a round boundary once we've
+      // actually seen the round produce a death.
+      let sawDeathInCurrentArena = false;
       let currentBuffer: ICombatEventSegment = {
         events: [],
         lines: [],
@@ -48,6 +57,8 @@ export const combatEventsToSegment = () => {
         next: (event) => {
           const emitCurrentBuffer = () => {
             currentArenaZoneId = null;
+            currentArenaIsShuffle = false;
+            sawDeathInCurrentArena = false;
             if (!currentBuffer.lines.length) {
               return;
             }
@@ -99,6 +110,7 @@ export const combatEventsToSegment = () => {
               });
               currentBuffer.hasEmittedStartEvent = true;
               currentArenaZoneId = event.zoneId;
+              currentArenaIsShuffle = event.bracket.endsWith('Solo Shuffle');
             }
             if (event instanceof ZoneChange) {
               if (VALID_BG_ZONE_IDS.includes(event.instanceId)) {
@@ -120,6 +132,33 @@ export const combatEventsToSegment = () => {
             logInfo(
               `[combatEventsToSegment] Arena match ended: winner=${event.winningTeamId} duration=${event.matchDurationInSeconds}s`,
             );
+            emitCurrentBuffer();
+          }
+
+          if (
+            currentArenaZoneId !== null &&
+            event instanceof CombatAction &&
+            event.logLine.event === LogEvent.UNIT_DIED
+          ) {
+            sawDeathInCurrentArena = true;
+          }
+
+          // A finished solo shuffle round: the next round's Arena Preparation aura is being
+          // applied behind the gates, ~5-6s after the round-ending kill. Cut here (the aura
+          // event is already in the buffer, so the decoder still sees it as its draw
+          // boundary) instead of waiting for the next round's ARENA_MATCH_START, which only
+          // fires when the gates open - that wait is why a finished round used to surface
+          // only once the next round began. Rounds 1-5 close here; round 6 has no following
+          // prep burst and still closes on ARENA_MATCH_END above.
+          if (
+            currentArenaIsShuffle &&
+            sawDeathInCurrentArena &&
+            currentArenaZoneId !== null &&
+            event instanceof CombatAction &&
+            event.logLine.event === LogEvent.SPELL_AURA_APPLIED &&
+            event.spellId === ARENA_PREPARATION_SPELL_ID
+          ) {
+            logTrace('combatEventsToSegment.ShuffleRoundPrepBurst');
             emitCurrentBuffer();
           }
 

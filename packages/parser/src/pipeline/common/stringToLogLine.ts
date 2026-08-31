@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { parseWowToJSON } from '../../jsonparse';
 import { logDebug, logInfo } from '../../logger';
 import { ILogLine, LogEvent } from '../../types';
+import { PIPELINE_FLUSH_SIGNAL } from '../../utils';
 
 let nextId = 0;
 
@@ -48,6 +49,12 @@ function parseCombatLogTimestamp(timestamp: string, timezone: string): number | 
 
 export const stringToLogLine = (timezone: string) => {
   return map((line: string): ILogLine | string => {
+    // The flush sentinel is expected to pass through as a raw string (it's consumed by
+    // the segmenter stage) - don't log it as an invalid line, that reads like an error.
+    if (line === PIPELINE_FLUSH_SIGNAL) {
+      return line;
+    }
+
     const separatorIndex = line.indexOf('  ');
     if (separatorIndex === -1) {
       logDebug(`INVALID LINE: ${line}`);

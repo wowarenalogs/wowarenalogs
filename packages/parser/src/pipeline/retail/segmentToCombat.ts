@@ -19,11 +19,7 @@ import { logDebug, logInfo, logTrace } from '../../logger';
 import { CombatResult, CombatUnitType, ICombatEventSegment, LogEvent } from '../../types';
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
-
-// "Arena Preparation" - applied to every player during each round's prep phase and
-// removed the moment the gates open (same millisecond as ARENA_MATCH_START). Its
-// re-application after a kill is the game's in-log signal that the round is truly over.
-const ARENA_PREPARATION_SPELL_ID = '32727';
+import { ARENA_PREPARATION_SPELL_ID } from './constants';
 
 // Buffer of recent shuffle rounds while a shuffle match is in progress; reset once a
 // shuffle-ending is detected. One tracker exists per pipeline instance (created inside
