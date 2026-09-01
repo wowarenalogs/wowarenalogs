@@ -35,8 +35,8 @@ class LogFile {
   public append(contents: string | Buffer) {
     appendFileSync(this.path, contents);
     const size = statSync(this.path).size;
-    DesktopUtils.parseLogFileChunk(this.parser as never, this.path, this.offset, size - this.offset);
-    this.offset = size;
+    const consumed = DesktopUtils.parseLogFileChunk(this.parser as never, this.path, this.offset, size - this.offset);
+    this.offset += consumed ?? 0;
   }
 }
 
