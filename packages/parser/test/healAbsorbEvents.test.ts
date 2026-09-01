@@ -54,6 +54,21 @@ describe('parsing a log with heal-absorb (SPELL_HEAL_ABSORBED) events', () => {
     expect(totalEffective).toBe(21165);
   });
 
+  it('reads the healer and the denied heal from the trailing fields', () => {
+    const round = results.shuffleRounds[0];
+    const applier = round.units['Player-1084-0B234587'];
+    const targetId = 'Player-3682-0917BD25';
+
+    // CombatAbsorbAction reuses its shield fields here: shieldOwner is the healer whose heal
+    // was eaten (the target healing itself) and shieldSpell is that heal, not the absorb.
+    const deniedHeals: Record<string, number> = {};
+    applier.healAbsorbsOut.forEach((a) => {
+      expect(a.shieldOwnerUnitId).toBe(targetId);
+      deniedHeals[a.shieldSpellName] = (deniedHeals[a.shieldSpellName] ?? 0) + 1;
+    });
+    expect(deniedHeals).toEqual({ Leech: 10, 'Fueled by Violence': 9, 'Pain and Gain': 2 });
+  });
+
   it('applies heal-absorb pressure across enemy lines (applier vs target are hostile)', () => {
     const round = results.shuffleRounds[0];
     const applier = round.units['Player-1084-0B234587'];
