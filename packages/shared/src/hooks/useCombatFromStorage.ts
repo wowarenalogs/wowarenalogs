@@ -1,4 +1,5 @@
 import { WowVersion } from '@wowarenalogs/parser';
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 
 import { Utils } from '../utils/utils';
@@ -13,7 +14,7 @@ const combatRootURL =
 
 export function useCombatFromStorage(matchId: string, roundId?: string) {
   const queryParsedLog = useQuery(
-    ['log-file', matchId, roundId],
+    ['log-file', matchId],
     async () => {
       const logObjectUrl = `${combatRootURL}${matchId}`;
       const result = await fetch(logObjectUrl);
@@ -26,9 +27,8 @@ export function useCombatFromStorage(matchId: string, roundId?: string) {
 
       return {
         matchId,
-        combat:
-          results.arenaMatches.at(0) ||
-          (roundId ? results.shuffleMatches[0]?.rounds[parseInt(roundId) - 1] : undefined),
+        arenaMatch: results.arenaMatches.at(0),
+        shuffleRounds: results.shuffleMatches.at(0)?.rounds ?? [],
       };
     },
     {
@@ -38,10 +38,21 @@ export function useCombatFromStorage(matchId: string, roundId?: string) {
     },
   );
 
+  const arenaMatch = queryParsedLog.data?.arenaMatch;
+  const shuffleRounds = useMemo(() => queryParsedLog.data?.shuffleRounds ?? [], [queryParsedLog.data]);
+
+  const combat = useMemo(() => {
+    if (arenaMatch) {
+      return arenaMatch;
+    }
+    return (roundId ? shuffleRounds[parseInt(roundId) - 1] : undefined) ?? shuffleRounds.at(-1);
+  }, [arenaMatch, shuffleRounds, roundId]);
+
   return {
     matchId,
-    roundId,
-    combat: queryParsedLog.data?.combat,
+    roundId: combat?.dataType === 'ShuffleRound' ? (combat.sequenceNumber + 1).toString() : undefined,
+    combat,
+    shuffleRounds,
     loading: queryParsedLog.isLoading,
     error: queryParsedLog.error,
   };

@@ -12,6 +12,7 @@ import { getDampeningPercentage } from '../../utils/dampening';
 import { healerSpecs, Utils } from '../../utils/utils';
 import { useCombatReportContext } from './CombatReportContext';
 import { CombatUnitName } from './CombatUnitName';
+import { ShuffleRoundSelector } from './ShuffleRoundSelector';
 import { SpellIcon } from './SpellIcon';
 
 type MobileSection = 'summary' | 'deaths';
@@ -984,7 +985,7 @@ function MobileDeathLogSection() {
 export const CombatReportMobile = ({ matchId, roundId }: { matchId: string; roundId?: string }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { combat } = useCombatReportContext();
+  const { combat, canSelectRound } = useCombatReportContext();
   const [activeSection, setActiveSection] = useState<MobileSection>('summary');
   const [urlCopied, setUrlCopied] = useState(false);
 
@@ -996,7 +997,7 @@ export const CombatReportMobile = ({ matchId, roundId }: { matchId: string; roun
     return null;
   }
 
-  const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber + 1 : null;
+  const sequence = combat.dataType === 'ShuffleRound' && !canSelectRound ? combat.sequenceNumber + 1 : null;
 
   return (
     <div className="flex h-full w-full flex-col p-2 animate-fadein">
@@ -1012,6 +1013,11 @@ export const CombatReportMobile = ({ matchId, roundId }: { matchId: string; roun
             {combat.startInfo.bracket}
           </h2>
           <div className="text-sm opacity-70">{zoneMetadata[combat.startInfo.zoneId ?? '0'].name}</div>
+          {canSelectRound && (
+            <div className="mt-2">
+              <ShuffleRoundSelector size="xs" />
+            </div>
+          )}
         </div>
         <label htmlFor="toggle-share-mobile" className="btn btn-ghost btn-sm">
           <FaShare />
