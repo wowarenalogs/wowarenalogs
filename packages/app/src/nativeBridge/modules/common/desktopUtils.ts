@@ -1,6 +1,7 @@
 import { WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
-import { closeSync, existsSync, openSync, readFileSync, readSync } from 'fs-extra';
+import { closeSync, existsSync, openSync, readSync } from 'fs-extra';
 import { join } from 'path';
+import { StringDecoder } from 'string_decoder';
 
 const chunkParitialsBuffer: Record<string, string> = {};
 
@@ -32,16 +33,28 @@ export class DesktopUtils {
   }
 
   public static parseLogFile(parser: WoWCombatLogParser, path: string) {
+    const CHUNK_SIZE = 16 * 1024 * 1024;
     try {
       const fd = openSync(path, 'r');
-      const buffer = readFileSync(fd);
-      closeSync(fd);
-      const bufferString = buffer.toString('utf-8');
-
-      const lines = bufferString.split('\n');
-      lines.forEach((line) => {
-        parser.parseLine(line);
-      });
+      try {
+        const buffer = Buffer.alloc(CHUNK_SIZE);
+        const decoder = new StringDecoder('utf-8');
+        let partialLine = '';
+        let bytesRead = 0;
+        while ((bytesRead = readSync(fd, buffer, 0, CHUNK_SIZE, null)) > 0) {
+          const lines = (partialLine + decoder.write(buffer.subarray(0, bytesRead))).split('\n');
+          partialLine = lines.pop() ?? '';
+          lines.forEach((line) => {
+            parser.parseLine(line);
+          });
+        }
+        partialLine += decoder.end();
+        if (partialLine.length > 0) {
+          parser.parseLine(partialLine);
+        }
+      } finally {
+        closeSync(fd);
+      }
     } catch (_e) {
       // TODO: try to come up with some strategy to avoid these
       // Can reproduce by copy+pasting a new log file into wow folder while logger is watching (win32)
