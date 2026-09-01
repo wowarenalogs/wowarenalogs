@@ -989,7 +989,7 @@ export const CombatReportMobile = ({ matchId, roundId }: { matchId: string; roun
   const [urlCopied, setUrlCopied] = useState(false);
 
   const reportUrl = useMemo(() => {
-    return `https://wowarenalogs.com/match?id=${matchId}&roundId=${roundId}`;
+    return `https://wowarenalogs.com/match?id=${matchId}${roundId ? `&roundId=${roundId}` : ''}`;
   }, [matchId, roundId]);
 
   if (!combat) {

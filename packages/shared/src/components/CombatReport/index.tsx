@@ -50,7 +50,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
 
   const [urlCopied, setUrlCopied] = useState(false);
   const reportUrl = useMemo(() => {
-    const url = `https://wowarenalogs.com/match?id=${matchId}&roundId=${roundId}`;
+    const url = `https://wowarenalogs.com/match?id=${matchId}${roundId ? `&roundId=${roundId}` : ''}`;
     return url;
   }, [matchId, roundId]);
 
