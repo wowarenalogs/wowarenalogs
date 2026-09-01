@@ -1,0 +1,1 @@
+export const ARENA_PREPARATION_SPELL_ID = '32727';

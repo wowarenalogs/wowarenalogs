@@ -2,10 +2,13 @@ import { Observable } from 'rxjs';
 
 import { ArenaMatchEnd } from '../../actions/ArenaMatchEnd';
 import { ArenaMatchStart } from '../../actions/ArenaMatchStart';
+import { CombatAction } from '../../actions/CombatAction';
 import { ZoneChange } from '../../actions/ZoneChange';
 import { IActivityStarted } from '../../CombatData';
 import { logDebug, logTrace } from '../../logger';
-import { CombatEvent, ICombatEventSegment } from '../../types';
+import { CombatEvent, ICombatEventSegment, LogEvent } from '../../types';
+import { PIPELINE_FLUSH_SIGNAL } from '../../utils';
+import { ARENA_PREPARATION_SPELL_ID } from './constants';
 
 const COMBAT_AUTO_TIMEOUT_SECS = 60;
 const VALID_BG_ZONE_IDS = [
@@ -32,6 +35,9 @@ export const combatEventsToSegment = () => {
     return new Observable<ICombatEventSegment | IActivityStarted>((output) => {
       logTrace('combatEventsToSegment.Observer.Init');
       let lastTimestamp = 0;
+      let currentArenaZoneId: string | null = null;
+      let currentArenaIsShuffle = false;
+      let sawDeathInCurrentArena = false;
       let currentBuffer: ICombatEventSegment = {
         events: [],
         lines: [],
@@ -41,14 +47,10 @@ export const combatEventsToSegment = () => {
 
       input.subscribe({
         next: (event) => {
-          // this means the line could not be parsed correctly, in which case we
-          // still want to store it as raw log in the "lines" buffer.
-          if (typeof event === 'string') {
-            currentBuffer.lines.push(event);
-            return;
-          }
-
           const emitCurrentBuffer = () => {
+            currentArenaZoneId = null;
+            currentArenaIsShuffle = false;
+            sawDeathInCurrentArena = false;
             if (!currentBuffer.lines.length) {
               return;
             }
@@ -62,6 +64,19 @@ export const combatEventsToSegment = () => {
               hasEmittedStartEvent: false,
             };
           };
+
+          if (event === PIPELINE_FLUSH_SIGNAL) {
+            logTrace('combatEventsToSegment.FLUSH_SIGNAL');
+            emitCurrentBuffer();
+            return;
+          }
+
+          // this means the line could not be parsed correctly, in which case we
+          // still want to store it as raw log in the "lines" buffer.
+          if (typeof event === 'string') {
+            currentBuffer.lines.push(event);
+            return;
+          }
 
           const timeout = event.timestamp - lastTimestamp > COMBAT_AUTO_TIMEOUT_SECS * 1000;
 
@@ -83,6 +98,8 @@ export const combatEventsToSegment = () => {
                 arenaMatchStartInfo: event,
               });
               currentBuffer.hasEmittedStartEvent = true;
+              currentArenaZoneId = event.zoneId;
+              currentArenaIsShuffle = event.bracket.endsWith('Solo Shuffle');
             }
             if (event instanceof ZoneChange) {
               if (VALID_BG_ZONE_IDS.includes(event.instanceId)) {
@@ -104,9 +121,36 @@ export const combatEventsToSegment = () => {
             emitCurrentBuffer();
           }
 
+          if (
+            currentArenaZoneId !== null &&
+            event instanceof CombatAction &&
+            event.logLine.event === LogEvent.UNIT_DIED
+          ) {
+            sawDeathInCurrentArena = true;
+          }
+
+          if (
+            currentArenaIsShuffle &&
+            sawDeathInCurrentArena &&
+            currentArenaZoneId !== null &&
+            event instanceof CombatAction &&
+            event.logLine.event === LogEvent.SPELL_AURA_APPLIED &&
+            event.spellId === ARENA_PREPARATION_SPELL_ID
+          ) {
+            logTrace('combatEventsToSegment.ShuffleRoundPrepBurst');
+            emitCurrentBuffer();
+          }
+
           if (event instanceof ZoneChange && currentBuffer.lines.length > 1) {
-            logDebug(`Emitting buffer on ZoneChange linecount=${currentBuffer.lines.length}`);
-            if (!VALID_BG_ZONE_IDS.includes(event.instanceId)) emitCurrentBuffer();
+            if (currentArenaZoneId !== null && event.instanceId.toString() === currentArenaZoneId) {
+              logDebug(`ZoneChange into current arena ${currentArenaZoneId}, not a segment boundary`);
+            } else if (currentArenaZoneId !== null) {
+              logDebug(`Emitting buffer on ZoneChange out of arena linecount=${currentBuffer.lines.length}`);
+              emitCurrentBuffer();
+            } else if (!VALID_BG_ZONE_IDS.includes(event.instanceId)) {
+              logDebug(`Emitting buffer on ZoneChange linecount=${currentBuffer.lines.length}`);
+              emitCurrentBuffer();
+            }
           }
 
           lastTimestamp = event.timestamp;
