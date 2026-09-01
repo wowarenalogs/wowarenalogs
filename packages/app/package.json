@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "test": "npx tsdx test",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "build:app": "shx rm -rf dist && tsc -p . && webpack --config webpack.config.js && webpack --config webpack.preload.config.js && shx cp -r public dist/public && cross-env ts-node script/copyNoobs.ts",
