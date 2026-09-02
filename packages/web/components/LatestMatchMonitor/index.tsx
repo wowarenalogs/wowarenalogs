@@ -15,8 +15,15 @@ function trailingShuffleRounds(combats: AtomicArenaCombat[]): IShuffleRound[] {
       break;
     }
     rounds.unshift(combat);
+    // A shuffle is six rounds numbered 0..5, so the group is complete once round one is in.
+    if (combat.sequenceNumber === 0) {
+      break;
+    }
   }
-  return rounds;
+  // A shuffle whose ARENA_MATCH_END is never seen leaves the next lobby's first round
+  // numbered 6 rather than 0, which would otherwise chain onto the round 5 before it.
+  // Anything past round six belongs to a different lobby, so show it on its own.
+  return rounds.length > 6 ? rounds.slice(-1) : rounds;
 }
 
 export const LatestMatchMonitor = () => {
