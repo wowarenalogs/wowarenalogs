@@ -100,6 +100,15 @@ export class CombatGenerator {
           srcUnit.damageOut.push(absorbAction);
         }
         break;
+      case LogEvent.SPELL_HEAL_ABSORBED:
+        {
+          // src applied the heal absorb, dest had a heal denied. See CombatAbsorbAction
+          // for how the remaining fields differ from SPELL_ABSORBED.
+          const absorbAction = event as CombatAbsorbAction;
+          srcUnit.healAbsorbsOut.push(absorbAction);
+          destUnit.healAbsorbsIn.push(absorbAction);
+        }
+        break;
       case LogEvent.SWING_DAMAGE:
       case LogEvent.RANGE_DAMAGE:
       case LogEvent.SPELL_DAMAGE:
