@@ -46,12 +46,21 @@ export const SearchPage = () => {
   const searchParams = useSearchParams();
   const page = searchParams.get('page');
   const search = searchParams.get('search');
-  const pageNum = parseInt(page?.toString() || '0');
+  const parsedPage = parseInt(page?.toString() || '0');
+  const pageNum = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 0;
 
   const filters = useMemo(() => {
-    return search ? (JSON.parse(base64url.decode(search as string)) as IPublicMatchesFilters) : DEFAULT_FILTERS;
+    if (!search) {
+      return DEFAULT_FILTERS;
+    }
+    try {
+      return { ...DEFAULT_FILTERS, ...(JSON.parse(base64url.decode(search)) as IPublicMatchesFilters) };
+    } catch {
+      return DEFAULT_FILTERS;
+    }
   }, [search]);
   const teamSize = filters.bracket === '2v2' ? 2 : 3;
+  const pageUrl = (targetPage: number) => `${pathname}?page=${targetPage}` + (search ? `&search=${search}` : '');
 
   useEffect(() => {
     logAnalyticsEvent('search', {
@@ -265,7 +274,7 @@ export const SearchPage = () => {
               <button
                 className="btn btn-outline btn-sm"
                 onClick={() => {
-                  router.push(`${pathname}?page=0&search=${search}`);
+                  router.push(pageUrl(0));
                 }}
               >
                 First
@@ -275,7 +284,7 @@ export const SearchPage = () => {
               <button
                 className="btn btn-outline btn-sm"
                 onClick={() => {
-                  router.push(`${pathname}?page=${pageNum - 1}&search=${search}`);
+                  router.push(pageUrl(pageNum - 1));
                 }}
               >
                 Previous
@@ -284,7 +293,7 @@ export const SearchPage = () => {
             <button
               className="btn btn-outline btn-sm"
               onClick={() => {
-                router.push(`${pathname}?page=${pageNum + 1}&search=${search}`);
+                router.push(pageUrl(pageNum + 1));
               }}
             >
               Next Page
