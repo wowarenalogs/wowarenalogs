@@ -85,14 +85,16 @@ export class WoWCombatLogParser extends EventEmitter<LogParserSpec> {
 
   public resetParserStates(wowVersion: WowVersion | null = null): void {
     logTrace(`WoWCombatLogParser.resetParserStates ${wowVersion}`);
-    if (wowVersion === null) {
-      this.context = {
-        wowVersion,
-        pipeline: () => {
-          return;
-        },
-      };
-    } else {
+    // Drop the existing pipeline first: setWowVersion refuses to re-init one that exists, so
+    // without this the reset was a no-op and the old pipeline's buffered match survived.
+    this.context = {
+      wowVersion: null,
+      pipeline: () => {
+        return;
+      },
+    };
+
+    if (wowVersion !== null) {
       this.setWowVersion(wowVersion);
     }
   }
