@@ -80,12 +80,9 @@ jobs:
     env:
       CI: false
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CSC_LINK: ${{ secrets.CSC_LINK }}
-      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-      CSC_FOR_PULL_REQUEST: true
-      APPLE_ID: ${{ secrets.APPLE_ID }}
+      # Consumed by the signature-verification step below. Empty on fork PRs,
+      # where that step is skipped anyway.
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -105,9 +102,54 @@ jobs:
         run: npm ci
       - name: install dmg-license
         run: npm i dmg-license
-      - name: build for mac
+      # GitHub withholds repository secrets from `pull_request` runs whose head is
+      # a fork, so CSC_LINK/CSC_KEY_PASSWORD arrive as empty strings there and the
+      # runner has no certificate to sign with. Handing electron-builder an empty
+      # CSC_LINK does not degrade gracefully -- it still takes the signing path,
+      # resolves "" as a path, and fails the job with "<workspace> not a file".
+      # So probe for the credentials and pick a build mode instead of assuming
+      # they are present. Testing the secrets directly rather than checking
+      # whether the head is a fork also covers Dependabot PRs (separate secret
+      # store) and a repo whose signing secrets were removed.
+      - name: detect signing credentials
+        id: signing
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -n "${CSC_LINK:-}" ] && [ -n "${CSC_KEY_PASSWORD:-}" ]; then
+            echo 'available=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'available=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::No code-signing credentials on this runner (expected for fork PRs) - building unsigned.'
+          fi
+      # CSC_FOR_PULL_REQUEST is what makes electron-builder sign at all on a
+      # `pull_request` event; without it PR builds come out unsigned and the
+      # verification step below would fail.
+      - name: build for mac (signed)
+        if: steps.signing.outputs.available == 'true'
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_FOR_PULL_REQUEST: true
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+        run: npm run build:app:mac
+      # Compile-only check: proves the PR builds on macOS. CSC_IDENTITY_AUTO_DISCOVERY
+      # stops electron-builder from scanning the runner keychain for an identity it
+      # will not find. scripts/notarize.js already no-ops when APPLE_* is unset.
+      # This artifact is never published -- build-app.yml has no upload step, and
+      # release-app.yml (the only workflow that ships builds) runs on push/dispatch
+      # from this repo, always has secrets, and still gates its upload on the full
+      # codesign + spctl + stapler check.
+      - name: build for mac (unsigned, no credentials)
+        if: steps.signing.outputs.available != 'true'
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npm run build:app:mac
       - name: verify app signature
+        if: steps.signing.outputs.available == 'true'
         run: |
           set -euo pipefail
           APP_PATH=$(find dist/mac-arm64 -maxdepth 1 -name "*.app" -type d | head -n 1)
@@ -120,6 +162,7 @@ jobs:
           grep -q "TeamIdentifier=${APPLE_TEAM_ID}" /tmp/codesign.log
           spctl --assess --type execute --verbose=4 "$APP_PATH"
       - name: validate app notarization
+        if: steps.signing.outputs.available == 'true'
         run: |
           set -euo pipefail
           APP_PATH=$(find dist/mac-arm64 -maxdepth 1 -name "*.app" -type d | head -n 1)
@@ -128,6 +171,20 @@ jobs:
             exit 1
           fi
           xcrun stapler validate "$APP_PATH"
+      # Fork PRs produce an unsigned bundle, so the two checks above cannot run.
+      # Assert the build still produced an .app and say why the rest was skipped,
+      # rather than leaving a silently-green gap in the log.
+      - name: report unsigned build
+        if: steps.signing.outputs.available != 'true'
+        run: |
+          set -euo pipefail
+          APP_PATH=$(find dist/mac-arm64 -maxdepth 1 -name "*.app" -type d | head -n 1)
+          if [ -z "${APP_PATH:-}" ]; then
+            echo "No .app found in dist/mac-arm64"
+            exit 1
+          fi
+          echo "Built unsigned: $APP_PATH"
+          echo "Signature and notarization checks skipped - no credentials on this runner."
   build_on_linux:
     if: >-
       github.event_name != 'workflow_dispatch'
