@@ -1,4 +1,4 @@
-import { AtomicArenaCombat } from '@wowarenalogs/parser';
+import { AtomicArenaCombat, IShuffleRound } from '@wowarenalogs/parser';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -24,6 +24,7 @@ import { CombatScoreboard } from './CombatScoreboard';
 import { CombatSummary } from './CombatSummary';
 import { CombatTimeline } from './CombatTimeline';
 import { CombatVideo } from './CombatVideo';
+import { ShuffleRoundSelector } from './ShuffleRoundSelector';
 
 const CombatReplay = dynamic(
   () => {
@@ -37,6 +38,8 @@ interface IProps {
   matchId: string;
   roundId?: string;
   combat: AtomicArenaCombat;
+  shuffleRounds?: IShuffleRound[];
+  onRoundSelected?: (round: IShuffleRound) => void;
   viewerIsOwner?: boolean;
 }
 
@@ -45,7 +48,7 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: user } = useGetProfileQuery();
-  const { combat, activeTab, setActiveTab, activePlayerId, viewerIsOwner } = useCombatReportContext();
+  const { combat, activeTab, setActiveTab, activePlayerId, viewerIsOwner, canSelectRound } = useCombatReportContext();
   const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(null);
 
   const [urlCopied, setUrlCopied] = useState(false);
@@ -93,8 +96,8 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
     return <CombatReportMobile matchId={matchId} roundId={roundId} />;
   }
 
-  const sequence = combat.dataType === 'ShuffleRound' ? combat.sequenceNumber + 1 : null;
   const isShuffle = combat.dataType === 'ShuffleRound';
+  const sequence = isShuffle && !canSelectRound ? combat.sequenceNumber + 1 : null;
 
   return (
     <div className="w-full h-full flex flex-col p-2 animate-fadein">
@@ -109,6 +112,11 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
           {sequence && <span className="mr-2">Round {sequence} of</span>}
           {`${combat.startInfo.bracket} at ${zoneMetadata[combat.startInfo.zoneId ?? '0'].name}`}
         </h2>
+        {canSelectRound && (
+          <div className="ml-4">
+            <ShuffleRoundSelector />
+          </div>
+        )}
         <div className="flex flex-1" />
         <label htmlFor="toggle-share" className="btn btn-ghost btn-sm">
           <FaShare className="mr-2" />
@@ -273,9 +281,14 @@ export const CombatReportInternal = ({ matchId, roundId }: { matchId: string; ro
   );
 };
 
-export const CombatReport = ({ combat, viewerIsOwner, matchId, roundId }: IProps) => {
+export const CombatReport = ({ combat, viewerIsOwner, matchId, roundId, shuffleRounds, onRoundSelected }: IProps) => {
   return (
-    <CombatReportContextProvider combat={combat} viewerIsOwner={viewerIsOwner || false}>
+    <CombatReportContextProvider
+      combat={combat}
+      shuffleRounds={shuffleRounds}
+      onRoundSelected={onRoundSelected}
+      viewerIsOwner={viewerIsOwner || false}
+    >
       <CombatReportInternal matchId={matchId} roundId={roundId} />
     </CombatReportContextProvider>
   );

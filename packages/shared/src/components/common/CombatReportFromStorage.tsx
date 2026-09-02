@@ -1,3 +1,7 @@
+import { IShuffleRound } from '@wowarenalogs/parser';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback } from 'react';
+
 import { useCombatFromStorage } from '../../hooks/useCombatFromStorage';
 import { CombatReport } from '../CombatReport';
 import { ErrorPage } from './ErrorPage';
@@ -14,6 +18,19 @@ export function CombatReportFromStorage(props: IProps) {
   const defaultErrorMessage = 'There was a problem loading the page, please refresh!';
   const combatQuery = useCombatFromStorage(id?.toString() || '', roundId);
 
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const onRoundSelected = useCallback(
+    (round: IShuffleRound) => {
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
+      params.set('roundId', (round.sequenceNumber + 1).toString());
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [router, pathname, searchParams],
+  );
+
   if (combatQuery.loading) {
     return <LoadingPage />;
   }
@@ -24,6 +41,8 @@ export function CombatReportFromStorage(props: IProps) {
         combat={combatQuery.combat}
         matchId={combatQuery.matchId}
         roundId={combatQuery.roundId}
+        shuffleRounds={combatQuery.shuffleRounds}
+        onRoundSelected={onRoundSelected}
       />
     );
   } else {
