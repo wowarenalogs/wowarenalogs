@@ -45,6 +45,7 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
         case LogEvent.SWING_DAMAGE_LANDED_SUPPORT:
           return new CombatSupportAction(logLine, wowVersion);
         case LogEvent.SPELL_ABSORBED:
+        case LogEvent.SPELL_HEAL_ABSORBED:
           return new CombatAbsorbAction(logLine, wowVersion);
         case LogEvent.SPELL_AURA_BROKEN_SPELL:
           return new SpellAuraBrokenSpell(logLine, wowVersion);

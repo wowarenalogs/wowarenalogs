@@ -77,7 +77,15 @@ export const stringToLogLine = (timezone: string) => {
 
     const event = LogEvent[eventName as keyof typeof LogEvent];
     const jsonPayload = rest.slice(commaIndex + 1).trimEnd();
-    const jsonParameters = parseWowToJSON(jsonPayload);
+
+    let jsonParameters;
+    try {
+      jsonParameters = parseWowToJSON(jsonPayload);
+    } catch (e) {
+      logDebug(`FAILED TO PARSE JSON: ${line.slice(0, 200)} ${String(e)}`);
+      return line;
+    }
+
     const timestamp = parseCombatLogTimestamp(tsString, timezone);
 
     if (timestamp === null || isNaN(timestamp)) {

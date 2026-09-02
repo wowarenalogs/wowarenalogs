@@ -3,6 +3,7 @@ import { pipe } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
 import { CombatData, IArenaMatch, IMalformedCombatData } from '../../CombatData';
+import { logInfo } from '../../logger';
 import { CombatUnitReaction, CombatUnitType, ICombatEventSegment } from '../../types';
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
@@ -10,60 +11,64 @@ import { isNonNull } from '../common/utils';
 export const segmentToCombat = () => {
   return pipe(
     map((segment: ICombatEventSegment): IArenaMatch | IMalformedCombatData | null => {
-      if (segment.events.length >= 3) {
-        const combat = new CombatData('classic', segment.events[0].logLine.timezone);
-        combat.startTime = segment.events[0].timestamp || 0;
-        segment.events.forEach((e) => {
-          combat.readEvent(e);
-        });
-        combat.end();
+      try {
+        if (segment.events.length >= 3) {
+          const combat = new CombatData('classic', segment.events[0].logLine.timezone);
+          combat.startTime = segment.events[0].timestamp || 0;
+          segment.events.forEach((e) => {
+            combat.readEvent(e);
+          });
+          combat.end();
 
-        const friendlyTeamCount = Object.values(combat.units).filter(
-          (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Friendly,
-        ).length;
-        const enemyTeamCount = Object.values(combat.units).filter(
-          (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Hostile,
-        ).length;
-        const biggestTeam = Math.max(friendlyTeamCount, enemyTeamCount);
+          const friendlyTeamCount = Object.values(combat.units).filter(
+            (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Friendly,
+          ).length;
+          const enemyTeamCount = Object.values(combat.units).filter(
+            (u) => u.type === CombatUnitType.Player && u.reaction === CombatUnitReaction.Hostile,
+          ).length;
+          const biggestTeam = Math.max(friendlyTeamCount, enemyTeamCount);
 
-        let inferredBracket = '2v2';
-        if (biggestTeam > 2) {
-          inferredBracket = '3v3';
-        }
-        if (biggestTeam > 3) {
-          inferredBracket = '5v5';
-        }
+          let inferredBracket = '2v2';
+          if (biggestTeam > 2) {
+            inferredBracket = '3v3';
+          }
+          if (biggestTeam > 3) {
+            inferredBracket = '5v5';
+          }
 
-        if (combat.isWellFormed) {
-          const plainCombatDataObject: IArenaMatch = {
-            playerId: combat.playerId,
-            dataType: 'ArenaMatch',
-            events: combat.events,
-            id: computeCanonicalHash(segment.lines),
-            wowVersion: combat.wowVersion,
-            startTime: combat.startTime,
-            endTime: combat.endTime,
-            units: combat.units,
-            playerTeamId: combat.playerTeamId,
-            playerTeamRating: combat.playerTeamRating,
-            result: combat.result,
-            hasAdvancedLogging: combat.hasAdvancedLogging,
-            rawLines: segment.lines,
-            linesNotParsedCount: segment.lines.length - segment.events.length,
-            startInfo: {
-              bracket: combat.startInfo?.bracket || inferredBracket,
-              isRanked: combat.startInfo?.isRanked || false,
-              item1: combat.startInfo?.item1 || '',
-              timestamp: combat.startInfo?.timestamp || 0,
-              zoneId: combat.startInfo?.zoneId || '',
-            },
-            timezone: combat.timezone,
-            durationInSeconds: (nullthrows(combat.endInfo).timestamp - nullthrows(combat.startInfo).timestamp) / 1000,
-            endInfo: nullthrows(combat.endInfo),
-            winningTeamId: nullthrows(combat.endInfo?.winningTeamId),
-          };
-          return plainCombatDataObject;
+          if (combat.isWellFormed) {
+            const plainCombatDataObject: IArenaMatch = {
+              playerId: combat.playerId,
+              dataType: 'ArenaMatch',
+              events: combat.events,
+              id: computeCanonicalHash(segment.lines),
+              wowVersion: combat.wowVersion,
+              startTime: combat.startTime,
+              endTime: combat.endTime,
+              units: combat.units,
+              playerTeamId: combat.playerTeamId,
+              playerTeamRating: combat.playerTeamRating,
+              result: combat.result,
+              hasAdvancedLogging: combat.hasAdvancedLogging,
+              rawLines: segment.lines,
+              linesNotParsedCount: segment.lines.length - segment.events.length,
+              startInfo: {
+                bracket: combat.startInfo?.bracket || inferredBracket,
+                isRanked: combat.startInfo?.isRanked || false,
+                item1: combat.startInfo?.item1 || '',
+                timestamp: combat.startInfo?.timestamp || 0,
+                zoneId: combat.startInfo?.zoneId || '',
+              },
+              timezone: combat.timezone,
+              durationInSeconds: (nullthrows(combat.endInfo).timestamp - nullthrows(combat.startInfo).timestamp) / 1000,
+              endInfo: nullthrows(combat.endInfo),
+              winningTeamId: nullthrows(combat.endInfo?.winningTeamId),
+            };
+            return plainCombatDataObject;
+          }
         }
+      } catch (e) {
+        logInfo(`segmentToCombat: dropping a segment that failed to process: ${String(e)}`);
       }
       return null;
     }),
