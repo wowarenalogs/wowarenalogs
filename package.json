@@ -101,6 +101,7 @@
     "electron-builder": "^25.1.8",
     "eslint": "^8.49.0",
     "husky": "^7.0.4",
+    "node-gyp": "^12.4.0",
     "patch-package": "^8.0.0",
     "prettier": "^3.0.3",
     "shx": "^0.3.4",
