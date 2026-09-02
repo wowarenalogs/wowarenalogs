@@ -6,7 +6,7 @@ import { CombatAction } from '../../actions/CombatAction';
 import { ZoneChange } from '../../actions/ZoneChange';
 import { IActivityStarted } from '../../CombatData';
 import { logDebug, logTrace } from '../../logger';
-import { CombatEvent, ICombatEventSegment, LogEvent } from '../../types';
+import { CombatEvent, CombatEventSegmentEndReason, ICombatEventSegment, LogEvent } from '../../types';
 import { PIPELINE_FLUSH_SIGNAL } from '../../utils';
 import { ARENA_PREPARATION_SPELL_ID } from './constants';
 
@@ -47,7 +47,7 @@ export const combatEventsToSegment = () => {
 
       input.subscribe({
         next: (event) => {
-          const emitCurrentBuffer = () => {
+          const emitCurrentBuffer = (endReason: CombatEventSegmentEndReason) => {
             currentArenaZoneId = null;
             currentArenaIsShuffle = false;
             sawDeathInCurrentArena = false;
@@ -55,6 +55,7 @@ export const combatEventsToSegment = () => {
               return;
             }
 
+            currentBuffer.endReason = endReason;
             output.next(currentBuffer);
 
             currentBuffer = {
@@ -67,7 +68,7 @@ export const combatEventsToSegment = () => {
 
           if (event === PIPELINE_FLUSH_SIGNAL) {
             logTrace('combatEventsToSegment.FLUSH_SIGNAL');
-            emitCurrentBuffer();
+            emitCurrentBuffer('Flush');
             return;
           }
 
@@ -87,7 +88,7 @@ export const combatEventsToSegment = () => {
               } lts=${lastTimestamp} deltaS=${(event.timestamp - lastTimestamp) / 1000}`,
             );
             logTrace(currentBuffer.lines[currentBuffer.lines.length - 1]);
-            emitCurrentBuffer();
+            emitCurrentBuffer('ArenaMatchStartOrTimeout');
           }
 
           if (!currentBuffer.hasEmittedStartEvent) {
@@ -118,13 +119,17 @@ export const combatEventsToSegment = () => {
 
           if (event instanceof ArenaMatchEnd) {
             logTrace('combatEventsToSegment.ArenaMatchEnd');
-            emitCurrentBuffer();
+            emitCurrentBuffer('ArenaMatchEnd');
           }
 
+          // Only a real player death ends a round. Mirrors CombatGenerator's deathRecords gate:
+          // no creatures or pets, and no "unconscious at death" (feign, Spirit of Redemption).
           if (
             currentArenaZoneId !== null &&
             event instanceof CombatAction &&
-            event.logLine.event === LogEvent.UNIT_DIED
+            event.logLine.event === LogEvent.UNIT_DIED &&
+            event.destUnitId.startsWith('Player-') &&
+            !(event.logLine.parameters.length > 8 && event.logLine.parameters[8] === 1)
           ) {
             sawDeathInCurrentArena = true;
           }
@@ -138,7 +143,7 @@ export const combatEventsToSegment = () => {
             event.spellId === ARENA_PREPARATION_SPELL_ID
           ) {
             logTrace('combatEventsToSegment.ShuffleRoundPrepBurst');
-            emitCurrentBuffer();
+            emitCurrentBuffer('ShuffleRoundPrep');
           }
 
           if (event instanceof ZoneChange && currentBuffer.lines.length > 1) {
@@ -146,10 +151,10 @@ export const combatEventsToSegment = () => {
               logDebug(`ZoneChange into current arena ${currentArenaZoneId}, not a segment boundary`);
             } else if (currentArenaZoneId !== null) {
               logDebug(`Emitting buffer on ZoneChange out of arena linecount=${currentBuffer.lines.length}`);
-              emitCurrentBuffer();
+              emitCurrentBuffer('ZoneChangeOut');
             } else if (!VALID_BG_ZONE_IDS.includes(event.instanceId)) {
               logDebug(`Emitting buffer on ZoneChange linecount=${currentBuffer.lines.length}`);
-              emitCurrentBuffer();
+              emitCurrentBuffer('ZoneChangeOut');
             }
           }
 

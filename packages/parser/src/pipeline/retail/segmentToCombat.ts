@@ -19,7 +19,7 @@ import { logDebug, logInfo, logTrace } from '../../logger';
 import { CombatResult, CombatUnitType, ICombatEventSegment, LogEvent } from '../../types';
 import { computeCanonicalHash, nullthrows } from '../../utils';
 import { isNonNull } from '../common/utils';
-import { ARENA_PREPARATION_SPELL_ID } from './constants';
+import { ARENA_PREPARATION_SPELL_ID, SHUFFLE_DRAW_WINDOW_MS, SHUFFLE_ROSTER_SIZE } from './constants';
 
 // Buffer of recent shuffle rounds while a shuffle match is in progress; reset once a
 // shuffle-ending is detected.
@@ -43,6 +43,13 @@ function recordOutcomeToScoreboard(scoreboard: IShuffleRound['scoreboard'], unit
   } else {
     score.wins = didWin ? score.wins + 1 : score.wins;
   }
+}
+
+function rosterOf(units: IShuffleRound['units']): string[] {
+  return Object.values(units)
+    .filter((u) => u.type === CombatUnitType.Player)
+    .map((u) => u.id)
+    .sort();
 }
 
 function roundsBelongToSameMatch(roundA: ArenaMatchStartInfo, roundB: ArenaMatchStartInfo) {
@@ -70,7 +77,9 @@ function deriveShuffleResultFromScoreboard(
   if (personalWins < 3) {
     return { result: CombatResult.Lose, winningTeamId: otherTeamId };
   }
-  return { result: CombatResult.DrawGame, winningTeamId: otherTeamId };
+  // '' means drawn, as IShuffleRound.winningTeamId does. It is uploaded verbatim, so naming a
+  // winner here would report the losing team as the victor of a 3-3.
+  return { result: CombatResult.DrawGame, winningTeamId: '' };
 }
 
 // TODO: Handle case where a round is accidentally ingested twice; timestamp will match
@@ -87,6 +96,14 @@ function validateRounds(rounds: IShuffleRound[]) {
   for (let i = 1; i < 6; i++) {
     if (!roundsBelongToSameMatch(rounds[i].startInfo, rounds[0].startInfo)) {
       logInfo(`validateRounds ${i} => false`);
+      return false;
+    }
+    // Rounds of one match are strictly sequential, so going backwards means the buffer spans
+    // two matches - which the startInfo check above cannot see on the same map.
+    if (rounds[i].startTime < rounds[i - 1].endTime) {
+      logInfo(
+        `validateRounds ${i} not contiguous (starts ${rounds[i].startTime}, prev ended ${rounds[i - 1].endTime})`,
+      );
       return false;
     }
   }
@@ -118,7 +135,29 @@ function decodeShuffleRound(segment: ICombatEventSegment, tracker: IShuffleTrack
     resetShuffleTracker(tracker);
   }
 
+  if (tracker.rounds.length > 0 && combat.startTime < tracker.rounds[tracker.rounds.length - 1].endTime) {
+    // Panic: starts before the buffered round ended, so it belongs to a different match.
+    logInfo(
+      `decodeShuffle panic 3 - round starts ${combat.startTime}, previous round ended ${
+        tracker.rounds[tracker.rounds.length - 1].endTime
+      }`,
+    );
+    resetShuffleTracker(tracker);
+  }
+
   const players = Object.values(combat.units).filter((a) => a.type === CombatUnitType.Player);
+
+  if (tracker.rounds.length > 0 && players.length === SHUFFLE_ROSTER_SIZE) {
+    // Panic: a different roster means a different match. The only signal that catches quitting
+    // and requeueing, which produces no zone change and rounds that are later in time. Judged
+    // only on complete rosters, since a reload can leave a round short.
+    const bufferedRoster = rosterOf(tracker.rounds[tracker.rounds.length - 1].units);
+    const roster = players.map((u) => u.id).sort();
+    if (bufferedRoster.length === SHUFFLE_ROSTER_SIZE && bufferedRoster.join() !== roster.join()) {
+      logInfo(`decodeShuffle panic 4 - roster changed, rounds length=${tracker.rounds.length}`);
+      resetShuffleTracker(tracker);
+    }
+  }
 
   // The first conscious death ends the round; deathRecords already excludes feign and
   // "unconscious at death" records.
@@ -138,16 +177,22 @@ function decodeShuffleRound(segment: ICombatEventSegment, tracker: IShuffleTrack
     throw new Error('Could not determine winners of shuffle round');
   }
 
-  // An opposite-team death landing before the next round's prep aura means neither team
-  // won: the round is a draw.
-  const nextPrepEvent = segment.events.find(
+  // An opposite-team death close behind the deciding one is a draw. The round ends at the first
+  // prep aura, match end, or zone-out after it (events are chronological), capped by the draw
+  // window so the rule does not vary with whatever closed the segment.
+  const roundEndEvent = segment.events.find(
     (e) =>
-      e instanceof CombatAction &&
-      e.logLine.event === LogEvent.SPELL_AURA_APPLIED &&
-      e.spellId === ARENA_PREPARATION_SPELL_ID &&
-      e.timestamp > firstDeath.logLine.timestamp,
+      e.timestamp > firstDeath.logLine.timestamp &&
+      ((e instanceof CombatAction &&
+        e.logLine.event === LogEvent.SPELL_AURA_APPLIED &&
+        e.spellId === ARENA_PREPARATION_SPELL_ID) ||
+        e instanceof ArenaMatchEnd ||
+        e instanceof ZoneChange),
   );
-  const roundEndBoundary = nextPrepEvent ? nextPrepEvent.timestamp : Infinity;
+  const roundEndBoundary = Math.min(
+    roundEndEvent ? roundEndEvent.timestamp : Infinity,
+    firstDeath.logLine.timestamp + SHUFFLE_DRAW_WINDOW_MS,
+  );
   const isDraw = allDeaths.some((d) => d.logLine.timestamp < roundEndBoundary && d.unit.info?.teamId !== losingTeam);
 
   players.forEach((unit) => {
@@ -213,7 +258,18 @@ export const segmentToCombat = () => {
         | IActivityStarted
         | null => {
         try {
-          return segmentToCombatInner(segment, tracker);
+          const result = segmentToCombatInner(segment, tracker);
+          // Leaving the arena ends the match, and two shuffles are always separated by a zone
+          // change. After decoding, so a final partial round still reports against its own match.
+          if (
+            segment.dataType === 'CombatEventSegment' &&
+            segment.endReason === 'ZoneChangeOut' &&
+            tracker.rounds.length > 0
+          ) {
+            logInfo(`segmentToCombat: left the arena holding ${tracker.rounds.length} round(s), resetting tracker`);
+            resetShuffleTracker(tracker);
+          }
+          return result;
         } catch (e) {
           logInfo(`segmentToCombat: dropping a segment that failed to process: ${String(e)}`);
           return null;
@@ -332,6 +388,9 @@ function segmentToCombatInner(
     } catch (e) {
       logInfo('Decoder fail');
       logInfo(e);
+      // A round we could not decode leaves a partial match buffered, which the next match's
+      // rounds would top up to 6. Drop it, as the ARENA_MATCH_END path does.
+      resetShuffleTracker(tracker);
     }
   }
 
