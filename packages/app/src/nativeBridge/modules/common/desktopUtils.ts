@@ -2,7 +2,7 @@ import { WoWCombatLogParser, WowVersion } from '@wowarenalogs/parser';
 import { closeSync, existsSync, openSync, readFileSync, readSync } from 'fs-extra';
 import { join } from 'path';
 
-const chunkParitialsBuffer: Record<string, string> = {};
+const NEWLINE = 0x0a;
 
 export class DesktopUtils {
   public static async getWowInstallsFromPath(path: string) {
@@ -54,35 +54,35 @@ export class DesktopUtils {
 
   public static parseLogFileChunk(parser: WoWCombatLogParser, path: string, start: number, size: number) {
     if (size <= 0) {
-      return true;
+      return 0;
     }
     try {
       const fd = openSync(path, 'r');
       const buffer = Buffer.alloc(size);
-      readSync(fd, buffer, 0, size, start);
+      const bytesRead = readSync(fd, buffer, 0, size, start);
       closeSync(fd);
-      let bufferString = buffer.toString('utf-8');
-      // Was there a partial line left over from a previous call?
-      if (chunkParitialsBuffer[path]) {
-        bufferString = chunkParitialsBuffer[path] + bufferString;
+
+      const lastNewline = bytesRead > 0 ? buffer.lastIndexOf(NEWLINE, bytesRead - 1) : -1;
+      if (lastNewline < 0) {
+        return 0;
       }
-      const lines = bufferString.split('\n');
-      lines.forEach((line, idx) => {
-        if (idx === lines.length - 1) {
-          if (line.length > 0) {
-            chunkParitialsBuffer[path] = line;
-          }
-        } else {
+
+      // Cutting on a newline keeps multi-byte characters intact across the boundary.
+      buffer
+        .subarray(0, lastNewline)
+        .toString('utf-8')
+        .split('\n')
+        .forEach((line) => {
           parser.parseLine(line);
-        }
-      });
+        });
+
+      return lastNewline + 1;
     } catch (_e) {
       // TODO: try to come up with some strategy to avoid these
       // Can reproduce by copy+pasting a new log file into wow folder while logger is watching (win32)
       // There are still some transient bugs
       // https://stackoverflow.com/questions/1764809/filesystemwatcher-changed-event-is-raised-twice
-      return false;
+      return null;
     }
-    return true;
   }
 }

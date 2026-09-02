@@ -67,3 +67,27 @@ npm run start:simlog
 CHUNK_SIZE determines how many lines will be written per chunk of file
 
 BUFFER_SLEEP_MS determines the sleep time between writing file chunks
+
+## Simulating partial lines
+
+By default each line is written whole, so the file is newline-aligned at every
+moment a watcher could look at it. Real wow flushes a buffer that ends wherever it
+ends, so a reader can catch the file part way through a line. Set `PARTIAL_LINES=1`
+to reproduce that:
+
+```
+PARTIAL_LINES=1
+FLUSH_SLEEP_MS=250
+```
+
+Each chunk is then written as two flushes cut inside the chunk's last line, with
+`FLUSH_SLEEP_MS` between them so the watcher has time to fire and read while the
+line is still incomplete. Lower it and the two flushes may land before anything
+looks at the file, which makes the split invisible and the run indistinguishable
+from the default mode.
+
+Both flushes are needed, not just the mid-line one: a reader that buffers the
+fragment has to be handed a following flush that ends exactly on a newline, which
+is where boundary handling tends to go wrong. Writing at some fixed byte size
+instead is not enough — if every flush ends mid-line, a reader that keeps only the
+most recent fragment never gets the chance to misuse a stale one.
