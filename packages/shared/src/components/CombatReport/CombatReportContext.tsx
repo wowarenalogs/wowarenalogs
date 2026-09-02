@@ -1,4 +1,11 @@
-import { AtomicArenaCombat, CombatUnitReaction, CombatUnitType, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+import {
+  AtomicArenaCombat,
+  CombatUnitReaction,
+  CombatUnitType,
+  ICombatUnit,
+  IShuffleRound,
+  LogEvent,
+} from '@wowarenalogs/parser';
 import _ from 'lodash';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 
@@ -7,6 +14,9 @@ import { ccSpellIds } from '../../data/spellTags';
 interface ICombatReportContextData {
   viewerIsOwner: boolean;
   combat: AtomicArenaCombat | null;
+  shuffleRounds: IShuffleRound[];
+  navigateToRound: ((round: IShuffleRound) => void) | null;
+  canSelectRound: boolean;
   activePlayerId: string | null;
   navigateToPlayerView: (playerId: string) => void;
   activeTab: string;
@@ -26,6 +36,9 @@ interface ICombatReportContextData {
 
 export const CombatReportContext = React.createContext<ICombatReportContextData>({
   combat: null,
+  shuffleRounds: [],
+  navigateToRound: null,
+  canSelectRound: false,
   viewerIsOwner: true,
   activePlayerId: null,
   navigateToPlayerView: (_playerId: string) => {
@@ -50,6 +63,8 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
 
 interface IProps {
   combat: AtomicArenaCombat;
+  shuffleRounds?: IShuffleRound[];
+  onRoundSelected?: (round: IShuffleRound) => void;
   viewerIsOwner: boolean;
   children: React.ReactNode | React.ReactNode[];
 }
@@ -57,6 +72,7 @@ interface IProps {
 export const CombatReportContextProvider = (props: IProps) => {
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('summary');
+  const shuffleRounds = useMemo(() => props.shuffleRounds ?? [], [props.shuffleRounds]);
 
   const [
     players,
@@ -207,15 +223,17 @@ export const CombatReportContextProvider = (props: IProps) => {
 
   useEffect(() => {
     if (players && players.length > 0) {
-      setActivePlayerId(players[0].id);
+      setActivePlayerId((prev) => (prev && players.some((p) => p.id === prev) ? prev : players[0].id));
     } else {
       setActivePlayerId(null);
     }
   }, [players]);
 
+  const combatGroupId =
+    props.combat.dataType === 'ShuffleRound' && shuffleRounds.length > 0 ? shuffleRounds[0].id : props.combat.id;
   useEffect(() => {
     setActiveTab('summary');
-  }, [props.combat]);
+  }, [combatGroupId]);
 
   return (
     <CombatReportContext.Provider
@@ -239,6 +257,9 @@ export const CombatReportContextProvider = (props: IProps) => {
         playerInterruptsTaken,
         playerTotalSupportIn,
         combat: props.combat,
+        shuffleRounds,
+        navigateToRound: props.onRoundSelected ?? null,
+        canSelectRound: props.combat.dataType === 'ShuffleRound' && !!props.onRoundSelected && shuffleRounds.length > 1,
         viewerIsOwner: props.viewerIsOwner,
       }}
     >

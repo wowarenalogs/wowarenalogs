@@ -69,6 +69,15 @@ export class CombatAbsorbAction extends CombatAction {
     // Player-57-0A628E42,"Teckkno-Illidan",0x512,0x0,
     // 17,"Power Word: Shield",0x2,70,156,nil
 
+    // 20 - SPELL_HEAL_ABSORBED - retail
+    // 8/31/2026 11:28:44.219-6  SPELL_HEAL_ABSORBED,
+    // Player-58-0B75CB69,"Theflex-Stormreaver",0x548,0x80000000,  // applied the heal absorb
+    // Player-11-0BCAB81D,"Rcat-Tichondrius",0x512,0x80000002,     // had a heal denied
+    // 356528,"Necrotic Wound",0x20,
+    // Player-11-0BCAB81D,"Rcat-Tichondrius",0x512,0x80000002,     // shieldOwner* is the healer
+    // 453000,"Siphon Life",0x1,22,276                             // shieldSpell* is the denied heal
+    // 20 fields, so meleeAbsorbOffset stays 0. There is no crit flag, so critical reads as false.
+
     this.shieldOwnerUnitId = logLine.parameters[11 - meleeAbsorbOffset].toString();
     this.shieldOwnerUnitName = parseQuotedName(logLine.parameters[12 - meleeAbsorbOffset]);
     this.shieldOwnerUnitFlags = logLine.parameters[13 - meleeAbsorbOffset];
