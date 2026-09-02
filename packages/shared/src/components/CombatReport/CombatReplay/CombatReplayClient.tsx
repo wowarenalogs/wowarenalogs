@@ -66,6 +66,7 @@ export function CombatReplayClient() {
   const [speed, setSpeed] = useState(1);
   const [currentTimeOffset, setCurrentTimeOffset] = useState(0);
   const [filterEventsByPlayerId, setFilterEventsByPlayerId] = useState<string | null>(null);
+  const [showFloatingCombatText, setShowFloatingCombatText] = useState(true);
   const [sliderPos, setSliderPos] = useState(0);
   const [pixiApp, setPixiApp] = useState<PixiApplication | null>(null);
 
@@ -225,6 +226,19 @@ export function CombatReplayClient() {
             </button>
           </div>
         </div>
+        <div className="mr-2">
+          <div className="tooltip" data-tip="Toggle floating combat text over players">
+            <label className="label cursor-pointer gap-2 py-0">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={showFloatingCombatText}
+                onChange={(e) => setShowFloatingCombatText(e.target.checked)}
+              />
+              <span className="label-text whitespace-nowrap">Floating text</span>
+            </label>
+          </div>
+        </div>
         <div className="flex-1 flex flex-col justify-center">
           <input
             type="range"
@@ -293,6 +307,7 @@ export function CombatReplayClient() {
                         key={p.id}
                         unit={p}
                         currentTimeOffset={currentTimeOffset}
+                        showFloatingCombatText={showFloatingCombatText}
                         gamePositionToRenderPosition={(gameX, gameY) => ({
                           x: -gameX - worldMinX + VIEWPORT_PADDING + VIEWPORT_X_OFFSET,
                           y: gameY - worldMinY + VIEWPORT_PADDING,

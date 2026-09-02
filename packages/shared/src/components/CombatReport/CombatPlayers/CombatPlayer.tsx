@@ -272,6 +272,29 @@ export function CombatPlayer(props: IProps) {
   const healsDoneByDestMax = _.max(healsDoneByDest.map((s) => s.value)) || 1;
   const healsDoneByDestSum = _.sum(healsDoneByDest.map((s) => s.value));
 
+  // Only heal-absorbs applied to enemies count as pressure; friendly mechanics like Tyr's
+  // Deliverance are excluded.
+  const hostileHealAbsorbsOut = useMemo(() => {
+    return props.player.healAbsorbsOut.filter((a) => {
+      const target = combat?.units[a.destUnitId];
+      return target ? target.reaction !== props.player.reaction : false;
+    });
+  }, [props.player, combat]);
+
+  const healDeniedBySpells = useMemo(() => {
+    return compileDamageBySpell(hostileHealAbsorbsOut, props.player.id);
+  }, [hostileHealAbsorbsOut, props.player.id]);
+  const healDeniedBySpellsMax = _.max(healDeniedBySpells.map((s) => s.value)) || 1;
+  const healDeniedBySpellsSum = _.sum(healDeniedBySpells.map((s) => s.value));
+
+  const healDeniedByDest = useMemo(() => {
+    return compileDamageByDest(hostileHealAbsorbsOut).filter((d) =>
+      combat ? combat.units[d.id]?.type === CombatUnitType.Player : false,
+    );
+  }, [hostileHealAbsorbsOut, combat]);
+  const healDeniedByDestMax = _.max(healDeniedByDest.map((s) => s.value)) || 1;
+  const healDeniedByDestSum = _.sum(healDeniedByDest.map((s) => s.value));
+
   if (!props.player.info || !combat) {
     return null;
   }
@@ -450,6 +473,53 @@ export function CombatPlayer(props: IProps) {
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
             ))}
+            {healDeniedBySpells.length > 0 && (
+              <>
+                <tr>
+                  <th colSpan={4} className="bg-base-300">
+                    HEALING DENIED
+                  </th>
+                </tr>
+                {healDeniedBySpells.map((d) => (
+                  <tr key={'healdenied-spell-' + d.id + d.name}>
+                    <td className="bg-base-200 flex flex-row items-center">
+                      <SpellIcon spellId={d.id} size={24} />
+                      <div className="ml-1">{d.name}</div>
+                    </td>
+                    <td className="bg-base-200 w-full">
+                      <progress
+                        className="progress w-full progress-warning"
+                        value={Math.floor(((d.value || 0) * 100) / healDeniedBySpellsMax)}
+                        max={100}
+                      />
+                    </td>
+                    <td className="bg-base-200">{(((d.value || 0) * 100) / healDeniedBySpellsSum).toFixed(1)}%</td>
+                    <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <th colSpan={4} className="bg-base-300">
+                    HEALING DENIED TO
+                  </th>
+                </tr>
+                {healDeniedByDest.map((d) => (
+                  <tr key={'healdenied-dest-' + d.id + d.name}>
+                    <td className="bg-base-200">
+                      <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
+                    </td>
+                    <td className="bg-base-200 w-full">
+                      <progress
+                        className="progress w-full progress-warning"
+                        value={Math.floor(((d.value || 0) * 100) / healDeniedByDestMax)}
+                        max={100}
+                      />
+                    </td>
+                    <td className="bg-base-200">{(((d.value || 0) * 100) / healDeniedByDestSum).toFixed(1)}%</td>
+                    <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
+                  </tr>
+                ))}
+              </>
+            )}
             <tr>
               <th colSpan={4} className="bg-base-300">
                 CAST FREQUENCY

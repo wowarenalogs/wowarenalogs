@@ -47,6 +47,15 @@ export interface ICombatUnit {
   absorbsDamaged: CombatAbsorbAction[];
 
   /**
+   * Heal-absorb events where ICombatUnit applied the effect, denying a heal on another unit
+   */
+  healAbsorbsOut: CombatAbsorbAction[];
+  /**
+   * Heal-absorb events where a heal on ICombatUnit was denied
+   */
+  healAbsorbsIn: CombatAbsorbAction[];
+
+  /**
    * Support damage events that describe damage added to a spell ICombatUnit cast
    */
   supportDamageIn: CombatSupportAction[];
@@ -93,6 +102,8 @@ export class CombatUnit implements ICombatUnit {
   public absorbsIn: CombatAbsorbAction[] = [];
   public absorbsOut: CombatAbsorbAction[] = [];
   public absorbsDamaged: CombatAbsorbAction[] = [];
+  public healAbsorbsOut: CombatAbsorbAction[] = [];
+  public healAbsorbsIn: CombatAbsorbAction[] = [];
 
   public supportDamageIn: CombatSupportAction[] = [];
   public supportDamageOut: CombatSupportAction[] = [];

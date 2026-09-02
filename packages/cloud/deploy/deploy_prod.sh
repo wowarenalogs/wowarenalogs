@@ -8,13 +8,19 @@ set -e  # Exit on any error
 # Source common configuration and functions
 source "$(dirname "$0")/common.sh"
 
+# Load packages/cloud/.env so webhook URL/secret don't have to be exported manually.
+load_dotenv
+
 # Production-specific configuration
 PROJECT_ID="wowarenalogs"
 BUCKET_NAME="${PROJECT_ID}-log-files-prod"
 CREDENTIALS_FILE="wowarenalogs.json"
 
 # Environment variables for writeMatchStub function
-ENV_VARS="ENV_MATCH_STUBS_FIRESTORE=match-stubs-prod,ENV_LOG_FILES_BUCKET=${BUCKET_NAME},ENV_GCP_PROJECT=${PROJECT_ID},ENV_SERVICE_NAME=${SERVICE_NAME}"
+ENV_VARS="ENV_MATCH_STUBS_FIRESTORE=match-stubs-prod,ENV_LOG_FILES_BUCKET=${BUCKET_NAME},ENV_GCP_PROJECT=${PROJECT_ID},ENV_SERVICE_NAME=${SERVICE_NAME},ENV_WEBHOOK_TOPIC=${WEBHOOK_TOPIC}"
+
+# Environment variables for the deliverWebhook function
+WEBHOOK_ENV_VARS="ENV_WEBHOOK_URL=${ENV_WEBHOOK_URL},ENV_WEBHOOK_SECRET=${ENV_WEBHOOK_SECRET}"
 
 echo -e "${GREEN}Starting deployment of Cloud Functions to ${PROJECT_ID} (Production)...${NC}"
 
@@ -40,11 +46,16 @@ echo -e "${GREEN}refreshSpellIcons function deployed successfully!${NC}"
 deploy_pubsub_function "refreshCompetitiveStats" "refreshCompetitiveStatsHandler" "refresh-competitive-stats-event"
 echo -e "${GREEN}refreshCompetitiveStats function deployed successfully!${NC}"
 
+# Deploy deliverWebhook function (Pub/Sub trigger)
+deploy_pubsub_function "deliverWebhook" "deliverWebhookHandler" "${WEBHOOK_TOPIC}" "60s" "${WEBHOOK_ENV_VARS}" "20"
+echo -e "${GREEN}deliverWebhook function deployed successfully!${NC}"
+
 # Display all functions information
 echo -e "${YELLOW}All functions deployed successfully!${NC}"
 echo -e "${YELLOW}Function details:${NC}"
 show_function_info "writeMatchStub"
 show_function_info "refreshSpellIcons"
 show_function_info "refreshCompetitiveStats"
+show_function_info "deliverWebhook"
 
 echo -e "${GREEN}Production deployment completed successfully!${NC}"
