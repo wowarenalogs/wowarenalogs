@@ -218,8 +218,8 @@ const RecordingSettings = () => {
   const showDebugInfo = process.env.NODE_ENV === 'development' && clientContext.isDesktop;
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="text-2xl font-bold mb-1">Video Recording</div>
+    <div className="rounded-lg bg-base-300 p-4 flex flex-col gap-3">
+      <div className="text-2xl font-bold">Video Recording</div>
       <div className="alert">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -365,29 +365,32 @@ const RecordingSettings = () => {
                   </label>
                 </div>
               </div>
-              <div className="flex flex-row-reverse gap-2">
-                <input
-                  type="text"
-                  placeholder=""
-                  readOnly
-                  className="input input-sm input-bordered flex-1"
-                  value={recordingConfig?.storagePath ?? ''}
-                />
-                <button
-                  className="btn btn-sm gap-2"
-                  onClick={async () => {
-                    if (window.wowarenalogs.obs?.selectFolder) {
-                      const folderChoice = await window.wowarenalogs.obs.selectFolder(
-                        'Select folder to store videos to',
-                      );
-                      if (folderChoice.length > 0) {
-                        window.wowarenalogs.obs?.setConfig?.('storagePath', folderChoice[0]);
+              <div>
+                <div className="text-sm font-semibold mb-1 opacity-70">VOD Storage Directory</div>
+                <div className="flex flex-row gap-2">
+                  <input
+                    type="text"
+                    placeholder=""
+                    readOnly
+                    className="input input-sm input-bordered flex-1"
+                    value={recordingConfig?.storagePath ?? ''}
+                  />
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={async () => {
+                      if (window.wowarenalogs.obs?.selectFolder) {
+                        const folderChoice = await window.wowarenalogs.obs.selectFolder(
+                          'Select folder to store videos to',
+                        );
+                        if (folderChoice.length > 0) {
+                          window.wowarenalogs.obs?.setConfig?.('storagePath', folderChoice[0]);
+                        }
                       }
-                    }
-                  }}
-                >
-                  Set VOD Directory
-                </button>
+                    }}
+                  >
+                    Browse
+                  </button>
+                </div>
               </div>
               <div>
                 <div className="flex flex-row gap-4">
