@@ -73,3 +73,54 @@ export function realmIdToRegion(realmId: number | string) {
   }
   return 'def';
 }
+
+/**
+ * Splits a combat-log unit name into its player and realm parts.
+ *
+ * Modern logs emit names as `Name-Realm-Region` (e.g. `Tophatjack-Tichondrius-US`); older logs emit
+ * `Name-Realm`. The realm is always the second token, so any region suffix is dropped.
+ * Realm names never contain hyphens or whitespace in the log: multi-word realms arrive camel-cased
+ * (`TarrenMill`, `TheVentureCo`, `Area52`).
+ */
+export function parsePlayerName(name: string): { playerName: string; serverName: string | undefined } {
+  const [playerName, serverName] = name.split('-');
+  return { playerName, serverName };
+}
+
+export interface RealmSlugOptions {
+  /** Inserted between the words of a camel-cased realm name. */
+  separator: string;
+  /** Drop apostrophes (e.g. Mal'Ganis -> MalGanis). Defaults to true. */
+  stripApostrophes?: boolean;
+  /** Lowercase the result. Defaults to true. */
+  lowercase?: boolean;
+}
+
+/**
+ * Converts a combat-log realm name into the slug form used by external sites.
+ *
+ * A word boundary is any lowercase ASCII letter followed by an uppercase letter or a digit, so
+ * `TarrenMill` -> `tarren-mill`, `Area52` -> `area-52`, `TheVentureCo` -> `the-venture-co`.
+ * The apostrophe in Mal'Ganis is not a boundary, so it becomes `malganis`, matching Blizzard's own
+ * slugs and pvpq.net. Russian realms are keyed by their transliterated English names on every site we
+ * link to, so no Cyrillic handling is attempted here.
+ */
+export function realmSlug(serverName: string, options: RealmSlugOptions): string {
+  const { separator, stripApostrophes = true, lowercase = true } = options;
+  let slug = serverName.replace(/([a-z])([A-Z0-9])/g, `$1${separator}$2`);
+  if (stripApostrophes) {
+    slug = slug.replace(/'/g, '');
+  }
+  return lowercase ? slug.toLowerCase() : slug;
+}
+
+/** The Battle.net locale to use for armory links, based on the browser language. */
+export function armoryLocale(): string {
+  return bnetLocales.includes(window.navigator.language.toLowerCase()) ? window.navigator.language : 'en-us';
+}
+
+/** Builds a worldofwarcraft.com character profile URL from combat-log name parts. */
+export function armoryUrl(locale: string, region: string, serverName: string, playerName: string): string {
+  const slug = realmSlug(serverName, { separator: '-', lowercase: false });
+  return `https://worldofwarcraft.com/${locale}/character/${region}/${slug}/${playerName}`;
+}

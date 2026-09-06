@@ -3,7 +3,7 @@ import { ICombatUnit } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useQuery } from 'react-query';
 
-import { bnetLocales, realmIdToRegion } from '../../../utils/realms';
+import { bnetLocales, parsePlayerName, realmIdToRegion } from '../../../utils/realms';
 
 interface BlizApiAchievement {
   achievement: {
@@ -119,14 +119,14 @@ async function fetchAchievements(
 const DISPLAY_LIMIT = 3;
 
 export function AchievementBadge({ player }: IProps) {
-  const [playerName, serverName] = player.name.split('-');
+  const { playerName, serverName } = parsePlayerName(player.name);
 
   const locale = bnetLocales.includes(window.navigator.language.toLowerCase()) ? window.navigator.language : 'en-us';
   const realmId = player.id.split('-')[1];
   const region = realmIdToRegion(realmId);
 
   const achievementsQuery = useQuery(['achievements', player.id], async () => {
-    return await fetchAchievements(playerName, serverName, locale, realmId, region);
+    return await fetchAchievements(playerName, serverName ?? '', locale, realmId, region);
   });
 
   if (realmId === undefined) {
