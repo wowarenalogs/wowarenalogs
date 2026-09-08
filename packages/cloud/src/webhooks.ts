@@ -15,10 +15,7 @@ import {
 } from '../../parser/dist/index';
 import { realmIdToRegion } from '../../shared/src/utils/realms';
 
-// v2: dropped `id` and `link`. The match id is also the raw log's object name,
-// so exposing it (directly or via the match URL) hands out the log file itself.
-// `idempotencyKey` replaces `id` as the per-match dedupe handle.
-const WEBHOOK_PAYLOAD_VERSION = 2;
+const WEBHOOK_PAYLOAD_VERSION = 1;
 const WEBHOOK_DEFAULT_TIMEOUT_MS = 10000;
 
 export type WebhookCombatantStats = {
@@ -67,8 +64,9 @@ export type WebhookCombatant = {
 export type WebhookStub = {
   version: number;
   dataType: 'ArenaMatch' | 'ShuffleMatch';
-  idempotencyKey: string; // opaque, stable per match; NOT the match id
+  id: string; // opaque per-match key (see toWebhookMatchKey), NOT the internal match id
   wowVersion: WowVersion;
+  link: string | string[]; // string for match, string[] for shuffle; built from `id` above
   startInfo: {
     timestamp: number;
     zoneId: string;
@@ -100,7 +98,7 @@ type WebhookStubBase = Pick<
   WebhookStub,
   | 'version'
   | 'dataType'
-  | 'idempotencyKey'
+  | 'id'
   | 'wowVersion'
   | 'result'
   | 'resultName'
@@ -122,10 +120,11 @@ export const logWebhookEvent = (fields: Record<string, unknown>) => {
   console.log(JSON.stringify(fields));
 };
 
-// One-way key a partner can dedupe on without learning the match id (which
-// doubles as the raw log's storage object name). Match ids are md5 digests, so
-// the preimage is not enumerable.
-export const toIdempotencyKey = (matchId: string): string => crypto.createHash('sha256').update(matchId).digest('hex');
+// The internal match id doubles as the raw log's storage object name, so it is
+// never sent to partners. This one-way digest stands in for it everywhere the
+// payload used to carry the id: stable per match across retries, unique, and
+// not reversible (match ids are md5 digests, so the preimage is not enumerable).
+export const toWebhookMatchKey = (matchId: string): string => crypto.createHash('sha256').update(matchId).digest('hex');
 
 // Player GUIDs are `Player-<realmId>-<hex>`; undefined for any malformed id.
 const parseRealmId = (guid: string): number | undefined => {
@@ -206,7 +205,7 @@ const mapCombatants = (units: Record<string, ICombatUnit>, effectiveDuration: nu
 const buildStubBase = (match: IArenaMatch | IShuffleMatch, atomic: AtomicArenaCombat): WebhookStubBase => ({
   version: WEBHOOK_PAYLOAD_VERSION,
   dataType: match.dataType,
-  idempotencyKey: toIdempotencyKey(match.id),
+  id: toWebhookMatchKey(match.id),
   wowVersion: match.wowVersion,
   result: match.result,
   resultName: (CombatResult[match.result] ?? 'unknown').toLowerCase(),
@@ -229,11 +228,13 @@ const buildStubBase = (match: IArenaMatch | IShuffleMatch, atomic: AtomicArenaCo
 
 export const createWebhookStubFromArenaMatch = (match: IArenaMatch): WebhookStub => {
   const effectiveDuration = getEffectiveCombatDuration(match);
+  const base = buildStubBase(match, match);
   return {
-    ...buildStubBase(match, match),
+    ...base,
     playerId: match.playerId,
     playerTeamId: match.playerTeamId,
     region: playerRegion(match.playerId),
+    link: `https://wowarenalogs.com/match?id=${base.id}&viewerIsOwner=false&source=webhook`,
     combatants: mapCombatants(match.units, effectiveDuration),
   };
 };
@@ -243,11 +244,15 @@ export const createWebhookStubFromShuffleMatch = (match: IShuffleMatch): Webhook
   // taken from round 1; see WEBHOOKS.md.
   const round0 = match.rounds[0];
   const effectiveDuration = getEffectiveCombatDuration(round0);
+  const base = buildStubBase(match, round0);
   return {
-    ...buildStubBase(match, round0),
+    ...base,
     playerId: round0.playerId,
     playerTeamId: round0.playerTeamId,
     region: playerRegion(round0.playerId),
+    link: match.rounds.map(
+      (_r, idx) => `https://wowarenalogs.com/match?id=${base.id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
+    ),
     roundResults: match.rounds.map((r) => r.result),
     combatants: mapCombatants(round0.units, effectiveDuration),
   };
@@ -268,7 +273,7 @@ export const sendWebhookAsync = async (stub: WebhookStub): Promise<WebhookOutcom
 
   const headers: Record<string, string> = {
     'content-type': 'application/json',
-    'x-idempotency-key': stub.idempotencyKey,
+    'x-idempotency-key': stub.id,
   };
 
   if (secret) {
@@ -281,7 +286,7 @@ export const sendWebhookAsync = async (stub: WebhookStub): Promise<WebhookOutcom
       event: 'webhook_unsigned',
       level: 'warning',
       dataType: stub.dataType,
-      idempotencyKey: stub.idempotencyKey,
+      matchId: stub.id,
       message: 'ENV_WEBHOOK_SECRET is not set; sending unsigned webhook',
     });
   }
@@ -301,7 +306,7 @@ export const sendWebhookAsync = async (stub: WebhookStub): Promise<WebhookOutcom
       logWebhookEvent({
         event: 'webhook_delivered',
         dataType: stub.dataType,
-        idempotencyKey: stub.idempotencyKey,
+        matchId: stub.id,
         status: response.status,
         durationMs: Date.now() - startedAt,
       });
@@ -313,7 +318,7 @@ export const sendWebhookAsync = async (stub: WebhookStub): Promise<WebhookOutcom
       event: 'webhook_failed',
       level: 'error',
       dataType: stub.dataType,
-      idempotencyKey: stub.idempotencyKey,
+      matchId: stub.id,
       status: response.status,
       durationMs: Date.now() - startedAt,
       error: `HTTP ${response.status}`,
@@ -325,7 +330,7 @@ export const sendWebhookAsync = async (stub: WebhookStub): Promise<WebhookOutcom
       event: 'webhook_failed',
       level: 'error',
       dataType: stub.dataType,
-      idempotencyKey: stub.idempotencyKey,
+      matchId: stub.id,
       durationMs: Date.now() - startedAt,
       error: e instanceof Error ? e.message : String(e),
     });

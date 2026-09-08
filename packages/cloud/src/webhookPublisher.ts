@@ -14,8 +14,8 @@ const pubsub = new PubSub({ credentials: gcpCredentials });
 // Never throws — a publish failure is logged and swallowed so match processing
 // is unaffected.
 //
-// `matchId` is only logged here, never published: this is the one place that
-// ties a partner-visible idempotencyKey back to a match id for debugging.
+// `stub.id` is the partner-facing key, not the match id. `matchId` is only
+// logged here, never published: this is the one place that ties the two together.
 export const publishWebhookStubAsync = async (stub: WebhookStub, matchId: string): Promise<void> => {
   const topic = process.env.ENV_WEBHOOK_TOPIC;
   if (!topic) {
@@ -27,7 +27,7 @@ export const publishWebhookStubAsync = async (stub: WebhookStub, matchId: string
       event: 'webhook_published',
       dataType: stub.dataType,
       matchId,
-      idempotencyKey: stub.idempotencyKey,
+      webhookId: stub.id,
     });
   } catch (e) {
     logWebhookEvent({
@@ -35,7 +35,7 @@ export const publishWebhookStubAsync = async (stub: WebhookStub, matchId: string
       level: 'error',
       dataType: stub.dataType,
       matchId,
-      idempotencyKey: stub.idempotencyKey,
+      webhookId: stub.id,
       error: e instanceof Error ? e.message : String(e),
     });
   }
