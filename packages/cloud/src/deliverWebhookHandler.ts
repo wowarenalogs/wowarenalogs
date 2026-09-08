@@ -9,7 +9,7 @@ export async function handler(
 ) {
   try {
     const stub = JSON.parse(Buffer.from(message.data ?? '', 'base64').toString('utf8')) as WebhookStub;
-    if (!stub || !stub.id || !stub.dataType) {
+    if (!stub || !stub.idempotencyKey || !stub.dataType) {
       // Drop malformed payloads — they will never become valid on retry.
       console.error('deliverWebhook: dropping invalid stub', stub);
       callback();
@@ -22,7 +22,7 @@ export async function handler(
     logWebhookEvent({
       event: 'webhook_attempt',
       dataType: stub.dataType,
-      matchId: stub.id,
+      idempotencyKey: stub.idempotencyKey,
       messageId: message.messageId,
       deliveryAttempt: message.deliveryAttempt,
     });
@@ -35,7 +35,7 @@ export async function handler(
       event: 'webhook_outcome',
       level: outcome === 'failed_transient' || outcome === 'failed_permanent' ? 'error' : 'info',
       dataType: stub.dataType,
-      matchId: stub.id,
+      idempotencyKey: stub.idempotencyKey,
       messageId: message.messageId,
       deliveryAttempt: message.deliveryAttempt,
       outcome,
@@ -43,7 +43,7 @@ export async function handler(
     });
 
     if (outcome === 'failed_transient') {
-      callback(new Error(`webhook delivery failed for match ${stub.id}`));
+      callback(new Error(`webhook delivery failed for idempotencyKey ${stub.idempotencyKey}`));
       return;
     }
     callback();

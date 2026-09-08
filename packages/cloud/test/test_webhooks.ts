@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import http from 'http';
 
-import { sendWebhookAsync, WebhookStub } from '../src/webhooks';
+import { sendWebhookAsync, toIdempotencyKey, WebhookStub } from '../src/webhooks';
 
 const TEST_SECRET = 'test-webhook-secret';
 
@@ -32,12 +32,12 @@ async function main() {
   process.env.ENV_WEBHOOK_URL = `http://127.0.0.1:${port}`;
   process.env.ENV_WEBHOOK_SECRET = TEST_SECRET;
 
+  const matchId = 'test-match-1';
   const sampleStub: WebhookStub = {
-    version: 1,
+    version: 2,
     dataType: 'ArenaMatch',
-    id: 'test-match-1',
+    idempotencyKey: toIdempotencyKey(matchId),
     wowVersion: 'retail',
-    link: 'https://wowarenalogs.com/match?id=test-match-1',
     startInfo: { timestamp: 1, zoneId: '1552', bracket: '3v3', isRanked: true },
     endInfo: { winningTeamId: '0', timestamp: 2, matchDurationInSeconds: 120, team0MMR: 1500, team1MMR: 1510 },
     playerId: 'player-1',
@@ -63,8 +63,13 @@ async function main() {
     if (received.headers['content-type'] !== 'application/json') {
       failures.push(`content-type was '${received.headers['content-type']}', expected 'application/json'`);
     }
-    if (received.headers['x-idempotency-key'] !== sampleStub.id) {
-      failures.push(`x-idempotency-key was '${received.headers['x-idempotency-key']}', expected '${sampleStub.id}'`);
+    if (received.headers['x-idempotency-key'] !== sampleStub.idempotencyKey) {
+      failures.push(
+        `x-idempotency-key was '${received.headers['x-idempotency-key']}', expected '${sampleStub.idempotencyKey}'`,
+      );
+    }
+    if (received.headers['x-idempotency-key'] === matchId) {
+      failures.push('x-idempotency-key must not be the raw match id');
     }
     const signature = received.headers['x-signature'];
     if (typeof signature !== 'string' || !signature.startsWith('sha256=')) {
@@ -78,6 +83,15 @@ async function main() {
     }
     if (received.body !== JSON.stringify(sampleStub)) {
       failures.push('received body did not match the sent stub');
+    }
+    // The match id doubles as the raw log's object name; neither it nor a match
+    // URL may appear anywhere in the delivered payload.
+    const parsedBody = JSON.parse(received.body) as Record<string, unknown>;
+    if ('id' in parsedBody || 'link' in parsedBody) {
+      failures.push('payload must not contain `id` or `link`');
+    }
+    if (received.body.includes(matchId) || received.body.includes('wowarenalogs.com/match')) {
+      failures.push('payload leaks the match id or a match URL');
     }
   }
 

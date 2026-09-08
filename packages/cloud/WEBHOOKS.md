@@ -23,7 +23,7 @@ One webhook per match, **after** the match stub is written to Firestore, for:
     elapses, then dropped.
 - **Duplicates are expected** — retries (and at-least-once delivery) mean the same
   match may arrive more than once. **Deduplicate on `x-idempotency-key`** (equals
-  the payload `id`); it is stable across attempts.
+  the payload `idempotencyKey`); it is stable across attempts.
 - **Timeout** — each POST is aborted after ~10s (`ENV_WEBHOOK_TIMEOUT_MS`,
   default `10000`).
 
@@ -34,7 +34,7 @@ One webhook per match, **after** the match stub is written to Firestore, for:
 | Header              | Value                                                      |
 | ------------------- | ---------------------------------------------------------- |
 | `content-type`      | `application/json`                                         |
-| `x-idempotency-key` | The match `id` — use this to dedupe re-deliveries.         |
+| `x-idempotency-key` | The payload `idempotencyKey` — use this to dedupe re-deliveries. |
 | `x-signature`       | `sha256=<hex>` HMAC-SHA256 of the raw body (see below).    |
 
 `x-signature` is present only when `ENV_WEBHOOK_SECRET` is configured; an unsigned
@@ -42,13 +42,17 @@ delivery is logged as a warning on our side.
 
 ## Payload
 
+The payload deliberately carries **no match id and no match URL**. The match id is
+also the storage object name of the raw combat log, so either field would let a
+receiver fetch the log itself. `idempotencyKey` is an opaque one-way digest of the
+match id: stable across retries, unique per match, and not reversible.
+
 ```jsonc
 {
-  "version": 1,                       // payload schema version; branch on this
+  "version": 2,                       // payload schema version; branch on this
   "dataType": "ArenaMatch",           // "ArenaMatch" | "ShuffleMatch"
-  "id": "string",                     // match id (also the idempotency key)
+  "idempotencyKey": "string",         // opaque per-match key (also sent as x-idempotency-key)
   "wowVersion": "retail",             // "retail" | "classic"
-  "link": "https://wowarenalogs.com/match?id=...",  // string; string[] for shuffle (one per round)
   "startInfo": {
     "timestamp": 0,                   // epoch ms
     "zoneId": "string",
@@ -108,8 +112,14 @@ delivery is logged as a warning on our side.
 
 Note: for **shuffle**, `combatants` (and each `combatants[].teamId`, `dps`, `hps`,
 `deaths`, `hasAdvancedLogging`, `playerTeamRating`) is taken from **round 1** only —
-teams are re-drawn each round, so `teamId` is not stable across the match. For
-per-round detail across the whole shuffle, query the GraphQL API by match `id`.
+teams are re-drawn each round, so `teamId` is not stable across the match.
+`roundResults` gives the per-round outcome for the whole shuffle.
+
+### Version history
+
+- **2** — removed `id` and `link`; added `idempotencyKey`. `x-idempotency-key` now
+  carries `idempotencyKey` instead of the match id.
+- **1** — initial payload.
 
 ## Verifying the signature
 
@@ -134,8 +144,8 @@ function verify(rawBody, headers, secret) {
 
 The signature covers the body alone, so it is stable across retries of the same
 match. There is no timestamp binding, so the signature on its own does not protect
-against replay — rely on `x-idempotency-key` (the match `id`) to collapse duplicate
-and replayed deliveries.
+against replay — rely on `x-idempotency-key` (the payload `idempotencyKey`) to
+collapse duplicate and replayed deliveries.
 
 ## Configuration (deployer)
 

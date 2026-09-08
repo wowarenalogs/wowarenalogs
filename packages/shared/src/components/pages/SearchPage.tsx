@@ -7,9 +7,11 @@ import { TbArrowBigUpLines, TbLoader, TbRocketOff } from 'react-icons/tb';
 
 import { useGetPublicMatchesQuery } from '../../graphql/__generated__/graphql';
 import { logAnalyticsEvent } from '../../utils/analytics';
+import { SEARCH_DISABLED } from '../../utils/searchStatus';
 import { CombatStubList } from '../CombatStubList';
 import { LocalRemoteHybridCombat } from '../CombatStubList/rows';
 import { QuerryError } from '../common/QueryError';
+import { SearchDisabledNotice } from '../common/SearchDisabledNotice';
 import { Bracket, BracketSelector } from '../MatchSearch/BracketSelector';
 import { RatingSelector } from '../MatchSearch/RatingSelector';
 import { SpecSelector } from '../MatchSearch/SpecSelector';
@@ -70,6 +72,7 @@ export const SearchPage = () => {
 
   const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
   const matchesQuery = useGetPublicMatchesQuery({
+    skip: SEARCH_DISABLED,
     variables: {
       wowVersion: 'retail',
       bracket: filters.bracket,
@@ -110,6 +113,15 @@ export const SearchPage = () => {
   }
   function clearAllFilters() {
     setFilters(DEFAULT_FILTERS);
+  }
+
+  if (SEARCH_DISABLED) {
+    return (
+      <div className="mt-2 px-2 sm:mt-4 sm:px-4">
+        <title>Find Matches</title>
+        <SearchDisabledNotice />
+      </div>
+    );
   }
 
   return (
