@@ -152,6 +152,7 @@ const RecordingSettings = () => {
   const [pendingBitrate, setPendingBitrate] = useState<number | null>(null);
   const [pendingCqp, setPendingCqp] = useState<number | null>(null);
   const [pendingCrf, setPendingCrf] = useState<number | null>(null);
+  const [pendingMaxStorage, setPendingMaxStorage] = useState<number | null>(null);
   const audioLevels = useAudioLevels();
 
   async function checkAudioDevices() {
@@ -171,6 +172,7 @@ const RecordingSettings = () => {
     setPendingBitrate(recordingConfig.obsKBitRate ?? null);
     setPendingCqp(recordingConfig.obsCQP ?? null);
     setPendingCrf(recordingConfig.obsCRF ?? null);
+    setPendingMaxStorage(recordingConfig.maxStorage ?? null);
   }, [recordingConfig]);
 
   useEffect(() => {
@@ -212,6 +214,16 @@ const RecordingSettings = () => {
     }, 300);
     return () => clearTimeout(handle);
   }, [pendingCrf, recordingConfig?.obsCRF]);
+
+  useEffect(() => {
+    if (pendingMaxStorage === null) return;
+    const handle = setTimeout(() => {
+      if (pendingMaxStorage !== recordingConfig?.maxStorage) {
+        window.wowarenalogs.obs?.setConfig?.('maxStorage', pendingMaxStorage);
+      }
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [pendingMaxStorage, recordingConfig?.maxStorage]);
 
   const engineStarted = !!appConfig.enableVideoRecording;
 
@@ -388,6 +400,33 @@ const RecordingSettings = () => {
                 >
                   Set VOD Directory
                 </button>
+              </div>
+              <div className="flex flex-row gap-2 items-center">
+                <label className="form-control">
+                  <div className="label">
+                    <span className="label-text">Max video storage (GB, 0 = unlimited)</span>
+                  </div>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    className="input input-sm input-bordered w-40"
+                    value={pendingMaxStorage ?? ''}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === '') {
+                        setPendingMaxStorage(null);
+                        return;
+                      }
+                      const next = Math.max(0, Math.round(Number(raw)));
+                      if (!Number.isFinite(next)) return;
+                      setPendingMaxStorage(next);
+                    }}
+                  />
+                </label>
+                <span className="text-sm opacity-70 mt-6">
+                  Oldest videos are deleted automatically to stay under this limit. Recording never stops.
+                </span>
               </div>
               <div>
                 <div className="flex flex-row gap-4">
