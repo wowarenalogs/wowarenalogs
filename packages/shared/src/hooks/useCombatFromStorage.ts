@@ -1,23 +1,38 @@
+import { useApolloClient } from '@apollo/client';
 import { WowVersion } from '@wowarenalogs/parser';
 import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 
+import {
+  GetLogDownloadUrlDocument,
+  GetLogDownloadUrlQuery,
+  GetLogDownloadUrlQueryVariables,
+} from '../graphql/__generated__/graphql';
 import { Utils } from '../utils/utils';
+import { useAuth } from './AuthContext';
 
 const LOG_WOW_VERSION_HEADER = 'X-Goog-Meta-Wow-Version';
 const LOG_CLIENT_TIMEZONE_HEADER = 'X-Goog-Meta-Client-Timezone';
 
-const combatRootURL =
-  process.env.NODE_ENV === 'development'
-    ? 'https://storage.googleapis.com/wowarenalogs-public-dev-log-files-prod/'
-    : 'https://storage.googleapis.com/wowarenalogs-log-files-prod/';
-
 export function useCombatFromStorage(matchId: string, roundId?: string) {
+  const apollo = useApolloClient();
+  const auth = useAuth();
+
   const queryParsedLog = useQuery(
     ['log-file', matchId],
     async () => {
-      const logObjectUrl = `${combatRootURL}${matchId}`;
-      const result = await fetch(logObjectUrl);
+      // The log bucket is private. The API hands out a short-lived signed URL
+      // to signed-in users only, charged against a daily quota of distinct
+      // logs — that call, not the fetch, is what limits mass scraping.
+      const grant = await apollo.query<GetLogDownloadUrlQuery, GetLogDownloadUrlQueryVariables>({
+        query: GetLogDownloadUrlDocument,
+        variables: { matchId },
+        fetchPolicy: 'no-cache',
+      });
+      const result = await fetch(grant.data.logDownloadUrl.url);
+      if (!result.ok) {
+        throw new Error(`Could not load the combat log (HTTP ${result.status}).`);
+      }
 
       const wowVersion = (result.headers.get(LOG_WOW_VERSION_HEADER) as WowVersion) ?? 'retail';
       const timezone = result.headers.get(LOG_CLIENT_TIMEZONE_HEADER);
@@ -34,7 +49,9 @@ export function useCombatFromStorage(matchId: string, roundId?: string) {
     {
       cacheTime: 60 * 60 * 24 * 1000,
       staleTime: Infinity,
-      enabled: matchId != '',
+      enabled: matchId != '' && auth.isAuthenticated,
+      // A refused grant (quota, sign-in, blocked) will not succeed on retry.
+      retry: false,
     },
   );
 
