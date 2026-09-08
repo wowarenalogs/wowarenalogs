@@ -1,9 +1,11 @@
 import { Firestore } from '@google-cloud/firestore';
 import { WowVersion } from '@wowarenalogs/parser';
+import { ApolloError } from 'apollo-server-micro';
 import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
 
+import { SEARCH_DISABLED, SEARCH_DISABLED_MESSAGE } from '../../utils/searchStatus';
 import { ApolloContext, CombatQueryResult, ICombatDataStub } from '../types';
 import { Constants } from '../utils/constants';
 const matchStubsCollection = 'match-stubs-prod';
@@ -20,6 +22,14 @@ function firestoreDocToMatchStub(stub: ICombatDataStub): ICombatDataStub {
   return stub;
 }
 
+// Guards every discovery query. Throwing before the Firestore read means a
+// disabled endpoint costs nothing to hit, however often it is called.
+function assertSearchEnabled() {
+  if (SEARCH_DISABLED) {
+    throw new ApolloError(SEARCH_DISABLED_MESSAGE, 'SEARCH_DISABLED');
+  }
+}
+
 export async function latestMatches(
   _parent: unknown,
   args: {
@@ -32,6 +42,7 @@ export async function latestMatches(
     count: number;
   },
 ): Promise<CombatQueryResult> {
+  assertSearchEnabled();
   const collectionReference = firestore.collection(matchStubsCollection);
 
   const now = moment().valueOf();
@@ -99,6 +110,7 @@ export async function latestMatches(
 }
 
 export async function matchesWithOwnerId(_parent: unknown, args: { ownerId: string }) {
+  assertSearchEnabled();
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
     .where('ownerId', '==', args.ownerId)
@@ -113,6 +125,7 @@ export async function recentMatchesWithCombatant(
   _parent: unknown,
   args: { combatantName: string; serverName: string; region: string },
 ) {
+  assertSearchEnabled();
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
     .where('combatantNames', 'array-contains', `${args.combatantName}-${args.serverName}`)
@@ -166,6 +179,7 @@ export async function userMatches(
   _parent: unknown,
   args: { userId: string; offset: number; count: number },
 ): Promise<CombatQueryResult> {
+  assertSearchEnabled();
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
     .where('ownerId', '==', `${args.userId}`)
@@ -185,6 +199,7 @@ export async function characterMatches(
   _parent: unknown,
   args: { realm: string; characterName: string; offset: number; count: number },
 ): Promise<CombatQueryResult> {
+  assertSearchEnabled();
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
     .where('combatantNames', 'array-contains', `${args.characterName}-${args.realm}`)
