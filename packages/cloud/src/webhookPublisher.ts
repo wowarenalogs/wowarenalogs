@@ -13,19 +13,29 @@ const pubsub = new PubSub({ credentials: gcpCredentials });
 
 // Never throws — a publish failure is logged and swallowed so match processing
 // is unaffected.
-export const publishWebhookStubAsync = async (stub: WebhookStub): Promise<void> => {
+//
+// `stub.id` is the partner-facing key, not the match id. `matchId` is only
+// logged here, never published: this is the one place that ties the two together.
+export const publishWebhookStubAsync = async (stub: WebhookStub, matchId: string): Promise<void> => {
   const topic = process.env.ENV_WEBHOOK_TOPIC;
   if (!topic) {
     return;
   }
   try {
     await pubsub.topic(topic).publishMessage({ json: stub });
+    logWebhookEvent({
+      event: 'webhook_published',
+      dataType: stub.dataType,
+      matchId,
+      webhookId: stub.id,
+    });
   } catch (e) {
     logWebhookEvent({
       event: 'webhook_publish_failed',
       level: 'error',
       dataType: stub.dataType,
-      matchId: stub.id,
+      matchId,
+      webhookId: stub.id,
       error: e instanceof Error ? e.message : String(e),
     });
   }

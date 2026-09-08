@@ -64,9 +64,9 @@ export type WebhookCombatant = {
 export type WebhookStub = {
   version: number;
   dataType: 'ArenaMatch' | 'ShuffleMatch';
-  id: string;
+  id: string; // opaque per-match key (see toWebhookMatchKey), NOT the internal match id
   wowVersion: WowVersion;
-  link: string | string[]; // string for match, string[] for shuffle
+  link: string | string[]; // string for match, string[] for shuffle; built from `id` above
   startInfo: {
     timestamp: number;
     zoneId: string;
@@ -119,6 +119,12 @@ const getWebhookUrl = (): string | undefined => {
 export const logWebhookEvent = (fields: Record<string, unknown>) => {
   console.log(JSON.stringify(fields));
 };
+
+// The internal match id doubles as the raw log's storage object name, so it is
+// never sent to partners. This one-way digest stands in for it everywhere the
+// payload used to carry the id: stable per match across retries, unique, and
+// not reversible (match ids are md5 digests, so the preimage is not enumerable).
+export const toWebhookMatchKey = (matchId: string): string => crypto.createHash('sha256').update(matchId).digest('hex');
 
 // Player GUIDs are `Player-<realmId>-<hex>`; undefined for any malformed id.
 const parseRealmId = (guid: string): number | undefined => {
@@ -199,7 +205,7 @@ const mapCombatants = (units: Record<string, ICombatUnit>, effectiveDuration: nu
 const buildStubBase = (match: IArenaMatch | IShuffleMatch, atomic: AtomicArenaCombat): WebhookStubBase => ({
   version: WEBHOOK_PAYLOAD_VERSION,
   dataType: match.dataType,
-  id: match.id,
+  id: toWebhookMatchKey(match.id),
   wowVersion: match.wowVersion,
   result: match.result,
   resultName: (CombatResult[match.result] ?? 'unknown').toLowerCase(),
@@ -222,12 +228,13 @@ const buildStubBase = (match: IArenaMatch | IShuffleMatch, atomic: AtomicArenaCo
 
 export const createWebhookStubFromArenaMatch = (match: IArenaMatch): WebhookStub => {
   const effectiveDuration = getEffectiveCombatDuration(match);
+  const base = buildStubBase(match, match);
   return {
-    ...buildStubBase(match, match),
+    ...base,
     playerId: match.playerId,
     playerTeamId: match.playerTeamId,
     region: playerRegion(match.playerId),
-    link: `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook`,
+    link: `https://wowarenalogs.com/match?id=${base.id}&viewerIsOwner=false&source=webhook`,
     combatants: mapCombatants(match.units, effectiveDuration),
   };
 };
@@ -237,14 +244,14 @@ export const createWebhookStubFromShuffleMatch = (match: IShuffleMatch): Webhook
   // taken from round 1; see WEBHOOKS.md.
   const round0 = match.rounds[0];
   const effectiveDuration = getEffectiveCombatDuration(round0);
+  const base = buildStubBase(match, round0);
   return {
-    ...buildStubBase(match, round0),
+    ...base,
     playerId: round0.playerId,
     playerTeamId: round0.playerTeamId,
     region: playerRegion(round0.playerId),
     link: match.rounds.map(
-      (_r, idx) =>
-        `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
+      (_r, idx) => `https://wowarenalogs.com/match?id=${base.id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
     ),
     roundResults: match.rounds.map((r) => r.result),
     combatants: mapCombatants(round0.units, effectiveDuration),

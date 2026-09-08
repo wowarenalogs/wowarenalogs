@@ -75,7 +75,7 @@ export async function handler(file: any, _context: any) {
     }
     if (arenaMatch.startInfo.isRanked) {
       try {
-        await publishWebhookStubAsync(createWebhookStubFromArenaMatch(arenaMatch));
+        await publishWebhookStubAsync(createWebhookStubFromArenaMatch(arenaMatch), arenaMatch.id);
       } catch (e) {
         console.error(e);
       }
@@ -109,7 +109,7 @@ export async function handler(file: any, _context: any) {
     console.timeEnd('writing shuffle match data');
     if (shuffleMatch.startInfo.bracket === 'Rated Solo Shuffle') {
       try {
-        await publishWebhookStubAsync(createWebhookStubFromShuffleMatch(shuffleMatch));
+        await publishWebhookStubAsync(createWebhookStubFromShuffleMatch(shuffleMatch), shuffleMatch.id);
       } catch (e) {
         console.error(e);
       }

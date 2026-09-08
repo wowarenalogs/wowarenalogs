@@ -46,9 +46,9 @@ delivery is logged as a warning on our side.
 {
   "version": 1,                       // payload schema version; branch on this
   "dataType": "ArenaMatch",           // "ArenaMatch" | "ShuffleMatch"
-  "id": "string",                     // match id (also the idempotency key)
+  "id": "string",                     // opaque per-match key (also the idempotency key); see note below
   "wowVersion": "retail",             // "retail" | "classic"
-  "link": "https://wowarenalogs.com/match?id=...",  // string; string[] for shuffle (one per round)
+  "link": "https://wowarenalogs.com/match?id=<id>",  // string; string[] for shuffle (one per round)
   "startInfo": {
     "timestamp": 0,                   // epoch ms
     "zoneId": "string",
@@ -106,10 +106,15 @@ delivery is logged as a warning on our side.
 }
 ```
 
+Note: `id` is an opaque, one-way key derived from the match — stable across
+retries and unique per match, which is all deduplication needs — and is **not**
+the internal match id. The internal id doubles as the raw log's storage object
+name and is never included. `link` is built from the same key.
+
 Note: for **shuffle**, `combatants` (and each `combatants[].teamId`, `dps`, `hps`,
 `deaths`, `hasAdvancedLogging`, `playerTeamRating`) is taken from **round 1** only —
-teams are re-drawn each round, so `teamId` is not stable across the match. For
-per-round detail across the whole shuffle, query the GraphQL API by match `id`.
+teams are re-drawn each round, so `teamId` is not stable across the match.
+`roundResults` gives the per-round outcome for the whole shuffle.
 
 ## Verifying the signature
 
