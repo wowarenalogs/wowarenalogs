@@ -6,7 +6,7 @@ import path from 'path';
 
 import { ACCESS_BLOCKED_TAG, LOG_DAILY_DOWNLOAD_QUOTA, LOG_URL_TTL_MS } from '../../utils/accessLimits';
 import { SEARCH_DISABLED, SEARCH_DISABLED_MESSAGE } from '../../utils/searchStatus';
-import { ApolloContext, User, UserSubscriptionTier } from '../types';
+import { ApolloContext, User } from '../types';
 import { getUserProfileAsync } from './getUserProfileAsync';
 
 /**
@@ -95,7 +95,6 @@ export function logSearchQuery(caller: User, query: SearchQueryName, args: Recor
     event: 'access_search',
     query,
     userId: caller.id,
-    tier: caller.subscriptionTier,
     args,
     returned,
   });
@@ -111,8 +110,7 @@ export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: 
     throw new UserInputError('Invalid match id.');
   }
   const caller = await requireUserAsync(context, 'logDownload');
-  const tier = caller.subscriptionTier ?? UserSubscriptionTier.Common;
-  const quota = LOG_DAILY_DOWNLOAD_QUOTA[tier] ?? LOG_DAILY_DOWNLOAD_QUOTA.Common;
+  const quota = LOG_DAILY_DOWNLOAD_QUOTA;
   const day = utcDay();
   const usageRef = firestore.doc(`${logUsageCollection}/${caller.id}_${day}`);
 
@@ -127,7 +125,6 @@ export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: 
         event: 'access_denied',
         reason: 'log_quota',
         userId: caller.id,
-        tier,
         matchId,
         usedToday: opened.length,
         quota,
@@ -157,7 +154,6 @@ export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: 
   logAccessEvent({
     event: 'access_log',
     userId: caller.id,
-    tier,
     matchId,
     usedToday: usedAfter,
     quota,

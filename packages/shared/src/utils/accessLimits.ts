@@ -13,13 +13,10 @@
 export const SEARCH_EMBARGO_MS = 60 * 60 * 1000;
 
 /**
- * Distinct raw logs a signed-in user may open per UTC day, by subscription
- * tier. Opening a log already counted today does not count again.
+ * Distinct raw logs a signed-in user may open per UTC day. Same for everyone;
+ * opening a log already counted today does not count again.
  */
-export const LOG_DAILY_DOWNLOAD_QUOTA: Record<'Common' | 'Rare', number> = {
-  Common: 100,
-  Rare: 500,
-};
+export const LOG_DAILY_DOWNLOAD_QUOTA = 15;
 
 /** Lifetime of a signed log download URL. Long enough to fetch, too short to share. */
 export const LOG_URL_TTL_MS = 10 * 60 * 1000;
