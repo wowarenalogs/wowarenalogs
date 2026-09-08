@@ -6,12 +6,14 @@ import { useEffect, useMemo } from 'react';
 import { TbArrowBigUpLines, TbLoader, TbRocketOff } from 'react-icons/tb';
 
 import { useGetPublicMatchesQuery } from '../../graphql/__generated__/graphql';
+import { useAuth } from '../../hooks/AuthContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
 import { SEARCH_DISABLED } from '../../utils/searchStatus';
 import { CombatStubList } from '../CombatStubList';
 import { LocalRemoteHybridCombat } from '../CombatStubList/rows';
 import { QuerryError } from '../common/QueryError';
 import { SearchDisabledNotice } from '../common/SearchDisabledNotice';
+import { SignInRequired } from '../common/SignInRequired';
 import { Bracket, BracketSelector } from '../MatchSearch/BracketSelector';
 import { RatingSelector } from '../MatchSearch/RatingSelector';
 import { SpecSelector } from '../MatchSearch/SpecSelector';
@@ -43,6 +45,7 @@ const DEFAULT_FILTERS: IPublicMatchesFilters = {
 };
 
 export const SearchPage = () => {
+  const auth = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -71,8 +74,10 @@ export const SearchPage = () => {
   }, [filters]);
 
   const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
+  // Search requires a signed-in user; the server refuses anonymous callers.
+  const canSearch = auth.isAuthenticated && !SEARCH_DISABLED;
   const matchesQuery = useGetPublicMatchesQuery({
-    skip: SEARCH_DISABLED,
+    skip: !canSearch,
     variables: {
       wowVersion: 'retail',
       bracket: filters.bracket,
@@ -246,13 +251,18 @@ export const SearchPage = () => {
           </div>
         </div>
       </div>
+      {!auth.isLoadingAuthData && !auth.isAuthenticated && (
+        <div className="mt-2">
+          <SignInRequired message="Sign in with Battle.net to search matches." />
+        </div>
+      )}
       {matchesQuery.loading && (
         <div className="flex flex-row items-center justify-center animate-loader h-[300px]">
           <TbLoader color="gray" size={60} className="animate-spin-slow" />
         </div>
       )}
       <QuerryError query={matchesQuery} />
-      {!matchesQuery.loading && (
+      {canSearch && !matchesQuery.loading && (
         <div className="animate-fadein mt-2">
           <CombatStubList
             viewerIsOwner={false}

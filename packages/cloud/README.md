@@ -21,8 +21,41 @@ or
 ## Manual steps to config env:
 
 Create buckets
-`wowarenalogs-log-files-dev` : public read
-`wowarenalogs-log-files-prod` : public read
+`wowarenalogs-log-files-dev` : private (no `allUsers` access)
+`wowarenalogs-log-files-prod` : private (no `allUsers` access)
+
+Raw logs are never served from the public object URL. Viewers get a short-lived
+V4 signed URL from the GraphQL `logDownloadUrl` query (sign-in required, daily
+quota of distinct logs per user); see `packages/shared/src/graphql-server/utils/accessGuard.ts`.
+
+Service accounts therefore need:
+
+- web (Cloud Run) service account: `roles/storage.objectViewer` on the log bucket,
+  plus `roles/iam.serviceAccountTokenCreator` on itself so the Storage client can
+  sign V4 URLs via IAM `signBlob` (no private key on the box).
+- cloud functions service account: `roles/storage.objectViewer` on the log bucket
+  (`writeMatchStub`, `refreshSpellIcons` and the map-image script read through the
+  Storage client).
+
+To lock an existing bucket down:
+
+```
+gsutil iam ch -d allUsers:objectViewer gs://wowarenalogs-log-files-prod
+gsutil iam ch serviceAccount:<web-sa>@wowarenalogs.iam.gserviceaccount.com:objectViewer gs://wowarenalogs-log-files-prod
+gsutil iam ch serviceAccount:<functions-sa>@wowarenalogs.iam.gserviceaccount.com:objectViewer gs://wowarenalogs-log-files-prod
+gcloud iam service-accounts add-iam-policy-binding <web-sa>@wowarenalogs.iam.gserviceaccount.com \
+  --member serviceAccount:<web-sa>@wowarenalogs.iam.gserviceaccount.com \
+  --role roles/iam.serviceAccountTokenCreator
+```
+
+Uploads are unaffected: the desktop client already writes through a signed PUT URL.
+
+Per-account overrides are strings in the `tags` array of the user's profile document
+(`user-profile-prod/<userId>` in Firestore; the doc id is the next-auth user id, and
+the doc also carries `battletag` for lookup). They are never in source:
+
+- `admin` — exempt from the daily log limit.
+- `blocked` — refused search and log access.
 
 set cors using cors.json
 

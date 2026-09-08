@@ -124,6 +124,15 @@ export const typeDefs = gql`
     bracketStats: [UserCharacterBracketStats!]!
   }
 
+  # A short-lived signed URL for one raw combat log. Requires sign-in and is
+  # charged against the caller's daily quota of distinct logs.
+  type LogDownloadGrant {
+    url: String!
+    expiresAt: Float!
+    downloadsUsedToday: Int!
+    downloadsQuota: Int!
+  }
+
   type Query {
     me: IUser
     latestMatches(
@@ -142,6 +151,7 @@ export const typeDefs = gql`
     recentMatchesWithCombatant(combatantName: String!, serverName: String!, region: String!): [CombatDataStub!]!
     matchesWithOwnerId(ownerId: String!): [CombatDataStub!]!
     matchById(matchId: String!): CombatDataStub!
+    logDownloadUrl(matchId: String!): LogDownloadGrant!
   }
 
   type Mutation {

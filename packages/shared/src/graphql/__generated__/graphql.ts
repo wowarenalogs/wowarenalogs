@@ -94,6 +94,14 @@ export type IUser = {
   tags?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
+export type LogDownloadGrant = {
+  __typename?: 'LogDownloadGrant';
+  downloadsQuota: Scalars['Int'];
+  downloadsUsedToday: Scalars['Int'];
+  expiresAt: Scalars['Float'];
+  url: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   setUserReferrer?: Maybe<IUser>;
@@ -108,11 +116,13 @@ export type Query = {
   __typename?: 'Query';
   characterMatches: CombatQueryResult;
   latestMatches: CombatQueryResult;
+  logDownloadUrl: LogDownloadGrant;
   matchById: CombatDataStub;
-  matchesWithCombatant: Array<CombatDataStub>;
+  matchesWithOwnerId: Array<CombatDataStub>;
   me?: Maybe<IUser>;
   myCharacters: Array<UserCharacterInfo>;
   myMatches: CombatQueryResult;
+  recentMatchesWithCombatant: Array<CombatDataStub>;
   userMatches: CombatQueryResult;
 };
 
@@ -136,13 +146,18 @@ export type QueryLatestMatchesArgs = {
 };
 
 
+export type QueryLogDownloadUrlArgs = {
+  matchId: Scalars['String'];
+};
+
+
 export type QueryMatchByIdArgs = {
   matchId: Scalars['String'];
 };
 
 
-export type QueryMatchesWithCombatantArgs = {
-  playerName: Scalars['String'];
+export type QueryMatchesWithOwnerIdArgs = {
+  ownerId: Scalars['String'];
 };
 
 
@@ -150,6 +165,13 @@ export type QueryMyMatchesArgs = {
   anonymousUserId?: InputMaybe<Scalars['String']>;
   count?: Scalars['Int'];
   offset?: Scalars['Int'];
+};
+
+
+export type QueryRecentMatchesWithCombatantArgs = {
+  combatantName: Scalars['String'];
+  region: Scalars['String'];
+  serverName: Scalars['String'];
 };
 
 
@@ -268,12 +290,12 @@ export type GetCharacterMatchesQueryVariables = Exact<{
 
 export type GetCharacterMatchesQuery = { __typename?: 'Query', characterMatches: { __typename?: 'CombatQueryResult', queryLimitReached: boolean, combats: Array<{ __typename?: 'ArenaMatchDataStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId?: string | null, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, durationInSeconds?: number | null, winningTeamId?: string | null, timezone?: string | null, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation?: number | null, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier?: number | null, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, endInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null } | { __typename?: 'ShuffleRoundStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId?: string | null, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, durationInSeconds?: number | null, winningTeamId?: string | null, killedUnitId: string, sequenceNumber: number, shuffleMatchResult?: number | null, shuffleMatchId?: string | null, timezone?: string | null, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation?: number | null, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier?: number | null, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, scoreboard?: Array<{ __typename?: 'ScoreboardEntry', unitId: string, wins: number } | null> | null, shuffleMatchEndInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null }> } };
 
-export type GetMatchesWithCombatantQueryVariables = Exact<{
-  playerName: Scalars['String'];
+export type GetMatchesWithOwnerIdQueryVariables = Exact<{
+  ownerId: Scalars['String'];
 }>;
 
 
-export type GetMatchesWithCombatantQuery = { __typename?: 'Query', matchesWithCombatant: Array<{ __typename?: 'ArenaMatchDataStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId?: string | null, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, durationInSeconds?: number | null, winningTeamId?: string | null, timezone?: string | null, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation?: number | null, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier?: number | null, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, endInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null } | { __typename?: 'ShuffleRoundStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId?: string | null, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, durationInSeconds?: number | null, winningTeamId?: string | null, killedUnitId: string, sequenceNumber: number, shuffleMatchResult?: number | null, shuffleMatchId?: string | null, timezone?: string | null, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation?: number | null, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier?: number | null, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, scoreboard?: Array<{ __typename?: 'ScoreboardEntry', unitId: string, wins: number } | null> | null, shuffleMatchEndInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null }> };
+export type GetMatchesWithOwnerIdQuery = { __typename?: 'Query', matchesWithOwnerId: Array<{ __typename?: 'ArenaMatchDataStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId?: string | null, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, durationInSeconds?: number | null, winningTeamId?: string | null, timezone?: string | null, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation?: number | null, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier?: number | null, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, endInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null } | { __typename?: 'ShuffleRoundStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId?: string | null, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, durationInSeconds?: number | null, winningTeamId?: string | null, killedUnitId: string, sequenceNumber: number, shuffleMatchResult?: number | null, shuffleMatchId?: string | null, timezone?: string | null, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation?: number | null, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier?: number | null, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, scoreboard?: Array<{ __typename?: 'ScoreboardEntry', unitId: string, wins: number } | null> | null, shuffleMatchEndInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null }> };
 
 export type GetMatchByIdQueryVariables = Exact<{
   matchId: Scalars['String'];
@@ -281,6 +303,13 @@ export type GetMatchByIdQueryVariables = Exact<{
 
 
 export type GetMatchByIdQuery = { __typename?: 'Query', matchById: { __typename?: 'ArenaMatchDataStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId?: string | null, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, durationInSeconds?: number | null, winningTeamId?: string | null, timezone?: string | null, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation?: number | null, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier?: number | null, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, endInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null } | { __typename?: 'ShuffleRoundStub', id: string, wowVersion?: string | null, ownerId?: string | null, result: number, logObjectUrl: string, startTime: number, endTime: number, playerId?: string | null, playerTeamId: string, playerTeamRating: number, hasAdvancedLogging: boolean, durationInSeconds?: number | null, winningTeamId?: string | null, killedUnitId: string, sequenceNumber: number, shuffleMatchResult?: number | null, shuffleMatchId?: string | null, timezone?: string | null, units: Array<{ __typename?: 'CombatUnitStub', id: string, name: string, affiliation?: number | null, type: number, spec: string, class: number, reaction: number, info?: { __typename?: 'CombatantInfo', teamId: string, specId: string, pvpTalents: Array<string>, personalRating: number, highestPvpTier?: number | null, talents: Array<{ __typename?: 'Talent', id1?: number | null, id2?: number | null, count?: number | null } | null> } | null }>, startInfo?: { __typename?: 'ArenaMatchStartInfo', timestamp: number, zoneId: string, item1: string, bracket: string, isRanked: boolean } | null, scoreboard?: Array<{ __typename?: 'ScoreboardEntry', unitId: string, wins: number } | null> | null, shuffleMatchEndInfo?: { __typename?: 'ArenaMatchEndInfo', timestamp: number, winningTeamId: string, matchDurationInSeconds: number, team0MMR: number, team1MMR: number } | null } };
+
+export type GetLogDownloadUrlQueryVariables = Exact<{
+  matchId: Scalars['String'];
+}>;
+
+
+export type GetLogDownloadUrlQuery = { __typename?: 'Query', logDownloadUrl: { __typename?: 'LogDownloadGrant', url: string, expiresAt: number, downloadsUsedToday: number, downloadsQuota: number } };
 
 export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -597,9 +626,9 @@ export function useGetCharacterMatchesLazyQuery(baseOptions?: Apollo.LazyQueryHo
 export type GetCharacterMatchesQueryHookResult = ReturnType<typeof useGetCharacterMatchesQuery>;
 export type GetCharacterMatchesLazyQueryHookResult = ReturnType<typeof useGetCharacterMatchesLazyQuery>;
 export type GetCharacterMatchesQueryResult = Apollo.QueryResult<GetCharacterMatchesQuery, GetCharacterMatchesQueryVariables>;
-export const GetMatchesWithCombatantDocument = gql`
-    query GetMatchesWithCombatant($playerName: String!) {
-  matchesWithCombatant(playerName: $playerName) {
+export const GetMatchesWithOwnerIdDocument = gql`
+    query GetMatchesWithOwnerId($ownerId: String!) {
+  matchesWithOwnerId(ownerId: $ownerId) {
     ...arenaInfos
     ...shuffleInfos
   }
@@ -608,32 +637,32 @@ export const GetMatchesWithCombatantDocument = gql`
 ${ShuffleInfosFragmentDoc}`;
 
 /**
- * __useGetMatchesWithCombatantQuery__
+ * __useGetMatchesWithOwnerIdQuery__
  *
- * To run a query within a React component, call `useGetMatchesWithCombatantQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMatchesWithCombatantQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetMatchesWithOwnerIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMatchesWithOwnerIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetMatchesWithCombatantQuery({
+ * const { data, loading, error } = useGetMatchesWithOwnerIdQuery({
  *   variables: {
- *      playerName: // value for 'playerName'
+ *      ownerId: // value for 'ownerId'
  *   },
  * });
  */
-export function useGetMatchesWithCombatantQuery(baseOptions: Apollo.QueryHookOptions<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>) {
+export function useGetMatchesWithOwnerIdQuery(baseOptions: Apollo.QueryHookOptions<GetMatchesWithOwnerIdQuery, GetMatchesWithOwnerIdQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>(GetMatchesWithCombatantDocument, options);
+        return Apollo.useQuery<GetMatchesWithOwnerIdQuery, GetMatchesWithOwnerIdQueryVariables>(GetMatchesWithOwnerIdDocument, options);
       }
-export function useGetMatchesWithCombatantLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>) {
+export function useGetMatchesWithOwnerIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMatchesWithOwnerIdQuery, GetMatchesWithOwnerIdQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>(GetMatchesWithCombatantDocument, options);
+          return Apollo.useLazyQuery<GetMatchesWithOwnerIdQuery, GetMatchesWithOwnerIdQueryVariables>(GetMatchesWithOwnerIdDocument, options);
         }
-export type GetMatchesWithCombatantQueryHookResult = ReturnType<typeof useGetMatchesWithCombatantQuery>;
-export type GetMatchesWithCombatantLazyQueryHookResult = ReturnType<typeof useGetMatchesWithCombatantLazyQuery>;
-export type GetMatchesWithCombatantQueryResult = Apollo.QueryResult<GetMatchesWithCombatantQuery, GetMatchesWithCombatantQueryVariables>;
+export type GetMatchesWithOwnerIdQueryHookResult = ReturnType<typeof useGetMatchesWithOwnerIdQuery>;
+export type GetMatchesWithOwnerIdLazyQueryHookResult = ReturnType<typeof useGetMatchesWithOwnerIdLazyQuery>;
+export type GetMatchesWithOwnerIdQueryResult = Apollo.QueryResult<GetMatchesWithOwnerIdQuery, GetMatchesWithOwnerIdQueryVariables>;
 export const GetMatchByIdDocument = gql`
     query GetMatchById($matchId: String!) {
   matchById(matchId: $matchId) {
@@ -671,6 +700,44 @@ export function useGetMatchByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
 export type GetMatchByIdQueryHookResult = ReturnType<typeof useGetMatchByIdQuery>;
 export type GetMatchByIdLazyQueryHookResult = ReturnType<typeof useGetMatchByIdLazyQuery>;
 export type GetMatchByIdQueryResult = Apollo.QueryResult<GetMatchByIdQuery, GetMatchByIdQueryVariables>;
+export const GetLogDownloadUrlDocument = gql`
+    query GetLogDownloadUrl($matchId: String!) {
+  logDownloadUrl(matchId: $matchId) {
+    url
+    expiresAt
+    downloadsUsedToday
+    downloadsQuota
+  }
+}
+    `;
+
+/**
+ * __useGetLogDownloadUrlQuery__
+ *
+ * To run a query within a React component, call `useGetLogDownloadUrlQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLogDownloadUrlQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLogDownloadUrlQuery({
+ *   variables: {
+ *      matchId: // value for 'matchId'
+ *   },
+ * });
+ */
+export function useGetLogDownloadUrlQuery(baseOptions: Apollo.QueryHookOptions<GetLogDownloadUrlQuery, GetLogDownloadUrlQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetLogDownloadUrlQuery, GetLogDownloadUrlQueryVariables>(GetLogDownloadUrlDocument, options);
+      }
+export function useGetLogDownloadUrlLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetLogDownloadUrlQuery, GetLogDownloadUrlQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetLogDownloadUrlQuery, GetLogDownloadUrlQueryVariables>(GetLogDownloadUrlDocument, options);
+        }
+export type GetLogDownloadUrlQueryHookResult = ReturnType<typeof useGetLogDownloadUrlQuery>;
+export type GetLogDownloadUrlLazyQueryHookResult = ReturnType<typeof useGetLogDownloadUrlLazyQuery>;
+export type GetLogDownloadUrlQueryResult = Apollo.QueryResult<GetLogDownloadUrlQuery, GetLogDownloadUrlQueryVariables>;
 export const GetProfileDocument = gql`
     query GetProfile {
   me {
