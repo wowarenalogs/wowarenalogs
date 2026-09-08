@@ -4,7 +4,12 @@ import { ApolloError, AuthenticationError, ForbiddenError, UserInputError } from
 import fs from 'fs';
 import path from 'path';
 
-import { ACCESS_BLOCKED_TAG, LOG_DAILY_DOWNLOAD_QUOTA, LOG_URL_TTL_MS } from '../../utils/accessLimits';
+import {
+  ACCESS_ADMIN_TAG,
+  ACCESS_BLOCKED_TAG,
+  LOG_DAILY_DOWNLOAD_QUOTA,
+  LOG_URL_TTL_MS,
+} from '../../utils/accessLimits';
 import { SEARCH_DISABLED, SEARCH_DISABLED_MESSAGE } from '../../utils/searchStatus';
 import { ApolloContext, User } from '../types';
 import { getUserProfileAsync } from './getUserProfileAsync';
@@ -64,6 +69,8 @@ const utcDay = () => new Date().toISOString().slice(0, 10);
 
 const SIGN_IN_MESSAGE = 'Sign in with Battle.net to view matches.';
 
+const hasTag = (user: User, tag: string) => (user.tags ?? []).includes(tag);
+
 /** Loads the signed-in user's profile; throws for anonymous or blocked callers. */
 async function requireUserAsync(context: ApolloContext, feature: string): Promise<User> {
   if (!context.user) {
@@ -74,7 +81,7 @@ async function requireUserAsync(context: ApolloContext, feature: string): Promis
   if (!profile) {
     throw new AuthenticationError(SIGN_IN_MESSAGE);
   }
-  if ((profile.tags ?? []).includes(ACCESS_BLOCKED_TAG)) {
+  if (hasTag(profile, ACCESS_BLOCKED_TAG)) {
     logAccessEvent({ event: 'access_denied', reason: 'blocked', feature, userId: profile.id });
     throw new ForbiddenError('This account is not permitted to use this feature.');
   }
@@ -104,6 +111,7 @@ export function logSearchQuery(caller: User, query: SearchQueryName, args: Recor
  * Issues a short-lived signed URL for one raw log, charging the caller's daily
  * quota if this match hasn't been opened today. The check-and-charge runs in a
  * Firestore transaction so concurrent requests can't slip past the limit.
+ * Profiles tagged `admin` skip the charge entirely.
  */
 export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: string): Promise<LogDownloadGrant> {
   if (!matchId || matchId.includes('/')) {
@@ -114,39 +122,43 @@ export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: 
   const day = utcDay();
   const usageRef = firestore.doc(`${logUsageCollection}/${caller.id}_${day}`);
 
-  const usedAfter = await firestore.runTransaction(async (tx) => {
-    const usageDoc = await tx.get(usageRef);
-    const opened = (usageDoc.data()?.matchIds as string[] | undefined) ?? [];
-    if (opened.includes(matchId)) {
-      return opened.length;
-    }
-    if (opened.length >= quota) {
-      logAccessEvent({
-        event: 'access_denied',
-        reason: 'log_quota',
-        userId: caller.id,
-        matchId,
-        usedToday: opened.length,
-        quota,
-      });
-      throw new ApolloError(
-        `Daily log limit reached (${quota} distinct matches). It resets at midnight UTC.`,
-        'LOG_QUOTA_EXCEEDED',
-        { usedToday: opened.length, quota },
+  const chargeQuotaAsync = () =>
+    firestore.runTransaction(async (tx) => {
+      const usageDoc = await tx.get(usageRef);
+      const opened = (usageDoc.data()?.matchIds as string[] | undefined) ?? [];
+      if (opened.includes(matchId)) {
+        return opened.length;
+      }
+      if (opened.length >= quota) {
+        logAccessEvent({
+          event: 'access_denied',
+          reason: 'log_quota',
+          userId: caller.id,
+          matchId,
+          usedToday: opened.length,
+          quota,
+        });
+        throw new ApolloError(
+          `Daily log limit reached (${quota} distinct matches). It resets at midnight UTC.`,
+          'LOG_QUOTA_EXCEEDED',
+          { usedToday: opened.length, quota },
+        );
+      }
+      tx.set(
+        usageRef,
+        {
+          userId: caller.id,
+          day,
+          matchIds: FieldValue.arrayUnion(matchId),
+          updatedAt: Date.now(),
+        },
+        { merge: true },
       );
-    }
-    tx.set(
-      usageRef,
-      {
-        userId: caller.id,
-        day,
-        matchIds: FieldValue.arrayUnion(matchId),
-        updatedAt: Date.now(),
-      },
-      { merge: true },
-    );
-    return opened.length + 1;
-  });
+      return opened.length + 1;
+    });
+
+  const exempt = hasTag(caller, ACCESS_ADMIN_TAG);
+  const usedAfter = exempt ? 0 : await chargeQuotaAsync();
 
   const expiresAt = Date.now() + LOG_URL_TTL_MS;
   const [url] = await bucket.file(matchId).getSignedUrl({ version: 'v4', action: 'read', expires: expiresAt });
@@ -157,6 +169,7 @@ export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: 
     matchId,
     usedToday: usedAfter,
     quota,
+    exempt,
   });
 
   return { url, expiresAt, downloadsUsedToday: usedAfter, downloadsQuota: quota };

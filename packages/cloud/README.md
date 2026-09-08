@@ -50,6 +50,13 @@ gcloud iam service-accounts add-iam-policy-binding <web-sa>@wowarenalogs.iam.gse
 
 Uploads are unaffected: the desktop client already writes through a signed PUT URL.
 
+Per-account overrides are strings in the `tags` array of the user's profile document
+(`user-profile-prod/<userId>` in Firestore; the doc id is the next-auth user id, and
+the doc also carries `battletag` for lookup). They are never in source:
+
+- `admin` — exempt from the daily log limit.
+- `blocked` — refused search and log access.
+
 set cors using cors.json
 
 ## Debugging failed log processors

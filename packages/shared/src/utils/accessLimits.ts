@@ -21,5 +21,13 @@ export const LOG_DAILY_DOWNLOAD_QUOTA = 15;
 /** Lifetime of a signed log download URL. Long enough to fetch, too short to share. */
 export const LOG_URL_TTL_MS = 10 * 60 * 1000;
 
+/**
+ * Per-account overrides live in the `tags` array of the user's Firestore
+ * profile document (`user-profile-prod/<userId>`), never in source.
+ */
+
 /** A user profile carrying this tag is refused search and log access. */
 export const ACCESS_BLOCKED_TAG = 'blocked';
+
+/** A user profile carrying this tag is exempt from the daily log limit. */
+export const ACCESS_ADMIN_TAG = 'admin';
