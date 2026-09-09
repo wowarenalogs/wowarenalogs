@@ -74,7 +74,7 @@ export const combatUploadSignatureHandler = async (request: NextApiRequest, resp
     response.status(200).json({ url, id, matchExists });
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.log(err);
+    console.error(err);
     response.status(500).json({ error: 'An error has occurred' });
   }
 };

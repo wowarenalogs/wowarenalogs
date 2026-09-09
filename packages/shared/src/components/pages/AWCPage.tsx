@@ -279,8 +279,8 @@ export const AWCPage = () => {
           );
 
           if (closestMatches.length > 1) {
-            console.log('N>1:', gameDate);
-            console.log({
+            // eslint-disable-next-line no-console
+            console.debug('N>1:', gameDate, {
               game,
               gameRoster1: game.firstTeamRoster?.map((p) => p.name),
               gameRoster2: game.secondTeamRoster?.map((p) => p.name),

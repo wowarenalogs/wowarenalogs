@@ -327,9 +327,7 @@ export const LocalCombatsContextProvider = (props: IProps) => {
               });
           }
           // eslint-disable-next-line no-console
-          console.log('Malformed combat');
-          // eslint-disable-next-line no-console
-          console.log(combat);
+          console.warn('Malformed combat', combat);
         }
       });
 

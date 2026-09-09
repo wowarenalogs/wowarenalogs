@@ -18,7 +18,7 @@ export const CombatLogView = () => {
 
   // Intentionally logging to JS console here for debugging
   // eslint-disable-next-line no-console
-  console.log({ combat });
+  console.debug({ combat });
 
   const lines = combat.rawLines.filter((e) => lowerIncludes(e, textFilter));
   const debouncedUpdate = _.debounce(setTextFilter, 300);
