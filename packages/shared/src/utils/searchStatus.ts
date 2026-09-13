@@ -9,7 +9,7 @@
  * myMatches and matchById are unaffected: they only return matches the caller
  * already owns or already holds an id for.
  */
-export const SEARCH_DISABLED = true;
+export const SEARCH_DISABLED = false;
 
 export const SEARCH_DISABLED_TITLE = 'Match search is discontinued';
 

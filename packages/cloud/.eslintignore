@@ -4,3 +4,4 @@ build
 .eslintrc.js
 *.config.js
 index.js
+deploy
