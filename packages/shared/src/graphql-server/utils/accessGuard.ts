@@ -139,7 +139,8 @@ export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: 
           quota,
         });
         throw new ApolloError(
-          `Daily log limit reached (${quota} distinct matches). It resets at midnight UTC.`,
+          `You've reached today's limit of ${quota} matches. This limit exists because bots have been scraping ` +
+            'combat logs in bulk and driving up our hosting costs. It resets at midnight UTC.',
           'LOG_QUOTA_EXCEEDED',
           { usedToday: opened.length, quota },
         );
