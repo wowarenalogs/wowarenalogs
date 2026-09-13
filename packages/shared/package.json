@@ -7,6 +7,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
+    "test": "cross-env NODE_ENV=test ts-node --project ./test/tsconfig.json --transpile-only ./test/test_log_quota.ts",
     "codegen": "graphql-codegen --config codegen.yml",
     "codegen:dev": "graphql-codegen --config codegen.dev.yml --verbose"
   },

@@ -13,6 +13,7 @@ import {
 import { SEARCH_DISABLED, SEARCH_DISABLED_MESSAGE } from '../../utils/searchStatus';
 import { ApolloContext, User } from '../types';
 import { getUserProfileAsync } from './getUserProfileAsync';
+import { decideLogGrant, utcDayKey } from './logQuota';
 
 /**
  * Gatekeeping for match discovery and raw log access.
@@ -64,8 +65,6 @@ const logAccessEvent = (fields: Record<string, unknown>) => {
   // eslint-disable-next-line no-console
   console.log(JSON.stringify(fields));
 };
-
-const utcDay = () => new Date().toISOString().slice(0, 10);
 
 const SIGN_IN_MESSAGE = 'Sign in with Battle.net to view matches.';
 
@@ -119,43 +118,43 @@ export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: 
   }
   const caller = await requireUserAsync(context, 'logDownload');
   const quota = LOG_DAILY_DOWNLOAD_QUOTA;
-  const day = utcDay();
+  const day = utcDayKey();
   const usageRef = firestore.doc(`${logUsageCollection}/${caller.id}_${day}`);
 
   const chargeQuotaAsync = () =>
     firestore.runTransaction(async (tx) => {
       const usageDoc = await tx.get(usageRef);
       const opened = (usageDoc.data()?.matchIds as string[] | undefined) ?? [];
-      if (opened.includes(matchId)) {
-        return opened.length;
-      }
-      if (opened.length >= quota) {
+      const decision = decideLogGrant(opened, matchId, quota);
+      if (!decision.allowed) {
         logAccessEvent({
           event: 'access_denied',
           reason: 'log_quota',
           userId: caller.id,
           matchId,
-          usedToday: opened.length,
+          usedToday: decision.usedToday,
           quota,
         });
         throw new ApolloError(
           `You've reached today's limit of ${quota} matches. This limit exists because bots have been scraping ` +
             'combat logs in bulk and driving up our hosting costs. It resets at midnight UTC.',
           'LOG_QUOTA_EXCEEDED',
-          { usedToday: opened.length, quota },
+          { usedToday: decision.usedToday, quota },
         );
       }
-      tx.set(
-        usageRef,
-        {
-          userId: caller.id,
-          day,
-          matchIds: FieldValue.arrayUnion(matchId),
-          updatedAt: Date.now(),
-        },
-        { merge: true },
-      );
-      return opened.length + 1;
+      if (decision.charge) {
+        tx.set(
+          usageRef,
+          {
+            userId: caller.id,
+            day,
+            matchIds: FieldValue.arrayUnion(matchId),
+            updatedAt: Date.now(),
+          },
+          { merge: true },
+        );
+      }
+      return decision.usedAfter;
     });
 
   const exempt = hasTag(caller, ACCESS_ADMIN_TAG);
