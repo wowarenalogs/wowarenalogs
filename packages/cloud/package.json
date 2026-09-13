@@ -10,6 +10,8 @@
     "build:cloud": "shx rm -rf dist && cd ../.. && npm run build:parser && npm run build:sql && cd packages/cloud && tsc && tsup && shx cp -r ./deploy/* ./dist && shx cp wowarenalogs*.json ./dist && shx cp .env ./dist && shx cp ../sql/prisma/schema.prisma ./dist",
     "deploy:dev": "npm run build:cloud && bash ./deploy/deploy_dev.sh",
     "deploy:prod": "npm run build:cloud && bash ./deploy/deploy_prod.sh",
+    "lockdown:dev": "bash ./deploy/lockdown_log_bucket.sh dev",
+    "lockdown:prod": "bash ./deploy/lockdown_log_bucket.sh prod",
     "start:fix-cross-year-timestamps": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/fixCrossYearTimestamps.js",
     "start:generate-map-image": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/generateMapImage.js",
     "start:delete-oldest": "npm run build:cloud && cross-env NODE_ENV=development node ./dist/cloud/src/operations/deleteOldMatches.js",

@@ -28,25 +28,22 @@ Raw logs are never served from the public object URL. Viewers get a short-lived
 V4 signed URL from the GraphQL `logDownloadUrl` query (sign-in required, daily
 quota of distinct logs per user); see `packages/shared/src/graphql-server/utils/accessGuard.ts`.
 
-Service accounts therefore need:
+Lock the bucket down with `npm run lockdown:dev` or `npm run lockdown:prod`
+(`deploy/lockdown_log_bucket.sh`). It is idempotent and does, in order:
 
-- web (Cloud Run) service account: `roles/storage.objectViewer` on the log bucket,
-  plus `roles/iam.serviceAccountTokenCreator` on itself so the Storage client can
-  sign V4 URLs via IAM `signBlob` (no private key on the box).
-- cloud functions service account: `roles/storage.objectViewer` on the log bucket
-  (`writeMatchStub`, `refreshSpellIcons` and the map-image script read through the
-  Storage client).
+1. remove `allUsers` / `allAuthenticatedUsers` read bindings;
+2. enforce public access prevention so the bucket cannot be reopened by a later grant;
+3. grant `roles/storage.objectViewer` to the default compute service account, which
+   the Cloud Functions (`writeMatchStub`, `refreshSpellIcons`, the map-image script)
+   run as;
+4. grant `roles/storage.objectViewer` to the web (Cloud Run) service account plus
+   `roles/iam.serviceAccountTokenCreator` on itself, so the Storage client can sign
+   V4 URLs via IAM `signBlob` with no private key on the box;
+5. verify no public principal remains and public access prevention is `enforced`.
 
-To lock an existing bucket down:
-
-```
-gsutil iam ch -d allUsers:objectViewer gs://wowarenalogs-log-files-prod
-gsutil iam ch serviceAccount:<web-sa>@wowarenalogs.iam.gserviceaccount.com:objectViewer gs://wowarenalogs-log-files-prod
-gsutil iam ch serviceAccount:<functions-sa>@wowarenalogs.iam.gserviceaccount.com:objectViewer gs://wowarenalogs-log-files-prod
-gcloud iam service-accounts add-iam-policy-binding <web-sa>@wowarenalogs.iam.gserviceaccount.com \
-  --member serviceAccount:<web-sa>@wowarenalogs.iam.gserviceaccount.com \
-  --role roles/iam.serviceAccountTokenCreator
-```
+The web service account defaults to the compute SA. If the Cloud Run service runs as
+its own SA, pass it as the second argument:
+`bash ./deploy/lockdown_log_bucket.sh prod <sa>@wowarenalogs.iam.gserviceaccount.com`.
 
 Uploads are unaffected: the desktop client already writes through a signed PUT URL.
 
