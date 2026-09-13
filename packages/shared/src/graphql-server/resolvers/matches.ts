@@ -22,10 +22,6 @@ function firestoreDocToMatchStub(stub: ICombatDataStub): ICombatDataStub {
   return stub;
 }
 
-// Discovery resolvers (everything but myMatches and matchById) require a
-// signed-in, non-blocked user; see accessGuard. Pagination itself is not
-// metered — the raw log behind each result is, via logDownloadUrl.
-
 export async function latestMatches(
   _parent: unknown,
   args: {
@@ -42,7 +38,6 @@ export async function latestMatches(
   const caller = await authorizeSearchAsync(context, 'latestMatches');
   const collectionReference = firestore.collection(matchStubsCollection);
 
-  // Matches only become searchable after the embargo; kills real-time harvesting.
   const newestVisible = moment().valueOf() - SEARCH_EMBARGO_MS;
   let docsQuery = collectionReference
     .where('wowVersion', '==', args.wowVersion)

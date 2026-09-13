@@ -124,8 +124,6 @@ export const typeDefs = gql`
     bracketStats: [UserCharacterBracketStats!]!
   }
 
-  # A short-lived signed URL for one raw combat log. Requires sign-in and is
-  # charged against the caller's daily quota of distinct logs.
   type LogDownloadGrant {
     url: String!
     expiresAt: Float!

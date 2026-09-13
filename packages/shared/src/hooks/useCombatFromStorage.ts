@@ -21,9 +21,6 @@ export function useCombatFromStorage(matchId: string, roundId?: string) {
   const queryParsedLog = useQuery(
     ['log-file', matchId],
     async () => {
-      // The log bucket is private. The API hands out a short-lived signed URL
-      // to signed-in users only, charged against a daily quota of distinct
-      // logs — that call, not the fetch, is what limits mass scraping.
       const grant = await apollo.query<GetLogDownloadUrlQuery, GetLogDownloadUrlQueryVariables>({
         query: GetLogDownloadUrlDocument,
         variables: { matchId },
@@ -50,7 +47,6 @@ export function useCombatFromStorage(matchId: string, roundId?: string) {
       cacheTime: 60 * 60 * 24 * 1000,
       staleTime: Infinity,
       enabled: matchId != '' && auth.isAuthenticated,
-      // A refused grant (quota, sign-in, blocked) will not succeed on retry.
       retry: false,
     },
   );

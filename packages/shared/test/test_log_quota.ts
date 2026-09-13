@@ -4,9 +4,6 @@ import assert from 'assert';
 import { decideLogGrant, utcDayKey } from '../src/graphql-server/utils/logQuota';
 import { LOG_DAILY_DOWNLOAD_QUOTA } from '../src/utils/accessLimits';
 
-// Pure-function tests for the daily log quota. Run with `npm test` in packages/shared.
-// Same shape as packages/cloud/test/test_webhooks.ts: plain assertions, exit code 1 on failure.
-
 const ids = (n: number) => Array.from({ length: n }, (_v, i) => `match-${i}`);
 
 const cases: Record<string, () => void> = {
@@ -57,9 +54,7 @@ const cases: Record<string, () => void> = {
   },
 
   'day key rolls over at midnight UTC, not local midnight': () => {
-    // 7pm Pacific on the 13th is already the 14th in UTC.
     assert.strictEqual(utcDayKey(new Date('2026-09-13T19:00:00-07:00')), '2026-09-14');
-    // 1am in Berlin on the 14th is still the 13th in UTC.
     assert.strictEqual(utcDayKey(new Date('2026-09-14T01:00:00+02:00')), '2026-09-13');
   },
 };

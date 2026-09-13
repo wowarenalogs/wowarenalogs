@@ -37,7 +37,6 @@ export function CombatReportFromStorage(props: IProps) {
   if (auth.isLoadingAuthData || combatQuery.loading) {
     return <LoadingPage />;
   }
-  // Raw logs are only served to signed-in users; see accessGuard.ts.
   if (!auth.isAuthenticated) {
     return (
       <div className="p-4">
@@ -57,7 +56,6 @@ export function CombatReportFromStorage(props: IProps) {
       />
     );
   } else {
-    // A refused grant (daily log limit, blocked account) carries a message worth showing verbatim.
     const message = combatQuery.error instanceof Error ? combatQuery.error.message : defaultErrorMessage;
     return <ErrorPage message={message || defaultErrorMessage} />;
   }

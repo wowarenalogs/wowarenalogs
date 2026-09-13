@@ -15,24 +15,6 @@ import { ApolloContext, User } from '../types';
 import { getUserProfileAsync } from './getUserProfileAsync';
 import { decideLogGrant, utcDayKey } from './logQuota';
 
-/**
- * Gatekeeping for match discovery and raw log access.
- *
- * Both paths require a signed-in Battle.net user. Anonymous ids are minted
- * client-side, so nothing keyed on them can be a real limit, and bots would
- * simply mint a fresh one per request.
- *
- * Search (the discovery resolvers) is unmetered beyond sign-in, the `blocked`
- * tag, and an embargo on very recent matches. What is metered is the raw log:
- * the bucket is private, and the only way to read a log is a short-lived
- * signed URL issued here, charged against a per-user, per-UTC-day quota of
- * *distinct* logs. Usage is one Firestore doc per user per day, keyed
- * `<userId>_<YYYY-MM-DD>`, holding the list of match ids opened.
- *
- * Every decision emits one structured JSON log line (`event: access_*`) so
- * per-user volume can be graphed and alerted on in Cloud Logging.
- */
-
 const isDev = process.env.NODE_ENV === 'development';
 const gcpCredentials = isDev
   ? JSON.parse(fs.readFileSync(path.join(process.cwd(), '../cloud/wowarenalogs-public-dev.json'), 'utf8'))
@@ -60,7 +42,6 @@ export interface LogDownloadGrant {
   downloadsQuota: number;
 }
 
-// Structured stdout line; Cloud Logging parses JSON into queryable entries.
 const logAccessEvent = (fields: Record<string, unknown>) => {
   // eslint-disable-next-line no-console
   console.log(JSON.stringify(fields));
@@ -70,7 +51,6 @@ const SIGN_IN_MESSAGE = 'Sign in with Battle.net to view matches.';
 
 const hasTag = (user: User, tag: string) => (user.tags ?? []).includes(tag);
 
-/** Loads the signed-in user's profile; throws for anonymous or blocked callers. */
 async function requireUserAsync(context: ApolloContext, feature: string): Promise<User> {
   if (!context.user) {
     logAccessEvent({ event: 'access_denied', reason: 'unauthenticated', feature });
@@ -87,7 +67,6 @@ async function requireUserAsync(context: ApolloContext, feature: string): Promis
   return profile;
 }
 
-/** Gate for the discovery resolvers. Returns the caller for logging. */
 export async function authorizeSearchAsync(context: ApolloContext, query: SearchQueryName): Promise<User> {
   if (SEARCH_DISABLED) {
     throw new ApolloError(SEARCH_DISABLED_MESSAGE, 'SEARCH_DISABLED');
@@ -95,7 +74,6 @@ export async function authorizeSearchAsync(context: ApolloContext, query: Search
   return requireUserAsync(context, query);
 }
 
-/** One line per discovery query so per-user search volume is visible. */
 export function logSearchQuery(caller: User, query: SearchQueryName, args: Record<string, unknown>, returned: number) {
   logAccessEvent({
     event: 'access_search',
@@ -106,12 +84,6 @@ export function logSearchQuery(caller: User, query: SearchQueryName, args: Recor
   });
 }
 
-/**
- * Issues a short-lived signed URL for one raw log, charging the caller's daily
- * quota if this match hasn't been opened today. The check-and-charge runs in a
- * Firestore transaction so concurrent requests can't slip past the limit.
- * Profiles tagged `admin` skip the charge entirely.
- */
 export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: string): Promise<LogDownloadGrant> {
   if (!matchId || matchId.includes('/')) {
     throw new UserInputError('Invalid match id.');

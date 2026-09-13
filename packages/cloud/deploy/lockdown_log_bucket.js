@@ -2,27 +2,10 @@
 /* eslint-disable no-console */
 'use strict';
 
-// Make the raw combat log bucket private and grant the two service accounts that
-// still need to read it. Required before deploying the sign-in-gated log access
-// (packages/shared/src/graphql-server/utils/accessGuard.ts); until this has run,
-// a match id from search is still a public download URL.
-//
-// Node rather than bash so it runs the same way on every OS: on Windows, `bash`
-// from an npm script resolves to WSL, which then can't drive the Windows gcloud
-// auth flow. This only shells out to `gcloud`.
-//
-// Idempotent — safe to re-run. Uses the active gcloud account and passes
-// --project on every call; it never changes your gcloud config.
-//
 // Usage: node lockdown_log_bucket.js <dev|prod> [web-service-account]
-//   or   npm run lockdown:dev / npm run lockdown:prod
-//
-//   web-service-account  The service account the web Cloud Run service runs as.
-//                        Defaults to the project's default compute SA, which is
-//                        also what the Cloud Functions run as. Override if the
-//                        Cloud Run service was given its own SA:
-//                          gcloud run services describe <service> --region=<region> \
-//                            --format='value(spec.template.spec.serviceAccountName)'
+// web-service-account defaults to the project's compute SA. Look up the Cloud Run one with:
+//   gcloud run services describe <service> --region=<region> --format='value(spec.template.spec.serviceAccountName)'
+// Node, not bash: on Windows npm's `bash` is WSL, which can't drive the Windows gcloud auth flow.
 
 const { spawnSync } = require('child_process');
 
@@ -41,7 +24,6 @@ if (!projectId) {
 const bucket = `gs://${projectId}-log-files-prod`;
 const gcloudCmd = process.platform === 'win32' ? 'gcloud.cmd' : 'gcloud';
 
-// Runs gcloud, returns stdout. Throws on non-zero exit unless `allowFailure`.
 function gcloud(args, { allowFailure = false, quiet = false } = {}) {
   const result = spawnSync(gcloudCmd, args, { encoding: 'utf8', shell: process.platform === 'win32' });
   if (result.error) {
@@ -76,8 +58,6 @@ function main() {
   console.log(`  functions service account: ${computeSa}`);
   console.log(`  web service account:       ${webSa}`);
 
-  // 1. Remove public read: both the common binding and the legacy one, for both
-  //    public principals. "Not found" is fine on a re-run.
   step('Removing public read access');
   for (const role of ['roles/storage.objectViewer', 'roles/storage.legacyObjectReader']) {
     for (const member of ['allUsers', 'allAuthenticatedUsers']) {
@@ -88,13 +68,9 @@ function main() {
     }
   }
 
-  // 2. Enforce public access prevention so a future grant to allUsers is rejected
-  //    at the API rather than quietly reopening the bucket.
   step('Enabling public access prevention');
   gcloud(['storage', 'buckets', 'update', bucket, '--public-access-prevention', `--project=${projectId}`]);
 
-  // 3. The functions (writeMatchStub, refreshSpellIcons, map-image script) read logs
-  //    through the Storage client as the compute SA.
   step('Granting object read to the functions service account');
   gcloud([
     'storage',
@@ -106,8 +82,6 @@ function main() {
     `--project=${projectId}`,
   ]);
 
-  // 4. The web service signs V4 read URLs: object read on the bucket, plus permission
-  //    to sign as itself via IAM signBlob (no private key on the box).
   if (webSa !== computeSa) {
     step('Granting object read to the web service account');
     gcloud([
@@ -131,7 +105,6 @@ function main() {
     `--project=${projectId}`,
   ]);
 
-  // 5. Verify. Fail loudly if any public principal is still bound.
   step('Verifying bucket policy');
   const policy = JSON.parse(gcloud(['storage', 'buckets', 'get-iam-policy', bucket, `--project=${projectId}`, '--format=json']));
   const members = (policy.bindings || []).flatMap((b) => (b.members || []).map((m) => `${b.role} -> ${m}`));

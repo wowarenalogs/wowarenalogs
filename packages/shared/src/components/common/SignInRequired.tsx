@@ -6,7 +6,6 @@ interface IProps {
   message: string;
 }
 
-/** Shown wherever a feature needs a Battle.net account: search and raw log viewing. */
 export function SignInRequired({ message }: IProps) {
   const auth = useAuth();
   return (

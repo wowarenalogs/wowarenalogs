@@ -30,7 +30,6 @@ export async function handler(file: any, _context: any) {
 
   console.log(`Opening ${fileUrl}`);
   console.time('fetch log file');
-  // The bucket is private; read through the Storage client rather than the public URL.
   const { text: textBuffer, metadata } = await readLogObjectAsync(file.bucket, file.name);
   console.timeEnd('fetch log file');
   console.log(`Read ${textBuffer.length} bytes from ${fileUrl}`);

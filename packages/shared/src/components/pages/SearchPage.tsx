@@ -74,7 +74,6 @@ export const SearchPage = () => {
   }, [filters]);
 
   const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
-  // Search requires a signed-in user; the server refuses anonymous callers.
   const canSearch = auth.isAuthenticated && !SEARCH_DISABLED;
   const matchesQuery = useGetPublicMatchesQuery({
     skip: !canSearch,
