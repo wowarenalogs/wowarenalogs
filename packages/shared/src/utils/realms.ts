@@ -119,13 +119,7 @@ export function armoryLocale(): string {
   return bnetLocales.includes(window.navigator.language.toLowerCase()) ? window.navigator.language : 'en-us';
 }
 
-/**
- * Builds a worldofwarcraft.com character profile URL from combat-log name parts.
- *
- * The player name is percent-encoded so the result is a pure-ASCII URL even for Cyrillic names. That
- * keeps it safe to base64 with `btoa` (which rejects anything outside Latin1) and matches what a browser
- * shows in the address bar when the armory page is open.
- */
+/** Builds a worldofwarcraft.com character profile URL from combat-log name parts. */
 export function armoryUrl(locale: string, region: string, serverName: string, playerName: string): string {
   const slug = realmSlug(serverName, { separator: '-', lowercase: false });
   return `https://worldofwarcraft.com/${locale}/character/${region}/${slug}/${encodeURIComponent(playerName)}`;
