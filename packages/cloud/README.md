@@ -29,7 +29,9 @@ V4 signed URL from the GraphQL `logDownloadUrl` query (sign-in required, daily
 quota of distinct logs per user); see `packages/shared/src/graphql-server/utils/accessGuard.ts`.
 
 Lock the bucket down with `npm run lockdown:dev` or `npm run lockdown:prod`
-(`deploy/lockdown_log_bucket.sh`). It is idempotent and does, in order:
+(`deploy/lockdown_log_bucket.js`, plain Node so it behaves the same on Windows,
+where `bash` from npm resolves to WSL). It uses your active gcloud account, passes
+`--project` explicitly and never edits your gcloud config. Idempotent; in order it:
 
 1. remove `allUsers` / `allAuthenticatedUsers` read bindings;
 2. enforce public access prevention so the bucket cannot be reopened by a later grant;
@@ -43,7 +45,7 @@ Lock the bucket down with `npm run lockdown:dev` or `npm run lockdown:prod`
 
 The web service account defaults to the compute SA. If the Cloud Run service runs as
 its own SA, pass it as the second argument:
-`bash ./deploy/lockdown_log_bucket.sh prod <sa>@wowarenalogs.iam.gserviceaccount.com`.
+`node ./deploy/lockdown_log_bucket.js prod <sa>@wowarenalogs.iam.gserviceaccount.com`.
 
 Uploads are unaffected: the desktop client already writes through a signed PUT URL.
 
