@@ -124,6 +124,13 @@ export const typeDefs = gql`
     bracketStats: [UserCharacterBracketStats!]!
   }
 
+  type LogDownloadGrant {
+    url: String!
+    expiresAt: Float!
+    downloadsUsedToday: Int!
+    downloadsQuota: Int!
+  }
+
   type Query {
     me: IUser
     latestMatches(
@@ -142,6 +149,7 @@ export const typeDefs = gql`
     recentMatchesWithCombatant(combatantName: String!, serverName: String!, region: String!): [CombatDataStub!]!
     matchesWithOwnerId(ownerId: String!): [CombatDataStub!]!
     matchById(matchId: String!): CombatDataStub!
+    logDownloadUrl(matchId: String!): LogDownloadGrant!
   }
 
   type Mutation {

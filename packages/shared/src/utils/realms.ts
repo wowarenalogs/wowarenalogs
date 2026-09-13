@@ -122,5 +122,5 @@ export function armoryLocale(): string {
 /** Builds a worldofwarcraft.com character profile URL from combat-log name parts. */
 export function armoryUrl(locale: string, region: string, serverName: string, playerName: string): string {
   const slug = realmSlug(serverName, { separator: '-', lowercase: false });
-  return `https://worldofwarcraft.com/${locale}/character/${region}/${slug}/${playerName}`;
+  return `https://worldofwarcraft.com/${locale}/character/${region}/${slug}/${encodeURIComponent(playerName)}`;
 }
