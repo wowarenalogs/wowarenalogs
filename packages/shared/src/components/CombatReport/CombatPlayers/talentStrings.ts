@@ -254,19 +254,26 @@ function writeLoadoutContent(
       continue;
     }
 
-    const talentSelection = talentsPicked.find((i) => i.id1 === treeNode?.id);
+    const talentSelections = talentsPicked.filter((i) => i.id1 === treeNode?.id);
+    const talentSelection = talentSelections[0];
     // debug missing nodes, should never happen (lol)
     // if (!talentSelection) {
     //   console.log(treeNode);
     // }
 
     const isNodeSelected = talentSelection !== undefined;
+    // Tiered nodes (e.g. Stormstream Totem) report one talentsPicked entry per rank set, so
+    // the total ranks set has to be summed across all of them rather than read off one.
+    const ranksPurchased =
+      treeNode.type === 'tiered' ? talentSelections.reduce((sum, t) => sum + t.count, 0) : talentSelection?.count;
 
-    const isPartiallyRanked = 'maxRanks' in treeNode && talentSelection && talentSelection.count < treeNode.maxRanks;
-    const isChoiceNode = treeNode?.type === 'choice' || treeNode?.type === 'subtree';
+    const isPartiallyRanked =
+      'maxRanks' in treeNode && ranksPurchased !== undefined && ranksPurchased < treeNode.maxRanks;
+    // Keyed on entries.length, not type: tiered nodes (e.g. Stormstream Totem) have >1 entry too
+    const isChoiceNode = (treeNode?.entries?.length ?? 0) > 1;
 
     if ('freeNode' in treeNode && treeNode.freeNode) {
-      // Granted/free nodes are "selected but not purchased" per the Blizzard export format
+      // Granted/free nodes are "selected but not set" per the Blizzard export format
       addValue(exportStream, 1, 1); // isNodeSelected = true
       addValue(exportStream, 1, 0); // isNodePurchased = false
       continue;
@@ -279,17 +286,29 @@ function writeLoadoutContent(
 
       addValue(exportStream, 1, isPartiallyRanked ? 1 : 0);
 
-      if (isPartiallyRanked) {
-        addValue(exportStream, bitWidthRanksPurchased, talentSelection.count);
+      if (isPartiallyRanked && ranksPurchased !== undefined) {
+        addValue(exportStream, bitWidthRanksPurchased, ranksPurchased);
       }
 
       addValue(exportStream, 1, isChoiceNode ? 1 : 0);
 
       if (isChoiceNode) {
-        const entryIndex = treeNode.entries.findIndex((t) => t.id === talentSelection?.id2); // GET ACTIVE ENTRY TODO
+        let entryIndex = treeNode.entries.findIndex((t) => t.id === talentSelection?.id2); // GET ACTIVE ENTRY TODO
         // console.log('choice index', entryIndex);
-        if (entryIndex <= 0 || entryIndex > 4) {
-          // error("Error exporting tree node " .. treeNode.ID .. ". The active choice node entry index (" .. entryIndex .. ") is out of bounds. ");
+
+        // Tiered nodes don't report id2 as an entry id - derive the active entry from cumulative rank thresholds instead
+        if (entryIndex === -1 && treeNode.type === 'tiered' && ranksPurchased !== undefined) {
+          let cumulativeRanks = 0;
+          entryIndex = treeNode.entries.findIndex((entry) => {
+            cumulativeRanks += 'maxRanks' in entry ? entry.maxRanks : 1;
+            return ranksPurchased <= cumulativeRanks;
+          });
+        }
+
+        if (entryIndex < 0 || entryIndex > 3) {
+          throw new Error(
+            `Error exporting tree node ${treeNode.id}. The active choice node entry index (${entryIndex}) is out of bounds.`,
+          );
         }
         //-- store entry index as zero-index
         addValue(exportStream, 2, entryIndex);
