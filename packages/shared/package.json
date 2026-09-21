@@ -7,7 +7,9 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
-    "test": "cross-env NODE_ENV=test ts-node --project ./test/tsconfig.json --transpile-only ./test/test_log_quota.ts",
+    "test": "npm run test:log-quota && npm run test:combat-stats",
+    "test:log-quota": "cross-env NODE_ENV=test ts-node --project ./test/tsconfig.json --transpile-only ./test/test_log_quota.ts",
+    "test:combat-stats": "cross-env NODE_ENV=test ts-node --project ./test/tsconfig.json --transpile-only ./test/test_combat_stats.ts",
     "codegen": "graphql-codegen --config codegen.yml",
     "codegen:dev": "graphql-codegen --config codegen.dev.yml --verbose"
   },

@@ -1,5 +1,7 @@
 import { CombatantInfo, IArenaMatch, ICombatUnit, IShuffleRound } from '@wowarenalogs/parser';
 
+import { ICombatUnitStats } from '../../utils/combatStats';
+
 export enum UserSubscriptionTier {
   Common = 'Common',
   Rare = 'Rare',
@@ -83,10 +85,18 @@ export interface ICombatUnitStub extends Pick<
   'id' | 'name' | 'reaction' | 'affiliation' | 'type' | 'class' | 'spec'
 > {
   info?: ICombatantInfoStub;
+  stats?: ICombatUnitStats;
 }
 
-export type IArenaMatchStub = Omit<IArenaMatch, 'units' | 'events' | 'rawLines'>;
-export type IShuffleRoundStub = Omit<IShuffleRound, 'units' | 'events' | 'rawLines'>;
+// Computed at ingest time from events the stub does not carry. Optional: documents
+// written before these fields existed do not have them.
+interface ICombatStatsStub {
+  effectiveDurationInSeconds?: number;
+  dampening?: number;
+}
+
+export type IArenaMatchStub = Omit<IArenaMatch, 'units' | 'events' | 'rawLines'> & ICombatStatsStub;
+export type IShuffleRoundStub = Omit<IShuffleRound, 'units' | 'events' | 'rawLines'> & ICombatStatsStub;
 
 interface IUnitsStub {
   /**

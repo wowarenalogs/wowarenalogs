@@ -1,15 +1,8 @@
-import {
-  AtomicArenaCombat,
-  CombatUnitReaction,
-  CombatUnitType,
-  ICombatUnit,
-  IShuffleRound,
-  LogEvent,
-} from '@wowarenalogs/parser';
+import { AtomicArenaCombat, CombatUnitReaction, ICombatUnit, IShuffleRound } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 
-import { ccSpellIds } from '../../data/spellTags';
+import { computeCombatStats, getCombatPlayers } from '../../utils/combatStats';
 
 interface ICombatReportContextData {
   viewerIsOwner: boolean;
@@ -87,15 +80,10 @@ export const CombatReportContextProvider = (props: IProps) => {
     playerInterruptsTaken,
     playerTotalSupportIn,
   ] = useMemo(() => {
-    const mPlayers = _.orderBy(
-      _.values(props.combat.units).filter(
-        (u) =>
-          u.type === CombatUnitType.Player &&
-          (u.reaction === CombatUnitReaction.Friendly || u.reaction === CombatUnitReaction.Hostile),
-      ),
-      ['reaction', 'name'],
-      ['desc', 'asc'],
-    );
+    // The same numbers the cloud writes onto the match stub at ingest time.
+    const stats = computeCombatStats(props.combat);
+
+    const mPlayers = _.orderBy(getCombatPlayers(props.combat), ['reaction', 'name'], ['desc', 'asc']);
     const mFriends = _.sortBy(
       mPlayers.filter((p) => p.reaction === CombatUnitReaction.Friendly),
       ['class', 'name'],
@@ -114,97 +102,21 @@ export const CombatReportContextProvider = (props: IProps) => {
 
     let mMaxOutputNumber = 0;
     mPlayers.forEach((p) => {
-      let totalTimeInCC = 0;
-      let ccStartTime = -1;
-      let ccStack = 0;
-      for (let i = 0; i < p.auraEvents.length; ++i) {
-        const event = p.auraEvents[i];
-        const spellId = event.spellId || '';
-        if (!ccSpellIds.has(spellId)) {
-          continue;
-        }
-        switch (event.logLine.event) {
-          case LogEvent.SPELL_AURA_APPLIED:
-            if (ccStartTime < 0) {
-              ccStartTime = event.logLine.timestamp;
-            }
-            ccStack++;
-            break;
-          case LogEvent.SPELL_AURA_REMOVED:
-            ccStack--;
-            if (ccStack === 0) {
-              totalTimeInCC += event.logLine.timestamp - ccStartTime;
-              ccStartTime = -1;
-            }
-            break;
-        }
+      const unitStats = stats.units[p.id];
+      if (!unitStats) {
+        return;
       }
-      mPlayerTimeInCC.set(p.id, totalTimeInCC);
 
-      let totalCCOutput = 0;
-      mPlayers.forEach((target) => {
-        ccStartTime = -1;
-        ccStack = 0;
-        let targetTimeInCC = 0;
-        for (let i = 0; i < target.auraEvents.length; ++i) {
-          const event = target.auraEvents[i];
-          const spellId = event.spellId || '';
-          if (!ccSpellIds.has(spellId) || event.srcUnitId !== p.id) {
-            continue;
-          }
-          switch (event.logLine.event) {
-            case LogEvent.SPELL_AURA_APPLIED:
-              if (ccStartTime < 0) {
-                ccStartTime = event.logLine.timestamp;
-              }
-              ccStack++;
-              break;
-            case LogEvent.SPELL_AURA_REMOVED:
-              ccStack--;
-              if (ccStack === 0) {
-                targetTimeInCC += event.logLine.timestamp - ccStartTime;
-                ccStartTime = -1;
-              }
-              break;
-          }
-        }
-        totalCCOutput += targetTimeInCC;
-      });
-      mPlayerCCOutput.set(p.id, totalCCOutput);
+      mPlayerTimeInCC.set(p.id, unitStats.ccTakenInMilliseconds);
+      mPlayerCCOutput.set(p.id, unitStats.ccDoneInMilliseconds);
+      mPlayerTotalDamageOut.set(p.id, unitStats.damageDone);
+      mPlayerTotalSupportIn.set(p.id, unitStats.supportDamageIn);
+      mPlayerTotalHealOut.set(p.id, unitStats.healingDone);
+      mPlayerInterruptsDone.set(p.id, unitStats.interruptsDone);
+      mPlayerInterruptsTaken.set(p.id, unitStats.interruptsTaken);
 
-      const totalDamageOut = p.damageOut.reduce((sum, action) => {
-        return sum + Math.abs(action.effectiveAmount);
-      }, 0);
-      mPlayerTotalDamageOut.set(p.id, totalDamageOut);
-
-      const totalSupportIn = p.supportDamageIn.reduce((sum, action) => {
-        return sum + Math.abs(action.effectiveAmount);
-      }, 0);
-      mPlayerTotalSupportIn.set(p.id, totalSupportIn);
-
-      const totalHealOut = p.healOut.reduce((sum, action) => {
-        if (action.logLine.event === 'SPELL_PERIODIC_HEAL') {
-          // TODO: the parser needs to give us more info about overhealing
-          return sum + (action.logLine.parameters[30] - action.logLine.parameters[32]);
-        }
-        if (action.logLine.event === 'SPELL_HEAL') {
-          // TODO: the parser needs to give us more info about overhealing
-          return sum + (action.logLine.parameters[30] - action.logLine.parameters[32]);
-        }
-        return sum + Math.abs(action.effectiveAmount);
-      }, 0);
-      const totalPrevented = p.absorbsOut.reduce((sum, action) => {
-        return sum + Math.abs(action.effectiveAmount);
-      }, 0);
-      mPlayerTotalHealOut.set(p.id, totalHealOut + totalPrevented);
-
-      mMaxOutputNumber = Math.max(mMaxOutputNumber, totalDamageOut, totalHealOut);
-
-      const totalInterruptsDone = p.actionOut.filter((l) => l.logLine.event === LogEvent.SPELL_INTERRUPT).length;
-      mPlayerInterruptsDone.set(p.id, totalInterruptsDone);
-
-      const totalInterruptsTaken = p.actionIn.filter((l) => l.logLine.event === LogEvent.SPELL_INTERRUPT).length;
-      mPlayerInterruptsTaken.set(p.id, totalInterruptsTaken);
+      // healingDone folds in absorbs; the meters have always scaled on raw healing.
+      mMaxOutputNumber = Math.max(mMaxOutputNumber, unitStats.damageDone, unitStats.healingDone - unitStats.absorbDone);
     });
     return [
       mPlayers,
