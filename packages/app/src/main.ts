@@ -41,6 +41,14 @@ function createWindow() {
     extraHeaders: 'pragma: no-cache\n',
   });
 
+  // The window background is black, so a dead renderer otherwise just looks like a black screen.
+  win.webContents.on('render-process-gone', (_event, details) => {
+    logger.error(`Renderer process gone: reason=${details.reason} exitCode=${details.exitCode}`);
+    if (details.reason !== 'clean-exit' && !win.isDestroyed()) {
+      win.webContents.reload();
+    }
+  });
+
   win.webContents.setWindowOpenHandler(() => {
     return { action: 'deny' };
   });

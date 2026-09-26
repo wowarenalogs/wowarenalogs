@@ -15,6 +15,7 @@ import {
   ArenaMatchMetadata,
   canUseFeature,
   features,
+  IUploadableCombat,
   logAnalyticsEvent,
   ShuffleMatchMetadata,
   uploadCombatAsync,
@@ -44,7 +45,16 @@ interface IProps {
  */
 const MATCH_OVERRUN_SECONDS = 3;
 
-const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
+/** Only the latest match (or shuffle) is ever displayed. A full shuffle is six rounds, plus one
+ * so LatestMatchMonitor can still tell a lobby whose end was never seen apart from the one before it.
+ * Keeping every combat around made importing a long session's log run the renderer out of memory.
+ */
+const MAX_LOCAL_COMBATS = 7;
+
+type AnalyticsEvent = [name: string, params: Record<string, unknown>];
+
+const buildCombatAnalyticsEventsUnsafe = (combat: AtomicArenaCombat): AnalyticsEvent[] => {
+  const events: AnalyticsEvent[] = [];
   const averageMMR =
     combat.dataType === 'ArenaMatch'
       ? ((combat.endInfo?.team0MMR || 0) + (combat.endInfo?.team1MMR || 0)) / 2
@@ -98,19 +108,22 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     winningTeamId: combat.winningTeamId,
   };
 
-  logAnalyticsEvent('event_NewMatchProcessed', {
-    ...commonProperties,
-    winningTeamSpecs: combat.winningTeamId === '0' ? team0specs : team1specs,
-    losingTeamSpecs: combat.winningTeamId === '1' ? team0specs : team1specs,
-    singleSidedSpecIndices: `|${indices.singleSidedSpecs.join('|')}|`,
-  });
+  events.push([
+    'event_NewMatchProcessed',
+    {
+      ...commonProperties,
+      winningTeamSpecs: combat.winningTeamId === '0' ? team0specs : team1specs,
+      losingTeamSpecs: combat.winningTeamId === '1' ? team0specs : team1specs,
+      singleSidedSpecIndices: `|${indices.singleSidedSpecs.join('|')}|`,
+    },
+  ]);
 
   // following events are only meaningful if the match has a winner
   if (
     (combat.result !== CombatResult.Win && combat.result !== CombatResult.Lose) ||
     (combat.winningTeamId !== '0' && combat.winningTeamId !== '1')
   ) {
-    return;
+    return events;
   }
 
   ['0', '1'].forEach((teamId) => {
@@ -121,17 +134,20 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
 
     const killTargetSpec = teamPlayers.find((p) => p.id === firstBloodUnitId)?.spec ?? '';
 
-    logAnalyticsEvent('event_NewCompRecord', {
-      ...commonProperties,
-      specs: teamSpecs[parseInt(teamId)],
-      teamId,
-      isPlayerTeam: combat.playerTeamId === teamId,
-      result: combat.winningTeamId === teamId ? 'win' : 'lose',
-      burstDps,
-      effectiveDps,
-      effectiveHps,
-      killTargetSpec,
-    });
+    events.push([
+      'event_NewCompRecord',
+      {
+        ...commonProperties,
+        specs: teamSpecs[parseInt(teamId)],
+        teamId,
+        isPlayerTeam: combat.playerTeamId === teamId,
+        result: combat.winningTeamId === teamId ? 'win' : 'lose',
+        burstDps,
+        effectiveDps,
+        effectiveHps,
+        killTargetSpec,
+      },
+    ]);
   });
 
   players.forEach((p) => {
@@ -140,23 +156,52 @@ const logCombatAnalyticsAsync = async (combat: AtomicArenaCombat) => {
     const effectiveHps = getEffectiveHps([p], effectiveDuration);
     const isKillTarget = p.id === firstBloodUnitId;
 
-    logAnalyticsEvent('event_NewPlayerRecord', {
-      ...commonProperties,
-      name: p.name,
-      rating: p.info?.personalRating ?? 0,
-      highestPvpTier: p.info?.highestPvpTier ?? 0,
-      spec: p.spec,
-      teamId: p.info?.teamId ?? '',
-      isPlayer: p.id === combat.playerId,
-      isPlayerTeam: p.info?.teamId === combat.playerTeamId,
-      result: p.info?.teamId === combat.winningTeamId ? 'win' : 'lose',
-      burstDps,
-      effectiveDps,
-      effectiveHps,
-      isKillTarget: isKillTarget ? 1 : 0,
-    });
+    events.push([
+      'event_NewPlayerRecord',
+      {
+        ...commonProperties,
+        name: p.name,
+        rating: p.info?.personalRating ?? 0,
+        highestPvpTier: p.info?.highestPvpTier ?? 0,
+        spec: p.spec,
+        teamId: p.info?.teamId ?? '',
+        isPlayer: p.id === combat.playerId,
+        isPlayerTeam: p.info?.teamId === combat.playerTeamId,
+        result: p.info?.teamId === combat.winningTeamId ? 'win' : 'lose',
+        burstDps,
+        effectiveDps,
+        effectiveHps,
+        isKillTarget: isKillTarget ? 1 : 0,
+      },
+    ]);
+  });
+
+  return events;
+};
+
+/** Built eagerly so the full combat can be released while its upload is still in flight.
+ * Must not throw, or the upload it precedes would be skipped.
+ */
+const buildCombatAnalyticsEvents = (combat: AtomicArenaCombat): AnalyticsEvent[] => {
+  try {
+    return buildCombatAnalyticsEventsUnsafe(combat);
+  } catch (e) {
+    Sentry.captureException(e);
+    return [];
+  }
+};
+
+/** Kept out of the event handlers: a closure there would share their scope and keep `combat` alive. */
+const uploadWithAnalytics = (upload: IUploadableCombat, analyticsEvents: AnalyticsEvent[], ownerId: string) => {
+  uploadCombatAsync(upload, ownerId).then((r) => {
+    if (!r.matchExists || process.env.NODE_ENV === 'development') {
+      analyticsEvents.forEach(([name, params]) => logAnalyticsEvent(name, params));
+    }
   });
 };
+
+const appendLocalCombat = (prev: AtomicArenaCombat[], combat: AtomicArenaCombat) =>
+  prev.concat([combat]).slice(-MAX_LOCAL_COMBATS);
 
 let currentActivity: IActivityStarted | null = null;
 
@@ -244,24 +289,27 @@ export const LocalCombatsContextProvider = (props: IProps) => {
                 fileName: `${combat.startInfo.bracket}_${combat.id}`,
               });
           }
-          if (!shouldSkipUpload)
-            uploadCombatAsync(combat, auth.battlenetId).then((r) => {
-              if (!r.matchExists || process.env.NODE_ENV === 'development') {
-                logCombatAnalyticsAsync(combat);
-              }
-            });
+          if (!shouldSkipUpload) {
+            uploadWithAnalytics(
+              {
+                id: combat.id,
+                dataType: combat.dataType,
+                wowVersion: combat.wowVersion,
+                startTime: combat.startTime,
+                rawLines: combat.rawLines,
+              },
+              buildCombatAnalyticsEvents(combat),
+              auth.battlenetId,
+            );
+          }
 
-          setCombats((prev) => {
-            return prev.concat([combat]);
-          });
+          setCombats((prev) => appendLocalCombat(prev, combat));
         }
       });
 
       window.wowarenalogs.logs?.handleSoloShuffleRoundEnded((_event, combat) => {
         if (wowVersion === combat.wowVersion) {
-          setCombats((prev) => {
-            return prev.concat([combat]);
-          });
+          setCombats((prev) => appendLocalCombat(prev, combat));
         }
       });
 
@@ -301,16 +349,23 @@ export const LocalCombatsContextProvider = (props: IProps) => {
               });
           }
 
-          if (!shouldSkipUpload)
-            uploadCombatAsync(combat, auth.battlenetId).then((r) => {
-              if (!r.matchExists || process.env.NODE_ENV === 'development') {
-                combat.rounds.forEach((round) => {
-                  round.shuffleMatchEndInfo = combat.endInfo;
-                  round.shuffleMatchResult = combat.result;
-                  logCombatAnalyticsAsync(round);
-                });
-              }
+          if (!shouldSkipUpload) {
+            combat.rounds.forEach((round) => {
+              round.shuffleMatchEndInfo = combat.endInfo;
+              round.shuffleMatchResult = combat.result;
             });
+            uploadWithAnalytics(
+              {
+                id: combat.id,
+                dataType: combat.dataType,
+                wowVersion: combat.wowVersion,
+                startTime: combat.startTime,
+                rawLines: combat.rounds.flatMap((round) => round.rawLines),
+              },
+              combat.rounds.flatMap(buildCombatAnalyticsEvents),
+              auth.battlenetId,
+            );
+          }
         }
       });
 
