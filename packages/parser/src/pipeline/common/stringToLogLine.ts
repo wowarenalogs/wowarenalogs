@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { parseWowToJSON } from '../../jsonparse';
 import { logDebug, logInfo } from '../../logger';
 import { ILogLine, LogEvent } from '../../types';
+import { PIPELINE_FLUSH_SIGNAL } from '../../utils';
 
 let nextId = 0;
 
@@ -48,6 +49,10 @@ function parseCombatLogTimestamp(timestamp: string, timezone: string): number | 
 
 export const stringToLogLine = (timezone: string) => {
   return map((line: string): ILogLine | string => {
+    if (line === PIPELINE_FLUSH_SIGNAL) {
+      return line;
+    }
+
     const separatorIndex = line.indexOf('  ');
     if (separatorIndex === -1) {
       logDebug(`INVALID LINE: ${line}`);

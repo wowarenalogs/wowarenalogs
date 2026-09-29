@@ -148,6 +148,7 @@ export class LogsModule extends NativeBridgeModule {
           data.filePaths.forEach((logFile) => {
             DesktopUtils.parseLogFile(logParser, logFile);
           });
+          logParser.flush();
         }
       });
   }
