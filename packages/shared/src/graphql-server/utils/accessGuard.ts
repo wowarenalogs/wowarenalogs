@@ -84,6 +84,19 @@ export function logSearchQuery(caller: User, query: SearchQueryName, args: Recor
   });
 }
 
+// The uploader's battlenetId is stored on the log object as `ownerid` metadata at upload time.
+async function isOwnUploadAsync(caller: User, matchId: string): Promise<boolean> {
+  if (!caller.battlenetId) {
+    return false;
+  }
+  try {
+    const [metadata] = await bucket.file(matchId).getMetadata();
+    return metadata.metadata?.ownerid === caller.battlenetId;
+  } catch {
+    return false;
+  }
+}
+
 export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: string): Promise<LogDownloadGrant> {
   if (!matchId || matchId.includes('/')) {
     throw new UserInputError('Invalid match id.');
@@ -129,8 +142,19 @@ export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: 
       return decision.usedAfter;
     });
 
+  const usedTodayAsync = async () => {
+    const usageDoc = await usageRef.get();
+    return new Set((usageDoc.data()?.matchIds as string[] | undefined) ?? []).size;
+  };
+
   const exempt = hasTag(caller, ACCESS_ADMIN_TAG);
-  const usedAfter = exempt ? 0 : await chargeQuotaAsync();
+  const ownUpload = !exempt && (await isOwnUploadAsync(caller, matchId));
+  let usedAfter = 0;
+  if (ownUpload) {
+    usedAfter = await usedTodayAsync();
+  } else if (!exempt) {
+    usedAfter = await chargeQuotaAsync();
+  }
 
   const expiresAt = Date.now() + LOG_URL_TTL_MS;
   const [url] = await bucket.file(matchId).getSignedUrl({ version: 'v4', action: 'read', expires: expiresAt });
@@ -142,6 +166,7 @@ export async function issueLogDownloadUrlAsync(context: ApolloContext, matchId: 
     usedToday: usedAfter,
     quota,
     exempt,
+    ownUpload,
   });
 
   return { url, expiresAt, downloadsUsedToday: usedAfter, downloadsQuota: quota };
