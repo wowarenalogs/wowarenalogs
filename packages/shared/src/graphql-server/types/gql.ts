@@ -44,6 +44,8 @@ export const typeDefs = gql`
     durationInSeconds: Float
     winningTeamId: String
     timezone: String
+    effectiveDurationInSeconds: Float
+    dampening: Float
   }
 
   type ScoreboardEntry {
@@ -74,6 +76,8 @@ export const typeDefs = gql`
     shuffleMatchResult: Int
     shuffleMatchId: String
     timezone: String
+    effectiveDurationInSeconds: Float
+    dampening: Float
   }
 
   union CombatDataStub = ShuffleRoundStub | ArenaMatchDataStub
@@ -93,10 +97,35 @@ export const typeDefs = gql`
     highestPvpTier: Int
   }
 
+  type SpellDamage {
+    spellId: String!
+    amount: Float!
+  }
+
+  type CombatUnitStats {
+    damageDone: Float
+    healingDone: Float
+    absorbDone: Float
+    supportDamageIn: Float
+    damageDonePerSecond: Float
+    healingDonePerSecond: Float
+    absorbDonePerSecond: Float
+    burstDamagePerSecond: Float
+    deaths: Int
+    diedAtSecond: Float
+    interruptsDone: Int
+    interruptsTaken: Int
+    ccDoneInMilliseconds: Float
+    ccTakenInMilliseconds: Float
+    itemLevel: Int
+    topDamageSpells: [SpellDamage!]
+  }
+
   type CombatUnitStub {
     id: String!
     name: String!
     info: CombatantInfo
+    stats: CombatUnitStats
     type: Int!
     spec: String!
     class: Int!

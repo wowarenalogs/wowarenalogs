@@ -17,7 +17,9 @@ export type Scalars = {
 
 export type ArenaMatchDataStub = {
   __typename?: 'ArenaMatchDataStub';
+  dampening?: Maybe<Scalars['Float']>;
   durationInSeconds?: Maybe<Scalars['Float']>;
+  effectiveDurationInSeconds?: Maybe<Scalars['Float']>;
   endInfo?: Maybe<ArenaMatchEndInfo>;
   endTime: Scalars['Float'];
   hasAdvancedLogging: Scalars['Boolean'];
@@ -62,6 +64,26 @@ export type CombatQueryResult = {
   queryLimitReached: Scalars['Boolean'];
 };
 
+export type CombatUnitStats = {
+  __typename?: 'CombatUnitStats';
+  absorbDone?: Maybe<Scalars['Float']>;
+  absorbDonePerSecond?: Maybe<Scalars['Float']>;
+  burstDamagePerSecond?: Maybe<Scalars['Float']>;
+  ccDoneInMilliseconds?: Maybe<Scalars['Float']>;
+  ccTakenInMilliseconds?: Maybe<Scalars['Float']>;
+  damageDone?: Maybe<Scalars['Float']>;
+  damageDonePerSecond?: Maybe<Scalars['Float']>;
+  deaths?: Maybe<Scalars['Int']>;
+  diedAtSecond?: Maybe<Scalars['Float']>;
+  healingDone?: Maybe<Scalars['Float']>;
+  healingDonePerSecond?: Maybe<Scalars['Float']>;
+  interruptsDone?: Maybe<Scalars['Int']>;
+  interruptsTaken?: Maybe<Scalars['Int']>;
+  itemLevel?: Maybe<Scalars['Int']>;
+  supportDamageIn?: Maybe<Scalars['Float']>;
+  topDamageSpells?: Maybe<Array<SpellDamage>>;
+};
+
 export type CombatUnitStub = {
   __typename?: 'CombatUnitStub';
   affiliation?: Maybe<Scalars['Int']>;
@@ -71,6 +93,7 @@ export type CombatUnitStub = {
   name: Scalars['String'];
   reaction: Scalars['Int'];
   spec: Scalars['String'];
+  stats?: Maybe<CombatUnitStats>;
   type: Scalars['Int'];
 };
 
@@ -189,7 +212,9 @@ export type ScoreboardEntry = {
 
 export type ShuffleRoundStub = {
   __typename?: 'ShuffleRoundStub';
+  dampening?: Maybe<Scalars['Float']>;
   durationInSeconds?: Maybe<Scalars['Float']>;
+  effectiveDurationInSeconds?: Maybe<Scalars['Float']>;
   endTime: Scalars['Float'];
   hasAdvancedLogging: Scalars['Boolean'];
   id: Scalars['String'];
@@ -211,6 +236,12 @@ export type ShuffleRoundStub = {
   units: Array<CombatUnitStub>;
   winningTeamId?: Maybe<Scalars['String']>;
   wowVersion?: Maybe<Scalars['String']>;
+};
+
+export type SpellDamage = {
+  __typename?: 'SpellDamage';
+  amount: Scalars['Float'];
+  spellId: Scalars['String'];
 };
 
 export type Talent = {
