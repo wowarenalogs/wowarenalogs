@@ -20,7 +20,15 @@ export type LoaderResults = {
   battlegrounds?: IBattlegroundCombat[];
 };
 
-export const loadLogFile = (logFileName: string): LoaderResults => {
+export const readLogFileLines = (logFileName: string): string[] =>
+  fs
+    .readFileSync(path.join(__dirname, 'testlogs', logFileName))
+    .toString()
+    .split('\n');
+
+export const loadLogFile = (logFileName: string): LoaderResults => loadLogLines(readLogFileLines(logFileName));
+
+export const loadLogLines = (lines: string[]): LoaderResults => {
   const logParser = new WoWCombatLogParser(null, 'America/New_York');
 
   const combats: IArenaMatch[] = [];
@@ -54,15 +62,23 @@ export const loadLogFile = (logFileName: string): LoaderResults => {
 
   logParser.on('battleground_ended', (data) => battlegrounds.push(data));
 
-  const buffer = fs.readFileSync(path.join(__dirname, 'testlogs', logFileName));
-  buffer
-    .toString()
-    .split('\n')
-    .forEach((line) => {
-      logParser.parseLine(line);
-    });
+  lines.forEach((line) => {
+    logParser.parseLine(line);
+  });
 
   logParser.flush();
 
   return { combats, malformedCombats, shuffleRounds, shuffles, activityStarts, battlegrounds };
 };
+
+// Log timestamps look like "8/27/2025 22:13:22.724-4  UNIT_DIED,...". Shifting one lets a test
+// place a synthetic event at a chosen offset from a real one.
+export const shiftLogLineTimestamp = (line: string, offsetMs: number): string =>
+  line.replace(/(\d{2}):(\d{2}):(\d{2})\.(\d{3})/, (_full, h, m, s, ms) => {
+    const shifted = (+h * 3600 + +m * 60 + +s) * 1000 + +ms + offsetMs;
+    const pad = (n: number, width = 2) => Math.floor(n).toString().padStart(width, '0');
+    return `${pad(shifted / 3600000)}:${pad((shifted % 3600000) / 60000)}:${pad((shifted % 60000) / 1000)}.${pad(
+      shifted % 1000,
+      3,
+    )}`;
+  });
