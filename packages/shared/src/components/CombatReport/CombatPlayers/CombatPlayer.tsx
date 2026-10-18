@@ -1,9 +1,12 @@
 import {
-  CombatAbsorbAction,
   CombatAction,
-  CombatHpUpdateAction,
   CombatUnitType,
+  getCreditedAbsorbs,
+  getCreditedDamage,
+  getCreditedHeals,
+  IAbsorbCredit,
   ICombatUnit,
+  IOutputCredit,
 } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useEffect, useMemo } from 'react';
@@ -11,6 +14,7 @@ import { useEffect, useMemo } from 'react';
 import talentIdMap from '../../../data/talentIdMap.json';
 import { Utils } from '../../../utils/utils';
 import { AchievementBadge } from '../AchievementBadge';
+import { AugmentedToggle } from '../AugmentedToggle';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
@@ -61,7 +65,7 @@ export const maybeGetSpellIdFromTalentId = (talentId: number) => {
 
 const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14, 17, 3];
 
-const compileDamageBySpell = (actions: (CombatHpUpdateAction | CombatAbsorbAction)[], ownerActorId: string) => {
+const compileDamageBySpell = (actions: Omit<IOutputCredit, 'action' | 'isAdjustment'>[], ownerActorId: string) => {
   const groups = _.groupBy(
     actions.filter((a) => a.effectiveAmount !== 0),
     (a) => {
@@ -77,9 +81,11 @@ const compileDamageBySpell = (actions: (CombatHpUpdateAction | CombatAbsorbActio
     return {
       id: spellId,
       name: maybeActorName + spellName,
-      value: _.sum(actionsGroup.map((a) => Math.abs(a.effectiveAmount))),
+      value: _.sum(actionsGroup.map((a) => a.effectiveAmount)),
     };
-  }).sort((a, b) => b.value - a.value);
+  })
+    .filter((s) => s.value > 0)
+    .sort((a, b) => b.value - a.value);
 };
 
 // vs compileDamageBySpell:
@@ -96,7 +102,7 @@ const compileCastsBySpell = (actions: CombatAction[]) => {
   }).sort((a, b) => b.value - a.value);
 };
 
-const compileDamageByDest = (actions: (CombatHpUpdateAction | CombatAbsorbAction)[]) => {
+const compileDamageByDest = (actions: Omit<IOutputCredit, 'action' | 'isAdjustment'>[]) => {
   const groups = _.groupBy(
     actions.filter((a) => a.effectiveAmount !== 0),
     (a) => a.destUnitId,
@@ -105,12 +111,14 @@ const compileDamageByDest = (actions: (CombatHpUpdateAction | CombatAbsorbAction
     return {
       id: destUnitId,
       name: _.first(actionsGroup.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || 'Unknown',
-      value: _.sum(actionsGroup.map((a) => Math.abs(a.effectiveAmount))),
+      value: _.sum(actionsGroup.map((a) => a.effectiveAmount)),
     };
-  }).sort((a, b) => b.value - a.value);
+  })
+    .filter((s) => s.value > 0)
+    .sort((a, b) => b.value - a.value);
 };
 
-const compileHealsBySpell = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorbAction[]) => {
+const compileHealsBySpell = (heals: IOutputCredit[], absorbs: IAbsorbCredit[]) => {
   const actions = _.concat(
     heals.map((a) => {
       return {
@@ -139,10 +147,12 @@ const compileHealsBySpell = (heals: CombatHpUpdateAction[], absorbs: CombatAbsor
       name: _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack',
       value: _.sum(actionsGroup.map((a) => a.effectiveAmount)),
     };
-  }).sort((a, b) => b.value - a.value);
+  })
+    .filter((s) => s.value > 0)
+    .sort((a, b) => b.value - a.value);
 };
 
-const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorbAction[]) => {
+const compileHealsByDest = (heals: IOutputCredit[], absorbs: IAbsorbCredit[]) => {
   const actions = _.concat(
     heals.map((a) => {
       return {
@@ -169,7 +179,9 @@ const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorb
       name: _.first(actionsGroup.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || 'Unknown',
       value: _.sum(actionsGroup.map((a) => a.effectiveAmount)),
     };
-  }).sort((a, b) => b.value - a.value);
+  })
+    .filter((s) => s.value > 0)
+    .sort((a, b) => b.value - a.value);
 };
 
 function compileAuraApplicationsBySpell(player: ICombatUnit) {
@@ -212,7 +224,7 @@ function compileAuraApplicationsBySpell(player: ICombatUnit) {
   return applications;
 }
 export function CombatPlayer(props: IProps) {
-  const { combat } = useCombatReportContext();
+  const { combat, showAugmented } = useCombatReportContext();
 
   useEffect(() => {
     try {
@@ -246,30 +258,34 @@ export function CombatPlayer(props: IProps) {
   }, [props.player]);
 
   const damageDoneBySpells = useMemo(() => {
-    return compileDamageBySpell(props.player.damageOut, props.player.id);
-  }, [props.player]);
+    return compileDamageBySpell(getCreditedDamage(props.player, showAugmented), props.player.id);
+  }, [props.player, showAugmented]);
   const damageDoneBySpellsMax = _.max(damageDoneBySpells.map((s) => s.value)) || 1;
   const damageDoneBySpellsSum = _.sum(damageDoneBySpells.map((s) => s.value));
 
   const healsDoneBySpells = useMemo(() => {
-    return compileHealsBySpell(props.player.healOut, props.player.absorbsOut);
-  }, [props.player]);
+    return compileHealsBySpell(
+      getCreditedHeals(props.player, showAugmented),
+      getCreditedAbsorbs(props.player, showAugmented),
+    );
+  }, [props.player, showAugmented]);
   const healsDoneBySpellsMax = _.max(healsDoneBySpells.map((s) => s.value)) || 1;
   const healsDoneBySpellsSum = _.sum(healsDoneBySpells.map((s) => s.value));
 
   const damageDoneByDest = useMemo(() => {
-    return compileDamageByDest(props.player.damageOut).filter((d) =>
+    return compileDamageByDest(getCreditedDamage(props.player, showAugmented)).filter((d) =>
       combat ? combat.units[d.id].type === CombatUnitType.Player : false,
     );
-  }, [props.player, combat]);
+  }, [props.player, combat, showAugmented]);
   const damageDoneByDestMax = _.max(damageDoneByDest.map((s) => s.value)) || 1;
   const damageDoneByDestSum = _.sum(damageDoneByDest.map((s) => s.value));
 
   const healsDoneByDest = useMemo(() => {
-    return compileHealsByDest(props.player.healOut, props.player.absorbsOut).filter((d) =>
-      combat ? combat.units[d.id].type === CombatUnitType.Player : false,
-    );
-  }, [props.player, combat]);
+    return compileHealsByDest(
+      getCreditedHeals(props.player, showAugmented),
+      getCreditedAbsorbs(props.player, showAugmented),
+    ).filter((d) => (combat ? combat.units[d.id].type === CombatUnitType.Player : false));
+  }, [props.player, combat, showAugmented]);
   const healsDoneByDestMax = _.max(healsDoneByDest.map((s) => s.value)) || 1;
   const healsDoneByDestSum = _.sum(healsDoneByDest.map((s) => s.value));
 
@@ -389,7 +405,10 @@ export function CombatPlayer(props: IProps) {
           <thead>
             <tr>
               <th colSpan={4} className="bg-base-300">
-                DAMAGE SPELLS
+                <div className="flex items-center justify-between">
+                  DAMAGE SPELLS
+                  <AugmentedToggle />
+                </div>
               </th>
             </tr>
           </thead>
@@ -434,7 +453,10 @@ export function CombatPlayer(props: IProps) {
             ))}
             <tr>
               <th colSpan={4} className="bg-base-300">
-                HEALING SPELLS
+                <div className="flex items-center justify-between">
+                  HEALING SPELLS
+                  <AugmentedToggle />
+                </div>
               </th>
             </tr>
             {healsDoneBySpells.map((d) => (

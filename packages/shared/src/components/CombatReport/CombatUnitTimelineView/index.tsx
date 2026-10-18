@@ -1,4 +1,10 @@
-import { AtomicArenaCombat, CombatHpUpdateAction, ICombatUnit } from '@wowarenalogs/parser';
+import {
+  AtomicArenaCombat,
+  getCreditedDamageTaken,
+  getCreditedHealsTaken,
+  ICombatUnit,
+  IOutputCredit,
+} from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
@@ -6,6 +12,7 @@ import { FaSkullCrossbones } from 'react-icons/fa';
 
 import { Utils } from '../../../utils/utils';
 import { SpecImage } from '../../common/SpecImage';
+import { AugmentedToggle } from '../AugmentedToggle';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitAuraTimeline } from './CombatUnitAuraTimeline';
 import { CombatUnitHpUpdate } from './CombatUnitHpUpdate';
@@ -16,12 +23,13 @@ interface IProps {
   startTime: number;
   endTime: number;
   onlyShowCC?: boolean;
+  hideAugmentedToggle?: boolean;
 }
 
 const generateHpUpdateColumn = (
   combat: AtomicArenaCombat,
   unit: ICombatUnit,
-  actionGroupsBySecondMark: _.Dictionary<CombatHpUpdateAction[]>,
+  actionGroupsBySecondMark: _.Dictionary<IOutputCredit[]>,
   align: 'LEFT' | 'RIGHT',
   maxAbs: number,
   startTime: number,
@@ -58,7 +66,7 @@ const generateHpUpdateColumn = (
       </div>
       <div className="flex-1 relative">
         {_.map(actionGroupsBySecondMark, (group, secondMark) => {
-          const groupTotal = _.sumBy(group, (action) => Math.abs(action.effectiveAmount));
+          const groupTotal = Math.abs(_.sumBy(group, (action) => action.effectiveAmount));
           const actionGroups = _.groupBy(group, (action) =>
             JSON.stringify({
               srcUnitId: action.srcUnitId,
@@ -186,17 +194,21 @@ export const CombatUnitTimelineView = (props: IProps) => {
     setEndTime(props.endTime);
   }, [props.endTime]);
 
-  const { combat, players } = useCombatReportContext();
+  const { combat, players, showAugmented } = useCombatReportContext();
   if (!combat) {
     return null;
   }
 
   // Group damage/healing actions and hp numbers into 1 second chunks
-  const damageActions = props.unit.damageIn.filter((a) => a.timestamp >= startTime && a.timestamp <= endTime);
+  const damageActions = getCreditedDamageTaken(props.unit, combat.units, showAugmented)
+    .filter((a) => a.timestamp >= startTime && a.timestamp <= endTime)
+    .map((a) => ({ ...a, effectiveAmount: -a.effectiveAmount }));
   const damageActionGroupsBySecondMark = _.groupBy(damageActions, (action) =>
     Math.floor((deathTime - action.timestamp) / 1000),
   );
-  const healActions = props.unit.healIn.filter((a) => a.timestamp >= startTime && a.timestamp <= endTime);
+  const healActions = getCreditedHealsTaken(props.unit, combat.units, showAugmented).filter(
+    (a) => a.timestamp >= startTime && a.timestamp <= endTime,
+  );
   const healActionGroupsBySecondMark = _.groupBy(healActions, (action) =>
     Math.floor((deathTime - action.timestamp) / 1000),
   );
@@ -209,9 +221,9 @@ export const CombatUnitTimelineView = (props: IProps) => {
 
   // Scale horizontal values such that 100% width maps to the highest per-row total
   const maxAbsDamage =
-    _.max(_.values(damageActionGroupsBySecondMark).map((ar) => _.sum(ar.map((e) => Math.abs(e.effectiveAmount))))) || 1;
+    _.max(_.values(damageActionGroupsBySecondMark).map((ar) => Math.abs(_.sumBy(ar, (e) => e.effectiveAmount)))) || 1;
   const maxAbsHeal =
-    _.max(_.values(healActionGroupsBySecondMark).map((ar) => _.sum(ar.map((e) => Math.abs(e.effectiveAmount))))) || 1;
+    _.max(_.values(healActionGroupsBySecondMark).map((ar) => Math.abs(_.sumBy(ar, (e) => e.effectiveAmount)))) || 1;
   const maxAbs = Math.max(maxAbsDamage, maxAbsHeal);
 
   const friends = players.filter((p) => p.reaction === props.unit.reaction);
@@ -239,6 +251,11 @@ export const CombatUnitTimelineView = (props: IProps) => {
           {'/ ' + moment.utc(deathTime - combat.startTime).format('mm:ss')}
         </div>
         <FaSkullCrossbones className="opacity-50" />
+        {!props.hideAugmentedToggle && (
+          <div className="ml-2">
+            <AugmentedToggle />
+          </div>
+        )}
       </div>
       <div className="flex flex-row mb-1 font-bold uppercase pb-2 items-end">
         <div className="flex flex-row items-start border-t pt-2 pr-2 mr-2 border-base-content">

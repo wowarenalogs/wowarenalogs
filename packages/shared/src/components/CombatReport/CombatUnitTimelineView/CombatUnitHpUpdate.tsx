@@ -1,10 +1,4 @@
-import {
-  AtomicArenaCombat,
-  CombatHpUpdateAction,
-  CombatUnitClass,
-  getClassColor,
-  ICombatUnit,
-} from '@wowarenalogs/parser';
+import { AtomicArenaCombat, CombatUnitClass, getClassColor, ICombatUnit, IOutputCredit } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import Image from 'next/image';
 import { useMemo } from 'react';
@@ -17,13 +11,15 @@ interface IProps {
     destUnitId: string;
     spellId: string;
     spellName: string;
-    actions: CombatHpUpdateAction[];
+    actions: IOutputCredit[];
   };
   unit: ICombatUnit;
   combat: AtomicArenaCombat;
   groupTotal: number;
   timelineMax: number;
 }
+
+const isCritical = (a: IOutputCredit) => 'isCritical' in a.action && a.action.isCritical;
 
 export const CombatUnitHpUpdate = (props: IProps) => {
   const colorSourceUnitId =
@@ -39,15 +35,16 @@ export const CombatUnitHpUpdate = (props: IProps) => {
     () => _.sum(props.actionGroup.actions.map((a) => a.effectiveAmount)),
     [props.actionGroup.actions],
   );
-  const isAllCrit = useMemo(() => props.actionGroup.actions.every((a) => a.isCritical), [props.actionGroup.actions]);
+  const hits = useMemo(() => props.actionGroup.actions.filter((a) => !a.isAdjustment), [props.actionGroup.actions]);
+  const isAllCrit = useMemo(() => hits.every(isCritical), [hits]);
   const tooltip = useMemo(() => {
     const spellName = props.actionGroup.spellName || 'Auto Attack';
-    if (props.actionGroup.actions.length === 1) {
+    if (hits.length === 1) {
       return `${spellName}: ${Utils.printCombatNumber(Math.abs(totalEffectiveAmount), isAllCrit)}`;
     }
 
-    const normalHits = props.actionGroup.actions.filter((a) => !a.isCritical);
-    const critHits = props.actionGroup.actions.filter((a) => a.isCritical);
+    const normalHits = hits.filter((a) => !isCritical(a));
+    const critHits = hits.filter(isCritical);
 
     const normalHitsText =
       normalHits.length > 0
@@ -75,7 +72,7 @@ ${critHits.length} crit hits, total = ${Utils.printCombatNumber(
       Math.abs(totalEffectiveAmount),
       false,
     )}${normalHitsText}${critHitsText}`;
-  }, [props.actionGroup.actions, props.actionGroup.spellName, totalEffectiveAmount, isAllCrit]);
+  }, [hits, props.actionGroup.spellName, totalEffectiveAmount, isAllCrit]);
 
   const widthPercentage = (Math.abs(totalEffectiveAmount) / props.groupTotal) * 100;
   const widthPercentageAbsolute = (Math.abs(totalEffectiveAmount) / props.timelineMax) * 100;
