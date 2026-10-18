@@ -44,6 +44,9 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     '216369', // Draconic
     '211606', // Draconic
     '216282', // Draconic
+    '270605', // Venomous Gladiator's Medallion
+    '270556', // Venomous Aspirant's Medallion
+    '280118', // Venomous Aspirant's Medallion
   ]; // Spell: 336126
   const adaptationTrinkets = [
     '181816',
@@ -77,7 +80,10 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
         <SpellIcon circular className={styles['unit-frame-trinket-ready']} size={28} spellId={'336135'} />
       </div>
     );
-  } else if (props.unit.info?.equipment.some((e) => gladiatorTrinkets.includes(e.id))) {
+  } else if (
+    props.unit.info?.equipment.some((e) => gladiatorTrinkets.includes(e.id)) ||
+    props.trinketSpellCasts.some((c) => c.spellId === '336126')
+  ) {
     const cooldownPercent = computePercentCDRemaining(
       props.trinketSpellCasts,
       '336126',
