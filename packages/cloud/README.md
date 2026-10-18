@@ -21,8 +21,40 @@ or
 ## Manual steps to config env:
 
 Create buckets
-`wowarenalogs-log-files-dev` : public read
-`wowarenalogs-log-files-prod` : public read
+`wowarenalogs-log-files-dev` : private (no `allUsers` access)
+`wowarenalogs-log-files-prod` : private (no `allUsers` access)
+
+Raw logs are never served from the public object URL. Viewers get a short-lived
+V4 signed URL from the GraphQL `logDownloadUrl` query (sign-in required, daily
+quota of distinct logs per user); see `packages/shared/src/graphql-server/utils/accessGuard.ts`.
+
+Lock the bucket down with `npm run lockdown:dev` or `npm run lockdown:prod`
+(`deploy/lockdown_log_bucket.js`, plain Node so it behaves the same on Windows,
+where `bash` from npm resolves to WSL). It uses your active gcloud account, passes
+`--project` explicitly and never edits your gcloud config. Idempotent; in order it:
+
+1. remove `allUsers` / `allAuthenticatedUsers` read bindings;
+2. enforce public access prevention so the bucket cannot be reopened by a later grant;
+3. grant `roles/storage.objectViewer` to the default compute service account, which
+   the Cloud Functions (`writeMatchStub`, `refreshSpellIcons`, the map-image script)
+   run as;
+4. grant `roles/storage.objectViewer` to the web (Cloud Run) service account plus
+   `roles/iam.serviceAccountTokenCreator` on itself, so the Storage client can sign
+   V4 URLs via IAM `signBlob` with no private key on the box;
+5. verify no public principal remains and public access prevention is `enforced`.
+
+The web service account defaults to the compute SA. If the Cloud Run service runs as
+its own SA, pass it as the second argument:
+`node ./deploy/lockdown_log_bucket.js prod <sa>@wowarenalogs.iam.gserviceaccount.com`.
+
+Uploads are unaffected: the desktop client already writes through a signed PUT URL.
+
+Per-account overrides are strings in the `tags` array of the user's profile document
+(`user-profile-prod/<userId>` in Firestore; the doc id is the next-auth user id, and
+the doc also carries `battletag` for lookup). They are never in source:
+
+- `admin` — exempt from the daily log limit.
+- `blocked` — refused search and log access.
 
 set cors using cors.json
 

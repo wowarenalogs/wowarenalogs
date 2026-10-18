@@ -4,7 +4,9 @@ import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
 
+import { SEARCH_EMBARGO_MS } from '../../utils/accessLimits';
 import { ApolloContext, CombatQueryResult, ICombatDataStub } from '../types';
+import { authorizeSearchAsync, logSearchQuery } from '../utils/accessGuard';
 import { Constants } from '../utils/constants';
 const matchStubsCollection = 'match-stubs-prod';
 
@@ -31,14 +33,16 @@ export async function latestMatches(
     offset: number;
     count: number;
   },
+  context: ApolloContext,
 ): Promise<CombatQueryResult> {
+  const caller = await authorizeSearchAsync(context, 'latestMatches');
   const collectionReference = firestore.collection(matchStubsCollection);
 
-  const now = moment().valueOf();
+  const newestVisible = moment().valueOf() - SEARCH_EMBARGO_MS;
   let docsQuery = collectionReference
     .where('wowVersion', '==', args.wowVersion)
     .orderBy('startTime', 'desc')
-    .where('startTime', '<', now);
+    .where('startTime', '<', newestVisible);
 
   if (args.bracket) {
     docsQuery = docsQuery.where('startInfo.bracket', '==', args.bracket);
@@ -92,13 +96,15 @@ export async function latestMatches(
     .get();
   const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
 
+  logSearchQuery(caller, 'latestMatches', args, matches.length);
   return {
     combats: matches,
     queryLimitReached: false,
   };
 }
 
-export async function matchesWithOwnerId(_parent: unknown, args: { ownerId: string }) {
+export async function matchesWithOwnerId(_parent: unknown, args: { ownerId: string }, context: ApolloContext) {
+  const caller = await authorizeSearchAsync(context, 'matchesWithOwnerId');
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
     .where('ownerId', '==', args.ownerId)
@@ -106,13 +112,16 @@ export async function matchesWithOwnerId(_parent: unknown, args: { ownerId: stri
     .limit(Constants.MAX_RESULTS_PER_QUERY)
     .get();
   const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
+  logSearchQuery(caller, 'matchesWithOwnerId', args, matches.length);
   return matches;
 }
 
 export async function recentMatchesWithCombatant(
   _parent: unknown,
   args: { combatantName: string; serverName: string; region: string },
+  context: ApolloContext,
 ) {
+  const caller = await authorizeSearchAsync(context, 'recentMatchesWithCombatant');
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
     .where('combatantNames', 'array-contains', `${args.combatantName}-${args.serverName}`)
@@ -120,6 +129,7 @@ export async function recentMatchesWithCombatant(
     .limit(10)
     .get();
   const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
+  logSearchQuery(caller, 'recentMatchesWithCombatant', args, matches.length);
   return matches;
 }
 
@@ -165,7 +175,9 @@ export async function myMatches(
 export async function userMatches(
   _parent: unknown,
   args: { userId: string; offset: number; count: number },
+  context: ApolloContext,
 ): Promise<CombatQueryResult> {
+  const caller = await authorizeSearchAsync(context, 'userMatches');
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
     .where('ownerId', '==', `${args.userId}`)
@@ -175,6 +187,7 @@ export async function userMatches(
     .get();
   const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
 
+  logSearchQuery(caller, 'userMatches', args, matches.length);
   return {
     combats: matches,
     queryLimitReached: false,
@@ -184,7 +197,9 @@ export async function userMatches(
 export async function characterMatches(
   _parent: unknown,
   args: { realm: string; characterName: string; offset: number; count: number },
+  context: ApolloContext,
 ): Promise<CombatQueryResult> {
+  const caller = await authorizeSearchAsync(context, 'characterMatches');
   const collectionReference = firestore.collection(matchStubsCollection);
   const matchDocs = await collectionReference
     .where('combatantNames', 'array-contains', `${args.characterName}-${args.realm}`)
@@ -194,6 +209,7 @@ export async function characterMatches(
     .get();
   const matches = matchDocs.docs.map((d) => firestoreDocToMatchStub(d.data() as ICombatDataStub));
 
+  logSearchQuery(caller, 'characterMatches', args, matches.length);
   return {
     combats: matches,
     queryLimitReached: false,

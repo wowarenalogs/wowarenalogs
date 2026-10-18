@@ -7,6 +7,7 @@ import superagent from 'superagent';
 
 import { AtomicArenaCombat, CombatUnitType } from '../../parser/dist/index';
 import { ICombatDataStub } from '../../shared/src/graphql-server/types';
+import { readLogObjectByUrlAsync } from './logStorage';
 import { parseFromStringArrayAsync } from './utils';
 
 const gcpCredentials =
@@ -99,9 +100,9 @@ export async function handler(_event: unknown, _context: unknown, callback: () =
   const processMatchAsync = async (match: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
     const stub = match.data() as ICombatDataStub;
     try {
-      const response = await superagent.get(stub.logObjectUrl);
-      if (response.ok) {
-        const results = await parseFromStringArrayAsync(response.text.split('\n'), 'retail');
+      const { text } = await readLogObjectByUrlAsync(stub.logObjectUrl);
+      if (text) {
+        const results = await parseFromStringArrayAsync(text.split('\n'), 'retail');
 
         const spellIds = _.uniq(
           (results.arenaMatches as AtomicArenaCombat[])
