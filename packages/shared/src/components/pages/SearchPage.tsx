@@ -6,10 +6,14 @@ import { useEffect, useMemo } from 'react';
 import { TbArrowBigUpLines, TbLoader, TbRocketOff } from 'react-icons/tb';
 
 import { useGetPublicMatchesQuery } from '../../graphql/__generated__/graphql';
+import { useAuth } from '../../hooks/AuthContext';
 import { logAnalyticsEvent } from '../../utils/analytics';
+import { SEARCH_DISABLED } from '../../utils/searchStatus';
 import { CombatStubList } from '../CombatStubList';
 import { LocalRemoteHybridCombat } from '../CombatStubList/rows';
 import { QuerryError } from '../common/QueryError';
+import { SearchDisabledNotice } from '../common/SearchDisabledNotice';
+import { SignInRequired } from '../common/SignInRequired';
 import { Bracket, BracketSelector } from '../MatchSearch/BracketSelector';
 import { RatingSelector } from '../MatchSearch/RatingSelector';
 import { SpecSelector } from '../MatchSearch/SpecSelector';
@@ -41,17 +45,27 @@ const DEFAULT_FILTERS: IPublicMatchesFilters = {
 };
 
 export const SearchPage = () => {
+  const auth = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const page = searchParams.get('page');
   const search = searchParams.get('search');
-  const pageNum = parseInt(page?.toString() || '0');
+  const parsedPage = parseInt(page?.toString() || '0');
+  const pageNum = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 0;
 
   const filters = useMemo(() => {
-    return search ? (JSON.parse(base64url.decode(search as string)) as IPublicMatchesFilters) : DEFAULT_FILTERS;
+    if (!search) {
+      return DEFAULT_FILTERS;
+    }
+    try {
+      return { ...DEFAULT_FILTERS, ...(JSON.parse(base64url.decode(search)) as IPublicMatchesFilters) };
+    } catch {
+      return DEFAULT_FILTERS;
+    }
   }, [search]);
   const teamSize = filters.bracket === '2v2' ? 2 : 3;
+  const pageUrl = (targetPage: number) => `${pathname}?page=${targetPage}` + (search ? `&search=${search}` : '');
 
   useEffect(() => {
     logAnalyticsEvent('search', {
@@ -60,7 +74,9 @@ export const SearchPage = () => {
   }, [filters]);
 
   const compQueryString = computeCompQueryString(filters.team1SpecIds, filters.team2SpecIds);
+  const canSearch = auth.isAuthenticated && !SEARCH_DISABLED;
   const matchesQuery = useGetPublicMatchesQuery({
+    skip: !canSearch,
     variables: {
       wowVersion: 'retail',
       bracket: filters.bracket,
@@ -101,6 +117,15 @@ export const SearchPage = () => {
   }
   function clearAllFilters() {
     setFilters(DEFAULT_FILTERS);
+  }
+
+  if (SEARCH_DISABLED) {
+    return (
+      <div className="mt-2 px-2 sm:mt-4 sm:px-4">
+        <title>Find Matches</title>
+        <SearchDisabledNotice />
+      </div>
+    );
   }
 
   return (
@@ -225,13 +250,18 @@ export const SearchPage = () => {
           </div>
         </div>
       </div>
+      {!auth.isLoadingAuthData && !auth.isAuthenticated && (
+        <div className="mt-2">
+          <SignInRequired message="Sign in with Battle.net to search matches." />
+        </div>
+      )}
       {matchesQuery.loading && (
         <div className="flex flex-row items-center justify-center animate-loader h-[300px]">
           <TbLoader color="gray" size={60} className="animate-spin-slow" />
         </div>
       )}
       <QuerryError query={matchesQuery} />
-      {!matchesQuery.loading && (
+      {canSearch && !matchesQuery.loading && (
         <div className="animate-fadein mt-2">
           <CombatStubList
             viewerIsOwner={false}
@@ -265,7 +295,7 @@ export const SearchPage = () => {
               <button
                 className="btn btn-outline btn-sm"
                 onClick={() => {
-                  router.push(`${pathname}?page=0&search=${search}`);
+                  router.push(pageUrl(0));
                 }}
               >
                 First
@@ -275,7 +305,7 @@ export const SearchPage = () => {
               <button
                 className="btn btn-outline btn-sm"
                 onClick={() => {
-                  router.push(`${pathname}?page=${pageNum - 1}&search=${search}`);
+                  router.push(pageUrl(pageNum - 1));
                 }}
               >
                 Previous
@@ -284,7 +314,7 @@ export const SearchPage = () => {
             <button
               className="btn btn-outline btn-sm"
               onClick={() => {
-                router.push(`${pathname}?page=${pageNum + 1}&search=${search}`);
+                router.push(pageUrl(pageNum + 1));
               }}
             >
               Next Page

@@ -1,3 +1,4 @@
+import { logDownloadUrl } from './logs';
 import {
   characterMatches,
   latestMatches,
@@ -32,6 +33,7 @@ export const resolvers = {
     matchesWithOwnerId,
     recentMatchesWithCombatant,
     matchById,
+    logDownloadUrl,
   },
   Mutation: {
     setUserReferrer,

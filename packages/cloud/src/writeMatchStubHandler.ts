@@ -1,11 +1,11 @@
 import { Firestore } from '@google-cloud/firestore';
 import { instanceToPlain } from 'class-transformer';
 import fs from 'fs';
-import fetch from 'node-fetch';
 import path from 'path';
 
 import { WowVersion } from '../../parser/dist/index';
 import { createStubDTOFromArenaMatch, createStubDTOFromShuffleMatch } from './createMatchStub';
+import { readLogObjectAsync } from './logStorage';
 import { logCombatStatsAsync, parseFromStringArrayAsync } from './utils';
 import { publishWebhookStubAsync } from './webhookPublisher';
 import { createWebhookStubFromArenaMatch, createWebhookStubFromShuffleMatch } from './webhooks';
@@ -30,16 +30,15 @@ export async function handler(file: any, _context: any) {
 
   console.log(`Opening ${fileUrl}`);
   console.time('fetch log file');
-  const response = await fetch(fileUrl);
-  const textBuffer = await response.text();
+  const { text: textBuffer, metadata } = await readLogObjectAsync(file.bucket, file.name);
   console.timeEnd('fetch log file');
   console.log(`Read ${textBuffer.length} bytes from ${fileUrl}`);
 
-  const ownerId = response.headers.get('x-goog-meta-ownerid') || 'unknown-uploader';
-  const wowVersion = (response.headers.get('x-goog-meta-wow-version') || 'retail') as WowVersion;
-  const logTimezone = response.headers.get('x-goog-meta-client-timezone') || undefined;
+  const ownerId = metadata.ownerid || 'unknown-uploader';
+  const wowVersion = (metadata['wow-version'] || 'retail') as WowVersion;
+  const logTimezone = metadata['client-timezone'] || undefined;
 
-  console.log(`Reading file: ${response.status} ${textBuffer.slice(0, 50)}`);
+  console.log(`Reading file: ${textBuffer.slice(0, 50)}`);
   console.log(`Parsed timezone ${logTimezone}`);
 
   console.time('parseFromStringArrayAsync');
@@ -75,7 +74,7 @@ export async function handler(file: any, _context: any) {
     }
     if (arenaMatch.startInfo.isRanked) {
       try {
-        await publishWebhookStubAsync(createWebhookStubFromArenaMatch(arenaMatch));
+        await publishWebhookStubAsync(createWebhookStubFromArenaMatch(arenaMatch), arenaMatch.id);
       } catch (e) {
         console.error(e);
       }
@@ -109,7 +108,7 @@ export async function handler(file: any, _context: any) {
     console.timeEnd('writing shuffle match data');
     if (shuffleMatch.startInfo.bracket === 'Rated Solo Shuffle') {
       try {
-        await publishWebhookStubAsync(createWebhookStubFromShuffleMatch(shuffleMatch));
+        await publishWebhookStubAsync(createWebhookStubFromShuffleMatch(shuffleMatch), shuffleMatch.id);
       } catch (e) {
         console.error(e);
       }
