@@ -7,7 +7,7 @@ import {
 } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FaSkullCrossbones } from 'react-icons/fa';
 
 import { Utils } from '../../../utils/utils';
@@ -195,20 +195,26 @@ export const CombatUnitTimelineView = (props: IProps) => {
   }, [props.endTime]);
 
   const { combat, players, showAugmented } = useCombatReportContext();
+  const creditedDamageTaken = useMemo(
+    () => (combat ? getCreditedDamageTaken(props.unit, combat.units, showAugmented) : []),
+    [combat, props.unit, showAugmented],
+  );
+  const creditedHealsTaken = useMemo(
+    () => (combat ? getCreditedHealsTaken(props.unit, combat.units, showAugmented) : []),
+    [combat, props.unit, showAugmented],
+  );
   if (!combat) {
     return null;
   }
 
   // Group damage/healing actions and hp numbers into 1 second chunks
-  const damageActions = getCreditedDamageTaken(props.unit, combat.units, showAugmented)
+  const damageActions = creditedDamageTaken
     .filter((a) => a.timestamp >= startTime && a.timestamp <= endTime)
     .map((a) => ({ ...a, effectiveAmount: -a.effectiveAmount }));
   const damageActionGroupsBySecondMark = _.groupBy(damageActions, (action) =>
     Math.floor((deathTime - action.timestamp) / 1000),
   );
-  const healActions = getCreditedHealsTaken(props.unit, combat.units, showAugmented).filter(
-    (a) => a.timestamp >= startTime && a.timestamp <= endTime,
-  );
+  const healActions = creditedHealsTaken.filter((a) => a.timestamp >= startTime && a.timestamp <= endTime);
   const healActionGroupsBySecondMark = _.groupBy(healActions, (action) =>
     Math.floor((deathTime - action.timestamp) / 1000),
   );

@@ -36,10 +36,10 @@ export const CombatUnitHpUpdate = (props: IProps) => {
     [props.actionGroup.actions],
   );
   const hits = useMemo(() => props.actionGroup.actions.filter((a) => !a.isAdjustment), [props.actionGroup.actions]);
-  const isAllCrit = useMemo(() => hits.every(isCritical), [hits]);
+  const isAllCrit = useMemo(() => hits.length > 0 && hits.every(isCritical), [hits]);
   const tooltip = useMemo(() => {
     const spellName = props.actionGroup.spellName || 'Auto Attack';
-    if (hits.length === 1) {
+    if (hits.length <= 1) {
       return `${spellName}: ${Utils.printCombatNumber(Math.abs(totalEffectiveAmount), isAllCrit)}`;
     }
 

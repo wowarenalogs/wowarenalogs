@@ -185,7 +185,7 @@ describe('augmentation evoker events', () => {
     });
   });
 
-  it('ignores support lines that credit an evoker with an enemy hit', () => {
+  it('credits the evoker with support on an ally hit an enemy reflected', () => {
     class TestGenerator extends CombatGenerator {
       public feed(events: (CombatEvent | string)[]) {
         events.forEach((e) => {
@@ -206,8 +206,8 @@ describe('augmentation evoker events', () => {
         '10/16/2026 23:59:57.475-6  SPELL_DAMAGE_SUPPORT,Player-1427-0E8B6252,"Hzïra-Ragnaros-US",0x548,0x80000000,Player-60-0FF7AC07,"Grippydengo-Stormrage-US",0x512,0x80000040,395152,"Ebon Might",0xc,Player-60-0FF7AC07,0000000000000000,522743,963060,5234,402,1825,3358,0,0,6,930,1000,0,1402.42,1234.74,0,3.7955,333,3443,7269,-1,32,0,0,0,nil,nil,nil,Player-60-0EFF479D',
       ]),
     );
-    expect(evoker.supportDamageOut).toEqual([]);
-    expect(enemy.supportDamageIn).toEqual([]);
+    expect(evoker.supportDamageOut).toHaveLength(1);
+    expect(enemy.supportDamageIn).toEqual(evoker.supportDamageOut);
   });
 
   describe('Shifting Sands absorb support', () => {
@@ -252,6 +252,19 @@ describe('augmentation evoker events', () => {
       };
       expect(sumBySpell(monkId)).toEqual({ "Yu'lon's Grace": 2163 - 103 });
       expect(sumBySpell(evokerId)).toEqual({ 'Shifting Sands': 103 });
+    });
+
+    it('ignores absorb support on the evoker itself', () => {
+      const guarded = new TestGenerator('retail', 'America/Chicago');
+      const evoker = new CombatUnit(evokerId, 'Teritwo-Stormrage-US');
+      guarded.units[evoker.id] = evoker;
+      guarded.feed(
+        parseLines([
+          '10/16/2026 22:46:52.971-6  SPELL_ABSORBED_SUPPORT,Player-60-0A6A86CA,"Curtnasty-Stormrage-US",0x548,0x80000000,Player-60-0EFF479D,"Teritwo-Stormrage-US",0x511,0x80000020,1240996,"Dread Plague",0x20,Player-60-0EFF479D,"Teritwo-Stormrage-US",0x511,0x80000020,413984,"Shifting Sands",0x40,103,129,nil,Player-60-0EFF479D',
+        ]),
+      );
+      expect(evoker.supportAbsorbOut).toEqual([]);
+      expect(evoker.supportAbsorbIn).toEqual([]);
     });
   });
 });

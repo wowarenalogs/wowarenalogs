@@ -577,6 +577,10 @@ export class CombatData extends CombatGenerator {
 
         owner.absorbsOut = owner.absorbsOut.concat(unit.absorbsOut).sort((a, b) => a.timestamp - b.timestamp);
 
+        owner.supportAbsorbIn = owner.supportAbsorbIn
+          .concat(unit.supportAbsorbIn)
+          .sort((a, b) => a.timestamp - b.timestamp);
+
         owner.healAbsorbsOut = owner.healAbsorbsOut
           .concat(unit.healAbsorbsOut)
           .sort((a, b) => a.timestamp - b.timestamp);

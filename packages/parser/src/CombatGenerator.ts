@@ -11,8 +11,7 @@ import { PartyKill } from './actions/PartyKill';
 import { classMetadata } from './classMetadata';
 import { CombatUnit } from './CombatUnit';
 import { logTrace } from './logger';
-import { CombatUnitClass, CombatUnitReaction, ICombatantMetadata, LogEvent, WowVersion } from './types';
-import { getUnitReaction } from './utils';
+import { CombatUnitClass, ICombatantMetadata, LogEvent, WowVersion } from './types';
 
 const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
   classMetadata.flatMap((cls) => {
@@ -63,16 +62,6 @@ export class CombatGenerator {
       }
     }
     return moved;
-  }
-
-  // A few support lines credit an evoker with an enemy's hits
-  private isOpposingSupport(supporter: CombatUnit, supportAction: CombatSupportAction) {
-    const reaction = getUnitReaction(supportAction.srcUnitFlags);
-    return (
-      supporter.reaction !== CombatUnitReaction.Neutral &&
-      reaction !== CombatUnitReaction.Neutral &&
-      reaction !== supporter.reaction
-    );
   }
 
   private pairSupport(actions: (CombatHpUpdateAction | CombatAbsorbAction)[], supportAction: CombatSupportAction) {
@@ -127,7 +116,7 @@ export class CombatGenerator {
 
           // Due to this restriction we are currently skipping including any absorb events before the unit is ready
           const supporter = this.units[supportAction.supportActorId];
-          if (!supporter || supporter.id === srcUnit.id || this.isOpposingSupport(supporter, supportAction)) {
+          if (!supporter || supporter.id === srcUnit.id) {
             break;
           }
 
@@ -148,7 +137,7 @@ export class CombatGenerator {
 
           // Same case as [#sup1] above
           const supporter = this.units[supportAction.supportActorId];
-          if (!supporter || supporter.id === srcUnit.id || this.isOpposingSupport(supporter, supportAction)) {
+          if (!supporter || supporter.id === srcUnit.id) {
             break;
           }
 
@@ -180,11 +169,14 @@ export class CombatGenerator {
         {
           const supportAction = event as CombatAbsorbSupportAction;
           const shieldOwner = this.units[supportAction.shieldOwnerUnitId];
-          if (shieldOwner) {
-            this.pairAbsorbSupport(shieldOwner, supportAction);
-            shieldOwner.supportAbsorbIn.push(supportAction);
+          const supporter = this.units[supportAction.supportActorId];
+          if (!shieldOwner || !supporter || supporter.id === shieldOwner.id) {
+            break;
           }
-          this.units[supportAction.supportActorId]?.supportAbsorbOut.push(supportAction);
+
+          this.pairAbsorbSupport(shieldOwner, supportAction);
+          shieldOwner.supportAbsorbIn.push(supportAction);
+          supporter.supportAbsorbOut.push(supportAction);
         }
         break;
       case LogEvent.SPELL_HEAL_ABSORBED:
