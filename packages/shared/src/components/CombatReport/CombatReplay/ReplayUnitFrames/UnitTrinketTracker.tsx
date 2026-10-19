@@ -44,6 +44,12 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     '216369', // Draconic
     '211606', // Draconic
     '216282', // Draconic
+    '218716', // Forged Gladiator's Medallion
+    '218422', // Forged Aspirant's Medallion
+    '229783', // Prized Gladiator's Medallion
+    '229492', // Prized Aspirant's Medallion
+    '230641', // Astral Gladiator's Medallion
+    '230353', // Astral Aspirant's Medallion
     '270605', // Venomous Gladiator's Medallion
     '270556', // Venomous Aspirant's Medallion
     '280118', // Venomous Aspirant's Medallion
@@ -63,6 +69,14 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     '209347', // Verdant Glad Sigil
     '216372', // Draconic
     '216283', // Draconic
+    '218717', // Forged Gladiator's Sigil
+    '218425', // Forged Aspirant's Sigil
+    '229784', // Prized Gladiator's Sigil
+    '229495', // Prized Aspirant's Sigil
+    '230642', // Astral Gladiator's Sigil
+    '230356', // Astral Aspirant's Sigil
+    '270604', // Venomous Gladiator's Sigil
+    '270557', // Venomous Aspirant's Sigil
   ]; // Spell: 195756
 
   const isHealer = healerSpecs.includes(props.unit.spec);
