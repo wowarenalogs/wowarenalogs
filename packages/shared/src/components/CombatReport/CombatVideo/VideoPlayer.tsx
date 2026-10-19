@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 
+import { base64EncodeUnicode } from '../../../utils/base64';
 import { useCombatReportContext } from '../CombatReportContext';
 import { useVideoPlayerContext } from './VideoPlayerContext';
 
@@ -147,7 +148,7 @@ export const VideoPlayer = () => {
       controls={false}
       // domain here looks weird but chrome will canonicalize the item in the string it thinks is the domain
       // which will lead to the b64 string losing its casing :(
-      src={`vod://wowarenalogs/${btoa(videoInformation.videoPath)}`}
+      src={`vod://wowarenalogs/${base64EncodeUnicode(videoInformation.videoPath)}`}
       onClick={() => {
         if (playState === 'playing') {
           userInputs.emit('pause');
