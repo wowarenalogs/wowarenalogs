@@ -26,10 +26,19 @@ SCHEDULE="0 14 * * 3"
 TIME_ZONE="Etc/UTC"
 
 TOOLS_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
+GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
 
 echo -e "${YELLOW}Project ${PROJECT_ID} / region ${REGION}${NC}"
 gcloud config set project "${PROJECT_ID}" >/dev/null
+
+# Preflight: Cloud Run Jobs need a reasonably recent gcloud (the `run jobs`
+# command group). Older SDKs (e.g. 410.0.0) lack it entirely.
+if ! gcloud run jobs --help >/dev/null 2>&1; then
+    echo -e "${RED}Your gcloud is too old for Cloud Run Jobs ('gcloud run jobs' is unavailable).${NC}"
+    echo -e "${YELLOW}Update it and re-run:${NC} gcloud components update"
+    gcloud --version 2>/dev/null | head -1
+    exit 1
+fi
 
 # 1) Service account for the job (idempotent).
 if ! gcloud iam service-accounts describe "${SA_EMAIL}" >/dev/null 2>&1; then
@@ -37,10 +46,11 @@ if ! gcloud iam service-accounts describe "${SA_EMAIL}" >/dev/null 2>&1; then
     gcloud iam service-accounts create "${SA_ID}" --display-name="Spell icon refresh job"
 fi
 
-# 2) Grant it write access to the images bucket, and permission to be invoked.
+# 2) Grant it write access to the images bucket. Uses gsutil (available across
+#    gcloud versions; `gcloud storage buckets add-iam-policy-binding` is not in
+#    older SDKs).
 echo -e "${YELLOW}Granting storage.objectAdmin on gs://${BUCKET}...${NC}"
-gcloud storage buckets add-iam-policy-binding "gs://${BUCKET}" \
-    --member="serviceAccount:${SA_EMAIL}" --role="roles/storage.objectAdmin" >/dev/null
+gsutil iam ch "serviceAccount:${SA_EMAIL}:roles/storage.objectAdmin" "gs://${BUCKET}"
 
 # 3) Build the image and (re)deploy the Cloud Run Job from the tools context.
 #    --args="--all" makes the job resolve every SpellMisc spell from live wago data.
