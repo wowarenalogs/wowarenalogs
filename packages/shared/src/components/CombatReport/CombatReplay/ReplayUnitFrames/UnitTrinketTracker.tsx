@@ -1,3 +1,5 @@
+import { useQueries } from 'react-query';
+
 import { healerSpecs } from '../../../../utils/utils';
 import { SpellIcon } from '../../SpellIcon';
 import { IUnitFrameRenderData } from './UnitFrame';
@@ -24,80 +26,50 @@ function computePercentCDRemaining(casts: ISpellCast[], spellId: string, current
   return timeCooling / (cooldown * 1000);
 }
 
+const TRINKET_SLOTS = [12, 13];
+
+type PvpTrinket = 'medallion' | 'adaptation' | 'relentless';
+
+// Names are stable across seasons, so classify by the Wowhead item name instead of listing IDs
+async function fetchPvpTrinket(itemId: string): Promise<PvpTrinket | null> {
+  const response = await fetch(`https://nether.wowhead.com/tooltip/item/${itemId}?dataEnv=1&locale=0`);
+  const { name } = (await response.json()) as { name?: string };
+  if (name?.includes('Medallion')) return 'medallion';
+  if (name?.includes('Sigil of Adaptation')) return 'adaptation';
+  if (name?.includes('Relentless')) return 'relentless';
+  return null;
+}
+
 export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
-  const relentlessTrinkets = ['181335', '184053', '186870', '185305', '186967', '185310', '184059', '184056']; // Spell: 196029
-  const gladiatorTrinkets = [
-    '185309',
-    '181333',
-    '184052',
-    '186869',
-    '185304',
-    '186966',
-    '185309',
-    '201810',
-    '201450',
-    '205779',
-    '205711',
-    '209346', // Verdant Glad Medallion
-    '208307', // Verdant Comb Medallion
-    '209764', // Verdant Asp Medallion
-    '216369', // Draconic
-    '211606', // Draconic
-    '216282', // Draconic
-    '218716', // Forged Gladiator's Medallion
-    '218422', // Forged Aspirant's Medallion
-    '229783', // Prized Gladiator's Medallion
-    '229492', // Prized Aspirant's Medallion
-    '230641', // Astral Gladiator's Medallion
-    '230353', // Astral Aspirant's Medallion
-    '270605', // Venomous Gladiator's Medallion
-    '270556', // Venomous Aspirant's Medallion
-    '280118', // Venomous Aspirant's Medallion
-  ]; // Spell: 336126
-  const adaptationTrinkets = [
-    '181816',
-    '184054',
-    '186871',
-    '185306',
-    '185311',
-    '186968',
-    '201453',
-    '201811',
-    '205782',
-    '205712',
-    '209767', // Verdant Asp Sigil
-    '209347', // Verdant Glad Sigil
-    '216372', // Draconic
-    '216283', // Draconic
-    '218717', // Forged Gladiator's Sigil
-    '218425', // Forged Aspirant's Sigil
-    '229784', // Prized Gladiator's Sigil
-    '229495', // Prized Aspirant's Sigil
-    '230642', // Astral Gladiator's Sigil
-    '230356', // Astral Aspirant's Sigil
-    '270604', // Venomous Gladiator's Sigil
-    '270557', // Venomous Aspirant's Sigil
-  ]; // Spell: 195756
+  const trinketIds = TRINKET_SLOTS.map((slot) => props.unit.info?.equipment[slot]?.id).filter(
+    (id): id is string => !!id && id !== '0',
+  );
+  const trinketQueries = useQueries(
+    trinketIds.map((id) => ({
+      queryKey: ['wowhead-pvp-trinket', id],
+      queryFn: () => fetchPvpTrinket(id),
+      staleTime: Infinity,
+      cacheTime: Infinity,
+    })),
+  );
+  const trinkets = trinketQueries.map((q) => q.data);
 
   const isHealer = healerSpecs.includes(props.unit.spec);
   const trinketCooldown = isHealer ? 90 : 120;
 
-  if (props.unit.info?.equipment.some((e) => relentlessTrinkets.includes(e.id))) {
+  if (trinkets.includes('relentless')) {
     return (
       <div className={styles['unit-frame-trinkettracker']}>
         <SpellIcon circular className={styles['unit-frame-trinket-ready']} size={28} spellId={'336128'} />
       </div>
     );
-  } else if (props.unit.info?.equipment.some((e) => adaptationTrinkets.includes(e.id))) {
+  } else if (trinkets.includes('adaptation')) {
     return (
       <div className={styles['unit-frame-trinkettracker']}>
         <SpellIcon circular className={styles['unit-frame-trinket-ready']} size={28} spellId={'336135'} />
       </div>
     );
-  } else if (
-    props.unit.info?.equipment.some((e) => gladiatorTrinkets.includes(e.id)) ||
-    props.trinketSpellCasts.some((c) => c.spellId === '336126')
-  ) {
+  } else if (trinkets.includes('medallion') || props.trinketSpellCasts.some((c) => c.spellId === '336126')) {
     const cooldownPercent = computePercentCDRemaining(
       props.trinketSpellCasts,
       '336126',
@@ -117,7 +89,7 @@ export const UnitTrinketTracker = (props: IUnitFrameRenderData) => {
     );
   }
   // They dont have a trinket equipped
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development' && trinketQueries.every((q) => q.isSuccess)) {
     console.error(`Player ${props.unit.id} ${props.unit.name} has no trinket?`);
   }
   return null;
