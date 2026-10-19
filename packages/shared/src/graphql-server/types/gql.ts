@@ -28,6 +28,11 @@ export const typeDefs = gql`
 
   type ArenaMatchDataStub {
     id: String!
+    """
+    Canonical public URL to view this match on wowarenalogs.com.
+    Server-computed so external API consumers can link back without rebuilding it.
+    """
+    matchLinkURL: String!
     wowVersion: String
     ownerId: String
     units: [CombatUnitStub!]!
@@ -53,6 +58,11 @@ export const typeDefs = gql`
 
   type ShuffleRoundStub {
     id: String!
+    """
+    Canonical public URL to view this shuffle round on wowarenalogs.com (includes the roundId).
+    Server-computed so external API consumers can link back without rebuilding it.
+    """
+    matchLinkURL: String!
     wowVersion: String
     ownerId: String
     units: [CombatUnitStub!]!
