@@ -1,8 +1,23 @@
+import { ICombatUnit } from '@wowarenalogs/parser';
+
 import { useCombatReportContext } from './CombatReportContext';
 
-export const AugmentedToggle = () => {
-  const { hasAugmentation, showAugmented, setShowAugmented } = useCombatReportContext();
-  if (!hasAugmentation) {
+interface IProps {
+  // Only show when an Augmentation Evoker is on this unit's team
+  teamOf?: ICombatUnit;
+}
+
+export const AugmentedToggle = ({ teamOf }: IProps) => {
+  const { combat, hasAugmentation, showAugmented, setShowAugmented } = useCombatReportContext();
+  const visible =
+    hasAugmentation &&
+    (!teamOf ||
+      Object.values(combat?.units ?? {}).some(
+        (u) =>
+          u.reaction === teamOf.reaction &&
+          (u.supportDamageOut.length || u.supportHealOut.length || u.supportAbsorbOut.length),
+      ));
+  if (!visible) {
     return null;
   }
   return (

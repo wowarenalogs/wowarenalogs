@@ -407,7 +407,7 @@ export function CombatPlayer(props: IProps) {
               <th colSpan={4} className="bg-base-300">
                 <div className="flex items-center justify-between">
                   DAMAGE SPELLS
-                  <AugmentedToggle />
+                  <AugmentedToggle teamOf={props.player} />
                 </div>
               </th>
             </tr>
@@ -455,7 +455,7 @@ export function CombatPlayer(props: IProps) {
               <th colSpan={4} className="bg-base-300">
                 <div className="flex items-center justify-between">
                   HEALING SPELLS
-                  <AugmentedToggle />
+                  <AugmentedToggle teamOf={props.player} />
                 </div>
               </th>
             </tr>
