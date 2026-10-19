@@ -254,7 +254,11 @@ function writeLoadoutContent(
       continue;
     }
 
-    const talentSelection = talentsPicked.find((i) => i.id1 === treeNode?.id);
+    const nodeRows = talentsPicked.filter((i) => i.id1 === treeNode?.id);
+    // tiered (apex) nodes log one row per tier entry
+    const talentSelection = nodeRows.length
+      ? { ...nodeRows[0], count: nodeRows.reduce((sum, r) => sum + r.count, 0) }
+      : undefined;
     // debug missing nodes, should never happen (lol)
     // if (!talentSelection) {
     //   console.log(treeNode);
