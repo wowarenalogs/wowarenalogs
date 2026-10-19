@@ -159,6 +159,12 @@ deploy_pubsub_function() {
     local timeout=${4:-540s}
     local env_vars=$5
     local max_instances=${6:-100}
+    # retry defaults to "true" to preserve existing behavior (e.g. deliverWebhook,
+    # where redelivering a failed webhook is desirable). Pass "false" for scheduled
+    # jobs: a handler that fails there just gets redelivered ~every 10s-600s until the
+    # message expires (up to 7 days), which silently multiplies invocations/cost by
+    # 100x+. Those jobs should fail once and wait for the next schedule instead.
+    local retry=${7:-true}
 
     # Only pass --set-env-vars when env vars are provided (gcloud rejects an empty value).
     local env_flag=()
@@ -166,7 +172,13 @@ deploy_pubsub_function() {
         env_flag=(--set-env-vars="${env_vars}")
     fi
 
-    echo -e "${YELLOW}Deploying ${function_name} function...${NC}"
+    # --retry is a plain enable flag; omitting it (re)deploys with retries disabled.
+    local retry_flag=()
+    if [ "${retry}" != "false" ]; then
+        retry_flag=(--retry)
+    fi
+
+    echo -e "${YELLOW}Deploying ${function_name} function (retry=${retry})...${NC}"
     gcloud functions deploy ${function_name} \
         --gen2 \
         --runtime=${RUNTIME} \
@@ -177,7 +189,7 @@ deploy_pubsub_function() {
         --timeout=${timeout} \
         --trigger-topic=${topic} \
         "${env_flag[@]}" \
-        --retry \
+        "${retry_flag[@]}" \
         --max-instances=${max_instances}
 }
 

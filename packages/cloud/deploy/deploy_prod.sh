@@ -38,12 +38,15 @@ build_project
 deploy_storage_function "writeMatchStub" "writeMatchStubHandler" ${PROJECT_ID} ${BUCKET_NAME} "${ENV_VARS}"
 echo -e "${GREEN}writeMatchStub function deployed successfully!${NC}"
 
-# Deploy refreshSpellIcons function (Pub/Sub trigger)
-deploy_pubsub_function "refreshSpellIcons" "refreshSpellIconsHandler" "refresh-spell-icons-event"
-echo -e "${GREEN}refreshSpellIcons function deployed successfully!${NC}"
+# NOTE: refreshSpellIcons has been retired. It scraped wowhead.com per spell (now
+# 403'd behind Cloudflare) and, with retries on, stormed to ~27k invocations/month.
+# Icons are now refreshed in bulk from authoritative wago.tools DB2 data by the
+# tools script: `npm --workspace @wowarenalogs/tools run start:refreshSpellIcons`.
 
-# Deploy refreshCompetitiveStats function (Pub/Sub trigger)
-deploy_pubsub_function "refreshCompetitiveStats" "refreshCompetitiveStatsHandler" "refresh-competitive-stats-event"
+# Deploy refreshCompetitiveStats function (Pub/Sub trigger).
+# retry=false: this is a scheduled job; a failed run must wait for the next schedule
+# rather than being redelivered for days (which previously caused a retry storm).
+deploy_pubsub_function "refreshCompetitiveStats" "refreshCompetitiveStatsHandler" "refresh-competitive-stats-event" "540s" "" "100" "false"
 echo -e "${GREEN}refreshCompetitiveStats function deployed successfully!${NC}"
 
 # Deploy deliverWebhook function (Pub/Sub trigger)
@@ -54,7 +57,6 @@ echo -e "${GREEN}deliverWebhook function deployed successfully!${NC}"
 echo -e "${YELLOW}All functions deployed successfully!${NC}"
 echo -e "${YELLOW}Function details:${NC}"
 show_function_info "writeMatchStub"
-show_function_info "refreshSpellIcons"
 show_function_info "refreshCompetitiveStats"
 show_function_info "deliverWebhook"
 
