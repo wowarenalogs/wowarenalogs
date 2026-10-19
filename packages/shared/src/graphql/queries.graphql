@@ -45,7 +45,6 @@ fragment arenaInfos on ArenaMatchDataStub {
     ...unitInfos
   }
   result
-  logObjectUrl
   startInfo {
     ...startInfos
   }
@@ -70,7 +69,6 @@ fragment shuffleInfos on ShuffleRoundStub {
     ...unitInfos
   }
   result
-  logObjectUrl
   startInfo {
     ...startInfos
   }
