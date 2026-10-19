@@ -1,7 +1,7 @@
 export const SEARCH_EMBARGO_MS = 60 * 60 * 1000;
 
 // Distinct logs per user per UTC day.
-export const LOG_DAILY_DOWNLOAD_QUOTA = 15;
+export const LOG_DAILY_DOWNLOAD_QUOTA = 30;
 
 export const LOG_URL_TTL_MS = 10 * 60 * 1000;
 
