@@ -15,6 +15,7 @@ import {
 // Do not reference with @shared here -- this ref style is needed to preserve tsconfig settings
 // for the application build in @shared
 import { ICombatDataStub } from '../../shared/src/graphql-server/types/index';
+import { computeCombatStats, ICombatStats } from '../../shared/src/utils/combatStats';
 
 const DOC_RETENTION_DAYS = 7;
 
@@ -39,7 +40,7 @@ export type FirebaseDTO = ICombatDataStub & {
 
 interface QueryHelpers extends SpecIndexFields, MMRIndexFields {}
 
-function createUnitsList(units: IArenaCombat['units']) {
+function createUnitsList(units: IArenaCombat['units'], stats: ICombatStats) {
   return _.values(units).map((c) => {
     return {
       id: c.id,
@@ -54,6 +55,8 @@ function createUnitsList(units: IArenaCombat['units']) {
             highestPvpTier: c.info.highestPvpTier,
           }
         : undefined,
+      // Players only; pets and totems resolve to undefined, which firestore drops.
+      stats: stats.units[c.id],
       type: c.type,
       class: c.class,
       spec: c.spec,
@@ -79,7 +82,8 @@ function createStubDTOFromShuffleMatch(
   });
 
   return rounds.map((round) => {
-    const roundUnits = createUnitsList(round.units);
+    const roundStats = computeCombatStats(round);
+    const roundUnits = createUnitsList(round.units, roundStats);
 
     return [
       {
@@ -112,6 +116,8 @@ function createStubDTOFromShuffleMatch(
         shuffleMatchResult: match.result,
         shuffleMatchEndInfo: match.endInfo,
         timezone: round.timezone,
+        effectiveDurationInSeconds: roundStats.effectiveDurationInSeconds,
+        dampening: roundStats.dampening,
       },
       round,
     ];
@@ -120,7 +126,8 @@ function createStubDTOFromShuffleMatch(
 
 function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjectUrl: string): FirebaseDTO {
   const expiryTime = moment().add(DOC_RETENTION_DAYS, 'days');
-  const combatUnits = createUnitsList(com.units);
+  const matchStats = computeCombatStats(com);
+  const combatUnits = createUnitsList(com.units, matchStats);
   return {
     dataType: 'ArenaMatch',
     logObjectUrl,
@@ -145,6 +152,8 @@ function createStubDTOFromArenaMatch(com: IArenaMatch, ownerId: string, logObjec
     combatantGuids: combatUnits.filter((u) => u.type === CombatUnitType.Player).map((u) => u.id),
     expires: expiryTime.toDate(),
     timezone: com.timezone,
+    effectiveDurationInSeconds: matchStats.effectiveDurationInSeconds,
+    dampening: matchStats.dampening,
   };
 }
 
