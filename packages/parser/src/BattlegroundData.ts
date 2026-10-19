@@ -41,6 +41,10 @@ export class BattlegroundData extends CombatGenerator {
       return;
     }
 
+    if (event instanceof CombatAction && this.isSwingTwin(event)) {
+      return;
+    }
+
     if (event instanceof CombatAction) {
       this.events.push(event);
     }

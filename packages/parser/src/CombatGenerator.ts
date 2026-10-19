@@ -18,6 +18,12 @@ const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
   }),
 );
 
+// Absorbs that only delay damage: Stretch Time, Time Dilation, Fel Armor
+const DELAYED_DAMAGE_ABSORBS = new Set(['410355', '357170', '386124']);
+// Fel Armor's delayed damage lands inside the attacker's later hits
+const FEL_ARMOR = '386124';
+const SWING_TWIN_WINDOW_MS = 250;
+
 export class CombatGenerator {
   public id: string = uuidv4();
   public isWellFormed = false;
@@ -33,12 +39,34 @@ export class CombatGenerator {
 
   protected combatantMetadata: Map<string, ICombatantMetadata> = new Map<string, ICombatantMetadata>();
 
+  private recentSwings = new Map<string, number[]>();
+
   protected inferredCombatantIds: Set<string> = new Set<string>();
 
   constructor(
     public readonly wowVersion: WowVersion,
     public readonly timezone: string,
   ) {}
+
+  // Melee is logged from both sides, but many pet swings only from the victim's
+  protected isSwingTwin(event: CombatAction) {
+    const landed = event.logLine.event === LogEvent.SWING_DAMAGE_LANDED;
+    if (!landed && event.logLine.event !== LogEvent.SWING_DAMAGE) {
+      return false;
+    }
+    const baseAmount = event.logLine.parameters[26 + (this.wowVersion === 'retail' ? 2 : -1)];
+    const key = `${event.srcUnitId}|${event.destUnitId}|${baseAmount}`;
+    const seen = this.recentSwings.get(key) ?? [];
+    this.recentSwings.set(key, seen);
+    if (!landed) {
+      seen.push(event.timestamp);
+      return false;
+    }
+    while (seen.length && event.timestamp - seen[0] > SWING_TWIN_WINDOW_MS) {
+      seen.shift();
+    }
+    return seen.shift() !== undefined;
+  }
 
   protected registerCombatant(id: string, combatantMetadata: ICombatantMetadata) {
     this.combatantMetadata.set(id, combatantMetadata);
@@ -94,10 +122,14 @@ export class CombatGenerator {
             );
           }
           const shieldOwner = this.units[absorbAction.shieldOwnerUnitId];
-          shieldOwner.absorbsOut.push(absorbAction);
+          if (!DELAYED_DAMAGE_ABSORBS.has(absorbAction.shieldSpellId)) {
+            shieldOwner.absorbsOut.push(absorbAction);
+          }
           destUnit.absorbsIn.push(absorbAction);
           srcUnit.absorbsDamaged.push(absorbAction);
-          srcUnit.damageOut.push(absorbAction);
+          if (srcUnit.id !== destUnit.id && absorbAction.shieldSpellId !== FEL_ARMOR) {
+            srcUnit.damageOut.push(absorbAction);
+          }
         }
         break;
       case LogEvent.SPELL_HEAL_ABSORBED:
@@ -110,6 +142,7 @@ export class CombatGenerator {
         }
         break;
       case LogEvent.SWING_DAMAGE:
+      case LogEvent.SWING_DAMAGE_LANDED:
       case LogEvent.RANGE_DAMAGE:
       case LogEvent.SPELL_DAMAGE:
       case LogEvent.SPELL_PERIODIC_DAMAGE:
