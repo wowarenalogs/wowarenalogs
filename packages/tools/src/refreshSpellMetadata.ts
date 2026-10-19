@@ -23,7 +23,9 @@ async function main() {
   const validSpellIds = extractSpellIdsFromSpellCsv(spellCsv);
 
   // Pinned: BigDebuffs dropped its mainline spell list for Midnight
-  const response = await fetch('https://raw.githubusercontent.com/jordonwow/bigdebuffs/8fb566fb/BigDebuffs_Mainline.lua');
+  const response = await fetch(
+    'https://raw.githubusercontent.com/jordonwow/bigdebuffs/8fb566fb/BigDebuffs_Mainline.lua',
+  );
   if (response.status !== 200) {
     throw new Error(`Failed to fetch BigDebuffs_Mainline.lua: ${response.status} ${response.statusText}`);
   }
