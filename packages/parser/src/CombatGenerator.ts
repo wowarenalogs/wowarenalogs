@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 import { CombatAbsorbAction } from './actions/CombatAbsorbAction';
+import { CombatAbsorbSupportAction } from './actions/CombatAbsorbSupportAction';
 import { CombatAction } from './actions/CombatAction';
 import { CombatAdvancedAction } from './actions/CombatAdvancedAction';
 import { CombatHpUpdateAction } from './actions/CombatHpUpdateAction';
@@ -17,6 +18,8 @@ const SPELL_ID_TO_CLASS_MAP = new Map<string, CombatUnitClass>(
     return cls.abilities.map((ability) => [ability.spellId, cls.unitClass]);
   }),
 );
+
+const SUPPORT_PAIRING_WINDOW_MS = 10;
 
 export class CombatGenerator {
   public id: string = uuidv4();
@@ -44,6 +47,58 @@ export class CombatGenerator {
     this.combatantMetadata.set(id, combatantMetadata);
   }
 
+  private reattributeSupporterHit(ally: CombatUnit, supporter: CombatUnit, supportAction: CombatSupportAction) {
+    let moved = false;
+    for (let i = ally.damageOut.length - 1; i >= 0; i--) {
+      const action = ally.damageOut[i];
+      if (action.timestamp < supportAction.timestamp - SUPPORT_PAIRING_WINDOW_MS) {
+        break;
+      }
+      if (action.spellId === supportAction.spellId && action.destUnitId === supportAction.destUnitId) {
+        ally.damageOut.splice(i, 1);
+        action.creditedUnitId = supporter.id;
+        supporter.damageOut.push(action);
+        moved = true;
+      }
+    }
+    return moved;
+  }
+
+  private pairSupport(actions: (CombatHpUpdateAction | CombatAbsorbAction)[], supportAction: CombatSupportAction) {
+    if (supportAction.logLine.event.startsWith('SWING_')) {
+      supportAction.supportedSpell = { spellId: null, spellName: null };
+      return;
+    }
+    for (let i = actions.length - 1; i >= 0; i--) {
+      const action = actions[i];
+      if (action.timestamp < supportAction.timestamp - SUPPORT_PAIRING_WINDOW_MS) {
+        return;
+      }
+      if (action.destUnitId === supportAction.destUnitId) {
+        supportAction.supportedSpell = { spellId: action.spellId, spellName: action.spellName };
+        return;
+      }
+    }
+  }
+
+  private pairAbsorbSupport(shieldOwner: CombatUnit, supportAction: CombatAbsorbSupportAction) {
+    for (let i = shieldOwner.absorbsOut.length - 1; i >= 0; i--) {
+      const absorb = shieldOwner.absorbsOut[i];
+      if (absorb.timestamp < supportAction.timestamp - SUPPORT_PAIRING_WINDOW_MS) {
+        return;
+      }
+      if (
+        absorb.srcUnitId === supportAction.srcUnitId &&
+        absorb.destUnitId === supportAction.destUnitId &&
+        absorb.spellId === supportAction.spellId
+      ) {
+        supportAction.supportedShieldSpellId = absorb.shieldSpellId;
+        supportAction.supportedShieldSpellName = absorb.shieldSpellName;
+        return;
+      }
+    }
+  }
+
   protected parseEvent(srcUnit: CombatUnit, destUnit: CombatUnit, event: CombatAction | PartyKill) {
     switch (event.logLine.event) {
       case LogEvent.SPELL_DAMAGE_SUPPORT:
@@ -53,7 +108,6 @@ export class CombatGenerator {
       case LogEvent.SWING_DAMAGE_LANDED_SUPPORT:
         {
           const supportAction = event as CombatSupportAction;
-          srcUnit.supportDamageIn.push(supportAction);
 
           // [#sup1] This is a similar case to the SPELL_ABSORB note below
           // If the first event of the match is a support event and the support spell caster
@@ -61,24 +115,35 @@ export class CombatGenerator {
           //  for support events we don't have the unitName!
 
           // Due to this restriction we are currently skipping including any absorb events before the unit is ready
-
-          if (this.units[supportAction.supportActorId]) {
-            const supportCaster = this.units[supportAction.supportActorId];
-            supportCaster.supportDamageOut.push(supportAction);
+          const supporter = this.units[supportAction.supportActorId];
+          if (!supporter || supporter.id === srcUnit.id) {
+            break;
           }
+
+          // Procs like Bombardments are logged under the ally who triggered them; the whole hit is the supporter's
+          if (this.reattributeSupporterHit(srcUnit, supporter, supportAction)) {
+            break;
+          }
+
+          this.pairSupport(srcUnit.damageOut, supportAction);
+          srcUnit.supportDamageIn.push(supportAction);
+          supporter.supportDamageOut.push(supportAction);
         }
         break;
       case LogEvent.SPELL_HEAL_SUPPORT:
       case LogEvent.SPELL_PERIODIC_HEAL_SUPPORT:
         {
           const supportAction = event as CombatSupportAction;
-          srcUnit.supportHealIn.push(supportAction);
 
           // Same case as [#sup1] above
-          if (this.units[supportAction.supportActorId]) {
-            const supportCaster = this.units[supportAction.supportActorId];
-            supportCaster.supportHealOut.push(supportAction);
+          const supporter = this.units[supportAction.supportActorId];
+          if (!supporter || supporter.id === srcUnit.id) {
+            break;
           }
+
+          this.pairSupport(srcUnit.healOut, supportAction);
+          srcUnit.supportHealIn.push(supportAction);
+          supporter.supportHealOut.push(supportAction);
         }
         break;
       case LogEvent.SPELL_ABSORBED:
@@ -98,6 +163,20 @@ export class CombatGenerator {
           destUnit.absorbsIn.push(absorbAction);
           srcUnit.absorbsDamaged.push(absorbAction);
           srcUnit.damageOut.push(absorbAction);
+        }
+        break;
+      case LogEvent.SPELL_ABSORBED_SUPPORT:
+        {
+          const supportAction = event as CombatAbsorbSupportAction;
+          const shieldOwner = this.units[supportAction.shieldOwnerUnitId];
+          const supporter = this.units[supportAction.supportActorId];
+          if (!shieldOwner || !supporter || supporter.id === shieldOwner.id) {
+            break;
+          }
+
+          this.pairAbsorbSupport(shieldOwner, supportAction);
+          shieldOwner.supportAbsorbIn.push(supportAction);
+          supporter.supportAbsorbOut.push(supportAction);
         }
         break;
       case LogEvent.SPELL_HEAL_ABSORBED:

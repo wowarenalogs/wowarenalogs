@@ -1,6 +1,10 @@
 import _ from 'lodash';
 import md5 from 'md5';
 
+import type { CombatAbsorbAction } from './actions/CombatAbsorbAction';
+import type { CombatAction } from './actions/CombatAction';
+import type { CombatHpUpdateAction } from './actions/CombatHpUpdateAction';
+import type { CombatSupportAction } from './actions/CombatSupportAction';
 import { AtomicArenaCombat, IArenaMatch, IShuffleRound } from './CombatData';
 import { ICombatUnit } from './CombatUnit';
 import {
@@ -311,6 +315,147 @@ export function getBurstDps(units: ICombatUnit[], burstWindow = 3000) {
     l++;
   }
   return burstDps;
+}
+
+export interface IAbsorbCredit {
+  shieldSpellId: string;
+  shieldSpellName: string;
+  destUnitId: string;
+  destUnitName: string;
+  effectiveAmount: number;
+}
+
+export function getCreditedAbsorbs(unit: ICombatUnit, augmented = false): IAbsorbCredit[] {
+  if (augmented) {
+    return unit.absorbsOut;
+  }
+  return [
+    ...unit.absorbsOut,
+    ...unit.supportAbsorbOut,
+    ...unit.supportAbsorbIn.map((a) => ({
+      shieldSpellId: a.supportedShieldSpellId ?? a.shieldSpellId,
+      shieldSpellName: a.supportedShieldSpellName ?? a.shieldSpellName,
+      destUnitId: a.destUnitId,
+      destUnitName: a.destUnitName,
+      effectiveAmount: -a.effectiveAmount,
+    })),
+  ];
+}
+
+export interface IOutputCredit {
+  timestamp: number;
+  spellId: string | null;
+  spellName: string | null;
+  srcUnitId: string;
+  srcUnitName: string;
+  destUnitId: string;
+  destUnitName: string;
+  effectiveAmount: number;
+  action: CombatHpUpdateAction | CombatAbsorbAction | CombatSupportAction;
+  // The supporter's share being taken back out of a buffed hit
+  isAdjustment: boolean;
+}
+
+const toOutputCredit = (
+  a: CombatHpUpdateAction | CombatAbsorbAction | CombatSupportAction,
+  effectiveAmount: number,
+): IOutputCredit => ({
+  timestamp: a.timestamp,
+  spellId: a.spellId,
+  spellName: a.spellName,
+  srcUnitId: a.srcUnitId,
+  srcUnitName: a.srcUnitName,
+  destUnitId: a.destUnitId,
+  destUnitName: a.destUnitName,
+  effectiveAmount,
+  action: a,
+  isAdjustment: false,
+});
+
+const creditedSource = (a: CombatAction, units: { [unitId: string]: ICombatUnit }) => {
+  const credited = a.creditedUnitId ? units[a.creditedUnitId] : undefined;
+  return credited ? { srcUnitId: credited.id, srcUnitName: credited.name } : {};
+};
+
+function getCreditedOutput(
+  unit: ICombatUnit,
+  actions: (CombatHpUpdateAction | CombatAbsorbAction)[],
+  supportIn: CombatSupportAction[],
+  supportOut: CombatSupportAction[],
+  augmented: boolean,
+): IOutputCredit[] {
+  const own = actions.map((a) => ({
+    ...toOutputCredit(a, Math.abs(a.effectiveAmount)),
+    ...creditedSource(a, { [unit.id]: unit }),
+  }));
+  if (augmented) {
+    return own;
+  }
+  const shareOf = (a: CombatSupportAction) => Math.abs(a.effectiveAmount) + a.effectiveAbsorbedAmount;
+  supportIn = supportIn.filter((a) => shareOf(a) !== 0);
+  supportOut = supportOut.filter((a) => shareOf(a) !== 0);
+  return [
+    ...own,
+    ...supportIn.map((a) => ({
+      ...toOutputCredit(a, -shareOf(a)),
+      ...a.supportedSpell,
+      isAdjustment: true,
+    })),
+    ...supportOut.map((a) => ({
+      ...toOutputCredit(a, shareOf(a)),
+      srcUnitId: unit.id,
+      srcUnitName: unit.name,
+    })),
+  ];
+}
+
+export function getCreditedDamage(unit: ICombatUnit, augmented = false): IOutputCredit[] {
+  return getCreditedOutput(unit, unit.damageOut, unit.supportDamageIn, unit.supportDamageOut, augmented);
+}
+
+export function getCreditedHeals(unit: ICombatUnit, augmented = false): IOutputCredit[] {
+  return getCreditedOutput(unit, unit.healOut, unit.supportHealIn, unit.supportHealOut, augmented);
+}
+
+function getCreditedInput(
+  unit: ICombatUnit,
+  units: { [unitId: string]: ICombatUnit },
+  actions: CombatHpUpdateAction[],
+  supportOutOf: (u: ICombatUnit) => CombatSupportAction[],
+  augmented: boolean,
+): IOutputCredit[] {
+  const own = actions.map((a) => ({
+    ...toOutputCredit(a, Math.abs(a.effectiveAmount)),
+    ...creditedSource(a, units),
+  }));
+  if (augmented) {
+    return own;
+  }
+  const supports = Object.values(units).flatMap((supporter) =>
+    supportOutOf(supporter)
+      .filter((a) => a.destUnitId === unit.id && a.effectiveAmount !== 0)
+      .flatMap((a) => [
+        { ...toOutputCredit(a, -Math.abs(a.effectiveAmount)), ...a.supportedSpell, isAdjustment: true },
+        { ...toOutputCredit(a, Math.abs(a.effectiveAmount)), srcUnitId: supporter.id, srcUnitName: supporter.name },
+      ]),
+  );
+  return [...own, ...supports];
+}
+
+export function getCreditedDamageTaken(
+  unit: ICombatUnit,
+  units: { [unitId: string]: ICombatUnit },
+  augmented = false,
+): IOutputCredit[] {
+  return getCreditedInput(unit, units, unit.damageIn, (u) => u.supportDamageOut, augmented);
+}
+
+export function getCreditedHealsTaken(
+  unit: ICombatUnit,
+  units: { [unitId: string]: ICombatUnit },
+  augmented = false,
+): IOutputCredit[] {
+  return getCreditedInput(unit, units, unit.healIn, (u) => u.supportHealOut, augmented);
 }
 
 export function getEffectiveHps(units: ICombatUnit[], effectiveDuration: number) {

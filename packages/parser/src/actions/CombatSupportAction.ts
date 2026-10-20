@@ -26,8 +26,12 @@ export class CombatSupportAction extends CombatAction {
   public readonly amount: number;
   public readonly isCritical: boolean;
   public readonly effectiveAmount: number;
+  // The support's share of the hit that was absorbed, which effectiveAmount leaves out
+  public effectiveAbsorbedAmount = 0;
 
   public readonly supportActorId: string;
+
+  public supportedSpell: { spellId: string | null; spellName: string | null } | null = null;
 
   constructor(logLine: ILogLine, wowVersion: WowVersion) {
     super(logLine);
@@ -54,16 +58,12 @@ export class CombatSupportAction extends CombatAction {
       return;
     }
 
-    const wowVersionOffset = wowVersion === 'retail' ? 0 : -1;
+    const wowVersionOffset = wowVersion === 'retail' ? 2 : -1;
 
     /**
      * The id of the actor that cast the buff causing the extra support damage or healing
      */
-    if (logLine.event.includes('_HEAL_')) {
-      this.supportActorId = logLine.parameters[33].toString();
-    } else {
-      this.supportActorId = logLine.parameters[38].toString();
-    }
+    this.supportActorId = logLine.parameters[logLine.parameters.length - 1].toString();
 
     if (logLine.event === 'SWING_DAMAGE_SUPPORT') {
       this.amount = -1 * logLine.parameters[25 + wowVersionOffset];
@@ -71,6 +71,7 @@ export class CombatSupportAction extends CombatAction {
 
       if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
         this.effectiveAmount = this.amount;
+        this.effectiveAbsorbedAmount = Number(logLine.parameters[31 + wowVersionOffset]) || 0;
       } else {
         this.effectiveAmount = 0;
       }
@@ -80,6 +81,7 @@ export class CombatSupportAction extends CombatAction {
 
       if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
         this.effectiveAmount = this.amount;
+        this.effectiveAbsorbedAmount = Number(logLine.parameters[34 + wowVersionOffset]) || 0;
       } else {
         this.effectiveAmount = 0;
       }
@@ -89,6 +91,7 @@ export class CombatSupportAction extends CombatAction {
 
       if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
         this.effectiveAmount = this.amount;
+        this.effectiveAbsorbedAmount = Number(logLine.parameters[34 + wowVersionOffset]) || 0;
       } else {
         this.effectiveAmount = 0;
       }
