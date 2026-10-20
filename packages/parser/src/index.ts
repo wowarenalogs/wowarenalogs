@@ -36,6 +36,7 @@ export * from './actions/ArenaMatchStart';
 export * from './actions/ZoneChange';
 export * from './actions/CombatHpUpdateAction';
 export * from './actions/CombatAbsorbAction';
+export * from './actions/CombatAbsorbSupportAction';
 export * from './actions/CombatExtraSpellAction';
 export * from './classMetadata';
 export * from './pipeline/common/stringToLogLine';

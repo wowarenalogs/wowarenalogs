@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["script/generatePreload.ts", "script/copyNoobs.ts", "dist", "src/**/*.test.ts"]
+}

@@ -1,9 +1,12 @@
 import {
-  CombatAbsorbAction,
   CombatAction,
-  CombatHpUpdateAction,
   CombatUnitType,
+  getCreditedAbsorbs,
+  getCreditedDamage,
+  getCreditedHeals,
+  IAbsorbCredit,
   ICombatUnit,
+  IOutputCredit,
 } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useEffect, useMemo } from 'react';
@@ -11,6 +14,7 @@ import { useEffect, useMemo } from 'react';
 import talentIdMap from '../../../data/talentIdMap.json';
 import { Utils } from '../../../utils/utils';
 import { AchievementBadge } from '../AchievementBadge';
+import { AugmentedToggle } from '../AugmentedToggle';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 import { EquipmentInfo } from '../EquipmentInfo';
@@ -19,6 +23,7 @@ import { ArmoryLink } from './ArmoryLink';
 import { CheckPvPLink } from './CheckPvPLink';
 import { DrustvarLink } from './DrustvarLink';
 import { GearStickLink } from './GearStickLink';
+import { PvPQLink } from './PvPQLink';
 import { SeramateLink } from './SeramateLink';
 import { TalentDisplay } from './TalentDisplay';
 
@@ -60,7 +65,7 @@ export const maybeGetSpellIdFromTalentId = (talentId: number) => {
 
 const equipmentOrdering = [12, 13, 15, 16, 10, 11, 0, 1, 2, 4, 5, 6, 7, 8, 9, 14, 17, 3];
 
-const compileDamageBySpell = (actions: (CombatHpUpdateAction | CombatAbsorbAction)[], ownerActorId: string) => {
+const compileDamageBySpell = (actions: Omit<IOutputCredit, 'action' | 'isAdjustment'>[], ownerActorId: string) => {
   const groups = _.groupBy(
     actions.filter((a) => a.effectiveAmount !== 0),
     (a) => {
@@ -76,9 +81,11 @@ const compileDamageBySpell = (actions: (CombatHpUpdateAction | CombatAbsorbActio
     return {
       id: spellId,
       name: maybeActorName + spellName,
-      value: _.sum(actionsGroup.map((a) => Math.abs(a.effectiveAmount))),
+      value: _.sum(actionsGroup.map((a) => a.effectiveAmount)),
     };
-  }).sort((a, b) => b.value - a.value);
+  })
+    .filter((s) => s.value > 0)
+    .sort((a, b) => b.value - a.value);
 };
 
 // vs compileDamageBySpell:
@@ -95,7 +102,7 @@ const compileCastsBySpell = (actions: CombatAction[]) => {
   }).sort((a, b) => b.value - a.value);
 };
 
-const compileDamageByDest = (actions: (CombatHpUpdateAction | CombatAbsorbAction)[]) => {
+const compileDamageByDest = (actions: Omit<IOutputCredit, 'action' | 'isAdjustment'>[]) => {
   const groups = _.groupBy(
     actions.filter((a) => a.effectiveAmount !== 0),
     (a) => a.destUnitId,
@@ -104,12 +111,14 @@ const compileDamageByDest = (actions: (CombatHpUpdateAction | CombatAbsorbAction
     return {
       id: destUnitId,
       name: _.first(actionsGroup.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || 'Unknown',
-      value: _.sum(actionsGroup.map((a) => Math.abs(a.effectiveAmount))),
+      value: _.sum(actionsGroup.map((a) => a.effectiveAmount)),
     };
-  }).sort((a, b) => b.value - a.value);
+  })
+    .filter((s) => s.value > 0)
+    .sort((a, b) => b.value - a.value);
 };
 
-const compileHealsBySpell = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorbAction[]) => {
+const compileHealsBySpell = (heals: IOutputCredit[], absorbs: IAbsorbCredit[]) => {
   const actions = _.concat(
     heals.map((a) => {
       return {
@@ -138,10 +147,12 @@ const compileHealsBySpell = (heals: CombatHpUpdateAction[], absorbs: CombatAbsor
       name: _.first(actionsGroup.filter((a) => a.spellName).map((a) => a.spellName)) || 'Auto Attack',
       value: _.sum(actionsGroup.map((a) => a.effectiveAmount)),
     };
-  }).sort((a, b) => b.value - a.value);
+  })
+    .filter((s) => s.value > 0)
+    .sort((a, b) => b.value - a.value);
 };
 
-const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorbAction[]) => {
+const compileHealsByDest = (heals: IOutputCredit[], absorbs: IAbsorbCredit[]) => {
   const actions = _.concat(
     heals.map((a) => {
       return {
@@ -168,7 +179,9 @@ const compileHealsByDest = (heals: CombatHpUpdateAction[], absorbs: CombatAbsorb
       name: _.first(actionsGroup.filter((a) => a.destUnitName).map((a) => a.destUnitName)) || 'Unknown',
       value: _.sum(actionsGroup.map((a) => a.effectiveAmount)),
     };
-  }).sort((a, b) => b.value - a.value);
+  })
+    .filter((s) => s.value > 0)
+    .sort((a, b) => b.value - a.value);
 };
 
 function compileAuraApplicationsBySpell(player: ICombatUnit) {
@@ -211,7 +224,7 @@ function compileAuraApplicationsBySpell(player: ICombatUnit) {
   return applications;
 }
 export function CombatPlayer(props: IProps) {
-  const { combat } = useCombatReportContext();
+  const { combat, showAugmented } = useCombatReportContext();
 
   useEffect(() => {
     try {
@@ -245,32 +258,59 @@ export function CombatPlayer(props: IProps) {
   }, [props.player]);
 
   const damageDoneBySpells = useMemo(() => {
-    return compileDamageBySpell(props.player.damageOut, props.player.id);
-  }, [props.player]);
+    return compileDamageBySpell(getCreditedDamage(props.player, showAugmented), props.player.id);
+  }, [props.player, showAugmented]);
   const damageDoneBySpellsMax = _.max(damageDoneBySpells.map((s) => s.value)) || 1;
   const damageDoneBySpellsSum = _.sum(damageDoneBySpells.map((s) => s.value));
 
   const healsDoneBySpells = useMemo(() => {
-    return compileHealsBySpell(props.player.healOut, props.player.absorbsOut);
-  }, [props.player]);
+    return compileHealsBySpell(
+      getCreditedHeals(props.player, showAugmented),
+      getCreditedAbsorbs(props.player, showAugmented),
+    );
+  }, [props.player, showAugmented]);
   const healsDoneBySpellsMax = _.max(healsDoneBySpells.map((s) => s.value)) || 1;
   const healsDoneBySpellsSum = _.sum(healsDoneBySpells.map((s) => s.value));
 
   const damageDoneByDest = useMemo(() => {
-    return compileDamageByDest(props.player.damageOut).filter((d) =>
+    return compileDamageByDest(getCreditedDamage(props.player, showAugmented)).filter((d) =>
       combat ? combat.units[d.id].type === CombatUnitType.Player : false,
     );
-  }, [props.player, combat]);
+  }, [props.player, combat, showAugmented]);
   const damageDoneByDestMax = _.max(damageDoneByDest.map((s) => s.value)) || 1;
   const damageDoneByDestSum = _.sum(damageDoneByDest.map((s) => s.value));
 
   const healsDoneByDest = useMemo(() => {
-    return compileHealsByDest(props.player.healOut, props.player.absorbsOut).filter((d) =>
-      combat ? combat.units[d.id].type === CombatUnitType.Player : false,
-    );
-  }, [props.player, combat]);
+    return compileHealsByDest(
+      getCreditedHeals(props.player, showAugmented),
+      getCreditedAbsorbs(props.player, showAugmented),
+    ).filter((d) => (combat ? combat.units[d.id].type === CombatUnitType.Player : false));
+  }, [props.player, combat, showAugmented]);
   const healsDoneByDestMax = _.max(healsDoneByDest.map((s) => s.value)) || 1;
   const healsDoneByDestSum = _.sum(healsDoneByDest.map((s) => s.value));
+
+  // Only heal-absorbs applied to enemies count as pressure; friendly mechanics like Tyr's
+  // Deliverance are excluded.
+  const hostileHealAbsorbsOut = useMemo(() => {
+    return props.player.healAbsorbsOut.filter((a) => {
+      const target = combat?.units[a.destUnitId];
+      return target ? target.reaction !== props.player.reaction : false;
+    });
+  }, [props.player, combat]);
+
+  const healDeniedBySpells = useMemo(() => {
+    return compileDamageBySpell(hostileHealAbsorbsOut, props.player.id);
+  }, [hostileHealAbsorbsOut, props.player.id]);
+  const healDeniedBySpellsMax = _.max(healDeniedBySpells.map((s) => s.value)) || 1;
+  const healDeniedBySpellsSum = _.sum(healDeniedBySpells.map((s) => s.value));
+
+  const healDeniedByDest = useMemo(() => {
+    return compileDamageByDest(hostileHealAbsorbsOut).filter((d) =>
+      combat ? combat.units[d.id]?.type === CombatUnitType.Player : false,
+    );
+  }, [hostileHealAbsorbsOut, combat]);
+  const healDeniedByDestMax = _.max(healDeniedByDest.map((s) => s.value)) || 1;
+  const healDeniedByDestSum = _.sum(healDeniedByDest.map((s) => s.value));
 
   if (!props.player.info || !combat) {
     return null;
@@ -295,6 +335,7 @@ export function CombatPlayer(props: IProps) {
         <CheckPvPLink player={props.player} />
         <SeramateLink player={props.player} />
         <DrustvarLink player={props.player} />
+        <PvPQLink player={props.player} />
         <GearStickLink player={props.player} />
       </div>
       <div className="mt-2">
@@ -364,7 +405,10 @@ export function CombatPlayer(props: IProps) {
           <thead>
             <tr>
               <th colSpan={4} className="bg-base-300">
-                DAMAGE SPELLS
+                <div className="flex items-center justify-between">
+                  DAMAGE SPELLS
+                  <AugmentedToggle teamOf={props.player} />
+                </div>
               </th>
             </tr>
           </thead>
@@ -409,7 +453,10 @@ export function CombatPlayer(props: IProps) {
             ))}
             <tr>
               <th colSpan={4} className="bg-base-300">
-                HEALING SPELLS
+                <div className="flex items-center justify-between">
+                  HEALING SPELLS
+                  <AugmentedToggle teamOf={props.player} />
+                </div>
               </th>
             </tr>
             {healsDoneBySpells.map((d) => (
@@ -450,6 +497,53 @@ export function CombatPlayer(props: IProps) {
                 <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
               </tr>
             ))}
+            {healDeniedBySpells.length > 0 && (
+              <>
+                <tr>
+                  <th colSpan={4} className="bg-base-300">
+                    HEALING DENIED
+                  </th>
+                </tr>
+                {healDeniedBySpells.map((d) => (
+                  <tr key={'healdenied-spell-' + d.id + d.name}>
+                    <td className="bg-base-200 flex flex-row items-center">
+                      <SpellIcon spellId={d.id} size={24} />
+                      <div className="ml-1">{d.name}</div>
+                    </td>
+                    <td className="bg-base-200 w-full">
+                      <progress
+                        className="progress w-full progress-warning"
+                        value={Math.floor(((d.value || 0) * 100) / healDeniedBySpellsMax)}
+                        max={100}
+                      />
+                    </td>
+                    <td className="bg-base-200">{(((d.value || 0) * 100) / healDeniedBySpellsSum).toFixed(1)}%</td>
+                    <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <th colSpan={4} className="bg-base-300">
+                    HEALING DENIED TO
+                  </th>
+                </tr>
+                {healDeniedByDest.map((d) => (
+                  <tr key={'healdenied-dest-' + d.id + d.name}>
+                    <td className="bg-base-200">
+                      <CombatUnitName unit={combat.units[d.id]} navigateToPlayerView />
+                    </td>
+                    <td className="bg-base-200 w-full">
+                      <progress
+                        className="progress w-full progress-warning"
+                        value={Math.floor(((d.value || 0) * 100) / healDeniedByDestMax)}
+                        max={100}
+                      />
+                    </td>
+                    <td className="bg-base-200">{(((d.value || 0) * 100) / healDeniedByDestSum).toFixed(1)}%</td>
+                    <td className="bg-base-200">{Utils.printCombatNumber(d.value)}</td>
+                  </tr>
+                ))}
+              </>
+            )}
             <tr>
               <th colSpan={4} className="bg-base-300">
                 CAST FREQUENCY

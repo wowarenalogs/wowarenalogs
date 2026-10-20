@@ -46,9 +46,9 @@ delivery is logged as a warning on our side.
 {
   "version": 2,                       // payload schema version; branch on this
   "dataType": "ArenaMatch",           // "ArenaMatch" | "ShuffleMatch"
-  "id": "string",                     // match id (also the idempotency key)
+  "id": "string",                     // opaque per-match key (also the idempotency key); see note below
   "wowVersion": "retail",             // "retail" | "classic"
-  "link": "https://wowarenalogs.com/match?id=...",  // string; string[] for shuffle (one per round)
+  "link": "https://wowarenalogs.com/match?id=<id>",  // string; string[] for shuffle (one per round)
   "startInfo": {
     "timestamp": 0,                   // epoch ms
     "zoneId": "string",
@@ -134,13 +134,19 @@ delivery is logged as a warning on our side.
 }
 ```
 
+Note: `id` is an opaque, one-way key derived from the match — stable across
+retries and unique per match, which is all deduplication needs — and is **not**
+the internal match id. The internal id doubles as the raw log's storage object
+name and is never included. `link` is built from the same key.
+
 Note: for **shuffle**, the top-level `combatants` (and each `combatants[].teamId`, `dps`,
 `hps`, `deaths`, `hasAdvancedLogging`, `playerTeamRating`) is still taken from **round 1**
 only — teams are re-drawn each round, so the top-level `teamId` is not stable across the
-match. As of **version 2**, full per-round detail ships in `rounds[]` (with light per-round
-`combatants` carrying this round's `teamId`) and per-player lobby totals in `scoreboard[]`;
-the per-round combatants are intentionally light (no stats/talents/equipment). Arena payloads
-do not include `rounds`/`scoreboard`.
+match. `roundResults` gives the per-round outcome for the whole shuffle. As of **version 2**,
+full per-round detail ships in `rounds[]` (with light per-round `combatants` carrying this
+round's `teamId`) and per-player lobby totals in `scoreboard[]`; the per-round combatants are
+intentionally light (no stats/talents/equipment). Arena payloads do not include
+`rounds`/`scoreboard`.
 
 ## Verifying the signature
 

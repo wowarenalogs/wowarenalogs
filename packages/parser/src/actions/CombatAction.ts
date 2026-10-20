@@ -23,6 +23,8 @@ export class CombatAction {
   public readonly spellName: string | null;
   public readonly spellSchoolId: string | null;
 
+  public creditedUnitId: string | null = null;
+
   constructor(public readonly logLine: ILogLine) {
     if (!CombatAction.supports(logLine)) {
       throw new Error('Event not supported as CombatAction: ' + logLine.raw);
@@ -38,7 +40,7 @@ export class CombatAction {
     this.destUnitName = parseQuotedName(logLine.parameters[5]);
     this.destUnitFlags = logLine.parameters[6];
 
-    if (logLine.event === 'SPELL_ABSORBED') {
+    if (logLine.event === 'SPELL_ABSORBED' || logLine.event === 'SPELL_ABSORBED_SUPPORT') {
       // SPELL_ABSORBED is kind of unique
       // it holds absorbs for both spell and melee attacks
       if (logLine.parameters.length < 20) {

@@ -6,6 +6,7 @@ import {
   createWebhookStubFromArenaMatch,
   createWebhookStubFromShuffleMatch,
   sendWebhookAsync,
+  toWebhookMatchKey,
   WebhookScoreboardEntry,
   WebhookStub,
 } from '../src/webhooks';
@@ -40,12 +41,15 @@ async function testTransport(): Promise<string[]> {
   process.env.ENV_WEBHOOK_URL = `http://127.0.0.1:${port}`;
   process.env.ENV_WEBHOOK_SECRET = TEST_SECRET;
 
+  // The internal match id must never reach the wire; the stub carries a one-way key instead.
+  const matchId = 'test-match-1';
+  const webhookId = toWebhookMatchKey(matchId);
   const sampleStub: WebhookStub = {
     version: 2,
     dataType: 'ArenaMatch',
-    id: 'test-match-1',
+    id: webhookId,
     wowVersion: 'retail',
-    link: 'https://wowarenalogs.com/match?id=test-match-1',
+    link: `https://wowarenalogs.com/match?id=${webhookId}`,
     startInfo: { timestamp: 1, zoneId: '1552', bracket: '3v3', isRanked: true },
     endInfo: { winningTeamId: '0', timestamp: 2, matchDurationInSeconds: 120, team0MMR: 1500, team1MMR: 1510 },
     playerId: 'player-1',
@@ -86,6 +90,9 @@ async function testTransport(): Promise<string[]> {
     }
     if (received.body !== JSON.stringify(sampleStub)) {
       failures.push('received body did not match the sent stub');
+    }
+    if (received.body.includes(matchId) || received.headers['x-idempotency-key'] === matchId) {
+      failures.push('delivery leaks the internal match id');
     }
   }
   return failures;

@@ -1,4 +1,13 @@
-import { AtomicArenaCombat, CombatUnitReaction, CombatUnitType, ICombatUnit, LogEvent } from '@wowarenalogs/parser';
+import {
+  AtomicArenaCombat,
+  CombatUnitReaction,
+  CombatUnitType,
+  getCreditedAbsorbs,
+  getCreditedDamage,
+  ICombatUnit,
+  IShuffleRound,
+  LogEvent,
+} from '@wowarenalogs/parser';
 import _ from 'lodash';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 
@@ -7,6 +16,9 @@ import { ccSpellIds } from '../../data/spellTags';
 interface ICombatReportContextData {
   viewerIsOwner: boolean;
   combat: AtomicArenaCombat | null;
+  shuffleRounds: IShuffleRound[];
+  navigateToRound: ((round: IShuffleRound) => void) | null;
+  canSelectRound: boolean;
   activePlayerId: string | null;
   navigateToPlayerView: (playerId: string) => void;
   activeTab: string;
@@ -17,7 +29,9 @@ interface ICombatReportContextData {
   maxOutputNumber: number;
   playerTotalDamageOut: Map<string, number>;
   playerTotalHealOut: Map<string, number>;
-  playerTotalSupportIn: Map<string, number>;
+  hasAugmentation: boolean;
+  showAugmented: boolean;
+  setShowAugmented: (showAugmented: boolean) => void;
   playerTimeInCC: Map<string, number>;
   playerCCOutput: Map<string, number>;
   playerInterruptsDone: Map<string, number>;
@@ -26,6 +40,9 @@ interface ICombatReportContextData {
 
 export const CombatReportContext = React.createContext<ICombatReportContextData>({
   combat: null,
+  shuffleRounds: [],
+  navigateToRound: null,
+  canSelectRound: false,
   viewerIsOwner: true,
   activePlayerId: null,
   navigateToPlayerView: (_playerId: string) => {
@@ -41,7 +58,11 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
   maxOutputNumber: 0,
   playerTotalDamageOut: new Map<string, number>(),
   playerTotalHealOut: new Map<string, number>(),
-  playerTotalSupportIn: new Map<string, number>(),
+  hasAugmentation: false,
+  showAugmented: false,
+  setShowAugmented: (_showAugmented: boolean) => {
+    return;
+  },
   playerTimeInCC: new Map<string, number>(),
   playerCCOutput: new Map<string, number>(),
   playerInterruptsDone: new Map<string, number>(),
@@ -50,6 +71,8 @@ export const CombatReportContext = React.createContext<ICombatReportContextData>
 
 interface IProps {
   combat: AtomicArenaCombat;
+  shuffleRounds?: IShuffleRound[];
+  onRoundSelected?: (round: IShuffleRound) => void;
   viewerIsOwner: boolean;
   children: React.ReactNode | React.ReactNode[];
 }
@@ -57,6 +80,8 @@ interface IProps {
 export const CombatReportContextProvider = (props: IProps) => {
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('summary');
+  const [showAugmented, setShowAugmented] = useState(false);
+  const shuffleRounds = useMemo(() => props.shuffleRounds ?? [], [props.shuffleRounds]);
 
   const [
     players,
@@ -69,7 +94,6 @@ export const CombatReportContextProvider = (props: IProps) => {
     playerCCOutput,
     playerInterruptsDone,
     playerInterruptsTaken,
-    playerTotalSupportIn,
   ] = useMemo(() => {
     const mPlayers = _.orderBy(
       _.values(props.combat.units).filter(
@@ -90,7 +114,6 @@ export const CombatReportContextProvider = (props: IProps) => {
     );
     const mPlayerTotalDamageOut = new Map<string, number>();
     const mPlayerTotalHealOut = new Map<string, number>();
-    const mPlayerTotalSupportIn = new Map<string, number>();
     const mPlayerTimeInCC = new Map<string, number>();
     const mPlayerCCOutput = new Map<string, number>();
     const mPlayerInterruptsDone = new Map<string, number>();
@@ -156,15 +179,10 @@ export const CombatReportContextProvider = (props: IProps) => {
       });
       mPlayerCCOutput.set(p.id, totalCCOutput);
 
-      const totalDamageOut = p.damageOut.reduce((sum, action) => {
-        return sum + Math.abs(action.effectiveAmount);
+      const totalDamageOut = getCreditedDamage(p, showAugmented).reduce((sum, action) => {
+        return sum + action.effectiveAmount;
       }, 0);
       mPlayerTotalDamageOut.set(p.id, totalDamageOut);
-
-      const totalSupportIn = p.supportDamageIn.reduce((sum, action) => {
-        return sum + Math.abs(action.effectiveAmount);
-      }, 0);
-      mPlayerTotalSupportIn.set(p.id, totalSupportIn);
 
       const totalHealOut = p.healOut.reduce((sum, action) => {
         if (action.logLine.event === 'SPELL_PERIODIC_HEAL') {
@@ -177,10 +195,13 @@ export const CombatReportContextProvider = (props: IProps) => {
         }
         return sum + Math.abs(action.effectiveAmount);
       }, 0);
-      const totalPrevented = p.absorbsOut.reduce((sum, action) => {
-        return sum + Math.abs(action.effectiveAmount);
+      const totalPrevented = getCreditedAbsorbs(p, showAugmented).reduce((sum, action) => {
+        return sum + action.effectiveAmount;
       }, 0);
-      mPlayerTotalHealOut.set(p.id, totalHealOut + totalPrevented);
+      const totalSupportHeal = showAugmented
+        ? 0
+        : _.sumBy(p.supportHealOut, (a) => a.effectiveAmount) - _.sumBy(p.supportHealIn, (a) => a.effectiveAmount);
+      mPlayerTotalHealOut.set(p.id, totalHealOut + totalPrevented + totalSupportHeal);
 
       mMaxOutputNumber = Math.max(mMaxOutputNumber, totalDamageOut, totalHealOut);
 
@@ -201,21 +222,30 @@ export const CombatReportContextProvider = (props: IProps) => {
       mPlayerCCOutput,
       mPlayerInterruptsDone,
       mPlayerInterruptsTaken,
-      mPlayerTotalSupportIn,
     ];
-  }, [props.combat]);
+  }, [props.combat, showAugmented]);
+
+  const hasAugmentation = useMemo(
+    () =>
+      Object.values(props.combat.units).some(
+        (u) => u.supportDamageOut.length || u.supportHealOut.length || u.supportAbsorbOut.length,
+      ),
+    [props.combat],
+  );
 
   useEffect(() => {
     if (players && players.length > 0) {
-      setActivePlayerId(players[0].id);
+      setActivePlayerId((prev) => (prev && players.some((p) => p.id === prev) ? prev : players[0].id));
     } else {
       setActivePlayerId(null);
     }
   }, [players]);
 
+  const combatGroupId =
+    props.combat.dataType === 'ShuffleRound' && shuffleRounds.length > 0 ? shuffleRounds[0].id : props.combat.id;
   useEffect(() => {
     setActiveTab('summary');
-  }, [props.combat]);
+  }, [combatGroupId]);
 
   return (
     <CombatReportContext.Provider
@@ -233,12 +263,17 @@ export const CombatReportContextProvider = (props: IProps) => {
         maxOutputNumber,
         playerTotalDamageOut,
         playerTotalHealOut,
+        hasAugmentation,
+        showAugmented,
+        setShowAugmented,
         playerTimeInCC,
         playerCCOutput,
         playerInterruptsDone,
         playerInterruptsTaken,
-        playerTotalSupportIn,
         combat: props.combat,
+        shuffleRounds,
+        navigateToRound: props.onRoundSelected ?? null,
+        canSelectRound: props.combat.dataType === 'ShuffleRound' && !!props.onRoundSelected && shuffleRounds.length > 1,
         viewerIsOwner: props.viewerIsOwner,
       }}
     >

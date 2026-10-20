@@ -194,10 +194,10 @@ export class LogsModule extends NativeBridgeModule {
 
     const lastKnownFileStats = new Map<string, ILastKnownCombatLogState>();
 
-    const updateLastKnownStats = (path: string, stats: Stats | undefined) => {
+    const updateLastKnownStats = (path: string, stats: Stats | undefined, consumedBytes?: number) => {
       lastKnownFileStats.set(path, {
         lastFileCreationTime: stats?.birthtimeMs || 0,
-        lastFileSize: stats?.size || 0,
+        lastFileSize: consumedBytes ?? stats?.size ?? 0,
       });
     };
 
@@ -220,7 +220,8 @@ export class LogsModule extends NativeBridgeModule {
       const fileSizeDelta = (stats?.size || 0) - lastKnownState.lastFileSize;
       const fileCreationTimeDelta = Math.abs((stats?.birthtimeMs || 0) - lastKnownState.lastFileCreationTime);
 
-      let parseOK = false;
+      let start = 0;
+      let consumed: number | null;
 
       if (
         // we are reading the same file if the creation time is close enough
@@ -228,16 +229,18 @@ export class LogsModule extends NativeBridgeModule {
         // and size is larger than before
         fileSizeDelta >= 0
       ) {
-        parseOK = DesktopUtils.parseLogFileChunk(bridge.logParser, path, lastKnownState.lastFileSize, fileSizeDelta);
+        start = lastKnownState.lastFileSize;
+        consumed = DesktopUtils.parseLogFileChunk(bridge.logParser, path, start, fileSizeDelta);
       } else {
         // we are now reading a new combat log file, resetting states
         bridge.logParser.resetParserStates(wowVersion);
 
-        parseOK = DesktopUtils.parseLogFileChunk(bridge.logParser, path, 0, stats?.size || 0);
+        consumed = DesktopUtils.parseLogFileChunk(bridge.logParser, path, start, stats?.size || 0);
       }
 
-      if (parseOK) {
-        updateLastKnownStats(path, stats);
+      // A trailing partial line is not consumed here; it is read again once wow finishes writing it.
+      if (consumed !== null) {
+        updateLastKnownStats(path, stats, start + consumed);
       }
     };
 

@@ -11,6 +11,7 @@
     "start:generateSpellIdLists": "ts-node --files ./src/generateSpellIdLists.ts",
     "start:generateSpellClassMap": "ts-node --files ./src/generateSpellClassMap.ts",
     "start:refreshSpellMetadata": "ts-node --files ./src/refreshSpellMetadata.ts",
+    "start:refreshSpellIcons": "ts-node --files ./src/refreshSpellIcons.ts",
     "start:simlog": "dotenv -- ts-node --files ./src/simlog.ts"
   },
   "devDependencies": {
@@ -22,6 +23,7 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
+    "@google-cloud/storage": "^7.17",
     "fengari-web": "^0.1.4",
     "fs-extra": "^11.1.0",
     "lodash": "^4.17.21",

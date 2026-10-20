@@ -1,6 +1,7 @@
 import _ from 'lodash';
 
 import { CombatAbsorbAction } from './actions/CombatAbsorbAction';
+import { CombatAbsorbSupportAction } from './actions/CombatAbsorbSupportAction';
 import { CombatAction } from './actions/CombatAction';
 import { CombatAdvancedAction } from './actions/CombatAdvancedAction';
 import { CombatHpUpdateAction } from './actions/CombatHpUpdateAction';
@@ -47,6 +48,15 @@ export interface ICombatUnit {
   absorbsDamaged: CombatAbsorbAction[];
 
   /**
+   * Heal-absorb events where ICombatUnit applied the effect, denying a heal on another unit
+   */
+  healAbsorbsOut: CombatAbsorbAction[];
+  /**
+   * Heal-absorb events where a heal on ICombatUnit was denied
+   */
+  healAbsorbsIn: CombatAbsorbAction[];
+
+  /**
    * Support damage events that describe damage added to a spell ICombatUnit cast
    */
   supportDamageIn: CombatSupportAction[];
@@ -62,6 +72,14 @@ export interface ICombatUnit {
    * Support healing events caused by a supporting spell cast by ICombatUnit
    */
   supportHealOut: CombatSupportAction[];
+  /**
+   * Support absorb events that describe absorbs added to a shield owned by ICombatUnit
+   */
+  supportAbsorbIn: CombatAbsorbSupportAction[];
+  /**
+   * Support absorb events caused by a supporting spell cast by ICombatUnit
+   */
+  supportAbsorbOut: CombatAbsorbSupportAction[];
 
   actionIn: CombatAction[];
   actionOut: CombatAction[];
@@ -93,11 +111,15 @@ export class CombatUnit implements ICombatUnit {
   public absorbsIn: CombatAbsorbAction[] = [];
   public absorbsOut: CombatAbsorbAction[] = [];
   public absorbsDamaged: CombatAbsorbAction[] = [];
+  public healAbsorbsOut: CombatAbsorbAction[] = [];
+  public healAbsorbsIn: CombatAbsorbAction[] = [];
 
   public supportDamageIn: CombatSupportAction[] = [];
   public supportDamageOut: CombatSupportAction[] = [];
   public supportHealIn: CombatSupportAction[] = [];
   public supportHealOut: CombatSupportAction[] = [];
+  public supportAbsorbIn: CombatAbsorbSupportAction[] = [];
+  public supportAbsorbOut: CombatAbsorbSupportAction[] = [];
 
   public actionIn: CombatAction[] = [];
   public actionOut: CombatAction[] = [];
