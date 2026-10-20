@@ -10,6 +10,7 @@ import { ccSpellIds, spells } from '../../data/spellTags';
 import { zoneMetadata } from '../../data/zoneMetadata';
 import { getDampeningPercentage } from '../../utils/dampening';
 import { healerSpecs, Utils } from '../../utils/utils';
+import { AugmentedToggle } from './AugmentedToggle';
 import { useCombatReportContext } from './CombatReportContext';
 import { CombatUnitName } from './CombatUnitName';
 import { ShuffleRoundSelector } from './ShuffleRoundSelector';
@@ -706,7 +707,7 @@ function MobileMeterSection({
   const effectiveDuration = Math.max((combat.endTime - combat.startTime) / 1000, 1);
 
   return (
-    <MobilePanel title={title}>
+    <MobilePanel title={title} headerRight={<AugmentedToggle />}>
       <div className="space-y-3">
         {playersByValue.map((player) => {
           const value = getValue(player);
