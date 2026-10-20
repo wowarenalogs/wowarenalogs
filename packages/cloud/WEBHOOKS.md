@@ -44,7 +44,7 @@ delivery is logged as a warning on our side.
 
 ```jsonc
 {
-  "version": 1,                       // payload schema version; branch on this
+  "version": 2,                       // payload schema version; branch on this
   "dataType": "ArenaMatch",           // "ArenaMatch" | "ShuffleMatch"
   "id": "string",                     // opaque per-match key (also the idempotency key); see note below
   "wowVersion": "retail",             // "retail" | "classic"
@@ -102,7 +102,35 @@ delivery is logged as a warning on our side.
       "equipment": [{ "id": "string", "ilvl": 0 }]
     }
   ],
-  "roundResults": [3, 2, 3, 2, 3, 2]  // shuffle only — per-round result codes
+  "roundResults": [3, 2, 3, 2, 3, 2], // shuffle only — per-round result codes
+
+  // --- shuffle only, added in version 2 ---
+  "rounds": [                         // 6 entries, sequenceNumber 0..5
+    {
+      "sequenceNumber": 0,            // 0..5
+      "link": "string",               // deep link to this round's match page (same hashed id as top-level `link`)
+      "startTimestamp": 0,            // epoch ms (NOTE: not "startTime")
+      "endTimestamp": 0,              // epoch ms (NOTE: not "endTime")
+      "durationInSeconds": 0,
+      "winningTeamId": "string",
+      "killedUnitId": "string",       // GUID of the unit whose death ended the round; null if empty
+      "result": 3,                    // CombatResult, uploader perspective
+      "combatants": [                 // 6 LIGHT per-round combatants (no stats/talents/equipment)
+        {
+          "id": "string",
+          "name": "string",
+          "specId": "string",
+          "teamId": "string",         // THIS round's team (re-drawn each round)
+          "dps": 0,
+          "hps": 0,
+          "deaths": 0
+        }
+      ]
+    }
+  ],
+  "scoreboard": [                     // shuffle only — 6 entries, per-player LOBBY-TOTAL wins (0..6)
+    { "unitId": "string", "wins": 0 }
+  ]
 }
 ```
 
@@ -111,10 +139,14 @@ retries and unique per match, which is all deduplication needs — and is **not*
 the internal match id. The internal id doubles as the raw log's storage object
 name and is never included. `link` is built from the same key.
 
-Note: for **shuffle**, `combatants` (and each `combatants[].teamId`, `dps`, `hps`,
-`deaths`, `hasAdvancedLogging`, `playerTeamRating`) is taken from **round 1** only —
-teams are re-drawn each round, so `teamId` is not stable across the match.
-`roundResults` gives the per-round outcome for the whole shuffle.
+Note: for **shuffle**, the top-level `combatants` (and each `combatants[].teamId`, `dps`,
+`hps`, `deaths`, `hasAdvancedLogging`, `playerTeamRating`) is still taken from **round 1**
+only — teams are re-drawn each round, so the top-level `teamId` is not stable across the
+match. `roundResults` gives the per-round outcome for the whole shuffle. As of **version 2**,
+full per-round detail ships in `rounds[]` (with light per-round `combatants` carrying this
+round's `teamId`) and per-player lobby totals in `scoreboard[]`; the per-round combatants are
+intentionally light (no stats/talents/equipment). Arena payloads do not include
+`rounds`/`scoreboard`.
 
 ## Verifying the signature
 
