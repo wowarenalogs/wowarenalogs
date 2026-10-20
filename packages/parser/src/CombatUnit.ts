@@ -1,6 +1,7 @@
 import _ from 'lodash';
 
 import { CombatAbsorbAction } from './actions/CombatAbsorbAction';
+import { CombatAbsorbSupportAction } from './actions/CombatAbsorbSupportAction';
 import { CombatAction } from './actions/CombatAction';
 import { CombatAdvancedAction } from './actions/CombatAdvancedAction';
 import { CombatHpUpdateAction } from './actions/CombatHpUpdateAction';
@@ -71,6 +72,14 @@ export interface ICombatUnit {
    * Support healing events caused by a supporting spell cast by ICombatUnit
    */
   supportHealOut: CombatSupportAction[];
+  /**
+   * Support absorb events that describe absorbs added to a shield owned by ICombatUnit
+   */
+  supportAbsorbIn: CombatAbsorbSupportAction[];
+  /**
+   * Support absorb events caused by a supporting spell cast by ICombatUnit
+   */
+  supportAbsorbOut: CombatAbsorbSupportAction[];
 
   actionIn: CombatAction[];
   actionOut: CombatAction[];
@@ -109,6 +118,8 @@ export class CombatUnit implements ICombatUnit {
   public supportDamageOut: CombatSupportAction[] = [];
   public supportHealIn: CombatSupportAction[] = [];
   public supportHealOut: CombatSupportAction[] = [];
+  public supportAbsorbIn: CombatAbsorbSupportAction[] = [];
+  public supportAbsorbOut: CombatAbsorbSupportAction[] = [];
 
   public actionIn: CombatAction[] = [];
   public actionOut: CombatAction[] = [];

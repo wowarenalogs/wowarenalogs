@@ -3,7 +3,9 @@
 import { CombatStubList } from '@wowarenalogs/shared';
 import { LocalRemoteHybridCombat } from '@wowarenalogs/shared/src/components/CombatStubList/rows';
 import { QuerryError } from '@wowarenalogs/shared/src/components/common/QueryError';
+import { SearchDisabledNotice } from '@wowarenalogs/shared/src/components/common/SearchDisabledNotice';
 import { useGetCharacterMatchesLazyQuery } from '@wowarenalogs/shared/src/graphql/__generated__/graphql';
+import { SEARCH_DISABLED } from '@wowarenalogs/shared/src/utils/searchStatus';
 import _ from 'lodash';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
@@ -23,6 +25,9 @@ export default function CharacterMatchesPage() {
   });
 
   useEffect(() => {
+    if (SEARCH_DISABLED) {
+      return;
+    }
     if (characterName && typeof characterName === 'string') {
       if (realm && typeof realm === 'string') {
         exec({
@@ -34,6 +39,14 @@ export default function CharacterMatchesPage() {
       }
     }
   }, [realm, characterName, exec]);
+
+  if (SEARCH_DISABLED) {
+    return (
+      <div className="transition-all p-2">
+        <SearchDisabledNotice />
+      </div>
+    );
+  }
 
   if (matchesQuery.loading) {
     return (

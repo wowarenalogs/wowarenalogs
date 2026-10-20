@@ -5,20 +5,13 @@ import moment from 'moment';
 import { getDampeningPercentage } from '../../../utils/dampening';
 import { Utils } from '../../../utils/utils';
 import { TimestampDisplay } from '../../common/TimestampDisplay';
+import { AugmentedToggle } from '../AugmentedToggle';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 
 export const Meters = () => {
-  const {
-    viewerIsOwner,
-    combat,
-    enemies,
-    friends,
-    players,
-    playerTotalDamageOut,
-    playerTotalHealOut,
-    playerTotalSupportIn,
-  } = useCombatReportContext();
+  const { viewerIsOwner, combat, enemies, friends, players, playerTotalDamageOut, playerTotalHealOut } =
+    useCombatReportContext();
 
   if (!combat) {
     return null;
@@ -51,9 +44,6 @@ export const Meters = () => {
 
   const damageBarWidths = playersSortedByDamage.map((u) =>
     Math.round(Math.floor((playerTotalDamageOut.get(u.id) || 0) * 100) / maxDam),
-  );
-  const supportedBarWidths = playersSortedByDamage.map((u) =>
-    Math.round(Math.floor((playerTotalSupportIn.get(u.id) || 0) * 100) / maxDam),
   );
 
   return (
@@ -124,7 +114,10 @@ export const Meters = () => {
             )}
             <tr>
               <th colSpan={4} className="bg-base-300">
-                DAMAGE
+                <div className="flex items-center justify-between">
+                  DAMAGE
+                  <AugmentedToggle />
+                </div>
               </th>
             </tr>
             {playersSortedByDamage.map((u, _i) => (
@@ -144,22 +137,16 @@ export const Meters = () => {
                         width: `${damageBarWidths[_i]}%`,
                       }}
                     />
-                    <div
-                      className={`inline-block h-2 bg-secondary rounded-lg absolute left-0`}
-                      style={{
-                        width: `${supportedBarWidths[_i]}%`,
-                      }}
-                      title={`${supportedBarWidths[_i]}% added from supporting classes (${Utils.printCombatNumber(
-                        playerTotalSupportIn.get(u.id) || 0,
-                      )})`}
-                    />
                   </div>
                 </td>
               </tr>
             ))}
             <tr>
               <th colSpan={4} className="bg-base-300">
-                HEALING
+                <div className="flex items-center justify-between">
+                  HEALING
+                  <AugmentedToggle />
+                </div>
               </th>
             </tr>
             {playersSortedByHeals.map((u, _i) => (

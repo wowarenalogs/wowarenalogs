@@ -11,11 +11,12 @@ import {
   IArenaMatch,
   ICombatUnit,
   IShuffleMatch,
+  IShuffleRound,
   WowVersion,
 } from '../../parser/dist/index';
 import { realmIdToRegion } from '../../shared/src/utils/realms';
 
-const WEBHOOK_PAYLOAD_VERSION = 1;
+const WEBHOOK_PAYLOAD_VERSION = 2;
 const WEBHOOK_DEFAULT_TIMEOUT_MS = 10000;
 
 export type WebhookCombatantStats = {
@@ -61,12 +62,38 @@ export type WebhookCombatant = {
   equipment: { id: string; ilvl: number }[] | undefined;
 };
 
+export type WebhookScoreboardEntry = { unitId: string; wins: number };
+
+// Light per-round combatant — intentionally a strict subset of WebhookCombatant (no
+// realmId/classId/stats/talents/equipment). Keeps the per-round payload ~+6 KB, not ~+160 KB.
+export type WebhookRoundCombatant = {
+  id: string;
+  name: string;
+  specId: string | undefined;
+  teamId: string | undefined; // per-round team (re-drawn each round)
+  dps: number;
+  hps: number;
+  deaths: number;
+};
+
+export type WebhookRound = {
+  sequenceNumber: number;
+  link: string; // deep link to this round's match page; built from the hashed match key, never the raw id
+  startTimestamp: number; // round.startTime (ms) — renamed on the way out
+  endTimestamp: number; // round.endTime (ms) — renamed on the way out
+  durationInSeconds: number;
+  winningTeamId: string;
+  killedUnitId: string | null;
+  result: CombatResult;
+  combatants: WebhookRoundCombatant[];
+};
+
 export type WebhookStub = {
   version: number;
   dataType: 'ArenaMatch' | 'ShuffleMatch';
-  id: string;
+  id: string; // opaque per-match key (see toWebhookMatchKey), NOT the internal match id
   wowVersion: WowVersion;
-  link: string | string[]; // string for match, string[] for shuffle
+  link: string | string[]; // string for match, string[] for shuffle; built from `id` above
   startInfo: {
     timestamp: number;
     zoneId: string;
@@ -92,6 +119,8 @@ export type WebhookStub = {
 
   // Shuffle only
   roundResults?: number[] | undefined;
+  rounds?: WebhookRound[] | undefined;
+  scoreboard?: WebhookScoreboardEntry[] | undefined;
 };
 
 type WebhookStubBase = Pick<
@@ -119,6 +148,12 @@ const getWebhookUrl = (): string | undefined => {
 export const logWebhookEvent = (fields: Record<string, unknown>) => {
   console.log(JSON.stringify(fields));
 };
+
+// The internal match id doubles as the raw log's storage object name, so it is
+// never sent to partners. This one-way digest stands in for it everywhere the
+// payload used to carry the id: stable per match across retries, unique, and
+// not reversible (match ids are md5 digests, so the preimage is not enumerable).
+export const toWebhookMatchKey = (matchId: string): string => crypto.createHash('sha256').update(matchId).digest('hex');
 
 // Player GUIDs are `Player-<realmId>-<hex>`; undefined for any malformed id.
 const parseRealmId = (guid: string): number | undefined => {
@@ -194,12 +229,29 @@ const mapCombatants = (units: Record<string, ICombatUnit>, effectiveDuration: nu
     }));
 };
 
+// Light sibling of mapCombatants for shuffle per-round detail. Duration is computed once for
+// the round and reused for every player (mirrors mapCombatants, which is handed a duration).
+const mapRoundCombatants = (round: IShuffleRound): WebhookRoundCombatant[] => {
+  const safeDuration = Math.max(getEffectiveCombatDuration(round), 1);
+  return Object.values(round.units)
+    .filter((u) => u.type === CombatUnitType.Player)
+    .map((c) => ({
+      id: c.id,
+      name: c.name,
+      specId: c.info?.specId,
+      teamId: c.info?.teamId,
+      dps: Math.round(getEffectiveDps([c], safeDuration)),
+      hps: Math.round(getEffectiveHps([c], safeDuration)),
+      deaths: c.deathRecords.length,
+    }));
+};
+
 // `atomic` is the IArenaCombat to source per-round flags from: the match itself for
 // arena, rounds[0] for shuffle.
 const buildStubBase = (match: IArenaMatch | IShuffleMatch, atomic: AtomicArenaCombat): WebhookStubBase => ({
   version: WEBHOOK_PAYLOAD_VERSION,
   dataType: match.dataType,
-  id: match.id,
+  id: toWebhookMatchKey(match.id),
   wowVersion: match.wowVersion,
   result: match.result,
   resultName: (CombatResult[match.result] ?? 'unknown').toLowerCase(),
@@ -222,12 +274,13 @@ const buildStubBase = (match: IArenaMatch | IShuffleMatch, atomic: AtomicArenaCo
 
 export const createWebhookStubFromArenaMatch = (match: IArenaMatch): WebhookStub => {
   const effectiveDuration = getEffectiveCombatDuration(match);
+  const base = buildStubBase(match, match);
   return {
-    ...buildStubBase(match, match),
+    ...base,
     playerId: match.playerId,
     playerTeamId: match.playerTeamId,
     region: playerRegion(match.playerId),
-    link: `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook`,
+    link: `https://wowarenalogs.com/match?id=${base.id}&viewerIsOwner=false&source=webhook`,
     combatants: mapCombatants(match.units, effectiveDuration),
   };
 };
@@ -237,16 +290,29 @@ export const createWebhookStubFromShuffleMatch = (match: IShuffleMatch): Webhook
   // taken from round 1; see WEBHOOKS.md.
   const round0 = match.rounds[0];
   const effectiveDuration = getEffectiveCombatDuration(round0);
+  const base = buildStubBase(match, round0);
   return {
-    ...buildStubBase(match, round0),
+    ...base,
     playerId: round0.playerId,
     playerTeamId: round0.playerTeamId,
     region: playerRegion(round0.playerId),
     link: match.rounds.map(
-      (_r, idx) =>
-        `https://wowarenalogs.com/match?id=${match.id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
+      (_r, idx) => `https://wowarenalogs.com/match?id=${base.id}&viewerIsOwner=false&source=webhook&roundId=${idx + 1}`,
     ),
     roundResults: match.rounds.map((r) => r.result),
+    rounds: match.rounds.map((round) => ({
+      sequenceNumber: round.sequenceNumber,
+      // Same hashed-id deep link as the top-level `link[]`, paired with its round for convenience.
+      link: `https://wowarenalogs.com/match?id=${base.id}&viewerIsOwner=false&source=webhook&roundId=${round.sequenceNumber + 1}`,
+      startTimestamp: round.startTime,
+      endTimestamp: round.endTime,
+      durationInSeconds: round.durationInSeconds,
+      winningTeamId: round.winningTeamId,
+      killedUnitId: round.killedUnitId || null, // parser types it string; "" → null
+      result: round.result,
+      combatants: mapRoundCombatants(round),
+    })),
+    scoreboard: match.rounds[match.rounds.length - 1].scoreboard, // last round = lobby totals
     combatants: mapCombatants(round0.units, effectiveDuration),
   };
 };
