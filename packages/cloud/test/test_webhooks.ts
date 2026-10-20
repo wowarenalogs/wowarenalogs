@@ -326,7 +326,8 @@ function testBuilders(): string[] {
 
   // Per-round deep link is built from the HASHED top-level id + 1-based roundId (round 2 → roundId=3).
   check(
-    stub.rounds?.[2].link === `https://wowarenalogs.com/match?id=${stub.id}&viewerIsOwner=false&source=webhook&roundId=3`,
+    stub.rounds?.[2].link ===
+      `https://wowarenalogs.com/match?id=${stub.id}&viewerIsOwner=false&source=webhook&roundId=3`,
     `round2 link malformed: ${stub.rounds?.[2].link}`,
   );
 
@@ -334,10 +335,7 @@ function testBuilders(): string[] {
   // (parser invariant). It must be hashed at the top level and must NOT appear raw anywhere
   // in the payload — no round should carry its own id. The mock round ids are "round-0".."round-5".
   check(stub.id === toWebhookMatchKey('round-5'), 'top-level id is not the hashed match key');
-  check(
-    !JSON.stringify(stub).includes('round-'),
-    'shuffle payload leaks a raw round id (internal match id)',
-  );
+  check(!JSON.stringify(stub).includes('round-'), 'shuffle payload leaks a raw round id (internal match id)');
 
   // Arena must NOT carry rounds/scoreboard, but does get the version bump.
   const arena = createWebhookStubFromArenaMatch(makeArena(roundUnits(['0', '0', '0', '1', '1', '1'])));
