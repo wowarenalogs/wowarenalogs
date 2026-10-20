@@ -1,8 +1,9 @@
-import { CombatAbsorbAction, CombatHpUpdateAction } from '@wowarenalogs/parser';
+import { getCreditedDamage, getCreditedDamageTaken, getCreditedHeals, IOutputCredit } from '@wowarenalogs/parser';
 import _ from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Utils } from '../../../utils/utils';
+import { AugmentedToggle } from '../AugmentedToggle';
 import { CHART_TIME_INTERVAL_S, getDataPoint } from '../CombatCurves/constants';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
@@ -31,34 +32,39 @@ interface ISpellStat {
   maxCritHit: number;
 }
 
-const isHpUpdateAction = (action: CombatHpUpdateAction | CombatAbsorbAction): action is CombatHpUpdateAction => {
-  return 'isCritical' in action;
-};
+const isHit = (credit: IOutputCredit) => 'isCritical' in credit.action;
 
-const compileSpellStats = (actions: CombatHpUpdateAction[]) => {
+const creditedAmount = (credit: IOutputCredit) => credit.effectiveAmount;
+
+const compileSpellStats = (actions: IOutputCredit[]) => {
   const spellMap = new Map<string, ISpellStat>();
   actions
     .filter((a) => a.effectiveAmount !== 0)
     .forEach((action) => {
       const id = action.spellId ? String(action.spellId) : 'swing';
       const name = action.spellName || 'Auto Attack';
-      const amount = Math.abs(action.effectiveAmount);
+      const amount = action.effectiveAmount;
       const entry = spellMap.get(id) || { id, name, total: 0, hits: 0, crits: 0, maxHit: 0, maxCritHit: 0 };
       entry.total += amount;
+      spellMap.set(id, entry);
+      if (action.isAdjustment) {
+        return;
+      }
       entry.hits += 1;
-      if (action.isCritical) {
+      if ('isCritical' in action.action && action.action.isCritical) {
         entry.crits += 1;
         entry.maxCritHit = Math.max(entry.maxCritHit, amount);
       } else {
         entry.maxHit = Math.max(entry.maxHit, amount);
       }
-      spellMap.set(id, entry);
     });
-  return Array.from(spellMap.values()).sort((a, b) => b.total - a.total);
+  return Array.from(spellMap.values())
+    .filter((s) => s.total > 0)
+    .sort((a, b) => b.total - a.total);
 };
 
 export const CombatPerformance = () => {
-  const { combat, players, activePlayerId } = useCombatReportContext();
+  const { combat, players, activePlayerId, showAugmented } = useCombatReportContext();
   const [activeMode, setActiveMode] = useState<'damage' | 'taken' | 'healing'>('damage');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [selectedTargetId, setSelectedTargetId] = useState<string>('all');
@@ -91,15 +97,15 @@ export const CombatPerformance = () => {
   }, [activePlayer]);
 
   const actionsForMode = useMemo(() => {
-    if (!activePlayer) return [];
-    const rawActions =
+    if (!activePlayer || !combat) return [];
+    const credits =
       activeMode === 'damage'
-        ? activePlayer.damageOut
+        ? getCreditedDamage(activePlayer, showAugmented)
         : activeMode === 'taken'
-          ? activePlayer.damageIn
-          : activePlayer.healOut;
-    return rawActions.filter(isHpUpdateAction);
-  }, [activePlayer, activeMode]);
+          ? getCreditedDamageTaken(activePlayer, combat.units, showAugmented)
+          : getCreditedHeals(activePlayer, showAugmented);
+    return credits.filter(isHit);
+  }, [activePlayer, activeMode, combat, showAugmented]);
 
   const filteredActions = useMemo(() => {
     if (!combat) return [];
@@ -126,7 +132,7 @@ export const CombatPerformance = () => {
   const chartData = useMemo<({ timeMark: number } & Record<string, number>)[]>(() => {
     if (!combat || !activePlayer) return [];
 
-    const eventsBySpell = new Map<string, CombatHpUpdateAction[]>();
+    const eventsBySpell = new Map<string, IOutputCredit[]>();
     filteredActions
       .filter((a) => a.effectiveAmount !== 0)
       .forEach((action) => {
@@ -139,7 +145,7 @@ export const CombatPerformance = () => {
 
     const activeTopSpells = selectedSpellId === 'all' ? topSpellStats : spellStats.slice(0, 1);
     const topSpellIds = new Set(activeTopSpells.map((s) => s.id));
-    const otherEvents: CombatHpUpdateAction[] = [];
+    const otherEvents: IOutputCredit[] = [];
     if (selectedSpellId === 'all') {
       eventsBySpell.forEach((events, key) => {
         if (!topSpellIds.has(key)) {
@@ -155,10 +161,10 @@ export const CombatPerformance = () => {
     ).map((timeMark) => {
       const row: { timeMark: number } & Record<string, number> = { timeMark };
       activeTopSpells.forEach((spell) => {
-        row[spell.id] = getDataPoint(timeMark, combat.startTime, eventsBySpell.get(spell.id) || []);
+        row[spell.id] = getDataPoint(timeMark, combat.startTime, eventsBySpell.get(spell.id) || [], creditedAmount);
       });
       if (selectedSpellId === 'all' && otherEvents.length) {
-        row.other = getDataPoint(timeMark, combat.startTime, otherEvents);
+        row.other = getDataPoint(timeMark, combat.startTime, otherEvents, creditedAmount);
       }
       return row;
     });
@@ -336,7 +342,10 @@ export const CombatPerformance = () => {
               </option>
             ))}
           </select>
-          <div className="ml-auto text-xs opacity-70">Interval: {CHART_TIME_INTERVAL_S}s</div>
+          <div className="ml-auto flex items-center gap-2">
+            <AugmentedToggle />
+            <div className="text-xs opacity-70">Interval: {CHART_TIME_INTERVAL_S}s</div>
+          </div>
         </div>
 
         <div className="mt-3 rounded-box border border-base-300 bg-base-200 p-3">

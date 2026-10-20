@@ -193,7 +193,13 @@ export class BattlegroundData extends CombatGenerator {
 
         owner.absorbsOut = owner.absorbsOut.concat(unit.absorbsOut).sort((a, b) => a.timestamp - b.timestamp);
 
+        owner.supportAbsorbIn = owner.supportAbsorbIn
+          .concat(unit.supportAbsorbIn)
+          .sort((a, b) => a.timestamp - b.timestamp);
+
         owner.healOut = owner.healOut.concat(unit.healOut).sort((a, b) => a.timestamp - b.timestamp);
+
+        owner.supportHealIn = owner.supportHealIn.concat(unit.supportHealIn).sort((a, b) => a.timestamp - b.timestamp);
 
         owner.actionOut = owner.actionOut.concat(unit.actionOut).sort((a, b) => a.timestamp - b.timestamp);
       }

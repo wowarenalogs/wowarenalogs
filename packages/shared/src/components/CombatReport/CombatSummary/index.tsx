@@ -1,6 +1,7 @@
 import { CombatResult } from '@wowarenalogs/parser';
 import _ from 'lodash';
 
+import { AugmentedToggle } from '../AugmentedToggle';
 import { useCombatReportContext } from '../CombatReportContext';
 import { CombatUnitName } from '../CombatUnitName';
 import { CombatUnitTimelineView } from '../CombatUnitTimelineView';
@@ -56,9 +57,12 @@ export const CombatSummary = () => {
               <thead>
                 <tr>
                   <th className="bg-base-300">
-                    <div className="flex flex-row">
+                    <div className="flex flex-row items-center">
                       <span className="mr-2">First Blood</span>
                       <CombatUnitName unit={allPlayerDeath[0].unit} noEllipsis navigateToPlayerView />
+                      <div className="ml-auto">
+                        <AugmentedToggle />
+                      </div>
                     </div>
                   </th>
                 </tr>
@@ -70,6 +74,7 @@ export const CombatSummary = () => {
                       unit={allPlayerDeath[0].unit}
                       startTime={allPlayerDeath[0].deathRecord.timestamp - 20 * 1000}
                       endTime={allPlayerDeath[0].deathRecord.timestamp}
+                      hideAugmentedToggle
                     />
                   </td>
                 </tr>

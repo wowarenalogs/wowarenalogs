@@ -3,6 +3,7 @@ import { map } from 'rxjs/operators';
 import { ArenaMatchEnd } from '../../actions/ArenaMatchEnd';
 import { ArenaMatchStart } from '../../actions/ArenaMatchStart';
 import { CombatAbsorbAction } from '../../actions/CombatAbsorbAction';
+import { CombatAbsorbSupportAction } from '../../actions/CombatAbsorbSupportAction';
 import { CombatAction } from '../../actions/CombatAction';
 import { CombatAdvancedAction } from '../../actions/CombatAdvancedAction';
 import { CombatantInfoAction } from '../../actions/CombatantInfoAction';
@@ -48,6 +49,8 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
         case LogEvent.SPELL_ABSORBED:
         case LogEvent.SPELL_HEAL_ABSORBED:
           return new CombatAbsorbAction(logLine, wowVersion);
+        case LogEvent.SPELL_ABSORBED_SUPPORT:
+          return new CombatAbsorbSupportAction(logLine, wowVersion);
         case LogEvent.SPELL_AURA_BROKEN_SPELL:
           return new SpellAuraBrokenSpell(logLine, wowVersion);
         case LogEvent.SPELL_AURA_APPLIED:
@@ -60,6 +63,9 @@ export const logLineToCombatEvent = (wowVersion: WowVersion) => {
         case LogEvent.UNIT_DIED:
         case LogEvent.SPELL_CAST_START:
         case LogEvent.SPELL_CAST_FAILED:
+        case LogEvent.SPELL_EMPOWER_START:
+        case LogEvent.SPELL_EMPOWER_END:
+        case LogEvent.SPELL_EMPOWER_INTERRUPT:
         case LogEvent.SPELL_SUMMON:
         case LogEvent.SWING_MISSED:
         case LogEvent.SPELL_MISSED:

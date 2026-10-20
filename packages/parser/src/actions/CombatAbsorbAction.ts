@@ -4,7 +4,9 @@ import { CombatAction } from './CombatAction';
 
 export class CombatAbsorbAction extends CombatAction {
   public static supports(logLine: ILogLine): boolean {
-    return super.supports(logLine) && logLine.event.endsWith('_ABSORBED');
+    return (
+      super.supports(logLine) && (logLine.event.endsWith('_ABSORBED') || logLine.event === 'SPELL_ABSORBED_SUPPORT')
+    );
   }
 
   public readonly absorbedAmount: number;
