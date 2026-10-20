@@ -107,8 +107,8 @@ delivery is logged as a warning on our side.
   // --- shuffle only, added in version 2 ---
   "rounds": [                         // 6 entries, sequenceNumber 0..5
     {
-      "id": "string",                 // round content hash (rounds[5].id === top-level id)
       "sequenceNumber": 0,            // 0..5
+      "link": "string",               // deep link to this round's match page (same hashed id as top-level `link`)
       "startTimestamp": 0,            // epoch ms (NOTE: not "startTime")
       "endTimestamp": 0,              // epoch ms (NOTE: not "endTime")
       "durationInSeconds": 0,

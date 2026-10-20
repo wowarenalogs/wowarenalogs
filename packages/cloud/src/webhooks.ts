@@ -77,8 +77,8 @@ export type WebhookRoundCombatant = {
 };
 
 export type WebhookRound = {
-  id: string;
   sequenceNumber: number;
+  link: string; // deep link to this round's match page; built from the hashed match key, never the raw id
   startTimestamp: number; // round.startTime (ms) — renamed on the way out
   endTimestamp: number; // round.endTime (ms) — renamed on the way out
   durationInSeconds: number;
@@ -301,8 +301,9 @@ export const createWebhookStubFromShuffleMatch = (match: IShuffleMatch): Webhook
     ),
     roundResults: match.rounds.map((r) => r.result),
     rounds: match.rounds.map((round) => ({
-      id: round.id,
       sequenceNumber: round.sequenceNumber,
+      // Same hashed-id deep link as the top-level `link[]`, paired with its round for convenience.
+      link: `https://wowarenalogs.com/match?id=${base.id}&viewerIsOwner=false&source=webhook&roundId=${round.sequenceNumber + 1}`,
       startTimestamp: round.startTime,
       endTimestamp: round.endTime,
       durationInSeconds: round.durationInSeconds,
