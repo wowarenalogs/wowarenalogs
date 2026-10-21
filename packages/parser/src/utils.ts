@@ -331,8 +331,8 @@ export function getCreditedAbsorbs(unit: ICombatUnit, augmented = false): IAbsor
   }
   return [
     ...unit.absorbsOut,
-    ...unit.supportAbsorbOut,
-    ...unit.supportAbsorbIn.map((a) => ({
+    ...(unit.supportAbsorbOut ?? []),
+    ...(unit.supportAbsorbIn ?? []).map((a) => ({
       shieldSpellId: a.supportedShieldSpellId ?? a.shieldSpellId,
       shieldSpellName: a.supportedShieldSpellName ?? a.shieldSpellName,
       destUnitId: a.destUnitId,
@@ -410,11 +410,11 @@ function getCreditedOutput(
 }
 
 export function getCreditedDamage(unit: ICombatUnit, augmented = false): IOutputCredit[] {
-  return getCreditedOutput(unit, unit.damageOut, unit.supportDamageIn, unit.supportDamageOut, augmented);
+  return getCreditedOutput(unit, unit.damageOut, unit.supportDamageIn ?? [], unit.supportDamageOut ?? [], augmented);
 }
 
 export function getCreditedHeals(unit: ICombatUnit, augmented = false): IOutputCredit[] {
-  return getCreditedOutput(unit, unit.healOut, unit.supportHealIn, unit.supportHealOut, augmented);
+  return getCreditedOutput(unit, unit.healOut, unit.supportHealIn ?? [], unit.supportHealOut ?? [], augmented);
 }
 
 function getCreditedInput(
@@ -447,7 +447,7 @@ export function getCreditedDamageTaken(
   units: { [unitId: string]: ICombatUnit },
   augmented = false,
 ): IOutputCredit[] {
-  return getCreditedInput(unit, units, unit.damageIn, (u) => u.supportDamageOut, augmented);
+  return getCreditedInput(unit, units, unit.damageIn, (u) => u.supportDamageOut ?? [], augmented);
 }
 
 export function getCreditedHealsTaken(
@@ -455,7 +455,7 @@ export function getCreditedHealsTaken(
   units: { [unitId: string]: ICombatUnit },
   augmented = false,
 ): IOutputCredit[] {
-  return getCreditedInput(unit, units, unit.healIn, (u) => u.supportHealOut, augmented);
+  return getCreditedInput(unit, units, unit.healIn, (u) => u.supportHealOut ?? [], augmented);
 }
 
 export function getEffectiveHps(units: ICombatUnit[], effectiveDuration: number) {
