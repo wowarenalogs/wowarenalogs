@@ -200,7 +200,8 @@ export const CombatReportContextProvider = (props: IProps) => {
       }, 0);
       const totalSupportHeal = showAugmented
         ? 0
-        : _.sumBy(p.supportHealOut, (a) => a.effectiveAmount) - _.sumBy(p.supportHealIn, (a) => a.effectiveAmount);
+        : _.sumBy(p.supportHealOut ?? [], (a) => a.effectiveAmount) -
+          _.sumBy(p.supportHealIn ?? [], (a) => a.effectiveAmount);
       mPlayerTotalHealOut.set(p.id, totalHealOut + totalPrevented + totalSupportHeal);
 
       mMaxOutputNumber = Math.max(mMaxOutputNumber, totalDamageOut, totalHealOut);
@@ -228,7 +229,7 @@ export const CombatReportContextProvider = (props: IProps) => {
   const hasAugmentation = useMemo(
     () =>
       Object.values(props.combat.units).some(
-        (u) => u.supportDamageOut.length || u.supportHealOut.length || u.supportAbsorbOut.length,
+        (u) => u.supportDamageOut?.length || u.supportHealOut?.length || u.supportAbsorbOut?.length,
       ),
     [props.combat],
   );
