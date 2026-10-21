@@ -1,5 +1,6 @@
 'use client';
 
+import * as Sentry from '@sentry/react';
 import {
   ClientContextProvider,
   getAnalyticsDeviceId,
@@ -15,6 +16,7 @@ import { ReactNode, useEffect } from 'react';
 import { useAppConfig } from '../../hooks/AppConfigContext';
 import { LocalCombatsContextProvider } from '../../hooks/LocalCombatsContext';
 import { VideoRecordingContextProvider } from '../../hooks/VideoRecordingContext';
+import { initSentry } from '../../utils/sentry';
 import TitleBar from '../TitleBar';
 
 function getAbsoluteAuthUrl(authUrl: string): string {
@@ -37,20 +39,13 @@ export const DesktopLayout = !window.wowarenalogs
 
       useEffect(() => {
         initAnalyticsAsync('G-Z6E8QS4ENW', '650475e4b06ebfb536489356d27b60f8').then(() => {
-          import('@sentry/react').then((Sentry) => {
-            Sentry.init({
-              dsn: 'https://a076d3d635b64882b87cd3df9b018071@o516205.ingest.sentry.io/5622355',
-              tracesSampleRate: 1.0,
-              ignoreErrors: ['Non-Error promise rejection captured'],
-              release: process.env.NEXT_PUBLIC_COMMIT_SHA,
+          initSentry();
+          const userId = getAnalyticsDeviceId();
+          if (userId) {
+            Sentry.setUser({
+              id: userId,
             });
-            const userId = getAnalyticsDeviceId();
-            if (userId) {
-              Sentry.setUser({
-                id: userId,
-              });
-            }
-          });
+          }
         });
       }, []);
 
