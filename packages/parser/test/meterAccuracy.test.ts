@@ -21,12 +21,17 @@ const ghoul = 'Creature-0-3133-2547-158047-237409-0000D57C61';
 const varlom = 'Player-3676-0E6727DD';
 
 describe('meter accuracy', () => {
-  it('counts a swing logged from both sides once', () => {
-    const combat = readLines([
-      '10/18/2026 20:12:07.508-6  SWING_DAMAGE,Creature-0-3133-2547-158047-237409-0000D57C61,"Lesser Ghoul",0x2112,0x80000000,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,Creature-0-3133-2547-158047-237409-0000D57C61,Player-60-0FF7AC07,454541,507910,1395,1396,2366,0,0,0,3,39,100,0,237.18,252.45,0,1.8715,338,583,1267,-1,1,0,0,311,nil,nil,nil',
-      '10/18/2026 20:12:07.509-6  SWING_DAMAGE_LANDED,Creature-0-3133-2547-158047-237409-0000D57C61,"Lesser Ghoul",0x2112,0x80000000,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,Player-3676-0E6727DD,0000000000000000,513853,1279832,466,5186,2238,3994,0,0,0,246685,250000,0,238.29,253.29,0,5.5529,343,850,1267,-1,1,0,0,44,nil,nil,nil',
-    ]);
-    expect(combat.units[ghoul].damageOut.map((a) => a.effectiveAmount)).toEqual([-583]);
+  const attackerSwing =
+    '10/18/2026 20:12:07.508-6  SWING_DAMAGE,Creature-0-3133-2547-158047-237409-0000D57C61,"Lesser Ghoul",0x2112,0x80000000,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,Creature-0-3133-2547-158047-237409-0000D57C61,Player-60-0FF7AC07,454541,507910,1395,1396,2366,0,0,0,3,39,100,0,237.18,252.45,0,1.8715,338,583,1267,-1,1,0,0,311,nil,nil,nil';
+  const victimSwing =
+    '10/18/2026 20:12:07.509-6  SWING_DAMAGE_LANDED,Creature-0-3133-2547-158047-237409-0000D57C61,"Lesser Ghoul",0x2112,0x80000000,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,Player-3676-0E6727DD,0000000000000000,513853,1279832,466,5186,2238,3994,0,0,0,246685,250000,0,238.29,253.29,0,5.5529,343,850,1267,-1,1,0,0,44,nil,nil,nil';
+
+  it.each([
+    ['attacker side first', [attackerSwing, victimSwing]],
+    ['victim side first', [victimSwing, attackerSwing]],
+  ])('counts a swing logged from both sides once, %s', (_, lines) => {
+    const combat = readLines(lines);
+    expect(combat.units[ghoul].damageOut.map((a) => a.effectiveAmount)).toEqual([-850]);
     expect(combat.units[varlom].damageIn).toHaveLength(1);
     expect(combat.events).toHaveLength(1);
   });
@@ -73,5 +78,15 @@ describe('meter accuracy', () => {
     ]);
     expect(combat.units[varlom].absorbsOut).toEqual([]);
     expect(combat.units[dk].damageOut).toEqual([]);
+  });
+
+  it('pairs absorb support with its own shield, not the last absorb', () => {
+    const combat = readLines([
+      '10/18/2026 20:11:51.400-6  SPELL_AURA_APPLIED,Player-60-0EFF479D,"Teritwo-Stormrage-US",0x512,0x80000000,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,413984,"Shifting Sands",0x40,BUFF',
+      '10/18/2026 20:11:51.462-6  SPELL_ABSORBED,Player-57-0DB04FB9,"Meowycat-Illidan-US",0x548,0x80000000,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,198030,"Eye Beam",0x7c,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,108366,"Soul Leech",0x20,9862,13534,nil',
+      '10/18/2026 20:11:51.462-6  SPELL_ABSORBED,Player-60-0FF7AC07,"Grippydengo-Stormrage-US",0x512,0x80000040,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,191587,"Virulent Plague",0x20,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,386124,"Fel Armor",0x20,1000,3586,nil',
+      '10/18/2026 20:11:51.462-6  SPELL_ABSORBED_SUPPORT,Player-57-0DB04FB9,"Meowycat-Illidan-US",0x548,0x80000000,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,198030,"Eye Beam",0x7c,Player-3676-0E6727DD,"Varlom-Area52-US",0x10548,0x80000000,413984,"Shifting Sands",0x40,392,538,nil,Player-60-0EFF479D',
+    ]);
+    expect(combat.units[varlom].supportAbsorbIn.map((a) => a.supportedShieldSpellId)).toEqual(['108366']);
   });
 });

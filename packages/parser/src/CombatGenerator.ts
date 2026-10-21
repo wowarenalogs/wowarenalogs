@@ -41,8 +41,9 @@ export class CombatGenerator {
 
   protected combatantMetadata: Map<string, ICombatantMetadata> = new Map<string, ICombatantMetadata>();
 
-  private recentSwings = new Map<string, number[]>();
-  private lastAbsorb: CombatAbsorbAction | null = null;
+  private pendingSwings = new Map<string, CombatHpUpdateAction[]>();
+  private lastSwingSweep = 0;
+  private recentAbsorbs: CombatAbsorbAction[] = [];
 
   protected inferredCombatantIds: Set<string> = new Set<string>();
 
@@ -51,24 +52,61 @@ export class CombatGenerator {
     public readonly timezone: string,
   ) {}
 
-  // Melee is logged from both sides, but many pet swings only from the victim's
+  // Melee is logged from both sides, but many pet swings only from the victim's; keep the victim's copy
   protected isSwingTwin(event: CombatAction) {
-    const landed = event.logLine.event === LogEvent.SWING_DAMAGE_LANDED;
-    if (!landed && event.logLine.event !== LogEvent.SWING_DAMAGE) {
+    const type = event.logLine.event;
+    if (type !== LogEvent.SWING_DAMAGE && type !== LogEvent.SWING_DAMAGE_LANDED) {
       return false;
     }
-    const baseAmount = event.logLine.parameters[26 + (this.wowVersion === 'retail' ? 2 : -1)];
-    const key = `${event.srcUnitId}|${event.destUnitId}|${baseAmount}`;
-    const seen = this.recentSwings.get(key) ?? [];
-    this.recentSwings.set(key, seen);
-    if (!landed) {
-      seen.push(event.timestamp);
+    this.sweepSwings(event.timestamp);
+    const swing = event as CombatHpUpdateAction;
+    const baseAmount = swing.logLine.parameters[26 + (this.wowVersion === 'retail' ? 2 : -1)];
+    const key = `${swing.srcUnitId}|${swing.destUnitId}|${baseAmount}`;
+    const pending = this.pendingSwings.get(key) ?? [];
+    const twinIndex = pending.findIndex(
+      (p) => p.logLine.event !== type && swing.timestamp - p.timestamp <= SWING_TWIN_WINDOW_MS,
+    );
+    if (twinIndex < 0) {
+      pending.push(swing);
+      this.pendingSwings.set(key, pending);
       return false;
     }
-    while (seen.length && event.timestamp - seen[0] > SWING_TWIN_WINDOW_MS) {
-      seen.shift();
+    const [twin] = pending.splice(twinIndex, 1);
+    if (!pending.length) {
+      this.pendingSwings.delete(key);
     }
-    return seen.shift() !== undefined;
+    if (type === LogEvent.SWING_DAMAGE) {
+      return true;
+    }
+    this.removeSwing(twin);
+    return false;
+  }
+
+  private sweepSwings(timestamp: number) {
+    if (timestamp - this.lastSwingSweep < SWING_TWIN_WINDOW_MS) {
+      return;
+    }
+    this.lastSwingSweep = timestamp;
+    this.pendingSwings.forEach((pending, key) => {
+      while (pending.length && timestamp - pending[0].timestamp > SWING_TWIN_WINDOW_MS) {
+        pending.shift();
+      }
+      if (!pending.length) {
+        this.pendingSwings.delete(key);
+      }
+    });
+  }
+
+  private removeSwing(swing: CombatHpUpdateAction) {
+    const remove = (actions: CombatAction[] | undefined) => {
+      const i = actions?.lastIndexOf(swing) ?? -1;
+      if (i >= 0) {
+        actions?.splice(i, 1);
+      }
+    };
+    remove(this.events);
+    remove(this.units[swing.srcUnitId]?.damageOut);
+    remove(this.units[swing.destUnitId]?.damageIn);
   }
 
   protected registerCombatant(id: string, combatantMetadata: ICombatantMetadata) {
@@ -109,22 +147,22 @@ export class CombatGenerator {
     }
   }
 
-  private pairAbsorbSupport(shieldOwner: CombatUnit, supportAction: CombatAbsorbSupportAction) {
-    for (let i = shieldOwner.absorbsOut.length - 1; i >= 0; i--) {
-      const absorb = shieldOwner.absorbsOut[i];
+  private findSupportedAbsorb(supportAction: CombatAbsorbSupportAction) {
+    for (let i = this.recentAbsorbs.length - 1; i >= 0; i--) {
+      const absorb = this.recentAbsorbs[i];
       if (absorb.timestamp < supportAction.timestamp - SUPPORT_PAIRING_WINDOW_MS) {
-        return;
+        return null;
       }
       if (
         absorb.srcUnitId === supportAction.srcUnitId &&
         absorb.destUnitId === supportAction.destUnitId &&
-        absorb.spellId === supportAction.spellId
+        absorb.spellId === supportAction.spellId &&
+        absorb.shieldOwnerUnitId === supportAction.shieldOwnerUnitId
       ) {
-        supportAction.supportedShieldSpellId = absorb.shieldSpellId;
-        supportAction.supportedShieldSpellName = absorb.shieldSpellName;
-        return;
+        return absorb;
       }
     }
+    return null;
   }
 
   protected parseEvent(srcUnit: CombatUnit, destUnit: CombatUnit, event: CombatAction | PartyKill) {
@@ -187,7 +225,13 @@ export class CombatGenerator {
             );
           }
           const shieldOwner = this.units[absorbAction.shieldOwnerUnitId];
-          this.lastAbsorb = absorbAction;
+          while (
+            this.recentAbsorbs.length &&
+            this.recentAbsorbs[0].timestamp < absorbAction.timestamp - SUPPORT_PAIRING_WINDOW_MS
+          ) {
+            this.recentAbsorbs.shift();
+          }
+          this.recentAbsorbs.push(absorbAction);
           if (!DELAYED_DAMAGE_ABSORBS.has(absorbAction.shieldSpellId)) {
             shieldOwner.absorbsOut.push(absorbAction);
           }
@@ -206,15 +250,16 @@ export class CombatGenerator {
           if (!shieldOwner || !supporter || supporter.id === shieldOwner.id) {
             break;
           }
+          const absorb = this.findSupportedAbsorb(supportAction);
           // The shield this supports isn't counted, so there's nothing to share
-          if (
-            this.lastAbsorb?.shieldOwnerUnitId === shieldOwner.id &&
-            DELAYED_DAMAGE_ABSORBS.has(this.lastAbsorb.shieldSpellId)
-          ) {
+          if (absorb && DELAYED_DAMAGE_ABSORBS.has(absorb.shieldSpellId)) {
             break;
           }
+          if (absorb) {
+            supportAction.supportedShieldSpellId = absorb.shieldSpellId;
+            supportAction.supportedShieldSpellName = absorb.shieldSpellName;
+          }
 
-          this.pairAbsorbSupport(shieldOwner, supportAction);
           shieldOwner.supportAbsorbIn.push(supportAction);
           supporter.supportAbsorbOut.push(supportAction);
         }
