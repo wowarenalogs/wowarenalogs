@@ -6,6 +6,9 @@ import {
   getCreditedAbsorbs,
   getCreditedDamage,
   getCreditedDamageTaken,
+  getCreditedHeals,
+  getCreditedHealsTaken,
+  ICombatUnit,
 } from '../src';
 import { CombatAction } from '../src/actions/CombatAction';
 import { CombatGenerator } from '../src/CombatGenerator';
@@ -265,6 +268,33 @@ describe('augmentation evoker events', () => {
       );
       expect(evoker.supportAbsorbOut).toEqual([]);
       expect(evoker.supportAbsorbIn).toEqual([]);
+    });
+  });
+
+  describe('units missing support arrays (old parser over IPC)', () => {
+    // A desktop client whose native executable predates the augmentation work loads
+    // the updated webview and hands the renderer CombatUnit-shaped plain objects over
+    // IPC with no support* arrays at all. The credit helpers must tolerate that rather
+    // than throwing "Cannot read properties of undefined (reading 'map')" on the
+    // default combat-report render.
+    const legacyUnit = {
+      id: 'Player-1',
+      name: 'Legacy',
+      damageOut: [],
+      healOut: [],
+      absorbsOut: [],
+      damageIn: [],
+      healIn: [],
+    } as unknown as ICombatUnit;
+    const units = { [legacyUnit.id]: legacyUnit };
+
+    it('does not throw and returns only base (non-support) credits', () => {
+      expect(() => getCreditedAbsorbs(legacyUnit)).not.toThrow();
+      expect(getCreditedAbsorbs(legacyUnit)).toEqual([]);
+      expect(getCreditedDamage(legacyUnit)).toEqual([]);
+      expect(getCreditedHeals(legacyUnit)).toEqual([]);
+      expect(getCreditedDamageTaken(legacyUnit, units)).toEqual([]);
+      expect(getCreditedHealsTaken(legacyUnit, units)).toEqual([]);
     });
   });
 });

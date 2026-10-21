@@ -15,7 +15,7 @@ export const AugmentedToggle = ({ teamOf }: IProps) => {
       Object.values(combat?.units ?? {}).some(
         (u) =>
           u.reaction === teamOf.reaction &&
-          (u.supportDamageOut.length || u.supportHealOut.length || u.supportAbsorbOut.length),
+          (u.supportDamageOut?.length || u.supportHealOut?.length || u.supportAbsorbOut?.length),
       ));
   if (!visible) {
     return null;
