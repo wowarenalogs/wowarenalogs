@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 
 import WebLayout from '../../components/WebLayout';
 import { AppConfigContextProvider } from '../../hooks/AppConfigContext';
+import { initSentry } from '../../utils/sentry';
 
 const DesktopLayout = dynamic(() => import('../../components/DesktopLayout').then((mod) => mod.DesktopLayout), {
   ssr: false,
@@ -55,6 +56,12 @@ export default function MainGroupLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     setIsDesktop(typeof window !== 'undefined' && !!window.wowarenalogs?.app);
+  }, []);
+
+  // Report browser crashes (including those that fall through to global-error.tsx).
+  // Desktop additionally tags the user id after this, in DesktopLayout.
+  useEffect(() => {
+    initSentry();
   }, []);
 
   if (isDesktop) {
