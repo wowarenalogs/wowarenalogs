@@ -391,7 +391,8 @@ function getCreditedOutput(
   if (augmented) {
     return own;
   }
-  const shareOf = (a: CombatSupportAction) => Math.abs(a.effectiveAmount) + a.effectiveAbsorbedAmount;
+  // Old parsers over IPC don't send effectiveAbsorbedAmount
+  const shareOf = (a: CombatSupportAction) => Math.abs(a.effectiveAmount) + (a.effectiveAbsorbedAmount ?? 0);
   supportIn = supportIn.filter((a) => shareOf(a) !== 0);
   supportOut = supportOut.filter((a) => shareOf(a) !== 0);
   return [

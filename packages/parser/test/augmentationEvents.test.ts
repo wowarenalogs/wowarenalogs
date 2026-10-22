@@ -296,5 +296,11 @@ describe('augmentation evoker events', () => {
       expect(getCreditedDamageTaken(legacyUnit, units)).toEqual([]);
       expect(getCreditedHealsTaken(legacyUnit, units)).toEqual([]);
     });
+
+    it('does not produce NaN for support actions missing effectiveAbsorbedAmount', () => {
+      const supportIn = { effectiveAmount: -100, supportedSpell: null } as unknown as CombatSupportAction;
+      const unit = { ...legacyUnit, supportDamageIn: [supportIn], supportDamageOut: [] } as unknown as ICombatUnit;
+      expect(getCreditedDamage(unit).map((c) => c.effectiveAmount)).toEqual([-100]);
+    });
   });
 });
