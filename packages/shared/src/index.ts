@@ -4,6 +4,7 @@ export { MainLayout } from './components/MainLayout';
 export { ClientContextProvider, useClientContext } from './hooks/ClientContext';
 export { AuthProvider } from './hooks/AuthContext';
 export { useAuth } from './hooks/AuthContext';
+export type { IUploadableCombat } from './utils/upload';
 export { uploadCombatAsync } from './utils/upload';
 export { canUseFeature, features } from './utils/featureFlags';
 export {

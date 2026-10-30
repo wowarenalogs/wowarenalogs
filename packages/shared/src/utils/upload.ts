@@ -1,9 +1,18 @@
 /* eslint-disable no-console */
-import { IArenaMatch, IShuffleMatch } from '@wowarenalogs/parser';
+import { WowVersion } from '@wowarenalogs/parser';
 import moment from 'moment-timezone';
 
+// Only what the upload needs, so a pending upload doesn't keep the whole parsed combat alive.
+export interface IUploadableCombat {
+  id: string;
+  dataType: string;
+  wowVersion: WowVersion;
+  startTime: number;
+  rawLines: string[];
+}
+
 export async function uploadCombatAsync(
-  combat: IArenaMatch | IShuffleMatch,
+  combat: IUploadableCombat,
   ownerId: string,
   options?: {
     patchRevision?: string;
@@ -11,8 +20,7 @@ export async function uploadCombatAsync(
 ) {
   console.log('Starting compressed upload...');
 
-  // Create iterator for all lines
-  const allLines = combat.dataType === 'ArenaMatch' ? combat.rawLines : combat.rounds.flatMap((c) => c.rawLines);
+  const allLines = combat.rawLines;
 
   console.log(`Streaming ${combat.dataType} with ${allLines.length} lines directly to compression`);
 
