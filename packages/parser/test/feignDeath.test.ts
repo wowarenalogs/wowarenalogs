@@ -19,9 +19,7 @@ describe('parsing a log with conscious death', () => {
   it('should return a single match', () => {
     expect(results.combats).toHaveLength(1);
 
-    // TODO: DAMAGE_SPLIT isnt parsed yet
-    // SWING_DAMAGE_LANDED is not parsed intentionally
-    expect(results.combats[0].linesNotParsedCount).toBe(42);
+    expect(results.combats[0].linesNotParsedCount).toBe(0);
   });
 
   it('should have correct conscious death data', () => {

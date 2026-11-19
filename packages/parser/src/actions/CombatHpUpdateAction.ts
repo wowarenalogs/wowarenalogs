@@ -25,7 +25,7 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
 
     const wowVersionOffset = wowVersion === 'retail' ? 2 : -1;
 
-    if (logLine.event === 'SWING_DAMAGE') {
+    if (logLine.event === 'SWING_DAMAGE' || logLine.event === 'SWING_DAMAGE_LANDED') {
       this.amount = -1 * logLine.parameters[25 + wowVersionOffset];
       this.isCritical = logLine.parameters[32 + wowVersionOffset] === 1;
 
@@ -46,10 +46,12 @@ export class CombatHpUpdateAction extends CombatAdvancedAction {
     } else {
       this.amount = logLine.parameters[28 + wowVersionOffset];
       const overheal = logLine.parameters[30 + wowVersionOffset] ?? 0;
+      // the part a heal-absorb ate was still healing done
+      const healAbsorbed = logLine.parameters[31 + wowVersionOffset] ?? 0;
       this.isCritical = logLine.parameters[32 + wowVersionOffset] === 1;
 
       if (getUnitType(this.destUnitFlags) === CombatUnitType.Player) {
-        this.effectiveAmount = this.amount - overheal;
+        this.effectiveAmount = this.amount - overheal + healAbsorbed;
       } else {
         this.effectiveAmount = 0;
       }
