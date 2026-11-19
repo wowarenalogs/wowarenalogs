@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { IArenaMatch, IShuffleMatch } from '@wowarenalogs/parser';
 import moment from 'moment-timezone';
 
@@ -9,12 +8,14 @@ export async function uploadCombatAsync(
     patchRevision?: string;
   },
 ) {
-  console.log('Starting compressed upload...');
+  // eslint-disable-next-line no-console
+  console.debug('Starting compressed upload...');
 
   // Create iterator for all lines
   const allLines = combat.dataType === 'ArenaMatch' ? combat.rawLines : combat.rounds.flatMap((c) => c.rawLines);
 
-  console.log(`Streaming ${combat.dataType} with ${allLines.length} lines directly to compression`);
+  // eslint-disable-next-line no-console
+  console.debug(`Streaming ${combat.dataType} with ${allLines.length} lines directly to compression`);
 
   // Stream lines directly without buffering the full text
   const textEncoder = new TextEncoder();
@@ -37,7 +38,8 @@ export async function uploadCombatAsync(
   });
 
   const compressedReadableStream = readBufferStream.pipeThrough(new CompressionStream('gzip'));
-  console.log('Created compressed stream, ready to upload directly');
+  // eslint-disable-next-line no-console
+  console.debug('Created compressed stream, ready to upload directly');
 
   const headers: Record<string, string> = {
     'content-type': 'text/plain;charset=UTF-8',
@@ -57,7 +59,8 @@ export async function uploadCombatAsync(
   const jsonResponse = (await storageSignerResponse.json()) as { id: string; url: string; matchExists: boolean };
   const signedUploadUrl = jsonResponse.url;
 
-  console.log('Starting streaming upload...');
+  // eslint-disable-next-line no-console
+  console.debug('Starting streaming upload...');
   await fetch(signedUploadUrl, {
     duplex: 'half',
     method: 'PUT',
@@ -66,7 +69,8 @@ export async function uploadCombatAsync(
   } as {
     duplex: string; // jank polyfill for the weird typings here. param is required for stream requests.
   } & RequestInit);
-  console.log('Upload complete!');
+  // eslint-disable-next-line no-console
+  console.debug('Upload complete!');
 
   return jsonResponse;
 }
