@@ -57,138 +57,148 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col m-2 gap-4">
-      <div className="flex gap-2 items-center fixed bottom-4 right-4">
-        <button
-          className="btn btn-sm btn-info gap-2"
-          onClick={() => {
-            clientContext.openExternalURL('https://discord.gg/NFTPK9tmJK');
-          }}
-        >
-          <FaDiscord />
-          Join our Discord
-        </button>
-        <button
-          className="btn btn-sm btn-success gap-2"
-          onClick={() => {
-            clientContext.openExternalURL('https://www.patreon.com/armsperson');
-          }}
-        >
-          <FaPatreon />
-          Support us on Patreon
-        </button>
-        {appVersion ? (
-          <table className="rounded-box table table-compact">
-            <thead>
-              <tr>
-                <th className="bg-base-300">Version</th>
-                <td className="bg-base-200">{appVersion}</td>
-                <td>{sentryId}</td>
-              </tr>
-            </thead>
-          </table>
-        ) : null}
-        {sentryId ? (
-          <table className="rounded-box table table-compact">
-            <thead>
-              <tr>
-                <th className="bg-base-300">Session</th>
-                <td className="bg-base-200">{sentryId}</td>
-              </tr>
-            </thead>
-          </table>
-        ) : null}
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className="text-2xl font-bold">Basics</div>
-        <div className="flex flex-row form-control">
-          <label className="label">
-            <input
-              type="checkbox"
-              className="checkbox mr-2"
-              checked={appConfig.launchAtStartup}
-              onChange={(e) => {
-                updateAppConfig((prev) => {
-                  return {
-                    ...prev,
-                    launchAtStartup: e.target.checked,
-                  };
-                });
-              }}
-            />
-            <span className="label-text">Launch WoW Arena Logs when computer starts.</span>
-          </label>
-        </div>
-        <div className="flex flex-row-reverse gap-2">
-          <input
-            type="text"
-            placeholder={`Please locate your ${
-              window.wowarenalogs.platform === 'win32' ? 'WoW.exe' : 'World of Warcraft.app'
-            }`}
-            readOnly
-            className={`input input-sm input-bordered flex-1 ${appConfig.wowDirectory ? '' : 'input-error'}`}
-            value={appConfig.wowDirectory}
-          />
-          <button
-            className="btn btn-sm gap-2"
-            onClick={() => {
-              window.wowarenalogs.fs
-                ?.selectFolder()
-                .then((folder) => {
-                  updateAppConfig((prev) => {
-                    return { ...prev, wowDirectory: folder };
-                  });
-                })
-                .catch(() => {
-                  return;
-                });
-            }}
-          >
-            Set WoW Path
-          </button>
-        </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-row-reverse gap-2">
-          <input
-            type="text"
-            placeholder={`enter feature code here`}
-            className={`input input-sm input-bordered flex-1`}
-            value={featureCode}
-            onChange={(e) => setFeatureCode(e.target.value)}
-          />
-          <button
-            className="btn btn-sm gap-2"
-            onClick={() => {
-              parseCode();
-            }}
-          >
-            Use feature code
-          </button>
-        </div>
-        {activeFlags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {activeFlags.map((flag) => (
-              <span key={flag} className="badge badge-outline gap-1">
-                {flag}
+    <div className="mt-2 overflow-visible overflow-y-auto px-2 pb-20 sm:mt-4 sm:px-4">
+      <div className="flex flex-col gap-4">
+        <div className="rounded-lg bg-base-300 p-4">
+          <div className="text-2xl font-bold mb-3">Basics</div>
+          <div className="flex flex-col gap-3">
+            <div className="form-control">
+              <label className="label gap-2 justify-start items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="checkbox"
+                  checked={appConfig.launchAtStartup}
+                  onChange={(e) => {
+                    updateAppConfig((prev) => {
+                      return {
+                        ...prev,
+                        launchAtStartup: e.target.checked,
+                      };
+                    });
+                  }}
+                />
+                <span className="label-text">Launch WoW Arena Logs when computer starts</span>
+              </label>
+            </div>
+            <div>
+              <div className="text-sm font-semibold mb-1 opacity-70">WoW Installation Path</div>
+              <div className="flex flex-row gap-2">
+                <input
+                  type="text"
+                  placeholder={`Please locate your ${
+                    window.wowarenalogs.platform === 'win32' ? 'WoW.exe' : 'World of Warcraft.app'
+                  }`}
+                  readOnly
+                  className={`input input-sm input-bordered flex-1 ${appConfig.wowDirectory ? '' : 'input-error'}`}
+                  value={appConfig.wowDirectory}
+                />
                 <button
-                  className="text-xs opacity-60 hover:opacity-100"
+                  className="btn btn-sm btn-primary"
                   onClick={() => {
-                    updateAppConfig((prev) => ({
-                      ...prev,
-                      flags: (prev.flags || []).filter((f) => f !== flag),
-                    }));
+                    window.wowarenalogs.fs
+                      ?.selectFolder()
+                      .then((folder) => {
+                        updateAppConfig((prev) => {
+                          return { ...prev, wowDirectory: folder };
+                        });
+                      })
+                      .catch(() => {
+                        return;
+                      });
                   }}
                 >
-                  ✕
+                  Browse
                 </button>
-              </span>
-            ))}
+              </div>
+            </div>
           </div>
-        )}
+        </div>
+
+        <div className="rounded-lg bg-base-300 p-4">
+          <div className="text-2xl font-bold mb-3">Feature Codes</div>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-row gap-2">
+              <input
+                type="text"
+                placeholder="Enter feature code here"
+                className="input input-sm input-bordered flex-1"
+                value={featureCode}
+                onChange={(e) => setFeatureCode(e.target.value)}
+              />
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={() => {
+                  parseCode();
+                }}
+              >
+                Apply
+              </button>
+            </div>
+            {activeFlags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {activeFlags.map((flag) => (
+                  <span key={flag} className="badge badge-outline gap-1">
+                    {flag}
+                    <button
+                      className="text-xs opacity-60 hover:opacity-100"
+                      onClick={() => {
+                        updateAppConfig((prev) => ({
+                          ...prev,
+                          flags: (prev.flags || []).filter((f) => f !== flag),
+                        }));
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {window.wowarenalogs.platform === 'win32' && window.wowarenalogs.obs && <RecordingSettings />}
+
+        <div className="rounded-lg bg-base-300 p-4">
+          <div className="text-2xl font-bold mb-3">About</div>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-row gap-4 flex-wrap">
+              <button
+                className="btn btn-sm btn-info gap-2"
+                onClick={() => {
+                  clientContext.openExternalURL('https://discord.gg/NFTPK9tmJK');
+                }}
+              >
+                <FaDiscord />
+                Join our Discord
+              </button>
+              <button
+                className="btn btn-sm btn-success gap-2"
+                onClick={() => {
+                  clientContext.openExternalURL('https://www.patreon.com/armsperson');
+                }}
+              >
+                <FaPatreon />
+                Support us on Patreon
+              </button>
+            </div>
+            {(appVersion || sentryId) && (
+              <div className="flex flex-col gap-1 text-sm opacity-70">
+                {appVersion && (
+                  <div>
+                    <span className="font-semibold">Version:</span> {appVersion}
+                  </div>
+                )}
+                {sentryId && (
+                  <div>
+                    <span className="font-semibold">Session:</span> {sentryId}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-      <div className="divider" />
-      {window.wowarenalogs.platform === 'win32' && window.wowarenalogs.obs && <RecordingSettings />}
     </div>
   );
 }
